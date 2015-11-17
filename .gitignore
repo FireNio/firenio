@@ -1,0 +1,6 @@
+/baseio/baseio-all-*.jar
+/baseio-homepage/app
+/baseio-homepage/lib/baseio-all*.jar
+/baseio-homepage/logs
+gc.log
+*/gc.log

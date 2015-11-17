@@ -1,0 +1,50 @@
+/*
+ * Copyright 2015 The Baseio Project
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package test.io.udp;
+
+public class TestUDPClient {
+
+    public static void main(String[] args) throws Exception {
+
+        //        DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
+        //
+        //            @Override
+        //            public void accept(DatagramChannel ch, DatagramPacket packet) throws IOException {
+        //                System.out.println(packet.getDataString(Encoding.UTF8));
+        //
+        //            }
+        //        };
+        //
+        //        DatagramChannelContext context = new DatagramChannelContext(
+        //                new ServerConfiguration("localhost", 18500));
+        //
+        //        DatagramChannelConnector connector = new DatagramChannelConnector(context);
+        //
+        //        context.setDatagramPacketAcceptor(acceptor);
+        //
+        //        DatagramChannel ch = connector.connect();
+        //
+        //        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
+        //
+        //        ch.sendPacket(packet);
+        //
+        //        Util.sleep(30);
+        //
+        //        Util.close(connector);
+
+    }
+
+}
