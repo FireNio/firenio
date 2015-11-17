@@ -1,0 +1,8 @@
+/firenio/firenio-all-*.jar
+/firenio-homepage/app
+/firenio-homepage/lib/firenio-all*.jar
+/firenio-homepage/logs
+gc.log
+*/gc.log
+*/.idea
+*/*.iml
