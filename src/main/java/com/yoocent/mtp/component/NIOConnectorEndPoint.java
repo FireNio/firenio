@@ -1,0 +1,109 @@
+package com.yoocent.mtp.component;
+
+import java.io.IOException;
+import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+
+import com.yoocent.mtp.schedule.Job;
+import com.yoocent.mtp.server.InnerEndPoint;
+
+public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
+	
+	private boolean endConnect = false;
+	
+	private MTPRequestInputStream inputStream = null;
+
+	private boolean inSchedule = false;
+	
+	private Job job = null;
+	
+	private MTPParser parser = null;
+	
+	public NIOConnectorEndPoint(SelectionKey selectionKey, SocketChannel channel) throws SocketException {
+		super(selectionKey, channel);
+	}
+
+	public MTPParser genParser(){
+		this.parser = new MTPParser(this);
+		return parser;
+	}
+	
+	public MTPRequestInputStream getInputStream() {
+		return inputStream;
+	}
+	
+	public MTPParser getParser() {
+		return parser;
+	}
+	
+	public boolean inSchedule() {
+		return inSchedule;
+	}
+
+	public boolean inStream() {
+		if (inputStream == null) {
+			return false;
+		}
+		return !inputStream.complete();
+	}
+	
+	public boolean isEndConnect(){
+		return endConnect;
+	}
+	
+	public void pollSchedule(){
+		this.inSchedule = false;
+	}
+	
+	public void pushSchedule() {
+		inSchedule = true;
+		
+	}
+	
+	public byte[] readHead() throws IOException {
+		ByteBuffer buffer = ByteBuffer.allocate(12);
+		int length = this.read(buffer);
+		
+		if (length != 12) {
+			//如果一次读取不到12个byte
+			//这样的连接持续下去也是无法进行业务操作
+			//还有一种情况是有人在恶意攻击服务器
+			this.endConnect = true;
+			return null;
+		}else{
+			byte[] header = buffer.array();
+			return header;
+		}
+		
+//		if (length < 1) {
+//			this.endConnect = true;
+//			return null;
+//		}else{
+//			while(length < 12){
+//				int _length = this.read(buffer);
+//				length += _length;
+//			}
+//			byte[] header = buffer.array();
+//			return header;
+//		}
+		
+	}
+	
+	public Job schedule() {
+		Job _job = this.job;
+		this.job = null;
+		return _job;
+	}
+
+	public void schedule(Job job){
+		this.job = job;
+	}
+
+	public void setMTPRequestInputStream(MTPRequestInputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+	
+	
+}
