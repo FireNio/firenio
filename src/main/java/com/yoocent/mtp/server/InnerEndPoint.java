@@ -8,7 +8,7 @@ import com.yoocent.mtp.schedule.ScheduleAble;
 import com.yoocent.mtp.schedule.ScheduleJob;
 
 public interface InnerEndPoint extends EndPoint ,ScheduleAble, ScheduleJob{
-
+	
 	public abstract MTPRequestInputStream getInputStream();
 	
 	public abstract void setMTPRequestInputStream(MTPRequestInputStream inputStream);
@@ -35,4 +35,5 @@ public interface InnerEndPoint extends EndPoint ,ScheduleAble, ScheduleJob{
 	public abstract boolean inStream();
 	
 	public abstract boolean isEndConnect();
+	
 }

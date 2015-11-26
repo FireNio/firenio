@@ -39,5 +39,5 @@ public interface EndPoint extends Closeable {
     public abstract long write(ByteBuffer[] buffers) throws IOException;
 
     public abstract long write(ByteBuffer[] buffers,int offset,int length) throws IOException;
-	
+    
 }

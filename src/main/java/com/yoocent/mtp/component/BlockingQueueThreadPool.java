@@ -41,7 +41,7 @@ public final class BlockingQueueThreadPool extends AbstractLifeCycle implements 
 
 	protected void doStop() throws Exception {
 		while (jobs.size() > 0) {
-			Thread.sleep(3000);
+			Thread.sleep(64);
 		}
 		synchronized (workers) {
 			for (LifedPoolWorker worker : workers) {
@@ -59,7 +59,7 @@ public final class BlockingQueueThreadPool extends AbstractLifeCycle implements 
 			//free time, ignore job
 			return;
 		}
-		jobs.add(job);
+		jobs.offer(job);
 	}
 
 	private class LifedPoolWorker extends Thread{

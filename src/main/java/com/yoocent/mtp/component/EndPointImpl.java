@@ -154,7 +154,7 @@ public class EndPointImpl implements EndPoint{
 
 	public ByteBuffer completeRead(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
-		int time = limit / 10240;
+		int time = limit / 64;
 		int _time = 0;
 		int length = -1;
 		try {
@@ -172,5 +172,7 @@ public class EndPointImpl implements EndPoint{
 		}
 		return buffer;
 	}
+
+
 	
 }

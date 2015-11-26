@@ -153,11 +153,15 @@ public class MTPServletResponse implements InnerResponse{
 			throw new IOException("response typed");
 		}
 		
+		this.type = RESPONSE_STREAM;
+		
+		this.dataLength = length;
+		
 		ByteBuffer buffer = getByteBufferStream();
 
 		this.typed = true;
-		this.type = RESPONSE_STREAM;
-		this.dataLength = length;
+//		this.type = RESPONSE_STREAM;
+//		this.dataLength = length;
 		this.endPoint.write(buffer);
 	}
 
