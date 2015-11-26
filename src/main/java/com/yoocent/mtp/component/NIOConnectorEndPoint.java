@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import com.yoocent.mtp.schedule.Job;
 import com.yoocent.mtp.server.InnerEndPoint;
 
 public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
@@ -16,8 +15,6 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 	private MTPRequestInputStream inputStream = null;
 
 	private boolean inSchedule = false;
-	
-	private Job job = null;
 	
 	private MTPParser parser = null;
 	
@@ -53,14 +50,7 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 		return endConnect;
 	}
 	
-	public void pollSchedule(){
-		this.inSchedule = false;
-	}
-	
-	public void pushSchedule() {
-		inSchedule = true;
-		
-	}
+
 	
 	public byte[] readHead() throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(12);
@@ -91,15 +81,6 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 		
 	}
 	
-	public Job schedule() {
-		Job _job = this.job;
-		this.job = null;
-		return _job;
-	}
-
-	public void schedule(Job job){
-		this.job = job;
-	}
 
 	public void setMTPRequestInputStream(MTPRequestInputStream inputStream) {
 		this.inputStream = inputStream;

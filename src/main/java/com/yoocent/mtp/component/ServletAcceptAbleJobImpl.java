@@ -3,7 +3,6 @@ package com.yoocent.mtp.component;
 import java.io.IOException;
 
 import com.yoocent.mtp.common.CloseUtil;
-import com.yoocent.mtp.schedule.ScheduleAble;
 import com.yoocent.mtp.server.InnerEndPoint;
 import com.yoocent.mtp.server.InnerRequest;
 import com.yoocent.mtp.server.InnerResponse;
@@ -53,10 +52,6 @@ public class ServletAcceptAbleJobImpl implements ServletAcceptAbleJob{
 	
 	public void accept(Request request, Response response) throws IOException {
 		service.accept(request, response);
-	}
-
-	public ScheduleAble getScheduleAble() {
-		return endPoint;
 	}
 
 	public void doJob() throws IOException {

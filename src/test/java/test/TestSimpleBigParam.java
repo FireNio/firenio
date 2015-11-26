@@ -23,7 +23,7 @@ public class TestSimpleBigParam {
 		client.connect();
 		String temp = "网易科技腾讯科技阿里巴巴";
 		StringBuilder builder = new StringBuilder(temp);
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 400000; i++) {
 			builder.append("\n");
 			builder.append(temp);
 		}

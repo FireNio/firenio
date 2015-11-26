@@ -70,15 +70,11 @@ public class NIOSelectionReader implements SelectionAcceptAble{
 		}
 		
 
-		
-
 		MTPParser parser = endPoint.genParser();
 		
 		parser.parse(context);
 		if (!parser.isParseComplete()) {
-			if (!endPoint.inSchedule()) {
 				CloseUtil.close(endPoint);
-			}
 			return;
 		}
 		

@@ -4,10 +4,8 @@ import java.io.IOException;
 
 import com.yoocent.mtp.component.MTPParser;
 import com.yoocent.mtp.component.MTPRequestInputStream;
-import com.yoocent.mtp.schedule.ScheduleAble;
-import com.yoocent.mtp.schedule.ScheduleJob;
 
-public interface InnerEndPoint extends EndPoint ,ScheduleAble, ScheduleJob{
+public interface InnerEndPoint extends EndPoint{
 
 	public abstract MTPRequestInputStream getInputStream();
 	

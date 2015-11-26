@@ -5,10 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.yoocent.mtp.AbstractLifeCycle;
 import com.yoocent.mtp.schedule.Job;
-import com.yoocent.mtp.schedule.ScheduleAble;
-import com.yoocent.mtp.schedule.ScheduleJob;
 
-public class PoolWorker extends AbstractLifeCycle implements Runnable , ScheduleJob{
+public class PoolWorker extends AbstractLifeCycle implements Runnable {
 	
 	private boolean working = false;
 	
@@ -18,8 +16,6 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 		this.jobs = jobs;
 	}
 	
-	private Job job = null;
-
 	public void run() {
 
 		//OUTER:
@@ -81,13 +77,7 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 		}
 	}
 	
-	public void schedule(Job job) {
-		this.job = job;
-	}
-
-	public Job schedule() {
-		return this.job;
-	}
+	
 
 	
 }

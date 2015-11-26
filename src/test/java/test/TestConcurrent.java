@@ -8,7 +8,6 @@ import com.yoocent.mtp.client.NIOClient;
 import com.yoocent.mtp.client.Response;
 import com.yoocent.mtp.component.BlockingQueueThreadPool;
 import com.yoocent.mtp.schedule.Job;
-import com.yoocent.mtp.schedule.ScheduleAble;
 import com.yoocent.mtp.servlet.test.TestSimpleServlet;
 
 public class TestConcurrent {
@@ -92,11 +91,4 @@ class T implements Job{
 		
 	}
 
-
-	public ScheduleAble getScheduleAble() {
-		return null;
-	}
-	
-	
-	
 }
