@@ -18,6 +18,7 @@ public class ClientUtil {
 		params.put("password", "bbb");
 		return JSONObject.toJSONString(params);
 	}
+
 	
 	public static Map getParamMap(){
 		Map params = new HashMap();
@@ -25,4 +26,5 @@ public class ClientUtil {
 		params.put("password", "bbb");
 		return params;
 	}
+
 }

@@ -59,16 +59,19 @@ public class NIOSelectionReader implements SelectionAcceptAble{
 		InnerEndPoint endPoint = getEndPoint(selectionKey);
 		
 
+
 		
 		if (endPoint.inStream()) {
 			synchronized (endPoint) {
+
 				endPoint.notify();
 				return;
 			}
 		}
 		
+
 		
-		
+
 		MTPParser parser = endPoint.genParser();
 		
 		parser.parse(context);
@@ -89,7 +92,9 @@ public class NIOSelectionReader implements SelectionAcceptAble{
 		InnerResponse response = new MTPServletResponse(endPoint);
 		
 		ServletAcceptAbleJob job = new ServletAcceptAbleJobImpl(service,endPoint, request, response);
+
 		/*
+
 		synchronized (endPoint) {
 			if (endPoint.inSchedule()) {
 				endPoint.schedule(job);
@@ -98,6 +103,7 @@ public class NIOSelectionReader implements SelectionAcceptAble{
 				threadPool.dispatch(job);
 			}
 		}
+
 		*/
 		threadPool.dispatch(job);
 		

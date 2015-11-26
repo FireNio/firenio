@@ -172,7 +172,5 @@ public class EndPointImpl implements EndPoint{
 		}
 		return buffer;
 	}
-
-
 	
 }

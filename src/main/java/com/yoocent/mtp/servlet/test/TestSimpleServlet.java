@@ -10,14 +10,18 @@ public class TestSimpleServlet extends MTPServlet{
 	public static String SERVICE_KEY = TestSimpleServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
+
 		String test = request.getStringParameter("param");
+
 		if (StringUtil.isBlankOrNull(test)) {
 			test = "test";
 		}
 		
 		response.write("$".getBytes());
 		response.write(test.getBytes());
+
 		response.write(request.getSession().getSessionID().getBytes());
+
 		response.write("$".getBytes());
 		response.flush();
 		

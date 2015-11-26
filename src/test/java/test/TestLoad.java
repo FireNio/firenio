@@ -13,11 +13,13 @@ public class TestLoad {
 		NIOClient client = ClientUtil.getClient();
 		String param = ClientUtil.getParamString();
 		long old = System.currentTimeMillis();
+
 		for (int i = 0; i < 3000; i++) {
 			client.connect();
 			client.request(serviceKey, param, timeout);
 			client.close();
 		}
+
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 	}
 }

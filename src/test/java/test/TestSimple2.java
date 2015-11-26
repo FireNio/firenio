@@ -11,7 +11,9 @@ public class TestSimple2 {
 	
 	public static void main(String[] args) throws IOException {
 
+
 		long timeout = 999900000;
+
 		String serviceKey = TestSimple2Servlet.SERVICE_KEY;
 		String param = ClientUtil.getParamString();
 		NIOClient client = ClientUtil.getClient();

@@ -113,10 +113,6 @@ public class MTPRequestInputStream extends InputStream implements RequestInputSt
 			if (_length == limit) {
 				break;
 			}
-			
-			
-			
-			
 			synchronized (endPoint) {
 				try {
 					endPoint.wait();
@@ -124,7 +120,6 @@ public class MTPRequestInputStream extends InputStream implements RequestInputSt
 					e.printStackTrace();
 				}
 			}
-			
 		}
 		this.position += limit;
 		return buffer.array();

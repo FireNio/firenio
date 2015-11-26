@@ -21,6 +21,7 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 	private Job job = null;
 
 	public void run() {
+
 		//OUTER:
 		while (isRunning()) {
 			try {
@@ -35,6 +36,7 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 						continue;
 					}
 					
+
 					synchronized (schedule) {
 						job = schedule.schedule();
 						if (job == null) {
@@ -54,9 +56,11 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 							}
 						}
 					}
+
 					*/
 				}
 				
+
 				working = false;
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
@@ -71,7 +75,9 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable , Schedule
 
 	protected void doStop() throws Exception {
 		while(working){
+
 			Thread.sleep(8);
+
 		}
 	}
 	

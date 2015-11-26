@@ -16,7 +16,9 @@ public class TestDownloadServlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 		
+
 		File file = new File("upload-temp.zip");
+
 		FileInputStream inputStream = new FileInputStream(file);
 		response.setStreamResponse(inputStream.available());
 		byte [] bytes = new byte[BLOCK];
