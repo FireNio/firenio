@@ -22,12 +22,21 @@ public class BufferedOutputStream extends OutputStream{
         buf = new byte[size];
     }
 
+    /**
+     * writeByte instead
+     */
+    @Deprecated
     public void write(int b) {
-		int newcount = count + 1;
+		this.writeByte((byte)b);
+    }
+    
+    public void writeByte(byte b){
+    	
+    	int newcount = count + 1;
 		if (newcount > buf.length) {
 	            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
 		}
-		buf[count] = (byte)b;
+		buf[count] = b;
 		count = newcount;
     }
     

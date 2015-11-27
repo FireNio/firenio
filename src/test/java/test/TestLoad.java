@@ -14,11 +14,11 @@ public class TestLoad {
 		String param = ClientUtil.getParamString();
 		long old = System.currentTimeMillis();
 
-		for (int i = 0; i < 3000; i++) {
-			client.connect();
+		client.connect();
+		for (int i = 0; i < 10000; i++) {
 			client.request(serviceKey, param, timeout);
-			client.close();
 		}
+		client.close();
 
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 	}

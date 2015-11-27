@@ -6,6 +6,15 @@ public interface Response {
 
 	public abstract void flush() throws IOException;
 	
+	
+	/**
+	 * write " " to client
+	 * @throws IOException
+	 */
+	public abstract void flushEmpty() throws IOException;
+	
+	public abstract void write(byte b) throws IOException;
+	
 	public abstract void write(String content);
 	
 	public abstract void write(String content,String encoding);

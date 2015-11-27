@@ -62,6 +62,15 @@ public class MTPServletResponse implements InnerResponse{
 			this.flushStream();
 		}
 	}
+	
+
+	private static byte emptyByte = ' ';
+	
+	public void flushEmpty() throws IOException {
+		this.response.writeByte(emptyByte);
+		this.flush();
+		
+	}
 
 	private void flushStream() throws IOException{
 		
@@ -165,6 +174,13 @@ public class MTPServletResponse implements InnerResponse{
 //		this.dataLength = length;
 
 		this.endPoint.write(buffer);
+	}
+	
+	
+
+	public void write(byte b) throws IOException {
+		this.response.writeByte(b);
+		
 	}
 
 	public void write(byte[] bytes) {
