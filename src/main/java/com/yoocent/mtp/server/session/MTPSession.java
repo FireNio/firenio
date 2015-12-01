@@ -1,6 +1,7 @@
 package com.yoocent.mtp.server.session;
 
 import com.yoocent.mtp.component.AttributesImpl;
+import com.yoocent.mtp.server.InnerEndPoint;
 import com.yoocent.mtp.server.context.ServletContext;
 
 public class MTPSession extends AttributesImpl implements Session{
@@ -10,13 +11,16 @@ public class MTPSession extends AttributesImpl implements Session{
 	private ServletContext context = null;
 
 	private String id = null;
+	
+	private InnerEndPoint endPoint = null;
 
 	private long lastuse = System.currentTimeMillis();
 
 	private long maxInactiveInterval = 30 * 60 * 1000;
 
-	public MTPSession(ServletContext context,String sessionID) {
+	public MTPSession(ServletContext context,InnerEndPoint endPoint,String sessionID) {
 		this.context = context;
+		this.endPoint = endPoint;
 		this.id = sessionID;
 	}
 
@@ -45,11 +49,15 @@ public class MTPSession extends AttributesImpl implements Session{
 	}
 
 	public boolean isValid() {
-		return System.currentTimeMillis() - lastuse < maxInactiveInterval;
+		return !endPoint.isEndConnect() || System.currentTimeMillis() - lastuse < maxInactiveInterval  ;
 	}
 
 	public void setMaxInactiveInterval(long millisecond) {
 		this.maxInactiveInterval = millisecond;
+	}
+
+	public boolean connecting() {
+		return !endPoint.isEndConnect();
 	}
 
 	

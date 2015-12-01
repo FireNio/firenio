@@ -20,6 +20,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
 import com.yoocent.mtp.AbstractLifeCycle;
+import com.yoocent.mtp.server.InnerEndPoint;
 import com.yoocent.mtp.server.context.ServletContext;
 
 public class MTPSessionFactory extends AbstractLifeCycle implements Job{
@@ -30,13 +31,13 @@ public class MTPSessionFactory extends AbstractLifeCycle implements Job{
 	
 	private HashMap<String, Session> sessions = new HashMap<String, Session>();
 
-	public Session getSession(ServletContext context,String sessionID) {
+	public Session getSession(ServletContext context,InnerEndPoint endPoint,String sessionID) {
 		Session session = sessions.get(sessionID);
 		if (session == null) {
 			synchronized (sessions) {
 				session = sessions.get(sessionID);
 				if (session == null) {
-					session = new MTPSession(context, sessionID);
+					session = new MTPSession(context,endPoint, sessionID);
 				}
 				sessions.put(sessionID, session);
 			}

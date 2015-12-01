@@ -17,7 +17,7 @@ import com.yoocent.mtp.common.StringUtil;
 
 public class NIOClient implements Closeable{
 
-	private String address = null;
+	private String host = null;
 	
 	private int port = 0;
 	
@@ -31,8 +31,8 @@ public class NIOClient implements Closeable{
 	
 	private SocketChannel socketChannel = null;
 
-	public NIOClient(String address, int port,String sessionID) {
-		this.address = address;
+	public NIOClient(String host, int port,String sessionID) {
+		this.host = host;
 		this.port = port;
 		this.sessionID = sessionID;
 	}
@@ -60,7 +60,7 @@ public class NIOClient implements Closeable{
 	
 	public void connect() throws IOException{
 		if (closed) {
-			this.serverAddress = new InetSocketAddress(address, port);
+			this.serverAddress = new InetSocketAddress(host, port);
 			this.socketChannel = SocketChannel.open();
 			this.socketChannel.configureBlocking(false);
 			this.selector = Selector.open();

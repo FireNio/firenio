@@ -10,8 +10,6 @@ import com.yoocent.mtp.server.InnerEndPoint;
 
 public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 	
-	private boolean endConnect = false;
-	
 	private MTPRequestInputStream inputStream = null;
 
 	private boolean inSchedule = false;
@@ -46,12 +44,7 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 		return !inputStream.complete();
 	}
 	
-	public boolean isEndConnect(){
-		return endConnect;
-	}
-	
 
-	
 	public byte[] readHead() throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(12);
 		int length = this.read(buffer);
@@ -60,7 +53,7 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 			//如果一次读取不到12个byte
 			//这样的连接持续下去也是无法进行业务操作
 			//还有一种情况是有人在恶意攻击服务器
-			this.endConnect = true;
+			this.endConnect();
 			return null;
 		}else{
 			byte[] header = buffer.array();

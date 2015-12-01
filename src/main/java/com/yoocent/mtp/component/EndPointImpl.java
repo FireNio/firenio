@@ -17,6 +17,8 @@ public class EndPointImpl implements EndPoint{
 
 	private InetSocketAddress local = null;
 	
+	private boolean endConnect = false;
+	
 	private int maxIdleTime = 0;
 	
 	private InetSocketAddress remote = null;
@@ -44,7 +46,7 @@ public class EndPointImpl implements EndPoint{
 			}
 			return length;
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 	}
 	
@@ -105,7 +107,7 @@ public class EndPointImpl implements EndPoint{
 		try {
 			return this.channel.read(buffer);
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 	}
 	
@@ -113,7 +115,7 @@ public class EndPointImpl implements EndPoint{
 		try {
 			return this.channel.read(buffers);
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 	}
 	
@@ -122,7 +124,7 @@ public class EndPointImpl implements EndPoint{
 		try {
 			return this.channel.read(buffers, offset, length);
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 	}
 
@@ -144,12 +146,26 @@ public class EndPointImpl implements EndPoint{
 		try {
 			length = channel.read(buffer);
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 		if (length < limit) {
 			throw new ChannelException("network is too weak");
 		}
 		return buffer;
+	}
+	
+	private ChannelException handleException(IOException exception) throws ChannelException{
+		this.endConnect = true;
+		
+		return new ChannelException(exception.getMessage(),exception);
+	}
+	
+	public boolean isEndConnect(){
+		return endConnect;
+	}
+	
+	public void endConnect(){
+		this.endConnect = true;
 	}
 
 	public ByteBuffer completeRead(int limit) throws IOException {
@@ -165,7 +181,7 @@ public class EndPointImpl implements EndPoint{
 				_time ++;
 			}
 		} catch (IOException e) {
-			throw new ChannelException(e.getMessage(),e);
+			throw handleException(e);
 		}
 		if (length < limit) {
 			throw new ChannelException("network is too weak");

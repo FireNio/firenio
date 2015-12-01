@@ -32,6 +32,4 @@ public interface InnerEndPoint extends EndPoint{
 	
 	public abstract boolean inStream();
 	
-	public abstract boolean isEndConnect();
-
 }

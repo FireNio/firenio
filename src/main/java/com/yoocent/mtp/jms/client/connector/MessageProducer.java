@@ -1,4 +1,4 @@
-package com.yoocent.mtp.client.jms;
+package com.yoocent.mtp.jms.client.connector;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import test.ClientUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.yoocent.mtp.client.NIOClient;
 import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.jms.JMSProducerServlet;
+import com.yoocent.mtp.jms.server.JMSProducerServlet;
 
 public class MessageProducer {
 
@@ -32,10 +32,10 @@ public class MessageProducer {
 		}
 	}
 	
-	public boolean send(String serviceName,String content,long timeout) throws IOException{
+	public boolean send(String queueName,String content,long timeout) throws IOException{
 		
 		Map<String, String> param = new HashMap<String, String>();
-		param.put("service-name", serviceName);
+		param.put("queueName", queueName);
 		param.put("content", content);
 		String paramString = JSONObject.toJSONString(param);
 		
@@ -44,9 +44,9 @@ public class MessageProducer {
 		return "T".equals(result);
 	}
 	
-	public boolean send(String serviceName,String content) throws IOException{
+	public boolean send(String queueName,String content) throws IOException{
 		
-		return this.send(serviceName,content, 5000);
+		return this.send(queueName,content, 5000);
 	}
 	
 }

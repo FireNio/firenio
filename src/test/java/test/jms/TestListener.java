@@ -2,7 +2,7 @@ package test.jms;
 
 import java.io.IOException;
 
-import com.yoocent.mtp.client.jms.MessageConsumer;
+import com.yoocent.mtp.jms.client.connector.MessageConsumer;
 
 public class TestListener {
 

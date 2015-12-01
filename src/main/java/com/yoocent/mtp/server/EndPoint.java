@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public interface EndPoint extends Closeable {
+	
+	public abstract void endConnect();
 
 	public abstract String getLocalAddr();
 	
@@ -23,6 +25,8 @@ public interface EndPoint extends Closeable {
 	public abstract boolean isBlocking();
 	
 	public abstract boolean isOpened();
+	
+	public abstract boolean isEndConnect();
 	
 	public abstract ByteBuffer completeRead(int limit) throws IOException;
 	

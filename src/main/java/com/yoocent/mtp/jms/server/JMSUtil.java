@@ -1,10 +1,13 @@
-package com.yoocent.mtp.jms;
+package com.yoocent.mtp.jms.server;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.yoocent.mtp.common.StringUtil;
+import com.yoocent.mtp.jms.JMSException;
+import com.yoocent.mtp.jms.client.Message;
 import com.yoocent.mtp.server.Request;
+import com.yoocent.mtp.server.session.Session;
 
 public class JMSUtil {
 
@@ -12,18 +15,18 @@ public class JMSUtil {
 	private static Map<String, MessageGroup> messageGroups = new HashMap<String, MessageGroup>();
 	
 	
-	public static boolean reg(JMSMessage message){
+	public static boolean reg(Message message){
 		
-		String serviceName = message.getServiceName();
+		String queueName = message.getQueueName();
 		
-		MessageGroup group = messageGroups.get(serviceName);
+		MessageGroup group = messageGroups.get(queueName);
 		
 		if (group == null) {
 			synchronized (messageGroups) {
-				group = messageGroups.get(serviceName);
+				group = messageGroups.get(queueName);
 				if (group == null) {
 					group = new MessageGroup();
-					messageGroups.put(serviceName, group);
+					messageGroups.put(queueName, group);
 				}
 			}
 		}
@@ -33,37 +36,39 @@ public class JMSUtil {
 	
 	
 	
-	public static JMSMessage pollMessage(Request request,long timeout) throws JMSException, InterruptedException{
+	public static Message pollMessage(Request request,long timeout) throws JMSException, InterruptedException{
 		
-		String serviceName = request.getStringParameter("service-name");
+		String queueName = request.getStringParameter("queueName");
 		
-		if (StringUtil.isBlankOrNull(serviceName)) {
-			throw new JMSException("null service name");
+		if (StringUtil.isBlankOrNull(queueName)) {
+			throw new JMSException("null queue name");
 		}
 		
-		MessageGroup group = messageGroups.get(serviceName);
+		MessageGroup group = messageGroups.get(queueName);
 		
 		if (group == null) {
 			synchronized (messageGroups) {
-				group = messageGroups.get(serviceName);
+				group = messageGroups.get(queueName);
 				if (group == null) {
 					group = new MessageGroup();
-					messageGroups.put(serviceName, group);
+					messageGroups.put(queueName, group);
 				}
 			}
 		}
 		
 		
 		if(0 == timeout){
-			JMSMessage message = group.poll(16);
-			while(message == null){
-				message = group.poll(16);
+			Session session = request.getSession();
+			
+			Message message = group.poll(1024);
+			while(session.connecting() && message == null){
+				message = group.poll(1024);
 			}
 			return message;
 		}
 		
 		
-		JMSMessage message = group.poll(timeout);
+		Message message = group.poll(timeout);
 		
 		return message;
 	}

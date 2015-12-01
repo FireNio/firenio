@@ -35,7 +35,8 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Inn
 		String sessionID = parser.getSessionID();
 		if (sessionID != null) {
 			MTPSessionFactory factory = context.getMTPSessionFactory();
-			this.session = factory.getSession(context,sessionID);
+			this.session = factory.getSession(context,endPoint,sessionID);
+			
 		}
 	}
 	

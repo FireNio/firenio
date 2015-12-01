@@ -20,5 +20,7 @@ public interface Session extends Attributes {
 	public abstract boolean isValid();
 
 	public abstract void setMaxInactiveInterval(long millisecond);
+	
+	public abstract boolean connecting();
 
 }

@@ -1,6 +1,7 @@
 package com.yoocent.mtp.component;
 
 import java.net.SocketException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -59,8 +60,15 @@ public class NIOSelectionReader implements SelectionAcceptAble{
 		InnerEndPoint endPoint = getEndPoint(selectionKey);
 		
 
-
-		
+		/*
+		if (!selectionKey.isConnectable()) {
+			endPoint.endConnect();
+			SelectableChannel channel = selectionKey.channel();
+			CloseUtil.close(channel);
+			selectionKey.cancel();
+			return;
+		}
+		*/
 		if (endPoint.inStream()) {
 			synchronized (endPoint) {
 
