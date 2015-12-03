@@ -15,7 +15,7 @@ public class TestDownload {
 	public static void main(String[] args) throws IOException {
 
 		long timeout = 100000000;
-		String serviceKey = TestDownloadServlet.SERVICE_KEY;
+		String serviceKey = TestDownloadServlet.SERVICE_NAME;
 		NIOClient client = ClientUtil.getClient();
 		
 		client.connect();

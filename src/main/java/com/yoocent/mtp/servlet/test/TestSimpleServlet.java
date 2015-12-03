@@ -7,7 +7,7 @@ import com.yoocent.mtp.server.Response;
 
 public class TestSimpleServlet extends MTPServlet{
 
-	public static String SERVICE_KEY = TestSimpleServlet.class.getSimpleName();
+	public static String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
 

@@ -1,7 +1,6 @@
 package com.yoocent.mtp.component;
 
 import java.net.SocketException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 

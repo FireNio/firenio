@@ -11,27 +11,27 @@ public class ByteBufferUtil {
 
 	private static final byte TYPE_TEXT = 1;
 	
-	public static ByteBuffer getByteBuffer(String sessionID,String serviceKey,String parameter,int streamLength){
+	public static ByteBuffer getByteBuffer(String sessionID,String serviceName,String parameter,int streamLength){
 		if (streamLength < 1) {
 			if (StringUtil.isBlankOrNull(parameter)) {
-				return getByteBuffer_TYPE_TEXT(sessionID, serviceKey);
+				return getByteBuffer_TYPE_TEXT(sessionID, serviceName);
 			}else{
-				return getByteBuffer_TYPE_TEXT(sessionID, serviceKey,parameter);
+				return getByteBuffer_TYPE_TEXT(sessionID, serviceName,parameter);
 			}
 		}else{
 			if (StringUtil.isBlankOrNull(parameter)) {
-				return getByteBuffer_TYPE_DATA(sessionID, serviceKey, streamLength);
+				return getByteBuffer_TYPE_DATA(sessionID, serviceName, streamLength);
 			}else{
-				return getByteBuffer_TYPE_MULT(sessionID, serviceKey, parameter, streamLength);
+				return getByteBuffer_TYPE_MULT(sessionID, serviceName, parameter, streamLength);
 			}
 		}
 		
 	}
 	
-	private static ByteBuffer getByteBuffer_TYPE_TEXT(String sessionID,String serviceKey) {
+	private static ByteBuffer getByteBuffer_TYPE_TEXT(String sessionID,String serviceName) {
 		
 		byte [] sBytes = sessionID.getBytes();
-		byte [] kBytes = serviceKey.getBytes();
+		byte [] kBytes = serviceName.getBytes();
 		
 		int sLength = sBytes.length;
 		int kLength = kBytes.length;
@@ -63,10 +63,10 @@ public class ByteBufferUtil {
 		return buffer;
 	}
 
-	private static ByteBuffer getByteBuffer_TYPE_TEXT(String sessionID,String serviceKey,String parameter) {
+	private static ByteBuffer getByteBuffer_TYPE_TEXT(String sessionID,String serviceName,String parameter) {
 		
 		byte [] sBytes = sessionID.getBytes();
-		byte [] kBytes = serviceKey.getBytes();
+		byte [] kBytes = serviceName.getBytes();
 		byte [] pBytes = null;
 		
 		
@@ -109,10 +109,10 @@ public class ByteBufferUtil {
 		return buffer;
 	}
 	
-	private static ByteBuffer getByteBuffer_TYPE_DATA(String sessionID,String serviceKey,int streamLength) {
+	private static ByteBuffer getByteBuffer_TYPE_DATA(String sessionID,String serviceName,int streamLength) {
 		
 		byte [] sBytes = sessionID.getBytes();
-		byte [] kBytes = serviceKey.getBytes();
+		byte [] kBytes = serviceName.getBytes();
 		
 		int sLength = sBytes.length;
 		int kLength = kBytes.length;
@@ -142,10 +142,10 @@ public class ByteBufferUtil {
 		return buffer;
 	}
 
-	private static ByteBuffer getByteBuffer_TYPE_MULT(String sessionID,String serviceKey,String parameter,int streamLength){
+	private static ByteBuffer getByteBuffer_TYPE_MULT(String sessionID,String serviceName,String parameter,int streamLength){
 		
 		byte [] sBytes = sessionID.getBytes();
-		byte [] kBytes = serviceKey.getBytes();
+		byte [] kBytes = serviceName.getBytes();
 		byte[] pBytes = null;
 		try {
 			pBytes = parameter.getBytes("UTF-8");

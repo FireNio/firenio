@@ -11,7 +11,7 @@ import com.yoocent.mtp.server.Response;
 
 public class TestUploadServlet extends MTPServlet{
 
-	public static String SERVICE_KEY = TestUploadServlet.class.getSimpleName();
+	public static String SERVICE_NAME = TestUploadServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
 		

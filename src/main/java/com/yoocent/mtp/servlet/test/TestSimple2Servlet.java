@@ -9,7 +9,7 @@ import com.yoocent.mtp.server.context.ServletContext;
 
 public class TestSimple2Servlet extends MTPServlet{
 	
-	public static final String SERVICE_KEY = TestSimple2Servlet.class.getSimpleName();
+	public static final String SERVICE_NAME = TestSimple2Servlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
 		String test = request.getStringParameter("test");

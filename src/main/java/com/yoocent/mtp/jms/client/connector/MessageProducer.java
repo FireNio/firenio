@@ -14,7 +14,7 @@ import com.yoocent.mtp.jms.server.JMSProducerServlet;
 public class MessageProducer {
 
 	
-	private String serviceKey = JMSProducerServlet.SERVICE_KEY;
+	private String serviceName = JMSProducerServlet.SERVICE_KEY;
 	
 	private NIOClient client = ClientUtil.getClient();
 	
@@ -39,7 +39,7 @@ public class MessageProducer {
 		param.put("content", content);
 		String paramString = JSONObject.toJSONString(param);
 		
-		Response response = client.request(serviceKey,paramString , timeout);
+		Response response = client.request(serviceName,paramString , timeout);
 		String result = response.getContent();
 		return "T".equals(result);
 	}

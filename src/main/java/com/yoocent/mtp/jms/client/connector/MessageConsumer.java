@@ -15,7 +15,7 @@ import com.yoocent.mtp.jms.server.JMSConsumerServlet;
 public class MessageConsumer implements Closeable{
 	
 	
-	private String serviceKey = JMSConsumerServlet.SERVICE_KEY;
+	private String serviceName = JMSConsumerServlet.SERVICE_KEY;
 	
 	private NIOClient client = ClientUtil.getClient();
 	
@@ -39,7 +39,7 @@ public class MessageConsumer implements Closeable{
 		param.put("queueName", queueName);
 		param.put("timeout", String.valueOf(timeout));
 		String paramString = JSONObject.toJSONString(param);
-		Response response = client.request(serviceKey,paramString , timeout);
+		Response response = client.request(serviceName,paramString , timeout);
 		return response.getContent();
 	}
 	

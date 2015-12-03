@@ -71,16 +71,16 @@ public class NIOClient implements Closeable{
 	}
 	
 	
-	private ByteBuffer getBuffer(String sessionID,String serviceKey,String paramsJSON,int avaiable) throws IOException{
-		byte [] keyBytes = serviceKey.getBytes("UTF-8");
+	private ByteBuffer getBuffer(String sessionID,String serviceName,String paramsJSON,int avaiable) throws IOException{
+		byte [] keyBytes = serviceName.getBytes("UTF-8");
 		if (keyBytes.length > Byte.MAX_VALUE) {
 			throw new IOException("key is too long");
 		}
-		return ByteBufferUtil.getByteBuffer(sessionID, serviceKey, paramsJSON, avaiable);
+		return ByteBufferUtil.getByteBuffer(sessionID, serviceName, paramsJSON, avaiable);
 		
 	}
 	
-	private void sendCommand(String serviceKey,String paramsJSON,long timeout) throws IOException{
+	private void sendCommand(String serviceName,String paramsJSON) throws IOException{
 		selector.select();
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
@@ -93,7 +93,7 @@ public class NIOClient implements Closeable{
 					client.finishConnect();
 				}
 			}
-			ByteBuffer buffer = getBuffer(sessionID,serviceKey, paramsJSON,0);
+			ByteBuffer buffer = getBuffer(sessionID,serviceName, paramsJSON,0);
 			buffer.flip();
 			write(client, buffer);
 			socketChannel.register(selector, SelectionKey.OP_READ);
@@ -164,11 +164,11 @@ public class NIOClient implements Closeable{
 	}
 	
 	
-	public Response request(String serviceKey,String paramsJSON,long timeout) throws IOException{
-		if (StringUtil.isBlankOrNull(serviceKey)) {
+	public Response request(String serviceName,String paramsJSON,long timeout) throws IOException{
+		if (StringUtil.isBlankOrNull(serviceName)) {
 			return null;
 		}
-		this.sendCommand(serviceKey, paramsJSON, timeout);
+		this.sendCommand(serviceName, paramsJSON);
 		
 		return acceptResponse(timeout);
 	}
@@ -193,7 +193,7 @@ public class NIOClient implements Closeable{
 	
 	private int BLOCK = 102400;
 	
-	private void sendCommand(String serviceKey,String paramsJSON,InputStream inputStream,long timeout) throws IOException{
+	private void sendCommand(String serviceName,String paramsJSON,InputStream inputStream,long timeout) throws IOException{
 		selector.select();
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
@@ -207,7 +207,7 @@ public class NIOClient implements Closeable{
 				}
 			}
 			int avaiable = inputStream.available();
-			ByteBuffer buffer = getBuffer(sessionID,serviceKey, paramsJSON,avaiable);
+			ByteBuffer buffer = getBuffer(sessionID,serviceName, paramsJSON,avaiable);
 			buffer.flip();
 			write(client, buffer);
 			byte [] bytes = new byte[BLOCK];
@@ -225,11 +225,11 @@ public class NIOClient implements Closeable{
 		}
 	}
 	
-	public Response request(String serviceKey,String paramsJSON,InputStream inputStream,long timeout) throws IOException{
-		if (StringUtil.isBlankOrNull(serviceKey)) {
+	public Response request(String serviceName,String paramsJSON,InputStream inputStream,long timeout) throws IOException{
+		if (StringUtil.isBlankOrNull(serviceName)) {
 			return null;
 		}
-		this.sendCommand(serviceKey, paramsJSON, inputStream, timeout);
+		this.sendCommand(serviceName, paramsJSON, inputStream, timeout);
 		
 		return acceptResponse(timeout);
 	}

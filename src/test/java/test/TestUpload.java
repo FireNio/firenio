@@ -14,7 +14,7 @@ public class TestUpload {
 	public static void main(String[] args) throws IOException {
 
 		long timeout = 100000000;
-		String serviceKey = TestUploadServlet.SERVICE_KEY;
+		String serviceKey = TestUploadServlet.SERVICE_NAME;
 		String param = "{fileName:\"temp.zip\"}";
 		NIOClient client = ClientUtil.getClient();
 		

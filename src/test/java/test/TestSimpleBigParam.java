@@ -16,7 +16,7 @@ public class TestSimpleBigParam {
 	public static void main(String[] args) throws IOException {
 
 		long timeout = 999100000;
-		String serviceKey = TestSimpleServlet.SERVICE_KEY;
+		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		Map param = ClientUtil.getParamMap();
 		NIOClient client = ClientUtil.getClient();
 		

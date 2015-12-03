@@ -12,7 +12,7 @@ public class TestException {
 	public static void main(String[] args) throws IOException {
 
 		long timeout = 999100000;
-		String serviceKey = TestExceptionServlet.SERVICE_KEY;
+		String serviceKey = TestExceptionServlet.SERVICE_NAME;
 		String param = ClientUtil.getParamString();
 		NIOClient client = ClientUtil.getClient();
 		

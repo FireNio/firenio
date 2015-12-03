@@ -8,7 +8,7 @@ import com.yoocent.mtp.servlet.test.TestSimpleServlet;
 public class TestLoad {
 	
 	public static void main(String[] args) throws IOException {
-		String serviceKey = TestSimpleServlet.SERVICE_KEY;
+		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		long timeout = 100000;
 		NIOClient client = ClientUtil.getClient();
 		String param = ClientUtil.getParamString();

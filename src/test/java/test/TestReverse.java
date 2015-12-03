@@ -15,7 +15,7 @@ public class TestReverse {
 
 		long timeout = 999100000;
 
-		String serviceKey = TestReverseServlet.SERVICE_KEY;
+		String serviceKey = TestReverseServlet.SERVICE_NAME;
 		String param = ClientUtil.getParamString();
 		NIOClient client = ClientUtil.getClient();
 		

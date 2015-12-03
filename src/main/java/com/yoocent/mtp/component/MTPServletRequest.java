@@ -18,7 +18,7 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Inn
 	
 	private MTPParser parser = null;
 	
-	private String serviceKey = null;
+	private String serviceName = null;
 	
 	private Session session = null;
 	
@@ -29,7 +29,7 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Inn
 			return;
 		}
 		this.endPoint = endPoint;
-		this.serviceKey = parser.getServiceKey();
+		this.serviceName = parser.getServiceName();
 		this.parameters = parser.getParameters();
 		
 		String sessionID = parser.getSessionID();
@@ -102,8 +102,8 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Inn
 		return endPoint.getRemotePort();
 	}
 
-	public String getServiceKey() {
-		return serviceKey;
+	public String getServiceName() {
+		return serviceName;
 	}
 	
 	public Session getSession(){

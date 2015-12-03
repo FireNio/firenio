@@ -7,7 +7,7 @@ import com.yoocent.mtp.server.Response;
 
 public class TestReverseServlet extends MTPServlet{
 
-	public static String SERVICE_KEY = TestReverseServlet.class.getSimpleName();
+	public static String SERVICE_NAME = TestReverseServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
 

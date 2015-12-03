@@ -61,18 +61,18 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	}
 	
 	public void acceptServlet(Request request, Response response) throws IOException {
-		String serviceKey = request.getServiceKey();
-		if (StringUtil.isBlankOrNull(serviceKey)) {
+		String serviceName = request.getServiceName();
+		if (StringUtil.isBlankOrNull(serviceName)) {
 			this.accept404(request, response);
 		}else{
-			this.acceptNormal(serviceKey,request, response);
+			this.acceptNormal(serviceName,request, response);
 		}
 	}
 	
-	private void acceptNormal(String serviceKey,Request request, Response response) throws IOException  {
-		ServletAcceptAble servlet = servlets.get(serviceKey);
+	private void acceptNormal(String serviceName,Request request, Response response) throws IOException  {
+		ServletAcceptAble servlet = servlets.get(serviceName);
 		if (servlet == null) {
-			servlet = this.errorServlets.get(serviceKey);
+			servlet = this.errorServlets.get(serviceName);
 			if (servlet == null) {
 				this.accept404(request, response);
 			}else{
@@ -136,9 +136,9 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 				servlet.start();
 			} catch (Exception e) {
 				e.printStackTrace();
-				String serviceKey = entry.getKey();
+				String serviceName = entry.getKey();
 				ErrorServlet error = new ErrorServlet(e);
-				this.errorServlets.put(serviceKey, error);
+				this.errorServlets.put(serviceName, error);
 			}
 		}
 		
@@ -156,14 +156,14 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 			for (int i = 0; i < jArray.size(); i++) {
 				JSONObject jObj = jArray.getJSONObject(i);
 				String clazz = jObj.getString("class");
-				String serviceKey = jObj.getString("serviceKey");
+				String serviceName = jObj.getString("serviceName");
 				ServletConfig config = new ServletConfig();
 				Map<String, Object> map = toMap(jObj);
 				config.setConfig(map);
 				try {
 					GenericServlet servlet = (GenericServlet) Class.forName(
 							clazz).newInstance();
-					this.servlets.put(serviceKey, servlet);
+					this.servlets.put(serviceName, servlet);
 					servlet.setConfig(config);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -205,11 +205,11 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	}
 	
 	private void accept404(Request request,Response response) throws IOException{
-		String serviceKey = request.getServiceKey();
-		System.out.println("[MTPServer] 未发现命令："+serviceKey);
+		String serviceName = request.getServiceName();
+		System.out.println("[MTPServer] 未发现命令："+serviceName);
 		response.write("404 not found service :".getBytes());
-		if (!StringUtil.isBlankOrNull(serviceKey)) {
-			response.write(request.getServiceKey().getBytes());
+		if (!StringUtil.isBlankOrNull(serviceName)) {
+			response.write(request.getServiceName().getBytes());
 		}
 		response.flush();
 	}

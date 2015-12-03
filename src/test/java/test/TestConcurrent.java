@@ -82,7 +82,7 @@ class T implements Job{
 		
 		try {
 			client.connect();
-			Response response = client.request(TestSimpleServlet.SERVICE_KEY, ClientUtil.getParamString(), 100000);
+			Response response = client.request(TestSimpleServlet.SERVICE_NAME, ClientUtil.getParamString(), 100000);
 			client.close();
 //			System.out.println(response.getContent());
 		} catch (IOException e) {

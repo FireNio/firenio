@@ -14,7 +14,7 @@ public class TestSimple {
 
 		long timeout = 999100000;
 
-		String serviceKey = TestSimpleServlet.SERVICE_KEY;
+		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		String param = ClientUtil.getParamString();
 		NIOClient client = ClientUtil.getClient();
 		

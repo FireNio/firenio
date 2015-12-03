@@ -20,7 +20,7 @@ public class MTPParser {
 
 	private boolean parseComplete;
 
-	private String serviceKey = null;
+	private String serviceName = null;
 	
 	private String sessionID = null;
 	
@@ -48,8 +48,8 @@ public class MTPParser {
 		return parameters;
 	}
 
-	public String getServiceKey() {
-		return serviceKey;
+	public String getServiceName() {
+		return serviceName;
 	}
 	
 	public String getSessionID() {
@@ -179,9 +179,9 @@ public class MTPParser {
 		ByteBuffer buffer = endPoint.read(sLength+kLength);
 		byte [] bytes = buffer.array();
 		String sessionID = new String(bytes,0,sLength);
-		String serviceKey = new String(bytes,sLength,kLength);
+		String serviceName = new String(bytes,sLength,kLength);
 		
-		if (StringUtil.isBlankOrNull(serviceKey)) {
+		if (StringUtil.isBlankOrNull(serviceName)) {
 			throw new EOFException("service key is empty");
 		}
 		
@@ -189,7 +189,7 @@ public class MTPParser {
 			throw new EOFException("sessionID is empty");
 		}
 		
-		this.serviceKey = serviceKey;
+		this.serviceName = serviceName;
 		
 		this.sessionID = sessionID;
 	}

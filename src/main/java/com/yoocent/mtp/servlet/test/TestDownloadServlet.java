@@ -10,7 +10,7 @@ import com.yoocent.mtp.server.Response;
 
 public class TestDownloadServlet extends MTPServlet{
 
-	public static String SERVICE_KEY = TestDownloadServlet.class.getSimpleName();
+	public static String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 	
 	private int BLOCK = 1024;
 	

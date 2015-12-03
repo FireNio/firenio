@@ -29,7 +29,7 @@ public interface Request {
 	
 	public abstract int getRemotePort();
 	
-	public abstract String getServiceKey();
+	public abstract String getServiceName();
 	
 	public abstract Session getSession();
 	
