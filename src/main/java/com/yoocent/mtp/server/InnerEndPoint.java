@@ -32,4 +32,20 @@ public interface InnerEndPoint extends EndPoint{
 	
 	public abstract boolean inStream();
 	
+	/**
+	 * get state,default value 0
+	 * @return
+	 */
+	public abstract int comment();
+	
+	/**
+	 * set state,default value 0
+	 * @param state
+	 */
+	public abstract void setComment(int comment);
+	
+	public abstract Object attachment();
+	
+	public abstract void attach(Object attachment);
+	
 }

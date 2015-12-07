@@ -42,7 +42,8 @@ public class MTPSessionFactory extends AbstractLifeCycle implements Job{
 				sessions.put(sessionID, session);
 			}
 		}else{
-			session.active();
+			session.active(endPoint);
+			
 		}
 		return session;
 	}

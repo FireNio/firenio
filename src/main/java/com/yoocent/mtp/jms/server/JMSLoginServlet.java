@@ -9,13 +9,15 @@ import com.yoocent.mtp.server.session.Session;
 
 public class JMSLoginServlet extends MTPServlet{
 
-	public static String SERVICE_KEY = JMSLoginServlet.class.getSimpleName();
+	public static String SERVICE_NAME = JMSLoginServlet.class.getSimpleName();
 	
-	private static byte TURE = 'T';
+	private static final byte TRUE = 'T';
 	
-	private static byte FALSE = 'F';
+	private static final byte FALSE = 'F';
+	
 	
 	public void accept(Request request, Response response) throws Exception {
+		
 		
 		String username = request.getStringParameter("username");
 		
@@ -23,17 +25,18 @@ public class JMSLoginServlet extends MTPServlet{
 		
 		boolean result = this.username.equals(username) && this.password.equals(password);
 		if (result) {
-			Session session = request.getSession();
-			session.setAttribute("login", true);
-			session.setAttribute("username", username);
 			
-			response.write(TURE);
+			MQContext context = MQContextFactory.getMQContext();
+			Session session = request.getSession();
+			context.setLogined(true,session);
+//			session.setAttribute("login", true);
+//			session.setAttribute("username", username);
+			
+			response.write(TRUE);
 		}else{
+			
 			response.write(FALSE);
 		}
-		
-		
-		
 		response.flush();
 		
 	}

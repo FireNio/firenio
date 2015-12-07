@@ -7,9 +7,9 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.yoocent.mtp.client.Response;
 import com.yoocent.mtp.jms.JMSException;
-import com.yoocent.mtp.jms.MessageParser;
-import com.yoocent.mtp.jms.client.Message;
-import com.yoocent.mtp.jms.client.MessageConsumer;
+import com.yoocent.mtp.jms.Message;
+import com.yoocent.mtp.jms.MessageConsumer;
+import com.yoocent.mtp.jms.client.MessageParser;
 import com.yoocent.mtp.jms.server.JMSConsumerServlet;
 
 public class MessageConsumerImpl extends ConnectonImpl implements MessageConsumer{
@@ -33,8 +33,8 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	}
 	
 	
-	public MessageConsumerImpl(String url, String username, String password,String sessionID,String queueName,long timeout) throws JMSException {
-		super(url, username, password, sessionID);
+	public MessageConsumerImpl(String url, String sessionID,String queueName,long timeout) throws JMSException {
+		super(url, sessionID);
 		this.initParam(queueName, timeout);
 	}
 
@@ -55,35 +55,24 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	public Message revice() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_KEY,reviceParam , 0);
+			response = client.request(JMSConsumerServlet.SERVICE_NAME,reviceParam , 0);
 		} catch (IOException e) {
-			throw new JMSException("IO异常",e);
+			throw new JMSException(e.getMessage(),e);
 		}
 		
 		
-		return parse(response);
+		return MessageParser.parse(response);
 	}
 
 	
-	private Message parse(Response response) throws JMSException{
-		String content = response.getContent();
-		
-		if ("F".equals(content)) {
-			throw new JMSException("unauth");
-		}
-		
-		return MessageParser.parse(content);
-	}
-
-
 	public Message subscibe() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_KEY,subscibeParam , 0);
+			response = client.request(JMSConsumerServlet.SERVICE_NAME,subscibeParam , 0);
 		} catch (IOException e) {
-			throw new JMSException("IO异常",e);
+			throw new JMSException(e.getMessage(),e);
 		}
-		return parse(response);
+		return MessageParser.parse(response);
 	}
 	
 }

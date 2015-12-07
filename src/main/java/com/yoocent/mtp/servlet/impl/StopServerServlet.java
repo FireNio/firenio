@@ -10,7 +10,7 @@ import com.yoocent.mtp.server.context.ServletContext;
 
 public class StopServerServlet extends MTPServlet{
 	
-	public static final String SERVICE_KEY = "stop-server";
+	public static final String SERVICE_NAME = "stop-server";
 
 	public void accept(Request request, Response response) throws Exception {
 		String username = request.getStringParameter("username");

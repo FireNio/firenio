@@ -1,7 +1,6 @@
-package com.yoocent.mtp.jms.client.impl;
+package com.yoocent.mtp.jms;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yoocent.mtp.jms.client.Message;
 
 public abstract class MessageImpl implements Message{
 	
@@ -22,8 +21,13 @@ public abstract class MessageImpl implements Message{
 		this.queueName = queueName;
 	}
 
+	private String json = null;
+	
 	public String toString(){
-		return JSONObject.toJSONString(this);
+		if (json == null) {
+			json = JSONObject.toJSONString(this);
+		}
+		return json;
 	}
 	
 }

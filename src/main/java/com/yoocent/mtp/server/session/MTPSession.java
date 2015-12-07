@@ -24,8 +24,9 @@ public class MTPSession extends AttributesImpl implements Session{
 		this.id = sessionID;
 	}
 
-	public void active() {
-		lastuse = System.currentTimeMillis();
+	public void active(InnerEndPoint endPoint) {
+		this.endPoint = endPoint;
+		this.lastuse = System.currentTimeMillis();
 	}
 
 	public long getCreationTime() {
@@ -60,5 +61,27 @@ public class MTPSession extends AttributesImpl implements Session{
 		return !endPoint.isEndConnect();
 	}
 
+	
+	public int getComment() {
+		return endPoint.comment();
+	}
+
+	
+	public void setComment(int comment) {
+		endPoint.setComment(comment);
+		
+	}
+
+	
+	
+	public Object attachment() {
+		return this.endPoint.attachment();
+	}
+
+	
+	public void attach(Object attachment) {
+		
+		this.endPoint.attach(attachment);
+	}
 	
 }

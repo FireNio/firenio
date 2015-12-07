@@ -16,9 +16,7 @@ import com.yoocent.mtp.jms.server.JMSLoginServlet;
 
 public class ConnectonImpl implements Connection{
 
-	private String username = null;
-	
-	private String password = null;
+	private boolean logined = false;
 	
 	private String sessionID = null;
 	
@@ -28,12 +26,10 @@ public class ConnectonImpl implements Connection{
 	
 	private int port = 0;
 	
-	private static final String SERVICE_KEY = JMSLoginServlet.SERVICE_KEY;
+	private static final String SERVICE_NAME = JMSLoginServlet.SERVICE_NAME;
 	
-	public ConnectonImpl(String url,String username, String password,String sessionID) throws JMSException {
+	public ConnectonImpl(String url,String sessionID) throws JMSException {
 		this.setServer(url);
-		this.username = username;
-		this.password = password;
 		this.sessionID = sessionID;
 		
 		this.client = new NIOClient(host, port, sessionID);
@@ -55,16 +51,15 @@ public class ConnectonImpl implements Connection{
 		
 	}
 
-	public void close() throws IOException {
-		this.client.close();
-		
-	}
 
-	public void connect() throws JMSException {
+	public void connect(String username,String password) throws JMSException {
+		if (logined) {
+			return;
+		}
 		try {
 			client.connect();
 		} catch (IOException e) {
-			throw new JMSException("IO异常",e);
+			throw new JMSException(e.getMessage(),e);
 		}
 		
 		Map<String, String> param = new HashMap<String, String>();
@@ -74,9 +69,9 @@ public class ConnectonImpl implements Connection{
 		
 		Response response;
 		try {
-			response = client.request(SERVICE_KEY, paramString , 0);
+			response = client.request(SERVICE_NAME, paramString , 0);
 		} catch (IOException e) {
-			throw new JMSException("IO异常",e);
+			throw new JMSException(e.getMessage(),e);
 		}
 		String result = response.getContent();
 		boolean logined = "T".equals(result);
@@ -93,6 +88,7 @@ public class ConnectonImpl implements Connection{
 
 	public void disconnect() {
 		CloseUtil.close(client);
+		this.logined = false;
 		System.out.println("## 已与服务器断开连接");
 	}
 	

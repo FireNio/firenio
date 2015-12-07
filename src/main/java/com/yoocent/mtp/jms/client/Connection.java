@@ -4,7 +4,7 @@ import com.yoocent.mtp.jms.JMSException;
 
 public interface Connection{
 
-	public abstract void connect() throws JMSException;
+	public abstract void connect(String username,String password) throws JMSException;
 	
 	public abstract String getSessionID();
 	

@@ -10,7 +10,7 @@ public class TestStopServer {
 
 	
 	public static void main(String[] args) throws IOException {
-		String serviceKey = StopServerServlet.SERVICE_KEY;
+		String serviceKey = StopServerServlet.SERVICE_NAME;
 		long timeout = 991000;
 		
 		NIOClient client = ClientUtil.getClient();

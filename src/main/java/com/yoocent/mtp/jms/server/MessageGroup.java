@@ -3,7 +3,7 @@ package com.yoocent.mtp.jms.server;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.yoocent.mtp.jms.client.Message;
+import com.yoocent.mtp.jms.Message;
 
 public class MessageGroup {
 	
@@ -14,6 +14,7 @@ public class MessageGroup {
 	public Message poll(long timeout) throws InterruptedException{
 		return messages.poll(timeout,TimeUnit.MILLISECONDS);
 	}
+	
 	
 	
 	//TODO offer 返回false进行处理

@@ -155,6 +155,7 @@ public class EndPointImpl implements EndPoint{
 	}
 	
 	private ChannelException handleException(IOException exception) throws ChannelException{
+//		this.endConnect();
 		this.endConnect = true;
 		
 		return new ChannelException(exception.getMessage(),exception);
@@ -166,6 +167,7 @@ public class EndPointImpl implements EndPoint{
 	
 	public void endConnect(){
 		this.endConnect = true;
+//		System.out.println("end connect!!!!!!!!!!!!!!!!!!!!!!!");
 	}
 
 	public ByteBuffer completeRead(int limit) throws IOException {

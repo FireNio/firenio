@@ -3,6 +3,7 @@ package com.yoocent.mtp.component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -35,7 +36,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	
 	private MTPFilterService service = null;
 
-	private Map<String, GenericServlet> servlets = new HashMap<String, GenericServlet>();
+	private Map<String, GenericServlet> servlets = new LinkedHashMap<String, GenericServlet>();
 	
 	private Map<String, GenericServlet> errorServlets = new HashMap<String, GenericServlet>();
 	
@@ -120,7 +121,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 
 	protected void doStart() throws Exception {
 		this.loadServlets(context);
-		this.servlets.put(StopServerServlet.SERVICE_KEY, new StopServerServlet());
+		this.servlets.put(StopServerServlet.SERVICE_NAME, new StopServerServlet());
 		this.service = new MTPFilterServiceImpl(context,this);
 		this.service.start();
 		this.initialize();
@@ -154,11 +155,11 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 			String str = FileUtil.readContentByCls("servlets.config", "UTF-8");
 			JSONArray jArray = JSONObject.parseArray(str);
 			for (int i = 0; i < jArray.size(); i++) {
-				JSONObject jObj = jArray.getJSONObject(i);
-				String clazz = jObj.getString("class");
-				String serviceName = jObj.getString("serviceName");
+				JSONObject object = jArray.getJSONObject(i);
+				String clazz = object.getString("class");
+				String serviceName = object.getString("serviceName");
 				ServletConfig config = new ServletConfig();
-				Map<String, Object> map = toMap(jObj);
+				Map<String, Object> map = toMap(object);
 				config.setConfig(map);
 				try {
 					GenericServlet servlet = (GenericServlet) Class.forName(

@@ -1,6 +1,9 @@
 package com.yoocent.mtp.servlet;
 
+import java.util.Set;
+
 import com.yoocent.mtp.AbstractLifeCycle;
+import com.yoocent.mtp.component.AttributesImpl;
 import com.yoocent.mtp.server.MTPServer;
 import com.yoocent.mtp.server.context.ServletContext;
 import com.yoocent.mtp.server.session.MTPSessionFactory;
@@ -36,6 +39,8 @@ public class ServletContextImpl extends AbstractLifeCycle implements ServletCont
 	public MTPServer getServer() {
 		return server;
 	}
+	
+	
 
 	public MTPSessionFactory getMTPSessionFactory() {
 		return sessionFactory;
@@ -47,5 +52,31 @@ public class ServletContextImpl extends AbstractLifeCycle implements ServletCont
 		return path;
 	}
 	
+	private AttributesImpl attributesImpl = new AttributesImpl();
 
+	public void removeAttribute(String key) {
+		attributesImpl.removeAttribute(key);
+		
+	}
+
+	public void setAttribute(String key, Object value) {
+		attributesImpl.setAttribute(key, value);
+		
+	}
+
+	public Object getAttribute(String key) {
+		return attributesImpl.getAttribute(key);
+	}
+
+	public Set<String> getAttributeNames() {
+		return attributesImpl.getAttributeNames();
+	}
+
+	public void clearAttributes() {
+		attributesImpl.clearAttributes();
+	}
+	
+
+	
+	
 }

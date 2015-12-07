@@ -16,6 +16,9 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 	
 	private MTPParser parser = null;
 	
+	private int comment = 0;
+	
+	
 	public NIOConnectorEndPoint(SelectionKey selectionKey, SocketChannel channel) throws SocketException {
 		super(selectionKey, channel);
 	}
@@ -78,6 +81,27 @@ public class NIOConnectorEndPoint extends EndPointImpl implements InnerEndPoint{
 	public void setMTPRequestInputStream(MTPRequestInputStream inputStream) {
 		this.inputStream = inputStream;
 	}
+
+	public int comment() {
+		return this.comment;
+	}
+
+	public void setComment(int comment) {
+		this.comment = comment;
+		
+	}
+
 	
+	private Object attachment = null;
+	
+	public Object attachment() {
+		return attachment;
+	}
+
+	
+	public void attach(Object attachment) {
+		
+		this.attachment = attachment;
+	}
 	
 }
