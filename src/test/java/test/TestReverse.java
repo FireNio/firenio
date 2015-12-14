@@ -2,10 +2,10 @@ package test;
 
 import java.io.IOException;
 
-import com.yoocent.mtp.client.NIOClient;
-import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.servlet.test.TestReverseServlet;
-import com.yoocent.mtp.servlet.test.TestSimpleServlet;
+import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.servlet.test.TestReverseServlet;
+import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestReverse {
 	

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yoocent.mtp.client.NIOClient;
+import com.gifisan.mtp.client.NIOClient;
 
 public class ClientUtil {
 

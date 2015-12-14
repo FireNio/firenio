@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yoocent.mtp.client.NIOClient;
-import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.common.FileUtil;
-import com.yoocent.mtp.servlet.test.TestSimpleServlet;
+import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.common.FileUtil;
+import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestSimpleBigParam {
 	

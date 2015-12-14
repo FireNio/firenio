@@ -2,9 +2,9 @@ package test;
 
 import java.io.IOException;
 
-import com.yoocent.mtp.client.NIOClient;
-import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.servlet.test.TestSimple2Servlet;
+import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.servlet.test.TestSimple2Servlet;
 
 public class TestSimple2 {
 	

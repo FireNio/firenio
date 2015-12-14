@@ -2,13 +2,13 @@ package test;
 
 import java.io.IOException;
 
-import com.yoocent.mtp.AbstractLifeCycleListener;
-import com.yoocent.mtp.LifeCycle;
-import com.yoocent.mtp.client.NIOClient;
-import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.component.BlockingQueueThreadPool;
-import com.yoocent.mtp.schedule.Job;
-import com.yoocent.mtp.servlet.test.TestSimpleServlet;
+import com.gifisan.mtp.AbstractLifeCycleListener;
+import com.gifisan.mtp.LifeCycle;
+import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.component.BlockingQueueThreadPool;
+import com.gifisan.mtp.schedule.Job;
+import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestConcurrent {
 
@@ -18,7 +18,7 @@ public class TestConcurrent {
 	public static void main(String[] args) throws Exception {
 		
 		
-		BlockingQueueThreadPool pool = new BlockingQueueThreadPool();
+		BlockingQueueThreadPool pool = new BlockingQueueThreadPool("test-concurrent",4);
 		
 		pool.addLifeCycleListener(new TestConcurrentListener());
 		

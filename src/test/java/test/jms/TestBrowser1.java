@@ -1,9 +1,9 @@
 package test.jms;
 
-import com.yoocent.mtp.jms.JMSException;
-import com.yoocent.mtp.jms.Message;
-import com.yoocent.mtp.jms.MessageBrowser;
-import com.yoocent.mtp.jms.client.impl.MessageBrowserImpl;
+import com.gifisan.mtp.jms.JMSException;
+import com.gifisan.mtp.jms.Message;
+import com.gifisan.mtp.jms.MessageBrowser;
+import com.gifisan.mtp.jms.client.impl.MessageBrowserImpl;
 
 public class TestBrowser1 {
 

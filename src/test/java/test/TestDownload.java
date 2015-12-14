@@ -5,10 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.yoocent.mtp.client.NIOClient;
-import com.yoocent.mtp.client.Response;
-import com.yoocent.mtp.common.CloseUtil;
-import com.yoocent.mtp.servlet.test.TestDownloadServlet;
+import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.common.CloseUtil;
+import com.gifisan.mtp.servlet.test.TestDownloadServlet;
 
 public class TestDownload {
 	

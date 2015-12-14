@@ -1,16 +1,15 @@
 package test;
 
-import com.yoocent.mtp.server.MTPServer;
+import com.gifisan.mtp.component.MTPServerLauncher;
 
 public class TestServer {
 
 	
 	
 	public static void main(String[] args) throws Exception {
-		MTPServer server = new MTPServer();
-		server.setPort(8080);
+		MTPServerLauncher launcher = new MTPServerLauncher();
 		
-		server.start();
+		launcher.launch();
 		
 	}
 }
