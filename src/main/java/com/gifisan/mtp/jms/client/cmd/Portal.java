@@ -190,7 +190,7 @@ public class Portal {
 							|| StringUtil.isBlankOrNull(sessionID)) {
 						response.setResponse("参数不正确！\n"
 												+"example:\n"
-												+"connect -host:localhost -port:8080 -sid:sid -un=admin -p:admin100");
+												+"connect -host:localhost -port:8300 -sid:sid -un=admin -p:admin100");
 						return response;
 					}
 					

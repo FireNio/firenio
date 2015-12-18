@@ -2,104 +2,83 @@ package com.gifisan.mtp.component;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.mtp.FlushedException;
-import com.gifisan.mtp.OutputRangeException;
-import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.server.EndPoint;
-import com.gifisan.mtp.server.InnerResponse;
+import com.gifisan.mtp.server.OutputStream;
+import com.gifisan.mtp.server.Response;
 
-public class MTPServletResponse implements InnerResponse{
+public class MTPServletResponse implements Response{
 	
-	private static byte[] _empty_bytes 			= " ".getBytes();
 	private static byte emptyByte 				= ' ';
-	public static final byte RESPONSE_ERROR 	= -1;
-	public static final byte RESPONSE_STREAM 	= 1;
-	public static final byte RESPONSE_TEXT 		= 0;
+	public static final byte RESPONSE_ERROR 	= 0;
+	public static final byte RESPONSE_STREAM 	= 2;
+	public static final byte RESPONSE_TEXT 		= 1;
 	private int dataLength 						= 0;
 	private EndPoint endPoint 						= null;
 	private boolean flushed 						= false;
-	private BufferedOutputStream response 			= new BufferedOutputStream();
 	private byte type 								= RESPONSE_TEXT;
 	private boolean typed 							= false;
-	private int writedLength 						= 0;
+	private OutputStream writer 					= new BufferedOutputStream();
+	
 	
 	public MTPServletResponse(EndPoint endPoint) {
 		this.endPoint = endPoint;
 	}
 	
-	public void finish() throws IOException {
-		if (type == RESPONSE_TEXT) {
-			if (!flushed) {
-				if (response.size() == 0) {
-					this.write(_empty_bytes);
-				}
-				this.flush();
-			}
-		}else{
-			if (writedLength != dataLength) {
-				CloseUtil.close(endPoint);
-				throw new OutputRangeException("writedLength:"+writedLength+",dataLength:"+dataLength);
-			}
-		}
-	}
-	
-
 	public void flush() throws IOException {
 		if (type < RESPONSE_STREAM) {
 			this.flushText();
-		}else{
-			this.flushStream();
 		}
 	}
 	
 	public void flushEmpty() throws IOException {
-		this.response.writeByte(emptyByte);
+		this.endPoint.write(emptyByte);
 		this.flush();
-		
 	}
 
-	private void flushStream() throws IOException{
-		
-		int _length = response.size();
-		
-		if (_length == 0) {
-			throw new EOFException("empty byte");
-		}
-		
-		if (_length + writedLength > dataLength) {
-			throw new EOFException("max length: "+dataLength);
-		}
-
-		if (!endPoint.isOpened()) {
-			throw new ChannelException("channel closed");
-		}
-		
-		ByteBuffer buffer = ByteBuffer.wrap(response.toByteArray());
-		this.endPoint.write(buffer);
-		this.response.reset();
-		this.writedLength += _length;
-		
-	}
+//	private void flushStream() throws IOException{
+//		
+//		int _length = response.size();
+//		
+//		if (_length == 0) {
+//			throw new EOFException("empty byte");
+//		}
+//		
+//		if (_length + writedLength > dataLength) {
+//			throw new EOFException("max length: "+dataLength);
+//		}
+//
+//		if (!endPoint.isOpened()) {
+//			throw new MTPChannelException("channel closed");
+//		}
+//		
+//		ByteBuffer buffer = ByteBuffer.wrap(response.toByteArray());
+//		this.endPoint.write(buffer);
+//		this.response.reset();
+//		this.writedLength += _length;
+//		
+//	}
 	
 	private void flushText() throws IOException{
 		if (flushed) {
 			throw new FlushedException("flushed already");
 		}
 		
-		if (response.size() == 0) {
+		BufferedOutputStream _writer = (BufferedOutputStream) this.writer;
+		
+		if (_writer.size() == 0) {
 			throw new EOFException("empty byte");
 		}
 		
 		if (!endPoint.isOpened()) {
-			throw new ChannelException("channel closed");
+			throw new MTPChannelException("channel closed");
 		}
 		
 		ByteBuffer buffer = getByteBufferTEXT();
 		this.endPoint.write(buffer);
-		this.response.reset();
+		_writer.reset();
 		this.flushed = true;
 	}
 	
@@ -116,7 +95,8 @@ public class MTPServletResponse implements InnerResponse{
 	}
 	
 	private ByteBuffer getByteBufferTEXT(){
-		int length = this.response.size();
+		BufferedOutputStream _writer = (BufferedOutputStream) this.writer;
+		int length = _writer.size();
 		byte [] header = new byte[5];
 		
 		header[0] = type;
@@ -128,7 +108,7 @@ public class MTPServletResponse implements InnerResponse{
 		ByteBuffer buffer = ByteBuffer.allocate(length + 5);
 		
 		buffer.put(header);
-		buffer.put(response.toByteArray());
+		buffer.put(_writer.toByteArray());
 		buffer.flip();
 		
 		return buffer;
@@ -150,10 +130,9 @@ public class MTPServletResponse implements InnerResponse{
 		if (typed) {
 			throw new IOException("response typed");
 		}
-		
 
 		this.type = RESPONSE_STREAM;
-		
+		this.writer = endPoint;
 		this.dataLength = length;
 		
 		ByteBuffer buffer = getByteBufferStream();
@@ -163,29 +142,34 @@ public class MTPServletResponse implements InnerResponse{
 //		this.dataLength = length;
 
 		this.endPoint.write(buffer);
+		this.writer = this.endPoint;
 	}
 	
-	
+	private OutputStream [] outputStreamWriters = new OutputStream[]{
+			
+			
+			
+	};
 
 	public void write(byte b) throws IOException {
-		this.response.writeByte(b);
+		this.writer.write(b);
 		
 	}
 
-	public void write(byte[] bytes) {
-		this.response.write(bytes);
+	public void write(byte[] bytes) throws IOException {
+		this.writer.write(bytes);
 	}
 	
-	public void write(byte[] bytes, int offset, int length) {
-		this.response.write(bytes, offset, length);
+	public void write(byte[] bytes, int offset, int length) throws IOException {
+		this.writer.write(bytes, offset, length);
 		
 	}
 
 	public void write(String content) {
 		try {
 			byte[] bytes = content.getBytes("UTF-8");
-			this.write(bytes);
-		} catch (UnsupportedEncodingException e) {
+			writer.write(bytes);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -193,8 +177,8 @@ public class MTPServletResponse implements InnerResponse{
 	public void write(String content, String encoding) {
 		try {
 			byte[] bytes = content.getBytes(encoding);
-			this.write(bytes);
-		} catch (UnsupportedEncodingException e) {
+			writer.write(bytes);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

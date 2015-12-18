@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-public class NIOClient {
+public class NIOClientDemo {
 
 	/*标识数字*/
 	private static int flag = 0;
@@ -21,7 +21,7 @@ public class NIOClient {
 	private static ByteBuffer receivebuffer = ByteBuffer.allocate(BLOCK);
 	/*服务器端地址*/
 	private final static InetSocketAddress SERVER_ADDRESS = new InetSocketAddress(
-			"localhost", 8600);
+			"localhost", 8888);
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub

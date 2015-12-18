@@ -18,7 +18,7 @@ public interface InnerEndPoint extends EndPoint{
     /**
      * <pre>
 	 * [0       ~              11]
-	 *  0       = 类型
+	 *  0       = 类型 [0=心跳，1=TEXT，2=STREAM，3=MULT]
 	 *  1       = 请求id的长度
 	 *  2       = key的长度
 	 *  3       = 保留位
@@ -47,9 +47,5 @@ public interface InnerEndPoint extends EndPoint{
 	public abstract Object attachment();
 	
 	public abstract void attach(Object attachment);
-	
-	public abstract boolean accepting();
-	
-	public abstract void setAccepting(boolean accepting);
 	
 }

@@ -53,7 +53,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 			}
 		} catch (FlushedException e) {
 			e.printStackTrace();
-		} catch (ChannelException e) {
+		} catch (MTPChannelException e) {
 			e.printStackTrace();
 		} catch (IOException e){
 			e.printStackTrace();
@@ -86,7 +86,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 					servlet.accept(request, response);
 				} catch (FlushedException e) {
 					e.printStackTrace();
-				} catch (ChannelException e) {
+				} catch (MTPChannelException e) {
 					e.printStackTrace();
 				} catch (IOException e){
 					e.printStackTrace();
@@ -101,7 +101,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 				servlet.accept(request, response);
 			} catch (FlushedException e) {
 				e.printStackTrace();
-			} catch (ChannelException e) {
+			} catch (MTPChannelException e) {
 				e.printStackTrace();
 			} catch (IOException e){
 				e.printStackTrace();
@@ -196,7 +196,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	
 
 	protected void doStop() throws Exception {
-		this.service.stop();
+		LifeCycleUtil.stop(service);
 		synchronized (servlets) {
 			Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
 			for(Entry<String, GenericServlet> entry : entries){

@@ -25,7 +25,7 @@ public class TestConcurrent {
 		pool.start();
 		
 		
-		for (int i = 0; i < 3000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			pool.dispatch(new T(i+""));
 		}
 		
@@ -67,25 +67,18 @@ class T implements Job{
 		this.sessionKey = sessionKey;
 	}
 	
-	
-	public void run() {
+	public void schedule() {
 		try {
-			this.doJob();
+			NIOClient client = new NIOClient("localhost", 8300,sessionKey);
+			try {
+				client.connect();
+				Response response = client.request(TestSimpleServlet.SERVICE_NAME, ClientUtil.getParamString(), 100000);
+				client.close();
+//				System.out.println(response.getContent());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	public void doJob() throws Exception {
-		NIOClient client = new NIOClient("localhost", 8080,sessionKey);
-		
-		try {
-			client.connect();
-			Response response = client.request(TestSimpleServlet.SERVICE_NAME, ClientUtil.getParamString(), 100000);
-			client.close();
-//			System.out.println(response.getContent());
-		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		

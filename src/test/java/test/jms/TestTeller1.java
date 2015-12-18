@@ -12,7 +12,7 @@ public class TestTeller1 {
 	
 	public static void main(String[] args) throws JMSException {
 		
-		MessageProducer producer = new MessageProducerImpl("mtp://localhost:8080",TestTeller1.class.getName());
+		MessageProducer producer = new MessageProducerImpl("mtp://localhost:8300",TestTeller1.class.getName());
 		
 		producer.connect( "admin", "admin100");
 		

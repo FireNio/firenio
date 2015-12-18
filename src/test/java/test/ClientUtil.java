@@ -9,7 +9,7 @@ import com.gifisan.mtp.client.NIOClient;
 public class ClientUtil {
 
 	public static NIOClient getClient(){
-		return new NIOClient("localhost", 8080,"test-client");
+		return new NIOClient("localhost", 8300,"test-client");
 	}
 	
 	public static String getParamString(){

@@ -11,7 +11,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-public class NIOServer {
+public class NIOServerDemo {
 	
 	/*标识数字*/
 	private  int flag = 0;
@@ -23,7 +23,7 @@ public class NIOServer {
 	private  ByteBuffer receivebuffer = ByteBuffer.allocate(BLOCK);
 	private  Selector selector;
 
-	public NIOServer(int port) throws IOException {
+	public NIOServerDemo(int port) throws IOException {
 		// 打开服务器套接字通道
 		ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 		// 服务器配置为非阻塞
@@ -111,7 +111,7 @@ public class NIOServer {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		int port = 8888;
-		NIOServer server = new NIOServer(port);
+		NIOServerDemo server = new NIOServerDemo(port);
 		server.listen();
 	}
 }

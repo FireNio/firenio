@@ -13,7 +13,7 @@ public class TestBrowser1 {
 	public static void main(String[] args) throws JMSException {
 		
 		MessageBrowser browser = new MessageBrowserImpl
-				("mtp://localhost:8080", TestBrowser1.class.getName());
+				("mtp://localhost:8300", TestBrowser1.class.getName());
 		
 		
 		

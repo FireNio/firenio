@@ -8,8 +8,8 @@ import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
 import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.InnerEndPoint;
-import com.gifisan.mtp.server.InnerRequest;
-import com.gifisan.mtp.server.InnerResponse;
+import com.gifisan.mtp.server.Request;
+import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.context.ServletContext;
 import com.gifisan.mtp.server.selector.SelectionAccept;
 
@@ -68,6 +68,7 @@ public class NIOSelectionReader implements SelectionAccept{
 			selectionKey.cancel();
 			return;
 		}
+		*/
 		
 		if (endPoint.inStream()) {
 			synchronized (endPoint) {
@@ -76,7 +77,7 @@ public class NIOSelectionReader implements SelectionAccept{
 				return;
 			}
 		}
-		*/
+		
 
 		MTPParser parser = endPoint.genParser();
 		
@@ -91,9 +92,9 @@ public class NIOSelectionReader implements SelectionAccept{
 			return;
 		}
 		
-		InnerRequest request = new MTPServletRequest(context,endPoint);
+		Request request = new MTPServletRequest(context,endPoint);
 		
-		InnerResponse response = new MTPServletResponse(endPoint);
+		Response response = new MTPServletResponse(endPoint);
 		
 		ServletAcceptJob job = new ServletAcceptJobImpl(service,endPoint, request, response);
 

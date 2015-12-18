@@ -19,7 +19,7 @@ public class TestSimple {
 		NIOClient client = ClientUtil.getClient();
 		
 		client.connect();
-		client.request(serviceKey, param, timeout);
+//		client.request(serviceKey, param, timeout);
 		Response response = client.request(serviceKey, param, timeout);
 		client.close();
 		

@@ -20,7 +20,7 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 	private SelectionAccept [] acceptors 					= new SelectionAccept[5];
 	private ServletService service 							= null;
 	private BlockingQueueThreadPool servletThreadPool 		= null;
-	private BlockingQueueThreadPool selectionThreadPool  	= null;
+//	private BlockingQueueThreadPool selectionThreadPool  	= null;
 
 	public void accept(SelectionKey selectionKey) throws Exception {
 		
@@ -82,11 +82,12 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 	protected void doStart() throws Exception {
 		ServletContext context = ServletContextFactory.getServletContext();
 		int APP_SERVER_CORE_SIZE 	= SharedBundle.getIntegerProperty("APP_SERVER_CORE_SIZE");
+		APP_SERVER_CORE_SIZE = APP_SERVER_CORE_SIZE == 0 ? 4 :APP_SERVER_CORE_SIZE;
 		this.service             	= new ServletService(context);
-		this.selectionThreadPool  	= new BlockingQueueThreadPool("selection-job",  APP_SERVER_CORE_SIZE);
-		this.servletThreadPool   	= new BlockingQueueThreadPool("servlet-job",  APP_SERVER_CORE_SIZE);
+//		this.selectionThreadPool  	= new BlockingQueueThreadPool("Selection-job",  APP_SERVER_CORE_SIZE);
+		this.servletThreadPool   	= new BlockingQueueThreadPool("Servlet-job",  APP_SERVER_CORE_SIZE);
 		this.service           		.start();
-		this.selectionThreadPool	.start();
+//		this.selectionThreadPool	.start();
 		this.servletThreadPool 		.start();
 		this.acceptors[1] = new NIOSelectionReader(context,servletThreadPool,service);
 		this.acceptors[4] = new NIOSelectionWriter();
@@ -95,7 +96,7 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(service);
 		LifeCycleUtil.stop(servletThreadPool);
-		LifeCycleUtil.stop(selectionThreadPool);
+//		LifeCycleUtil.stop(selectionThreadPool);
 	}
 
 }

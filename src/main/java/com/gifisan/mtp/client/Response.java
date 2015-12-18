@@ -4,9 +4,9 @@ import java.io.InputStream;
 
 public class Response {
 	
-	public static final byte ERROR 	= -1;
-	public static final byte STREAM 	= 1;
-	public static final byte TEXT  	= 0;
+	public static final byte ERROR 	= 0;
+	public static final byte STREAM 	= 2;
+	public static final byte TEXT  	= 1;
 
 	private String content 				= null;
 	private InputStream inputStream 	= null;

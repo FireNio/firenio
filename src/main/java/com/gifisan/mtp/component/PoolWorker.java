@@ -24,7 +24,7 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable {
 				working = true;
 				Job job = jobs.poll(16,TimeUnit.MILLISECONDS);
 				if (job != null) {
-					job.run();
+					job.schedule();
 					/*
 					
 					ScheduleAble schedule = job.getScheduleAble();

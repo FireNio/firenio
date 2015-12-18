@@ -2,41 +2,23 @@ package com.gifisan.mtp.server;
 
 import java.io.IOException;
 
-public interface Response {
-
-	public abstract void flush() throws IOException;
-	
-	
-	/**
-	 * write " " to client
-	 * @throws IOException
-	 */
-	public abstract void flushEmpty() throws IOException;
-	
-	public abstract void write(byte b) throws IOException;
+public interface Response extends OutputStream{
 	
 	public abstract void write(String content);
 	
 	public abstract void write(String content,String encoding);
 
 	/**
-	 * 写入结束后要做flush操作
-	 * 
-	 * @param bytes
+	 * 文本类型的response最后要做flush操作
 	 * @throws IOException
 	 */
-	public abstract void write(byte[] bytes);
-
-	/**
-	 * 写入结束后要做flush操作
-	 * 
-	 * @param bytes
-	 * @param offset
-	 * @param length
-	 * @throws IOException
-	 */
-	public abstract void write(byte[] bytes, int offset, int length);
+	public abstract void flush() throws IOException;
 	
+	/**
+	 * write " " to client
+	 * @throws IOException
+	 */
+	public abstract void flushEmpty() throws IOException;
 	
 	public abstract void setErrorResponse() throws IOException;
 	

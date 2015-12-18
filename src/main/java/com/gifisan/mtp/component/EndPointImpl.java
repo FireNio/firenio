@@ -53,7 +53,7 @@ public class EndPointImpl implements EndPoint{
 			throw handleException(e);
 		}
 		if (length < limit) {
-			throw new ChannelException("network is too weak");
+			throw new MTPChannelException("network is too weak");
 		}
 		return buffer;
 	}
@@ -103,11 +103,10 @@ public class EndPointImpl implements EndPoint{
 		return remote.getPort();
 	}
 
-	private ChannelException handleException(IOException exception) throws ChannelException{
-//		this.endConnect();
+	private MTPChannelException handleException(IOException exception) throws MTPChannelException{
 		this.endConnect = true;
 		
-		return new ChannelException(exception.getMessage(),exception);
+		return new MTPChannelException(exception.getMessage(),exception);
 	}
 
 	public boolean isBlocking() {
@@ -130,23 +129,6 @@ public class EndPointImpl implements EndPoint{
 		}
 	}
 
-	public long read(ByteBuffer[] buffers) throws IOException{
-		try {
-			return this.channel.read(buffers);
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
-
-	public long read(ByteBuffer[] buffers,int offset,int length) throws IOException{
-		
-		try {
-			return this.channel.read(buffers, offset, length);
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
-	
 	public ByteBuffer read(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
 		int length = -1;
@@ -156,30 +138,38 @@ public class EndPointImpl implements EndPoint{
 			throw handleException(e);
 		}
 		if (length < limit) {
-			throw new ChannelException("network is too weak");
+			throw new MTPChannelException("network is too weak");
 		}
 		return buffer;
 	}
 	
-	public int write(ByteBuffer buffer) throws ChannelException {
-		return write(channel, buffer);
+	public void write(ByteBuffer buffer) throws MTPChannelException {
+		write(channel, buffer);
 	}
 	
-	public long write(ByteBuffer[] buffers) throws IOException {
-		throw new IOException();
-	}
-	
-	public long write(ByteBuffer[] buffers, int offset, int length)throws IOException {
-		throw new IOException();
+	public void write(byte b) throws MTPChannelException  {
+		ByteBuffer buffer = ByteBuffer.allocate(1);
+		buffer.put(b);
+		write(buffer);
 	}
 
-	private int write(SocketChannel client,ByteBuffer buffer) throws ChannelException{
+	public void write(byte[] bytes) throws MTPChannelException {
+		ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		write(buffer);
+	}
+
+	public void write(byte[] bytes, int offset, int length) throws MTPChannelException {
+		ByteBuffer buffer = ByteBuffer.wrap(bytes,offset,length);
+		write(buffer);
+	}
+
+	private void write(SocketChannel client,ByteBuffer buffer) throws MTPChannelException{
 		try {
-			int length = client.write(buffer);
-			while(length == 0){
-				length = client.write(buffer);
+			int length = buffer.limit();
+			int _length = client.write(buffer);
+			while(length > _length){
+				_length += client.write(buffer);
 			}
-			return length;
 		} catch (IOException e) {
 			throw handleException(e);
 		}

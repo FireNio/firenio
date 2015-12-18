@@ -13,7 +13,7 @@ public class TestListener1 {
 		
 		
 		MessageConsumer consumer = new MessageConsumerImpl
-				("mtp://localhost:8080", TestListener1.class.getName(),"sssssss",0);
+				("mtp://localhost:8300", TestListener1.class.getName(),"sssssss",0);
 		
 		
 		consumer.connect("admin", "admin100");

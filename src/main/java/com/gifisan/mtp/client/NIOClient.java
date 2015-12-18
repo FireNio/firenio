@@ -4,12 +4,15 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
+
+import test.ClientUtil;
 
 import com.gifisan.mtp.common.ByteBufferUtil;
 import com.gifisan.mtp.common.CloseUtil;
@@ -129,6 +132,25 @@ public class NIOClient implements Closeable{
 		
 	}
 	
+	
+	public static void main(String[] args) throws IOException {
+		String param = ClientUtil.getParamString();
+		NIOClient client = ClientUtil.getClient();
+		System.out.println(param);
+		long old = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			Buffer buffer = client.getBuffer("", "test-client", param, 0);
+			buffer.flip();
+		}
+
+		System.out.println("Time:"+(System.currentTimeMillis() - old));
+		
+		
+		
+	}
+	
+	
+	
 	private int getLength(byte [] header){
 		int v0 = (header[1] & 0xff);  
 	    int v1 = (header[2] & 0xff) << 8;  
@@ -219,12 +241,12 @@ public class NIOClient implements Closeable{
 		}
 	}
 	
-	private int write(SocketChannel client,ByteBuffer buffer) throws IOException{
-		int length = client.write(buffer);
-		while(length == 0){
-			length = client.write(buffer);
+	private void write(SocketChannel client,ByteBuffer buffer) throws IOException{
+		int length = buffer.limit();
+		int _length = client.write(buffer);
+		while(length > _length){
+			_length += client.write(buffer);
 		}
-		return length;
 	}
 	
 }

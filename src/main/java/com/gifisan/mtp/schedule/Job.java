@@ -1,8 +1,8 @@
 package com.gifisan.mtp.schedule;
 
 
-public interface Job extends Runnable {
+public interface Job {
 
-	public abstract void doJob() throws Exception;
+	public abstract void schedule() ;
 	
 }

@@ -5,12 +5,12 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.server.Attributes;
 import com.gifisan.mtp.server.InnerEndPoint;
-import com.gifisan.mtp.server.InnerRequest;
+import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.context.ServletContext;
 import com.gifisan.mtp.server.session.MTPSessionFactory;
 import com.gifisan.mtp.server.session.Session;
 
-public class MTPServletRequest extends AttributesImpl implements Attributes, InnerRequest{
+public class MTPServletRequest extends AttributesImpl implements Attributes, Request{
 
 	private boolean closeCommand 	= false;
 	private InnerEndPoint endPoint = null;

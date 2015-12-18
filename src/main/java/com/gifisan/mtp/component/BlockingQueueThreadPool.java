@@ -41,8 +41,13 @@ public final class BlockingQueueThreadPool extends AbstractLifeCycle implements 
 	private String threadPrefix 			= null;
 	private List<LifedPoolWorker> workers  = new ArrayList<BlockingQueueThreadPool.LifedPoolWorker>(size);
 
+	/**
+	 * default size 4
+	 * 
+	 * @param threadPrefix
+	 */
 	public BlockingQueueThreadPool(String threadPrefix) {
-		this.size 			= 5;
+		this.size 			= 4;
 		this.threadPrefix	= threadPrefix;
 	}
 	

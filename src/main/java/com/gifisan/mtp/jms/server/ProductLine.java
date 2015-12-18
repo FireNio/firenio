@@ -1,15 +1,20 @@
 package com.gifisan.mtp.jms.server;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.mtp.AbstractLifeCycle;
+import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.common.SharedBundle;
+import com.gifisan.mtp.component.BlockingQueueThreadPool;
+import com.gifisan.mtp.component.MessageWriterJob;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 
 public class ProductLine extends AbstractLifeCycle implements MessageQueue, Runnable{
+	
+	private BlockingQueueThreadPool messageWriteThreadPool = null;
 	
 	private Map<String, ConsumerGroup> consumerGroupMap ;
 
@@ -35,12 +40,22 @@ public class ProductLine extends AbstractLifeCycle implements MessageQueue, Runn
 		
 		this.dueTime = context.getMessageDueTime();
 		
+		int APP_SERVER_CORE_SIZE 	= SharedBundle.getIntegerProperty("APP_SERVER_CORE_SIZE");
+		
+		APP_SERVER_CORE_SIZE = APP_SERVER_CORE_SIZE == 0 ? 4 :APP_SERVER_CORE_SIZE;
+		
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("MessageWrite-Job", APP_SERVER_CORE_SIZE);
+		
+		this.messageWriteThreadPool.start();
+		
 	}
 	
 	//TODO 处理剩下的message 和 receiver
 	protected void doStop() throws Exception {
 		
 		this.running = false;
+		
+		LifeCycleUtil.stop(messageWriteThreadPool);
 	}
 
 	private ConsumerGroup getConsumerGroup(String queueName){
@@ -106,13 +121,18 @@ public class ProductLine extends AbstractLifeCycle implements MessageQueue, Runn
 				continue;
 			}
 			
-			try {
-				consumer.push(message);
-			} catch (IOException e) {
-				// TODO roll back
-				e.printStackTrace();
-				offerMessage(message);
-			}
+			MessageWriterJob job = new MessageWriterJob(messageGroup, consumer, message);
+			
+			messageWriteThreadPool.dispatch(job);
+			
+			
+//			try {
+//				consumer.push(message);
+//			} catch (IOException e) {
+//				// TODO roll back
+//				e.printStackTrace();
+//				offerMessage(message);
+//			}
 			
 		}
 		

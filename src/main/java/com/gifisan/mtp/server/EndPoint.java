@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public interface EndPoint extends Closeable {
+public interface EndPoint extends OutputStream, Closeable {
 	
 	public abstract void endConnect();
 
@@ -34,14 +34,6 @@ public interface EndPoint extends Closeable {
 	
 	public abstract int read(ByteBuffer buffer) throws IOException;
 
-    public abstract long read(ByteBuffer[] buffers) throws IOException;
-
-    public abstract long read(ByteBuffer[] buffers,int offset,int length) throws IOException;
-    
-	public abstract int write(ByteBuffer buffer) throws IOException;
-
-    public abstract long write(ByteBuffer[] buffers) throws IOException;
-
-    public abstract long write(ByteBuffer[] buffers,int offset,int length) throws IOException;
+    public abstract void write(ByteBuffer buffer) throws IOException;
 
 }

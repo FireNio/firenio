@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.common.FileUtil;
+import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.component.ServletService;
 import com.gifisan.mtp.server.Request;
@@ -26,6 +28,8 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	
 	private ServletService service = null;
 	
+	private boolean useFilters = false;
+	
 	private List<WrapperMTPFilter> filters = new ArrayList<WrapperMTPFilter>();
 
 	public MTPFilterServiceImpl(ServletContext context, ServletService service) {
@@ -34,11 +38,14 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	}
 
 	public boolean doFilter(Request request, Response response)throws Exception {
-		for(WrapperMTPFilter filter : filters){
-			boolean _break = filter.doFilter(this, request, response);
-			if (_break) {
-				return true;
+		if (useFilters) {
+			for(WrapperMTPFilter filter : filters){
+				boolean _break = filter.doFilter(this, request, response);
+				if (_break) {
+					return true;
+				}
 			}
+			return false;
 		}
 		return false;
 	}
@@ -51,19 +58,28 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	private void loadFilters (){
 		try {
 			String str = FileUtil.readContentByCls("filters.config", "UTF-8");
+			if (StringUtil.isBlankOrNull(str)) {
+				
+				return ;
+			}
+			
 			JSONArray jArray = JSONArray.parseArray(str);
-			for (int i = 0; i < jArray.size(); i++) {
-				JSONObject jObj = jArray.getJSONObject(i);
-				String clazz = jObj.getString("class");
-				Map<String,Object> config = toMap(jObj);
-				FilterConfig filterConfig = new FilterConfig();
-				filterConfig.setConfig(config);
-				try {
-					MTPFilter filter =(MTPFilter)Class.forName(clazz).newInstance();
-					this.filters.add(new WrapperMTPFilterImpl(context, filter, filterConfig));
-				} catch (Exception e) {
-					e.printStackTrace();
-					continue;
+			
+			if (jArray.size() > 0) {
+				useFilters = true;
+				for (int i = 0; i < jArray.size(); i++) {
+					JSONObject jObj = jArray.getJSONObject(i);
+					String clazz = jObj.getString("class");
+					Map<String,Object> config = toMap(jObj);
+					FilterConfig filterConfig = new FilterConfig();
+					filterConfig.setConfig(config);
+					try {
+						MTPFilter filter =(MTPFilter)Class.forName(clazz).newInstance();
+						this.filters.add(new WrapperMTPFilterImpl(context, filter, filterConfig));
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -72,7 +88,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 		
 	}
 
-	private static Map<String, Object> toMap(JSONObject jsonObject) {
+	private Map<String, Object> toMap(JSONObject jsonObject) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Set enteys = jsonObject.entrySet();
 		Iterator iterator = enteys.iterator();
@@ -103,7 +119,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	protected void doStop() throws Exception {
 		for(WrapperMTPFilter filter : filters){
 			try {
-				filter.stop();
+				LifeCycleUtil.stop(filter);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

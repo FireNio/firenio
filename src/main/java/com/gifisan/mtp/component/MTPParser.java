@@ -6,16 +6,11 @@ import java.nio.ByteBuffer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.common.StringUtil;
-import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.InnerEndPoint;
 import com.gifisan.mtp.server.context.ServletContext;
 
 public class MTPParser {
 
-	private static final byte TYPE_MULT 		= 3;
-	private static final byte TYPE_STREAM 	= 2;
-	private static final byte TYPE_TEXT 		= 1;
-	private static final byte TYPE_ZERO 		= 0;
 	private InnerEndPoint endPoint 				= null;
 	private MTPRequestInputStream inputStream 	= null;
 	private JSONObject parameters 				= null;
@@ -27,34 +22,7 @@ public class MTPParser {
 		this.endPoint = endPoint;
 	}
 	
-	private void gainNecessary(int kLength,int sLength) throws IOException{
-		ByteBuffer buffer = endPoint.read(sLength+kLength);
-		byte [] bytes = buffer.array();
-		String sessionID = new String(bytes,0,sLength);
-		String serviceName = new String(bytes,sLength,kLength);
-		
-		if (StringUtil.isBlankOrNull(serviceName)) {
-			throw new EOFException("service key is empty");
-		}
-		
-		if (StringUtil.isBlankOrNull(sessionID)) {
-			throw new EOFException("sessionID is empty");
-		}
-		
-		this.serviceName = serviceName;
-		
-		this.sessionID = sessionID;
-	}
-
-	private int getDLength(byte [] header){
-		int v0 = (header[8]  & 0xff);  
-	    int v1 = (header[9]  & 0xff) << 8;  
-	    int v2 = (header[10] & 0xff) << 16;  
-	    int v3 = (header[11] & 0xff) << 24; 
-	    return v0 | v1 | v2 | v3;
-	}
-
-	public EndPoint getEndPoint() {
+	public InnerEndPoint getEndPoint() {
 		return endPoint;
 	}
 
@@ -64,13 +32,6 @@ public class MTPParser {
 	
 	public JSONObject getParameters() {
 		return parameters;
-	}
-	
-	private int getPLength(byte [] header){
-		int v0 = (header[5] & 0xff);
-	    int v1 = (header[6] & 0xff) << 8;  
-	    int v2 = (header[7] & 0xff) << 16;  
-	    return v0 | v1 | v2;
 	}
 	
 	public String getServiceName() {
@@ -95,94 +56,139 @@ public class MTPParser {
 			this.parseComplete = true;
 			return;
 		}
+		
 		byte type = header[0];
-		switch (type) {
-		case TYPE_TEXT:
-			parseTYPE_TEXT(context, endPoint, header);
-			break;
-		case TYPE_MULT:
-			parseTYPE_MULT(context, endPoint, header);
-			break;
-		case TYPE_STREAM:
-			parseTYPE_DATA(context, endPoint, header);
-			break;
-		case TYPE_ZERO:
-			parseTYPE_ZERO(context, endPoint, header);
-			break;
-		default:
-			break;
+		if (type < 5) {
+			headerParsers[type].parse(context, this, endPoint, header);
+		}else{
+			this.parseComplete = true;
 		}
 	}
 	
-	private void parseTYPE_DATA(ServletContext context,EndPoint endPoint,byte [] header) throws IOException{
-		
-	    int sLength = header[1];
-		int kLength = header[2];
-		int dLength = getDLength(header);
-		
-		this.gainNecessary(kLength, sLength);
-		
-		this.inputStream = readDataInputStream(dLength);
-		
-		this.parseComplete = true;
-		
-	}
 	
-	private void parseTYPE_MULT(ServletContext context,EndPoint endPoint,byte [] header) throws IOException{
+	private static abstract class Parser{
 		
-		int sLength = header[1];
-		int kLength = header[2];
-		int pLength = getPLength(header);
-		int dLength = getDLength(header);
+		int getPLength(byte [] header){
+			int v0 = (header[5] & 0xff);
+		    int v1 = (header[6] & 0xff) << 8;  
+		    int v2 = (header[7] & 0xff) << 16;  
+		    return v0 | v1 | v2;
+		}
 		
-		this.gainNecessary(kLength, sLength);
-		
-		this.parameters = readDataText(pLength, context);
-		
-		this.inputStream = readDataInputStream(dLength);
-		
-		this.parseComplete = true;
-		
-	}
-	
-	private void parseTYPE_TEXT(ServletContext context,EndPoint endPoint,byte [] header) throws IOException{
-		
-		int sLength = header[1];
-		int kLength = header[2];
-		int pLength = getPLength(header);
-		
-		this.gainNecessary(kLength, sLength);
-
-		this.parameters = readDataText(pLength, context);
-		
-		this.parseComplete = true;
-		
-	}
-	
-	private String parseTYPE_ZERO(ServletContext context,EndPoint endPoint,byte [] header){
-		this.parseComplete = true;
-		return null;
-	}
-	
-	private MTPRequestInputStream readDataInputStream(int dLength) throws IOException{
-		if (dLength == 0) {
+		JSONObject readDataText(int pLength,ServletContext context,InnerEndPoint endPoint) throws IOException{
+			if (pLength > 0) {
+				ByteBuffer buffer = endPoint.completeRead(pLength);
+				byte [] bytes = buffer.array();
+				String content = new String(bytes,context.getEncoding());
+				return JSONObject.parseObject(content);
+			}
 			return null;
 		}
 		
-		MTPRequestInputStream inputStream = new MTPRequestInputStream(endPoint,dLength);
-		endPoint.setMTPRequestInputStream(inputStream);
-		return inputStream;
-	}
-
-	//TODO 
-	private JSONObject readDataText(int pLength,ServletContext context) throws IOException{
-		if (pLength > 0) {
-			ByteBuffer buffer = endPoint.completeRead(pLength);
-			byte [] bytes = buffer.array();
-			String content = new String(bytes,context.getEncoding());
-			return JSONObject.parseObject(content);
+		int getDLength(byte [] header){
+			int v0 = (header[8]  & 0xff);  
+		    int v1 = (header[9]  & 0xff) << 8;  
+		    int v2 = (header[10] & 0xff) << 16;  
+		    int v3 = (header[11] & 0xff) << 24; 
+		    return v0 | v1 | v2 | v3;
 		}
-		return null;
+		
+		
+		MTPRequestInputStream readDataInputStream(int dLength,InnerEndPoint endPoint) throws IOException{
+			if (dLength == 0) {
+				return null;
+			}
+			
+			MTPRequestInputStream inputStream = new MTPRequestInputStream(endPoint,dLength);
+			endPoint.setMTPRequestInputStream(inputStream);
+			return inputStream;
+		}
+		
+		void gainNecessary(MTPParser parser,InnerEndPoint endPoint,int kLength,int sLength) throws IOException{
+			ByteBuffer buffer = endPoint.read(sLength+kLength);
+			byte [] bytes = buffer.array();
+			String sessionID = new String(bytes,0,sLength);
+			String serviceName = new String(bytes,sLength,kLength);
+			
+			if (StringUtil.isBlankOrNull(serviceName)) {
+				throw new EOFException("service key is empty");
+			}
+			
+			if (StringUtil.isBlankOrNull(sessionID)) {
+				throw new EOFException("sessionID is empty");
+			}
+			
+			parser.serviceName = serviceName;
+			
+			parser.sessionID = sessionID;
+		}
+		
+		abstract void parse(ServletContext context,MTPParser parser, InnerEndPoint endPoint,byte [] header) throws IOException;
+		
 	}
+	
+	
+	private static final Parser [] headerParsers = new Parser[]{
+		//BEAT
+		new Parser() {
+			public void parse(ServletContext context, MTPParser parser,
+					InnerEndPoint endPoint, byte[] header) throws IOException {
+				parser.parseComplete = true;
+				
+			}
+		},
+		//TEXT
+		new Parser() {
+			public void parse(ServletContext context, MTPParser parser,
+					InnerEndPoint endPoint, byte[] header) throws IOException {
+				int sLength = header[1];
+				int kLength = header[2];
+				int pLength = getPLength(header);
+				
+				gainNecessary(parser,endPoint,kLength, sLength);
+
+				parser.parameters = readDataText(pLength, context,endPoint);
+				
+				parser.parseComplete = true;
+				
+			}
+		},
+		//STREAM
+		new Parser() {
+			public void parse(ServletContext context, MTPParser parser,
+					InnerEndPoint endPoint, byte[] header) throws IOException {
+				int sLength = header[1];
+				int kLength = header[2];
+				int dLength = getDLength(header);
+				
+				gainNecessary(parser,endPoint,kLength, sLength);
+				
+				parser.inputStream = readDataInputStream(dLength,endPoint);
+				
+				parser.parseComplete = true;
+				
+			}
+		},
+		//MULT
+		new Parser() {
+			public void parse(ServletContext context, MTPParser parser,
+					InnerEndPoint endPoint, byte[] header) throws IOException {
+				int sLength = header[1];
+				int kLength = header[2];
+				int pLength = getPLength(header);
+				int dLength = getDLength(header);
+				
+				gainNecessary(parser,endPoint,kLength, sLength);
+				
+				parser.parameters = readDataText(pLength, context,endPoint);
+				
+				parser.inputStream = readDataInputStream(dLength,endPoint);
+				
+				parser.parseComplete = true;
+				
+			}
+		}
+		
+	};
 	
 }

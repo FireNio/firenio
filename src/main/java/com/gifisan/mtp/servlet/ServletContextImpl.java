@@ -3,6 +3,7 @@ package com.gifisan.mtp.servlet;
 import java.util.Set;
 
 import com.gifisan.mtp.AbstractLifeCycle;
+import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.component.AttributesImpl;
 import com.gifisan.mtp.server.MTPServer;
 import com.gifisan.mtp.server.context.ServletContext;
@@ -21,7 +22,7 @@ public class ServletContextImpl extends AbstractLifeCycle implements ServletCont
 	}
 
 	protected void doStop() throws Exception {
-		sessionFactory.stop();
+		LifeCycleUtil.stop(sessionFactory);
 	}
 
 	private String encoding = "UTF-8";

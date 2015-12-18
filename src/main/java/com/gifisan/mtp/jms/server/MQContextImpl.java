@@ -24,10 +24,6 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 	
 	public boolean offerMessage(Message message){
 		
-//		String queueName = message.getQueueName();
-		
-//		ProductLine line = getProductLine(queueName);
-		
 		synchronized (messageIDs) {
 			messageIDs.put(message.getMessageID(), message);
 		}
@@ -36,10 +32,6 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 	}
 	
 	public void pollMessage(Request request,Response response) {
-		
-//		String queueName = request.getParameter("queueName");
-		
-//		ProductLine line = getProductLine(queueName);
 		
 		productLine.pollMessage(request,response);
 		
@@ -98,7 +90,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 		
 		productLine.start();
 		
-		Thread lineThread = new Thread(productLine, "product-line");
+		Thread lineThread = new Thread(productLine, "Product-line");
 		
 		lineThread.start();
 		
@@ -113,14 +105,6 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 	}
 
 	protected void doStop() throws Exception {
-		// TODO 关闭product line
-		/*
-		Set<String> keys = productLines.keySet();
-		for (String key:keys) {
-			ProductLine line = productLines.get(key);
-			line.stop();
-		}
-		*/
 		LifeCycleUtil.stop(productLine);
 		
 	}
