@@ -75,6 +75,24 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		}
 	}
 	
+	private void acceptNormal0(ServletAccept servlet,Request request, Response response) throws IOException{
+		try {
+			servlet.accept(request, response);
+		} catch (FlushedException e) {
+			e.printStackTrace();
+		} catch (MTPChannelException e) {
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+			this.acceptException(e, request, response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.acceptException(e, request, response);
+		}
+		
+	}
+	
+	
 	private void acceptNormal(String serviceName,Request request, Response response) throws IOException  {
 		ServletAccept servlet = servlets.get(serviceName);
 		if (servlet == null) {
@@ -82,34 +100,10 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 			if (servlet == null) {
 				this.accept404(request, response);
 			}else{
-				try {
-					servlet.accept(request, response);
-				} catch (FlushedException e) {
-					e.printStackTrace();
-				} catch (MTPChannelException e) {
-					e.printStackTrace();
-				} catch (IOException e){
-					e.printStackTrace();
-					this.acceptException(e, request, response);
-				} catch (Exception e) {
-					e.printStackTrace();
-					this.acceptException(e, request, response);
-				}
+				this.acceptNormal0(servlet, request, response);
 			}
 		}else{
-			try {
-				servlet.accept(request, response);
-			} catch (FlushedException e) {
-				e.printStackTrace();
-			} catch (MTPChannelException e) {
-				e.printStackTrace();
-			} catch (IOException e){
-				e.printStackTrace();
-				this.acceptException(e, request, response);
-			} catch (Exception e) {
-				e.printStackTrace();
-				this.acceptException(e, request, response);
-			}
+			this.acceptNormal0(servlet, request, response);
 		}
 	}
 	

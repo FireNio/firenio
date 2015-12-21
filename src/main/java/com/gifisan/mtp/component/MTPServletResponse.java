@@ -12,19 +12,21 @@ import com.gifisan.mtp.server.Response;
 public class MTPServletResponse implements Response{
 	
 	private static byte emptyByte 				= ' ';
-	public static final byte RESPONSE_ERROR 	= 0;
-	public static final byte RESPONSE_STREAM 	= 2;
-	public static final byte RESPONSE_TEXT 		= 1;
+	public static final byte RESPONSE_STREAM 	= 1;
+	public static final byte RESPONSE_TEXT 		= 0;
 	private int dataLength 						= 0;
 	private EndPoint endPoint 						= null;
 	private boolean flushed 						= false;
 	private byte type 								= RESPONSE_TEXT;
 	private boolean typed 							= false;
-	private OutputStream writer 					= new BufferedOutputStream();
+	private BufferedOutputStream bufferWriter 		= new BufferedOutputStream();
+	private OutputStream writer 					= null;
+	
 	
 	
 	public MTPServletResponse(EndPoint endPoint) {
 		this.endPoint = endPoint;
+		this.writer   = this.bufferWriter;
 	}
 	
 	public void flush() throws IOException {
@@ -66,9 +68,7 @@ public class MTPServletResponse implements Response{
 			throw new FlushedException("flushed already");
 		}
 		
-		BufferedOutputStream _writer = (BufferedOutputStream) this.writer;
-		
-		if (_writer.size() == 0) {
+		if (bufferWriter.size() == 0) {
 			throw new EOFException("empty byte");
 		}
 		
@@ -78,25 +78,25 @@ public class MTPServletResponse implements Response{
 		
 		ByteBuffer buffer = getByteBufferTEXT();
 		this.endPoint.write(buffer);
-		_writer.reset();
+		this.bufferWriter.reset();
 		this.flushed = true;
 	}
 	
 	private ByteBuffer getByteBufferStream(){
 		byte [] header = new byte[5];
+		int _dataLength = dataLength;
 		
 		header[0] = type;
-		header[1] = (byte) ( dataLength          & 0xff);
-		header[2] = (byte) ((dataLength >>   8)  & 0xff);
-		header[3] = (byte) ((dataLength >>  16)  & 0xff);
-		header[4] = (byte) ( dataLength >>> 24);   
+		header[1] = (byte) ( _dataLength          & 0xff);
+		header[2] = (byte) ((_dataLength >>   8)  & 0xff);
+		header[3] = (byte) ((_dataLength >>  16)  & 0xff);
+		header[4] = (byte) ( _dataLength >>> 24);   
 		
 		return ByteBuffer.wrap(header);
 	}
 	
 	private ByteBuffer getByteBufferTEXT(){
-		BufferedOutputStream _writer = (BufferedOutputStream) this.writer;
-		int length = _writer.size();
+		int length = bufferWriter.size();
 		byte [] header = new byte[5];
 		
 		header[0] = type;
@@ -108,18 +108,10 @@ public class MTPServletResponse implements Response{
 		ByteBuffer buffer = ByteBuffer.allocate(length + 5);
 		
 		buffer.put(header);
-		buffer.put(_writer.toByteArray());
+		buffer.put(bufferWriter.toByteArray());
 		buffer.flip();
 		
 		return buffer;
-	}
-	
-	public void setErrorResponse() throws IOException{
-		if (typed) {
-			throw new IOException("response typed");
-		}
-		this.type = RESPONSE_ERROR;
-		this.typed = true;
 	}
 	
 	public void setStreamResponse(int length) throws IOException{
@@ -132,25 +124,15 @@ public class MTPServletResponse implements Response{
 		}
 
 		this.type = RESPONSE_STREAM;
-		this.writer = endPoint;
 		this.dataLength = length;
 		
 		ByteBuffer buffer = getByteBufferStream();
 
 		this.typed = true;
-//		this.type = RESPONSE_STREAM;
-//		this.dataLength = length;
-
 		this.endPoint.write(buffer);
 		this.writer = this.endPoint;
 	}
 	
-	private OutputStream [] outputStreamWriters = new OutputStream[]{
-			
-			
-			
-	};
-
 	public void write(byte b) throws IOException {
 		this.writer.write(b);
 		

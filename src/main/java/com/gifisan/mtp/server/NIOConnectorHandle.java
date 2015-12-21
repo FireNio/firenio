@@ -1,8 +1,6 @@
 package com.gifisan.mtp.server;
 
-import java.net.SocketException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
@@ -12,6 +10,7 @@ import com.gifisan.mtp.component.NIOConnectorEndPoint;
 import com.gifisan.mtp.component.NIOSelectionReader;
 import com.gifisan.mtp.component.NIOSelectionWriter;
 import com.gifisan.mtp.component.ServletService;
+import com.gifisan.mtp.component.ThreadPool;
 import com.gifisan.mtp.server.context.ServletContext;
 import com.gifisan.mtp.server.selector.SelectionAccept;
 
@@ -19,7 +18,7 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 	
 	private SelectionAccept [] acceptors 					= new SelectionAccept[5];
 	private ServletService service 							= null;
-	private BlockingQueueThreadPool servletThreadPool 		= null;
+	private ThreadPool servletThreadPool 					= null;
 //	private BlockingQueueThreadPool selectionThreadPool  	= null;
 
 	public void accept(SelectionKey selectionKey) throws Exception {
@@ -52,24 +51,6 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 		acceptors[opt].accept(selectionKey);
 	}
 	
-	private InnerEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException{
-		
-		SocketChannel client = (SocketChannel) selectionKey.channel();
-		
-		Object attachment = selectionKey.attachment();
-		
-		if (isEndPoint(attachment)) {
-			return (InnerEndPoint) attachment;
-		}
-		
-		InnerEndPoint endPoint = new NIOConnectorEndPoint(selectionKey,client);
-		
-		selectionKey.attach(endPoint);
-		
-		return endPoint;
-		
-	}
-	
 	protected boolean isEndPoint(Object object){
 		if (object == null) {
 			return false;
@@ -86,6 +67,7 @@ public class NIOConnectorHandle extends AbstractLifeCycle implements ConnectorHa
 		this.service             	= new ServletService(context);
 //		this.selectionThreadPool  	= new BlockingQueueThreadPool("Selection-job",  APP_SERVER_CORE_SIZE);
 		this.servletThreadPool   	= new BlockingQueueThreadPool("Servlet-job",  APP_SERVER_CORE_SIZE);
+//		this.servletThreadPool   	= new LinkNodeQueueThreadPool("Servlet-job",  APP_SERVER_CORE_SIZE);
 		this.service           		.start();
 //		this.selectionThreadPool	.start();
 		this.servletThreadPool 		.start();

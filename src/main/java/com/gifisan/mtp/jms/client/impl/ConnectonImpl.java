@@ -6,6 +6,9 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
@@ -27,6 +30,8 @@ public class ConnectonImpl implements Connection{
 	private int port = 0;
 	
 	private static final String SERVICE_NAME = JMSLoginServlet.SERVICE_NAME;
+	
+	private static Logger logger = LoggerFactory.getLogger(ConnectonImpl.class);
 	
 	public ConnectonImpl(String url,String sessionID) throws JMSException {
 		this.setServer(url);
@@ -79,7 +84,7 @@ public class ConnectonImpl implements Connection{
 			this.disconnect();
 			throw new JMSException("用户名密码错误！");
 		}
-		System.out.println("## 连接服务器成功！");
+		logger.info("连接服务器成功 SID:"+this.sessionID);
 	}
 
 	public String getSessionID() {
@@ -89,7 +94,7 @@ public class ConnectonImpl implements Connection{
 	public void disconnect() {
 		CloseUtil.close(client);
 		this.logined = false;
-		System.out.println("## 已与服务器断开连接");
+		logger.info("已与服务器断开连接 SID:"+this.sessionID);
 	}
 	
 	

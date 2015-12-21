@@ -7,7 +7,17 @@ import com.gifisan.mtp.server.context.ServletContext;
 
 public interface MTPFilter{
 	
-	public abstract boolean doFilter(ChainFilter filter,Request request, Response response) throws Exception;
+	/**
+	 * 
+	 * 返回true结束处理</BR>
+	 * 返回false继续处理
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract boolean doFilter(Request request, Response response) throws Exception;
 	
 	public abstract void initialize(ServletContext context,FilterConfig config) throws Exception;
 	

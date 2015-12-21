@@ -8,13 +8,14 @@ import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.component.BlockingQueueThreadPool;
 import com.gifisan.mtp.component.MessageWriterJob;
+import com.gifisan.mtp.component.ThreadPool;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 
 public class ProductLine extends AbstractLifeCycle implements MessageQueue, Runnable{
 	
-	private BlockingQueueThreadPool messageWriteThreadPool = null;
+	private ThreadPool messageWriteThreadPool = null;
 	
 	private Map<String, ConsumerGroup> consumerGroupMap ;
 
@@ -45,6 +46,8 @@ public class ProductLine extends AbstractLifeCycle implements MessageQueue, Runn
 		APP_SERVER_CORE_SIZE = APP_SERVER_CORE_SIZE == 0 ? 4 :APP_SERVER_CORE_SIZE;
 		
 		this.messageWriteThreadPool = new BlockingQueueThreadPool("MessageWrite-Job", APP_SERVER_CORE_SIZE);
+		
+//		this.messageWriteThreadPool = new LinkNodeQueueThreadPool("MessageWrite-Job", APP_SERVER_CORE_SIZE);
 		
 		this.messageWriteThreadPool.start();
 		

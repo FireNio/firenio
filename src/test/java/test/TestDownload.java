@@ -18,28 +18,38 @@ public class TestDownload {
 		String serviceKey = TestDownloadServlet.SERVICE_NAME;
 		NIOClient client = ClientUtil.getClient();
 		
+		serviceKey = "upload-temp.zip";
+		
 		client.connect();
 		Response response = client.request(serviceKey, null , timeout);
-		InputStream inputStream = response.getInputStream();
-		byte [] bytes = new byte[1024];
-		int length = inputStream.read(bytes);
 		
-		File file = new File("download.zip");
 		
-		FileOutputStream outputStream = new FileOutputStream(file);
-		
-		while(length == 1024){
-			outputStream.write(bytes);
-			length = inputStream.read(bytes);
+		if (response.getType() == Response.TEXT) {
+			System.out.println(response.getContent());
+		}else{
+			
+			InputStream inputStream = response.getInputStream();
+			byte [] bytes = new byte[1024];
+			int length = inputStream.read(bytes);
+			
+			File file = new File("download.zip");
+			
+			FileOutputStream outputStream = new FileOutputStream(file);
+			
+			while(length == 1024){
+				outputStream.write(bytes);
+				length = inputStream.read(bytes);
+			}
+			
+			if (length > 0) {
+				outputStream.write(bytes,0,length);
+			}
+			
+			CloseUtil.close(outputStream);
+			System.out.println("下载成功！");
 		}
 		
-		if (length > 0) {
-			outputStream.write(bytes,0,length);
-		}
-		
-		CloseUtil.close(outputStream);
 		CloseUtil.close(client);
 		
-		System.out.println("下载成功！");
 	}
 }

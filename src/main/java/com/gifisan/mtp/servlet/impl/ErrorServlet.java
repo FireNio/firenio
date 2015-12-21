@@ -17,7 +17,6 @@ public class ErrorServlet extends MTPServlet{
 //		object.put("msg", exception.getMessage());
 //		object.put("stack", stack);
 //		String message = object.toJSONString();
-		response.setErrorResponse();
 		response.write(stack);
 		response.flush();
 	}

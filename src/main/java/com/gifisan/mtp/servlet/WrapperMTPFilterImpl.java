@@ -20,8 +20,8 @@ public class WrapperMTPFilterImpl extends AbstractLifeCycle implements WrapperMT
 		this.config = config;
 	}
 
-	public boolean doFilter(ChainFilter filter, Request request,Response response) throws Exception {
-		return this.filter.doFilter(filter, request, response);
+	public boolean doFilter(Request request,Response response) throws Exception {
+		return this.filter.doFilter(request, response);
 	}
 
 	public void initialize(ServletContext context, FilterConfig config)throws Exception {

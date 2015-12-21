@@ -40,7 +40,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	public boolean doFilter(Request request, Response response)throws Exception {
 		if (useFilters) {
 			for(WrapperMTPFilter filter : filters){
-				boolean _break = filter.doFilter(this, request, response);
+				boolean _break = filter.doFilter(request, response);
 				if (_break) {
 					return true;
 				}

@@ -1,10 +1,12 @@
 package com.gifisan.mtp.component;
 
-import java.util.concurrent.CountDownLatch;
-
 public class Node<T> {
 	
-	private CountDownLatch countDownLatch = new CountDownLatch(1);
+	public Node(){}
+	
+	public Node(T value) {
+		this.value = value;
+	}
 
 	private Node<T> next;
 	
@@ -24,19 +26,6 @@ public class Node<T> {
 
 	public void setValue(T value) {
 		this.value = value;
-	}
-	
-	public void latchWait() {
-		try {
-			this.countDownLatch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void wakeup(){
-		
-		this.countDownLatch.countDown();
 	}
 	
 }

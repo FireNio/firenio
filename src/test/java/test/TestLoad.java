@@ -9,7 +9,7 @@ public class TestLoad {
 	
 	public static void main(String[] args) throws IOException {
 		String serviceKey = TestSimpleServlet.SERVICE_NAME;
-		long timeout = 100000;
+		long timeout = 100000000;
 		NIOClient client = ClientUtil.getClient();
 		String param = ClientUtil.getParamString();
 		long old = System.currentTimeMillis();

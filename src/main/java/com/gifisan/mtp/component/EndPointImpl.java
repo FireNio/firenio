@@ -163,6 +163,7 @@ public class EndPointImpl implements EndPoint{
 		write(buffer);
 	}
 
+	//TODO 网速比较慢的时候
 	private void write(SocketChannel client,ByteBuffer buffer) throws MTPChannelException{
 		try {
 			int length = buffer.limit();

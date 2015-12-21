@@ -70,9 +70,6 @@ public class NIOClient implements Closeable{
 			if (type == Response.TEXT) {
 				String content = acceptString(client, length);
 				response = new Response(content,type);
-			}else if (type == Response.ERROR) {
-				String content = acceptString(client, length);
-				response = new Response(content,type);
 			} else if(type == Response.STREAM){
 				ClientInputStream inputStream = new ClientInputStream(socketChannel, length);
 				response = new Response(inputStream);
@@ -100,14 +97,12 @@ public class NIOClient implements Closeable{
 		while (iterator.hasNext()) {
 			SelectionKey selectionKey = iterator.next();
 			iterator.remove();
-			if (selectionKey.isWritable() || selectionKey.isWritable()) {
-				SocketChannel client = (SocketChannel)selectionKey.channel();
-				CloseUtil.close(client);
-				selectionKey.cancel();
-				selector.close();
-				closed = true;
-			}
+			SocketChannel client = (SocketChannel)selectionKey.channel();
+			CloseUtil.close(client);
+			selectionKey.cancel();
 		}
+		selector.close();
+		closed = true;
 	}
 	
 

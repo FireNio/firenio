@@ -25,12 +25,10 @@ public class TestDownloadServlet extends MTPServlet{
 		int length = inputStream.read(bytes);
 		while (length == BLOCK) {
 			response.write(bytes);
-			response.flush();
 			length = inputStream.read(bytes);
 		}
 		if (bytes.length > 0) {
 			response.write(bytes,0,length);
-			response.flush();
 		}
 		CloseUtil.close(inputStream);
 		

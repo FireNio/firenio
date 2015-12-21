@@ -4,13 +4,11 @@ import java.io.InputStream;
 
 public class Response {
 	
-	public static final byte ERROR 	= 0;
-	public static final byte STREAM 	= 2;
-	public static final byte TEXT  	= 1;
-
+	public static final int STREAM 	= 1;
+	public static final int TEXT  	= 0;
 	private String content 				= null;
 	private InputStream inputStream 	= null;
-	private byte type 					= 0;
+	private byte type 					= TEXT;
 	
 	public Response(InputStream inputStream) {
 		this.inputStream = inputStream;
@@ -31,7 +29,7 @@ public class Response {
 		return inputStream;
 	}
 	
-	public byte getType(){
+	public int getType(){
 		return type;
 	}
 	

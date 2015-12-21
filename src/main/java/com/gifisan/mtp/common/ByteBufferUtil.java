@@ -162,6 +162,8 @@ public class ByteBufferUtil {
 		
 		ByteBuffer buffer = ByteBuffer.allocate(bLength);
 		
+		// >> 右移N位
+		// << 左移N位
 		byte [] header = new byte[12];
 		header[0]  = TYPE_MULT;
 		header[1]  = (byte)sLength;

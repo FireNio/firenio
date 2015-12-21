@@ -8,7 +8,7 @@ import com.gifisan.mtp.server.OutputStream;
 
 public class BufferedOutputStream implements OutputStream{
 	
-    protected byte buf[];
+    protected byte cache[];
 
     protected int count;
 
@@ -17,7 +17,7 @@ public class BufferedOutputStream implements OutputStream{
     }
 
     public BufferedOutputStream(byte [] buffer) {
-    	this.buf = buffer;
+    	this.cache = buffer;
     	this.count = buffer.length;
     }
     
@@ -25,7 +25,7 @@ public class BufferedOutputStream implements OutputStream{
         if (size < 0) {
             throw new IllegalArgumentException("Negative initial size: " + size);
         }
-        buf = new byte[size];
+        cache = new byte[size];
     }
 
 
@@ -38,24 +38,24 @@ public class BufferedOutputStream implements OutputStream{
     }
 
 	public byte toByteArray()[] {
-        return Arrays.copyOf(buf, count);
+        return Arrays.copyOf(cache, count);
     }
 
 	public String toString() {
-    	return new String(buf, 0, count);
+    	return new String(cache, 0, count);
     }
 
 	public String toString(String charset) throws UnsupportedEncodingException {
-    	return new String(buf, 0, count, charset);
+    	return new String(cache, 0, count, charset);
     }
 
 	public void write(byte b){
     	
     	int newcount = count + 1;
-		if (newcount > buf.length) {
-	            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+		if (newcount > cache.length) {
+			cache = Arrays.copyOf(cache, cache.length << 1);
 		}
-		buf[count] = b;
+		cache[count] = b;
 		count = newcount;
     }
 
@@ -69,10 +69,10 @@ public class BufferedOutputStream implements OutputStream{
 //		    return;
 //		}
         int newcount = count + len;
-        if (newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        if (newcount > cache.length) {
+            cache = Arrays.copyOf(cache, Math.max(cache.length << 1, newcount));
         }
-        System.arraycopy(bytes, off, buf, count, len);
+        System.arraycopy(bytes, off, cache, count, len);
         count = newcount;
     }
 
@@ -81,7 +81,7 @@ public class BufferedOutputStream implements OutputStream{
 	}
 
 	public void writeTo(OutputStream out) throws IOException {
-    	out.write(buf, 0, count);
+    	out.write(cache, 0, count);
     }
 
 }

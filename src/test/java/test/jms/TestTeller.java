@@ -14,7 +14,7 @@ public class TestTeller {
 		
 		producer.connect();
 		
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 1; i++) {
 			producer.send("test-listener","######################",timeout);
 			
 		}

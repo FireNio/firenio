@@ -20,8 +20,6 @@ public interface Response extends OutputStream{
 	 */
 	public abstract void flushEmpty() throws IOException;
 	
-	public abstract void setErrorResponse() throws IOException;
-	
 	public abstract void setStreamResponse(int length) throws IOException;
 
 }

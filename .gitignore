@@ -1,7 +1,7 @@
 /bin/
 /logs/
 /download.zip
-/src.rar
+/src*.rar
 /upload-temp.zip
 /test.TestSimpleBigParam
 /src/test/java/test/demo/
