@@ -91,7 +91,7 @@ public class DownloadFilter implements MTPFilter{
 	public void initialize(ServletContext context, FilterConfig config)
 			throws Exception {
 		String exceptContent = (String)config.getAttribute("except");
-		if (StringUtil.isBlankOrNull(exceptContent)) {
+		if (StringUtil.isNullOrBlank(exceptContent)) {
 			return;
 		}
 		this.except = true;

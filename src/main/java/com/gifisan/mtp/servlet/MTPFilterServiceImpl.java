@@ -58,7 +58,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	private void loadFilters (){
 		try {
 			String str = FileUtil.readContentByCls("filters.config", "UTF-8");
-			if (StringUtil.isBlankOrNull(str)) {
+			if (StringUtil.isNullOrBlank(str)) {
 				
 				return ;
 			}

@@ -39,7 +39,7 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector{
 	}
 
 	private InetSocketAddress getInetSocketAddress(){
-		if (StringUtil.isBlankOrNull(host)) {
+		if (StringUtil.isNullOrBlank(host)) {
 			return new InetSocketAddress(this.port);
 		}
 		return new InetSocketAddress(this.host,this.port);

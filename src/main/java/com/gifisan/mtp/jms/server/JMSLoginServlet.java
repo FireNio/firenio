@@ -68,7 +68,7 @@ public class JMSLoginServlet extends MTPServlet{
 		
 		long dueTime = 0L;
 		
-		if (StringUtil.isBlankOrNull(dueTimeValue)) {
+		if (StringUtil.isNullOrBlank(dueTimeValue)) {
 			dueTime = 1000 * 60 * 60 * 24 * 7;
 		}else{
 			dueTime = Long.valueOf(dueTimeValue);

@@ -110,11 +110,11 @@ public class MTPParser {
 			String sessionID = new String(bytes,0,sLength);
 			String serviceName = new String(bytes,sLength,kLength);
 			
-			if (StringUtil.isBlankOrNull(serviceName)) {
+			if (StringUtil.isNullOrBlank(serviceName)) {
 				throw new EOFException("service key is empty");
 			}
 			
-			if (StringUtil.isBlankOrNull(sessionID)) {
+			if (StringUtil.isNullOrBlank(sessionID)) {
 				throw new EOFException("sessionID is empty");
 			}
 			

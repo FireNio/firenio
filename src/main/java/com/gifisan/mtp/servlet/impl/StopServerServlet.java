@@ -20,7 +20,7 @@ public class StopServerServlet extends MTPServlet{
 	public void accept(Request request, Response response) throws Exception {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		if (StringUtil.isBlankOrNull(username) || StringUtil.isBlankOrNull(password)) {
+		if (StringUtil.isNullOrBlank(username) || StringUtil.isNullOrBlank(password)) {
 			return;
 		}
 		if (password.length() > username.length()) {

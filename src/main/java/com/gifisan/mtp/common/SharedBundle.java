@@ -1,18 +1,27 @@
 package com.gifisan.mtp.common;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
 public class SharedBundle {
 
-	private static Properties properties = null;
+	private static Properties properties = new Properties();
 	
 	static{
-		try {
-			properties = FileUtil.readProperties("core.properties");
-		} catch (IOException e) {
-			throw new RuntimeException("exist file core.properties");
-		}
+			String path = SharedBundle.class.getClassLoader().getResource(".").getPath();
+			File root = new File(path);
+			File []files = root.listFiles();
+			for(File file:files){
+				if (file.isFile() && file.getName().endsWith(".properties")) {
+					try {
+						Properties temp = FileUtil.readProperties(file);
+						properties.putAll(temp);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 	}
 	
 	public static String getProperty(String key){
@@ -21,7 +30,7 @@ public class SharedBundle {
 	
 	public static boolean getBooleanProperty(String key){
 		String temp = properties.getProperty(key);
-		if (StringUtil.isBlankOrNull(temp)) {
+		if (StringUtil.isNullOrBlank(temp)) {
 			return false;
 		}
 		return Boolean.valueOf(temp);
@@ -31,7 +40,7 @@ public class SharedBundle {
 	public static int getIntegerProperty(String key){
 		
 		String temp = properties.getProperty(key);
-		if (StringUtil.isBlankOrNull(temp)) {
+		if (StringUtil.isNullOrBlank(temp)) {
 			return 0;
 		}
 		return Integer.valueOf(temp);
@@ -39,7 +48,7 @@ public class SharedBundle {
 	
 	public static long getLongProperty(String key){
 		String temp = properties.getProperty(key);
-		if (StringUtil.isBlankOrNull(temp)) {
+		if (StringUtil.isNullOrBlank(temp)) {
 			return 0;
 		}
 		return Long.valueOf(temp);
@@ -48,7 +57,7 @@ public class SharedBundle {
 	
 	public static double getDoubleProperty(String key){
 		String temp = properties.getProperty(key);
-		if (StringUtil.isBlankOrNull(temp)) {
+		if (StringUtil.isNullOrBlank(temp)) {
 			return 0;
 		}
 		return Double.valueOf(temp);
@@ -56,7 +65,7 @@ public class SharedBundle {
 	
 	public static String getPropertyNoBlank(String key) throws Exception{
 		String value = properties.getProperty(key);
-		if (StringUtil.isBlankOrNull(value)) {
+		if (StringUtil.isNullOrBlank(value)) {
 			throw new Exception("property "+key+" is empty");
 		}
 		return value;

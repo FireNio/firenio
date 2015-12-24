@@ -102,7 +102,7 @@ public class Portal {
 						return response;
 					}
 					String messageID = params.get("-mid");
-					if (StringUtil.isBlankOrNull(messageID)) {
+					if (StringUtil.isNullOrBlank(messageID)) {
 						response.setResponse("参数不正确！\n"
 								+"example:\n"
 								+"browser -mid:mid");
@@ -135,7 +135,7 @@ public class Portal {
 						return response;
 					}
 					String messageID = params.get("-mid");
-					if (StringUtil.isBlankOrNull(messageID)) {
+					if (StringUtil.isNullOrBlank(messageID)) {
 						response.setResponse("参数不正确！\n"
 								+"example:\n"
 								+"browser -mid:mid");
@@ -183,11 +183,11 @@ public class Portal {
 					String port     = params.get("-port");
 					String sessionID = params.get("-sid");
 					
-					if (StringUtil.isBlankOrNull(username) 
-							|| StringUtil.isBlankOrNull(password)
-							|| StringUtil.isBlankOrNull(host)
-							|| StringUtil.isBlankOrNull(port)
-							|| StringUtil.isBlankOrNull(sessionID)) {
+					if (StringUtil.isNullOrBlank(username) 
+							|| StringUtil.isNullOrBlank(password)
+							|| StringUtil.isNullOrBlank(host)
+							|| StringUtil.isNullOrBlank(port)
+							|| StringUtil.isNullOrBlank(sessionID)) {
 						response.setResponse("参数不正确！\n"
 												+"example:\n"
 												+"connect -host:localhost -port:8300 -sid:sid -un=admin -p:admin100");

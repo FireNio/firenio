@@ -13,13 +13,13 @@ public class ByteBufferUtil {
 	
 	public static ByteBuffer getByteBuffer(String sessionID,String serviceName,String parameter,int streamLength){
 		if (streamLength < 1) {
-			if (StringUtil.isBlankOrNull(parameter)) {
+			if (StringUtil.isNullOrBlank(parameter)) {
 				return getByteBuffer_TYPE_TEXT(sessionID, serviceName);
 			}else{
 				return getByteBuffer_TYPE_TEXT(sessionID, serviceName,parameter);
 			}
 		}else{
-			if (StringUtil.isBlankOrNull(parameter)) {
+			if (StringUtil.isNullOrBlank(parameter)) {
 				return getByteBuffer_TYPE_DATA(sessionID, serviceName, streamLength);
 			}else{
 				return getByteBuffer_TYPE_MULT(sessionID, serviceName, parameter, streamLength);

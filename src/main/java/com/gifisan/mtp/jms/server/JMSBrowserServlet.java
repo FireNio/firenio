@@ -26,14 +26,14 @@ public class JMSBrowserServlet extends MTPServlet{
 		if (context.isLogined(session)) {
 		
 			String cmd = request.getParameter("cmd");
-			if (StringUtil.isBlankOrNull(cmd)) {
+			if (StringUtil.isNullOrBlank(cmd)) {
 				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
 			}else{
 				if ("size".equals(cmd)) {
 					int size = context.messageSize();
 				}else if("browser".equals(cmd)){
 					
-					if (!StringUtil.isBlankOrNull(messageID)) {
+					if (!StringUtil.isNullOrBlank(messageID)) {
 						message = context.browser(messageID);
 						
 						if (message == null) {

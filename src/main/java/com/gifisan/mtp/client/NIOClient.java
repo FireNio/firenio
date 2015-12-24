@@ -166,7 +166,7 @@ public class NIOClient implements Closeable{
 	}
 	
 	public Response request(String serviceName,String paramsJSON,InputStream inputStream,long timeout) throws IOException{
-		if (StringUtil.isBlankOrNull(serviceName)) {
+		if (StringUtil.isNullOrBlank(serviceName)) {
 			return null;
 		}
 		this.sendCommand(serviceName, paramsJSON, inputStream, timeout);
@@ -175,7 +175,7 @@ public class NIOClient implements Closeable{
 	}
 	
 	public Response request(String serviceName,String paramsJSON,long timeout) throws IOException{
-		if (StringUtil.isBlankOrNull(serviceName)) {
+		if (StringUtil.isNullOrBlank(serviceName)) {
 			return null;
 		}
 		this.sendCommand(serviceName, paramsJSON);

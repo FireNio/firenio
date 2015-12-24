@@ -68,7 +68,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	
 	public void acceptServlet(Request request, Response response) throws IOException {
 		String serviceName = request.getServiceName();
-		if (StringUtil.isBlankOrNull(serviceName)) {
+		if (StringUtil.isNullOrBlank(serviceName)) {
 			this.accept404(request, response);
 		}else{
 			this.acceptNormal(serviceName,request, response);
@@ -208,7 +208,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		String serviceName = request.getServiceName();
 		logger.info("[MTPServer] 未发现命令："+serviceName);
 		response.write("404 not found service :".getBytes());
-		if (!StringUtil.isBlankOrNull(serviceName)) {
+		if (!StringUtil.isNullOrBlank(serviceName)) {
 			response.write(request.getServiceName().getBytes());
 		}
 		response.flush();

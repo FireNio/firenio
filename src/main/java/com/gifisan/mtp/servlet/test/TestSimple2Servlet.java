@@ -13,7 +13,7 @@ public class TestSimple2Servlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 		String test = request.getParameter("test");
-		if (StringUtil.isBlankOrNull(test)) {
+		if (StringUtil.isNullOrBlank(test)) {
 			test = "test222";
 		}
 		

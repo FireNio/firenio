@@ -13,7 +13,7 @@ public class TestReverseServlet extends MTPServlet{
 
 		String test = request.getParameter("param");
 
-		if (StringUtil.isBlankOrNull(test)) {
+		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";
 		}
 		
