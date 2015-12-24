@@ -17,7 +17,6 @@ import com.gifisan.mtp.common.FileUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.FilterConfig;
-import com.gifisan.mtp.component.ServletService;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.context.ServletContext;
@@ -26,15 +25,12 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	
 	private ServletContext context = null;
 	
-	private ServletService service = null;
-	
 	private boolean useFilters = false;
 	
 	private List<WrapperMTPFilter> filters = new ArrayList<WrapperMTPFilter>();
 
-	public MTPFilterServiceImpl(ServletContext context, ServletService service) {
+	public MTPFilterServiceImpl(ServletContext context) {
 		this.context = context;
-		this.service = service;
 	}
 
 	public boolean doFilter(Request request, Response response)throws Exception {
@@ -50,11 +46,6 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 		return false;
 	}
 
-	public void accept(Request request, Response response) throws Exception {
-		this.service.acceptServlet(request, response);
-		
-	}
-	
 	private void loadFilters (){
 		try {
 			String str = FileUtil.readContentByCls("filters.config", "UTF-8");

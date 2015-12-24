@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.AbstractLifeCycle;
-import com.gifisan.mtp.FlushedException;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.common.FileUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
@@ -39,7 +38,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		this.context = context;
 	}
 	
-	private MTPFilterService service = null;
+	private MTPFilterService filterService = null;
 
 	private Map<String, GenericServlet> servlets = new LinkedHashMap<String, GenericServlet>();
 	
@@ -48,7 +47,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	public void accept(Request request, Response response) throws IOException{
 		try {
 			//TODO
-			if (service.doFilter(request, response)) {
+			if (filterService.doFilter(request, response)) {
 				return;
 			}
 		} catch (FlushedException e) {
@@ -63,13 +62,14 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 			this.acceptException(e, request, response);
 		}
 		
-		this.acceptServlet(request, response);
+		String serviceName = request.getServiceName();
+		this.accept(request, response,serviceName);
 	}
 	
-	public void acceptServlet(Request request, Response response) throws IOException {
-		String serviceName = request.getServiceName();
+	private void accept(Request request, Response response,String serviceName) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			this.accept404(request, response);
+			
 		}else{
 			this.acceptNormal(serviceName,request, response);
 		}
@@ -98,7 +98,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		if (servlet == null) {
 			servlet = this.errorServlets.get(serviceName);
 			if (servlet == null) {
-				this.accept404(request, response);
+				this.accept404(request, response,serviceName);
 			}else{
 				this.acceptNormal0(servlet, request, response);
 			}
@@ -121,8 +121,8 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	protected void doStart() throws Exception {
 		this.loadServlets(context);
 		this.servlets.put(StopServerServlet.SERVICE_NAME, new StopServerServlet());
-		this.service = new MTPFilterServiceImpl(context,this);
-		this.service.start();
+		this.filterService = new MTPFilterServiceImpl(context);
+		this.filterService.start();
 		this.initialize();
 		
 	}
@@ -190,7 +190,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(service);
+		LifeCycleUtil.stop(filterService);
 		synchronized (servlets) {
 			Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
 			for(Entry<String, GenericServlet> entry : entries){
@@ -205,13 +205,17 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	}
 	
 	private void accept404(Request request,Response response) throws IOException{
-		String serviceName = request.getServiceName();
-		logger.info("[MTPServer] 未发现命令："+serviceName);
-		response.write("404 not found service :".getBytes());
-		if (!StringUtil.isNullOrBlank(serviceName)) {
-			response.write(request.getServiceName().getBytes());
-		}
+		logger.info("[MTPServer] empty service name");
+		response.write(RESMessage.R404_EMPTY.toString().getBytes());
 		response.flush();
 	}
+	
+	private void accept404(Request request,Response response,String serviceName) throws IOException{
+		logger.info("[MTPServer] 未发现命令："+serviceName);
+		RESMessage message = new RESMessage(404, "service name not found :"+serviceName);
+		response.write(message.toString());
+		response.flush();
+	}
+	
 
 }

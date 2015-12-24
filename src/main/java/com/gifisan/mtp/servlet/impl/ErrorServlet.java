@@ -1,6 +1,6 @@
 package com.gifisan.mtp.servlet.impl;
 
-import com.gifisan.mtp.common.DebugUtil;
+import com.gifisan.mtp.component.RESMessage;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
@@ -12,12 +12,10 @@ public class ErrorServlet extends MTPServlet{
 	}
 
 	public void accept(Request request, Response response) throws Exception {
-		String stack = DebugUtil.exception2string(exception);
-//		JSONObject object = new JSONObject();
-//		object.put("msg", exception.getMessage());
-//		object.put("stack", stack);
-//		String message = object.toJSONString();
-		response.write(stack);
+//		String stack = DebugUtil.exception2string(exception);
+//		RESMessage message = new RESMessage(500, stack);
+		RESMessage message = new RESMessage(500, exception.getMessage());
+		response.write(message.toString());
 		response.flush();
 	}
 

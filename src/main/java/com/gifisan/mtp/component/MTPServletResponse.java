@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.mtp.FlushedException;
 import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.OutputStream;
 import com.gifisan.mtp.server.Response;

@@ -51,6 +51,7 @@ public class JMSBrowserServlet extends MTPServlet{
 			
 		}else{
 			message = ErrorMessage.UNAUTH_MESSAGE;
+			response.write(message.toString());
 		}
 
 		response.flush();

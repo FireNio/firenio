@@ -8,6 +8,7 @@ import java.util.Map;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.FilterConfig;
+import com.gifisan.mtp.component.RESMessage;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.context.ServletContext;
@@ -15,9 +16,9 @@ import com.gifisan.mtp.servlet.MTPFilter;
 
 public class DownloadFilter implements MTPFilter{
 	
-	private boolean except 				= false;
+	private boolean exclude 				= false;
 	
-	private Map<String,String> exceptMap 	= null;
+	private Map<String,String> excludesMap 	= null;
 	
 	private int BLOCK 						= 102400;
 
@@ -37,7 +38,8 @@ public class DownloadFilter implements MTPFilter{
 			File file 				= new File(filePath);
 
 			if (!file.exists()) {
-				response.write("file not found!");
+				RESMessage message = new RESMessage(404, "file not found:"+filePath);
+				response.write(message.toString());
 				response.flush();
 				return true;
 			}
@@ -84,21 +86,24 @@ public class DownloadFilter implements MTPFilter{
 	}
 	
 	private boolean canDownload(String subfix){
-		return except ? !exceptMap.containsKey(subfix) :true;
+		return exclude ? !excludesMap.containsKey(subfix) :true;
 		
 	}
 
 	public void initialize(ServletContext context, FilterConfig config)
 			throws Exception {
-		String exceptContent = (String)config.getAttribute("except");
-		if (StringUtil.isNullOrBlank(exceptContent)) {
+		String excludesContent = (String)config.getAttribute("excludes");
+		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
 		}
-		this.except = true;
-		this.exceptMap = new HashMap<String, String>();
-		String []excepts = exceptContent.split("|");
-		for(String except:excepts){
-			exceptMap.put(except, null);
+		this.exclude = true;
+		this.excludesMap = new HashMap<String, String>();
+		String []excludes = excludesContent.split("\\|");
+		for(String exclude:excludes){
+			if (StringUtil.isNullOrBlank(exclude)) {
+				continue;
+			}
+			excludesMap.put(exclude, null);
 		}
 	}
 
@@ -107,6 +112,4 @@ public class DownloadFilter implements MTPFilter{
 		
 	}
 
-	
-	
 }

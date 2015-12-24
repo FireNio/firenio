@@ -7,9 +7,9 @@ import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.context.ServletContext;
 
-public class TestSimple2Servlet extends MTPServlet{
+public class TestInitializeErrorServlet extends MTPServlet{
 	
-	public static final String SERVICE_NAME = TestSimple2Servlet.class.getSimpleName();
+	public static final String SERVICE_NAME = TestInitializeErrorServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
 		String test = request.getParameter("test");

@@ -25,6 +25,7 @@ public class ServletAcceptJobImpl implements ServletAcceptJob{
 
 	private void acceptException(IOException exception){
 		try {
+			// error connection , should not flush
 			response.flush();
 		} catch (IOException e) {
 			//ignore
