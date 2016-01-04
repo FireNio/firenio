@@ -15,13 +15,16 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.gifisan.mtp.Encoding;
+
 public class FileUtil {
 
-	private static String ENCODING = "UTF-8";
+	private static Charset ENCODING = Encoding.DEFAULT;
 
 	private static byte[] SKIP_BYTE_BUFFER;
 
@@ -54,6 +57,17 @@ public class FileUtil {
 			throw exception;
 		}
 	}
+	
+	public static void createDirectory(File file) throws IOException{
+		if (!file.exists()) {
+			File parent = file.getParentFile();
+			if ((parent != null) && (!parent.mkdirs())
+					&& (!parent.isDirectory())) {
+				throw new IOException("Directory '" + parent
+						+ "' could not be created");
+			}
+		}
+	}
 
 	private static void cleanDirectoryOnExit(File directory) throws IOException {
 		if (!directory.exists()) {
@@ -83,10 +97,10 @@ public class FileUtil {
 
 	public static void copy(InputStream input, Writer output)
 			throws IOException {
-		copy(input, output, "UTF-8");
+		copy(input, output, ENCODING);
 	}
 
-	public static void copy(InputStream input, Writer output, String encoding)
+	public static void copy(InputStream input, Writer output, Charset encoding)
 			throws IOException {
 		InputStreamReader in = new InputStreamReader(input, encoding);
 		copy(in, output);
@@ -94,10 +108,10 @@ public class FileUtil {
 
 	public static void copy(Reader input, OutputStream output)
 			throws IOException {
-		copy(input, output, "UTF-8");
+		copy(input, output, ENCODING);
 	}
 
-	public static void copy(Reader input, OutputStream output, String encoding)
+	public static void copy(Reader input, OutputStream output, Charset encoding)
 			throws IOException {
 		OutputStreamWriter out = new OutputStreamWriter(output, encoding);
 		copy(input, out);
@@ -286,7 +300,7 @@ public class FileUtil {
 		}
 	}
 
-	public static String input2String(InputStream input, String encoding)
+	public static String input2String(InputStream input, Charset encoding)
 			throws IOException {
 		byte [] bytes = new byte[input.available()];
 		input.read(bytes);
@@ -369,7 +383,7 @@ public class FileUtil {
 		return null;
 	}
 
-	public static String readContentByCls(String file, String encoding)
+	public static String readContentByCls(String file, Charset encoding)
 			throws IOException {
 		File file2 = readFileByCls(file);
 		if (file2.exists()) {
@@ -382,7 +396,7 @@ public class FileUtil {
 			throws UnsupportedEncodingException {
 		ClassLoader classLoader = FileUtil.class.getClassLoader();
 		String path = classLoader.getResource(".").getFile();
-		return new File(URLDecoder.decode(path + file, ENCODING));
+		return new File(URLDecoder.decode(path + file, ENCODING.name()));
 	}
 
 	public static byte[] readFileToByteArray(File file) throws IOException {
@@ -395,7 +409,7 @@ public class FileUtil {
 		}
 	}
 
-	public static String readFileToString(File file, String encoding)
+	public static String readFileToString(File file, Charset encoding)
 			throws IOException {
 		InputStream in = null;
 		try {
@@ -411,7 +425,7 @@ public class FileUtil {
 		return readLines(file, ENCODING);
 	}
 
-	public static List<String> readLines(File file, String encoding)
+	public static List<String> readLines(File file, Charset encoding)
 			throws IOException {
 		InputStream in = null;
 		try {
@@ -426,7 +440,7 @@ public class FileUtil {
 		return readLines(input, ENCODING);
 	}
 
-	public static List<String> readLines(InputStream input, String encoding)
+	public static List<String> readLines(InputStream input, Charset encoding)
 			throws IOException {
 		InputStreamReader reader = new InputStreamReader(input, encoding);
 		return readLines(reader);
@@ -460,7 +474,7 @@ public class FileUtil {
 				throw new IOException("null inputstream!");
 			}
 			InputStreamReader inputStreamReader = new InputStreamReader(
-					inputStream, "UTF-8");
+					inputStream, ENCODING);
 			properties.load(inputStreamReader);
 			return properties;
 		} finally {
@@ -590,7 +604,7 @@ public class FileUtil {
 		write(data, output, ENCODING);
 	}
 
-	public static void write(char[] data, OutputStream output, String encoding)
+	public static void write(char[] data, OutputStream output, Charset encoding)
 			throws IOException {
 		if (data != null) {
 			output.write(new String(data).getBytes(encoding));
@@ -628,7 +642,7 @@ public class FileUtil {
 	}
 
 	public static void writeByCls(String file, String content,
-			String encoding, boolean append) throws IOException {
+			Charset encoding, boolean append) throws IOException {
 		File realFile = readFileByCls(file);
 		write(realFile, content, encoding, append);
 	}
@@ -651,11 +665,11 @@ public class FileUtil {
 		write(file, data, ENCODING, append);
 	}
 
-	public static void write(File file, String content,String encoding) throws IOException {
+	public static void write(File file, String content,Charset encoding) throws IOException {
 		write(file, content, encoding, false);
 	}
 
-	public static void write(File file, String content,String encoding,
+	public static void write(File file, String content,Charset encoding,
 			boolean append) throws IOException {
 		write(content.getBytes(encoding), openOutputStream(file, append));
 	}

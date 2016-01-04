@@ -9,13 +9,12 @@ import test.ClientUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
-import com.gifisan.mtp.jms.server.JMSConsumerServlet;
-import com.sun.xml.internal.ws.Closeable;
+import com.gifisan.mtp.jms.server.JMSProducerServlet;
 
-public class MessageConsumer implements Closeable{
+public class MessageProducer_BAK {
+
 	
-	
-	private String serviceName = JMSConsumerServlet.SERVICE_NAME;
+	private String serviceName = JMSProducerServlet.SERVICE_NAME;
 	
 	private NIOClient client = ClientUtil.getClient();
 	
@@ -33,20 +32,21 @@ public class MessageConsumer implements Closeable{
 		}
 	}
 	
-	public String reveice(String queueName,long timeout) throws IOException{
+	public boolean send(String queueName,String content,long timeout) throws IOException{
 		
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("queueName", queueName);
-		param.put("timeout", String.valueOf(timeout));
+		param.put("content", content);
 		String paramString = JSONObject.toJSONString(param);
-		Response response = client.request(serviceName,paramString , timeout);
-		return response.getContent();
-	}
-	
-	public String reveice(String queueName) throws IOException{
 		
-		return this.reveice(queueName,0);
+		Response response = client.request(serviceName,paramString , timeout);
+		String result = response.getContent();
+		return "T".equals(result);
 	}
 	
-
+	public boolean send(String queueName,String content) throws IOException{
+		
+		return this.send(queueName,content, 5000);
+	}
+	
 }

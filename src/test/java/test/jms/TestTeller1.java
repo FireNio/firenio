@@ -20,7 +20,7 @@ public class TestTeller1 {
 		
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
-			producer.send(message);
+			producer.offer(message);
 			
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));

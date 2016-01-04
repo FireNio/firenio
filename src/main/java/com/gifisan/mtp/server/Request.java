@@ -1,5 +1,6 @@
 package com.gifisan.mtp.server;
 
+import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.MTPRequestInputStream;
 import com.gifisan.mtp.server.session.Session;
 
@@ -38,5 +39,7 @@ public interface Request {
 	public abstract boolean isBlocking();
 	
 	public abstract boolean isOpened();
+	
+	public abstract ExecutorThreadPool getExecutorThreadPool();
 	
 }

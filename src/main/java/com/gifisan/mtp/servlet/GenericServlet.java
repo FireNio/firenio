@@ -4,7 +4,7 @@ import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.ServletAccept;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServletContext;
 
 public abstract class GenericServlet extends AbstractLifeCycle implements LifeCycle, ServletAccept{
 

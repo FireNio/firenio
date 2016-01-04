@@ -3,11 +3,11 @@ package com.gifisan.mtp.component;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class ArrayBlockingQueue4PoolWorker<T> implements Queue<T> {
+public class ABQueue4PoolWorker<T> implements Queue<T> {
 
 	private java.util.concurrent.ArrayBlockingQueue<T> queue = null;
 	
-	public ArrayBlockingQueue4PoolWorker(int size) {
+	public ABQueue4PoolWorker(int size) {
 		this.queue = new ArrayBlockingQueue<T>(size);
 	}
 

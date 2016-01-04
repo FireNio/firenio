@@ -1,8 +1,8 @@
 package com.gifisan.mtp.server.session;
 
 import com.gifisan.mtp.component.AttributesImpl;
-import com.gifisan.mtp.server.InnerEndPoint;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServerEndPoint;
+import com.gifisan.mtp.server.ServletContext;
 
 public class MTPSession extends AttributesImpl implements Session{
 
@@ -12,19 +12,19 @@ public class MTPSession extends AttributesImpl implements Session{
 
 	private String id = null;
 	
-	private InnerEndPoint endPoint = null;
+	private ServerEndPoint endPoint = null;
 
 	private long lastuse = System.currentTimeMillis();
 
 	private long maxInactiveInterval = 30 * 60 * 1000;
 
-	public MTPSession(ServletContext context,InnerEndPoint endPoint,String sessionID) {
+	public MTPSession(ServletContext context,ServerEndPoint endPoint,String sessionID) {
 		this.context = context;
 		this.endPoint = endPoint;
 		this.id = sessionID;
 	}
 
-	public void active(InnerEndPoint endPoint) {
+	public void active(ServerEndPoint endPoint) {
 		this.endPoint = endPoint;
 		this.lastuse = System.currentTimeMillis();
 	}
@@ -60,19 +60,15 @@ public class MTPSession extends AttributesImpl implements Session{
 	public boolean connecting() {
 		return !endPoint.isEndConnect();
 	}
-
 	
 	public int getComment() {
 		return endPoint.comment();
 	}
 
-	
 	public void setComment(int comment) {
 		endPoint.setComment(comment);
 		
 	}
-
-	
 	
 	public Object attachment() {
 		return this.endPoint.attachment();

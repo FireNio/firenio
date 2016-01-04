@@ -7,62 +7,62 @@ import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.schedule.Job;
 
-public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool{
-	
-	private class LifedPoolWorker extends Thread{
-		
-		private PoolWorker worker = null;
+public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 
-		public LifedPoolWorker(PoolWorker worker,String name) {
-			super(ThreadPoolImpl.this.threadPrefix+"@PoolWorker-"+name);
+	private class LifedPoolWorker extends Thread {
+
+		private PoolWorker	worker	= null;
+
+		public LifedPoolWorker(PoolWorker worker, String name) {
+			super(ThreadPoolImpl.this.threadPrefix + "@PoolWorker-" + name);
 			this.worker = worker;
 		}
-		
+
 		public void run() {
 			this.worker.run();
 		}
-		
-		public void startWork() throws Exception{
+
+		public void startWork() throws Exception {
 			this.worker.start();
 			this.start();
-			
+
 		}
-		
-		public void stopWork() throws Exception{
+
+		public void stopWork() throws Exception {
 			LifeCycleUtil.stop(worker);
 		}
-		
+
 	}
-	
-	private Queue<Job> jobs						= null;
-	private int size                     		= 0;
-	private String threadPrefix 				= null;
-	private List<LifedPoolWorker> workers  		= new ArrayList<ThreadPoolImpl.LifedPoolWorker>(size);
+
+	private Queue<Job>			jobs			= null;
+	private int				size			= 4;
+	private String				threadPrefix	= null;
+	private List<LifedPoolWorker>	workers		= new ArrayList<ThreadPoolImpl.LifedPoolWorker>(size);
 
 	/**
 	 * default size 4
 	 * 
 	 * @param threadPrefix
 	 */
-	public ThreadPoolImpl(Queue<Job> jobs,String threadPrefix) {
-		this.jobs			= jobs;
-		this.size 			= 4;
-		this.threadPrefix	= threadPrefix;
+	public ThreadPoolImpl(Queue<Job> jobs, String threadPrefix) {
+		this.jobs = jobs;
+		this.size = 4;
+		this.threadPrefix = threadPrefix;
 	}
-	
-	public ThreadPoolImpl(Queue<Job> jobs,String threadPrefix,int size) {
-		this.jobs			= jobs;
-		this.size 			= size;
-		this.threadPrefix	= threadPrefix;
-		
+
+	public ThreadPoolImpl(Queue<Job> jobs, String threadPrefix, int size) {
+		this.jobs = jobs;
+		this.size = size;
+		this.threadPrefix = threadPrefix;
+
 	}
-	
+
 	public void dispatch(Job job) {
 		if (!isStarted()) {
-			//free time, ignore job
+			// free time, ignore job
 			return;
 		}
-		
+
 		jobs.offer(job);
 	}
 
@@ -98,9 +98,9 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool{
 		}
 	}
 
-	private LifedPoolWorker produceWorker(int index){
+	private LifedPoolWorker produceWorker(int index) {
 		PoolWorker worker = new PoolWorker(this.jobs);
-		LifedPoolWorker lifedPoolWorker = new LifedPoolWorker(worker,String.valueOf(index));
+		LifedPoolWorker lifedPoolWorker = new LifedPoolWorker(worker, String.valueOf(index));
 		return lifedPoolWorker;
 	}
 }

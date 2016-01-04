@@ -3,9 +3,13 @@ package com.gifisan.mtp.servlet;
 import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServletContext;
 
 public interface MTPFilter{
+	
+	boolean CONTINUE = false;
+	
+	boolean BREAK = true;
 	
 	/**
 	 * 

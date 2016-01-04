@@ -1,15 +1,15 @@
-package com.gifisan.mtp.server.context;
+package com.gifisan.mtp.server;
+
+import java.nio.charset.Charset;
 
 import com.gifisan.mtp.LifeCycle;
-import com.gifisan.mtp.server.Attributes;
-import com.gifisan.mtp.server.MTPServer;
 import com.gifisan.mtp.server.session.MTPSessionFactory;
 
 public interface ServletContext extends Attributes,LifeCycle{
 
-	public abstract String getEncoding() ;
+	public abstract Charset getEncoding() ;
 
-	public abstract void setEncoding(String encoding) ;
+	public abstract void setEncoding(Charset encoding) ;
 	
 	public abstract MTPServer getServer() ;
 	

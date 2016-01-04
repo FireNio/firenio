@@ -7,46 +7,46 @@ import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.TextMessage;
 
-public class MessageParser {
+public class MessageDecoder {
 	
-	public static Message parse(Response response) throws JMSException{
+	public static Message decode(Response response) throws JMSException{
 		String content = response.getContent();
-		return parse(content);
+		return decode(content);
 	}
 	
-	private static Message parse(String content){
+	private static Message decode(String content){
 		JSONObject object = JSONObject.parseObject(content);
 		int msgType = object.getIntValue("msgType");
-		Message message = messageParsesFromJSON[msgType].parse(object);
+		Message message = messageParsesFromJSON[msgType].decode(object);
 		
 		return message;
 	}
 	
-	static interface MessageParseFromJSON {
+	static interface MessageDecodeFromJSON {
 		
-		Message parse(JSONObject object);
+		Message decode(JSONObject object);
 	}
 	
-	private static MessageParseFromJSON[] messageParsesFromJSON = new MessageParseFromJSON[]{
+	private static MessageDecodeFromJSON[] messageParsesFromJSON = new MessageDecodeFromJSON[]{
 		//ERROR Message
-		new MessageParseFromJSON() {
+		new MessageDecodeFromJSON() {
 			
-			public Message parse(JSONObject object) {
+			public Message decode(JSONObject object) {
 				ErrorMessage message = new ErrorMessage(object.getIntValue("code"));
 				return message;
 			}
 		},
 		//NULL Message
-		new MessageParseFromJSON() {
+		new MessageDecodeFromJSON() {
 			
-			public Message parse(JSONObject object) {
+			public Message decode(JSONObject object) {
 				return null;
 			}
 		},
 		//Text Message
-		new MessageParseFromJSON() {
+		new MessageDecodeFromJSON() {
 			
-			public Message parse(JSONObject object) {
+			public Message decode(JSONObject object) {
 				String messageID = object.getString("messageID");
 				String queueName = object.getString("queueName");
 				String content = object.getString("content");
@@ -56,15 +56,15 @@ public class MessageParser {
 				return message;
 			}
 		},
-		new MessageParseFromJSON() {
+		new MessageDecodeFromJSON() {
 			
-			public Message parse(JSONObject object) {
+			public Message decode(JSONObject object) {
 				return null;
 			}
 		},
-		new MessageParseFromJSON() {
+		new MessageDecodeFromJSON() {
 			
-			public Message parse(JSONObject object) {
+			public Message decode(JSONObject object) {
 				return null;
 			}
 		}

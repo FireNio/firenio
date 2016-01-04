@@ -20,7 +20,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 	
 	MQContextImpl(){}
 	
-	private ProductLine productLine = new ProductLine(this); 
+	private P2PProductLine productLine = new P2PProductLine(this); 
 	
 	public boolean offerMessage(Message message){
 		
@@ -90,7 +90,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 		
 		productLine.start();
 		
-		Thread lineThread = new Thread(productLine, "Product-line");
+		Thread lineThread = new Thread(productLine, "Message-product-line");
 		
 		lineThread.start();
 		

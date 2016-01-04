@@ -1,7 +1,6 @@
 package com.gifisan.mtp.jms;
 
 public interface Transaction {
-
 	
 	/**
 	 * 连接启动事务后，需要进行显示的commit</BR>
@@ -13,9 +12,9 @@ public interface Transaction {
 	 * </ul>
 	 * @throws JMSException
 	 */
-	public abstract void beginTransaction() throws JMSException;
+	public abstract boolean beginTransaction() throws JMSException;
 	
-	public abstract void commit() throws JMSException;
+	public abstract boolean commit() throws JMSException;
 	
-	public abstract void rollback() throws JMSException;
+	public abstract boolean rollback() throws JMSException;
 }

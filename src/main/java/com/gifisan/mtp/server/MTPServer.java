@@ -5,37 +5,33 @@ import java.util.Set;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.component.AttributesImpl;
+import com.gifisan.mtp.servlet.ServletContextImpl;
 
-public final class MTPServer extends AbstractLifeCycle implements Attributes{
-	
-	public MTPServer() {
-		this.contextFactory = new ServletContextFactory(this);
+public final class MTPServer extends AbstractLifeCycle implements Attributes {
+
+	public MTPServer(int port) {
+		this.context = new ServletContextImpl(this);
+		this.connector = new NIOConnector(context);
+		this.connector.setPort(port);
 		this.addLifeCycleListener(new MTPServerListener());
 	}
 
-	private Attributes attributes = new AttributesImpl() ;
-	
-	private Connector connector = new NIOConnector();
-	
-	private ServletContextFactory contextFactory = null;
-	
+	private Attributes		attributes	= new AttributesImpl();
+	private Connector		connector		= null;
+	private ServletContext	context		= null;
+
 	protected void doStart() throws Exception {
-		this.contextFactory.start();
-		this.connector.setServer(this);
+		this.context.start();
 		this.connector.start();
 	}
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(connector);
-		LifeCycleUtil.stop(contextFactory);
+		LifeCycleUtil.stop(context);
 	}
 
-	public Connector getConnector() {
+	protected Connector getConnector() {
 		return connector;
-	}
-
-	public void setConnector(Connector connector) {
-		this.connector = connector;
 	}
 
 	public void removeAttribute(String key) {
@@ -56,11 +52,7 @@ public final class MTPServer extends AbstractLifeCycle implements Attributes{
 
 	public void clearAttributes() {
 		this.attributes.clearAttributes();
-		
+
 	}
-	
-	public void setPort(int port){
-		this.connector.setPort(port);
-	}
-	
+
 }

@@ -10,6 +10,6 @@ public final class LinkNodeQueueThreadPool extends ThreadPoolImpl implements Thr
 	}
 	
 	public LinkNodeQueueThreadPool(String threadPrefix,int size) {
-		super(new LinkNodeQueue<Job>(), threadPrefix);
+		super(new LinkNodeQueue<Job>(), threadPrefix,size);
 	}
 }

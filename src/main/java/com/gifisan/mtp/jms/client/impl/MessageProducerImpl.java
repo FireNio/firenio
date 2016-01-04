@@ -15,7 +15,7 @@ public class MessageProducerImpl extends ConnectonImpl implements MessageProduce
 		super(url, sessionID);
 	}
 
-	public boolean send(Message message) throws JMSException {
+	public boolean offer(Message message) throws JMSException {
 		String param = message.toString();
 		
 		Response response;
@@ -31,6 +31,14 @@ public class MessageProducerImpl extends ConnectonImpl implements MessageProduce
 		}
 		throw new JMSException(result);
 		
+	}
+	
+	public boolean publish(Message message) throws JMSException{
+		
+		
+		
+		
+		throw new JMSException("");
 	}
 
 }

@@ -10,17 +10,20 @@ import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.LifeCycleListener;
 import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.server.ServletContext;
 
-public class SelectorManagerTask extends AbstractLifeCycle implements Runnable{
+public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 
-	private SelectorManager selectorManager = new SelectorManager(); 
+	private SelectorManager	selectorManager	= null;
+	private Thread			task				= null;
+	private boolean		working			= false;
 	
-	private Thread task = null;
-	
-	private boolean working = false;
-	
+	public SelectorManagerTask(ServletContext context) {
+		this.selectorManager = new SelectorManager(context);
+	}
+
 	public void run() {
-		while(isRunning()){
+		while (isRunning()) {
 			try {
 				this.working = true;
 				selectorManager.accept(1000);
@@ -34,10 +37,10 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable{
 	protected void doStart() throws Exception {
 		this.selectorManager.start();
 		this.addLifeCycleListener(new EventListener());
-		this.task = new Thread(this,"Selector@"+this.selectorManager.getSelector());
+		this.task = new Thread(this, "Selector@" + this.selectorManager.getSelector());
 	}
-	
-	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException{
+
+	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException {
 		selectorManager.register(serverSocketChannel);
 	}
 
@@ -49,8 +52,8 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable{
 		Selector selector = selectorManager.getSelector();
 		selector.close();
 	}
-	
-	private class EventListener extends AbstractLifeCycleListener implements LifeCycleListener{
+
+	private class EventListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
 		public void lifeCycleStarted(LifeCycle lifeCycle) {
 			task.start();
@@ -58,9 +61,9 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable{
 
 		public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 			exception.printStackTrace();
-			
+
 		}
-		
+
 	}
-	
+
 }

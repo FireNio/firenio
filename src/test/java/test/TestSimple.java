@@ -12,15 +12,17 @@ public class TestSimple {
 	public static void main(String[] args) throws IOException {
 
 
-		long timeout = 999100000;
+		long timeout = 0;
 
 		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		String param = ClientUtil.getParamString();
-		NIOClient client = ClientUtil.getClient();
+//		NIOClient client = ClientUtil.getClient();
+		NIOClient client = new NIOClient("localhost", 8300, "test111");
 		
 		client.connect();
-//		client.request(serviceKey, param, timeout);
 		Response response = client.request(serviceKey, param, timeout);
+		System.out.println(response.getContent());
+		response = client.request(serviceKey, param, timeout);
 		client.close();
 		
 		System.out.println(response.getContent());

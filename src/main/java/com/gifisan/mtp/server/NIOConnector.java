@@ -4,28 +4,28 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.selector.SelectorManagerTask;
 
-public final class NIOConnector extends AbstractLifeCycle implements Connector{
+public final class NIOConnector extends AbstractLifeCycle implements Connector {
 
-	private int port = 8600;
-	
-	private int localPort = 0;
-	
-	private MTPServer server = null;
-	
-	private ServerSocketChannel serverSocketChannel = null;
-	
-	private ServerSocket serverSocket = null;
-	
-	private SelectorManagerTask selectorManagerTask = new SelectorManagerTask();
-	
-	private String host = "127.0.0.1";
-	
+	private int				port				= 8600;
+	private MTPServer			server			= null;
+	private ServerSocketChannel	channel			= null;
+	private ServerSocket		serverSocket		= null;
+	private SelectorManagerTask	selectorManagerTask	= null;
+	private String				host				= "127.0.0.1";
+	private AtomicBoolean		connected			= new AtomicBoolean(false);
+
+	public NIOConnector(ServletContext context) {
+		this.server = context.getServer();
+		this.selectorManagerTask = new SelectorManagerTask(context);
+	}
+
 	public String getHost() {
 		return host;
 	}
@@ -34,40 +34,33 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector{
 		this.host = host;
 	}
 
-	public int getLocalPort() {
-		return this.localPort;
-	}
-
-	private InetSocketAddress getInetSocketAddress(){
+	private InetSocketAddress getInetSocketAddress() {
 		if (StringUtil.isNullOrBlank(host)) {
 			return new InetSocketAddress(this.port);
 		}
-		return new InetSocketAddress(this.host,this.port);
+		return new InetSocketAddress(this.host, this.port);
 	}
-	
-	public void open() throws IOException {
-		synchronized (this) {
+
+	public void connect() throws IOException {
+		if (connected.compareAndSet(false, true)) {
 			// 打开服务器套接字通道
-			serverSocketChannel = ServerSocketChannel.open();
+			channel = ServerSocketChannel.open();
 			// 服务器配置为非阻塞
-			serverSocketChannel.configureBlocking(false);
+			channel.configureBlocking(false);
 			// 检索与此通道关联的服务器套接字
-			serverSocket = serverSocketChannel.socket();
-			localPort = serverSocket.getLocalPort();
+			serverSocket = channel.socket();
+			// localPort = serverSocket.getLocalPort();
 			// 进行服务的绑定
 			serverSocket.bind(getInetSocketAddress());
-			
 		}
 	}
 
-	public void setServer(MTPServer server) {
-		this.server = server;
-	}
-
 	public void close() throws IOException {
-		 if (serverSocketChannel.isOpen()){
-			 serverSocketChannel.close();
-		 }
+		if (connected.compareAndSet(true, false)) {
+			if (channel.isOpen()) {
+				channel.close();
+			}
+		}
 	}
 
 	public int getPort() {
@@ -79,28 +72,28 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector{
 	}
 
 	protected void doStart() throws Exception {
-		if (this.server == null){
-            throw new IllegalStateException("No server");
+		if (this.server == null) {
+			throw new IllegalStateException("No server");
 		}
-        this.open();
 
-        this.selectorManagerTask.register(serverSocketChannel);
-        
-        this.selectorManagerTask.start();
-        
+		this.connect();
+
+		this.selectorManagerTask.register(channel);
+
+		this.selectorManagerTask.start();
 
 	}
 
 	protected void doStop() throws Exception {
-		
+
 		LifeCycleUtil.stop(selectorManagerTask);
-		
+
 		this.close();
-		
+
 	}
 
 	public void setPort(int port) {
 		this.port = port;
 	}
-	
+
 }

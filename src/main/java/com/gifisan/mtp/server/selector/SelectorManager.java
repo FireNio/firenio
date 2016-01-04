@@ -13,16 +13,23 @@ import java.util.Set;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
-import com.gifisan.mtp.server.ConnectorHandle;
-import com.gifisan.mtp.server.NIOConnectorHandle;
+import com.gifisan.mtp.server.SelectionAcceptor;
+import com.gifisan.mtp.server.NIOSelectionAcceptor;
+import com.gifisan.mtp.server.ServletContext;
 
-public final class SelectorManager extends AbstractLifeCycle implements SelectionAccept{
+public final class SelectorManager extends AbstractLifeCycle implements SelectionAccept {
 
-	private ConnectorHandle connectorHandle 		 = null;
-	private Selector selector 						 = null;
-	private ServerSocketChannel serverSocketChannel = null;
+	private SelectionAcceptor	acceptor	= null;
+	private Selector			selector	= null;
+	private ServerSocketChannel	channel	= null;
 	
+	public SelectorManager(ServletContext context) {
+		this.acceptor = new NIOSelectionAcceptor(context);
+	}
+
 	public void accept(long timeout) throws IOException {
+		Selector selector = this.selector;
+		SelectionAcceptor acceptor = this.acceptor;
 		selector.select(timeout);
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
@@ -32,14 +39,14 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 			if (!selectionKey.isValid()) {
 				continue;
 			}
-			
+
 			if (selectionKey.isAcceptable()) {
 				this.accept(selectionKey);
 				continue;
 			}
-			
+
 			try {
-				this.connectorHandle.accept(selectionKey);
+				acceptor.accept(selectionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 				SelectableChannel channel = selectionKey.channel();
@@ -48,39 +55,37 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 			}
 		}
 	}
-	
+
 	public void accept(SelectionKey selectionKey) throws IOException {
 		// 返回为之创建此键的通道。
 		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
 		// 此方法返回的套接字通道（如果有）将处于阻塞模式。
-		SocketChannel client = server.accept();
+		SocketChannel channel = server.accept();
 		// 配置为非阻塞
-		client.configureBlocking(false);
+		channel.configureBlocking(false);
 		// 注册到selector，等待连接
-		client.register(selector, SelectionKey.OP_READ);
+		channel.register(selector, SelectionKey.OP_READ);
 	}
 
 	protected void doStart() throws Exception {
 		this.selector = Selector.open();
-		this.serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-		this.connectorHandle = new NIOConnectorHandle();
-		this.connectorHandle.start();
-		
+		this.channel.register(selector, SelectionKey.OP_ACCEPT);
+		this.acceptor.start();
+
 	}
-	
+
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(connectorHandle);
-		//应该交给task去关
-		//this.selector.close();
+		LifeCycleUtil.stop(acceptor);
+		// 应该交给task去关
+		// this.selector.close();
 	}
-	
+
 	public Selector getSelector() {
 		return selector;
 	}
-	
-	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException{
-		this.serverSocketChannel = serverSocketChannel;
+
+	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException {
+		this.channel = serverSocketChannel;
 	}
-	
-	
+
 }

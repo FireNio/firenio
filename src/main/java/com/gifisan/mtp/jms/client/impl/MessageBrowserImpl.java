@@ -7,7 +7,7 @@ import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.MessageBrowser;
-import com.gifisan.mtp.jms.client.MessageParser;
+import com.gifisan.mtp.jms.client.MessageDecoder;
 import com.gifisan.mtp.jms.server.JMSBrowserServlet;
 
 public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
@@ -30,7 +30,7 @@ public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
 		}
 		
 		
-		return MessageParser.parse(response);
+		return MessageDecoder.decode(response);
 	}
 
 

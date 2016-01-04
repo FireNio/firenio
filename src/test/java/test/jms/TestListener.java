@@ -2,31 +2,26 @@ package test.jms;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.jms.client.MessageConsumer;
+import com.gifisan.mtp.jms.JMSException;
+import com.gifisan.mtp.jms.Message;
+import com.gifisan.mtp.jms.MessageConsumer;
+import com.gifisan.mtp.jms.client.impl.MessageConsumerImpl;
 
 public class TestListener {
 
-	public static void main(String[] args) throws IOException {
-		
-		long timeout = 999100000;
+	public static void main(String[] args) throws IOException, JMSException {
+		MessageConsumer consumer = new MessageConsumerImpl("mtp://localhost:8300", TestListener1.class.getName(),
+				"sssssss", 0);
 
-		MessageConsumer consumer = new MessageConsumer();
-		
-		consumer.connect();
-		
+		consumer.connect("admin", "admin100");
 		long old = System.currentTimeMillis();
-		
-		for (int i = 0; i < 10000; i++) {
-			String content = consumer.reveice("test-listener",timeout);
-//			System.out.println(content+i);
-			
-		}
-		
-		System.out.println("Time:"+(System.currentTimeMillis() - old));
-		consumer.close();
-		
-		//System.out.println(content);
-		
+
+		Message message = consumer.revice();
+
+		System.out.println("Time:" + (System.currentTimeMillis() - old));
+		System.out.println(message);
+
+		consumer.disconnect();
 
 	}
 

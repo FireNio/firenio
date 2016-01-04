@@ -1,5 +1,6 @@
 package com.gifisan.mtp.jms.server;
 
+import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.jms.ErrorMessage;
 import com.gifisan.mtp.jms.Message;
@@ -42,7 +43,7 @@ public class JMSBrowserServlet extends MTPServlet{
 							
 							response.write(message.toString());
 						}else {
-							response.write(message.toString(), "UTF-8");
+							response.write(message.toString(), Encoding.DEFAULT);
 						}
 					}
 				}

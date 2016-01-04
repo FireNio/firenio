@@ -4,7 +4,7 @@ import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServletContext;
 
 public class WrapperMTPFilterImpl extends AbstractLifeCycle implements WrapperMTPFilter{
 
@@ -41,6 +41,17 @@ public class WrapperMTPFilterImpl extends AbstractLifeCycle implements WrapperMT
 
 	protected void doStop() throws Exception {
 		this.destroy(context, config);
+		
+	}
+
+	private WrapperMTPFilter next = null;
+	
+	public WrapperMTPFilter nextFilter() {
+		return next;
+	}
+
+	public void setNextFilter(WrapperMTPFilter filter) {
+		this.next = filter;
 		
 	}
 	

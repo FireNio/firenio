@@ -1,12 +1,12 @@
 package com.gifisan.mtp.server.session;
 
 import com.gifisan.mtp.server.Attributes;
-import com.gifisan.mtp.server.InnerEndPoint;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServerEndPoint;
+import com.gifisan.mtp.server.ServletContext;
 
 public interface Session extends Attributes {
 
-	public abstract void active(InnerEndPoint endPoint);
+	public abstract void active(ServerEndPoint endPoint);
 
 	public abstract ServletContext getServletContext();
 

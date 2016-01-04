@@ -13,9 +13,7 @@ public class MTPServerLauncher {
 			throw new Exception("未设置服务端口或端口为0");
 		}
 		
-		MTPServer server = new MTPServer();
-		server.setPort(serverPort);
-		server.start();
+		new MTPServer(serverPort).start();
 		
 	}
 	

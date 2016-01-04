@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
-import com.gifisan.mtp.server.InnerEndPoint;
+import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 
@@ -13,9 +13,9 @@ public class ServletAcceptJobImpl implements ServletAcceptJob{
 	private Request request   = null;
 	private Response response = null;
 	private ServletService service = null;
-	private InnerEndPoint endPoint = null;
+	private ServerEndPoint endPoint = null;
 	
-	public ServletAcceptJobImpl(ServletService service,InnerEndPoint endPoint
+	public ServletAcceptJobImpl(ServletService service,ServerEndPoint endPoint
 			,Request request,Response response) {
 		this.service = service;
 		this.endPoint = endPoint;

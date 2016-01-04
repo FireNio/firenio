@@ -5,7 +5,7 @@ import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.context.ServletContext;
+import com.gifisan.mtp.server.ServletContext;
 
 public class TestInitializeErrorServlet extends MTPServlet{
 	
