@@ -65,7 +65,7 @@ public class ClientInputStream extends InputStream {
 		}
 
 		int length = endPoint.read(buffer);
-		while (length < limit) {
+		for (;length < limit;) {
 			int __length = endPoint.read(buffer);
 			length += __length;
 		}

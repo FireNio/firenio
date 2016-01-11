@@ -3,7 +3,6 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.mtp.client.NIOClient;
-import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestBeat {
@@ -12,21 +11,17 @@ public class TestBeat {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 
-		long timeout = 999100000;
-
 		String serviceKey = TestSimpleServlet.SERVICE_NAME;
+		NIOClient client = ClientUtil.getClient();
 		String param = ClientUtil.getParamString();
-//		NIOClient client = ClientUtil.getClient();
-		NIOClient client = new NIOClient("localhost", 8300, "test111");
-		
 		client.connect();
-		client.keepAlive(1000);
-		Thread.sleep(5000);
-		Response response = client.request(serviceKey, param, timeout);
-		System.out.println(response.getContent());
-		response = client.request(serviceKey, param, timeout);
-		client.close();
+		client.keepAlive(1);
+		long old = System.currentTimeMillis();
+		for (int i = 0; i < 10000; i++) {
+			client.request(serviceKey, param);
+		}
+		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
-		System.out.println(response.getContent());
+		client.close();
 	}
 }

@@ -11,18 +11,18 @@ public class TestSimpleServlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 
-		String test = request.getParameter("param");
+		String test = request.getContent();
 
 		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";
 		}
 		
-		response.write("$".getBytes());
-		response.write(test.getBytes());
+		response.write("$");
+		response.write(test);
 
-		response.write(request.getSession().getSessionID().getBytes());
+		response.write(request.getSession().getSessionID());
 
-		response.write("$".getBytes());
+		response.write("$");
 		response.flush();
 		
 	}

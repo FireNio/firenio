@@ -7,7 +7,7 @@ public class Response {
 	public static final int	STREAM		= 1;
 	public static final int	TEXT			= 0;
 	private String			content		= null;
-	private InputStream		inputStream		= null;
+	private InputStream		inputStream	= null;
 	private byte			type			= TEXT;
 
 	public Response(InputStream inputStream) {

@@ -6,7 +6,7 @@ public class TaskExecutor implements Runnable {
 
 	private long		interval	= 0;
 	private Job		job		= null;
-	private byte[]	lock		= new byte[] { 0 };
+	private byte[]	lock		= { 0 };
 	private boolean	running	= true;
 	private Thread		thread	= null;
 
@@ -20,14 +20,18 @@ public class TaskExecutor implements Runnable {
 		long interval = this.interval;
 		byte [] lock = this.lock;
 		Job job = this.job;
-		for (; running;) {
-			job.schedule();
+		for (;;) {
 			try {
 				synchronized (lock) {
 					lock.wait(interval);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+			if (running) {
+				job.schedule();
+			}else{
+				break;
 			}
 		}
 	}

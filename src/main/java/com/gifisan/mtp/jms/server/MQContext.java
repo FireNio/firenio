@@ -11,15 +11,17 @@ public interface MQContext extends MessageQueue, LifeCycle{
 
 	public abstract long getMessageDueTime();
 	
-	public abstract void setMessageDueTime(long dueTime);
-	
 	public abstract boolean isLogined(Session session) ;
+	
+	public abstract int messageSize();
 	
 	public abstract Message parse(Request request);
 	
+	public abstract void removeConsumer(Consumer consumer);
+	
 	public abstract void setLogined(boolean logined,Session session) ;
 	
-	public abstract int messageSize();
+	public abstract void setMessageDueTime(long dueTime);
 	
 	
 }

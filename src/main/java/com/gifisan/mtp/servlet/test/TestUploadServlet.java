@@ -14,8 +14,7 @@ public class TestUploadServlet extends MTPServlet{
 	public static String SERVICE_NAME = TestUploadServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
-		
-		String fileName = "upload-"+request.getParameter("fileName");
+		String fileName = "upload-"+request.getContent();
 		MTPRequestInputStream inputStream = request.getInputStream();
 		File file = new File(fileName);
 		FileOutputStream outputStream = new FileOutputStream(file);
@@ -29,7 +28,7 @@ public class TestUploadServlet extends MTPServlet{
 			outputStream.write(bytes,0,bytes.length);
 		}
 		CloseUtil.close(outputStream);
-		response.write("上传成功！".getBytes());
+		response.write("上传成功！");
 		response.flush();
 	}
 

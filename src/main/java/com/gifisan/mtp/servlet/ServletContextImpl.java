@@ -16,10 +16,11 @@ public class ServletContextImpl extends AbstractLifeCycle implements ServletCont
 	private AttributesImpl		attributesImpl	= new AttributesImpl();
 	private Charset			encoding		= Encoding.DEFAULT;
 	private MTPServer			server		= null;
-	private MTPSessionFactory	sessionFactory	= new MTPSessionFactory();
+	private MTPSessionFactory	sessionFactory	= null;
 
 	public ServletContextImpl(MTPServer server) {
 		this.server = server;
+		this.sessionFactory = new MTPSessionFactory(this);
 	}
 
 	public void clearAttributes() {

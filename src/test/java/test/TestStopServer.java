@@ -11,13 +11,12 @@ public class TestStopServer {
 	
 	public static void main(String[] args) throws IOException {
 		String serviceKey = StopServerServlet.SERVICE_NAME;
-		long timeout = 991000;
 		
 		NIOClient client = ClientUtil.getClient();
 		String params = ClientUtil.getParamString();
 		
 		client.connect();
-		Response response = client.request(serviceKey, params, timeout);
+		Response response = client.request(serviceKey, params);
 		client.close();
 		
 		System.out.println(response.getContent());

@@ -12,21 +12,16 @@ import com.gifisan.mtp.server.ServerEndPoint;
 
 public class MTPServletResponse implements Response {
 
-	public final byte		RESPONSE_STREAM	= 1;
-	public final byte		RESPONSE_TEXT	= 0;
-	private byte			emptyByte		= ' ';
-	private int			dataLength		= 0;
-	private ServerEndPoint			endPoint		= null;
-	private boolean			flushed		= false;
-	private byte			type			= RESPONSE_TEXT;
+	public final byte			RESPONSE_STREAM	= 1;
+	public final byte			RESPONSE_TEXT		= 0;
+	private byte				emptyByte			= ' ';
+	private int				dataLength		= 0;
+	private ServerEndPoint		endPoint			= null;
+	private boolean			flushed			= false;
+	private byte				type				= RESPONSE_TEXT;
 	private boolean			typed			= false;
-	private BufferedOutputStream	bufferWriter	= new BufferedOutputStream();
-	private OutputStream		writer		= null;
-
-	public MTPServletResponse(ServerEndPoint endPoint) {
-		this.endPoint = endPoint;
-		this.writer = this.bufferWriter;
-	}
+	private BufferedOutputStream	bufferWriter		= new BufferedOutputStream();
+	private OutputStream		writer			= null;
 
 	public void flush() throws IOException {
 		if (type < RESPONSE_STREAM) {
@@ -36,7 +31,8 @@ public class MTPServletResponse implements Response {
 
 	public void flushEmpty() throws IOException {
 		this.endPoint.write(emptyByte);
-		this.flush();
+		this.flushText();
+		
 	}
 
 	private void flushText() throws IOException {
@@ -51,11 +47,14 @@ public class MTPServletResponse implements Response {
 		if (!endPoint.isOpened()) {
 			throw new MTPChannelException("channel closed");
 		}
+		
+		this.flushed = true;
 
 		ByteBuffer buffer = getByteBufferTEXT();
-		this.endPoint.write(buffer);
+
 		this.bufferWriter.reset();
-		this.flushed = true;
+		this.endPoint.write(buffer);
+		
 	}
 
 	private ByteBuffer getByteBufferStream() {
@@ -130,6 +129,15 @@ public class MTPServletResponse implements Response {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Response update(ServerEndPoint endPoint){
+		this.endPoint = endPoint;
+		this.type = RESPONSE_TEXT;
+		this.writer = this.bufferWriter;
+		this.flushed = false;
+		this.typed = false;
+		return this;
 	}
 
 	public void write(String content, Charset encoding) {

@@ -3,10 +3,10 @@ package com.gifisan.mtp.servlet;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.component.ServletConfig;
-import com.gifisan.mtp.server.ServletAccept;
+import com.gifisan.mtp.server.ServletAcceptor;
 import com.gifisan.mtp.server.ServletContext;
 
-public abstract class GenericServlet extends AbstractLifeCycle implements LifeCycle, ServletAccept{
+public abstract class GenericServlet extends AbstractLifeCycle implements LifeCycle, ServletAcceptor{
 
 	private ServletContext context = null;
 	
@@ -24,7 +24,7 @@ public abstract class GenericServlet extends AbstractLifeCycle implements LifeCy
 		this.initialize(context,config);
 		
 	}
-
+	
 	protected void doStop() throws Exception {
 		this.destroy(context,config);
 	}

@@ -47,7 +47,7 @@ public class ClientEndPointImpl implements ClientEndPoint {
 		try {
 			int length = buffer.limit();
 			int _length = channel.write(buffer);
-			while (length > _length) {
+			for (;length > _length;) {
 				_length += channel.write(buffer);
 			}
 		} catch (IOException e) {

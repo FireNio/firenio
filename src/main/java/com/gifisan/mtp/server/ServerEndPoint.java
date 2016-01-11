@@ -7,13 +7,15 @@ import com.gifisan.mtp.component.MTPRequestInputStream;
 import com.gifisan.mtp.component.ProtocolDecoder;
 
 public interface ServerEndPoint extends EndPoint{
+	
+	public abstract boolean accepting() ;
 
 	public abstract void attach(Object attachment);
 	
 	public abstract Object attachment();
 	
 	/**
-	 * get state,default value 0
+	 * get comment,default value 0
 	 * @return
 	 */
 	public abstract int comment();
@@ -68,9 +70,11 @@ public interface ServerEndPoint extends EndPoint{
 	
 	/**
 	 * set state,default value 0
-	 * @param state
+	 * @param comment
 	 */
 	public abstract void setComment(int comment);
+	
+	public abstract void setAccepting(boolean accepting) ;
 	
 	public abstract void setMTPRequestInputStream(MTPRequestInputStream inputStream);
 	

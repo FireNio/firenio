@@ -11,14 +11,12 @@ public class TestInitializeError {
 	
 	public static void main(String[] args) throws IOException {
 
-		long timeout = 999900000;
-
 		String serviceKey = TestInitializeErrorServlet.SERVICE_NAME;
 		String param = ClientUtil.getParamString();
 		NIOClient client = ClientUtil.getClient();
 		
 		client.connect();
-		Response response = client.request(serviceKey, param, timeout);
+		Response response = client.request(serviceKey, param);
 		client.close();
 		
 		System.out.println(response.getContent());

@@ -11,16 +11,19 @@ import com.gifisan.mtp.jms.client.impl.MessageBrowserImpl;
 
 public class Portal {
 
-	private static boolean CONTINUE = true;
+	private boolean CONTINUE = true;
 	
-	private static String host = null;
+	private String host = null;
 	
-	private static String port = null;
+	private String port = null;
 	
-	private static MessageBrowser browser = null;
+	private MessageBrowser browser = null;
 	
 	public static void main(String[] args) {
-		
+		new Portal().portal();
+	}
+	
+	public void portal(){
 		printPrefix();
 		
 		while (CONTINUE) {
@@ -42,9 +45,10 @@ public class Portal {
 		}
 		
 		return ;
+		
 	}
 	
-	private static void printPrefix(){
+	private void printPrefix(){
 		if (host == null) {
 			System.out.print("未连接> ");
 		}else{
@@ -54,7 +58,7 @@ public class Portal {
 	}
 	
 	
-	private static CmdRequest parse(String content){
+	private CmdRequest parse(String content){
 		CmdRequest request = new CmdRequest();
 		content = content.trim();
 		String []contents = content.split(" ");
@@ -74,7 +78,7 @@ public class Portal {
 		
 	}
 	
-	private static CmdResponse exec(CmdRequest request){
+	private CmdResponse exec(CmdRequest request){
 		System.out.println(">>>>>>>>>>>>>>"+request);
 		
 		String cmd = request.getCmd();
@@ -89,7 +93,7 @@ public class Portal {
 	
 	
 	
-	private static HashMap<String, Executable> executes = new HashMap<String, Portal.Executable>(){
+	private HashMap<String, Executable> executes = new HashMap<String, Portal.Executable>(){
 		
 		{
 			put("browser", new Executable() {
@@ -200,8 +204,8 @@ public class Portal {
 						browser = new MessageBrowserImpl(url,sessionID);
 						browser.connect(username, password);
 						
-						Portal.host = host;
-						Portal.port = port;
+						Portal.this.host = host;
+						Portal.this.port = port;
 						
 						response.setResponse("连接成功！");
 					} catch (JMSException e) {

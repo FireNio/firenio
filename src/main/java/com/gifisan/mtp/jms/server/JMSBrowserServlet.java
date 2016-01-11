@@ -2,6 +2,7 @@ package com.gifisan.mtp.jms.server;
 
 import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.jms.ErrorMessage;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.NullMessage;
@@ -16,7 +17,9 @@ public class JMSBrowserServlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 		
-		String messageID = request.getParameter("messageID");
+		RequestParam param = request.getParameters();
+		
+		String messageID = param.getParameter("messageID");
 		
 		Session session = request.getSession();
 		
@@ -26,7 +29,7 @@ public class JMSBrowserServlet extends MTPServlet{
 		
 		if (context.isLogined(session)) {
 		
-			String cmd = request.getParameter("cmd");
+			String cmd = param.getParameter("cmd");
 			if (StringUtil.isNullOrBlank(cmd)) {
 				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
 			}else{

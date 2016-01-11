@@ -27,6 +27,7 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 	private Socket				socket			= null;
 
 	public ServerNIOEndPoint(SocketChannel channel) throws SocketException {
+		this.protocolDecoder = new NormalProtocolDecoder();
 		this.channel = channel;
 		socket = channel.socket();
 		if (socket == null) {

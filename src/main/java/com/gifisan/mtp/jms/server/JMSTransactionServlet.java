@@ -14,13 +14,12 @@ public class JMSTransactionServlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 
-		
 		Session session = request.getSession();
 		
 		MQContext context = MQContextFactory.getMQContext();
 		
 		if (context.isLogined(session)) {
-			String action = request.getParameter("action");
+			String action = request.getContent();
 			
 			TransactionSection section = (TransactionSection) session.getAttribute("_MQ_TRANSACTION");
 			

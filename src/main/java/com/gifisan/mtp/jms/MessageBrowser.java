@@ -1,8 +1,8 @@
 package com.gifisan.mtp.jms;
 
-import com.gifisan.mtp.jms.client.Connection;
+import com.gifisan.mtp.jms.client.JMSConnection;
 
-public interface MessageBrowser extends Connection{
+public interface MessageBrowser extends JMSConnection{
 	
 	
 

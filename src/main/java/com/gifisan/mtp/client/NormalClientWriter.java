@@ -10,7 +10,7 @@ public class NormalClientWriter implements ClientWriter {
 		endPoint.write(header);
 		byte[] bytes = new byte[block];
 		int length = inputStream.read(bytes);
-		while (length == block) {
+		for (;length == block;) {
 			ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			endPoint.write(buffer);
 			length = inputStream.read(bytes);

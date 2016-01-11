@@ -54,7 +54,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	private boolean transactionVal(String action) throws JMSException{
 		Response response;
 		try {
-			response = client.request(JMSTransactionServlet.SERVICE_NAME, action, 0);
+			response = client.request(JMSTransactionServlet.SERVICE_NAME, action);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -81,7 +81,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	public Message revice() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_NAME, reviceParam, 0);
+			response = client.request(JMSConsumerServlet.SERVICE_NAME, reviceParam);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -92,7 +92,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	public Message subscibe() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_NAME, subscibeParam, 0);
+			response = client.request(JMSConsumerServlet.SERVICE_NAME, subscibeParam);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}

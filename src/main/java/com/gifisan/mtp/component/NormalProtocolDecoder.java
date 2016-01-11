@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.common.DateUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.ServerEndPoint;
@@ -13,7 +12,7 @@ import com.gifisan.mtp.server.ServletContext;
 public class NormalProtocolDecoder implements ProtocolDecoder {
 
 	private MTPRequestInputStream 	inputStream 		= null;
-	private JSONObject 				parameters 		= null;
+	private String  				content 			= null;
 	private String 				serviceName 		= null;
 	private String 				sessionID 		= null;
 	private boolean 				beat 			= false;
@@ -22,10 +21,10 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 		return inputStream;
 	}
 	
-	public JSONObject getParameters() {
-		return parameters;
+	public String getContent() {
+		return content;
 	}
-	
+
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -34,11 +33,26 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 		return sessionID;
 	}
 	
+	private void reset(){
+		this.beat = false;
+		this.content = null;
+		this.inputStream = null;
+	}
+	
 	public boolean decode(ServletContext context,ServerEndPoint endPoint) throws IOException{
 		ByteBuffer buffer = ByteBuffer.allocate(1);
 		int length = endPoint.read(buffer);
 		
+//		if (length == -1) {
+//			return false;
+//		}
+//		
+//		if (length == 0) {
+//			return true;
+//		}
+		
 		if (length < 1) {
+			endPoint.endConnect();
 			return false;
 		}
 
@@ -50,6 +64,8 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 			return true;
 		}
 		
+		this.reset();
+		
 		buffer = ByteBuffer.allocate(9);
 		length = endPoint.readHead(buffer);
 		
@@ -59,12 +75,14 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 			// 如果一次读取不到9个byte
 			// 这样的连接持续下去也是无法进行业务操作
 			// 还有一种情况是有人在恶意攻击服务器
+			endPoint.endConnect();
 			return false;
 		}
 		
 		if (type < 3) {
 			return headerDecoders[type].parse(context, this, endPoint, header);
 		}else{
+			endPoint.endConnect();
 			return false;
 		}
 	}
@@ -82,12 +100,12 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 			return v0 | v1 | v2;
 		}
 		
-		JSONObject readDataText(int pLength,ServletContext context,ServerEndPoint endPoint) throws IOException{
+		String readDataText(int pLength,ServletContext context,ServerEndPoint endPoint) throws IOException{
 			if (pLength > 0) {
 				ByteBuffer buffer = endPoint.completeRead(pLength);
 				byte [] bytes = buffer.array();
 				String content = new String(bytes,context.getEncoding());
-				return JSONObject.parseObject(content);
+				return content;
 			}
 			return null;
 		}
@@ -147,7 +165,7 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 				
 				gainNecessary(decoder,endPoint,header);
 
-				decoder.parameters = readDataText(pLength, context,endPoint);
+				decoder.content = readDataText(pLength, context,endPoint);
 				
 				return true;
 				
@@ -176,7 +194,7 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 				
 				gainNecessary(decoder,endPoint,header);
 				
-				decoder.parameters = readDataText(pLength, context,endPoint);
+				decoder.content = readDataText(pLength, context,endPoint);
 				
 				decoder.inputStream = readDataInputStream(dLength,endPoint);
 				

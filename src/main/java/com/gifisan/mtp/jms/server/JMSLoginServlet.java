@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
@@ -24,24 +25,28 @@ public class JMSLoginServlet extends MTPServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 		
+		RequestParam param = request.getParameters();
 		
-		String username = request.getParameter("username");
+		String username = param.getParameter("username");
 		
-		String password = request.getParameter("password");
+		String password = param.getParameter("password");
 		
 		boolean result = this.username.equals(username) && this.password.equals(password);
 		if (result) {
 			
 			MQContext context = MQContextFactory.getMQContext();
 			Session session = request.getSession();
+			session.setEventListener(new TransactionProtectListener());
 			context.setLogined(true,session);
 //			session.setAttribute("login", true);
 //			session.setAttribute("username", username);
 			logger.info("user ["+username+"] login successful!");
 			response.write(TRUE);
 		}else{
+			request.getSession().destroy();
 			logger.info("user ["+username+"] login failed!");
 			response.write(FALSE);
+			
 		}
 		response.flush();
 		

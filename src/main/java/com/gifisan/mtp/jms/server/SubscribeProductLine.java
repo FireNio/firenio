@@ -8,6 +8,7 @@ import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.component.BlockingQueueThreadPool;
 import com.gifisan.mtp.component.MessageWriterJob;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.component.ThreadPool;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
@@ -35,15 +36,12 @@ public class SubscribeProductLine extends AbstractLifeCycle implements MessageQu
 		this.consumerGroupMap = new HashMap<String, ConsumerGroup>();
 
 		this.dueTime = context.getMessageDueTime();
+		
+		SharedBundle bundle = SharedBundle.instance();
 
-		int APP_SERVER_CORE_SIZE = SharedBundle.getIntegerProperty("APP_SERVER_CORE_SIZE");
+		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
 
-		APP_SERVER_CORE_SIZE = APP_SERVER_CORE_SIZE == 0 ? 4 : APP_SERVER_CORE_SIZE;
-
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", APP_SERVER_CORE_SIZE);
-
-		// this.messageWriteThreadPool = new
-		// LinkNodeQueueThreadPool("MessageWrite-Job", APP_SERVER_CORE_SIZE);
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", CORE_SIZE);
 
 		this.messageWriteThreadPool.start();
 
@@ -86,11 +84,13 @@ public class SubscribeProductLine extends AbstractLifeCycle implements MessageQu
 
 	public void pollMessage(Request request, Response response) {
 
-		String queueName = request.getParameter("queueName");
+		RequestParam param = request.getParameters();
+		
+		String queueName = param.getParameter("queueName");
 
 		ConsumerGroup consumerGroup = getConsumerGroup(queueName);
 
-		Consumer consumer = new Consumer(request, response);
+		Consumer consumer = new Consumer(request, response,consumerGroup,queueName);
 
 		consumerGroup.offer(consumer);
 	}
@@ -121,14 +121,6 @@ public class SubscribeProductLine extends AbstractLifeCycle implements MessageQu
 			MessageWriterJob job = new MessageWriterJob(messageGroup, consumer, message);
 
 			messageWriteThreadPool.dispatch(job);
-
-			// try {
-			// consumer.push(message);
-			// } catch (IOException e) {
-			// // TODO roll back
-			// e.printStackTrace();
-			// offerMessage(message);
-			// }
 
 		}
 

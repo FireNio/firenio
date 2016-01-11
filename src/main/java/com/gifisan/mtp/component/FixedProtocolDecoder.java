@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.ServletContext;
@@ -12,7 +11,7 @@ import com.gifisan.mtp.server.ServletContext;
 public class FixedProtocolDecoder implements ProtocolDecoder {
 
 	private MTPRequestInputStream 	inputStream 		= null;
-	private JSONObject 				parameters 		= null;
+	private String 				content	 		= null;
 	private String 				serviceName 		= null;
 	private String 				sessionID 		= null;
 	private boolean 				beat 			= false;
@@ -21,10 +20,12 @@ public class FixedProtocolDecoder implements ProtocolDecoder {
 		return inputStream;
 	}
 	
-	public JSONObject getParameters() {
-		return parameters;
+	public String getContent() {
+		return content;
 	}
-	
+
+
+
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -64,12 +65,12 @@ public class FixedProtocolDecoder implements ProtocolDecoder {
 			return v0 | v1 | v2;
 		}
 		
-		JSONObject readDataText(int pLength,ServletContext context,ServerEndPoint endPoint) throws IOException{
+		String readDataText(int pLength,ServletContext context,ServerEndPoint endPoint) throws IOException{
 			if (pLength > 0) {
 				ByteBuffer buffer = endPoint.completeRead(pLength);
 				byte [] bytes = buffer.array();
 				String content = new String(bytes,context.getEncoding());
-				return JSONObject.parseObject(content);
+				return content;
 			}
 			return null;
 		}
@@ -128,7 +129,7 @@ public class FixedProtocolDecoder implements ProtocolDecoder {
 				
 				gainNecessary(decoder,endPoint,header);
 
-				decoder.parameters = readDataText(pLength, context,endPoint);
+				decoder.content = readDataText(pLength, context,endPoint);
 				
 				return true;
 				
@@ -157,7 +158,7 @@ public class FixedProtocolDecoder implements ProtocolDecoder {
 				
 				gainNecessary(decoder,endPoint,header);
 				
-				decoder.parameters = readDataText(pLength, context,endPoint);
+				decoder.content = readDataText(pLength, context,endPoint);
 				
 				decoder.inputStream = readDataInputStream(dLength,endPoint);
 				

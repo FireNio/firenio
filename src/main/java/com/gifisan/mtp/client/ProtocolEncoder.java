@@ -5,18 +5,19 @@ import java.nio.ByteBuffer;
 public class ProtocolEncoder {
 
 	
-	private static void encodeKS(byte [] header,int kLength,int sLength){
+	
+	private void encodeKS(byte [] header,int kLength,int sLength){
 		header[1]  = (byte)sLength;
 		header[2]  = (byte)kLength;
 	}
 	
-	private static void encodeContent(byte [] header,int pLength){
+	private void encodeContent(byte [] header,int pLength){
 		header[3]  = (byte) ( pLength          & 0xff);
 		header[4]  = (byte) ((pLength >>   8)  & 0xff);
 		header[5]  = (byte) ((pLength >>  16)  & 0xff);
 	}
 	
-	private static void encodeStream(byte [] header,int streamLength){
+	private void encodeStream(byte [] header,int streamLength){
 		header[6]  = (byte) ( streamLength          & 0xff);
 		header[7]  = (byte) ((streamLength >>   8)  & 0xff);
 		header[8]  = (byte) ((streamLength >>  16)  & 0xff);
@@ -24,7 +25,7 @@ public class ProtocolEncoder {
 	}
 	
 	//text without content
-	public static ByteBuffer encode(byte [] sessionID,byte[] serviceName){
+	public ByteBuffer encode(byte [] sessionID,byte[] serviceName){
 		int sLength = sessionID.length;
 		int kLength = serviceName.length;
 		int bLength = sLength + kLength + 10;
@@ -43,7 +44,7 @@ public class ProtocolEncoder {
 	}
 	
 	//text with content
-	public static ByteBuffer encode(byte [] sessionID,byte[] serviceName,byte [] parameter){
+	public ByteBuffer encode(byte [] sessionID,byte[] serviceName,byte [] parameter){
 		int sLength = sessionID.length;
 		int kLength = serviceName.length;
 		int pLength = parameter.length;
@@ -65,7 +66,7 @@ public class ProtocolEncoder {
 	}
 	
 	//data without content
-	public static ByteBuffer encode(byte [] sessionID,byte[] serviceName,int streamLength){
+	public ByteBuffer encode(byte [] sessionID,byte[] serviceName,int streamLength){
 		int sLength = sessionID.length;
 		int kLength = serviceName.length;
 		int bLength = sLength + kLength + 10;
@@ -84,7 +85,7 @@ public class ProtocolEncoder {
 	}
 	
 	//data with content
-	public static ByteBuffer encode(byte [] sessionID,byte[] serviceName,byte [] parameter,int streamLength){
+	public ByteBuffer encode(byte [] sessionID,byte[] serviceName,byte [] parameter,int streamLength){
 		int sLength = sessionID.length;
 		int kLength = serviceName.length;
 		int pLength = parameter.length;

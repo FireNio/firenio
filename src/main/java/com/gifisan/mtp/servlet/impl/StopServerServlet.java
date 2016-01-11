@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.server.MTPServer;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
@@ -18,8 +19,9 @@ public class StopServerServlet extends MTPServlet{
 	public static final String SERVICE_NAME = "stop-server";
 	
 	public void accept(Request request, Response response) throws Exception {
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
+		RequestParam param = request.getParameters();
+		String username = param.getParameter("username");
+		String password = param.getParameter("password");
 		if (StringUtil.isNullOrBlank(username) || StringUtil.isNullOrBlank(password)) {
 			return;
 		}
@@ -43,8 +45,8 @@ public class StopServerServlet extends MTPServlet{
 
 		public void run() {
 			logger.info("[MTPServer] 执行命令：<停止服务>");
-			String [] words = new String[]{"三","二","一"};
-			for (int i = 0; i < 3; i++) {
+			String [] words = new String[]{"五","四","三","二","一"};
+			for (int i = 0; i < 5; i++) {
 				logger.info("[MTPServer] 服务将在"+words[i]+"秒后开始停止，请稍等");
 				try {
 					Thread.sleep(1000);

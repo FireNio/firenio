@@ -12,6 +12,7 @@ import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.FilterConfig;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.component.RESMessage;
 import com.gifisan.mtp.server.AsynchServletAcceptJob;
 import com.gifisan.mtp.server.Request;
@@ -66,8 +67,9 @@ public class DownloadFilter implements MTPFilter {
 			excludesMap.put(exclude, null);
 		}
 
-		int APP_SERVER_CORE_SIZE = SharedBundle.getIntegerProperty("APP_SERVER_CORE_SIZE");
-		int maximumPoolSize = APP_SERVER_CORE_SIZE << 4;
+		SharedBundle bundle = SharedBundle.instance();
+		int CORE_SIZE 	= bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
+		int maximumPoolSize = CORE_SIZE << 4;
 		if (maximumPoolSize < 32) {
 			maximumPoolSize = 32;
 		}
@@ -88,11 +90,11 @@ public class DownloadFilter implements MTPFilter {
 		}
 
 		public void accept(Request request, Response response) throws Exception {
-
 			String serviceName = request.getServiceName();
 			String filePath = serviceName;
-			int start = request.getIntegerParameter("start");
-			int downloadLength = request.getIntegerParameter("length");
+			RequestParam param = request.getParameters();
+			int start = param.getIntegerParameter("start");
+			int downloadLength = param.getIntegerParameter("length");
 			File file = new File(filePath);
 
 			FileInputStream inputStream = null;

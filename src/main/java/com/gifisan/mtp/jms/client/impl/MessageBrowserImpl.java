@@ -24,7 +24,7 @@ public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
 		
 		Response response;
 		try {
-			response = client.request(JMSBrowserServlet.SERVICE_NAME,param.toJSONString() , 0);
+			response = client.request(JMSBrowserServlet.SERVICE_NAME,param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}

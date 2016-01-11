@@ -8,6 +8,7 @@ import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.component.BlockingQueueThreadPool;
 import com.gifisan.mtp.component.MessageWriterJob;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.component.ThreadPool;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
@@ -36,14 +37,11 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		this.dueTime = context.getMessageDueTime();
 
-		int APP_SERVER_CORE_SIZE = SharedBundle.getIntegerProperty("APP_SERVER_CORE_SIZE");
+		SharedBundle bundle = SharedBundle.instance();
 
-		APP_SERVER_CORE_SIZE = APP_SERVER_CORE_SIZE == 0 ? 4 : APP_SERVER_CORE_SIZE;
+		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
 
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", APP_SERVER_CORE_SIZE);
-
-		// this.messageWriteThreadPool = new
-		// LinkNodeQueueThreadPool("MessageWrite-Job", APP_SERVER_CORE_SIZE);
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", CORE_SIZE);
 
 		this.messageWriteThreadPool.start();
 
@@ -86,18 +84,36 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 	public void pollMessage(Request request, Response response) {
 
-		String queueName = request.getParameter("queueName");
+		RequestParam param = request.getParameters();
+
+		String queueName = param.getParameter("queueName");
 
 		ConsumerGroup consumerGroup = getConsumerGroup(queueName);
-
-		Consumer consumer = new Consumer(request, response);
-
+		
+		Consumer consumer = new Consumer(request, response, consumerGroup, queueName);
+		
 		consumerGroup.offer(consumer);
 	}
 
-	public void run() {
+	public void removeConsumer(Consumer consumer) {
 
-		while (running) {
+		ConsumerGroup consumerGroup = consumer.getConsumerGroup();
+
+		consumerGroup.remove(consumer);
+
+		//FIXME 这样做不安全，出现问题的可能性比较小，但是以后再想办法解决
+		if (consumerGroup.size() == 0) {
+			synchronized (consumerGroupMap) {
+				if (consumerGroup.size() == 0) {
+					consumerGroupMap.remove(consumer.getQueueName());
+				}
+			}
+		}
+	}
+
+	public void run() {
+		
+		for (;running;) {
 
 			Message message = messageGroup.poll(16);
 
@@ -121,14 +137,6 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 			MessageWriterJob job = new MessageWriterJob(messageGroup, consumer, message);
 
 			messageWriteThreadPool.dispatch(job);
-
-			// try {
-			// consumer.push(message);
-			// } catch (IOException e) {
-			// // TODO roll back
-			// e.printStackTrace();
-			// offerMessage(message);
-			// }
 
 		}
 

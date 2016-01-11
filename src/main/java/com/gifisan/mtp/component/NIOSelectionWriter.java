@@ -7,7 +7,7 @@ import com.gifisan.mtp.server.selector.SelectionAccept;
 
 public class NIOSelectionWriter implements SelectionAccept{
 
-	public void accept(SelectionKey selectionKey) throws Exception {
+	public void accept(SelectionKey selectionKey) throws IOException {
 		throw new IOException("print a will");
 	}
 }

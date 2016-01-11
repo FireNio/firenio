@@ -9,12 +9,9 @@ import com.gifisan.mtp.server.session.Session;
 
 public class JMSConsumerServlet extends MTPServlet{
 
-//	private final Logger logger = LoggerFactory.getLogger(JMSConsumerServlet.class);
-	
 	public static String SERVICE_NAME = JMSConsumerServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
-
 		
 		Session session = request.getSession();
 		
@@ -22,33 +19,13 @@ public class JMSConsumerServlet extends MTPServlet{
 		
 		if (context.isLogined(session)) {
 			
-//			long timeout = request.getLongParameter("timeout");
+			Consumer consumer = (Consumer) session.getAttribute("_consumer");
 			
-			context.pollMessage(request, response);
-			
-			
-			/*
-			if (session.connecting()) {
-
-				if (message == null) {
-					message = NullMessage.NULL_MESSAGE;
-				}
-				
-				String content = message.toString();
-				
-				response.write(content.getBytes());
-				
-				response.flush();
-				
-//				logger.info("push message ,id ["+message.getMessageID()+"]");
-				
+			if (consumer == null) {
+				context.pollMessage(request, response);
 			}else{
-				if (message != null) {
-					
-					context.regist(message);
-				}
+				consumer.update(request, response);
 			}
-			*/
 			
 		}else{
 			Message message = ErrorMessage.UNAUTH_MESSAGE;

@@ -2,15 +2,16 @@ package com.gifisan.mtp.server;
 
 import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.MTPRequestInputStream;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.server.session.Session;
 
 public interface Request {
-
-	public abstract boolean getBooleanParameter(String key);
+	
+	public abstract RequestParam getParameters();
+	
+	public abstract String getContent();
 
 	public abstract MTPRequestInputStream getInputStream();
-
-	public abstract int getIntegerParameter(String key);
 
 	public abstract String getLocalAddr();
 
@@ -18,11 +19,7 @@ public interface Request {
 
 	public abstract int getLocalPort();
 
-	public abstract long getLongParameter(String key);
-
 	public abstract int getMaxIdleTime();
-
-	public abstract Object getObjectParameter(String key);
 
 	public abstract String getRemoteAddr();
 
@@ -33,8 +30,6 @@ public interface Request {
 	public abstract String getServiceName();
 	
 	public abstract Session getSession();
-	
-	public abstract String getParameter(String key);
 	
 	public abstract boolean isBlocking();
 	

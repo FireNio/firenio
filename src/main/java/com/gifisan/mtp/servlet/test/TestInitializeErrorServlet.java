@@ -1,6 +1,5 @@
 package com.gifisan.mtp.servlet.test;
 
-import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
@@ -12,14 +11,6 @@ public class TestInitializeErrorServlet extends MTPServlet{
 	public static final String SERVICE_NAME = TestInitializeErrorServlet.class.getSimpleName();
 	
 	public void accept(Request request, Response response) throws Exception {
-		String test = request.getParameter("test");
-		if (StringUtil.isNullOrBlank(test)) {
-			test = "test222";
-		}
-		
-		response.write("@".getBytes());
-		response.write(test.getBytes());
-		response.flush();
 		
 	}
 

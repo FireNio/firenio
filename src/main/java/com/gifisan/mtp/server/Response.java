@@ -8,7 +8,7 @@ public interface Response extends OutputStream{
 	public abstract void write(String content);
 	
 	public abstract void write(String content,Charset encoding);
-
+	
 	/**
 	 * 文本类型的response最后要做flush操作
 	 * @throws IOException

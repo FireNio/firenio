@@ -2,37 +2,77 @@ package com.gifisan.mtp.servlet.test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.gifisan.mtp.common.CloseUtil;
+import com.gifisan.mtp.component.RESMessage;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 
-public class TestDownloadServlet extends MTPServlet{
+public class TestDownloadServlet extends MTPServlet {
 
-	public static String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
-	
-	private int BLOCK = 102400;
-	
+	public static String	SERVICE_NAME	= TestDownloadServlet.class.getSimpleName();
+	private int			BLOCK		= 102400;
+
 	public void accept(Request request, Response response) throws Exception {
-		
+		String filePath = request.getContent();
+		RequestParam param = request.getParameters();
+		int start = param.getIntegerParameter("start");
+		int downloadLength = param.getIntegerParameter("length");
+		File file = new File(filePath);
 
-		File file = new File("upload-temp.zip");
+		FileInputStream inputStream = null;
+		try {
+			if (!file.exists()) {
+				RESMessage message = new RESMessage(404, "file not found:" + filePath);
+				response.write(message.toString());
+				response.flush();
+				return;
+			}
 
-		FileInputStream inputStream = new FileInputStream(file);
-		response.setStreamResponse(inputStream.available());
-		byte [] bytes = new byte[BLOCK];
-		int length = inputStream.read(bytes);
-		while (length == BLOCK) {
-			response.write(bytes);
-			length = inputStream.read(bytes);
+			inputStream = new FileInputStream(file);
+
+			int available = inputStream.available();
+
+			if (downloadLength == 0) {
+				downloadLength = available - start;
+			}
+
+			response.setStreamResponse(downloadLength);
+
+			inputStream.skip(start);
+
+			int BLOCK = this.BLOCK;
+
+			if (BLOCK > downloadLength) {
+				byte[] bytes = new byte[downloadLength];
+				inputStream.read(bytes);
+				response.write(bytes);
+			} else {
+				byte[] bytes = new byte[BLOCK];
+				int times = downloadLength / BLOCK;
+				int remain = downloadLength % BLOCK;
+				while (times > 0) {
+					inputStream.read(bytes);
+					response.write(bytes);
+					times--;
+				}
+				if (remain > 0) {
+					inputStream.read(bytes, 0, remain);
+					response.write(bytes, 0, remain);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			CloseUtil.close(inputStream);
 		}
-		if (bytes.length > 0) {
-			response.write(bytes,0,length);
-		}
-		CloseUtil.close(inputStream);
-		
+
 	}
 
-	
 }

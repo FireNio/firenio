@@ -1,11 +1,15 @@
 package com.gifisan.mtp.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -14,6 +18,7 @@ import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.common.FileUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.server.Request;
@@ -23,8 +28,8 @@ import com.gifisan.mtp.server.ServletContext;
 public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTPFilterService, LifeCycle {
 
 	private ServletContext	context		= null;
-
 	private WrapperMTPFilter	rootFilter	= null;
+	private Logger			logger		= LoggerFactory.getLogger(MTPFilterServiceImpl.class);
 
 	public MTPFilterServiceImpl(ServletContext context) {
 		this.context = context;
@@ -46,16 +51,30 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 
 	private void loadFilters() {
 		try {
-			String str = FileUtil.readContentByCls("filters.config", Encoding.DEFAULT);
-			if (StringUtil.isNullOrBlank(str)) {
-
-				return;
+			String config = FileUtil.readContentByCls("filters.config", Encoding.DEFAULT);
+			if (StringUtil.isNullOrBlank(config)) {
+				logger.warn("[MTPServer] 不存在默认的Filter配置文件");
+			}else{
+				logger.info("[MTPServer] 读取默认Filter配置文件");
+				JSONArray array = JSONArray.parseArray(config);
+				loadFilters(array);
 			}
+			String userConfigPath = SharedBundle.instance().getProperty("SERVER.FILTERS");
 
-			JSONArray array = JSONArray.parseArray(str);
-
-			if (array.size() > 0) {
-				loadFilters0(array);
+			if (!StringUtil.isNullOrBlank(userConfigPath)) {
+				File userConfigFile = new File(userConfigPath);
+				if (userConfigFile.exists()) {
+					String userConfig = FileUtil.readFileToString(userConfigFile, Encoding.UTF8);
+					if (StringUtil.isNullOrBlank(userConfig)) {
+						logger.warn("[MTPServer] 不存在自定义的Filter配置文件：" + userConfigFile.getAbsolutePath());
+					} else {
+						logger.info("[MTPServer] 读取自定义Filter配置文件：" + userConfigFile.getAbsolutePath());
+						JSONArray array = JSONObject.parseArray(userConfig);
+						loadFilters(array);
+					}
+				}else{
+					logger.warn("[MTPServer] 不存在自定义的Filter配置文件：" + userConfigFile.getAbsolutePath());
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -63,7 +82,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 
 	}
 
-	private void loadFilters0(JSONArray array) {
+	private void loadFilters(JSONArray array) {
 
 		WrapperMTPFilter last = null;
 

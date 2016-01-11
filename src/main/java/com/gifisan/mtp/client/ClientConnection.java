@@ -30,6 +30,7 @@ public class ClientConnection implements Closeable {
 	private InetSocketAddress	serverAddress	= null;
 	private ClientEndPoint		endPoint		= null;
 	private ClientWriter		writer		= writers[0];
+	private ProtocolEncoder		encoder		= new ProtocolEncoder();
 
 	public ClientConnection(String host, int port) {
 		this.host = host;
@@ -123,7 +124,7 @@ public class ClientConnection implements Closeable {
 		selector.select();
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
-		while (iterator.hasNext()) {
+		for (;iterator.hasNext();) {
 			SelectionKey selectionKey = iterator.next();
 			iterator.remove();
 			SocketChannel channel = (SocketChannel) selectionKey.channel();
@@ -148,7 +149,7 @@ public class ClientConnection implements Closeable {
 	private ByteBuffer read(EndPoint endPoint, int length, long timeout) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int _length = endPoint.read(buffer);
-		while (_length < length) {
+		for (;_length < length;) {
 			int __length = endPoint.read(buffer);
 			_length += __length;
 		}
@@ -159,7 +160,7 @@ public class ClientConnection implements Closeable {
 		this.netweak = true;
 	}
 
-	public void wakeup() {
+	protected void wakeup() {
 		this.selector.wakeup();
 	}
 
@@ -173,9 +174,9 @@ public class ClientConnection implements Closeable {
 		ByteBuffer buffer = null;
 
 		if (StringUtil.isNullOrBlank(content)) {
-			buffer = ProtocolEncoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset));
+			buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset));
 		} else {
-			buffer = ProtocolEncoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
+			buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
 					content.getBytes(charset));
 		}
 		buffer.flip();
@@ -200,46 +201,32 @@ public class ClientConnection implements Closeable {
 			ByteBuffer buffer = null;
 
 			if (StringUtil.isNullOrBlank(content)) {
-				buffer = ProtocolEncoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
+				buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
 						avaiable);
 			} else {
-				buffer = ProtocolEncoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
+				buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
 						content.getBytes(charset), avaiable);
 			}
 
 			buffer.flip();
-			
+
 			writer.writeStream(endPoint, inputStream, buffer, BLOCK);
 
-//			synchronized (writeLock) {
-//				endPoint.write(buffer);
-//				byte[] bytes = new byte[BLOCK];
-//				int length = inputStream.read(bytes);
-//				while (length == BLOCK) {
-//					buffer = ByteBuffer.wrap(bytes);
-//					endPoint.write(buffer);
-//					length = inputStream.read(bytes);
-//				}
-//				if (length > 0) {
-//					buffer = ByteBuffer.wrap(bytes, 0, length);
-//					endPoint.write(buffer);
-//				}
-//			}
 			endPoint.register(selector, SelectionKey.OP_READ);
 		}
 
 	}
-	
-	public void writeBeat() throws IOException {
+
+	protected void writeBeat() throws IOException {
 		checkConnector();
 		writer.writeBeat(endPoint);
-		System.out.println(">>write beat........."+DateUtil.now());
+		System.out.println(">>write beat........." + DateUtil.now());
 	}
-	
-	public void keepAlive(){
+
+	protected void keepAlive() {
 		this.writer = writers[1];
 	}
-	
-	private static ClientWriter [] writers = new ClientWriter[]{new NormalClientWriter(),new AliveClientWriter()};
+
+	private static ClientWriter[]	writers	= new ClientWriter[] { new NormalClientWriter(), new AliveClientWriter() };
 
 }

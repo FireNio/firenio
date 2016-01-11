@@ -1,8 +1,8 @@
 package com.gifisan.mtp.jms;
 
-import com.gifisan.mtp.jms.client.Connection;
+import com.gifisan.mtp.jms.client.JMSConnection;
 
-public interface MessageProducer extends Connection{
+public interface MessageProducer extends JMSConnection{
 
 	
 	public boolean offer(Message message) throws JMSException;

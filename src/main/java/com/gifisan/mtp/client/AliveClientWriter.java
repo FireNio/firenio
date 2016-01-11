@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 public class AliveClientWriter extends NormalClientWriter implements ClientWriter{
 
-	private byte [] beat = new byte[] { 3 };
+	private byte [] beat = { 3 };
 	
 	public void writeStream(ClientEndPoint endPoint,InputStream inputStream,ByteBuffer header,int block) throws IOException{
 		synchronized (this) {

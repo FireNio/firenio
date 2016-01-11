@@ -9,7 +9,7 @@ import com.gifisan.mtp.server.RequestInputStream;
 
 public class MTPRequestInputStream extends InputStream implements RequestInputStream{
 	
-	private static byte [] empty 	= new byte[0];
+	private static byte [] empty 	= {};
 	private int avaiable 			= 0;
 	private int BLOCK 				= 0;
 	private ByteBuffer buffer 		= null;
@@ -75,10 +75,10 @@ public class MTPRequestInputStream extends InputStream implements RequestInputSt
 		}
 		
 		int length = endPoint.read(buffer);
-		while(length < limit){
+		for(;length < limit;){
 			int _length = endPoint.read(buffer);
 			length += _length;
-			while(_length > 0){
+			for(;_length > 0;){
 				_length = endPoint.read(buffer);
 				_length += _length;
 			}
@@ -123,10 +123,10 @@ public class MTPRequestInputStream extends InputStream implements RequestInputSt
 		}
 		
 		int _length = endPoint.read(buffer);
-		while(_length < limit){
+		for(;_length < limit;){
 			int __length = endPoint.read(buffer);
 			_length += __length;
-			while(__length > 0){
+			for(;__length > 0;){
 				__length = endPoint.read(buffer);
 				_length += __length;
 			}

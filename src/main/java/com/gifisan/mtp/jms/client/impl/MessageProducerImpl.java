@@ -20,7 +20,7 @@ public class MessageProducerImpl extends ConnectonImpl implements MessageProduce
 		
 		Response response;
 		try {
-			response = client.request(JMSProducerServlet.SERVICE_NAME,param , 0);
+			response = client.request(JMSProducerServlet.SERVICE_NAME,param);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}

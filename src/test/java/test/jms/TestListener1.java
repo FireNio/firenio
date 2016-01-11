@@ -18,7 +18,7 @@ public class TestListener1 {
 		
 		consumer.connect("admin", "admin100");
 		long old = System.currentTimeMillis();
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 20000; i++) {
 			
 			
 			Message message = consumer.revice();

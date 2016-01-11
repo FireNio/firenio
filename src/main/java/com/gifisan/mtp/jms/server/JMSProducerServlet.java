@@ -29,8 +29,6 @@ public class JMSProducerServlet extends MTPServlet{
 			
 			response.write(result);
 			
-			//logger.info("receive message ,id ["+message.getMessageID()+"]");
-			
 		}else{
 			
 			response.write("用户未登录！");

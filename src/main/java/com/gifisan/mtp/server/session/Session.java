@@ -5,30 +5,34 @@ import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.ServletContext;
 
 public interface Session extends Attributes {
-
-	public abstract void active(ServerEndPoint endPoint);
-
-	public abstract ServletContext getServletContext();
-
-	public abstract long getCreationTime();
-
-	public abstract String getSessionID();
-
-	public abstract long getLastAccessedTime();
-
-	public abstract long getMaxInactiveInterval();
-
-	public abstract boolean isValid();
-
-	public abstract void setMaxInactiveInterval(long millisecond);
 	
+	public abstract boolean active(ServerEndPoint endPoint);
+
+	public abstract void attach(Object attachment) ;
+
+	public abstract Object attachment() ;
+
 	public abstract boolean connecting();
-	
+
+	public abstract void destroy();
+
 	/**
 	 * 获取connection的comment，默认值0
 	 * @return
 	 */
 	public abstract int getComment();
+
+	public abstract long getCreationTime();
+
+	public abstract long getLastAccessedTime();
+
+	public abstract long getMaxInactiveInterval();
+	
+	public abstract ServletContext getServletContext();
+	
+	public abstract String getSessionID();
+	
+	public abstract boolean isValid();
 	
 	/**
 	 * 设置connection的comment,默认值0
@@ -36,18 +40,8 @@ public interface Session extends Attributes {
 	 */
 	public abstract void setComment(int comment);
 	
-	/**
-	 * 获取connection的附件
-	 * 
-	 * @return
-	 */
-	public abstract Object attachment() ;
-
+	public abstract void setEventListener(SessionEventListener listener);
 	
-	/**
-	 * 设置connection的附件
-	 * @param attachment
-	 */
-	public abstract void attach(Object attachment) ;
+	public abstract void setMaxInactiveInterval(long millisecond);
 
 }

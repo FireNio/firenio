@@ -1,16 +1,18 @@
 package com.gifisan.mtp.server;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.LifeCycleListener;
-import com.gifisan.mtp.component.ServletService;
 
 public class MTPServerListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
-	private final Logger logger = LoggerFactory.getLogger(ServletService.class);
+	private final Logger logger = LoggerFactory.getLogger(MTPServerListener.class);
 	
 	private long staredTime = 0;
 	
@@ -27,7 +29,6 @@ public class MTPServerListener extends AbstractLifeCycleListener implements Life
 		Connector connector = server.getConnector();
 		logger.info("[MTPServer] 服务启动完成  @"+connector.getHost()+":"+connector.getPort()
 				+" 花费 "+(System.currentTimeMillis() - staredTime) +" 毫秒");
-		staredTime = System.currentTimeMillis();
 	}
 
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
@@ -42,12 +43,27 @@ public class MTPServerListener extends AbstractLifeCycleListener implements Life
 	public void lifeCycleStopping(LifeCycle lifeCycle) {
 		MTPServer server = (MTPServer) lifeCycle;
 		Connector connector = server.getConnector();
-		logger.info("[MTPServer] 服务运行时间  @"+connector.getHost()+":"+connector.getPort()
-				+" 共 "+(System.currentTimeMillis() - staredTime) +" 毫秒");
+		BigDecimal time = new BigDecimal(System.currentTimeMillis() - staredTime);
+		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
+		BigDecimal hour = time.divide(anHour,3,RoundingMode.HALF_UP);
+		Object [] params = {connector.getHost(),connector.getPort(),hour};
+		logger.info("[MTPServer] 服务运行时间  @{}:{} 共 {} 小时",params);
 		logger.info("[MTPServer] 开始停止服务，请稍等");
 	}
 	
-	
+	public static void main(String[] args) {
+		
+		long time = 60000;
+		BigDecimal bb = new BigDecimal(time);
+		
+		bb.setScale(5);
+		
+		BigDecimal cc = new BigDecimal(60 * 60*1000);
+		
+		BigDecimal dd = bb.divide(cc,3,RoundingMode.HALF_UP);
+		System.out.println(dd);
+		
+	}
 	
 
 }

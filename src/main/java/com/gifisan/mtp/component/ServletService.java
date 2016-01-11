@@ -1,5 +1,6 @@
 package com.gifisan.mtp.component;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,10 +19,11 @@ import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.common.FileUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.ServletAccept;
+import com.gifisan.mtp.server.ServletAcceptor;
 import com.gifisan.mtp.server.ServletContext;
 import com.gifisan.mtp.servlet.GenericServlet;
 import com.gifisan.mtp.servlet.MTPFilterService;
@@ -29,7 +31,7 @@ import com.gifisan.mtp.servlet.MTPFilterServiceImpl;
 import com.gifisan.mtp.servlet.impl.ErrorServlet;
 import com.gifisan.mtp.servlet.impl.StopServerServlet;
 
-public final class ServletService extends AbstractLifeCycle implements ServletAccept, LifeCycle {
+public final class ServletService extends AbstractLifeCycle implements ServletAcceptor, LifeCycle {
 
 	private ServletContext				context		= null;
 	private Map<String, GenericServlet>	errorServlets	= new HashMap<String, GenericServlet>();
@@ -43,7 +45,6 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 
 	public void accept(Request request, Response response) throws IOException {
 		try {
-			// TODO
 			if (filterService.doFilter(request, response)) {
 				return;
 			}
@@ -74,7 +75,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 
 	private void accept404(Request request, Response response) throws IOException {
 		logger.info("[MTPServer] empty service name");
-		response.write(RESMessage.R404_EMPTY.toString().getBytes());
+		response.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
 		response.flush();
 	}
 
@@ -97,7 +98,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 	}
 
 	private void acceptNormal(String serviceName, Request request, Response response) throws IOException {
-		ServletAccept servlet = servlets.get(serviceName);
+		ServletAcceptor servlet = servlets.get(serviceName);
 		if (servlet == null) {
 			servlet = this.errorServlets.get(serviceName);
 			if (servlet == null) {
@@ -110,7 +111,7 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		}
 	}
 
-	private void acceptNormal0(ServletAccept servlet, Request request, Response response) throws IOException {
+	private void acceptNormal0(ServletAcceptor servlet, Request request, Response response) throws IOException {
 		try {
 			servlet.accept(request, response);
 		} catch (FlushedException e) {
@@ -171,32 +172,71 @@ public final class ServletService extends AbstractLifeCycle implements ServletAc
 		}
 	}
 
-	private void loadServlets(ServletContext context) {
+	private void loadServlets(ServletContext context) throws Exception {
 		try {
-			String str = FileUtil.readContentByCls("servlets.config", Encoding.DEFAULT);
-			JSONArray jArray = JSONObject.parseArray(str);
-			for (int i = 0; i < jArray.size(); i++) {
-				JSONObject object = jArray.getJSONObject(i);
-				String clazz = object.getString("class");
-				String serviceName = object.getString("serviceName");
-				ServletConfig config = new ServletConfig();
-				Map<String, Object> map = toMap(object);
-				config.setConfig(map);
-				try {
-					GenericServlet servlet = (GenericServlet) Class.forName(clazz).newInstance();
-					this.servlets.put(serviceName, servlet);
-					servlet.setConfig(config);
-				} catch (ClassNotFoundException e) {
-					logger.error("不存在[ " + clazz + " ]", e);
-				} catch (Exception e) {
-					e.printStackTrace();
-					continue;
+			boolean read = false;
+			String config = FileUtil.readContentByCls("servlets.config", Encoding.UTF8);
+			if (!StringUtil.isNullOrBlank(config)) {
+				logger.info("[MTPServer] 读取默认Servlet配置文件");
+				JSONArray array = JSONObject.parseArray(config);
+				loadServlets(array);
+				read = true;
+			}else{
+				logger.warn("[MTPServer] 不存在默认的Servlet配置文件");
+			}
+			
+			String userConfigPath = SharedBundle.instance().getProperty("SERVER.SERVLETS");
+			
+			if (!StringUtil.isNullOrBlank(userConfigPath)) {
+				File userConfigFile = new File(userConfigPath);
+				if (userConfigFile.exists()) {
+					String userConfig = FileUtil.readFileToString(userConfigFile, Encoding.UTF8);
+					if (StringUtil.isNullOrBlank(userConfig)) {
+						logger.warn("[MTPServer] 不存在自定义的Servlet配置文件："+userConfigFile.getAbsolutePath());
+						if (!read) {
+							throw new Exception("没有配置任何Servlet");
+						}
+					}else{
+						logger.info("[MTPServer] 读取自定义Servlet配置文件："+userConfigFile.getAbsolutePath());
+						JSONArray array = JSONObject.parseArray(userConfig);
+						loadServlets(array);
+					}
+				}else{
+					logger.warn("[MTPServer] 不存在自定义的Servlet配置文件："+userConfigFile.getAbsolutePath());
+					if (!read) {
+						throw new Exception("没有配置任何Servlet");
+					}
 				}
+				
+				
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private void loadServlets(JSONArray array){
+		for (int i = 0; i < array.size(); i++) {
+			JSONObject object = array.getJSONObject(i);
+			String clazz = object.getString("class");
+			String serviceName = object.getString("serviceName");
+			ServletConfig config = new ServletConfig();
+			Map<String, Object> map = toMap(object);
+			config.setConfig(map);
+			try {
+				GenericServlet servlet = (GenericServlet) Class.forName(clazz).newInstance();
+				this.servlets.put(serviceName, servlet);
+				servlet.setConfig(config);
+			} catch (ClassNotFoundException e) {
+				logger.error("[MTPServer] 不存在[ " + clazz + " ]", e);
+			} catch (Exception e) {
+				e.printStackTrace();
+				continue;
+			}
+		}
+	}
+	
 
 	private Map<String, Object> toMap(JSONObject jsonObject) {
 		Map<String, Object> result = new HashMap<String, Object>();

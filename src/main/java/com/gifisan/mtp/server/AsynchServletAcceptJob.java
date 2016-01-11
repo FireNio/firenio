@@ -1,6 +1,6 @@
 package com.gifisan.mtp.server;
 
-public abstract class AsynchServletAcceptJob implements Runnable, ServletAccept {
+public abstract class AsynchServletAcceptJob implements Runnable, ServletAcceptor {
 
 	private Request	request	= null;
 	private Response	response	= null;

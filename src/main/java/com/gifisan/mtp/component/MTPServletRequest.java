@@ -1,64 +1,33 @@
 package com.gifisan.mtp.component;
 
-import java.io.IOException;
-
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.server.Attributes;
-import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.ServletContext;
-import com.gifisan.mtp.server.session.MTPSessionFactory;
+import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.session.Session;
 
 public class MTPServletRequest extends AttributesImpl implements Attributes, Request {
 
-	private boolean			closeCommand	= false;
-	private ServerEndPoint		endPoint		= null;
-	private JSONObject		parameters		= null;
+	private ServerEndPoint		endPoint			= null;
+	private RequestParam		parameters		= null;
 	private ProtocolDecoder		protocolDecoder	= null;
-	private String			serviceName		= null;
-	private Session			session		= null;
+	private String				serviceName		= null;
+	private Session			session			= null;
 	private ExecutorThreadPool	threadPool		= null;
+	private String				content			= null;
 
-	public MTPServletRequest(ServletContext context, ServerEndPoint endPoint,ExecutorThreadPool threadPool) throws IOException {
-		this.protocolDecoder = endPoint.getProtocolDecoder();
-		this.closeCommand = endPoint.isEndConnect();
-		if (closeCommand) {
-			return;
-		}
-		this.endPoint = endPoint;
-		this.serviceName = protocolDecoder.getServiceName();
-		this.parameters = protocolDecoder.getParameters();
-
-		String sessionID = protocolDecoder.getSessionID();
-		if (sessionID != null) {
-			MTPSessionFactory factory = context.getMTPSessionFactory();
-			this.session = factory.getSession(context, endPoint, sessionID);
-
-		}
+	public MTPServletRequest(ExecutorThreadPool threadPool,Session session){
 		this.threadPool = threadPool;
+		this.session = session;
 	}
-	
-	public ExecutorThreadPool getExecutorThreadPool(){
+
+	public ExecutorThreadPool getExecutorThreadPool() {
 		return this.threadPool;
 	}
 
-	public boolean getBooleanParameter(String key) {
-		return parameters.getBooleanValue(key);
-
-	}
 
 	public MTPRequestInputStream getInputStream() {
 
 		return protocolDecoder.getInputStream();
-	}
-
-	public int getIntegerParameter(String key) {
-		if (parameters == null) {
-			return 0;
-		}
-		return parameters.getIntValue(key);
-
 	}
 
 	public String getLocalAddr() {
@@ -73,32 +42,8 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Req
 		return endPoint.getLocalPort();
 	}
 
-	public long getLongParameter(String key) {
-		if (parameters == null) {
-			return 0;
-		}
-		return parameters.getLongValue(key);
-
-	}
-
 	public int getMaxIdleTime() {
 		return endPoint.getMaxIdleTime();
-	}
-
-	public Object getObjectParameter(String key) {
-		if (parameters == null) {
-			return null;
-		}
-		return parameters.get(key);
-
-	}
-
-	public String getParameter(String key) {
-		if (parameters == null) {
-			return null;
-		}
-		return parameters.getString(key);
-
 	}
 
 	public String getRemoteAddr() {
@@ -126,17 +71,28 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Req
 		return endPoint.isBlocking();
 	}
 
-	public boolean isCloseCommand() {
-		return closeCommand;
-	}
-
 	public boolean isOpened() {
 		return endPoint.isOpened();
 	}
 
-	public void setCloseCommand(boolean close) {
-		this.closeCommand = close;
+	public RequestParam getParameters() {
+		if (parameters == null) {
+			parameters = new DefaultParameters(content);
+		}
+		return parameters;
+	}
+	
+	public Request update(ServerEndPoint endPoint){
+		this.endPoint = endPoint;
+		this.protocolDecoder = endPoint.getProtocolDecoder();
+		this.content = protocolDecoder.getContent();
+		this.serviceName = protocolDecoder.getServiceName();
+		this.parameters = null;
+		return this;
+	}
 
+	public String getContent() {
+		return this.content;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.gifisan.mtp.component;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -8,24 +9,21 @@ import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
 import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.ServerEndPoint;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServletContext;
 import com.gifisan.mtp.server.selector.SelectionAccept;
+import com.gifisan.mtp.server.session.InnerSession;
+import com.gifisan.mtp.server.session.MTPSessionFactory;
 
 public class NIOSelectionReader implements SelectionAccept {
 
-	private ServletContext		context				= null;
-	private ThreadPool			servletDispatcher		= null;
-	private ServletService		service				= null;
-	private ExecutorThreadPool	asynchServletDispatcher	= null;
+	private ServletContext	context			= null;
+	private ThreadPool		servletDispatcher	= null;
+	private ServletService	service			= null;
 
-	public NIOSelectionReader(ServletContext context, ThreadPool servletDispatcher,
-			ExecutorThreadPool asynchServletDispatcher, ServletService service) {
+	public NIOSelectionReader(ServletContext context, ServletService service, ThreadPool servletDispatcher) {
 		this.context = context;
-		this.servletDispatcher = servletDispatcher;
-		this.asynchServletDispatcher = asynchServletDispatcher;
 		this.service = service;
+		this.servletDispatcher = servletDispatcher;
 	}
 
 	protected boolean isEndPoint(Object object) {
@@ -39,13 +37,13 @@ public class NIOSelectionReader implements SelectionAccept {
 
 	private ServerEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException {
 
-		SocketChannel channel = (SocketChannel) selectionKey.channel();
-
 		Object attachment = selectionKey.attachment();
 
 		if (isEndPoint(attachment)) {
 			return (ServerEndPoint) attachment;
 		}
+
+		SocketChannel channel = (SocketChannel) selectionKey.channel();
 
 		ServerEndPoint endPoint = new ServerNIOEndPoint(channel);
 
@@ -55,17 +53,13 @@ public class NIOSelectionReader implements SelectionAccept {
 
 	}
 
-	public void accept(SelectionKey selectionKey) throws Exception {
-
-		ServletContext context = this.context;
+	public void accept(SelectionKey selectionKey) throws IOException {
 
 		ServerEndPoint endPoint = getEndPoint(selectionKey);
 
-		/*
-		 * if (!selectionKey.isConnectable()) { endPoint.endConnect();
-		 * SelectableChannel channel = selectionKey.channel();
-		 * CloseUtil.close(channel); selectionKey.cancel(); return; }
-		 */
+		if (endPoint.isEndConnect()) {
+			return;
+		}
 
 		if (endPoint.inStream()) {
 			synchronized (endPoint) {
@@ -74,7 +68,7 @@ public class NIOSelectionReader implements SelectionAccept {
 			}
 		}
 
-		// ProtocolDecoder decoder = endPoint.getProtocolDecoder();
+		ServletContext context = this.context;
 
 		boolean decoded = endPoint.protocolDecode(context);
 
@@ -89,23 +83,18 @@ public class NIOSelectionReader implements SelectionAccept {
 			return;
 		}
 
-		// if (endPoint.isEndConnect()) {
-		// CloseUtil.close(endPoint);
-		// return;
-		// }
+		String sessionID = decoder.getSessionID();
 
-		Request request = new MTPServletRequest(context, endPoint, asynchServletDispatcher);
+		MTPSessionFactory factory = context.getMTPSessionFactory();
 
-		Response response = new MTPServletResponse(endPoint);
-
-		ServletAcceptJob job = new ServletAcceptJobImpl(service, endPoint, request, response);
-
-		/*
-		 * 
-		 * synchronized (endPoint) { if (endPoint.inSchedule()) {
-		 * endPoint.schedule(job); }else{ endPoint.pushSchedule();
-		 * threadPool.dispatch(job); } }
-		 */
+		InnerSession session = factory.getSession(endPoint, sessionID,service);
+		
+//		Request request = session.getRequest(endPoint);
+		
+//		Response response = session.getResponse(endPoint);
+		
+		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
+		
 		servletDispatcher.dispatch(job);
 
 	}

@@ -7,7 +7,9 @@ public class MTPServerLauncher {
 
 	
 	public void launch() throws Exception{
-		int serverPort = SharedBundle.getIntegerProperty("APP_SERVER_PORT");
+		SharedBundle bundle = SharedBundle.instance();
+		
+		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
 		
 		if (serverPort == 0) {
 			throw new Exception("未设置服务端口或端口为0");

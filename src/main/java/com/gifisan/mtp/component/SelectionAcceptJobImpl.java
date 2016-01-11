@@ -1,5 +1,6 @@
 package com.gifisan.mtp.component;
 
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.mtp.schedule.SelectionAcceptJob;
@@ -25,7 +26,7 @@ public class SelectionAcceptJobImpl implements SelectionAcceptJob{
 		
 	}
 
-	public void accept(SelectionKey selectionKey) throws Exception {
+	public void accept(SelectionKey selectionKey) throws IOException {
 		accept.accept(selectionKey);
 	}
 

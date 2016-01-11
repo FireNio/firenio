@@ -6,21 +6,27 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.common.UUIDGenerator;
 import com.gifisan.mtp.component.TaskExecutor;
 
 public class NIOClient implements Closeable {
 
-	private String			sessionID		= null;
+	private long			checkInterval	= 5 * 60 * 1000;
 	private ClientConnection	connection	= null;
 	private AtomicBoolean	keepAlive		= new AtomicBoolean(false);
-	private long			checkInterval	= 5 * 60 * 1000;
+	private String			sessionID		= null;
 	private TaskExecutor	taskExecutor	= null;
-
+	private long			timeout		= 0;
+	
+	public NIOClient(String host, int port) {
+		this(host, port, UUIDGenerator.random());
+	}
+	
 	public NIOClient(String host, int port, String sessionID) {
 		this.sessionID = sessionID;
 		this.connection = new ClientConnection(host, port);
 	}
-
+	
 	public void close() throws IOException {
 		if (taskExecutor != null) {
 			taskExecutor.stop();
@@ -33,21 +39,8 @@ public class NIOClient implements Closeable {
 
 	}
 
-	public Response request(String serviceName, String content, InputStream inputStream, long timeout)
-			throws IOException {
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			return null;
-		}
-
-		ClientConnection connection = this.connection;
-
-		connection.write(this.sessionID, serviceName, content, inputStream);
-
-		return connection.acceptResponse(timeout);
-	}
-
-	public Response request(String serviceName, String content, long timeout) throws IOException {
-		return this.request(serviceName, content, null, timeout);
+	public long getTimeout() {
+		return timeout;
 	}
 
 	/**
@@ -68,13 +61,37 @@ public class NIOClient implements Closeable {
 		}
 	}
 
+	/**
+	 * 这个方法不一定按照你指定的时间间隔做心跳动作，但是它一定会努力去做的
+	 * @param checkInterval
+	 */
 	public void keepAlive(long checkInterval) {
 		if (keepAlive.compareAndSet(false, true)) {
 			this.checkInterval = checkInterval;
 			this.connection.keepAlive();
 			this.startTouchDistantJob();
 		}
+	}
 
+	public Response request(String serviceName, String content) throws IOException {
+		return this.request(serviceName, content, null);
+	}
+
+	public Response request(String serviceName, String content, InputStream inputStream)
+			throws IOException {
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			return null;
+		}
+
+		ClientConnection connection = this.connection;
+
+		connection.write(this.sessionID, serviceName, content, inputStream);
+
+		return connection.acceptResponse(timeout);
+	}
+
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
 	}
 
 	private void startTouchDistantJob() {
