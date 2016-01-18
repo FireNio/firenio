@@ -6,13 +6,14 @@ import java.util.Map;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
-import com.gifisan.mtp.component.BlockingQueueThreadPool;
 import com.gifisan.mtp.component.MessageWriterJob;
 import com.gifisan.mtp.component.RequestParam;
-import com.gifisan.mtp.component.ThreadPool;
+import com.gifisan.mtp.concurrent.BlockingQueueThreadPool;
+import com.gifisan.mtp.concurrent.ThreadPool;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
+import com.gifisan.mtp.server.session.Session;
 
 public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
@@ -39,7 +40,9 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		SharedBundle bundle = SharedBundle.instance();
 
-		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
+		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",1);
+		
+		CORE_SIZE = 1;
 
 		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", CORE_SIZE);
 
@@ -91,6 +94,10 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		ConsumerGroup consumerGroup = getConsumerGroup(queueName);
 		
 		Consumer consumer = new Consumer(request, response, consumerGroup, queueName);
+		
+		Session session = request.getSession();
+		
+		session.setAttribute("_consumer", consumer);
 		
 		consumerGroup.offer(consumer);
 	}

@@ -8,8 +8,6 @@ import com.gifisan.mtp.server.Response;
 
 public class TestExceptionServlet extends MTPServlet{
 
-	public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 		throw new IOException("测试啊");
 	}

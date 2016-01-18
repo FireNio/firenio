@@ -8,13 +8,12 @@ import java.io.InputStream;
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.servlet.test.TestDownloadServlet;
 
 public class TestDownload {
 	
 	public static void main(String[] args) throws IOException {
 
-		String serviceKey = TestDownloadServlet.SERVICE_NAME;
+		String serviceKey = "TestDownloadServlet";
 		NIOClient client = ClientUtil.getClient();
 		
 		serviceKey = "upload-temp.zip";

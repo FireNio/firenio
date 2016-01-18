@@ -13,8 +13,6 @@ import com.gifisan.mtp.server.session.Session;
 
 public class JMSBrowserServlet extends MTPServlet{
 
-	public static String SERVICE_NAME = JMSBrowserServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 		
 		RequestParam param = request.getParameters();

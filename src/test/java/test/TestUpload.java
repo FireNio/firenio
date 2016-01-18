@@ -6,14 +6,13 @@ import java.io.IOException;
 
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
-import com.gifisan.mtp.servlet.test.TestUploadServlet;
 
 public class TestUpload {
 	
 	
 	public static void main(String[] args) throws IOException {
 
-		String serviceKey = TestUploadServlet.SERVICE_NAME;
+		String serviceKey = "TestUploadServlet";
 		String param = "temp.zip";
 		NIOClient client = ClientUtil.getClient();
 		

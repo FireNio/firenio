@@ -14,16 +14,16 @@ public class ClientUtil {
 	
 	public static String getParamString(){
 		Map params = new HashMap();
-		params.put("username", "aa");
-		params.put("password", "bbb");
+		params.put("username", "admin");
+		params.put("password", "admin100");
 		return JSONObject.toJSONString(params);
 	}
 
 	
 	public static Map getParamMap(){
 		Map params = new HashMap();
-		params.put("username", "aa");
-		params.put("password", "bbb");
+		params.put("username", "admin");
+		params.put("password", "admin100");
 		return params;
 	}
 

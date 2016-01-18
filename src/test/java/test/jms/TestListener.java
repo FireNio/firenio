@@ -10,8 +10,7 @@ import com.gifisan.mtp.jms.client.impl.MessageConsumerImpl;
 public class TestListener {
 
 	public static void main(String[] args) throws IOException, JMSException {
-		MessageConsumer consumer = new MessageConsumerImpl("mtp://localhost:8300", TestListener1.class.getName(),
-				"sssssss", 0);
+		MessageConsumer consumer = new MessageConsumerImpl("mtp://localhost:8300", "sssssss");
 
 		consumer.connect("admin", "admin100");
 		long old = System.currentTimeMillis();

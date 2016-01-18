@@ -28,7 +28,7 @@ import com.gifisan.mtp.server.ServletContext;
 public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTPFilterService, LifeCycle {
 
 	private ServletContext	context		= null;
-	private WrapperMTPFilter	rootFilter	= null;
+	private MTPFilterWrapper	rootFilter	= null;
 	private Logger			logger		= LoggerFactory.getLogger(MTPFilterServiceImpl.class);
 
 	public MTPFilterServiceImpl(ServletContext context) {
@@ -39,7 +39,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 		if (rootFilter == null) {
 			return false;
 		}
-		WrapperMTPFilter filter = rootFilter;
+		MTPFilterWrapper filter = rootFilter;
 		for (; filter != null;) {
 			if (filter.doFilter(request, response)) {
 				return true;
@@ -84,7 +84,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 
 	private void loadFilters(JSONArray array) {
 
-		WrapperMTPFilter last = null;
+		MTPFilterWrapper last = null;
 
 		for (int i = 0; i < array.size(); i++) {
 			JSONObject jObj = array.getJSONObject(i);
@@ -95,7 +95,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 			try {
 				MTPFilter filter = (MTPFilter) Class.forName(clazz).newInstance();
 
-				WrapperMTPFilterImpl _filter = new WrapperMTPFilterImpl(context, filter, filterConfig);
+				MTPFilterWrapperImpl _filter = new MTPFilterWrapperImpl(context, filter, filterConfig);
 
 				if (last == null) {
 					last = _filter;
@@ -127,7 +127,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	protected void doStart() throws Exception {
 		this.loadFilters();
 		// start all filter
-		WrapperMTPFilter filter = rootFilter;
+		MTPFilterWrapper filter = rootFilter;
 		for (; filter != null;) {
 			try {
 				filter.start();
@@ -140,7 +140,7 @@ public final class MTPFilterServiceImpl extends AbstractLifeCycle implements MTP
 	}
 
 	protected void doStop() throws Exception {
-		WrapperMTPFilter filter = rootFilter;
+		MTPFilterWrapper filter = rootFilter;
 		for (; filter != null;) {
 			try {
 				LifeCycleUtil.stop(filter);

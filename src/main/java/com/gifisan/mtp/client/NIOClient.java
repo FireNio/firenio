@@ -6,24 +6,17 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.mtp.common.StringUtil;
-import com.gifisan.mtp.common.UUIDGenerator;
-import com.gifisan.mtp.component.TaskExecutor;
+import com.gifisan.mtp.concurrent.TaskExecutor;
 
 public class NIOClient implements Closeable {
 
 	private long			checkInterval	= 5 * 60 * 1000;
 	private ClientConnection	connection	= null;
 	private AtomicBoolean	keepAlive		= new AtomicBoolean(false);
-	private String			sessionID		= null;
 	private TaskExecutor	taskExecutor	= null;
 	private long			timeout		= 0;
 	
 	public NIOClient(String host, int port) {
-		this(host, port, UUIDGenerator.random());
-	}
-	
-	public NIOClient(String host, int port, String sessionID) {
-		this.sessionID = sessionID;
 		this.connection = new ClientConnection(host, port);
 	}
 	
@@ -85,7 +78,7 @@ public class NIOClient implements Closeable {
 
 		ClientConnection connection = this.connection;
 
-		connection.write(this.sessionID, serviceName, content, inputStream);
+		connection.write(serviceName, content, inputStream);
 
 		return connection.acceptResponse(timeout);
 	}

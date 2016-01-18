@@ -12,8 +12,6 @@ import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.MessageConsumer;
 import com.gifisan.mtp.jms.client.MessageDecoder;
-import com.gifisan.mtp.jms.server.JMSConsumerServlet;
-import com.gifisan.mtp.jms.server.JMSTransactionServlet;
 
 public class MessageConsumerImpl extends ConnectonImpl implements MessageConsumer {
 
@@ -33,9 +31,14 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 		this.subscibeParam = JSONObject.toJSONString(param);
 	}
 
-	public MessageConsumerImpl(String url, String sessionID, String queueName, long timeout) throws JMSException {
-		super(url, sessionID);
+	public MessageConsumerImpl(String url, String queueName, long timeout) throws JMSException {
+		super(url);
 		this.initParam(queueName, timeout);
+	}
+	
+	public MessageConsumerImpl(String url, String queueName) throws JMSException {
+		super(url);
+		this.initParam(queueName, 0);
 	}
 
 	private void transactioninit(){
@@ -54,7 +57,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	private boolean transactionVal(String action) throws JMSException{
 		Response response;
 		try {
-			response = client.request(JMSTransactionServlet.SERVICE_NAME, action);
+			response = client.request("JMSTransactionServlet", action);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -81,7 +84,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	public Message revice() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_NAME, reviceParam);
+			response = client.request("JMSConsumerServlet", reviceParam);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -92,7 +95,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 	public Message subscibe() throws JMSException {
 		Response response;
 		try {
-			response = client.request(JMSConsumerServlet.SERVICE_NAME, subscibeParam);
+			response = client.request("JMSTransactionServlet", subscibeParam);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}

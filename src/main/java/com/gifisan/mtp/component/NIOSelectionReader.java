@@ -3,9 +3,9 @@ package com.gifisan.mtp.component;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import com.gifisan.mtp.common.CloseUtil;
+import com.gifisan.mtp.concurrent.ThreadPool;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
 import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.ServerEndPoint;
@@ -35,18 +35,22 @@ public class NIOSelectionReader implements SelectionAccept {
 
 	}
 
-	private ServerEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException {
+	private ServerEndPoint getEndPoint(ServletContext context,SelectionKey selectionKey) throws SocketException {
 
 		Object attachment = selectionKey.attachment();
 
 		if (isEndPoint(attachment)) {
 			return (ServerEndPoint) attachment;
 		}
+		
+		MTPSessionFactory factory = context.getMTPSessionFactory();
 
-		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		ServerEndPoint endPoint = new ServerNIOEndPoint(selectionKey);
 
-		ServerEndPoint endPoint = new ServerNIOEndPoint(channel);
-
+		InnerSession session = factory.newSession(endPoint, service);
+		
+		endPoint.setSession(session);
+		
 		selectionKey.attach(endPoint);
 
 		return endPoint;
@@ -54,8 +58,10 @@ public class NIOSelectionReader implements SelectionAccept {
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
+		
+		ServletContext context = this.context;
 
-		ServerEndPoint endPoint = getEndPoint(selectionKey);
+		ServerEndPoint endPoint = getEndPoint(context,selectionKey);
 
 		if (endPoint.isEndConnect()) {
 			return;
@@ -67,8 +73,6 @@ public class NIOSelectionReader implements SelectionAccept {
 				return;
 			}
 		}
-
-		ServletContext context = this.context;
 
 		boolean decoded = endPoint.protocolDecode(context);
 
@@ -83,17 +87,21 @@ public class NIOSelectionReader implements SelectionAccept {
 			return;
 		}
 
-		String sessionID = decoder.getSessionID();
+//		String sessionID = decoder.getSessionID();
 
-		MTPSessionFactory factory = context.getMTPSessionFactory();
+//		MTPSessionFactory factory = context.getMTPSessionFactory();
 
-		InnerSession session = factory.getSession(endPoint, sessionID,service);
+//		InnerSession session = factory.getSession(endPoint, sessionID,service);
 		
 //		Request request = session.getRequest(endPoint);
 		
 //		Response response = session.getResponse(endPoint);
 		
-		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
+		InnerSession session = endPoint.getSession();
+		
+		ServletAcceptJob job = session.updateServletAcceptJob();
+		
+//		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
 		
 		servletDispatcher.dispatch(job);
 

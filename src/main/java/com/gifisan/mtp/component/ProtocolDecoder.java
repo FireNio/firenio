@@ -13,8 +13,6 @@ public interface ProtocolDecoder {
 
 	public abstract String getServiceName();
 
-	public abstract String getSessionID();
-	
 	public abstract boolean isBeat();
 
 	public abstract boolean decode(ServletContext context,ServerEndPoint endPoint) throws IOException;

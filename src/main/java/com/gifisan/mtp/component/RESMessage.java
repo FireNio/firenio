@@ -7,6 +7,8 @@ public class RESMessage {
 	public static RESMessage R404_EMPTY = new RESMessage(404, "empty service-name");
 	
 	public static RESMessage R_SUCCESS = new RESMessage(0, "success");
+	
+	public static RESMessage R_UNAUTH = new RESMessage(403, "request forbidden");
 
 	private int code;
 	

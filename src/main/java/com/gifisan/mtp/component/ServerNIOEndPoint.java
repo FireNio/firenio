@@ -5,30 +5,32 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.session.InnerSession;
 
 public class ServerNIOEndPoint implements ServerEndPoint {
 
-	private boolean			accepting			= false;
+	private SelectionKey		selectionKey		= null;
 	private Object				attachment		= null;
 	private SocketChannel		channel			= null;
 	private int				comment			= 0;
 	private boolean			endConnect		= false;
 	private MTPRequestInputStream	inputStream		= null;
-	private boolean			inSchedule		= false;
 	private InetSocketAddress	local			= null;
 	private int				maxIdleTime		= 0;
 	private ProtocolDecoder		protocolDecoder	= null;
 	private InetSocketAddress	remote			= null;
 	private Socket				socket			= null;
+	private InnerSession		session			= null;
 
-	public ServerNIOEndPoint(SocketChannel channel) throws SocketException {
+	public ServerNIOEndPoint(SelectionKey selectionKey) throws SocketException {
+		this.selectionKey = selectionKey;
 		this.protocolDecoder = new NormalProtocolDecoder();
-		this.channel = channel;
+		this.channel = (SocketChannel) selectionKey.channel();
 		socket = channel.socket();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
@@ -36,12 +38,7 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		maxIdleTime = socket.getSoTimeout();
 	}
 
-	public boolean accepting() {
-		return accepting;
-	}
-
 	public void attach(Object attachment) {
-
 		this.attachment = attachment;
 	}
 
@@ -49,8 +46,10 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		return attachment;
 	}
 
-	public void close() {
-		CloseUtil.close(channel);
+	public void close() throws IOException {
+		this.selectionKey.attach(null);
+		this.session.destroyImmediately();
+		this.channel.close();
 	}
 
 	public int comment() {
@@ -137,15 +136,8 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		return new MTPChannelException(exception.getMessage(), exception);
 	}
 
-	public boolean inSchedule() {
-		return inSchedule;
-	}
-
 	public boolean inStream() {
-		if (inputStream == null) {
-			return false;
-		}
-		return !inputStream.complete();
+		return inputStream != null && !inputStream.complete();
 	}
 
 	public boolean isBlocking() {
@@ -191,13 +183,18 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		return this.read(buffer);
 	}
 
-	public void setAccepting(boolean accepting) {
-		this.accepting = accepting;
-	}
-
 	public void setComment(int comment) {
 		this.comment = comment;
 
+	}
+	
+	public InnerSession getSession() {
+		return session;
+	}
+
+	public void setSession(InnerSession session) {
+		this.session = session;
+		
 	}
 
 	public void setMTPRequestInputStream(MTPRequestInputStream inputStream) {

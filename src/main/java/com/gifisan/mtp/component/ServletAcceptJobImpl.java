@@ -22,10 +22,6 @@ public class ServletAcceptJobImpl implements ServletAcceptJob {
 		this.response = response;
 	}
 	
-	public ServletAcceptJobImpl(ServletService service) {
-		this.service = service;
-	}
-
 	public void acceptException(IOException exception) {
 		try {
 			// error connection , should not flush

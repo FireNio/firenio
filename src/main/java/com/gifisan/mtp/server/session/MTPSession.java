@@ -1,50 +1,40 @@
 package com.gifisan.mtp.server.session;
 
 import com.gifisan.mtp.component.AttributesImpl;
-import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.MTPServletRequest;
 import com.gifisan.mtp.component.MTPServletResponse;
+import com.gifisan.mtp.component.ServletAcceptJobImpl;
+import com.gifisan.mtp.component.ServletService;
+import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.ServletContext;
 
 public class MTPSession extends AttributesImpl implements InnerSession {
 
-	private Object				attachment		= null;
-	private ServletContext		context			= null;
-	private long				creationTime		= System.currentTimeMillis();
-	private ServerEndPoint		endPoint			= null;
-	private MTPSessionFactory	factory			= null;
-	private String				sessionID			= null;
-	private long				lastuse			= creationTime;
-	private SessionEventListener	listener			= null;
-	private long				maxInactiveInterval	= 10 * 60 * 1000;
-	private MTPServletRequest	request			= null;
-	private MTPServletResponse	response			= null;
-	private ServletAcceptJob		acceptJob			= null;
-	private boolean			active			= true;
+	private Object						attachment		= null;
+	private ServletContext				context			= null;
+	private long						creationTime		= System.currentTimeMillis();
+	private ServerEndPoint				endPoint			= null;
+	private MTPSessionFactory			factory			= null;
+	private long						sessionID			= 0;
+	private long						lastuse			= creationTime;
+	private SessionEventListenerWrapper	listenerStub		= null;
+	private SessionEventListenerWrapper	lastListener		= null;
+	private long						maxInactiveInterval	= 10 * 60 * 1000;
+	private MTPServletRequest			request			= null;
+	private MTPServletResponse			response			= null;
+	private ServletAcceptJob				acceptJob			= null;
 
-	public MTPSession(ServletContext context, ServerEndPoint endPoint, String sessionID, MTPSessionFactory factory,
-			ExecutorThreadPool threadPool, ServletAcceptJob acceptJob) {
+	public MTPSession(ServletContext context, ServerEndPoint endPoint, MTPSessionFactory factory,
+			ExecutorThreadPool threadPool, ServletService service, long sessionID) {
 		this.sessionID = sessionID;
 		this.context = context;
 		this.endPoint = endPoint;
 		this.factory = factory;
-		this.acceptJob = acceptJob;
 		this.request = new MTPServletRequest(threadPool, this);
 		this.response = new MTPServletResponse();
-//		this.maxInactiveInterval	= 10;
-
-	}
-	
-	public boolean active(ServerEndPoint endPoint) {
-		this.endPoint = endPoint;
-		this.lastuse = System.currentTimeMillis();
-		boolean _active = active;
-		active = true;
-		return _active;
+		this.acceptJob = new ServletAcceptJobImpl(endPoint, service, request, response);
 	}
 
 	public void attach(Object attachment) {
@@ -55,21 +45,19 @@ public class MTPSession extends AttributesImpl implements InnerSession {
 		return this.attachment;
 	}
 
-	public boolean connecting() {
-		return !endPoint.isEndConnect();
-	}
-
 	public void destroy() {
-		this.lastuse = 0;
 		this.endPoint.endConnect();
-		this.factory.remove(this);
 	}
 
 	public void destroyImmediately() {
-		this.active = false;
-		if (listener != null) {
-			listener.onDestroy(this);
+		factory.remove(this);
+		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
+
+		for (;listenerWrapper != null;) {
+			listenerWrapper.onDestroy(this);
+			listenerWrapper = listenerWrapper.nextListener();
 		}
+
 	}
 
 	public int getComment() {
@@ -92,12 +80,13 @@ public class MTPSession extends AttributesImpl implements InnerSession {
 		return context;
 	}
 
-	public String getSessionID() {
+	public long getSessionID() {
 		return this.sessionID;
 	}
 
 	public boolean isValid() {
-		return connecting() || System.currentTimeMillis() - lastuse < maxInactiveInterval;
+		// TODO yanzheng
+		return true;
 	}
 
 	public void setComment(int comment) {
@@ -105,8 +94,13 @@ public class MTPSession extends AttributesImpl implements InnerSession {
 
 	}
 
-	public void setEventListener(SessionEventListener listener) {
-		this.listener = listener;
+	public void addEventListener(SessionEventListener listener) {
+		if (this.listenerStub == null) {
+			this.listenerStub = new SessionEventListenerWrapper(listener);
+			this.lastListener = this.listenerStub;
+		} else {
+			this.lastListener.setNext(new SessionEventListenerWrapper(listener));
+		}
 
 	}
 
@@ -114,18 +108,9 @@ public class MTPSession extends AttributesImpl implements InnerSession {
 		this.maxInactiveInterval = millisecond;
 	}
 
-	public ServletAcceptJob updateServletAcceptJob(ServerEndPoint endPoint) {
-
+	public ServletAcceptJob updateServletAcceptJob() {
+		this.lastuse = System.currentTimeMillis();
 		return acceptJob.update(endPoint, request.update(endPoint), response.update(endPoint));
-
-	}
-
-	public Request updateRequest(ServerEndPoint endPoint) {
-		return request.update(endPoint);
-	}
-
-	public Response updateResponse(ServerEndPoint endPoint) {
-		return response.update(endPoint);
 	}
 
 }

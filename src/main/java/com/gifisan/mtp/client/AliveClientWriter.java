@@ -14,12 +14,6 @@ public class AliveClientWriter extends NormalClientWriter implements ClientWrite
 		}
 	}
 	
-	public void writeText(ClientEndPoint endPoint,ByteBuffer buffer) throws IOException{
-		synchronized (this) {
-			endPoint.write(buffer);
-		}
-	}
-	
 	public void writeBeat(ClientEndPoint endPoint) throws IOException{
 		synchronized (this) {
 			endPoint.write(beat);

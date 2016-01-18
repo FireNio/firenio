@@ -10,8 +10,6 @@ public class JMSProducerServlet extends MTPServlet{
 	
 //	private final Logger logger = LoggerFactory.getLogger(JMSProducerServlet.class);
 
-	public static String SERVICE_NAME = JMSProducerServlet.class.getSimpleName();
-	
 	private final byte TRUE = 'T';
 	
 	private final byte FALSE = 'F';

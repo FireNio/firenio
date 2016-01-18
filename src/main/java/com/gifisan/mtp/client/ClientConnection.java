@@ -164,7 +164,7 @@ public class ClientConnection implements Closeable {
 		this.selector.wakeup();
 	}
 
-	public void write(String sessionID, String serviceName, String content) throws IOException {
+	public void write(String serviceName, String content) throws IOException {
 		checkConnector();
 		Selector selector = this.selector;
 		// endPoint.register(selector, SelectionKey.OP_WRITE);
@@ -174,10 +174,9 @@ public class ClientConnection implements Closeable {
 		ByteBuffer buffer = null;
 
 		if (StringUtil.isNullOrBlank(content)) {
-			buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset));
+			buffer = encoder.encode(serviceName.getBytes(charset));
 		} else {
-			buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
-					content.getBytes(charset));
+			buffer = encoder.encode(serviceName.getBytes(charset),content.getBytes(charset));
 		}
 		buffer.flip();
 		ClientEndPoint endPoint = this.endPoint;
@@ -185,11 +184,11 @@ public class ClientConnection implements Closeable {
 		endPoint.register(selector, SelectionKey.OP_READ);
 	}
 
-	public void write(String sessionID, String serviceName, String content, InputStream inputStream)
+	public void write(String serviceName, String content, InputStream inputStream)
 			throws IOException {
 
 		if (inputStream == null) {
-			this.write(sessionID, serviceName, content);
+			this.write(serviceName, content);
 		} else {
 			checkConnector();
 			ClientEndPoint endPoint = this.endPoint;
@@ -201,11 +200,9 @@ public class ClientConnection implements Closeable {
 			ByteBuffer buffer = null;
 
 			if (StringUtil.isNullOrBlank(content)) {
-				buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
-						avaiable);
+				buffer = encoder.encode(serviceName.getBytes(charset),avaiable);
 			} else {
-				buffer = encoder.encode(sessionID.getBytes(charset), serviceName.getBytes(charset),
-						content.getBytes(charset), avaiable);
+				buffer = encoder.encode(serviceName.getBytes(charset),content.getBytes(charset), avaiable);
 			}
 
 			buffer.flip();

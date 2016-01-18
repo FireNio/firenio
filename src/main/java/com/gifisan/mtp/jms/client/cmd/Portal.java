@@ -185,23 +185,21 @@ public class Portal {
 					String password = params.get("-p");
 					String host     = params.get("-host");
 					String port     = params.get("-port");
-					String sessionID = params.get("-sid");
 					
 					if (StringUtil.isNullOrBlank(username) 
 							|| StringUtil.isNullOrBlank(password)
 							|| StringUtil.isNullOrBlank(host)
-							|| StringUtil.isNullOrBlank(port)
-							|| StringUtil.isNullOrBlank(sessionID)) {
+							|| StringUtil.isNullOrBlank(port)) {
 						response.setResponse("参数不正确！\n"
 												+"example:\n"
-												+"connect -host:localhost -port:8300 -sid:sid -un=admin -p:admin100");
+												+"connect -host:localhost -port:8300 -un=admin -p:admin100");
 						return response;
 					}
 					
 					String url = "mtp://"+host+":"+port;
 					
 					try {
-						browser = new MessageBrowserImpl(url,sessionID);
+						browser = new MessageBrowserImpl(url);
 						browser.connect(username, password);
 						
 						Portal.this.host = host;

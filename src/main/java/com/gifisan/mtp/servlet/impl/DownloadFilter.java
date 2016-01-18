@@ -10,10 +10,10 @@ import java.util.Map;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.common.StringUtil;
-import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.component.RESMessage;
+import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.AsynchServletAcceptJob;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
@@ -23,7 +23,7 @@ import com.gifisan.mtp.servlet.MTPFilter;
 public class DownloadFilter implements MTPFilter {
 
 	private boolean			exclude			= false;
-	private Map<String, String>	excludesMap			= null;
+	private Map<String, String>	excludesMap		= null;
 
 	public boolean doFilter(Request request, Response response) throws Exception {
 

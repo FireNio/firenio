@@ -10,8 +10,6 @@ public class JMSTransactionServlet extends MTPServlet{
 
 //	private final Logger logger = LoggerFactory.getLogger(JMSConsumerServlet.class);
 	
-	public static String SERVICE_NAME = JMSTransactionServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 
 		Session session = request.getSession();

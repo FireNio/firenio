@@ -8,8 +8,6 @@ import com.gifisan.mtp.server.ServletContext;
 
 public class TestInitializeErrorServlet extends MTPServlet{
 	
-	public static final String SERVICE_NAME = TestInitializeErrorServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 		
 	}

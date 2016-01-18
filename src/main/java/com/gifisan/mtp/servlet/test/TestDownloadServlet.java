@@ -14,7 +14,6 @@ import com.gifisan.mtp.server.Response;
 
 public class TestDownloadServlet extends MTPServlet {
 
-	public static String	SERVICE_NAME	= TestDownloadServlet.class.getSimpleName();
 	private int			BLOCK		= 102400;
 
 	public void accept(Request request, Response response) throws Exception {

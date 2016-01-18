@@ -1,4 +1,4 @@
-package com.gifisan.mtp.component;
+package com.gifisan.mtp.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;

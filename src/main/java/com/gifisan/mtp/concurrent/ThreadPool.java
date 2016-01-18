@@ -1,4 +1,4 @@
-package com.gifisan.mtp.component;
+package com.gifisan.mtp.concurrent;
 
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.schedule.Job;

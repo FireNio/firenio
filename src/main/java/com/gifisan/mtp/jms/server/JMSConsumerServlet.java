@@ -9,8 +9,6 @@ import com.gifisan.mtp.server.session.Session;
 
 public class JMSConsumerServlet extends MTPServlet{
 
-	public static String SERVICE_NAME = JMSConsumerServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 		
 		Session session = request.getSession();
@@ -19,13 +17,7 @@ public class JMSConsumerServlet extends MTPServlet{
 		
 		if (context.isLogined(session)) {
 			
-			Consumer consumer = (Consumer) session.getAttribute("_consumer");
-			
-			if (consumer == null) {
-				context.pollMessage(request, response);
-			}else{
-				consumer.update(request, response);
-			}
+			context.pollMessage(request, response);
 			
 		}else{
 			Message message = ErrorMessage.UNAUTH_MESSAGE;

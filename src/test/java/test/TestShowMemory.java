@@ -5,22 +5,19 @@ import java.io.IOException;
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
 
-public class TestSimple {
-	
+public class TestShowMemory {
+
 	
 	public static void main(String[] args) throws IOException {
-
-
-		String serviceKey = "TestSimpleServlet";
-		String param = ClientUtil.getParamString();
+		String serviceKey = "ShowMemoryServlet";
 		NIOClient client = ClientUtil.getClient();
+		String params = ClientUtil.getParamString();
 		
 		client.connect();
-		Response response = client.request(serviceKey, param);
-		System.out.println(response.getContent());
-		response = client.request(serviceKey, param);
+		Response response = client.request(serviceKey, params);
 		client.close();
 		
 		System.out.println(response.getContent());
+		
 	}
 }

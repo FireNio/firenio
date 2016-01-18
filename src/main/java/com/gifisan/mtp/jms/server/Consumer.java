@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
+import com.gifisan.mtp.server.session.Session;
 
 public class Consumer {
 
@@ -28,16 +29,18 @@ public class Consumer {
 		return queueName;
 	}
 
-	private TransactionSection getTransactionSection(Request request) {
+	private TransactionSection getTransactionSection(Session session) {
 
-		return (TransactionSection) request.getSession().getAttribute("_MQ_TRANSACTION");
+		return (TransactionSection) session.getAttribute("_MQ_TRANSACTION");
 	}
 
 	public void push(Message message) throws IOException {
 		Request request = this.request;
 		Response response = this.response;
 
-		TransactionSection section = getTransactionSection(request);
+		Session session = request.getSession();
+		
+		TransactionSection section = getTransactionSection(session);
 
 		if (section != null) {
 			section.offerMessage(message);
@@ -51,16 +54,7 @@ public class Consumer {
 			response.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (section != null) {
-				section.rollback();
-			}
+			session.destroy();
 		}
-
 	}
-
-	public void update(Request request, Response response) {
-		this.request = request;
-		this.response = response;
-	}
-
 }

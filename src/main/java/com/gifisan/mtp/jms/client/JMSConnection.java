@@ -6,7 +6,5 @@ public interface JMSConnection{
 
 	public abstract void connect(String username,String password) throws JMSException;
 	
-	public abstract String getSessionID();
-	
 	public abstract void disconnect() ;
 }

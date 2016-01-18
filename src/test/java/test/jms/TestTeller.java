@@ -11,7 +11,7 @@ public class TestTeller {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		MessageProducer producer = new MessageProducerImpl("mtp://localhost:8300", TestTeller1.class.getName());
+		MessageProducer producer = new MessageProducerImpl("mtp://localhost:8300");
 
 		producer.connect("admin", "admin100");
 

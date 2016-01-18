@@ -8,6 +8,7 @@ import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.ServletContext;
 
+@Deprecated
 public class FixedProtocolDecoder implements ProtocolDecoder {
 
 	private MTPRequestInputStream 	inputStream 		= null;

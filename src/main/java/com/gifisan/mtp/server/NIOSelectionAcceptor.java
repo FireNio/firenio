@@ -6,12 +6,12 @@ import java.nio.channels.SelectionKey;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
-import com.gifisan.mtp.component.BlockingQueueThreadPool;
 import com.gifisan.mtp.component.NIOSelectionReader;
 import com.gifisan.mtp.component.NIOSelectionWriter;
 import com.gifisan.mtp.component.ServerNIOEndPoint;
 import com.gifisan.mtp.component.ServletService;
-import com.gifisan.mtp.component.ThreadPool;
+import com.gifisan.mtp.concurrent.BlockingQueueThreadPool;
+import com.gifisan.mtp.concurrent.ThreadPool;
 import com.gifisan.mtp.server.selector.SelectionAccept;
 
 public class NIOSelectionAcceptor extends AbstractLifeCycle implements SelectionAcceptor{

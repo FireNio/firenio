@@ -11,8 +11,6 @@ import com.gifisan.mtp.server.Response;
 
 public class TestUploadServlet extends MTPServlet{
 
-	public static String SERVICE_NAME = TestUploadServlet.class.getSimpleName();
-	
 	public void accept(Request request, Response response) throws Exception {
 		String fileName = "upload-"+request.getContent();
 		MTPRequestInputStream inputStream = request.getInputStream();

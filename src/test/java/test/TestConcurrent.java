@@ -5,9 +5,8 @@ import java.io.IOException;
 import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.client.NIOClient;
-import com.gifisan.mtp.component.BlockingQueueThreadPool;
+import com.gifisan.mtp.concurrent.BlockingQueueThreadPool;
 import com.gifisan.mtp.schedule.Job;
-import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestConcurrent {
 
@@ -54,7 +53,7 @@ class T implements Job {
 
 	public void schedule() {
 		try {
-			String serviceKey = TestSimpleServlet.SERVICE_NAME;
+			String serviceKey = "TestSimpleServlet";
 			NIOClient client = ClientUtil.getClient();
 			String param = ClientUtil.getParamString();
 			client.connect();

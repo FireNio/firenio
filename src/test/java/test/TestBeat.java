@@ -3,7 +3,6 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.mtp.client.NIOClient;
-import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestBeat {
 	
@@ -11,7 +10,7 @@ public class TestBeat {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 
-		String serviceKey = TestSimpleServlet.SERVICE_NAME;
+		String serviceKey = "TestSimpleServlet";
 		NIOClient client = ClientUtil.getClient();
 		String param = ClientUtil.getParamString();
 		client.connect();

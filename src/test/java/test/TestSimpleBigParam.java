@@ -8,14 +8,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.client.NIOClient;
 import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.common.FileUtil;
-import com.gifisan.mtp.servlet.test.TestSimpleServlet;
 
 public class TestSimpleBigParam {
 	
 	
 	public static void main(String[] args) throws IOException {
 
-		String serviceKey = TestSimpleServlet.SERVICE_NAME;
+		String serviceKey = "TestSimpleServlet";
 		Map param = ClientUtil.getParamMap();
 		NIOClient client = ClientUtil.getClient();
 		

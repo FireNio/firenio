@@ -8,15 +8,13 @@ import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.MessageBrowser;
 import com.gifisan.mtp.jms.client.MessageDecoder;
-import com.gifisan.mtp.jms.server.JMSBrowserServlet;
 
 public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
 
 
-	public MessageBrowserImpl(String url, String sessionID) throws JMSException {
-		super(url, sessionID);
+	public MessageBrowserImpl(String url) throws JMSException {
+		super(url);
 	}
-	
 
 	public Message browser(String messageID) throws JMSException {
 		JSONObject param = new JSONObject();
@@ -24,7 +22,7 @@ public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
 		
 		Response response;
 		try {
-			response = client.request(JMSBrowserServlet.SERVICE_NAME,param.toJSONString());
+			response = client.request("JMSBrowserServlet",param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}

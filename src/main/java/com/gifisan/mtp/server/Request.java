@@ -1,8 +1,8 @@
 package com.gifisan.mtp.server;
 
-import com.gifisan.mtp.component.ExecutorThreadPool;
 import com.gifisan.mtp.component.MTPRequestInputStream;
 import com.gifisan.mtp.component.RequestParam;
+import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.session.Session;
 
 public interface Request {

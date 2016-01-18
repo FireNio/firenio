@@ -6,8 +6,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.mtp.client.NIOClient;
@@ -15,25 +13,18 @@ import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.client.JMSConnection;
-import com.gifisan.mtp.jms.server.JMSLoginServlet;
 
 public class ConnectonImpl implements JMSConnection {
 
-	private boolean			logined		= false;
-	private String				sessionID		= null;
-	NIOClient					client		= null;
-	private String				host			= null;
-	private int				port			= 0;
+	private boolean		logined		= false;
+	NIOClient				client		= null;
+	private String			host			= null;
+	private int			port			= 0;
+//	private Logger			logger		= LoggerFactory.getLogger(ConnectonImpl.class);
 
-	private static final String	SERVICE_NAME	= JMSLoginServlet.SERVICE_NAME;
-
-	private static Logger		logger		= LoggerFactory.getLogger(ConnectonImpl.class);
-
-	public ConnectonImpl(String url, String sessionID) throws JMSException {
+	public ConnectonImpl(String url) throws JMSException {
 		this.setServer(url);
-		this.sessionID = sessionID;
-
-		this.client = new NIOClient(host, port, sessionID);
+		this.client = new NIOClient(host, port);
 	}
 
 	private void setServer(String url) throws JMSException {
@@ -69,7 +60,7 @@ public class ConnectonImpl implements JMSConnection {
 
 		Response response;
 		try {
-			response = client.request(SERVICE_NAME, paramString);
+			response = client.request("JMSLoginServlet", paramString);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -79,17 +70,13 @@ public class ConnectonImpl implements JMSConnection {
 			this.disconnect();
 			throw new JMSException("用户名密码错误！");
 		}
-		logger.info("连接服务器成功 SID:" + this.sessionID);
-	}
-
-	public String getSessionID() {
-		return this.sessionID;
+//		logger.info("连接服务器成功 SID:" + this.sessionID);
 	}
 
 	public void disconnect() {
 		CloseUtil.close(client);
 		this.logined = false;
-		logger.info("已与服务器断开连接 SID:" + this.sessionID);
+//		logger.info("已与服务器断开连接 SID:" + this.sessionID);
 	}
 
 }

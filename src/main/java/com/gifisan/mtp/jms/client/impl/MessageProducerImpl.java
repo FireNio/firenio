@@ -6,13 +6,11 @@ import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.jms.MessageProducer;
-import com.gifisan.mtp.jms.server.JMSProducerServlet;
 
 public class MessageProducerImpl extends ConnectonImpl implements MessageProducer{
 
-
-	public MessageProducerImpl(String url, String sessionID) throws JMSException {
-		super(url, sessionID);
+	public MessageProducerImpl(String url) throws JMSException {
+		super(url);
 	}
 
 	public boolean offer(Message message) throws JMSException {
@@ -20,7 +18,7 @@ public class MessageProducerImpl extends ConnectonImpl implements MessageProduce
 		
 		Response response;
 		try {
-			response = client.request(JMSProducerServlet.SERVICE_NAME,param);
+			response = client.request("JMSProducerServlet",param);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}
