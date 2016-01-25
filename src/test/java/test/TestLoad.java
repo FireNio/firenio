@@ -1,23 +1,29 @@
 package test;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
+import com.gifisan.mtp.common.CloseUtil;
 
 public class TestLoad {
 	
-	public static void main(String[] args) throws IOException {
+	static AtomicInteger size = new AtomicInteger();
+	
+	public static void main(String[] args) throws IOException{
 		String serviceKey = "TestSimpleServlet";
-		NIOClient client = ClientUtil.getClient();
-		String param = ClientUtil.getParamString();
-		client.connect();
-
+		
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect(false);
+		ClientSesssion session = connector.getClientSession();
+		
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
-			client.request(serviceKey, param);
+			session.request(serviceKey, serviceKey);
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
-		client.close();
+		CloseUtil.close(connector);
 	}
 }

@@ -9,6 +9,12 @@ public class MTPServerLauncher {
 	public void launch() throws Exception{
 		SharedBundle bundle = SharedBundle.instance();
 		
+		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
+		
+		if (!debug) {
+			bundle.storageProperties(MTPServerLauncher.class, "conf/server.properties");
+		}
+		
 		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
 		
 		if (serverPort == 0) {

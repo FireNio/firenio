@@ -10,11 +10,10 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractLifeCycle implements LifeCycle {
 
-	private static final Logger logger 				= LoggerFactory.getLogger(AbstractLifeCycle.class);
-	private boolean failed 							= false;
-	private List<LifeCycleListener> lifeCycleListeners	= new ArrayList<LifeCycleListener>();
-
-	private Comparator<LifeCycleListener> lifeCycleListenerSorter = new Comparator<LifeCycleListener>() {
+	private Logger 				logger 					= LoggerFactory.getLogger(AbstractLifeCycle.class);
+	private boolean 				failed 					= false;
+	private List<LifeCycleListener> 	lifeCycleListeners			= new ArrayList<LifeCycleListener>();
+	private Comparator<LifeCycleListener> lifeCycleListenerSorter	= new Comparator<LifeCycleListener>() {
 
 		public int compare(LifeCycleListener o1, LifeCycleListener o2) {
 

@@ -3,6 +3,8 @@ package com.gifisan.mtp.server;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import com.gifisan.mtp.component.OutputStream;
+
 public interface Response extends OutputStream{
 	
 	public abstract void write(String content);

@@ -36,6 +36,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		this.consumerGroupMap = new HashMap<String, ConsumerGroup>();
 
+		//TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
 		SharedBundle bundle = SharedBundle.instance();
@@ -97,7 +98,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		
 		Session session = request.getSession();
 		
-		session.setAttribute("_consumer", consumer);
+		session.setAttribute("_TPL_CONSUMER", consumer);
 		
 		consumerGroup.offer(consumer);
 	}

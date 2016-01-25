@@ -1,27 +1,36 @@
 package test.jms;
 
-import com.gifisan.mtp.jms.JMSException;
+import test.ClientUtil;
+
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.MessageConsumer;
+import com.gifisan.mtp.jms.client.MessageConsumer;
 import com.gifisan.mtp.jms.client.impl.MessageConsumerImpl;
 
 public class TestListener1 {
 
-	public static void main(String[] args) throws JMSException {
+	public static void main(String[] args) throws Exception {
 
-		MessageConsumer consumer = new MessageConsumerImpl("mtp://localhost:8300", "sssssss", 0);
+		ClientConnector connector = ClientUtil.getClientConnector();
+		
+		connector.connect();
+		
+		ClientSesssion session = connector.getClientSession();
+		
+		MessageConsumer consumer = new MessageConsumerImpl(session, "sssssss");
 
-		consumer.connect("admin", "admin100");
+		consumer.login("admin", "admin100");
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 20000; i++) {
-
 			Message message = consumer.revice();
 			System.out.println(message);
 		}
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		// System.out.println(message);
 
-		consumer.disconnect();
+		consumer.logout();
+		
+		connector.close();
 	}
 }

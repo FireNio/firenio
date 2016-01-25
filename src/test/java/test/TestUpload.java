@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
 
 public class TestUpload {
@@ -14,15 +15,17 @@ public class TestUpload {
 
 		String serviceKey = "TestUploadServlet";
 		String param = "temp.zip";
-		NIOClient client = ClientUtil.getClient();
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
 		
 		long old = System.currentTimeMillis();
-		client.connect();
 		File file = new File("D:/temp1.zip");
 		FileInputStream inputStream = new FileInputStream(file);
-		Response response = client.request(serviceKey,param , inputStream);
-		client.close();
+		Response response = session.request(serviceKey,param , inputStream);
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		System.out.println(response.getContent());
+		
+		connector.close();
 	}
 }

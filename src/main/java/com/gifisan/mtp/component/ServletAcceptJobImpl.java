@@ -10,18 +10,19 @@ import com.gifisan.mtp.server.ServerEndPoint;
 
 public class ServletAcceptJobImpl implements ServletAcceptJob {
 
-	private Request		request	= null;
-	private Response		response	= null;
-	private ServletService	service	= null;
-	private ServerEndPoint	endPoint	= null;
+	private MTPServletRequest	request	= null;
+	private MTPServletResponse	response	= null;
+	private FilterService		service	= null;
+	private ServerEndPoint		endPoint	= null;
 
-	public ServletAcceptJobImpl(ServerEndPoint endPoint,ServletService service,Request request,Response response) {
+	public ServletAcceptJobImpl(ServerEndPoint endPoint, FilterService service, MTPServletRequest request,
+			MTPServletResponse response) {
 		this.endPoint = endPoint;
 		this.service = service;
 		this.request = request;
 		this.response = response;
 	}
-	
+
 	public void acceptException(IOException exception) {
 		try {
 			// error connection , should not flush
@@ -54,11 +55,10 @@ public class ServletAcceptJobImpl implements ServletAcceptJob {
 		service.accept(request, response);
 	}
 
-	public ServletAcceptJob update(ServerEndPoint endPoint, Request request, Response response) {
+	public ServletAcceptJob update(ServerEndPoint endPoint) {
 		this.endPoint = endPoint;
-		this.request = request;
-		this.response = response;
+		this.request.update(endPoint);
+		this.response.update();
 		return this;
 	}
-
 }

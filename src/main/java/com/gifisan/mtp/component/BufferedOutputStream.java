@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import com.gifisan.mtp.server.OutputStream;
-
 public class BufferedOutputStream implements OutputStream {
 
 	protected byte	cache[]	= null;

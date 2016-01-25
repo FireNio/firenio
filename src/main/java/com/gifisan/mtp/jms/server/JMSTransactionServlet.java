@@ -1,12 +1,11 @@
 package com.gifisan.mtp.jms.server;
 
 import com.gifisan.mtp.component.RESMessage;
-import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.session.Session;
 
-public class JMSTransactionServlet extends MTPServlet{
+public class JMSTransactionServlet extends JMSServlet{
 
 //	private final Logger logger = LoggerFactory.getLogger(JMSConsumerServlet.class);
 	
@@ -14,7 +13,7 @@ public class JMSTransactionServlet extends MTPServlet{
 
 		Session session = request.getSession();
 		
-		MQContext context = MQContextFactory.getMQContext();
+		MQContext context = getMQContext();
 		
 		if (context.isLogined(session)) {
 			String action = request.getContent();
@@ -63,6 +62,12 @@ public class JMSTransactionServlet extends MTPServlet{
 				}
 				response.write(message.toString());
 				response.flush();
+			}else if("complete".equals(action)){
+				RESMessage message = RESMessage.R_SUCCESS;
+				session.removeAttribute("_TPL_MESSAGE");
+				response.write(message.toString());
+				response.flush();
+				
 			}else{
 				response.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
 				response.flush();

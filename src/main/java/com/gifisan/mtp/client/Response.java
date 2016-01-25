@@ -1,6 +1,6 @@
 package com.gifisan.mtp.client;
 
-import java.io.InputStream;
+import com.gifisan.mtp.component.InputStream;
 
 public class Response {
 
@@ -8,6 +8,7 @@ public class Response {
 	public static final int	TEXT			= 0;
 	private String			content		= null;
 	private InputStream		inputStream	= null;
+	private byte			sessionID		= 0;
 	private byte			type			= TEXT;
 
 	public Response(InputStream inputStream) {
@@ -15,13 +16,12 @@ public class Response {
 		this.type = STREAM;
 	}
 
-	public Response(String content, byte type) {
+	public Response(String content, byte sessionID) {
 		this.content = content;
-		this.type = type;
+		this.sessionID = sessionID;
 	}
 
 	public String getContent() {
-
 		return content;
 	}
 
@@ -29,8 +29,11 @@ public class Response {
 		return inputStream;
 	}
 
-	public int getType() {
-		return type;
+	public byte getSessionID() {
+		return sessionID;
 	}
 
+	public byte getType() {
+		return type;
+	}
 }

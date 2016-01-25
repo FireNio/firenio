@@ -1,12 +1,11 @@
 package com.gifisan.mtp.jms.server;
 
 import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.session.Session;
 
-public class JMSProducerServlet extends MTPServlet{
+public class JMSProducerServlet extends JMSServlet{
 	
 //	private final Logger logger = LoggerFactory.getLogger(JMSProducerServlet.class);
 
@@ -18,7 +17,7 @@ public class JMSProducerServlet extends MTPServlet{
 		
 		Session session = request.getSession();
 		
-		MQContext context = MQContextFactory.getMQContext();
+		MQContext context = getMQContext();
 		
 		if (context.isLogined(session)) {
 			Message message = context.parse(request);

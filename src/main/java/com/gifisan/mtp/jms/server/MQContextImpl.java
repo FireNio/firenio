@@ -70,7 +70,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public boolean isLogined(Session session) {
-		return LOGINED == session.getComment();
+		return LOGINED == session.getEndpointMark();
 	}
 
 	public int messageSize() {
@@ -101,7 +101,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public void setLogined(boolean logined, Session session) {
-		session.setComment(LOGINED);
+		session.setEndpointMark(LOGINED);
 	}
 
 	public void setMessageDueTime(long dueTime) {

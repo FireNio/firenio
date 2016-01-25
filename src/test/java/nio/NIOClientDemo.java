@@ -24,7 +24,6 @@ public class NIOClientDemo {
 			"localhost", 8888);
 
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
 		// 打开socket通道
 		SocketChannel socketChannel = SocketChannel.open();
 		// 设置为非阻塞方式

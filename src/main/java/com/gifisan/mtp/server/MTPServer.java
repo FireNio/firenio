@@ -5,12 +5,11 @@ import java.util.Set;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.component.AttributesImpl;
-import com.gifisan.mtp.servlet.ServletContextImpl;
 
 public final class MTPServer extends AbstractLifeCycle implements Attributes {
 
 	public MTPServer(int port) {
-		this.context = new ServletContextImpl(this);
+		this.context = new ServerContextImpl(this);
 		this.connector = new NIOConnector(context);
 		this.connector.setPort(port);
 		this.addLifeCycleListener(new MTPServerListener());
@@ -18,7 +17,7 @@ public final class MTPServer extends AbstractLifeCycle implements Attributes {
 
 	private Attributes		attributes	= new AttributesImpl();
 	private Connector		connector		= null;
-	private ServletContext	context		= null;
+	private ServerContext	context		= null;
 
 	protected void doStart() throws Exception {
 		this.context.start();

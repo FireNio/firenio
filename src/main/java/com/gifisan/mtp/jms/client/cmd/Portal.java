@@ -3,10 +3,12 @@ package com.gifisan.mtp.jms.client.cmd;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.MessageBrowser;
+import com.gifisan.mtp.jms.client.MessageBrowser;
 import com.gifisan.mtp.jms.client.impl.MessageBrowserImpl;
 
 public class Portal {
@@ -18,6 +20,8 @@ public class Portal {
 	private String port = null;
 	
 	private MessageBrowser browser = null;
+	
+	private ClientConnector connector = null;
 	
 	public static void main(String[] args) {
 		new Portal().portal();
@@ -120,7 +124,7 @@ public class Portal {
 							response.setResponse(message.toString());
 						}
 					} catch (JMSException e) {
-						browser.disconnect();
+						browser.logout();
 						host = null;
 						port = null;
 						e.printStackTrace();
@@ -153,7 +157,7 @@ public class Portal {
 							response.setResponse(message.toString());
 						}
 					} catch (JMSException e) {
-						browser.disconnect();
+						browser.logout();
 						host = null;
 						port = null;
 						e.printStackTrace();
@@ -166,7 +170,8 @@ public class Portal {
 			put("disconnect", new Executable() {
 				public CmdResponse exec(HashMap<String, String> params) {
 					CmdResponse response = new CmdResponse();
-					browser.disconnect();
+					browser.logout();
+					browser = null;
 					host = null;
 					port = null;
 					response.setResponse("已断开连接！");
@@ -196,17 +201,26 @@ public class Portal {
 						return response;
 					}
 					
-					String url = "mtp://"+host+":"+port;
+					
+					
+					connector = new ClientConnector(host, Integer.valueOf(port));
+					
+					
 					
 					try {
-						browser = new MessageBrowserImpl(url);
-						browser.connect(username, password);
+						connector.connect();
+						
+						ClientSesssion session = connector.getClientSession();
+						
+						browser = new MessageBrowserImpl(session);
+						browser.login(username, password);
 						
 						Portal.this.host = host;
 						Portal.this.port = port;
 						
 						response.setResponse("连接成功！");
-					} catch (JMSException e) {
+						
+					} catch (Exception e) {
 						browser = null;
 						response.setResponse(e.getMessage());
 						//debug

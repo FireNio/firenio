@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.FileUtil;
 
 public class TestSimpleBigParam {
@@ -16,9 +18,11 @@ public class TestSimpleBigParam {
 
 		String serviceKey = "TestSimpleServlet";
 		Map param = ClientUtil.getParamMap();
-		NIOClient client = ClientUtil.getClient();
 		
-		client.connect();
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
+		
 		String temp = "网易科技腾讯科技阿里巴巴";
 		StringBuilder builder = new StringBuilder(temp);
 		for (int i = 0; i < 600000; i++) {
@@ -27,10 +31,13 @@ public class TestSimpleBigParam {
 		}
 		param.put("param", builder.toString());
 		String paramString = JSONObject.toJSONString(param);
-		client.request(serviceKey, paramString);
-		Response response = client.request(serviceKey, paramString);
-		client.close();
+		Response response = session.request(serviceKey, paramString);
 		FileUtil.write(new File(TestSimpleBigParam.class.getName()), response.getContent());
 		System.out.println("处理完成");
+		
+		CloseUtil.close(connector);
+		
+		
+		
 	}
 }

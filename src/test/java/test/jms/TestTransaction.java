@@ -2,27 +2,41 @@ package test.jms;
 
 import java.io.IOException;
 
+import test.ClientUtil;
+
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.MessageConsumer;
+import com.gifisan.mtp.jms.client.MessageConsumer;
 import com.gifisan.mtp.jms.client.impl.MessageConsumerImpl;
 
 public class TestTransaction {
 
 	public static void main(String[] args) throws IOException, JMSException {
-		MessageConsumer consumer = new MessageConsumerImpl("mtp://localhost:8300","sssssss", 0);
+		
+		ClientConnector connector = ClientUtil.getClientConnector();
+		
+		connector.connect();
+		
+		ClientSesssion session = connector.getClientSession();
+		
+		MessageConsumer consumer = new MessageConsumerImpl(session, "sssssss");
+
+		consumer.login("admin", "admin100");
 		
 		rollback(consumer);
 		
 //		commit(consumer);
 
-		consumer.disconnect();
+		consumer.logout();
+		
+		connector.close();
 
 	}
 	
 	
 	static void commit(MessageConsumer consumer) throws JMSException{
-		consumer.connect("admin", "admin100");
 		long old = System.currentTimeMillis();
 
 		consumer.beginTransaction();
@@ -36,7 +50,6 @@ public class TestTransaction {
 	}
 	
 	static void rollback(MessageConsumer consumer) throws JMSException{
-		consumer.connect("admin", "admin100");
 		long old = System.currentTimeMillis();
 
 		consumer.beginTransaction();

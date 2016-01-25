@@ -4,7 +4,9 @@ import java.io.IOException;
 
 import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
+import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.concurrent.BlockingQueueThreadPool;
 import com.gifisan.mtp.schedule.Job;
 
@@ -54,13 +56,17 @@ class T implements Job {
 	public void schedule() {
 		try {
 			String serviceKey = "TestSimpleServlet";
-			NIOClient client = ClientUtil.getClient();
 			String param = ClientUtil.getParamString();
-			client.connect();
+			ClientConnector connector = ClientUtil.getClientConnector();
+			connector.connect();
+			ClientSesssion session = connector.getClientSession();
+			
 			for (int i = 0; i < 100000; i++) {
-				client.request(serviceKey, param);
+				session.request(serviceKey, param);
 			}
-			client.close();
+			
+			CloseUtil.close(connector);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

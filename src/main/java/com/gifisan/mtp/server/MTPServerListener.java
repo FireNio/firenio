@@ -50,20 +50,5 @@ public class MTPServerListener extends AbstractLifeCycleListener implements Life
 		logger.info("[MTPServer] 服务运行时间  @{}:{} 共 {} 小时",params);
 		logger.info("[MTPServer] 开始停止服务，请稍等");
 	}
-	
-	public static void main(String[] args) {
-		
-		long time = 60000;
-		BigDecimal bb = new BigDecimal(time);
-		
-		bb.setScale(5);
-		
-		BigDecimal cc = new BigDecimal(60 * 60*1000);
-		
-		BigDecimal dd = bb.divide(cc,3,RoundingMode.HALF_UP);
-		System.out.println(dd);
-		
-	}
-	
 
 }

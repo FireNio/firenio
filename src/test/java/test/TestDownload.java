@@ -3,51 +3,56 @@ package test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.common.CloseUtil;
+import com.gifisan.mtp.component.InputStream;
 
 public class TestDownload {
 	
 	public static void main(String[] args) throws IOException {
 
 		String serviceKey = "TestDownloadServlet";
-		NIOClient client = ClientUtil.getClient();
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
 		
 		serviceKey = "upload-temp.zip";
 		
-		client.connect();
-		Response response = client.request(serviceKey, null);
-		
+		Response response = session.request(serviceKey, null);
 		
 		if (response.getType() == Response.TEXT) {
 			System.out.println(response.getContent());
 		}else{
 			
 			InputStream inputStream = response.getInputStream();
-			byte [] bytes = new byte[1024];
-			int length = inputStream.read(bytes);
 			
 			File file = new File("download.zip");
 			
 			FileOutputStream outputStream = new FileOutputStream(file);
 			
-			while(length == 1024){
-				outputStream.write(bytes);
-				length = inputStream.read(bytes);
+			
+			int BLOCK = 102400;
+			ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
+			int length = inputStream.read(BUFFER);
+			while (length == BLOCK) {
+				outputStream.write(BUFFER.array());
+				BUFFER.clear();
+				length = inputStream.read(BUFFER);
 			}
 			
 			if (length > 0) {
-				outputStream.write(bytes,0,length);
+				outputStream.write(BUFFER.array());
 			}
 			
 			CloseUtil.close(outputStream);
 			System.out.println("下载成功！");
 		}
 		
-		CloseUtil.close(client);
+		CloseUtil.close(connector);
 		
 	}
 }

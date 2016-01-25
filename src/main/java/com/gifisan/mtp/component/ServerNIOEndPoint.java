@@ -8,26 +8,34 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import com.gifisan.mtp.server.ServerContext;
 import com.gifisan.mtp.server.ServerEndPoint;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerEndpointFactory;
 import com.gifisan.mtp.server.session.InnerSession;
+import com.gifisan.mtp.server.session.MTPSession;
 
 public class ServerNIOEndPoint implements ServerEndPoint {
 
-	private SelectionKey		selectionKey		= null;
 	private Object				attachment		= null;
 	private SocketChannel		channel			= null;
-	private int				comment			= 0;
+	private ServerContext		context			= null;
 	private boolean			endConnect		= false;
-	private MTPRequestInputStream	inputStream		= null;
+	private long				endPointID		= 0;
+	private ServerEndpointFactory	factory			= null;
+	private InputStream			inputStream		= null;
 	private InetSocketAddress	local			= null;
+	private int				mark				= 0;
 	private int				maxIdleTime		= 0;
 	private ProtocolDecoder		protocolDecoder	= null;
 	private InetSocketAddress	remote			= null;
+	private SelectionKey		selectionKey		= null;
+	private InnerSession[]		sessions			= new InnerSession[4];
 	private Socket				socket			= null;
-	private InnerSession		session			= null;
 
-	public ServerNIOEndPoint(SelectionKey selectionKey) throws SocketException {
+	public ServerNIOEndPoint(ServerContext context, SelectionKey selectionKey, long endPointID) throws SocketException {
+		this.context = context;
+		this.factory = context.getServerEndpointFactory();
+		this.endPointID = endPointID;
 		this.selectionKey = selectionKey;
 		this.protocolDecoder = new NormalProtocolDecoder();
 		this.channel = (SocketChannel) selectionKey.channel();
@@ -48,41 +56,33 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 
 	public void close() throws IOException {
 		this.selectionKey.attach(null);
-		this.session.destroyImmediately();
-		this.channel.close();
-	}
 
-	public int comment() {
-		return this.comment;
-	}
-
-	public ByteBuffer completeRead(int limit) throws IOException {
-		ByteBuffer buffer = ByteBuffer.allocate(limit);
-		int time = limit / 64;
-		int _time = 0;
-		int length = -1;
-		try {
-			length = channel.read(buffer);
-			while (length < limit && _time < time) {
-				int _length = channel.read(buffer);
-				length += _length;
-				_time++;
+		for (InnerSession session : sessions) {
+			if (session == null) {
+				continue;
 			}
-		} catch (IOException e) {
-			throw handleException(e);
+			session.destroyImmediately();
 		}
-		if (length < limit) {
-			throw new MTPChannelException("network is too weak");
-		}
-		return buffer;
+
+		this.factory.remove(this);
+
+		this.channel.close();
+
 	}
 
 	public void endConnect() {
 		this.endConnect = true;
-		// System.out.println("end connect!!!!!!!!!!!!!!!!!!!!!!!");
 	}
 
-	public MTPRequestInputStream getInputStream() {
+	public ServerContext getContext() {
+		return context;
+	}
+
+	public long getEndPointID() {
+		return endPointID;
+	}
+
+	public InputStream getInputStream() {
 		return inputStream;
 	}
 
@@ -99,6 +99,10 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 
 	public int getLocalPort() {
 		return local.getPort();
+	}
+
+	public int getMark() {
+		return mark;
 	}
 
 	public int getMaxIdleTime() {
@@ -130,6 +134,20 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		return remote.getPort();
 	}
 
+	public InnerSession getSession() {
+
+		byte sessionID = protocolDecoder.getSessionID();
+
+		InnerSession session = sessions[sessionID];
+
+		if (session == null) {
+			session = new MTPSession(this, sessionID);
+			sessions[sessionID] = session;
+		}
+
+		return session;
+	}
+
 	private MTPChannelException handleException(IOException exception) throws MTPChannelException {
 		this.endConnect = true;
 
@@ -152,9 +170,9 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		return this.channel.isOpen();
 	}
 
-	public boolean protocolDecode(ServletContext context) throws IOException {
+	public boolean protocolDecode(ServerContext context) throws IOException {
 		this.protocolDecoder = new NormalProtocolDecoder();
-		return this.protocolDecoder.decode(context, this);
+		return this.protocolDecoder.decode(this);
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {
@@ -167,38 +185,48 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 
 	public ByteBuffer read(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
-		int length = -1;
+
+		SocketChannel channel = this.channel;
+
 		try {
-			length = channel.read(buffer);
+
+			int _length = channel.read(buffer);
+			int length = _length;
+
+			for (; length < limit;) {
+				if (length < 64) {
+					throw new MTPChannelException("network is weak");
+				}
+				_length = channel.read(buffer);
+				length += _length;
+			}
+
 		} catch (IOException e) {
 			throw handleException(e);
-		}
-		if (length < limit) {
-			throw new MTPChannelException("network is too weak");
 		}
 		return buffer;
 	}
 
-	public int readHead(ByteBuffer buffer) throws IOException {
-		return this.read(buffer);
+	public void removeSession(byte sessionID) {
+		InnerSession session = sessions[sessionID];
+
+		sessions[sessionID] = null;
+		if (session != null) {
+			session.destroyImmediately();
+		}
 	}
 
-	public void setComment(int comment) {
-		this.comment = comment;
-
-	}
-	
-	public InnerSession getSession() {
-		return session;
+	public int sessionSize() {
+		// TODO jisuan ...................
+		return 0;
 	}
 
-	public void setSession(InnerSession session) {
-		this.session = session;
-		
-	}
-
-	public void setMTPRequestInputStream(MTPRequestInputStream inputStream) {
+	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
+	}
+
+	public void setMark(int mark) {
+		this.mark = mark;
 	}
 
 	public void write(byte b) throws MTPChannelException {
@@ -208,13 +236,11 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 	}
 
 	public void write(byte[] bytes) throws MTPChannelException {
-		ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		write(buffer);
+		write(ByteBuffer.wrap(bytes));
 	}
 
 	public void write(byte[] bytes, int offset, int length) throws MTPChannelException {
-		ByteBuffer buffer = ByteBuffer.wrap(bytes, offset, length);
-		write(buffer);
+		write(ByteBuffer.wrap(bytes, offset, length));
 	}
 
 	public void write(ByteBuffer buffer) throws MTPChannelException {
@@ -222,16 +248,25 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 	}
 
 	// TODO 网速比较慢的时候
-	private void write(SocketChannel client, ByteBuffer buffer) throws MTPChannelException {
+	private void write(SocketChannel channel, ByteBuffer buffer) throws MTPChannelException {
+
+		int limit = buffer.limit();
+
 		try {
-			int length = buffer.limit();
-			int _length = client.write(buffer);
-			while (length > _length) {
-				_length += client.write(buffer);
+
+			int _length = channel.write(buffer);
+			int length = _length;
+
+			for (; length < limit;) {
+				// TODO 处理网速较慢的时候
+				_length = channel.write(buffer);
+				length += _length;
 			}
+
 		} catch (IOException e) {
 			throw handleException(e);
 		}
+
 	}
 
 }

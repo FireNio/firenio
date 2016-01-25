@@ -13,9 +13,12 @@ import java.util.Set;
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.component.EndPoint;
+import com.gifisan.mtp.component.ServerNIOEndPoint;
 import com.gifisan.mtp.server.SelectionAcceptor;
 import com.gifisan.mtp.server.NIOSelectionAcceptor;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
+import com.gifisan.mtp.server.ServerEndPoint;
 
 public final class SelectorManager extends AbstractLifeCycle implements SelectionAccept {
 
@@ -23,19 +26,26 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 	private Selector			selector	= null;
 	private ServerSocketChannel	channel	= null;
 	
-	public SelectorManager(ServletContext context) {
+	public SelectorManager(ServerContext context) {
 		this.acceptor = new NIOSelectionAcceptor(context);
 	}
 
 	public void accept(long timeout) throws IOException {
+		
 		Selector selector = this.selector;
-		SelectionAcceptor acceptor = this.acceptor;
+		
 		selector.select(timeout);
+		
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
+		
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
-		while (iterator.hasNext()) {
+		
+		for (;iterator.hasNext();) {
+			
 			SelectionKey selectionKey = iterator.next();
+			
 			iterator.remove();
+			
 			if (!selectionKey.isValid()) {
 				continue;
 			}
@@ -44,16 +54,35 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 				this.accept(selectionKey);
 				continue;
 			}
+			
+			SelectionAcceptor acceptor = this.acceptor;
 
 			try {
 				acceptor.accept(selectionKey);
-			} catch (Exception e) {
-				e.printStackTrace();
-				SelectableChannel channel = selectionKey.channel();
-				CloseUtil.close(channel);
-				selectionKey.cancel();
+			} catch (IOException e) {
+				acceptException(selectionKey,e);
 			}
 		}
+	}
+	
+	private void acceptException(SelectionKey selectionKey,IOException exception){
+		SelectableChannel channel = selectionKey.channel();
+		
+		Object attachment = selectionKey.attachment();
+
+		if (isEndPoint(attachment)) {
+			ServerEndPoint endPoint = (ServerEndPoint) attachment;
+			CloseUtil.close(endPoint);
+		}
+		CloseUtil.close(channel);
+		selectionKey.cancel();
+		
+		exception.printStackTrace();
+	}
+	
+	private boolean isEndPoint(Object object) {
+		return object != null && 
+				(object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {

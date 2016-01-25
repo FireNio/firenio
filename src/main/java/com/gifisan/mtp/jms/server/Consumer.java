@@ -54,7 +54,7 @@ public class Consumer {
 			response.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
-			session.destroy();
+			session.disconnect();
 		}
 	}
 }

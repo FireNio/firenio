@@ -1,19 +1,19 @@
 package com.gifisan.mtp.component;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.mtp.Encoding;
-import com.gifisan.mtp.server.OutputStream;
+import com.gifisan.mtp.server.InnerResponse;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServerEndPoint;
+import com.gifisan.mtp.server.session.MTPSession;
 
-public class MTPServletResponse implements Response {
+public class MTPServletResponse implements InnerResponse {
 
-	public final byte			RESPONSE_STREAM	= 1;
-	public final byte			RESPONSE_TEXT		= 0;
+	private byte				RESPONSE_STREAM	= 1;
+	private byte				RESPONSE_TEXT		= 0;
 	private byte				emptyByte			= ' ';
 	private int				dataLength		= 0;
 	private ServerEndPoint		endPoint			= null;
@@ -22,6 +22,13 @@ public class MTPServletResponse implements Response {
 	private boolean			typed			= false;
 	private BufferedOutputStream	bufferWriter		= new BufferedOutputStream();
 	private OutputStream		writer			= null;
+	private MTPSession			session			= null;
+	private byte[]			header			= new byte[6];
+
+	public MTPServletResponse(ServerEndPoint endPoint, MTPSession session) {
+		this.endPoint = endPoint;
+		this.session = session;
+	}
 
 	public void flush() throws IOException {
 		if (type < RESPONSE_STREAM) {
@@ -32,7 +39,7 @@ public class MTPServletResponse implements Response {
 	public void flushEmpty() throws IOException {
 		this.endPoint.write(emptyByte);
 		this.flushText();
-		
+
 	}
 
 	private void flushText() throws IOException {
@@ -41,46 +48,48 @@ public class MTPServletResponse implements Response {
 		}
 
 		if (bufferWriter.size() == 0) {
-			throw new EOFException("empty byte");
+			throw new MTPChannelException("empty byte");
 		}
 
 		if (!endPoint.isOpened()) {
 			throw new MTPChannelException("channel closed");
 		}
-		
+
 		this.flushed = true;
 
 		ByteBuffer buffer = getByteBufferTEXT();
 
 		this.bufferWriter.reset();
 		this.endPoint.write(buffer);
-		
+
 	}
 
 	private ByteBuffer getByteBufferStream() {
-		byte[] header = new byte[5];
+		byte[] header = this.header;
 		int _dataLength = dataLength;
 
 		header[0] = type;
-		header[1] = (byte) (_dataLength & 0xff);
-		header[2] = (byte) ((_dataLength >> 8) & 0xff);
-		header[3] = (byte) ((_dataLength >> 16) & 0xff);
-		header[4] = (byte) (_dataLength >>> 24);
+		header[1] = 0;
+		header[2] = (byte) (_dataLength & 0xff);
+		header[3] = (byte) ((_dataLength >> 8) & 0xff);
+		header[4] = (byte) ((_dataLength >> 16) & 0xff);
+		header[5] = (byte) (_dataLength >>> 24);
 
 		return ByteBuffer.wrap(header);
 	}
 
 	private ByteBuffer getByteBufferTEXT() {
 		int length = bufferWriter.size();
-		byte[] header = new byte[5];
+		byte[] header = this.header;
 
 		header[0] = type;
-		header[1] = (byte) (length & 0xff);
-		header[2] = (byte) ((length >> 8) & 0xff);
-		header[3] = (byte) ((length >> 16) & 0xff);
-		header[4] = (byte) (length >>> 24);
+		header[1] = session.getSessionID();
+		header[2] = (byte) (length & 0xff);
+		header[3] = (byte) ((length >> 8) & 0xff);
+		header[4] = (byte) ((length >> 16) & 0xff);
+		header[5] = (byte) (length >>> 24);
 
-		ByteBuffer buffer = ByteBuffer.allocate(length + 5);
+		ByteBuffer buffer = ByteBuffer.allocate(length + 6);
 
 		buffer.put(header);
 		buffer.put(bufferWriter.toByteArray());
@@ -91,7 +100,7 @@ public class MTPServletResponse implements Response {
 
 	public void setStreamResponse(int length) throws IOException {
 		if (length < 1) {
-			throw new EOFException("invalidate length");
+			throw new IOException("invalidate length");
 		}
 
 		if (typed) {
@@ -104,6 +113,7 @@ public class MTPServletResponse implements Response {
 		ByteBuffer buffer = getByteBufferStream();
 
 		this.typed = true;
+		this.flushed = true;
 		this.endPoint.write(buffer);
 		this.writer = this.endPoint;
 	}
@@ -130,14 +140,17 @@ public class MTPServletResponse implements Response {
 			e.printStackTrace();
 		}
 	}
-	
-	public Response update(ServerEndPoint endPoint){
-		this.endPoint = endPoint;
+
+	public Response update() {
 		this.type = RESPONSE_TEXT;
 		this.writer = this.bufferWriter;
 		this.flushed = false;
 		this.typed = false;
 		return this;
+	}
+	
+	public boolean flushed(){
+		return flushed;
 	}
 
 	public void write(String content, Charset encoding) {

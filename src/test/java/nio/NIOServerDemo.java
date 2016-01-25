@@ -109,7 +109,6 @@ public class NIOServerDemo {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
 		int port = 8888;
 		NIOServerDemo server = new NIOServerDemo(port);
 		server.listen();

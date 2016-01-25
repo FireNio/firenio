@@ -3,7 +3,7 @@ package com.gifisan.mtp.client;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Selector;
 
-import com.gifisan.mtp.server.EndPoint;
+import com.gifisan.mtp.component.EndPoint;
 
 public interface ClientEndPoint extends EndPoint{
 	

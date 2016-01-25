@@ -1,8 +1,9 @@
 package com.gifisan.mtp.concurrent;
 
+import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.schedule.Job;
 
-public class TaskExecutor implements Runnable {
+public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 
 	private long		interval	= 0;
 	private Job		job		= null;
@@ -36,11 +37,12 @@ public class TaskExecutor implements Runnable {
 		}
 	}
 
-	public void start() {
+	protected void doStart() throws Exception {
 		this.thread.start();
+		
 	}
 
-	public void stop() {
+	protected void doStop() throws Exception {
 		this.running = false;
 		synchronized (lock) {
 			lock.notify();

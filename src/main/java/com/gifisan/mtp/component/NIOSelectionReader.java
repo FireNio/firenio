@@ -7,35 +7,30 @@ import java.nio.channels.SelectionKey;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.concurrent.ThreadPool;
 import com.gifisan.mtp.schedule.ServletAcceptJob;
-import com.gifisan.mtp.server.EndPoint;
 import com.gifisan.mtp.server.ServerEndPoint;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
+import com.gifisan.mtp.server.ServerEndpointFactory;
 import com.gifisan.mtp.server.selector.SelectionAccept;
 import com.gifisan.mtp.server.session.InnerSession;
-import com.gifisan.mtp.server.session.MTPSessionFactory;
 
 public class NIOSelectionReader implements SelectionAccept {
 
-	private ServletContext	context			= null;
+	private ServerContext	context			= null;
 	private ThreadPool		servletDispatcher	= null;
-	private ServletService	service			= null;
 
-	public NIOSelectionReader(ServletContext context, ServletService service, ThreadPool servletDispatcher) {
+	public NIOSelectionReader(ServerContext context,ThreadPool servletDispatcher) {
 		this.context = context;
-		this.service = service;
 		this.servletDispatcher = servletDispatcher;
 	}
 
 	protected boolean isEndPoint(Object object) {
-		if (object == null) {
-			return false;
-		}
-
-		return object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint;
+		
+		return object != null && 
+				(object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
 
 	}
-
-	private ServerEndPoint getEndPoint(ServletContext context,SelectionKey selectionKey) throws SocketException {
+	
+	private ServerEndPoint getEndPoint(ServerContext context,SelectionKey selectionKey) throws SocketException {
 
 		Object attachment = selectionKey.attachment();
 
@@ -43,14 +38,10 @@ public class NIOSelectionReader implements SelectionAccept {
 			return (ServerEndPoint) attachment;
 		}
 		
-		MTPSessionFactory factory = context.getMTPSessionFactory();
+		ServerEndpointFactory factory = context.getServerEndpointFactory();
 
-		ServerEndPoint endPoint = new ServerNIOEndPoint(selectionKey);
+		ServerEndPoint endPoint = factory.manager(context, selectionKey);
 
-		InnerSession session = factory.newSession(endPoint, service);
-		
-		endPoint.setSession(session);
-		
 		selectionKey.attach(endPoint);
 
 		return endPoint;
@@ -59,7 +50,7 @@ public class NIOSelectionReader implements SelectionAccept {
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 		
-		ServletContext context = this.context;
+		ServerContext context = this.context;
 
 		ServerEndPoint endPoint = getEndPoint(context,selectionKey);
 

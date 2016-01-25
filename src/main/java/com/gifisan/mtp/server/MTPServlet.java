@@ -5,11 +5,11 @@ import com.gifisan.mtp.servlet.GenericServlet;
 
 public abstract class MTPServlet extends GenericServlet {
 
-	public void initialize(ServletContext context, ServletConfig config) throws Exception {
+	public void initialize(ServerContext context, ServletConfig config) throws Exception {
 
 	}
 
-	public void destroy(ServletContext context, ServletConfig config) throws Exception {
+	public void destroy(ServerContext context, ServletConfig config) throws Exception {
 
 	}
 

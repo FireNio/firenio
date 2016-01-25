@@ -2,15 +2,18 @@ package com.gifisan.mtp.jms.client.impl;
 
 import java.io.IOException;
 
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.MessageProducer;
+import com.gifisan.mtp.jms.client.MessageProducer;
 
 public class MessageProducerImpl extends ConnectonImpl implements MessageProducer{
 
-	public MessageProducerImpl(String url) throws JMSException {
-		super(url);
+	
+	
+	public MessageProducerImpl(ClientSesssion session) throws JMSException {
+		super(session);
 	}
 
 	public boolean offer(Message message) throws JMSException {
@@ -18,7 +21,7 @@ public class MessageProducerImpl extends ConnectonImpl implements MessageProduce
 		
 		Response response;
 		try {
-			response = client.request("JMSProducerServlet",param);
+			response = session.request("JMSProducerServlet",param);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}

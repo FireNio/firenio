@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
 
 public class ClientUtil {
 
-	public static NIOClient getClient(){
-		return new NIOClient("localhost", 8300);
+	public static ClientConnector getClientConnector(){
+		return new ClientConnector("localhost", 8300);
 	}
 	
 	public static String getParamString(){

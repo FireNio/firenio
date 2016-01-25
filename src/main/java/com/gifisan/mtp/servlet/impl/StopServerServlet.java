@@ -11,7 +11,7 @@ import com.gifisan.mtp.server.MTPServer;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
 
 public class StopServerServlet extends MTPServlet {
 
@@ -26,17 +26,17 @@ public class StopServerServlet extends MTPServlet {
 		
 		boolean result = this.username.equals(username) && this.password.equals(password);
 		if (result) {
-			ServletContext context = request.getSession().getServletContext();
+			ServerContext context = request.getSession().getServerContext();
 			MTPServer server = context.getServer();
 			new Thread(new StopServer(server)).start();
 			response.write("处理服务器停止命令...");
-			response.flush();
 		}else{
 			response.write(RESMessage.R_UNAUTH.toString());
 		}
+		response.flush();
 	}
 
-	public void initialize(ServletContext context, ServletConfig config) throws Exception {
+	public void initialize(ServerContext context, ServletConfig config) throws Exception {
 		this.username = config.getStringValue("username");
 		this.password = config.getStringValue("password");
 	}

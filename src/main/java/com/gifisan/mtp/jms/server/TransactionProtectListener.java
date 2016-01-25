@@ -10,12 +10,18 @@ public class TransactionProtectListener implements SessionEventListener{
 
 	private Logger logger = LoggerFactory.getLogger(TransactionProtectListener.class);
 	
+	private MQContext context = null;
+	
+	public TransactionProtectListener(MQContext context) {
+		this.context = context;
+	}
+
 	public void onDestroy(Session session) {
 		
-		Consumer consumer = (Consumer) session.getAttribute("_consumer");
+		Consumer consumer = (Consumer) session.getAttribute("_TPL_CONSUMER");
 		
 		if (consumer != null) {
-			MQContext context = MQContextFactory.getMQContext();
+			
 			context.removeConsumer(consumer);
 		}
 		

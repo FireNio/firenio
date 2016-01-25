@@ -2,8 +2,10 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.common.CloseUtil;
 
 public class TestStopServer {
 
@@ -11,14 +13,16 @@ public class TestStopServer {
 	public static void main(String[] args) throws IOException {
 		String serviceKey = "stop-server";
 		
-		NIOClient client = ClientUtil.getClient();
-		String params = ClientUtil.getParamString();
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
 		
-		client.connect();
-		Response response = client.request(serviceKey, params);
-		client.close();
+		String param = "{username:\"admin\",password:\"admin100\"}";
 		
+		Response response = session.request(serviceKey, param);
 		System.out.println(response.getContent());
+		
+		CloseUtil.close(connector);
 		
 	}
 }

@@ -17,7 +17,7 @@ import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.AsynchServletAcceptJob;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
 import com.gifisan.mtp.servlet.MTPFilter;
 
 public class DownloadFilter implements MTPFilter {
@@ -25,12 +25,12 @@ public class DownloadFilter implements MTPFilter {
 	private boolean			exclude			= false;
 	private Map<String, String>	excludesMap		= null;
 
-	public boolean doFilter(Request request, Response response) throws Exception {
+	public void accept(Request request, Response response) throws Exception {
 
 		String serviceName = request.getServiceName();
 		int point = serviceName.lastIndexOf('.');
 		if (point == -1) {
-			return false;
+			return;
 		}
 		String subfix = serviceName.substring(point);
 
@@ -41,10 +41,8 @@ public class DownloadFilter implements MTPFilter {
 			
 			executor.dispatch(downloadJob);
 			
-			return BREAK;
 		}
 
-		return CONTINUE;
 	}
 
 	private boolean canDownload(String subfix) {
@@ -52,7 +50,7 @@ public class DownloadFilter implements MTPFilter {
 
 	}
 
-	public void initialize(ServletContext context, FilterConfig config) throws Exception {
+	public void initialize(ServerContext context, FilterConfig config) throws Exception {
 		String excludesContent = (String) config.getAttribute("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
@@ -77,7 +75,7 @@ public class DownloadFilter implements MTPFilter {
 
 	}
 
-	public void destroy(ServletContext context, FilterConfig config) throws Exception {
+	public void destroy(ServerContext context, FilterConfig config) throws Exception {
 		
 	}
 

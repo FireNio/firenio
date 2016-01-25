@@ -2,8 +2,10 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 import com.gifisan.mtp.client.Response;
+import com.gifisan.mtp.common.CloseUtil;
 
 public class TestGetPhoneNO {
 	
@@ -12,12 +14,15 @@ public class TestGetPhoneNO {
 
 
 		String serviceKey = "TestGetPhoneNOServlet";
-		NIOClient client = ClientUtil.getClient();
 		
-		client.connect();
-		Response response = client.request(serviceKey, null);
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
+		
+		Response response = session.request(serviceKey, null);
 		System.out.println(response.getContent());
-		client.close();
+		
+		CloseUtil.close(connector);
 		
 	}
 }

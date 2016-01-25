@@ -8,6 +8,8 @@ public class RESMessage {
 	
 	public static RESMessage R_SUCCESS = new RESMessage(0, "success");
 	
+	public static RESMessage R_FAIL = new RESMessage(-1, "fail");
+	
 	public static RESMessage R_UNAUTH = new RESMessage(403, "request forbidden");
 
 	private int code;

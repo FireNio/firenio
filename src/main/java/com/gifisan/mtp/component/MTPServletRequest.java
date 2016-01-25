@@ -2,11 +2,12 @@ package com.gifisan.mtp.component;
 
 import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.Attributes;
+import com.gifisan.mtp.server.InnerRequest;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.ServerEndPoint;
 import com.gifisan.mtp.server.session.Session;
 
-public class MTPServletRequest extends AttributesImpl implements Attributes, Request {
+public class MTPServletRequest extends AttributesImpl implements Attributes, InnerRequest {
 
 	private ServerEndPoint		endPoint			= null;
 	private RequestParam		parameters		= null;
@@ -26,7 +27,7 @@ public class MTPServletRequest extends AttributesImpl implements Attributes, Req
 	}
 
 
-	public MTPRequestInputStream getInputStream() {
+	public InputStream getInputStream() {
 
 		return protocolDecoder.getInputStream();
 	}

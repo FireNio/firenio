@@ -10,7 +10,7 @@ import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
 import com.gifisan.mtp.LifeCycleListener;
 import com.gifisan.mtp.common.LifeCycleUtil;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
 
 public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 
@@ -18,7 +18,7 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 	private Thread			task				= null;
 	private boolean		working			= false;
 	
-	public SelectorManagerTask(ServletContext context) {
+	public SelectorManagerTask(ServerContext context) {
 		this.selectorManager = new SelectorManager(context);
 	}
 

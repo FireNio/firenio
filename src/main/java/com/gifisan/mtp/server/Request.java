@@ -1,6 +1,6 @@
 package com.gifisan.mtp.server;
 
-import com.gifisan.mtp.component.MTPRequestInputStream;
+import com.gifisan.mtp.component.InputStream;
 import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.session.Session;
@@ -11,7 +11,7 @@ public interface Request {
 	
 	public abstract String getContent();
 
-	public abstract MTPRequestInputStream getInputStream();
+	public abstract InputStream getInputStream();
 
 	public abstract String getLocalAddr();
 

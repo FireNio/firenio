@@ -2,7 +2,8 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.client.NIOClient;
+import com.gifisan.mtp.client.ClientConnector;
+import com.gifisan.mtp.client.ClientSesssion;
 
 public class TestBeat {
 	
@@ -11,16 +12,19 @@ public class TestBeat {
 
 
 		String serviceKey = "TestSimpleServlet";
-		NIOClient client = ClientUtil.getClient();
+		ClientConnector connector = ClientUtil.getClientConnector();
+		connector.connect();
+		ClientSesssion session = connector.getClientSession();
 		String param = ClientUtil.getParamString();
-		client.connect();
-		client.keepAlive(1);
+		
+		connector.keepAlive(1);
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
-			client.request(serviceKey, param);
+			session.request(serviceKey, param);
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
-		client.close();
+		connector.close();
+		
 	}
 }

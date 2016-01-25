@@ -21,7 +21,7 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	private String				host				= "127.0.0.1";
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 
-	public NIOConnector(ServletContext context) {
+	public NIOConnector(ServerContext context) {
 		this.server = context.getServer();
 		this.selectorManagerTask = new SelectorManagerTask(context);
 	}

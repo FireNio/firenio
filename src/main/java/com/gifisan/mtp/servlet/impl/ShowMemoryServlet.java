@@ -6,7 +6,7 @@ import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.ServletContext;
+import com.gifisan.mtp.server.ServerContext;
 
 public class ShowMemoryServlet extends MTPServlet{
 
@@ -34,14 +34,14 @@ public class ShowMemoryServlet extends MTPServlet{
 			
 			response.write("服务器内存使用情况：\n");
 			response.write(builder.toString());
-			response.flush();
 		}else{
 			response.write(RESMessage.R_UNAUTH.toString());
 		}
+		response.flush();
 		
 	}
 	
-	public void initialize(ServletContext context, ServletConfig config) throws Exception {
+	public void initialize(ServerContext context, ServletConfig config) throws Exception {
 		this.username = config.getStringValue("username");
 		this.password = config.getStringValue("password");
 	}
