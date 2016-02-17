@@ -4,7 +4,7 @@ import java.util.Set;
 
 public abstract interface Attributes {
 	  
-	  public abstract void removeAttribute(String key);
+	  public abstract Object removeAttribute(String key);
 	  
 	  public abstract void setAttribute(String key, Object value);
 	  

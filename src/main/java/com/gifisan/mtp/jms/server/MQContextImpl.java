@@ -106,6 +106,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	public void setMessageDueTime(long dueTime) {
 		this.dueTime = dueTime;
+		this.productLine.setDueTime(dueTime);
 	}
 
 	public void removeConsumer(Consumer consumer) {

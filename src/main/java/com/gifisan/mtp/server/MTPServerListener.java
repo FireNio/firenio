@@ -33,7 +33,7 @@ public class MTPServerListener extends AbstractLifeCycleListener implements Life
 
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 		//NIOConnector connector = (NIOConnector) lifeCycle;
-		exception.printStackTrace();
+		logger.error(exception.getMessage(),exception);;
 	}
 
 	public void lifeCycleStopped(LifeCycle lifeCycle) {

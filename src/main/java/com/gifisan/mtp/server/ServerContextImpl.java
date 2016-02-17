@@ -1,6 +1,8 @@
 package com.gifisan.mtp.server;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -8,16 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.Encoding;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.SharedBundle;
-import com.gifisan.mtp.component.AttributesImpl;
 import com.gifisan.mtp.component.FilterService;
 import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 
 public class ServerContextImpl extends AbstractLifeCycle implements ServerContext {
 
-	private AttributesImpl		attributesImpl		= new AttributesImpl();
-	private Charset			encoding			= Encoding.DEFAULT;
+	private Charset			encoding			= null;
 	private MTPServer			server			= null;
 	private ServerEndpointFactory	endpointFactory	= null;
 	private FilterService		filterService		= null;
@@ -30,22 +31,26 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		this.endpointFactory = new ServerEndpointFactory();
 	}
 
-	public void clearAttributes() {
-		attributesImpl.clearAttributes();
-	}
-
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
+		
+		Charset ENCODING = Charset.forName(bundle.getProperty("SERVER.ENCODING","GBK"));
+		
+		Encoding.DEFAULT = ENCODING;
 
 		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-
+		
+		DebugUtil.setEnableDebug(debug);
+		
 		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE", 4);
-
-		this.appLocalAddres = debug ? bundle.getBaseDIR() : bundle.getBaseDIR() + "app/";
+		
+		this.encoding = ENCODING;
+		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.filterService = new FilterService(this);
 		this.servletLazyExecutor = new ExecutorThreadPool(CORE_SIZE, "Servlet-accept-Job");
 
-		logger.info("[MTPServer] 工作目录：" + appLocalAddres);
+		logger.info("[MTPServer] 工作目录：{}" , appLocalAddres);
+		logger.info("[MTPServer] 项目编码：{}" , ENCODING);
 
 		this.filterService.start();
 		this.servletLazyExecutor.start();
@@ -58,13 +63,6 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		LifeCycleUtil.stop(filterService);
 	}
 
-	public Object getAttribute(String key) {
-		return attributesImpl.getAttribute(key);
-	}
-
-	public Set<String> getAttributeNames() {
-		return attributesImpl.getAttributeNames();
-	}
 
 	public Charset getEncoding() {
 		return encoding;
@@ -82,16 +80,6 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		return appLocalAddres;
 	}
 
-	public void removeAttribute(String key) {
-		attributesImpl.removeAttribute(key);
-
-	}
-
-	public void setAttribute(String key, Object value) {
-		attributesImpl.setAttribute(key, value);
-
-	}
-
 	public void setEncoding(Charset encoding) {
 		this.encoding = encoding;
 	}
@@ -106,6 +94,30 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 	public boolean redeploy() {
 		return this.filterService.redeploy();
+	}
+	
+	private Map<String, Object> attributes = new HashMap<String, Object>();
+
+	public Object removeAttribute(String key) {
+		return this.attributes.remove(key);
+		
+	}
+
+	public void setAttribute(String key, Object value) {
+		this.attributes.put(key, value);
+	}
+
+	public Object getAttribute(String key) {
+		return this.attributes.get(key);
+	}
+
+	public Set<String> getAttributeNames() {
+		return this.attributes.keySet();
+	}
+
+	public void clearAttributes() {
+		this.attributes.clear();
+		
 	}
 
 }

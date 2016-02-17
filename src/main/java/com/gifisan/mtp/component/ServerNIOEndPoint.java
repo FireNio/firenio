@@ -31,6 +31,7 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 	private SelectionKey		selectionKey		= null;
 	private InnerSession[]		sessions			= new InnerSession[4];
 	private Socket				socket			= null;
+	private int				sessionSize		= 0;
 
 	public ServerNIOEndPoint(ServerContext context, SelectionKey selectionKey, long endPointID) throws SocketException {
 		this.context = context;
@@ -143,6 +144,7 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 		if (session == null) {
 			session = new MTPSession(this, sessionID);
 			sessions[sessionID] = session;
+			sessionSize = sessionID;
 		}
 
 		return session;
@@ -217,8 +219,7 @@ public class ServerNIOEndPoint implements ServerEndPoint {
 	}
 
 	public int sessionSize() {
-		// TODO jisuan ...................
-		return 0;
+		return sessionSize;
 	}
 
 	public void setInputStream(InputStream inputStream) {

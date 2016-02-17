@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import com.gifisan.mtp.client.ClientConnector;
 import com.gifisan.mtp.client.ClientSesssion;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.jms.JMSException;
 import com.gifisan.mtp.jms.Message;
@@ -127,7 +128,7 @@ public class Portal {
 						browser.logout();
 						host = null;
 						port = null;
-						e.printStackTrace();
+						DebugUtil.debug(e);
 					}
 					
 					return response;
@@ -160,7 +161,7 @@ public class Portal {
 						browser.logout();
 						host = null;
 						port = null;
-						e.printStackTrace();
+						DebugUtil.debug(e);
 					}
 					
 					return response;
@@ -224,7 +225,7 @@ public class Portal {
 						browser = null;
 						response.setResponse(e.getMessage());
 						//debug
-						e.printStackTrace();
+						DebugUtil.debug(e);
 					}
 					return response;
 				}

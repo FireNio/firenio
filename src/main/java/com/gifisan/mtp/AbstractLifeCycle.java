@@ -48,7 +48,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 					try {
 						listener.lifeCycleStarting(this);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -59,7 +59,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 					try {
 						listener.lifeCycleStarted(this);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -70,7 +70,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 					try {
 						listener.lifeCycleStopping(this);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -81,7 +81,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 					try {
 						listener.lifeCycleStopped(this);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -100,7 +100,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 				try {
 					listener.lifeCycleFailure(this,exception);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -182,7 +182,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 			
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			
 		}
 		

@@ -1,5 +1,7 @@
 package com.gifisan.mtp.server;
 
+import com.gifisan.mtp.common.DebugUtil;
+
 public abstract class AsynchServletAcceptJob implements Runnable, ServletAcceptor {
 
 	private Request	request	= null;
@@ -14,7 +16,7 @@ public abstract class AsynchServletAcceptJob implements Runnable, ServletAccepto
 		try {
 			accept(request, response);
 		} catch (Exception e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 	}
 

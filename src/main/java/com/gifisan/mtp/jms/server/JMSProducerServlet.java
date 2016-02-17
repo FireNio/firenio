@@ -7,8 +7,6 @@ import com.gifisan.mtp.server.session.Session;
 
 public class JMSProducerServlet extends JMSServlet{
 	
-//	private final Logger logger = LoggerFactory.getLogger(JMSProducerServlet.class);
-
 	private final byte TRUE = 'T';
 	
 	private final byte FALSE = 'F';

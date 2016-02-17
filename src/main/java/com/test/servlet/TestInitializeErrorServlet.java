@@ -1,6 +1,6 @@
-package com.gifisan.mtp.servlet.impl.test;
+package com.test.servlet;
 
-import com.gifisan.mtp.component.ServletConfig;
+import com.gifisan.mtp.component.Configuration;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
@@ -12,11 +12,9 @@ public class TestInitializeErrorServlet extends MTPServlet{
 		
 	}
 
-	public void initialize(ServerContext context, ServletConfig config)
+	public void initialize(ServerContext context, Configuration config)
 			throws Exception {
 		throw new Exception("因为某些原因没有加载成功！");
 	}
-	
-	
 
 }

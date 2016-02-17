@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.server.InnerResponse;
 import com.gifisan.mtp.server.Response;
@@ -12,6 +15,7 @@ import com.gifisan.mtp.server.session.MTPSession;
 
 public class MTPServletResponse implements InnerResponse {
 
+	private static final Logger	logger			= LoggerFactory.getLogger(MTPServletResponse.class);
 	private byte				RESPONSE_STREAM	= 1;
 	private byte				RESPONSE_TEXT		= 0;
 	private byte				emptyByte			= ' ';
@@ -137,7 +141,7 @@ public class MTPServletResponse implements InnerResponse {
 			byte[] bytes = content.getBytes(Encoding.DEFAULT);
 			writer.write(bytes);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 	}
 
@@ -148,8 +152,8 @@ public class MTPServletResponse implements InnerResponse {
 		this.typed = false;
 		return this;
 	}
-	
-	public boolean flushed(){
+
+	public boolean flushed() {
 		return flushed;
 	}
 
@@ -158,7 +162,7 @@ public class MTPServletResponse implements InnerResponse {
 			byte[] bytes = content.getBytes(encoding);
 			writer.write(bytes);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 	}
 

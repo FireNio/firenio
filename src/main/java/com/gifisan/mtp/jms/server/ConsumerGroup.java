@@ -3,6 +3,8 @@ package com.gifisan.mtp.jms.server;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.gifisan.mtp.common.DebugUtil;
+
 public class ConsumerGroup {
 
 	private ArrayBlockingQueue<Consumer>	consumers	= new ArrayBlockingQueue<Consumer>(1024000);
@@ -11,20 +13,11 @@ public class ConsumerGroup {
 		try {
 			return consumers.poll(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 		return null;
 	}
 
-	public Consumer take() {
-		try {
-			return consumers.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
 	public int size(){
 		return consumers.size();
 	}

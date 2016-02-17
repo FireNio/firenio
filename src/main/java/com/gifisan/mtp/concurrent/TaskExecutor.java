@@ -1,6 +1,7 @@
 package com.gifisan.mtp.concurrent;
 
 import com.gifisan.mtp.AbstractLifeCycle;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.schedule.Job;
 
 public class TaskExecutor extends AbstractLifeCycle implements Runnable {
@@ -27,7 +28,7 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 					lock.wait(interval);
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			}
 			if (running) {
 				job.schedule();

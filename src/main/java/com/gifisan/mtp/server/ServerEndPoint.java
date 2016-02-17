@@ -10,8 +10,8 @@ import com.gifisan.mtp.server.session.InnerSession;
 
 /**
  * <pre>
- * [0       ~              10]
- *  0       = 类型 [0=心跳，1=TEXT，2=STREAM，3=MULT]
+ * [0       ~              9]
+ *  0       = 类型 [3=心跳，0=TEXT，1=STREAM，2=MULT]
  *  1       = session id
  *  2       = service name的长度
  *  3,4,5   = parameters的长度
@@ -26,11 +26,6 @@ public interface ServerEndPoint extends EndPoint {
 
 	public abstract Object attachment();
 
-	/**
-	 * get comment,default value 0
-	 * 
-	 * @return
-	 */
 	public abstract int getMark();
 	
 	public abstract void endConnect();
@@ -73,11 +68,6 @@ public interface ServerEndPoint extends EndPoint {
 
 	public abstract int sessionSize();
 	
-	/**
-	 * set state,default value 0
-	 * 
-	 * @param comment
-	 */
 	public abstract void setMark(int mark);
 
 	public abstract void setInputStream(InputStream inputStream);

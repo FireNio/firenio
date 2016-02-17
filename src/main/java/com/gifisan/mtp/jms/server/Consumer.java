@@ -2,6 +2,9 @@ package com.gifisan.mtp.jms.server;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gifisan.mtp.jms.Message;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
@@ -9,10 +12,11 @@ import com.gifisan.mtp.server.session.Session;
 
 public class Consumer {
 
-	private ConsumerGroup	consumerGroup	= null;
-	private String			queueName		= null;
-	private Request		request		= null;
-	private Response		response		= null;
+	private static final Logger	logger		= LoggerFactory.getLogger(Consumer.class);
+	private ConsumerGroup		consumerGroup	= null;
+	private String				queueName		= null;
+	private Request			request		= null;
+	private Response			response		= null;
 
 	public Consumer(Request request, Response response, ConsumerGroup consumerGroup, String queueName) {
 		this.request = request;
@@ -39,7 +43,7 @@ public class Consumer {
 		Response response = this.response;
 
 		Session session = request.getSession();
-		
+
 		TransactionSection section = getTransactionSection(session);
 
 		if (section != null) {
@@ -53,7 +57,7 @@ public class Consumer {
 		try {
 			response.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			session.disconnect();
 		}
 	}

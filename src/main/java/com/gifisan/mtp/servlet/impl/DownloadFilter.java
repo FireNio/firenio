@@ -8,19 +8,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.common.SharedBundle;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.StringUtil;
-import com.gifisan.mtp.component.FilterConfig;
-import com.gifisan.mtp.component.RequestParam;
+import com.gifisan.mtp.component.Configuration;
 import com.gifisan.mtp.component.RESMessage;
+import com.gifisan.mtp.component.RequestParam;
 import com.gifisan.mtp.concurrent.ExecutorThreadPool;
 import com.gifisan.mtp.server.AsynchServletAcceptJob;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServerContext;
-import com.gifisan.mtp.servlet.MTPFilter;
+import com.gifisan.mtp.servlet.AbstractMTPFilter;
 
-public class DownloadFilter implements MTPFilter {
+public class DownloadFilter extends AbstractMTPFilter {
 
 	private boolean			exclude			= false;
 	private Map<String, String>	excludesMap		= null;
@@ -49,8 +49,12 @@ public class DownloadFilter implements MTPFilter {
 		return exclude ? !excludesMap.containsKey(subfix) : true;
 
 	}
+	
+	public void onUpdate(ServerContext context, Configuration config) throws Exception {
+		this.initialize(context, config);
+	}
 
-	public void initialize(ServerContext context, FilterConfig config) throws Exception {
+	public void initialize(ServerContext context, Configuration config) throws Exception {
 		String excludesContent = (String) config.getAttribute("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
@@ -65,20 +69,12 @@ public class DownloadFilter implements MTPFilter {
 			excludesMap.put(exclude, null);
 		}
 
-		SharedBundle bundle = SharedBundle.instance();
-		int CORE_SIZE 	= bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
-		int maximumPoolSize = CORE_SIZE << 4;
-		if (maximumPoolSize < 32) {
-			maximumPoolSize = 32;
-		}
-
-
 	}
 
-	public void destroy(ServerContext context, FilterConfig config) throws Exception {
+	public void destroy(ServerContext context, Configuration config) throws Exception {
 		
 	}
-
+	
 	class DownloadJob extends AsynchServletAcceptJob {
 
 		private int		BLOCK	= 102400;
@@ -137,9 +133,9 @@ public class DownloadFilter implements MTPFilter {
 					}
 				}
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			} finally {
 				CloseUtil.close(inputStream);
 			}

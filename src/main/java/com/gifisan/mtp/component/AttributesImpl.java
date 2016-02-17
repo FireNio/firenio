@@ -10,9 +10,8 @@ public class AttributesImpl implements Attributes{
 	
 	private Map<String, Object> attributes = new HashMap<String, Object>();
 
-	public void removeAttribute(String key) {
-		this.attributes.remove(key);
-		
+	public Object removeAttribute(String key) {
+		return this.attributes.remove(key);
 	}
 
 	public void setAttribute(String key, Object value) {

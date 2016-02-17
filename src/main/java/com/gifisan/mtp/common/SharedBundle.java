@@ -14,42 +14,16 @@ import org.slf4j.LoggerFactory;
 
 public class SharedBundle {
 
-	private Logger				logger		= LoggerFactory.getLogger(SharedBundle.class);
-	private Properties			properties	= new Properties();
-	private static SharedBundle	bundle		= new SharedBundle();
-	private AtomicBoolean		initialized	= new AtomicBoolean(false);
-	private String				baseDIR		= null;
-
-	public String getBaseDIR() {
-		return baseDIR;
-	}
+	private static SharedBundle	bundle	= new SharedBundle();
 
 	public static SharedBundle instance() {
 		return bundle;
 	}
 
-	private void initialize() throws Exception {
-		URL url = SharedBundle.class.getClassLoader().getResource(".");
-		File root = new File(url.getFile());
-		String path = root.getAbsolutePath();
-		path = URLDecoder.decode(path, "UTF-8");
-		baseDIR = path + "/";
-		File[] files = root.listFiles();
-		for (File file : files) {
-			if (file.isFile() && file.getName().endsWith(".properties")) {
-				try {
-					Properties temp = FileUtil.readProperties(file);
-					if ("log4j.properties".equals(file.getName())) {
-						PropertyConfigurator.configure(temp);
-						continue;
-					}
-					properties.putAll(temp);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+	private String			baseDIR		= null;
+	private AtomicBoolean	initialized	= new AtomicBoolean(false);
+	private Logger			logger		= null;
+	private Properties		properties	= new Properties();
 
 	private SharedBundle() {
 		if (initialized.compareAndSet(false, true)) {
@@ -61,8 +35,8 @@ public class SharedBundle {
 		}
 	}
 
-	public String getProperty(String key) {
-		return properties.getProperty(key);
+	public String getBaseDIR() {
+		return baseDIR;
 	}
 
 	public boolean getBooleanProperty(String key) {
@@ -76,6 +50,18 @@ public class SharedBundle {
 			return defaultValue;
 		}
 		return Boolean.valueOf(temp);
+	}
+
+	public double getDoubleProperty(String key) {
+		return getDoubleProperty(key, 0);
+	}
+
+	public double getDoubleProperty(String key, double defaultValue) {
+		String temp = properties.getProperty(key);
+		if (StringUtil.isNullOrBlank(temp)) {
+			return defaultValue;
+		}
+		return Double.valueOf(temp);
 	}
 
 	public int getIntegerProperty(String key) {
@@ -102,16 +88,16 @@ public class SharedBundle {
 		return Long.valueOf(temp);
 	}
 
-	public double getDoubleProperty(String key) {
-		return getDoubleProperty(key, 0);
+	public String getProperty(String key) {
+		return getProperty(key, null);
 	}
 
-	public double getDoubleProperty(String key, double defaultValue) {
-		String temp = properties.getProperty(key);
-		if (StringUtil.isNullOrBlank(temp)) {
-			return 0;
+	public String getProperty(String key, String defaultValue) {
+		String value = properties.getProperty(key);
+		if (StringUtil.isNullOrBlank(value)) {
+			return defaultValue;
 		}
-		return Double.valueOf(temp);
+		return value;
 	}
 
 	public String getPropertyNoBlank(String key) throws Exception {
@@ -120,6 +106,43 @@ public class SharedBundle {
 			throw new Exception("property " + key + " is empty");
 		}
 		return value;
+	}
+
+	private void initialize() throws Exception {
+		URL url = SharedBundle.class.getClassLoader().getResource(".");
+		File root = new File(url.getFile());
+		String path = root.getAbsolutePath();
+		path = URLDecoder.decode(path, "UTF-8");
+		baseDIR = path + "/";
+		File[] files = root.listFiles();
+		for (File file : files) {
+			if (file.isFile() && file.getName().endsWith(".properties")) {
+				try {
+					Properties temp = FileUtil.readProperties(file);
+					if ("log4j.properties".equals(file.getName())) {
+						PropertyConfigurator.configure(temp);
+						logger = LoggerFactory.getLogger(SharedBundle.class);
+						continue;
+					}
+					properties.putAll(temp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void loadLog4jProperties(Class<?> clazz, String file) throws IOException {
+		String filePath = baseDIR + file;
+		Properties log4j = loadProperties(FileUtil.openInputStream(new File(filePath)));
+		PropertyConfigurator.configure(log4j);
+		logger = LoggerFactory.getLogger(SharedBundle.class);
+	}
+
+	public Properties loadProperties(Class<?> clazz, String file) throws IOException {
+		String filePath = baseDIR + file;
+		logger.info("load properties [ {} ]", filePath);
+		return loadProperties(FileUtil.openInputStream(new File(filePath)));
 	}
 
 	public Properties loadProperties(InputStream inputStream) throws IOException {
@@ -132,10 +155,10 @@ public class SharedBundle {
 		}
 	}
 
-	public Properties loadProperties(Class<?> clazz, String file) throws IOException {
-		String filePath = baseDIR+file;
-		logger.info("load properties [ {} ]" , filePath);
-		return loadProperties(FileUtil.openInputStream(new File(filePath)));
+	public void storageProperties(Class<?> clazz, String file) throws IOException {
+		String filePath = baseDIR + file;
+		logger.info("storage properties [ {} ]", filePath);
+		storageProperties(FileUtil.openInputStream(new File(filePath)));
 	}
 
 	public void storageProperties(InputStream inputStream) throws IOException {
@@ -146,11 +169,5 @@ public class SharedBundle {
 		} finally {
 			CloseUtil.close(inputStream);
 		}
-	}
-
-	public void storageProperties(Class<?> clazz, String file) throws IOException {
-		String filePath = baseDIR+file;
-		logger.info("storage properties [ {} ]" , filePath);
-		storageProperties(FileUtil.openInputStream(new File(filePath)));
 	}
 }

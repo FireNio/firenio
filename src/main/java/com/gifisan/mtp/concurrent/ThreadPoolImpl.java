@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gifisan.mtp.AbstractLifeCycle;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.schedule.Job;
 
@@ -28,7 +29,7 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 
 		}
 
-		public void stopWork() throws Exception {
+		public void stopWork() {
 			LifeCycleUtil.stop(worker);
 		}
 
@@ -76,7 +77,7 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 				try {
 					worker.startWork();
 				} catch (Exception e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 					workers.remove(worker);
 				}
 			}
@@ -92,7 +93,7 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 				try {
 					worker.stopWork();
 				} catch (Exception e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 				}
 			}
 		}

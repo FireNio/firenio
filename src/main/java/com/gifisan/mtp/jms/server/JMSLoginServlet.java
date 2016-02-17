@@ -3,9 +3,8 @@ package com.gifisan.mtp.jms.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.component.Configuration;
 import com.gifisan.mtp.component.RequestParam;
-import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServerContext;
@@ -50,36 +49,39 @@ public class JMSLoginServlet extends JMSServlet {
 		response.flush();
 
 	}
+	
+	public void onUpdate(ServerContext context, Configuration config) throws Exception {
+		this.username = config.getProperty("username");
+		this.password = config.getProperty("password");
 
-	public void destroy(ServerContext context, ServletConfig config) throws Exception {
+		MQContext mqContext = getMQContext();
+
+		long dueTime = config.getLongProperty("due-time");
+
+		mqContext.setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
+	}
+
+	public void onReplace(ServerContext context, Configuration config) throws Exception {
+		
+	}
+
+	public void destroy(ServerContext context, Configuration config) throws Exception {
 
 		MQContextFactory.setNullMQContext();
 		
 		super.destroy(context, config);
 	}
 
-	public void initialize(ServerContext context, ServletConfig config) throws Exception {
+	public void initialize(ServerContext context, Configuration config) throws Exception {
 
-		// TODO read from file or others
-		// this.username = "admin";
-		// this.password = "admin100";
-
-		this.username = config.getStringValue("username");
-		this.password = config.getStringValue("password");
+		this.username = config.getProperty("username");
+		this.password = config.getProperty("password");
 
 		MQContext mqContext = getMQContext();
 
-		String dueTimeValue = config.getStringValue("due-time");
+		long dueTime = config.getLongProperty("due-time");
 
-		long dueTime = 0L;
-
-		if (StringUtil.isNullOrBlank(dueTimeValue)) {
-			dueTime = 1000 * 60 * 60 * 24 * 7;
-		} else {
-			dueTime = Long.valueOf(dueTimeValue);
-		}
-
-		mqContext.setMessageDueTime(dueTime);
+		mqContext.setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 		
 		MQContextFactory.initializeContext();
 		

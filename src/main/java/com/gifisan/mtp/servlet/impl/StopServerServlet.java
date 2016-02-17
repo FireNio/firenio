@@ -3,10 +3,11 @@ package com.gifisan.mtp.servlet.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
+import com.gifisan.mtp.component.Configuration;
 import com.gifisan.mtp.component.RESMessage;
 import com.gifisan.mtp.component.RequestParam;
-import com.gifisan.mtp.component.ServletConfig;
 import com.gifisan.mtp.server.MTPServer;
 import com.gifisan.mtp.server.MTPServlet;
 import com.gifisan.mtp.server.Request;
@@ -36,9 +37,9 @@ public class StopServerServlet extends MTPServlet {
 		response.flush();
 	}
 
-	public void initialize(ServerContext context, ServletConfig config) throws Exception {
-		this.username = config.getStringValue("username");
-		this.password = config.getStringValue("password");
+	public void initialize(ServerContext context, Configuration config) throws Exception {
+		this.username = config.getProperty("username");
+		this.password = config.getProperty("password");
 	}
 
 	private class StopServer implements Runnable {
@@ -57,7 +58,7 @@ public class StopServerServlet extends MTPServlet {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 				}
 			}
 

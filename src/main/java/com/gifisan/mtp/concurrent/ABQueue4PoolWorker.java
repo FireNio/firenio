@@ -3,6 +3,8 @@ package com.gifisan.mtp.concurrent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.gifisan.mtp.common.DebugUtil;
+
 public class ABQueue4PoolWorker<T> implements Queue<T> {
 
 	private java.util.concurrent.ArrayBlockingQueue<T> queue = null;
@@ -15,7 +17,7 @@ public class ABQueue4PoolWorker<T> implements Queue<T> {
 		try {
 			return queue.poll(16, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 		return null;
 	}

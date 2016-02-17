@@ -24,8 +24,8 @@ public class TestSimple {
 		
 		Response response = session.request(serviceKey, param);
 		System.out.println(response.getContent());
-		response = session.request(serviceKey, param);
-		System.out.println(response.getContent());
+//		response = session.request(serviceKey, param);
+//		System.out.println(response.getContent());
 		
 		CloseUtil.close(connector);
 	}

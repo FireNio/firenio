@@ -5,6 +5,9 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.AbstractLifeCycleListener;
 import com.gifisan.mtp.LifeCycle;
@@ -14,10 +17,11 @@ import com.gifisan.mtp.server.ServerContext;
 
 public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 
+	private Logger			logger			= LoggerFactory.getLogger(SelectorManagerTask.class);
 	private SelectorManager	selectorManager	= null;
 	private Thread			task				= null;
 	private boolean		working			= false;
-	
+
 	public SelectorManagerTask(ServerContext context) {
 		this.selectorManager = new SelectorManager(context);
 	}
@@ -28,8 +32,8 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 				this.working = true;
 				selectorManager.accept(1000);
 				this.working = false;
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Throwable e) {
+				logger.error(e.getMessage(),e);
 			}
 		}
 	}
@@ -60,8 +64,7 @@ public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
 		}
 
 		public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-			exception.printStackTrace();
-
+			logger.error(exception.getMessage(),exception);
 		}
 
 	}

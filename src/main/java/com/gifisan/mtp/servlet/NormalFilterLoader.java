@@ -1,8 +1,6 @@
 package com.gifisan.mtp.servlet;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,57 +12,51 @@ import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.common.FileUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
 import com.gifisan.mtp.common.StringUtil;
+import com.gifisan.mtp.component.Configuration;
 import com.gifisan.mtp.component.DynamicClassLoader;
-import com.gifisan.mtp.component.FilterConfig;
 import com.gifisan.mtp.component.ServletFilter;
 import com.gifisan.mtp.server.ServerContext;
 
 public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoader {
 
-	private Logger				logger			= LoggerFactory.getLogger(NormalFilterLoader.class);
-	MTPFilterWrapper		rootFilter		= null;
-	private ServerContext		context			= null;
-	private DynamicClassLoader	classLoader		= null;
+	private Logger				logger		= LoggerFactory.getLogger(NormalFilterLoader.class);
+	private MTPFilterWrapper		rootFilter	= null;
+	private ServerContext		context		= null;
+	private DynamicClassLoader	classLoader	= null;
+//	private ServletFilter		servletFilter	= null;
 
 	public NormalFilterLoader(ServerContext context, DynamicClassLoader classLoader) {
 		this.context = context;
 		this.classLoader = classLoader;
-	}
-	
-	void loadFilters(ServerContext context,String configPath) {
-		try {
-			String config = FileUtil.readContentByCls(configPath, Encoding.DEFAULT);
-			if (StringUtil.isNullOrBlank(config)) {
-				logger.info("[MTPServer] 没有配置Filter");
-			} else {
-				logger.info("[MTPServer] 读取Filter配置文件");
-				JSONArray array = JSONArray.parseArray(config);
-				loadFilters(context, array);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+//		this.servletFilter = new ServletFilter(classLoader);
 	}
 
-	void loadFilters(ServerContext context) {
-		this.loadFilters(context, "conf/filters.config");
+	private MTPFilterWrapper loadFilters(ServerContext context, DynamicClassLoader classLoader) throws IOException {
+		String config = FileUtil.readContentByCls("conf/filters.config", Encoding.DEFAULT);
+		if (StringUtil.isNullOrBlank(config)) {
+			logger.info("[MTPServer] 没有配置Filter");
+			MTPFilterWrapperImpl filter = new MTPFilterWrapperImpl(context, new ServletFilter(classLoader), null);
+			return filter;
+		} else {
+			JSONArray array = JSONArray.parseArray(config);
+			return loadFilters(context, classLoader, array);
+		}
 	}
 
 	public MTPFilterWrapper getRootFilter() {
 		return rootFilter;
 	}
 
-	void loadFilters(ServerContext context, JSONArray array) throws IOException {
+	private MTPFilterWrapper loadFilters(ServerContext context, DynamicClassLoader classLoader, JSONArray array) {
+
+		MTPFilterWrapper rootFilter = null;
 
 		MTPFilterWrapper last = null;
 
 		for (int i = 0; i < array.size(); i++) {
-			JSONObject jObj = array.getJSONObject(i);
-			String clazz = jObj.getString("class");
-			Map<String, Object> config = reflectMap(jObj);
-			FilterConfig filterConfig = new FilterConfig();
-			filterConfig.setConfig(config);
+			JSONObject object = array.getJSONObject(i);
+			String clazz = object.getString("class");
+			Configuration filterConfig = new Configuration(object);
 			try {
 
 				MTPFilter filter = (MTPFilter) classLoader.forName(clazz).newInstance();
@@ -79,91 +71,126 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 				continue;
 			}
 		}
-		
-		MTPFilterWrapperImpl filter = new MTPFilterWrapperImpl(context,new ServletFilter(),null);
-		
+
+		MTPFilterWrapperImpl filter = new MTPFilterWrapperImpl(context, new ServletFilter(classLoader), null);
+
 		if (last == null) {
 			rootFilter = filter;
-		}else{
+		} else {
 			last.setNextFilter(filter);
 		}
+
+		return rootFilter;
 	}
 
-	private Map<String, Object> reflectMap(JSONObject jsonObject) {
-		try {
-			Field field = jsonObject.getClass().getDeclaredField("map");
-			field.setAccessible(true);
-			Map<String, Object> map = (Map<String, Object>) field.get(jsonObject);
-			field.setAccessible(false);
-			return map;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 
-	//TODO .....
 	protected void doStart() throws Exception {
-		this.loadFilters(context);
-		
-		
+		this.rootFilter = this.loadFilters(context, classLoader);
 
 		// start all filter
-		this.initializeFilters();
+		this.initializeFilters(rootFilter);
 	}
 
-	private void initializeFilters() {
-		MTPFilterWrapper filter = rootFilter;
-		MTPFilterWrapper preFilter = null;
+	private void initializeFilters(MTPFilterWrapper filter) throws Exception {
 		for (; filter != null;) {
-			try {
-				filter.start();
-				filter = filter.nextFilter();
-				preFilter = filter;
-			} catch (Exception e) {
-				e.printStackTrace();
-				MTPFilterWrapper _next = filter.nextFilter();
-				if (preFilter != null) {
-					preFilter.setNextFilter(_next);
-				} else {
-					rootFilter = filter;
-				}
-				filter = _next;
-			}
+			filter.start();
+			filter = filter.nextFilter();
 		}
 	}
 
-	private void destroyFilters() {
-		MTPFilterWrapper filter = rootFilter;
+	private void destroyFilters(MTPFilterWrapper filter) {
 		for (; filter != null;) {
-			try {
-				LifeCycleUtil.stop(filter);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			LifeCycleUtil.stop(filter);
 			filter = filter.nextFilter();
 		}
 	}
 
 	protected void doStop() throws Exception {
-		this.destroyFilters();
+		this.destroyFilters(rootFilter);
 	}
 
-	public boolean redeploy(DynamicClassLoader classLoader) {
-		this.classLoader = classLoader;
-		
+	private void redeploy0(DynamicClassLoader classLoader) {
+		context.setAttribute("_OLD_FILTERS", rootFilter);
+		this.rootFilter = (MTPFilterWrapper) context.getAttribute("_NEW_FILTERS");
+		logger.info("[MTPServer] 新的Filter配置文件替换完成......");
+	}
+
+	public void redeploy(DynamicClassLoader classLoader) {
+		this.redeploy0(classLoader);
+//		this.servletFilter.redeploy(classLoader);
+	}
+
+	private boolean predeploy0(MTPFilterWrapper filter) {
+		for (; filter != null;) {
+			try {
+				filter.onPreDeploy(context, filter.getConfig());
+				logger.info("[MTPServer] 新的Filter [ {} ] 更新完成",filter);
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+				return false;
+			}
+			filter = filter.nextFilter();
+		}
+		return true;
+	}
+
+	private boolean predeploy0(DynamicClassLoader classLoader) {
+		logger.info("[MTPServer] 尝试加载新的Filter配置文件......");
+		MTPFilterWrapper rootFilter;
 		try {
-			this.doStart();
-		} catch (Exception e) {
-			e.printStackTrace();
+			rootFilter = loadFilters(context, classLoader);
+		} catch (IOException e) {
+			logger.info("[MTPServer] 新的Filter配置文件加载失败，将停止部署......");
+			logger.error(e.getMessage(),e);
 			return false;
 		}
-		
-		return true;
+		logger.info("[MTPServer] 尝试更新新的Filter配置文件......");
+		if (predeploy0(rootFilter)) {
+			context.setAttribute("_NEW_FILTERS", rootFilter);
+			return true;
+		}
+		logger.info("[MTPServer] 新的Filter配置文件加载完成......");
+		return false;
+
+	}
+
+	public boolean predeploy(DynamicClassLoader classLoader) {
+		if (predeploy0(classLoader)) {
+//			return this.servletFilter.predeploy(classLoader);
+			return true;
+		}
+		return false;
+	}
+
+	private void subdeploy(MTPFilterWrapper filter) {
+		for (; filter != null;) {
+			try {
+				filter.onSubDeploy(context, filter.getConfig());
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+			}
+			filter = filter.nextFilter();
+		}
+	}
+
+	private void subdeploy0(DynamicClassLoader classLoader) {
+		context.removeAttribute("_NEW_FILTERS");
+		MTPFilterWrapper filter = (MTPFilterWrapper) context.removeAttribute("_OLD_FILTERS");
+		try {
+			subdeploy(filter);
+		} catch (Exception e) {
+			// ignore
+			logger.error(e.getMessage(),e);
+		}
+	}
+
+	public void subdeploy(DynamicClassLoader classLoader) {
+		this.subdeploy0(classLoader);
+//		this.servletFilter.subdeploy(classLoader);
 	}
 
 }

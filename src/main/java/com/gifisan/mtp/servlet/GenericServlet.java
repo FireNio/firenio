@@ -1,23 +1,24 @@
 package com.gifisan.mtp.servlet;
 
-import com.gifisan.mtp.component.ServletConfig;
+import com.gifisan.mtp.component.Configuration;
+import com.gifisan.mtp.component.HotDeploy;
 import com.gifisan.mtp.server.ServerContext;
 import com.gifisan.mtp.server.ServletAcceptor;
 
-public abstract class GenericServlet implements ServletAcceptor {
+public abstract class GenericServlet implements HotDeploy, ServletAcceptor {
 
-	private ServletConfig	config	= null;
+	private Configuration	config	= null;
 
-	public ServletConfig getConfig() {
+	public Configuration getConfig() {
 		return this.config;
 	}
 
-	public void setConfig(ServletConfig config) {
+	public void setConfig(Configuration config) {
 		this.config = config;
 	}
 
-	public abstract void initialize(ServerContext context, ServletConfig config) throws Exception;
+	public abstract void initialize(ServerContext context, Configuration config) throws Exception;
 
-	public abstract void destroy(ServerContext context, ServletConfig config) throws Exception;
+	public abstract void destroy(ServerContext context, Configuration config) throws Exception;
 
 }

@@ -7,8 +7,6 @@ import com.gifisan.mtp.server.session.Session;
 
 public class JMSTransactionServlet extends JMSServlet{
 
-//	private final Logger logger = LoggerFactory.getLogger(JMSConsumerServlet.class);
-	
 	public void accept(Request request, Response response) throws Exception {
 
 		Session session = request.getSession();

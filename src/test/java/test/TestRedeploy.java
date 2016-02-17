@@ -21,6 +21,14 @@ public class TestRedeploy {
 
 		Response response = session.request(serviceKey, param);
 		System.out.println(response.getContent());
+		
+		for (int i = 0; i < 0; i++) {
+			
+			response = session.request(serviceKey, param);
+			
+			
+		}
+		
 
 		CloseUtil.close(connector);
 	}

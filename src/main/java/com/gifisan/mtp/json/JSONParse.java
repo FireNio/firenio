@@ -1,5 +1,6 @@
 package com.gifisan.mtp.json;
 
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.test.ITest;
 import com.gifisan.mtp.test.ITestHandle;
 
@@ -43,7 +44,7 @@ public static void main(String[] args) throws JSONSyntaxException {
 				try {
 					JSON.stringToArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
 				} catch (JSONSyntaxException e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 				}
 			}
 			public String getTestName() {

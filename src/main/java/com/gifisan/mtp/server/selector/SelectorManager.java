@@ -10,6 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gifisan.mtp.AbstractLifeCycle;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.LifeCycleUtil;
@@ -22,30 +25,31 @@ import com.gifisan.mtp.server.ServerEndPoint;
 
 public final class SelectorManager extends AbstractLifeCycle implements SelectionAccept {
 
+	private Logger				logger	= LoggerFactory.getLogger(SelectorManager.class);
 	private SelectionAcceptor	acceptor	= null;
 	private Selector			selector	= null;
 	private ServerSocketChannel	channel	= null;
-	
+
 	public SelectorManager(ServerContext context) {
 		this.acceptor = new NIOSelectionAcceptor(context);
 	}
 
 	public void accept(long timeout) throws IOException {
-		
+
 		Selector selector = this.selector;
-		
+
 		selector.select(timeout);
-		
+
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
-		
+
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
-		
-		for (;iterator.hasNext();) {
-			
+
+		for (; iterator.hasNext();) {
+
 			SelectionKey selectionKey = iterator.next();
-			
+
 			iterator.remove();
-			
+
 			if (!selectionKey.isValid()) {
 				continue;
 			}
@@ -54,20 +58,20 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 				this.accept(selectionKey);
 				continue;
 			}
-			
+
 			SelectionAcceptor acceptor = this.acceptor;
 
 			try {
 				acceptor.accept(selectionKey);
 			} catch (IOException e) {
-				acceptException(selectionKey,e);
+				acceptException(selectionKey, e);
 			}
 		}
 	}
-	
-	private void acceptException(SelectionKey selectionKey,IOException exception){
+
+	private void acceptException(SelectionKey selectionKey, IOException exception) {
 		SelectableChannel channel = selectionKey.channel();
-		
+
 		Object attachment = selectionKey.attachment();
 
 		if (isEndPoint(attachment)) {
@@ -76,13 +80,12 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 		}
 		CloseUtil.close(channel);
 		selectionKey.cancel();
-		
-		exception.printStackTrace();
+
+		logger.error(exception.getMessage(), exception);
 	}
-	
+
 	private boolean isEndPoint(Object object) {
-		return object != null && 
-				(object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
+		return object != null && (object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {

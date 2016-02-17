@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.common.CloseUtil;
 import com.gifisan.mtp.common.DateUtil;
+import com.gifisan.mtp.common.DebugUtil;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.component.Connectable;
 import com.gifisan.mtp.component.EndPoint;
@@ -125,7 +126,7 @@ public class ClientConnection implements Connectable, Closeable {
 						Thread.sleep(1);
 						this.wakeup();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						DebugUtil.debug(e);
 					}
 				}
 				CloseUtil.close(endPoint);

@@ -1,4 +1,4 @@
-package com.gifisan.mtp.servlet.impl.test;
+package com.test.servlet;
 
 import java.io.IOException;
 

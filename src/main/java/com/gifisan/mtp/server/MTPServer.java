@@ -33,8 +33,8 @@ public final class MTPServer extends AbstractLifeCycle implements Attributes {
 		return connector;
 	}
 
-	public void removeAttribute(String key) {
-		this.attributes.removeAttribute(key);
+	public Object removeAttribute(String key) {
+		return this.attributes.removeAttribute(key);
 	}
 
 	public void setAttribute(String key, Object value) {

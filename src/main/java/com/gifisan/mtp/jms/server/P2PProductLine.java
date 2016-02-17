@@ -161,4 +161,8 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 	}
 
+	public void setDueTime(long dueTime) {
+		this.dueTime = dueTime;
+	}
+
 }

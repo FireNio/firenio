@@ -12,6 +12,8 @@ public class MTPServerLauncher {
 		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 		
 		if (!debug) {
+			bundle.loadLog4jProperties(MTPServerLauncher.class, "conf/log4j.properties");
+			
 			bundle.storageProperties(MTPServerLauncher.class, "conf/server.properties");
 		}
 		

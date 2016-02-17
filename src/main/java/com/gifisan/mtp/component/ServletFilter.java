@@ -7,43 +7,25 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.mtp.Encoding;
 import com.gifisan.mtp.common.LifeCycleUtil;
-import com.gifisan.mtp.common.SharedBundle;
 import com.gifisan.mtp.common.StringUtil;
 import com.gifisan.mtp.server.Request;
 import com.gifisan.mtp.server.Response;
 import com.gifisan.mtp.server.ServerContext;
 import com.gifisan.mtp.server.ServletAcceptor;
-import com.gifisan.mtp.servlet.DebugServletLoader;
-import com.gifisan.mtp.servlet.MTPFilter;
+import com.gifisan.mtp.servlet.AbstractMTPFilter;
 import com.gifisan.mtp.servlet.NormalServletLoader;
 import com.gifisan.mtp.servlet.ServletLoader;
 import com.gifisan.mtp.servlet.impl.ErrorServlet;
 
-public final class ServletFilter implements MTPFilter {
+public final class ServletFilter extends AbstractMTPFilter {
 
-	public void initialize(ServerContext context, FilterConfig config) throws Exception {
-
-		boolean debug = SharedBundle.instance().getBooleanProperty("SERVER.DEBUG");
-
-		if (debug) {
-			this.servletLoader = new DebugServletLoader(context,classLoader);
-		} else {
-			this.classLoader.scan(context.getAppLocalAddress());
-			this.servletLoader = new NormalServletLoader(context, classLoader);
-		}
-
-		this.servletLoader.start();
-	}
-
-	public void destroy(ServerContext context, FilterConfig config) throws Exception {
-		LifeCycleUtil.stop(servletLoader);
-
-	}
-
-	private ServerContext		context		= null;
+	private DynamicClassLoader	classLoader	= null;
 	private final Logger		logger		= LoggerFactory.getLogger(ServletFilter.class);
 	private ServletLoader		servletLoader	= null;
-	private DynamicClassLoader	classLoader	= new DynamicClassLoader();
+
+	public ServletFilter(DynamicClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	public void accept(Request request, Response response) throws IOException {
 		String serviceName = request.getServiceName();
@@ -68,8 +50,19 @@ public final class ServletFilter implements MTPFilter {
 		response.flush();
 	}
 
+	private void acceptException(Exception exception, Request request, Response response) throws IOException {
+		ErrorServlet servlet = new ErrorServlet(exception);
+		try {
+			servlet.accept(request, response);
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		}
+	}
+
 	private void acceptNormal(String serviceName, Request request, Response response) throws IOException {
-		ServletAcceptor servlet = servletLoader.getServlet(serviceName);
+		ServletAcceptor servlet = getServlet(serviceName);
 		if (servlet == null) {
 			this.accept404(request, response, serviceName);
 		} else {
@@ -81,46 +74,48 @@ public final class ServletFilter implements MTPFilter {
 		try {
 			servlet.accept(request, response);
 		} catch (FlushedException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		} catch (MTPChannelException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			this.acceptException(e, request, response);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			this.acceptException(e, request, response);
 		}
 
 	}
 
-	public boolean redeploy() {
-
-		DynamicClassLoader _classLoader = new DynamicClassLoader();
-
-		try {
-			_classLoader.scan(context.getAppLocalAddress());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-
-		if (servletLoader.redeploy(_classLoader)) {
-			this.classLoader = _classLoader;
-			return true;
-		}
-		return false;
+	public void destroy(ServerContext context, Configuration config) throws Exception {
+		LifeCycleUtil.stop(servletLoader);
 
 	}
 
-	private void acceptException(Exception exception, Request request, Response response) throws IOException {
-		ErrorServlet servlet = new ErrorServlet(exception);
-		try {
-			servlet.accept(request, response);
-		} catch (IOException e) {
-			throw e;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void initialize(ServerContext context, Configuration config) throws Exception {
+
+		this.servletLoader = new NormalServletLoader(context,	classLoader);
+
+		this.servletLoader.start();
 	}
+
+	public ServletAcceptor getServlet(String serviceName) {
+		return this.servletLoader.getServlet(serviceName);
+	}
+
+	public void onPreDeploy(ServerContext context, Configuration config) throws Exception {
+		
+		if (this.servletLoader.predeploy(classLoader)) {
+			
+			this.servletLoader.redeploy(classLoader);
+		}
+		
+	}
+
+	public void onSubDeploy(ServerContext context, Configuration config) throws Exception {
+		this.servletLoader.subdeploy(classLoader);
+	}
+	
+	
+
 }
