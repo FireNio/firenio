@@ -1,5 +1,5 @@
 
-# gifisan-mtp使用指南
+# NimbleIO使用指南
 
 本项目目前还在测试阶段，请大家多提issue，共同完善。
 
@@ -13,7 +13,7 @@
 
 ``` java
    
-  MTPServerLauncher launcher = new MTPServerLauncher();
+  NIOServerLauncher launcher = new NIOServerLauncher();
 		
   launcher.launch();
 ```

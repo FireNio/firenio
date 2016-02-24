@@ -5,11 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.client.Response;
-import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.component.InputStream;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.Response;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.InputStream;
 
 public class TestDownload {
 	

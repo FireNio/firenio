@@ -2,11 +2,11 @@ package test.jms;
 
 import test.ClientUtil;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.client.MessageBrowser;
-import com.gifisan.mtp.jms.client.impl.MessageBrowserImpl;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.jms.Message;
+import com.gifisan.nio.jms.client.MessageBrowser;
+import com.gifisan.nio.jms.client.impl.MessageBrowserImpl;
 
 public class TestBrowser1 {
 

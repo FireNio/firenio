@@ -2,10 +2,10 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.client.Response;
-import com.gifisan.mtp.common.CloseUtil;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.Response;
+import com.gifisan.nio.common.CloseUtil;
 
 public class TestShowMemory {
 

@@ -2,13 +2,13 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.AbstractLifeCycleListener;
-import com.gifisan.mtp.LifeCycle;
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.concurrent.BlockingQueueThreadPool;
-import com.gifisan.mtp.schedule.Job;
+import com.gifisan.nio.AbstractLifeCycleListener;
+import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
+import com.gifisan.nio.schedule.Job;
 
 public class TestConcurrent {
 

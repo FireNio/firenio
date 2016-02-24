@@ -2,8 +2,8 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
 
 public class TestBeat {
 	

@@ -2,11 +2,11 @@ package com.test.servlet;
 
 import java.io.IOException;
 
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
 
-public class TestExceptionServlet extends MTPServlet{
+public class TestExceptionServlet extends NIOServlet{
 
 	public void accept(Request request, Response response) throws Exception {
 		throw new IOException("测试啊");

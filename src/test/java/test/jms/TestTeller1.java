@@ -2,11 +2,11 @@ package test.jms;
 
 import test.ClientUtil;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.jms.TextMessage;
-import com.gifisan.mtp.jms.client.MessageProducer;
-import com.gifisan.mtp.jms.client.impl.MessageProducerImpl;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.jms.TextMessage;
+import com.gifisan.nio.jms.client.MessageProducer;
+import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
 
 public class TestTeller1 {
 

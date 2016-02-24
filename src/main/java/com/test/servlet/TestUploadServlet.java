@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
-import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.component.InputStream;
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.InputStream;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
 
-public class TestUploadServlet extends MTPServlet{
+public class TestUploadServlet extends NIOServlet{
 
 	public void accept(Request request, Response response) throws Exception {
 		String fileName = "upload-"+request.getContent();

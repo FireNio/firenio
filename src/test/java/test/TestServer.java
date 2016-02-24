@@ -1,13 +1,13 @@
 package test;
 
-import com.gifisan.mtp.component.MTPServerLauncher;
+import com.gifisan.nio.component.NIOServerLauncher;
 
 public class TestServer {
 
 	
 	
 	public static void main(String[] args) throws Exception {
-		MTPServerLauncher launcher = new MTPServerLauncher();
+		NIOServerLauncher launcher = new NIOServerLauncher();
 		
 		launcher.launch();
 		

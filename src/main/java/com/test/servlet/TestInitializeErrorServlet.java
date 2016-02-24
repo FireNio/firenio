@@ -1,12 +1,12 @@
 package com.test.servlet;
 
-import com.gifisan.mtp.component.Configuration;
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
-import com.gifisan.mtp.server.ServerContext;
+import com.gifisan.nio.component.Configuration;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
+import com.gifisan.nio.server.ServerContext;
 
-public class TestInitializeErrorServlet extends MTPServlet{
+public class TestInitializeErrorServlet extends NIOServlet{
 	
 	public void accept(Request request, Response response) throws Exception {
 		

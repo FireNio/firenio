@@ -1,11 +1,11 @@
 package com.test.servlet;
 
-import com.gifisan.mtp.common.StringUtil;
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
+import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
 
-public class TestSimpleServlet extends MTPServlet{
+public class TestSimpleServlet extends NIOServlet{
 	
 	private TestSimple1 simple1 = new TestSimple1();
 

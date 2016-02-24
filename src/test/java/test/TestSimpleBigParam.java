@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.client.Response;
-import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.common.FileUtil;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.Response;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.FileUtil;
 
 public class TestSimpleBigParam {
 	

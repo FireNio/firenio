@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
-import com.gifisan.mtp.client.ClientConnector;
-import com.gifisan.mtp.client.ClientSesssion;
-import com.gifisan.mtp.jms.JMSException;
-import com.gifisan.mtp.jms.Message;
-import com.gifisan.mtp.jms.client.MessageConsumer;
-import com.gifisan.mtp.jms.client.impl.MessageConsumerImpl;
+import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.jms.JMSException;
+import com.gifisan.nio.jms.Message;
+import com.gifisan.nio.jms.client.MessageConsumer;
+import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
 
 public class TestListener {
 

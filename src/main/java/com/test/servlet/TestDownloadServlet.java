@@ -5,14 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.gifisan.mtp.common.CloseUtil;
-import com.gifisan.mtp.component.RESMessage;
-import com.gifisan.mtp.component.RequestParam;
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
 
-public class TestDownloadServlet extends MTPServlet {
+public class TestDownloadServlet extends NIOServlet {
 
 	private int			BLOCK		= 102400;
 

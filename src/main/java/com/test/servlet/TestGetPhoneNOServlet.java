@@ -1,10 +1,10 @@
 package com.test.servlet;
 
-import com.gifisan.mtp.server.MTPServlet;
-import com.gifisan.mtp.server.Request;
-import com.gifisan.mtp.server.Response;
+import com.gifisan.nio.server.NIOServlet;
+import com.gifisan.nio.server.Request;
+import com.gifisan.nio.server.Response;
 
-public class TestGetPhoneNOServlet extends MTPServlet {
+public class TestGetPhoneNOServlet extends NIOServlet {
 
 	private String [] NOS = {"13811112222","18599991111","18599991111","13811112222"};
 	

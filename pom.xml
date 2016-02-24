@@ -3,10 +3,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gifisan</groupId>
-	<artifactId>gifisan-mtp</artifactId>
+	<artifactId>nimbleio</artifactId>
 	<version>1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>gifisan-mtp</name>
+	<name>NimbleIO</name>
 
 	<build>
 		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
