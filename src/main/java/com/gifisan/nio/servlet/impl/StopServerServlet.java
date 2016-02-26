@@ -30,7 +30,7 @@ public class StopServerServlet extends NIOServlet {
 			ServerContext context = request.getSession().getServerContext();
 			NIOServer server = context.getServer();
 			new Thread(new StopServer(server)).start();
-			response.write("处理服务器停止命令...");
+			response.write("服务端正在处理停止服务命令...");
 		}else{
 			response.write(RESMessage.R_UNAUTH.toString());
 		}

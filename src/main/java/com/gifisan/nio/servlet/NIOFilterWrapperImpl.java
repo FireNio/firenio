@@ -54,13 +54,14 @@ public class NIOFilterWrapperImpl extends AbstractLifeCycle implements NIOFilter
 	public String toString() {
 		return "Warpper(" + this.filter.toString() + ")";
 	}
-
-	public void onPreDeploy(ServerContext context, Configuration config) throws Exception {
-		filter.onPreDeploy(context, config);
+	
+	public void prepare(ServerContext context, Configuration config) throws Exception {
+		filter.prepare(context, config);
 	}
 
-	public void onSubDeploy(ServerContext context, Configuration config) throws Exception {
-		filter.onSubDeploy(context, config);
+	public void unload(ServerContext context, Configuration config) throws Exception {
+		filter.unload(context, config);
+		
 	}
 
 	public Configuration getConfig() {

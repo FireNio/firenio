@@ -24,7 +24,7 @@ public class TestRedeploy {
 		
 		for (int i = 0; i < 0; i++) {
 			
-			response = session.request(serviceKey, param);
+//			response = session.request(serviceKey, param);
 			
 			
 		}

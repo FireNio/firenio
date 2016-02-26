@@ -28,45 +28,71 @@ public final class ServletFilter extends AbstractNIOFilter {
 	}
 
 	public void accept(Request request, Response response) throws IOException {
+		
 		String serviceName = request.getServiceName();
+		
 		if (StringUtil.isNullOrBlank(serviceName)) {
+			
 			this.accept404(request, response);
 
 		} else {
+			
 			this.acceptNormal(serviceName, request, response);
+			
 		}
 	}
 
 	private void accept404(Request request, Response response) throws IOException {
+		
 		logger.info("[NIOServer] empty service name");
+		
 		response.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
+		
 		response.flush();
 	}
 
 	private void accept404(Request request, Response response, String serviceName) throws IOException {
+		
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
+		
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
+		
 		response.write(message.toString());
+		
 		response.flush();
 	}
 
 	private void acceptException(Exception exception, Request request, Response response) throws IOException {
+		
 		ErrorServlet servlet = new ErrorServlet(exception);
+		
 		try {
+			
 			servlet.accept(request, response);
+			
 		} catch (IOException e) {
+			
 			throw e;
+			
 		} catch (Exception e) {
+			
 			logger.error(e.getMessage(),e);
+			
 		}
 	}
 
 	private void acceptNormal(String serviceName, Request request, Response response) throws IOException {
+		
 		ServletAcceptor servlet = getServlet(serviceName);
+		
 		if (servlet == null) {
+			
 			this.accept404(request, response, serviceName);
+			
 		} else {
+			
 			this.acceptNormal0(servlet, request, response);
+			
 		}
 	}
 
@@ -103,19 +129,16 @@ public final class ServletFilter extends AbstractNIOFilter {
 		return this.servletLoader.getServlet(serviceName);
 	}
 
-	public void onPreDeploy(ServerContext context, Configuration config) throws Exception {
+	public void prepare(ServerContext context, Configuration config) throws Exception {
 		
-		if (this.servletLoader.predeploy(classLoader)) {
-			
-			this.servletLoader.redeploy(classLoader);
-		}
+		this.servletLoader = new NormalServletLoader(context, classLoader);
+		
+		this.servletLoader.prepare(context, config);
 		
 	}
 
-	public void onSubDeploy(ServerContext context, Configuration config) throws Exception {
-		this.servletLoader.subdeploy(classLoader);
+	public void unload(ServerContext context, Configuration config) throws Exception {
+		this.servletLoader.unload(context, config);
 	}
-	
-	
 
 }

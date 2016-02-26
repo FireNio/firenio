@@ -106,16 +106,24 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 	}
 
 	private void initializeFilters(NIOFilterWrapper filter) throws Exception {
+		
 		for (; filter != null;) {
+			
 			filter.start();
+			
 			filter = filter.nextFilter();
+			
 		}
 	}
 
 	private void destroyFilters(NIOFilterWrapper filter) {
+		
 		for (; filter != null;) {
+			
 			LifeCycleUtil.stop(filter);
+			
 			filter = filter.nextFilter();
+			
 		}
 	}
 
@@ -123,86 +131,50 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.destroyFilters(rootFilter);
 	}
 
-	public void redeploy(DynamicClassLoader classLoader) {
+	private void prepare(NIOFilterWrapper filter) throws Exception {
 		
-		context.setAttribute("_OLD_FILTERS", rootFilter);
-		
-		this.rootFilter = (NIOFilterWrapper) context.getAttribute("_NEW_FILTERS");
-		
-		logger.info("[NIOServer] 新的Filter配置文件替换完成......");
-	}
-
-	private void predeploy0(NIOFilterWrapper filter) throws Exception {
-		
-		for (; filter != null;) {
+		for (; filter != null ;) {
 			
-			filter.onPreDeploy(context, filter.getConfig());
+			filter.prepare(context, filter.getConfig());
 			
-			logger.info("[NIOServer] 新的Filter [ {} ] 更新完成",filter);
+			logger.info("[NIOServer] 新的Filter [ {} ] Prepare完成",filter);
 			
 			filter = filter.nextFilter();
 		}
 	}
 
-	private void predeploy0(DynamicClassLoader classLoader) throws Exception {
+	public void prepare(ServerContext context, Configuration config) throws Exception {
 		
-		logger.info("[NIOServer] 尝试加载新的Filter配置文件......");
+		logger.info("[NIOServer] 尝试加载新的Filter配置......");
 		
-		NIOFilterWrapper rootFilter = null;
+		this.rootFilter = loadFilters(context, classLoader);
 		
-		rootFilter = loadFilters(context, classLoader);
+		logger.info("[NIOServer] 尝试启动新的Filter配置......");
 		
-		logger.info("[NIOServer] 尝试更新新的Filter配置文件......");
-		
-		this.predeploy0(rootFilter);
-		
-		context.setAttribute("_NEW_FILTERS", rootFilter);
-		
-		logger.info("[NIOServer] 新的Filter配置文件加载完成......");
+		this.prepare(rootFilter);
 		
 	}
 
-	public boolean predeploy(DynamicClassLoader classLoader) {
+	public void unload(ServerContext context, Configuration config) throws Exception {
 		
-		try {
-			
-			this.predeploy0(classLoader);
-			
-			return true;
-			
-		} catch (Exception e) {
-			
-			logger.error(e.getMessage(),e);
-			
-			return false;
-		}
-	}
-
-	private void subdeploy(NIOFilterWrapper filter) {
+		NIOFilterWrapper filter = rootFilter;
+		
 		for (; filter != null;) {
+			
 			try {
-				filter.onSubDeploy(context, filter.getConfig());
-			} catch (Exception e) {
+				filter.unload(context, filter.getConfig());
+				
+				logger.info("[NIOServer] 旧的Filter [ {} ] Unload完成",filter);
+				
+			} catch (Throwable e) {
+				// ignore
+				logger.info("[NIOServer] 旧的Filter [ {} ] Unload失败",filter);
 				logger.error(e.getMessage(),e);
 			}
+			
 			filter = filter.nextFilter();
+			
 		}
-	}
-
-	private void subdeploy0(DynamicClassLoader classLoader) {
-		context.removeAttribute("_NEW_FILTERS");
-		NIOFilterWrapper filter = (NIOFilterWrapper) context.removeAttribute("_OLD_FILTERS");
-		try {
-			subdeploy(filter);
-		} catch (Exception e) {
-			// ignore
-			logger.error(e.getMessage(),e);
-		}
-	}
-
-	public void subdeploy(DynamicClassLoader classLoader) {
-		this.subdeploy0(classLoader);
-//		this.servletFilter.subdeploy(classLoader);
 	}
 
 }

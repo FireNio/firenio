@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.server.NIOServer;
 
-public class NIOServerLauncher {
+public class ServerLauncher {
 
-	private Logger logger = LoggerFactory.getLogger(NIOServerLauncher.class);
+	private Logger logger = LoggerFactory.getLogger(ServerLauncher.class);
 	
 	public void launch() throws Exception{
 		SharedBundle bundle = SharedBundle.instance();
@@ -16,9 +16,9 @@ public class NIOServerLauncher {
 		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 		
 		if (!debug) {
-			bundle.loadLog4jProperties(NIOServerLauncher.class, "conf/log4j.properties");
+			bundle.loadLog4jProperties(ServerLauncher.class, "conf/log4j.properties");
 			
-			bundle.storageProperties(NIOServerLauncher.class, "conf/server.properties");
+			bundle.storageProperties(ServerLauncher.class, "conf/server.properties");
 		}
 		
 		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
@@ -34,5 +34,10 @@ public class NIOServerLauncher {
 		}
 	}
 	
-	
+	public static void main(String[] args) throws Exception {
+		ServerLauncher launcher = new ServerLauncher();
+		
+		launcher.launch();
+		
+	}
 }

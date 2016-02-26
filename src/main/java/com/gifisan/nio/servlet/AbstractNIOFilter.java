@@ -12,20 +12,13 @@ public abstract class AbstractNIOFilter implements NIOFilter{
 	public void destroy(ServerContext context, Configuration config) throws Exception {
 		
 	}
-
-	public void onPreDeploy(ServerContext context, Configuration config) throws Exception {
+	
+	public void prepare(ServerContext context, Configuration config) throws Exception {
 		this.initialize(context, config);
-		
 	}
 
-	public void onSubDeploy(ServerContext context, Configuration config) throws Exception {
+	public void unload(ServerContext context, Configuration config) throws Exception {
 		this.destroy(context, config);
-		
 	}
 
-	
-
-	
-	
-	
 }

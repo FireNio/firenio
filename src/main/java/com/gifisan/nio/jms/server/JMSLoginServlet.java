@@ -50,7 +50,7 @@ public class JMSLoginServlet extends JMSServlet {
 
 	}
 	
-	public void onUpdate(ServerContext context, Configuration config) throws Exception {
+	public void prepare(ServerContext context, Configuration config) throws Exception {
 		this.username = config.getProperty("username");
 		this.password = config.getProperty("password");
 
@@ -61,7 +61,7 @@ public class JMSLoginServlet extends JMSServlet {
 		mqContext.setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 	}
 
-	public void onReplace(ServerContext context, Configuration config) throws Exception {
+	public void unload(ServerContext context, Configuration config) throws Exception {
 		
 	}
 

@@ -62,5 +62,12 @@ public class Configuration implements Attributes {
 		return object;
 
 	}
+	
+	public String toString() {
+		if (_config == null) {
+			return "empty";
+		}
+		return this._config.toJSONString();
+	}
 
 }

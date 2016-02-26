@@ -13,7 +13,9 @@
 
 ``` java
    
-  NIOServerLauncher launcher = new NIOServerLauncher();
+  ServerLauncher launcher = new ServerLauncher();
 		
   launcher.launch();
 ```
+
+### 示例详见 {src\test\java\test}

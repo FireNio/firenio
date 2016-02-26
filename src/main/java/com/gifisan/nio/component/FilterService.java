@@ -13,10 +13,8 @@ import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServletAcceptor;
-import com.gifisan.nio.servlet.DeployFilter;
 import com.gifisan.nio.servlet.FilterLoader;
 import com.gifisan.nio.servlet.NIOFilterWrapper;
-import com.gifisan.nio.servlet.NIOFilterWrapperImpl;
 import com.gifisan.nio.servlet.NormalFilterLoader;
 import com.gifisan.nio.servlet.impl.ErrorServlet;
 
@@ -29,8 +27,11 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 	private DynamicClassLoader	classLoader	= null;
 
 	public FilterService(ServerContext context) {
+		
 		this.classLoader = new DynamicClassLoader();
+		
 		this.context = context;
+		
 	}
 
 	public void accept(Request request, Response response) throws IOException {
@@ -51,21 +52,32 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 	}
 
 	private void acceptException(Exception exception, Request request, Response response) throws IOException {
+		
 		ErrorServlet servlet = new ErrorServlet(exception);
+		
 		try {
+			
 			servlet.accept(request, response);
+			
 		} catch (IOException e) {
+			
 			throw e;
+			
 		} catch (Exception e) {
+			
 			logger.error(e.getMessage(),e);
+			
 		}
 	}
 
 	private boolean accept(NIOFilterWrapper filter, Request request, InnerResponse response) throws Exception {
+		
 		for (; filter != null;) {
+			
 			filter.accept(request, response);
 
 			if (response.flushed()) {
+				
 				return true;
 			}
 
@@ -89,47 +101,55 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 		LifeCycleUtil.stop(filterLoader);
 	}
 
-	private void predeploy(DynamicClassLoader classLoader) {
-		context.setAttribute("_OLD_ROOT_FILTER", rootFilter);
-		NIOFilterWrapper filterWrapper = new NIOFilterWrapperImpl(context, new DeployFilter(),null);
-		this.rootFilter = filterWrapper;
-	}
-
 	public boolean redeploy() {
+		
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
+		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
+		
 		try {
+			
 			classLoader.scan(context.getAppLocalAddress());
+			
 		} catch (IOException e) {
+			
 			logger.error(e.getMessage(),e);
+			
+			return false;
+		}
+		
+		try {
+			
+			filterLoader.prepare(context, null);
+			
+		} catch (Throwable e) {
+			
+			logger.error(e.getMessage(),e);
+			
 			return false;
 		}
 
-		if (filterLoader.predeploy(classLoader)) {
 
-			this.predeploy(classLoader);
+		this.rootFilter = filterLoader.getRootFilter();
 
-			this.filterLoader.redeploy(classLoader);
+		this.subdeploy(this.filterLoader);
 
-			this.rootFilter = filterLoader.getRootFilter();
+		this.filterLoader = filterLoader;
 
-			this.subdeploy(classLoader,true);
-
-			return true;
-		}
-
-		this.subdeploy(classLoader,false);
-		
-		return false;
+		return true;
 
 	}
 
-	private void subdeploy(DynamicClassLoader classLoader,boolean success) {
-		if (success) {
-			context.removeAttribute("_OLD_ROOT_FILTER");
-			this.filterLoader.subdeploy(classLoader);
-		}else{
-			this.rootFilter = (NIOFilterWrapper) context.removeAttribute("_OLD_ROOT_FILTER");
+	private void subdeploy(FilterLoader filterLoader) {
+			
+		try {
+			
+			filterLoader.unload(context, null);
+			
+		} catch (Throwable e) {
+			
+			logger.error(e.getMessage(),e);
+			
 		}
 	}
 
