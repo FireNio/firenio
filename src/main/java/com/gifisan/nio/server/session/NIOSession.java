@@ -3,10 +3,10 @@ package com.gifisan.nio.server.session;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.NIOServletRequest;
 import com.gifisan.nio.component.NIOServletResponse;
-import com.gifisan.nio.component.ServletAcceptJobImpl;
-import com.gifisan.nio.schedule.ServletAcceptJob;
+import com.gifisan.nio.component.NormalServiceAcceptor;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
+import com.gifisan.nio.server.selector.ServiceAcceptor;
 
 public class NIOSession extends AttributesImpl implements InnerSession {
 
@@ -20,7 +20,7 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	private SessionEventListenerWrapper	lastListener		= null;
 	private NIOServletRequest			request			= null;
 	private NIOServletResponse			response			= null;
-	private ServletAcceptJob				acceptJob			= null;
+	private ServiceAcceptor				acceptJob			= null;
 
 	public NIOSession(ServerEndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
@@ -28,7 +28,7 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		this.endPoint = endPoint;
 		this.request = new NIOServletRequest(context.getExecutorThreadPool(), this);
 		this.response = new NIOServletResponse(endPoint,this);
-		this.acceptJob = new ServletAcceptJobImpl(endPoint, context.getFilterService(), request, response);
+		this.acceptJob = new NormalServiceAcceptor(endPoint, context.getFilterService(), request, response);
 	}
 
 	public void attach(Object attachment) {
@@ -79,7 +79,7 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		}
 	}
 
-	public ServletAcceptJob updateServletAcceptJob() {
+	public ServiceAcceptor updateServletAcceptJob() {
 		this.lastuse = System.currentTimeMillis();
 		return acceptJob.update(endPoint);
 	}

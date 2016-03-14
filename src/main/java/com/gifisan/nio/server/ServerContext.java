@@ -18,10 +18,18 @@ public interface ServerContext extends Attributes, LifeCycle {
 
 	public abstract NIOServer getServer();
 
+	public abstract int getServerCoreSize();
+
 	public abstract ServerEndpointFactory getServerEndpointFactory();
+
+	public abstract int getServerPort();
 
 	public abstract boolean redeploy();
 
 	public abstract void setEncoding(Charset encoding);
+
+	public abstract void setServerCoreSize(int serverCoreSize);
+
+	public abstract void setServerPort(int serverPort);
 
 }

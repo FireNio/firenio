@@ -1,7 +1,7 @@
 package com.gifisan.nio.jms;
 
 
-public class TextMessage extends MessageImpl{
+public class TextMessage extends BasicMessage{
 	
 	private String content = null;
 

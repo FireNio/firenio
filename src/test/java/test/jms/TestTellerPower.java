@@ -8,7 +8,7 @@ import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageProducer;
 import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
 
-public class TestTeller1 {
+public class TestTellerPower {
 
 	public static void main(String[] args) throws Exception {
 
@@ -25,7 +25,7 @@ public class TestTeller1 {
 		TextMessage message = new TextMessage("wwww", "sssssss", "tttttttttttttt");
 
 		long old = System.currentTimeMillis();
-		for (int i = 0; i < 60000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			producer.offer(message);
 
 		}

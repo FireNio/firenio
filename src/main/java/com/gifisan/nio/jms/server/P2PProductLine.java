@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.MessageWriterJob;
 import com.gifisan.nio.component.RequestParam;
 import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
@@ -39,13 +38,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		//TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
-		SharedBundle bundle = SharedBundle.instance();
-
-		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",1);
-		
-		CORE_SIZE = 1;
-
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", CORE_SIZE);
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", 1);
 
 		this.messageWriteThreadPool.start();
 

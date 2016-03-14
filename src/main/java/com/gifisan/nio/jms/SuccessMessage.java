@@ -1,6 +1,6 @@
 package com.gifisan.nio.jms;
 
-public class SuccessMessage extends MessageImpl implements Message{
+public class SuccessMessage extends BasicMessage implements Message{
 	
 	public static final SuccessMessage NULL_MESSAGE = new SuccessMessage();
 

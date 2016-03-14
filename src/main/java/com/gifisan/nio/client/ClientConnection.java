@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DateUtil;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.InputStream;
@@ -122,12 +122,8 @@ public class ClientConnection implements Connectable, Closeable {
 				this.close = true;
 				this.wakeup();
 				for (; !closed;) {
-					try {
-						Thread.sleep(1);
-						this.wakeup();
-					} catch (InterruptedException e) {
-						DebugUtil.debug(e);
-					}
+					ThreadUtil.sleep(1);
+					this.wakeup();
 				}
 				CloseUtil.close(endPoint);
 				this.selector.close();

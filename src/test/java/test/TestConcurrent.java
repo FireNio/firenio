@@ -8,7 +8,6 @@ import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
-import com.gifisan.nio.schedule.Job;
 
 public class TestConcurrent {
 
@@ -45,7 +44,7 @@ class TestConcurrentListener extends AbstractLifeCycleListener {
 
 }
 
-class T implements Job {
+class T implements Runnable {
 
 	String	sessionKey	= null;
 
@@ -53,7 +52,7 @@ class T implements Job {
 		this.sessionKey = sessionKey;
 	}
 
-	public void schedule() {
+	public void run() {
 		try {
 			String serviceKey = "TestSimpleServlet";
 			String param = ClientUtil.getParamString();

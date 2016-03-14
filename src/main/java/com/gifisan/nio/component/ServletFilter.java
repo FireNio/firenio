@@ -11,7 +11,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServletAcceptor;
+import com.gifisan.nio.server.ServiceAccept;
 import com.gifisan.nio.servlet.AbstractNIOFilter;
 import com.gifisan.nio.servlet.NormalServletLoader;
 import com.gifisan.nio.servlet.ServletLoader;
@@ -83,7 +83,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 
 	private void acceptNormal(String serviceName, Request request, Response response) throws IOException {
 		
-		ServletAcceptor servlet = getServlet(serviceName);
+		ServiceAccept servlet = getServlet(serviceName);
 		
 		if (servlet == null) {
 			
@@ -96,7 +96,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	private void acceptNormal0(ServletAcceptor servlet, Request request, Response response) throws IOException {
+	private void acceptNormal0(ServiceAccept servlet, Request request, Response response) throws IOException {
 		try {
 			servlet.accept(request, response);
 		} catch (FlushedException e) {
@@ -125,7 +125,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		this.servletLoader.start();
 	}
 
-	public ServletAcceptor getServlet(String serviceName) {
+	public ServiceAccept getServlet(String serviceName) {
 		return this.servletLoader.getServlet(serviceName);
 	}
 

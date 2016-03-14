@@ -5,7 +5,6 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.NIOSelectionReader;
 import com.gifisan.nio.component.NIOSelectionWriter;
 import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
@@ -29,8 +28,7 @@ public class NIOSelectionAcceptor extends AbstractLifeCycle implements Selection
 	}
 
 	protected void doStart() throws Exception {
-		SharedBundle bundle = SharedBundle.instance();
-		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE", 4);
+		int CORE_SIZE = context.getServerCoreSize();
 		
 		this.servletThreadPool = new BlockingQueueThreadPool("Servlet-accept-Job", CORE_SIZE);
 		this.servletThreadPool.start();

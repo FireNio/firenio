@@ -147,7 +147,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 			
 			this.doStart();
 			
-			logger.info("[NIOServer] 加载完成："+this.toString());
+			logger.info("  [NIOServer] 加载完成 [ {} ]" , this.toString());
 			
 		} catch (Exception e) {
 		
@@ -178,7 +178,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 			
 			this.doStop();
 			
-			logger.info("[NIOServer] 卸载完成："+this.toString());
+			logger.info("  [NIOServer] 卸载完成 [ {} ]" , this.toString());
 			
 		} catch (Exception e) {
 			

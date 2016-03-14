@@ -37,11 +37,7 @@ public class SubscribeProductLine extends AbstractLifeCycle implements MessageQu
 
 		this.dueTime = context.getMessageDueTime();
 		
-		SharedBundle bundle = SharedBundle.instance();
-
-		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
-
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", CORE_SIZE);
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", 1);
 
 		this.messageWriteThreadPool.start();
 

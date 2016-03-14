@@ -1,6 +1,6 @@
 package com.gifisan.nio.server.session;
 
-import com.gifisan.nio.schedule.ServletAcceptJob;
+import com.gifisan.nio.server.selector.ServiceAcceptor;
 
 public interface InnerSession extends Session {
 	
@@ -8,6 +8,6 @@ public interface InnerSession extends Session {
 	
 	public abstract void destroyImmediately();
 	
-	public abstract ServletAcceptJob updateServletAcceptJob();
+	public abstract ServiceAcceptor updateServletAcceptJob();
 	
 }

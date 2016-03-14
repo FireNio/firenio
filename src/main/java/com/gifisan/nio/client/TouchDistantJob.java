@@ -3,9 +3,8 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.schedule.Job;
 
-public class TouchDistantJob implements Job {
+public class TouchDistantJob implements Runnable {
 
 	private ClientConnection connection = null;
 	
@@ -13,7 +12,7 @@ public class TouchDistantJob implements Job {
 		this.connection = connection;
 	}
 
-	public void schedule() {
+	public void run() {
 		ClientConnection connection = this.connection;
 		try {
 			connection.writeBeat();
@@ -29,12 +28,5 @@ public class TouchDistantJob implements Job {
 				connection.wakeup();
 			}
 		}
-		
 	}
-
-
-
-	
-	
-
 }

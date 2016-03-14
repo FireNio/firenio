@@ -10,11 +10,11 @@ import java.util.Map;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.component.AsynchServiceAcceptor;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.RequestParam;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
-import com.gifisan.nio.server.AsynchServletAcceptJob;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
@@ -71,7 +71,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 		
 	}
 	
-	class DownloadJob extends AsynchServletAcceptJob {
+	class DownloadJob extends AsynchServiceAcceptor {
 
 		private int		BLOCK	= 102400;
 

@@ -1,7 +1,7 @@
 package com.gifisan.nio.jms;
 
 
-public class ErrorMessage extends MessageImpl implements Message{
+public class ErrorMessage extends BasicMessage implements Message{
 	
 	public static final ErrorMessage UNAUTH_MESSAGE = new ErrorMessage(ErrorMessage.CODE_UNAUTH);
 	

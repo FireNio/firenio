@@ -2,17 +2,16 @@ package com.gifisan.nio.concurrent;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.schedule.Job;
 
 public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 
 	private long		interval	= 0;
-	private Job		job		= null;
+	private Runnable	job		= null;
 	private byte[]	lock		= { 0 };
 	private boolean	running	= true;
 	private Thread		thread	= null;
 
-	public TaskExecutor(Job job, String name, long interval) {
+	public TaskExecutor(Runnable job, String name, long interval) {
 		this.job = job;
 		this.interval = interval;
 		this.thread = new Thread(this, name);
@@ -20,8 +19,8 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 
 	public void run() {
 		long interval = this.interval;
-		byte [] lock = this.lock;
-		Job job = this.job;
+		byte[] lock = this.lock;
+		Runnable job = this.job;
 		for (;;) {
 			try {
 				synchronized (lock) {
@@ -31,8 +30,8 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 				DebugUtil.debug(e);
 			}
 			if (running) {
-				job.schedule();
-			}else{
+				job.run();
+			} else {
 				break;
 			}
 		}
@@ -40,7 +39,7 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable {
 
 	protected void doStart() throws Exception {
 		this.thread.start();
-		
+
 	}
 
 	protected void doStop() throws Exception {

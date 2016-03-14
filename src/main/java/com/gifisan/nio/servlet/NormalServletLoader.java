@@ -17,7 +17,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServletAcceptor;
+import com.gifisan.nio.server.ServiceAccept;
 
 public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
 
@@ -55,7 +55,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 					
 					servlet.destroy(context, servlet.getConfig());
 					
-					logger.info("[NIOServer] 卸载完成：" + servlet);
+					logger.info("[NIOServer] 卸载完成 [ {} ]" , servlet);
 					
 				} catch (Throwable e) {
 					
@@ -66,7 +66,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	public ServletAcceptor getServlet(String serviceName) {
+	public ServiceAccept getServlet(String serviceName) {
 		
 		return servlets.get(serviceName);
 		
@@ -82,7 +82,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 			
 			servlet.initialize(context, servlet.getConfig());
 			
-			logger.info("[NIOServer] 加载完成：{}" , servlet);
+			logger.info("[NIOServer] 加载完成 [ {} ]" , servlet);
 			
 		}
 	}

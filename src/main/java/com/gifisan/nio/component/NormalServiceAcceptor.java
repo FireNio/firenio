@@ -6,20 +6,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.schedule.ServletAcceptJob;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerEndPoint;
+import com.gifisan.nio.server.selector.ServiceAcceptor;
 
-public class ServletAcceptJobImpl implements ServletAcceptJob {
+public class NormalServiceAcceptor implements ServiceAcceptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(ServletAcceptJobImpl.class);
+	private Logger				logger	= LoggerFactory.getLogger(NormalServiceAcceptor.class);
 	private NIOServletRequest	request	= null;
 	private NIOServletResponse	response	= null;
 	private FilterService		service	= null;
 	private ServerEndPoint		endPoint	= null;
 
-	public ServletAcceptJobImpl(ServerEndPoint endPoint, FilterService service, NIOServletRequest request,
+	public NormalServiceAcceptor(ServerEndPoint endPoint, FilterService service, NIOServletRequest request,
 			NIOServletResponse response) {
 		this.endPoint = endPoint;
 		this.service = service;
@@ -39,7 +39,7 @@ public class ServletAcceptJobImpl implements ServletAcceptJob {
 		}
 	}
 
-	public void schedule() {
+	public void run() {
 		try {
 			this.accept(request, response);
 		} catch (NIOException e) {
@@ -58,7 +58,7 @@ public class ServletAcceptJobImpl implements ServletAcceptJob {
 		service.accept(request, response);
 	}
 
-	public ServletAcceptJob update(ServerEndPoint endPoint) {
+	public ServiceAcceptor update(ServerEndPoint endPoint) {
 		this.endPoint = endPoint;
 		this.request.update(endPoint);
 		this.response.update();

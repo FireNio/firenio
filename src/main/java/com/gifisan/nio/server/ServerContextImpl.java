@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.FilterService;
@@ -25,32 +23,25 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 	private ExecutorThreadPool	servletLazyExecutor	= null;
 	private String				appLocalAddres		= null;
 	private Logger				logger			= LoggerFactory.getLogger(ServerContextImpl.class);
+	private int				serverPort		= 0;
+	private int				serverCoreSize		= 4;
 
 	public ServerContextImpl(NIOServer server) {
 		this.server = server;
-		this.endpointFactory = new ServerEndpointFactory();
+		this.endpointFactory = new ServerEndpointFactory(this);
 	}
 
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
-		
-		Charset ENCODING = Charset.forName(bundle.getProperty("SERVER.ENCODING","GBK"));
-		
-		Encoding.DEFAULT = ENCODING;
 
-		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-		
-		DebugUtil.setEnableDebug(debug);
-		
-		int CORE_SIZE = bundle.getIntegerProperty("SERVER.CORE_SIZE", 4);
-		
-		this.encoding = ENCODING;
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.filterService = new FilterService(this);
-		this.servletLazyExecutor = new ExecutorThreadPool(CORE_SIZE, "Servlet-accept-Job");
+		this.servletLazyExecutor = new ExecutorThreadPool(serverCoreSize, "Servlet-accept-Job");
 
-		logger.info("[NIOServer] 工作目录：{}" , appLocalAddres);
-		logger.info("[NIOServer] 项目编码：{}" , ENCODING);
+		logger.info("[NIOServer] 工作目录：{ {} }", appLocalAddres);
+		logger.info("[NIOServer] 项目编码：{ {} }", encoding);
+		logger.info("[NIOServer] 监听端口：{ {} }", serverPort);
+		logger.info("[NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
 		this.filterService.start();
 		this.servletLazyExecutor.start();
@@ -62,7 +53,6 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		LifeCycleUtil.stop(servletLazyExecutor);
 		LifeCycleUtil.stop(filterService);
 	}
-
 
 	public Charset getEncoding() {
 		return encoding;
@@ -95,12 +85,12 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 	public boolean redeploy() {
 		return this.filterService.redeploy();
 	}
-	
-	private Map<String, Object> attributes = new HashMap<String, Object>();
+
+	private Map<String, Object>	attributes	= new HashMap<String, Object>();
 
 	public Object removeAttribute(String key) {
 		return this.attributes.remove(key);
-		
+
 	}
 
 	public void setAttribute(String key, Object value) {
@@ -117,7 +107,23 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 	public void clearAttributes() {
 		this.attributes.clear();
-		
+
+	}
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
+
+	public int getServerCoreSize() {
+		return serverCoreSize;
+	}
+
+	public void setServerCoreSize(int serverCoreSize) {
+		this.serverCoreSize = serverCoreSize;
 	}
 
 }

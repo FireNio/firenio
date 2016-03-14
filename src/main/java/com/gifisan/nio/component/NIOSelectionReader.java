@@ -6,11 +6,11 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.schedule.ServletAcceptJob;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.ServerEndpointFactory;
 import com.gifisan.nio.server.selector.SelectionAccept;
+import com.gifisan.nio.server.selector.ServiceAcceptor;
 import com.gifisan.nio.server.session.InnerSession;
 
 public class NIOSelectionReader implements SelectionAccept {
@@ -90,7 +90,7 @@ public class NIOSelectionReader implements SelectionAccept {
 		
 		InnerSession session = endPoint.getSession();
 		
-		ServletAcceptJob job = session.updateServletAcceptJob();
+		ServiceAcceptor job = session.updateServletAcceptJob();
 		
 //		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
 		

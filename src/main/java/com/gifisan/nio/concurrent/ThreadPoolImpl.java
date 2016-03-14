@@ -6,7 +6,6 @@ import java.util.List;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.schedule.Job;
 
 public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 
@@ -35,7 +34,7 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 
 	}
 
-	private Queue<Job>			jobs			= null;
+	private Queue<Runnable>		jobs			= null;
 	private int				size			= 4;
 	private String				threadPrefix	= null;
 	private List<LifedPoolWorker>	workers		= new ArrayList<ThreadPoolImpl.LifedPoolWorker>(size);
@@ -45,20 +44,20 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 	 * 
 	 * @param threadPrefix
 	 */
-	public ThreadPoolImpl(Queue<Job> jobs, String threadPrefix) {
+	public ThreadPoolImpl(Queue<Runnable> jobs, String threadPrefix) {
 		this.jobs = jobs;
 		this.size = 4;
 		this.threadPrefix = threadPrefix;
 	}
 
-	public ThreadPoolImpl(Queue<Job> jobs, String threadPrefix, int size) {
+	public ThreadPoolImpl(Queue<Runnable> jobs, String threadPrefix, int size) {
 		this.jobs = jobs;
 		this.size = size;
 		this.threadPrefix = threadPrefix;
 
 	}
 
-	public void dispatch(Job job) {
+	public void dispatch(Runnable job) {
 		if (!isStarted()) {
 			// free time, ignore job
 			return;

@@ -35,7 +35,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		
 		if (StringUtil.isNullOrBlank(config)) {
 			
-			logger.info("[NIOServer] 没有配置Filter");
+			logger.info(" [NIOServer] 没有配置Filter");
 			
 			NIOFilterWrapperImpl filter = new NIOFilterWrapperImpl(context, new ServletFilter(classLoader), null);
 			
@@ -137,7 +137,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			
 			filter.prepare(context, filter.getConfig());
 			
-			logger.info("[NIOServer] 新的Filter [ {} ] Prepare完成",filter);
+			logger.info(" [NIOServer] 新的Filter  [ {} ] Prepare完成",filter);
 			
 			filter = filter.nextFilter();
 		}
@@ -145,11 +145,11 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 	public void prepare(ServerContext context, Configuration config) throws Exception {
 		
-		logger.info("[NIOServer] 尝试加载新的Filter配置......");
+		logger.info(" [NIOServer] 尝试加载新的Filter配置......");
 		
 		this.rootFilter = loadFilters(context, classLoader);
 		
-		logger.info("[NIOServer] 尝试启动新的Filter配置......");
+		logger.info(" [NIOServer] 尝试启动新的Filter配置......");
 		
 		this.prepare(rootFilter);
 		
@@ -164,11 +164,11 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			try {
 				filter.unload(context, filter.getConfig());
 				
-				logger.info("[NIOServer] 旧的Filter [ {} ] Unload完成",filter);
+				logger.info(" [NIOServer] 旧的Filter  [ {} ] Unload完成",filter);
 				
 			} catch (Throwable e) {
 				// ignore
-				logger.info("[NIOServer] 旧的Filter [ {} ] Unload失败",filter);
+				logger.info(" [NIOServer] 旧的Filter  [ {} ] Unload失败",filter);
 				logger.error(e.getMessage(),e);
 			}
 			

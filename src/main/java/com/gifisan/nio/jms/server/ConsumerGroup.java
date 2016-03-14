@@ -7,7 +7,7 @@ import com.gifisan.nio.common.DebugUtil;
 
 public class ConsumerGroup {
 
-	private ArrayBlockingQueue<Consumer>	consumers	= new ArrayBlockingQueue<Consumer>(1024000);
+	private ArrayBlockingQueue<Consumer>	consumers	= new ArrayBlockingQueue<Consumer>(128);
 
 	public Consumer poll(long timeout) {
 		try {

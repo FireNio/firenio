@@ -8,7 +8,7 @@ import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageBrowser;
 import com.gifisan.nio.jms.client.impl.MessageBrowserImpl;
 
-public class TestBrowser1 {
+public class TestBrowser {
 
 	public static void main(String[] args) throws Exception {
 

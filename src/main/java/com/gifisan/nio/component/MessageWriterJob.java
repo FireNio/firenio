@@ -6,9 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.server.Consumer;
 import com.gifisan.nio.jms.server.MessageGroup;
-import com.gifisan.nio.schedule.Job;
 
-public class MessageWriterJob implements Job{
+public class MessageWriterJob implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageWriterJob.class);
 	
@@ -24,7 +23,7 @@ public class MessageWriterJob implements Job{
 		this.message = message;
 	}
 	
-	public void schedule() {
+	public void run() {
 		try {
 			consumer.push(message);
 		} catch (Exception e) {

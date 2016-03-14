@@ -31,12 +31,16 @@ public class DynamicClassLoader extends ClassLoader {
 
 	}
 
-	private Class<?> findLoadedClass0(String name) {
+	private Class<?> findLoadedClass0(String name) throws ClassNotFoundException {
 
 		ClassEntry entry = clazzEntries.get(name);
 
 		if (entry == null) {
 			return null;
+		}
+		
+		if (entry.loadedClass == null) {
+			return defineClass(entry);
 		}
 
 		return entry.loadedClass;
@@ -72,15 +76,19 @@ public class DynamicClassLoader extends ClassLoader {
 
 	public void scan(String file) throws IOException {
 		this.scan(new File(file));
+	}
+	
+	public void scan(File file) throws IOException {
+		this.scan0(file);
 		logger.info("预加载Class字节码到缓存[ {} ]个 " , clazzEntries.size());
 	}
 
-	private void scan(File file) throws IOException {
+	private void scan0(File file) throws IOException {
 		if (file.exists()) {
 			if (file.isDirectory()) {
 				File[] files = file.listFiles();
 				for (File _file : files) {
-					scan(_file);
+					scan0(_file);
 				}
 			} else {
 				String fileName = file.getName();
@@ -116,13 +124,18 @@ public class DynamicClassLoader extends ClassLoader {
 		
 	}
 
-	// TODO extend
-	private boolean matchSystem(String name) {
+	public boolean matchSystem(String name) {
 
 		return name.startsWith("java") 
 				|| name.startsWith("sun") 
 				|| name.startsWith("com/sun")
-				|| name.startsWith("com/gifisan");
+				|| matchExtend(name);
+
+	}
+	
+	public boolean matchExtend(String name) {
+
+		return name.startsWith("com/gifisan");
 
 	}
 
@@ -150,6 +163,8 @@ public class DynamicClassLoader extends ClassLoader {
 		classEntry.binaryContent = binaryContent;
 
 		classEntry.lastModified = entry.getTime();
+		
+		classEntry.className = name;
 
 		clazzEntries.put(name, classEntry);
 
@@ -162,12 +177,19 @@ public class DynamicClassLoader extends ClassLoader {
 			return null;
 		}
 
+		return defineClass(entry);
+	}
+	
+	private Class<?> defineClass(ClassEntry entry) throws ClassNotFoundException {
+
+		String name = entry.className;
+		
 		try {
 			Class<?> clazz = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length);
 
 			entry.loadedClass = clazz;
 
-			logger.info("define class [ {} ]", name);
+			logger.debug("define class [ {} ]", name);
 
 			return clazz;
 		} catch (Throwable e) {
@@ -180,6 +202,8 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	class ClassEntry {
+		
+		private String		className		= null;
 
 		private long		lastModified	= -1;
 

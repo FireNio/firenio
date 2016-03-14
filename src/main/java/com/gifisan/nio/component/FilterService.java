@@ -12,13 +12,13 @@ import com.gifisan.nio.server.InnerResponse;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServletAcceptor;
+import com.gifisan.nio.server.ServiceAccept;
 import com.gifisan.nio.servlet.FilterLoader;
 import com.gifisan.nio.servlet.NIOFilterWrapper;
 import com.gifisan.nio.servlet.NormalFilterLoader;
 import com.gifisan.nio.servlet.impl.ErrorServlet;
 
-public final class FilterService extends AbstractLifeCycle implements ServletAcceptor, LifeCycle {
+public final class FilterService extends AbstractLifeCycle implements ServiceAccept, LifeCycle {
 
 	private static final Logger logger = LoggerFactory.getLogger(FilterService.class);
 	private ServerContext		context		= null;
@@ -95,6 +95,7 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 		this.filterLoader.start();
 
 		this.rootFilter = filterLoader.getRootFilter();
+		
 	}
 
 	protected void doStop() throws Exception {
@@ -103,17 +104,23 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 
 	public boolean redeploy() {
 		
+		logger.info(" [NIOServer] ======================================= 开始服务升级 =======================================");
+		
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
 		
 		try {
 			
+			logger.info(" [NIOServer] 加载项目组件包");
+			
 			classLoader.scan(context.getAppLocalAddress());
 			
 		} catch (IOException e) {
 			
 			logger.error(e.getMessage(),e);
+			
+			logger.info("      [NIOServer] ======================================= 服务升级失败 =======================================");
 			
 			return false;
 		}
@@ -126,6 +133,8 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 			
 			logger.error(e.getMessage(),e);
 			
+			logger.info("      [NIOServer] ======================================= 服务升级失败 =======================================");
+			
 			return false;
 		}
 
@@ -136,6 +145,8 @@ public final class FilterService extends AbstractLifeCycle implements ServletAcc
 
 		this.filterLoader = filterLoader;
 
+		logger.info("      [NIOServer] ======================================= 服务升级完成 =======================================");
+		
 		return true;
 
 	}

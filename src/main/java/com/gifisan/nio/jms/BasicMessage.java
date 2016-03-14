@@ -2,7 +2,7 @@ package com.gifisan.nio.jms;
 
 import com.alibaba.fastjson.JSONObject;
 
-public abstract class MessageImpl implements Message{
+public abstract class BasicMessage implements Message{
 	
 	private long createTime = System.currentTimeMillis();
 	
@@ -18,7 +18,7 @@ public abstract class MessageImpl implements Message{
 		return queueName;
 	}
 
-	public MessageImpl(String messageID,String queueName) {
+	public BasicMessage(String messageID,String queueName) {
 		this.messageID = messageID;
 		this.queueName = queueName;
 	}

@@ -21,7 +21,7 @@ public class TestListener {
 		
 		ClientSesssion session = connector.getClientSession();
 		
-		MessageConsumer consumer = new MessageConsumerImpl(session, "sssssss");
+		MessageConsumer consumer = new MessageConsumerImpl(session, "舒华");
 
 		consumer.login("admin", "admin100");
 		

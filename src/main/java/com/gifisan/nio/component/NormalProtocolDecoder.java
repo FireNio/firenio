@@ -42,14 +42,6 @@ public class NormalProtocolDecoder implements ProtocolDecoder {
 		ByteBuffer buffer = ByteBuffer.allocate(1);
 		int length = endPoint.read(buffer);
 
-		// if (length == -1) {
-		// return false;
-		// }
-		//
-		// if (length == 0) {
-		// return true;
-		// }
-
 		if (length < 1) {
 			return false;
 		}

@@ -108,8 +108,6 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(acceptor);
-		// 应该交给task去关
-		// this.selector.close();
 	}
 
 	public Selector getSelector() {

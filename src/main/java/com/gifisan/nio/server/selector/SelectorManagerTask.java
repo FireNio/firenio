@@ -1,6 +1,5 @@
 package com.gifisan.nio.server.selector;
 
-import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;

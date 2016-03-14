@@ -9,8 +9,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SharedBundle {
 
@@ -22,7 +20,7 @@ public class SharedBundle {
 
 	private String			baseDIR		= null;
 	private AtomicBoolean	initialized	= new AtomicBoolean(false);
-	private Logger			logger		= null;
+//	private Logger			logger		= null;
 	private Properties		properties	= new Properties();
 
 	private SharedBundle() {
@@ -121,7 +119,7 @@ public class SharedBundle {
 					Properties temp = FileUtil.readProperties(file);
 					if ("log4j.properties".equals(file.getName())) {
 						PropertyConfigurator.configure(temp);
-						logger = LoggerFactory.getLogger(SharedBundle.class);
+//						logger = LoggerFactory.getLogger(SharedBundle.class);
 						continue;
 					}
 					properties.putAll(temp);
@@ -132,16 +130,16 @@ public class SharedBundle {
 		}
 	}
 
-	public void loadLog4jProperties(Class<?> clazz, String file) throws IOException {
+	public void loadLog4jProperties(String file) throws IOException {
 		String filePath = baseDIR + file;
 		Properties log4j = loadProperties(FileUtil.openInputStream(new File(filePath)));
 		PropertyConfigurator.configure(log4j);
-		logger = LoggerFactory.getLogger(SharedBundle.class);
+//		logger = LoggerFactory.getLogger(SharedBundle.class);
 	}
 
-	public Properties loadProperties(Class<?> clazz, String file) throws IOException {
+	public Properties loadProperties(String file) throws IOException {
 		String filePath = baseDIR + file;
-		logger.info("load properties [ {} ]", filePath);
+//		logger.info("load properties [ {} ]", filePath);
 		return loadProperties(FileUtil.openInputStream(new File(filePath)));
 	}
 
@@ -155,9 +153,9 @@ public class SharedBundle {
 		}
 	}
 
-	public void storageProperties(Class<?> clazz, String file) throws IOException {
+	public void storageProperties(String file) throws IOException {
 		String filePath = baseDIR + file;
-		logger.info("storage properties [ {} ]", filePath);
+//		logger.info("加载配置文件 [ {} ]", filePath);
 		storageProperties(FileUtil.openInputStream(new File(filePath)));
 	}
 

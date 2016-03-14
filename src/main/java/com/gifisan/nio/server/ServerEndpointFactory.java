@@ -11,28 +11,29 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.ServerNIOEndPoint;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.TaskExecutor;
-import com.gifisan.nio.schedule.Job;
 
-public class ServerEndpointFactory extends AbstractLifeCycle implements Job {
+public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable {
 
 	private Logger						logger				= LoggerFactory.getLogger(ServerEndpointFactory.class);
 	private HashMap<Long, ServerEndPoint>	endPoints				= new HashMap<Long, ServerEndPoint>();
 	private TaskExecutor				taskExecutor			= null;
 	private ExecutorThreadPool			asynchServletDispatcher	= null;
-//	private AtomicLong 					genericID 			= new AtomicLong(10000);
-	private long 						genericID 			= 10000;
-	private Map<Long, ServerEndPoint>		readOnlyEndPoints 		= Collections.unmodifiableMap(endPoints);
+	// private AtomicLong genericID = new AtomicLong(10000);
+	private long						genericID				= 10000;
+	private Map<Long, ServerEndPoint>		readOnlyEndPoints		= Collections.unmodifiableMap(endPoints);
+	private ServerContext				context				= null;
+	
+	public ServerEndpointFactory(ServerContext context) {
+		this.context = context;
+	}
 
 	protected void doStart() throws Exception {
 		
-		SharedBundle bundle 		= SharedBundle.instance();
-//		int CHECK_INTERVAL			= 10;
 		int CHECK_INTERVAL			= 60 * 1000;
-		int CORE_SIZE 				= bundle.getIntegerProperty("SERVER.CORE_SIZE",4);
+		int CORE_SIZE 				= context.getServerCoreSize();
 		this.taskExecutor 			= new TaskExecutor(this, "EndPoint-manager-Task", CHECK_INTERVAL);
 		this.asynchServletDispatcher	= new ExecutorThreadPool(CORE_SIZE,"asynch-servlet-dispatcher-");
 		this.asynchServletDispatcher	.start();
@@ -57,9 +58,7 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Job {
 		
 	}
 	
-	public void schedule() {
-		
-		
+	public void run() {
 		
 		logger.info("[NIOServer] 回收过期会话，剩余数量：" + endPoints.size());
 		

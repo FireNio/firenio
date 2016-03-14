@@ -1,23 +1,22 @@
 package com.gifisan.nio.concurrent;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.schedule.Job;
 
 public class PoolWorker extends AbstractLifeCycle implements Runnable {
 
-	private boolean	working	= false;
-	private Queue<Job>	jobs		= null;
+	private boolean		working	= false;
+	private Queue<Runnable>	jobs		= null;
 
-	public PoolWorker(Queue<Job> jobs) {
+	public PoolWorker(Queue<Runnable> jobs) {
 		this.jobs = jobs;
 	}
 
 	public void run() {
-		for (;isRunning();) {
+		for (; isRunning();) {
 			working = true;
-			Job job = jobs.poll();
+			Runnable job = jobs.poll();
 			if (job != null) {
-				job.schedule();
+				job.run();
 			}
 			working = false;
 		}
@@ -28,9 +27,10 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable {
 	}
 
 	protected void doStop() throws Exception {
-		for (;working;) {
+		for (; working;) {
 			Thread.sleep(8);
 		}
+//		new Exception("test").printStackTrace();
 	}
 
 }

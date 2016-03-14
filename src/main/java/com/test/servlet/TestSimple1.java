@@ -5,7 +5,7 @@ public class TestSimple1 {
 
 	public String dynamic(){
 		
-		return "aaaabbb";
+		return "aaaabbb22222";
 	}
 	
 }
