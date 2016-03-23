@@ -12,14 +12,13 @@ import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
-import com.gifisan.nio.server.session.Session;
 
 public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
 	private ThreadPool				messageWriteThreadPool	= null;
-	private Map<String, ConsumerGroup>	consumerGroupMap		= null;
+	private Map<String, ConsumerQueue>	consumerGroupMap		= null;
 	private MQContext				context				= null;
-	private MessageGroup			messageGroup			= null;
+	private MessageQ			messageGroup			= null;
 	private boolean				running				= false;
 	private long					dueTime				= 0;
 
@@ -31,14 +30,14 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		this.running = true;
 
-		this.messageGroup = new MessageGroup();
+		this.messageGroup = new MessageQ();
 
-		this.consumerGroupMap = new HashMap<String, ConsumerGroup>();
+		this.consumerGroupMap = new HashMap<String, ConsumerQueue>();
 
 		//TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-write-Job", 1);
+		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-writer", 1);
 
 		this.messageWriteThreadPool.start();
 
@@ -52,9 +51,9 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		LifeCycleUtil.stop(messageWriteThreadPool);
 	}
 
-	private ConsumerGroup getConsumerGroup(String queueName) {
+	private ConsumerQueue getConsumerGroup(String queueName) {
 
-		ConsumerGroup consumerGroup = consumerGroupMap.get(queueName);
+		ConsumerQueue consumerGroup = consumerGroupMap.get(queueName);
 
 		if (consumerGroup == null) {
 
@@ -63,7 +62,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 				consumerGroup = consumerGroupMap.get(queueName);
 
 				if (consumerGroup == null) {
-					consumerGroup = new ConsumerGroup();
+					consumerGroup = new ConsumerQueue();
 					consumerGroupMap.put(queueName, consumerGroup);
 				}
 			}
@@ -79,26 +78,22 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		return messageGroup.offer(message);
 	}
 
-	public void pollMessage(Request request, Response response) {
+	public void pollMessage(Request request, Response response,JMSSessionAttachment attachment) {
 
 		RequestParam param = request.getParameters();
 
 		String queueName = param.getParameter("queueName");
 
-		ConsumerGroup consumerGroup = getConsumerGroup(queueName);
+		ConsumerQueue consumerGroup = getConsumerGroup(queueName);
 		
-		Consumer consumer = new Consumer(request, response, consumerGroup, queueName);
-		
-		Session session = request.getSession();
-		
-		session.setAttribute("_TPL_CONSUMER", consumer);
+		Consumer consumer = new Consumer(consumerGroup, attachment,response, queueName);
 		
 		consumerGroup.offer(consumer);
 	}
 
 	public void removeConsumer(Consumer consumer) {
 
-		ConsumerGroup consumerGroup = consumer.getConsumerGroup();
+		ConsumerQueue consumerGroup = consumer.getConsumerGroup();
 
 		consumerGroup.remove(consumer);
 
@@ -124,7 +119,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 			String queueName = message.getQueueName();
 
-			ConsumerGroup consumerGroup = getConsumerGroup(queueName);
+			ConsumerQueue consumerGroup = getConsumerGroup(queueName);
 
 			Consumer consumer = consumerGroup.poll(16);
 
@@ -135,7 +130,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 				continue;
 			}
 
-			MessageWriterJob job = new MessageWriterJob(messageGroup, consumer, message);
+			MessageWriterJob job = new MessageWriterJob(context,consumer, message);
 
 			messageWriteThreadPool.dispatch(job);
 
@@ -147,7 +142,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		long now = System.currentTimeMillis();
 		long dueTime = this.dueTime;
 
-		if (now - message.createTime() < dueTime) {
+		if (now - message.getTimestamp() < dueTime) {
 			this.offerMessage(message);
 		}
 		// 消息过期了

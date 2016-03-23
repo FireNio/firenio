@@ -7,7 +7,7 @@ import com.gifisan.nio.server.session.Session;
 
 public class JMSTransactionServlet extends JMSServlet{
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
 		Session session = request.getSession();
 		
@@ -16,13 +16,13 @@ public class JMSTransactionServlet extends JMSServlet{
 		if (context.isLogined(session)) {
 			String action = request.getContent();
 			
-			TransactionSection section = (TransactionSection) session.getAttribute("_MQ_TRANSACTION");
+			TransactionSection section = attachment.getTransactionSection();
 			
 			if ("begin".equals(action)) {
 				RESMessage message = null;
 				if (section == null) {
 					section = new TransactionSection(context);
-					session.setAttribute("_MQ_TRANSACTION", section);
+					attachment.setTransactionSection(section);
 					message = RESMessage.R_SUCCESS;
 				}else{
 					message = JMSRESMessage.R_TRANSACTION_BEGINED;
@@ -40,7 +40,7 @@ public class JMSTransactionServlet extends JMSServlet{
 					}else{
 						message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 					}
-					session.removeAttribute("_MQ_TRANSACTION");
+					attachment.setTransactionSection(null);
 				}
 				
 				response.write(message.toString());
@@ -56,17 +56,19 @@ public class JMSTransactionServlet extends JMSServlet{
 					}else{
 						message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 					}
-					session.removeAttribute("_MQ_TRANSACTION");
+					attachment.setTransactionSection(null);
 				}
 				response.write(message.toString());
 				response.flush();
-			}else if("complete".equals(action)){
-				RESMessage message = RESMessage.R_SUCCESS;
-				session.removeAttribute("_TPL_MESSAGE");
-				response.write(message.toString());
-				response.flush();
-				
-			}else{
+			}
+//			else if("complete".equals(action)){
+//				RESMessage message = RESMessage.R_SUCCESS;
+//				attachment.setTpl_message(null);
+//				response.write(message.toString());
+//				response.flush();
+//				
+//			}
+			else{
 				response.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
 				response.flush();
 			}

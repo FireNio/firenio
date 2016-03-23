@@ -1,9 +1,9 @@
 package com.gifisan.nio.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.component.OutputStream;
 
 public class MultiSession implements ClientSesssion {
 
@@ -38,12 +38,18 @@ public class MultiSession implements ClientSesssion {
 		return bus.getResponse();
 	}
 
-	public Response request(String serviceName, String content, InputStream inputStream) throws IOException {
+	public Response request(String serviceName, String content, int available) throws IOException {
 		throw new IllegalStateException("can not trans stream when multi session");
 	}
 
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
+
+	public OutputStream getOutputStream() {
+		return connection.getOutputStream();
+	}
+	
+	
 
 }

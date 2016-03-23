@@ -41,6 +41,10 @@ public class TestDownloadServlet extends NIOServlet {
 			}
 
 			response.setStreamResponse(downloadLength);
+			
+			response.write("wwwwwwwww");
+			
+			response.flush();
 
 			inputStream.skip(start);
 

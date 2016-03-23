@@ -20,7 +20,7 @@ public class TestStopServer {
 		String param = "{username:\"admin\",password:\"admin100\"}";
 		
 		Response response = session.request(serviceKey, param);
-		System.out.println(response.getContent());
+		System.out.println(response.getText());
 		
 		CloseUtil.close(connector);
 		

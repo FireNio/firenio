@@ -20,7 +20,7 @@ public class TestGetPhoneNO {
 		ClientSesssion session = connector.getClientSession();
 		
 		Response response = session.request(serviceKey, null);
-		System.out.println(response.getContent());
+		System.out.println(response.getText());
 		
 		CloseUtil.close(connector);
 		

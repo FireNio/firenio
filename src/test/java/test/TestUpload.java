@@ -22,9 +22,9 @@ public class TestUpload {
 		long old = System.currentTimeMillis();
 		File file = new File("D:/temp1.zip");
 		FileInputStream inputStream = new FileInputStream(file);
-		Response response = session.request(serviceKey,param , inputStream);
+		Response response = session.request(serviceKey,param , 1);
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
-		System.out.println(response.getContent());
+		System.out.println(response.getText());
 		
 		connector.close();
 	}

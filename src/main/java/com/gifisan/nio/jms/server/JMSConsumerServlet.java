@@ -8,7 +8,7 @@ import com.gifisan.nio.server.session.Session;
 
 public class JMSConsumerServlet extends JMSServlet{
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 		
 		Session session = request.getSession();
 		
@@ -16,7 +16,7 @@ public class JMSConsumerServlet extends JMSServlet{
 		
 		if (context.isLogined(session)) {
 			
-			context.pollMessage(request, response);
+			context.pollMessage(request, response,attachment);
 			
 		}else{
 			Message message = ErrorMessage.UNAUTH_MESSAGE;

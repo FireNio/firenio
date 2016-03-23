@@ -32,7 +32,7 @@ public class TestSimpleBigParam {
 		param.put("param", builder.toString());
 		String paramString = JSONObject.toJSONString(param);
 		Response response = session.request(serviceKey, paramString);
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), response.getContent());
+		FileUtil.write(new File(TestSimpleBigParam.class.getName()), response.getText());
 		System.out.println("处理完成");
 		
 		CloseUtil.close(connector);

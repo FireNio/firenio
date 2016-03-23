@@ -10,12 +10,12 @@ import com.gifisan.nio.client.Response;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.client.JMSConnection;
 
-public class ConnectonImpl implements JMSConnection {
+public class JMSConnectonImpl implements JMSConnection {
 
 	boolean		logined	= false;
 	ClientSesssion	session	= null;
 
-	public ConnectonImpl(ClientSesssion session) throws JMSException {
+	public JMSConnectonImpl(ClientSesssion session) throws JMSException {
 		this.session = session;
 	}
 
@@ -35,7 +35,7 @@ public class ConnectonImpl implements JMSConnection {
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		String result = response.getContent();
+		String result = response.getText();
 		boolean logined = "T".equals(result);
 		if (!logined) {
 			throw new JMSException("用户名密码错误！");

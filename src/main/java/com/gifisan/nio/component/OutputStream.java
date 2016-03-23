@@ -10,16 +10,17 @@ public interface OutputStream {
 	 * @throws NIOException 
 	 * @throws IOException
 	 */
-	public abstract void write(byte b) throws IOException;
+	public abstract int write(byte b) throws IOException;
 	
 	/**
 	 * 文本类型写入结束后要做flush操作
 	 * 
 	 * @param bytes
+	 * @return 
 	 * @throws NIOException 
 	 * @throws IOException
 	 */
-	public abstract void write(byte[] bytes) throws IOException;
+	public abstract int write(byte[] bytes) throws IOException;
 
 	/**
 	 * 文本类型写入结束后要做flush操作
@@ -29,7 +30,7 @@ public interface OutputStream {
 	 * @param length
 	 * @throws IOException
 	 */
-	public abstract void write(byte[] bytes, int offset, int length) throws IOException;
+	public abstract int write(byte[] bytes, int offset, int length) throws IOException;
 	
 	
 }

@@ -6,7 +6,7 @@ import com.gifisan.nio.server.Response;
 
 public interface MessageQueue {
 
-	public abstract void pollMessage(Request request,Response response) ;
+	public abstract void pollMessage(Request request,Response response,JMSSessionAttachment attachment) ;
 	
 	public abstract boolean offerMessage(Message message);
 	

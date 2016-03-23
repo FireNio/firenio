@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class ServerLauncher {
 
-	private Logger	logger	= LoggerFactory.getLogger(ServerLauncher.class);
+	private Logger		logger	= LoggerFactory.getLogger(ServerLauncher.class);
 
 	public void launch() throws Exception {
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,8 @@ public class DownloadFilter extends AbstractNIOFilter {
 			ExecutorThreadPool executor = request.getExecutorThreadPool();
 			
 			DownloadJob downloadJob = new DownloadJob(request, response);
+			
+			response.schdule();
 			
 			executor.dispatch(downloadJob);
 			
@@ -105,6 +108,8 @@ public class DownloadFilter extends AbstractNIOFilter {
 				}
 
 				response.setStreamResponse(downloadLength);
+				
+				response.flush();
 
 				inputStream.skip(start);
 
@@ -120,12 +125,12 @@ public class DownloadFilter extends AbstractNIOFilter {
 					int remain = downloadLength % BLOCK;
 					while (times > 0) {
 						inputStream.read(bytes);
-						response.write(bytes);
+						response.completedWrite(bytes);
 						times--;
 					}
 					if (remain > 0) {
 						inputStream.read(bytes, 0, remain);
-						response.write(bytes, 0, remain);
+						response.completedWrite(bytes, 0, remain);
 					}
 				}
 			} catch (FileNotFoundException e) {

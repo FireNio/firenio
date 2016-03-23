@@ -11,20 +11,26 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.DefaultServerProtocolDecoder;
 import com.gifisan.nio.component.FilterService;
+import com.gifisan.nio.component.ProtocolDecoder;
+import com.gifisan.nio.component.ProtocolEncoder;
+import com.gifisan.nio.component.ServerProtocolEncoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 
 public class ServerContextImpl extends AbstractLifeCycle implements ServerContext {
 
-	private Charset			encoding			= null;
-	private NIOServer			server			= null;
-	private ServerEndpointFactory	endpointFactory	= null;
-	private FilterService		filterService		= null;
-	private ExecutorThreadPool	servletLazyExecutor	= null;
-	private String				appLocalAddres		= null;
-	private Logger				logger			= LoggerFactory.getLogger(ServerContextImpl.class);
-	private int				serverPort		= 0;
-	private int				serverCoreSize		= 4;
+	private Charset				encoding			= null;
+	private NIOServer				server			= null;
+	private ServerEndpointFactory		endpointFactory	= null;
+	private FilterService			filterService		= null;
+	private ExecutorThreadPool		servletLazyExecutor	= null;
+	private String					appLocalAddres		= null;
+	private Logger					logger			= LoggerFactory.getLogger(ServerContextImpl.class);
+	private int					serverPort		= 0;
+	private int					serverCoreSize		= 4;
+	private ProtocolDecoder			protocolDecoder	= new DefaultServerProtocolDecoder();
+	private ProtocolEncoder			protocolEncoder	= new ServerProtocolEncoder();
 
 	public ServerContextImpl(NIOServer server) {
 		this.server = server;
@@ -36,7 +42,7 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.filterService = new FilterService(this);
-		this.servletLazyExecutor = new ExecutorThreadPool(serverCoreSize, "Servlet-accept-Job");
+		this.servletLazyExecutor = new ExecutorThreadPool(serverCoreSize, "Servlet-lazy-acceptor");
 
 		logger.info("[NIOServer] 工作目录：{ {} }", appLocalAddres);
 		logger.info("[NIOServer] 项目编码：{ {} }", encoding);
@@ -124,6 +130,14 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 	public void setServerCoreSize(int serverCoreSize) {
 		this.serverCoreSize = serverCoreSize;
+	}
+
+	public ProtocolDecoder getProtocolDecoder() {
+		return this.protocolDecoder;
+	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return this.protocolEncoder;
 	}
 
 }

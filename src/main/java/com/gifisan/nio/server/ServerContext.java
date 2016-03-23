@@ -4,6 +4,8 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.FilterService;
+import com.gifisan.nio.component.ProtocolDecoder;
+import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 
 public interface ServerContext extends Attributes, LifeCycle {
@@ -31,5 +33,11 @@ public interface ServerContext extends Attributes, LifeCycle {
 	public abstract void setServerCoreSize(int serverCoreSize);
 
 	public abstract void setServerPort(int serverPort);
+	
+	public abstract ProtocolDecoder getProtocolDecoder();
+	
+	public abstract ProtocolEncoder getProtocolEncoder();
+	
+	
 
 }

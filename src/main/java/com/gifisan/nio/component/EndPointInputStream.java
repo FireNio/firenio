@@ -21,48 +21,43 @@ public class EndPointInputStream implements InputStream {
 	public boolean complete() {
 		return avaiable == 0 || position >= avaiable;
 	}
+	
+	public void completedRead(ByteBuffer buffer) throws IOException {
+		if (complete()) {
+			return ;
+		}
+		
+		int limit = buffer.capacity();
+
+		if (position + limit > avaiable) {
+			
+			limit = avaiable - position;
+			
+			buffer.limit(limit);
+		}
+		
+		endPoint.completedRead(buffer);
+	}
 
 	public int read(ByteBuffer buffer) throws IOException {
 		if (complete()) {
 			return 0;
 		}
-
+		
 		int limit = buffer.capacity();
 
 		if (position + limit > avaiable) {
+			
 			limit = avaiable - position;
-		}
-
-		EndPoint endPoint = this.endPoint;
-
-		int _length = endPoint.read(buffer);
-		for (; _length < limit;) {
-
-			int __length = endPoint.read(buffer);
-			_length += __length;
-			//TODO 处理网速较慢的情况
-			for (; __length > 0;) {
-				__length = endPoint.read(buffer);
-				_length += __length;
-			}
-			if (_length == limit) {
-				break;
-			}
-			havearest();
-		}
-		this.position += limit;
-		return limit;
-	}
-	
-	public void havearest(){
-		synchronized (endPoint) {
-			try {
-				endPoint.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			
+			buffer.limit(limit);
 		}
 		
+		int _length = endPoint.read(buffer);
+		
+		this.position += _length;
+		
+		return _length;
 	}
 
 }

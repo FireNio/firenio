@@ -119,7 +119,6 @@ public class SharedBundle {
 					Properties temp = FileUtil.readProperties(file);
 					if ("log4j.properties".equals(file.getName())) {
 						PropertyConfigurator.configure(temp);
-//						logger = LoggerFactory.getLogger(SharedBundle.class);
 						continue;
 					}
 					properties.putAll(temp);
@@ -134,7 +133,6 @@ public class SharedBundle {
 		String filePath = baseDIR + file;
 		Properties log4j = loadProperties(FileUtil.openInputStream(new File(filePath)));
 		PropertyConfigurator.configure(log4j);
-//		logger = LoggerFactory.getLogger(SharedBundle.class);
 	}
 
 	public Properties loadProperties(String file) throws IOException {

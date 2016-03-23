@@ -10,6 +10,7 @@ import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.InputStream;
+import com.gifisan.nio.component.ProtocolDecoder;
 
 public class TestDownload {
 	
@@ -24,8 +25,8 @@ public class TestDownload {
 		
 		Response response = session.request(serviceKey, null);
 		
-		if (response.getType() == Response.TEXT) {
-			System.out.println(response.getContent());
+		if (response.getProtocolType() == ProtocolDecoder.TEXT) {
+			System.out.println(response.getText());
 		}else{
 			
 			InputStream inputStream = response.getInputStream();
@@ -37,7 +38,10 @@ public class TestDownload {
 			
 			int BLOCK = 102400;
 			ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
-			int length = inputStream.read(BUFFER);
+			inputStream.completedRead(BUFFER);
+			
+			int length = BUFFER.limit();
+			
 			while (length == BLOCK) {
 				outputStream.write(BUFFER.array());
 				BUFFER.clear();

@@ -12,14 +12,13 @@ import com.gifisan.nio.LifeCycleListener;
 
 public class NIOServerListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
-	private final Logger logger = LoggerFactory.getLogger(NIOServerListener.class);
-	
-	private long staredTime = 0;
-	
+	private Logger	logger		= LoggerFactory.getLogger(NIOServerListener.class);
+	private long	staredTime	= 0;
+
 	public int lifeCycleListenerSortIndex() {
 		return 999;
 	}
-	
+
 	public void lifeCycleStarting(LifeCycle lifeCycle) {
 		staredTime = System.currentTimeMillis();
 	}
@@ -27,13 +26,14 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 	public void lifeCycleStarted(LifeCycle lifeCycle) {
 		NIOServer server = (NIOServer) lifeCycle;
 		Connector connector = server.getConnector();
-		logger.info("  [NIOServer] 服务启动完成  @"+connector.getHost()+":"+connector.getPort()
-				+" 花费 "+(System.currentTimeMillis() - staredTime) +" 毫秒");
+		logger.info("  [NIOServer] 服务启动完成  @" + connector.getHost() + ":" + connector.getPort() + " 花费 "
+				+ (System.currentTimeMillis() - staredTime) + " 毫秒");
 	}
 
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-		//NIOConnector connector = (NIOConnector) lifeCycle;
-		logger.error(exception.getMessage(),exception);;
+		// NIOConnector connector = (NIOConnector) lifeCycle;
+		logger.error(exception.getMessage(), exception);
+		;
 	}
 
 	public void lifeCycleStopped(LifeCycle lifeCycle) {
@@ -45,9 +45,9 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 		Connector connector = server.getConnector();
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - staredTime);
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
-		BigDecimal hour = time.divide(anHour,3,RoundingMode.HALF_UP);
-		Object [] params = {connector.getHost(),connector.getPort(),hour};
-		logger.info("  [NIOServer] 服务运行时间  @{}:{} 共 {} 小时",params);
+		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
+		Object[] params = { connector.getHost(), connector.getPort(), hour };
+		logger.info("  [NIOServer] 服务运行时间  @{}:{} 共 {} 小时", params);
 		logger.info("  [NIOServer] 开始停止服务，请稍等");
 	}
 

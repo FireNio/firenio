@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.gifisan.nio.common.DebugUtil;
 
-public class ConsumerGroup {
+public class ConsumerQueue {
 
 	private ArrayBlockingQueue<Consumer>	consumers	= new ArrayBlockingQueue<Consumer>(128);
 

@@ -3,9 +3,9 @@ package com.gifisan.nio.servlet;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.HotDeploy;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServiceAccept;
+import com.gifisan.nio.server.ServiceAcceptor;
 
-public abstract class GenericServlet implements HotDeploy, ServiceAccept {
+public abstract class GenericServlet implements HotDeploy, ServiceAcceptor {
 
 	private Configuration	config	= null;
 

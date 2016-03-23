@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.ServerNIOEndPoint;
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
 public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable {
@@ -20,8 +19,6 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 	private Logger						logger				= LoggerFactory.getLogger(ServerEndpointFactory.class);
 	private HashMap<Long, ServerEndPoint>	endPoints				= new HashMap<Long, ServerEndPoint>();
 	private TaskExecutor				taskExecutor			= null;
-	private ExecutorThreadPool			asynchServletDispatcher	= null;
-	// private AtomicLong genericID = new AtomicLong(10000);
 	private long						genericID				= 10000;
 	private Map<Long, ServerEndPoint>		readOnlyEndPoints		= Collections.unmodifiableMap(endPoints);
 	private ServerContext				context				= null;
@@ -31,18 +28,13 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 	}
 
 	protected void doStart() throws Exception {
-		
 		int CHECK_INTERVAL			= 60 * 1000;
-		int CORE_SIZE 				= context.getServerCoreSize();
-		this.taskExecutor 			= new TaskExecutor(this, "EndPoint-manager-Task", CHECK_INTERVAL);
-		this.asynchServletDispatcher	= new ExecutorThreadPool(CORE_SIZE,"asynch-servlet-dispatcher-");
-		this.asynchServletDispatcher	.start();
+		this.taskExecutor 			= new TaskExecutor(this, "EndPoint-manager", CHECK_INTERVAL);
 		this.taskExecutor			.start();
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(asynchServletDispatcher);
-		this.taskExecutor.stop();
+		LifeCycleUtil.stop(taskExecutor);
 	}
 	
 
@@ -62,6 +54,7 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 		
 		logger.info("[NIOServer] 回收过期会话，剩余数量：" + endPoints.size());
 		
+		context.getEncoding();
 	}
 	
 	public Map<Long, ServerEndPoint> getManagerdEndPoints(){

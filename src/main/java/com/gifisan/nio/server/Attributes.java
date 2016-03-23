@@ -2,7 +2,9 @@ package com.gifisan.nio.server;
 
 import java.util.Set;
 
-public abstract interface Attributes {
+import com.gifisan.nio.Attachment;
+
+public abstract interface Attributes extends Attachment{
 	  
 	  public abstract Object removeAttribute(String key);
 	  

@@ -20,11 +20,11 @@ public class TestRedeploy {
 		ClientSesssion session = connector.getClientSession();
 
 		Response response = session.request(serviceKey, param);
-		System.out.println(response.getContent());
+		System.out.println(response.getText());
 		
-		for (int i = 0; i < 0; i++) {
+		for (int i = 0; i < 100; i++) {
 			
-//			response = session.request(serviceKey, param);
+			response = session.request(serviceKey, param);
 			
 			
 		}

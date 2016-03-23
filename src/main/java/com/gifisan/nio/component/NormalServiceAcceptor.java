@@ -9,9 +9,9 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerEndPoint;
-import com.gifisan.nio.server.selector.ServiceAcceptor;
+import com.gifisan.nio.server.selector.ServiceAcceptorJob;
 
-public class NormalServiceAcceptor implements ServiceAcceptor {
+public class NormalServiceAcceptor implements ServiceAcceptorJob {
 
 	private Logger				logger	= LoggerFactory.getLogger(NormalServiceAcceptor.class);
 	private NIOServletRequest	request	= null;
@@ -27,7 +27,7 @@ public class NormalServiceAcceptor implements ServiceAcceptor {
 		this.response = response;
 	}
 
-	public void acceptException(Throwable exception) {
+	public void accept(Throwable exception) {
 		try {
 			// error connection , should not flush
 			response.flush();
@@ -46,7 +46,7 @@ public class NormalServiceAcceptor implements ServiceAcceptor {
 			logger.error(e.getMessage(),e);
 		} catch(Throwable throwable){
 			logger.error(throwable.getMessage(),throwable);
-			this.acceptException(throwable);
+			this.accept(throwable);
 		} finally {
 			if (endPoint.isEndConnect()) {
 				CloseUtil.close(endPoint);
@@ -58,9 +58,9 @@ public class NormalServiceAcceptor implements ServiceAcceptor {
 		service.accept(request, response);
 	}
 
-	public ServiceAcceptor update(ServerEndPoint endPoint) {
+	public ServiceAcceptorJob update(ServerEndPoint endPoint,ServerProtocolData decoder) {
 		this.endPoint = endPoint;
-		this.request.update(endPoint);
+		this.request.update(endPoint,decoder);
 		this.response.update();
 		return this;
 	}

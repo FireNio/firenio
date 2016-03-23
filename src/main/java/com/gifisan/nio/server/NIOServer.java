@@ -30,6 +30,8 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 			bundle.loadLog4jProperties("conf/log4j.properties");
 
 			bundle.storageProperties("conf/server.properties");
+			
+			debug = bundle.getBooleanProperty("SERVER.DEBUG");
 		}
 		
 		DebugUtil.setEnableDebug(debug);

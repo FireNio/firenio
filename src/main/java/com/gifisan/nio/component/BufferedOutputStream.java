@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 public class BufferedOutputStream implements OutputStream {
 
-	protected byte	cache[]	= null;
-	protected int		count	= 0;
+	private byte	cache[]	= null;
+	private int		count	= 0;
 
 	public BufferedOutputStream() {
 		this(128);
@@ -34,7 +34,7 @@ public class BufferedOutputStream implements OutputStream {
 	}
 
 	public byte toByteArray()[] {
-		return Arrays.copyOf(cache, count);
+		return count > 0 ? Arrays.copyOf(cache, count) : null;
 	}
 
 	public String toString() {
@@ -45,7 +45,7 @@ public class BufferedOutputStream implements OutputStream {
 		return new String(cache, 0, count, charset);
 	}
 
-	public void write(byte b) {
+	public int write(byte b) {
 
 		int newcount = count + 1;
 		if (newcount > cache.length) {
@@ -53,9 +53,11 @@ public class BufferedOutputStream implements OutputStream {
 		}
 		cache[count] = b;
 		count = newcount;
+		
+		return 1;
 	}
 
-	public void write(byte bytes[], int off, int len) {
+	public int write(byte bytes[], int offset, int length) {
 		// if ( (off < 0)
 		// || (off > bytes.length)
 		// || (len < 0)
@@ -64,16 +66,18 @@ public class BufferedOutputStream implements OutputStream {
 		// } else if (len == 0) {
 		// return;
 		// }
-		int newcount = count + len;
+		int newcount = count + length;
 		if (newcount > cache.length) {
 			cache = Arrays.copyOf(cache, Math.max(cache.length << 1, newcount));
 		}
-		System.arraycopy(bytes, off, cache, count, len);
+		System.arraycopy(bytes, offset, cache, count, length);
 		count = newcount;
+		
+		return length;
 	}
 
-	public void write(byte[] bytes) {
-		this.write(bytes, 0, bytes.length);
+	public int write(byte[] bytes) {
+		return write(bytes, 0, bytes.length);
 	}
 
 	public void writeTo(OutputStream out) throws IOException {

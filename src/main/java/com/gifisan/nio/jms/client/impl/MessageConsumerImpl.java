@@ -14,7 +14,7 @@ import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
 import com.gifisan.nio.jms.client.MessageDecoder;
 
-public class MessageConsumerImpl extends ConnectonImpl implements MessageConsumer {
+public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
 	private String	reviceParam	= null;
 	private String	subscibeParam	= null;
@@ -51,7 +51,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 			throw new JMSException(e.getMessage(), e);
 		}
 
-		RESMessage message = RESMessageDecoder.decode(response.getContent());
+		RESMessage message = RESMessageDecoder.decode(response.getText());
 		if (message.getCode() == 0) {
 			return true;
 		} else {
@@ -106,7 +106,7 @@ public class MessageConsumerImpl extends ConnectonImpl implements MessageConsume
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		String result = response.getContent();
+		String result = response.getText();
 		boolean logined = "T".equals(result);
 		if (!logined) {
 			throw new JMSException("用户名密码错误！");

@@ -10,17 +10,17 @@ import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.ServerEndpointFactory;
 import com.gifisan.nio.server.selector.SelectionAccept;
-import com.gifisan.nio.server.selector.ServiceAcceptor;
+import com.gifisan.nio.server.selector.ServiceAcceptorJob;
 import com.gifisan.nio.server.session.InnerSession;
 
 public class NIOSelectionReader implements SelectionAccept {
 
 	private ServerContext	context			= null;
-	private ThreadPool		servletDispatcher	= null;
+	private ThreadPool		acceptorDispatcher	= null;
 
-	public NIOSelectionReader(ServerContext context,ThreadPool servletDispatcher) {
+	public NIOSelectionReader(ServerContext context,ThreadPool acceptorDispatcher) {
 		this.context = context;
-		this.servletDispatcher = servletDispatcher;
+		this.acceptorDispatcher = acceptorDispatcher;
 	}
 
 	protected boolean isEndPoint(Object object) {
@@ -64,17 +64,19 @@ public class NIOSelectionReader implements SelectionAccept {
 				return;
 			}
 		}
+		
+		ProtocolDecoder decoder = context.getProtocolDecoder();
+		
+		ServerProtocolData data = new ServerProtocolData();
 
-		boolean decoded = endPoint.protocolDecode(context);
+		boolean decoded = decoder.decode(endPoint,data,context.getEncoding());
 
 		if (!decoded) {
 			CloseUtil.close(endPoint);
 			return;
 		}
 
-		ProtocolDecoder decoder = endPoint.getProtocolDecoder();
-
-		if (decoder.isBeat()) {
+		if (data.isBeat()) {
 			return;
 		}
 
@@ -88,13 +90,13 @@ public class NIOSelectionReader implements SelectionAccept {
 		
 //		Response response = session.getResponse(endPoint);
 		
-		InnerSession session = endPoint.getSession();
+		InnerSession session = endPoint.getSession(data.getSessionID());
 		
-		ServiceAcceptor job = session.updateServletAcceptJob();
+		ServiceAcceptorJob job = session.updateAcceptor(data);
 		
 //		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
 		
-		servletDispatcher.dispatch(job);
+		acceptorDispatcher.dispatch(job);
 
 	}
 

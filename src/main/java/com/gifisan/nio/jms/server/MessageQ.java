@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.jms.Message;
 
-public class MessageGroup {
+public class MessageQ {
 	
 	
 	//TODO 是否应在此设置多个Queue来分割单个Queue

@@ -1,13 +1,14 @@
 package com.gifisan.nio.server.session;
 
+import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.Attributes;
 import com.gifisan.nio.server.ServerContext;
 
 public interface Session extends Attributes {
 	
-	public abstract void attach(Object attachment) ;
+	public abstract void attach(Attachment attachment) ;
 
-	public abstract Object attachment() ;
+	public abstract Attachment attachment() ;
 
 	/**
 	 * 断开此EndPoint

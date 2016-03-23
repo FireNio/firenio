@@ -48,7 +48,7 @@ public class ServerShutdown {
 
 		Response response = session.request(serviceKey, param);
 
-		System.out.println(response.getContent());
+		System.out.println(response.getText());
 
 		CloseUtil.close(connector);
 

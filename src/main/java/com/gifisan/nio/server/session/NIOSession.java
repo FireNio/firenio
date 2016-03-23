@@ -1,16 +1,18 @@
 package com.gifisan.nio.server.session;
 
+import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.NIOServletRequest;
 import com.gifisan.nio.component.NIOServletResponse;
 import com.gifisan.nio.component.NormalServiceAcceptor;
+import com.gifisan.nio.component.ServerProtocolData;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
-import com.gifisan.nio.server.selector.ServiceAcceptor;
+import com.gifisan.nio.server.selector.ServiceAcceptorJob;
 
 public class NIOSession extends AttributesImpl implements InnerSession {
 
-	private Object						attachment		= null;
+	private Attachment					attachment		= null;
 	private ServerContext				context			= null;
 	private long						creationTime		= System.currentTimeMillis();
 	private ServerEndPoint				endPoint			= null;
@@ -20,7 +22,7 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	private SessionEventListenerWrapper	lastListener		= null;
 	private NIOServletRequest			request			= null;
 	private NIOServletResponse			response			= null;
-	private ServiceAcceptor				acceptJob			= null;
+	private ServiceAcceptorJob			acceptor			= null;
 
 	public NIOSession(ServerEndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
@@ -28,14 +30,14 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		this.endPoint = endPoint;
 		this.request = new NIOServletRequest(context.getExecutorThreadPool(), this);
 		this.response = new NIOServletResponse(endPoint,this);
-		this.acceptJob = new NormalServiceAcceptor(endPoint, context.getFilterService(), request, response);
+		this.acceptor = new NormalServiceAcceptor(endPoint, context.getFilterService(), request, response);
 	}
 
-	public void attach(Object attachment) {
+	public void attach(Attachment attachment) {
 		this.attachment = attachment;
 	}
 
-	public Object attachment() {
+	public Attachment attachment() {
 		return this.attachment;
 	}
 
@@ -79,9 +81,9 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		}
 	}
 
-	public ServiceAcceptor updateServletAcceptJob() {
+	public ServiceAcceptorJob updateAcceptor(ServerProtocolData decoder) {
 		this.lastuse = System.currentTimeMillis();
-		return acceptJob.update(endPoint);
+		return acceptor.update(endPoint,decoder);
 	}
 
 	public int getEndpointMark() {

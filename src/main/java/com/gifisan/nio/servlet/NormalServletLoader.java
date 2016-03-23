@@ -17,12 +17,12 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServiceAccept;
+import com.gifisan.nio.server.ServiceAcceptor;
 
 public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
 
 	private ServerContext				context		= null;
-	private final Logger				logger		= LoggerFactory.getLogger(NormalServletLoader.class);
+	private Logger						logger		= LoggerFactory.getLogger(NormalServletLoader.class);
 	private Map<String, GenericServlet>	servlets		= new LinkedHashMap<String, GenericServlet>();
 	private DynamicClassLoader			classLoader	= null;
 
@@ -66,7 +66,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	public ServiceAccept getServlet(String serviceName) {
+	public ServiceAcceptor getServlet(String serviceName) {
 		
 		return servlets.get(serviceName);
 		

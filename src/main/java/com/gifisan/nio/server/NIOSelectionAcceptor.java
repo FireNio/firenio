@@ -14,7 +14,7 @@ public class NIOSelectionAcceptor extends AbstractLifeCycle implements Selection
 
 	private SelectionAccept[]		acceptors			= new SelectionAccept[5];
 	private ServerContext			context			= null;
-	private BlockingQueueThreadPool	servletThreadPool	= null;
+	private BlockingQueueThreadPool	acceptorDispatch	= null;
 
 	public NIOSelectionAcceptor(ServerContext context) {
 		this.context = context;
@@ -30,15 +30,15 @@ public class NIOSelectionAcceptor extends AbstractLifeCycle implements Selection
 	protected void doStart() throws Exception {
 		int CORE_SIZE = context.getServerCoreSize();
 		
-		this.servletThreadPool = new BlockingQueueThreadPool("Servlet-accept-Job", CORE_SIZE);
-		this.servletThreadPool.start();
+		this.acceptorDispatch = new BlockingQueueThreadPool("Service-acceptor", CORE_SIZE);
+		this.acceptorDispatch.start();
 		
-		this.acceptors[1] = new NIOSelectionReader(context,servletThreadPool);
+		this.acceptors[1] = new NIOSelectionReader(context,acceptorDispatch);
 		this.acceptors[4] = new NIOSelectionWriter();
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(servletThreadPool);
+		LifeCycleUtil.stop(acceptorDispatch);
 	}
 
 }

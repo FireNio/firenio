@@ -1,41 +1,28 @@
 package com.gifisan.nio.jms;
 
-import com.alibaba.fastjson.JSONObject;
+public abstract class BasicMessage implements Message {
 
-public abstract class BasicMessage implements Message{
-	
-	private long createTime = System.currentTimeMillis();
-	
-	private String queueName;
-	
-	private String messageID;
+	private long		timestamp	= System.currentTimeMillis();
+	private String		queueName	= null;
+	private String		msgID	= null;
 
-	public String getMessageID() {
-		return messageID;
+	public String getMsgID() {
+		return msgID;
 	}
 
 	public String getQueueName() {
 		return queueName;
 	}
 
-	public BasicMessage(String messageID,String queueName) {
-		this.messageID = messageID;
+	public BasicMessage(String msgID, String queueName) {
+		this.msgID = msgID;
 		this.queueName = queueName;
 	}
 
-	public long createTime() {
-		return createTime;
+	public long getTimestamp() {
+		return timestamp;
 	}
 
+	public abstract String toString();
 
-
-	private String json = null;
-	
-	public String toString(){
-		if (json == null) {
-			json = JSONObject.toJSONString(this);
-		}
-		return json;
-	}
-	
 }

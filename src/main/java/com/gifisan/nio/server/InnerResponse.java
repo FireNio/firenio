@@ -6,4 +6,6 @@ public interface InnerResponse extends Response{
 	
 	public abstract boolean flushed();
 	
+	public abstract boolean schduled();
+	
 }

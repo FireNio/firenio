@@ -2,21 +2,20 @@ package com.gifisan.nio.component;
 
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.InnerRequest;
-import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.session.Session;
 
 public class NIOServletRequest implements InnerRequest {
 
-	private ServerEndPoint		endPoint			= null;
-	private RequestParam		parameters		= null;
-	private ProtocolDecoder		protocolDecoder	= null;
-	private String				serviceName		= null;
-	private Session			session			= null;
-	private ExecutorThreadPool	threadPool		= null;
-	private String				content			= null;
+	private ServerEndPoint		endPoint		= null;
+	private RequestParam		parameters	= null;
+	private ServerProtocolData	data			= null;
+	private String				serviceName	= null;
+	private Session			session		= null;
+	private ExecutorThreadPool	threadPool	= null;
+	private String				content		= null;
 
-	public NIOServletRequest(ExecutorThreadPool threadPool,Session session){
+	public NIOServletRequest(ExecutorThreadPool threadPool, Session session) {
 		this.threadPool = threadPool;
 		this.session = session;
 	}
@@ -25,10 +24,9 @@ public class NIOServletRequest implements InnerRequest {
 		return this.threadPool;
 	}
 
-
 	public InputStream getInputStream() {
 
-		return protocolDecoder.getInputStream();
+		return data.getInputStream();
 	}
 
 	public String getLocalAddr() {
@@ -82,14 +80,13 @@ public class NIOServletRequest implements InnerRequest {
 		}
 		return parameters;
 	}
-	
-	public Request update(ServerEndPoint endPoint){
+
+	public void update(ServerEndPoint endPoint, ServerProtocolData data) {
 		this.endPoint = endPoint;
-		this.protocolDecoder = endPoint.getProtocolDecoder();
-		this.content = protocolDecoder.getContent();
-		this.serviceName = protocolDecoder.getServiceName();
+		this.data = data;
+		this.content = data.getText();
+		this.serviceName = data.getServiceName();
 		this.parameters = null;
-		return this;
 	}
 
 	public String getContent() {

@@ -29,7 +29,7 @@ public class TestMultiSession {
 						String s = "multi-session" + no.incrementAndGet();
 						System.out.println(s + " 已发送......");
 						Response response = session.request(serviceName, s);
-						System.out.println(response.getContent());
+						System.out.println(response.getText());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

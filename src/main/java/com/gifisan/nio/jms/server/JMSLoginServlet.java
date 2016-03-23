@@ -18,7 +18,7 @@ public class JMSLoginServlet extends JMSServlet {
 	private byte			TRUE			= 'T';
 	private String			username		= null;
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
 		RequestParam param = request.getParameters();
 
@@ -27,18 +27,25 @@ public class JMSLoginServlet extends JMSServlet {
 		String _password = param.getParameter("password");
 
 		if (username.equals(_username) && password.equals(_password)) {
-
+			
 			MQContext context = getMQContext();
+			
 			Session session = request.getSession();
+			
+			if (attachment == null) {
+				session.attach(new JMSSessionAttachment());
+			}
 			
 			boolean isConsumer = param.getBooleanParameter("consumer");
 			
 			if (isConsumer) {
-				session.addEventListener(new TransactionProtectListener(context));
+				session.addEventListener(new TransactionProtectListener());
 			}
-			
+
 			context.setLogined(true, session);
+			
 			logger.info("user [" + username + "] login successful!");
+			
 			response.write(TRUE);
 		} else {
 			request.getSession().disconnect();

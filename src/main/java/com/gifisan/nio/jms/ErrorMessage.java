@@ -1,20 +1,19 @@
 package com.gifisan.nio.jms;
 
+import com.alibaba.fastjson.JSONObject;
 
-public class ErrorMessage extends BasicMessage implements Message{
-	
-	public static final ErrorMessage UNAUTH_MESSAGE = new ErrorMessage(ErrorMessage.CODE_UNAUTH);
-	
-	public static final ErrorMessage CMD_NOT_FOUND_MESSAGE = new ErrorMessage(ErrorMessage.CODE_CMD_NOT_FOUND);
-	
-	public static int CODE_UNAUTH = 0;
-	
-	public static int CODE_CMD_NOT_FOUND = 1;
-	
-	private int code;
-	
+public class ErrorMessage extends BasicMessage implements Message {
+
+	public static int				CODE_UNAUTH			= 0;
+	public static int				CODE_CMD_NOT_FOUND		= 1;
+	public static int 				CODE_IOEXCEPTION 		= 2;
+	private int					code					= 0;
+	public static final ErrorMessage	UNAUTH_MESSAGE		= new ErrorMessage(CODE_UNAUTH);
+	public static final ErrorMessage	CMD_NOT_FOUND_MESSAGE	= new ErrorMessage(CODE_CMD_NOT_FOUND);
+	public static final ErrorMessage	IOEXCEPTION			= new ErrorMessage(CODE_IOEXCEPTION);
+
 	public ErrorMessage(int code) {
-		super(null,null);
+		super(null, null);
 		this.code = code;
 	}
 
@@ -25,6 +24,25 @@ public class ErrorMessage extends BasicMessage implements Message{
 	public int getCode() {
 		return code;
 	}
+
+	public String toString() {
+		return new StringBuilder(24)
+			.append("{\"msgType\":0,\"code\":")
+			.append(code)
+			.append("}")
+			.toString();
+	}
+
+	public static void main(String[] args) {
+		
+		
+		
+		ErrorMessage message = new ErrorMessage(CODE_CMD_NOT_FOUND);
+		
+		System.out.println(JSONObject.toJSON(message).toString());
+		System.out.println(message.toString());
+	}
+	
 	
 	
 }

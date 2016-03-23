@@ -29,7 +29,11 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 			if (unique) {
 				return uniqueSession;
 			} else {
-				byte sessionID = (byte) sessionIndex.incrementAndGet();
+				int _sessionID = sessionIndex.incrementAndGet();
+				if (_sessionID > 4) {
+					throw new IOException("max session size 4,now "+_sessionID);
+				}
+				byte sessionID = (byte) _sessionID;
 				MessageBus bus = new MessageBus();
 				ClientSesssion session = new MultiSession(this.getClientConnection(), bus, sessionID);
 				buses[sessionID] = bus;
@@ -133,6 +137,11 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	public void keepAlive(long checkInterval) {
 		this.checkInterval = checkInterval;
 		this.keepAlive();
+	}
+	
+	protected int getClientSesssionSize(){
+		int size = this.sessionIndex.get()+1;
+		return size > 4 ? 4 : size;
 	}
 
 }

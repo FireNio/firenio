@@ -212,4 +212,10 @@ public class DynamicClassLoader extends ClassLoader {
 		private Class<?>	loadedClass	= null;
 
 	}
+	
+	public void unload(){
+		this.clazzEntries.clear();
+		this.logger = null;
+		System.gc();
+	}
 }

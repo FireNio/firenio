@@ -10,7 +10,7 @@ import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageBrowser;
 import com.gifisan.nio.jms.client.MessageDecoder;
 
-public class MessageBrowserImpl extends ConnectonImpl implements MessageBrowser{
+public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrowser{
 
 	public MessageBrowserImpl(ClientSesssion session) throws JMSException {
 		super(session);

@@ -12,7 +12,7 @@ import com.gifisan.nio.server.session.Session;
 
 public class JMSBrowserServlet extends JMSServlet {
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
 		RequestParam param = request.getParameters();
 

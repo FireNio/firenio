@@ -20,7 +20,10 @@ public class TestUploadServlet extends NIOServlet{
 		int BLOCK = 102400;
 		ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
 		
-		int length = inputStream.read(BUFFER);
+		inputStream.completedRead(BUFFER);
+		
+		int length = BUFFER.limit();
+		
 		while (length == BLOCK) {
 			outputStream.write(BUFFER.array());
 			BUFFER.clear();
