@@ -18,19 +18,19 @@ public class TestUploadServlet extends NIOServlet{
 		File file = new File(fileName);
 		FileOutputStream outputStream = new FileOutputStream(file);
 		int BLOCK = 102400;
-		ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
 		
+		ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
 		inputStream.completedRead(BUFFER);
 		
 		int length = BUFFER.limit();
 		
-		while (length == BLOCK) {
+		while (BUFFER.limit() == length) {
 			outputStream.write(BUFFER.array());
 			BUFFER.clear();
-			length = inputStream.read(BUFFER);
+			inputStream.completedRead(BUFFER);
 		}
 		
-		if (length > 0) {
+		if (BUFFER.limit() > 0) {
 			outputStream.write(BUFFER.array());
 		}
 		CloseUtil.close(outputStream);

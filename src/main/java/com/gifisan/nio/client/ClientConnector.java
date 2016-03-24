@@ -45,7 +45,7 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	}
 
 	public ClientConnector(String host, int port) {
-		this.connection = new ClientConnection(host, port);
+		this.connection = new ClientConnection(host, port,this);
 	}
 
 	public void run() {

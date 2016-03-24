@@ -1,9 +1,9 @@
 package com.gifisan.nio.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.OutputStream;
 
 public class UniqueSession implements ClientSesssion {
 
@@ -30,18 +30,18 @@ public class UniqueSession implements ClientSesssion {
 		return connection.acceptResponse();
 	}
 
-	public Response request(String serviceName, String text, int available) throws IOException {
+	public Response request(String serviceName, String text, InputStream inputStream) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 		
-		if (available == 0) {
-			throw new IOException("empty service inputStream");
+		if (inputStream == null || inputStream.available() == 0) {
+			return this.request(serviceName, text);
 		}
 		
 		ClientConnection connection = this.connection;
 
-		connection.write((byte) 0, serviceName, text, available);
+		connection.write((byte) 0, serviceName, text, inputStream);
 
 		return connection.acceptResponse();
 	}
@@ -50,10 +50,5 @@ public class UniqueSession implements ClientSesssion {
 		this.timeout = timeout;
 	}
 
-	public OutputStream getOutputStream() {
-		return connection.getOutputStream();
-	}
-	
-	
 
 }

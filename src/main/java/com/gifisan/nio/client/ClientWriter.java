@@ -6,8 +6,7 @@ import java.nio.ByteBuffer;
 
 public interface ClientWriter {
 
-	public abstract void writeStream(ClientEndPoint endPoint, InputStream inputStream, ByteBuffer header, int block)
-			throws IOException;
+	public abstract void writeStream(ClientEndPoint endPoint, InputStream inputStream, int block) throws IOException;
 
 	public abstract void writeText(ClientEndPoint endPoint, ByteBuffer buffer) throws IOException;
 

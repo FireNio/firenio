@@ -60,7 +60,7 @@ public class NIOServletResponse implements InnerResponse {
 
 	public void setStreamResponse(int length) throws IOException {
 		if (length < 1) {
-			throw new IOException("invalidate length");
+			throw new IOException("invalidate length:"+length);
 		}
 
 		this.dataLength = length;

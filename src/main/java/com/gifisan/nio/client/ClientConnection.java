@@ -2,6 +2,7 @@ package com.gifisan.nio.client;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -16,7 +17,6 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Connectable;
-import com.gifisan.nio.component.OutputStream;
 import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.component.ProtocolDecoder;
 
@@ -35,10 +35,12 @@ public class ClientConnection implements Connectable, Closeable {
 	private boolean			closed		= false;
 	private boolean			unique		= true;
 	private ProtocolDecoder		decoder		= new ClientProtocolDecoder();
+	private ClientConnector 		connector		= null;
 
-	public ClientConnection(String host, int port) {
+	public ClientConnection(String host, int port,ClientConnector connector) {
 		this.host = host;
 		this.port = port;
+		this.connector = connector;
 	}
 
 	private Response acceptResponse(ClientEndPoint endPoint) throws IOException {
@@ -146,7 +148,7 @@ public class ClientConnection implements Connectable, Closeable {
 				if (channel.isConnectionPending()) {
 					channel.finishConnect();
 					this.netweak = false;
-					this.endPoint = new ClientEndPoint(selectionKey);
+					this.endPoint = new ClientEndPoint(selectionKey,connector);
 				}
 			}
 		}
@@ -183,7 +185,7 @@ public class ClientConnection implements Connectable, Closeable {
 		endPoint.register(selector, SelectionKey.OP_READ);
 	}
 
-	protected void write(byte sessionID, String serviceName, String text, int avaiable) throws IOException {
+	protected void write(byte sessionID, String serviceName, String text, InputStream inputStream) throws IOException {
 
 		checkConnector();
 
@@ -193,11 +195,13 @@ public class ClientConnection implements Connectable, Closeable {
 
 		// endPoint.register(selector, SelectionKey.OP_WRITE);
 
-		ByteBuffer buffer = encoder.encode(sessionID, serviceName, text, avaiable, Encoding.DEFAULT);
+		ByteBuffer buffer = encoder.encode(sessionID, serviceName, text, inputStream.available(), Encoding.DEFAULT);
 
 		buffer.flip();
 
 		writer.writeText(endPoint, buffer);
+		
+		writer.writeStream(endPoint, inputStream, 102400);
 
 		endPoint.register(selector, SelectionKey.OP_READ);
 	}
@@ -206,10 +210,6 @@ public class ClientConnection implements Connectable, Closeable {
 		checkConnector();
 		writer.writeBeat(endPoint);
 		System.out.println(">>write beat........." + DateUtil.now());
-	}
-
-	protected OutputStream getOutputStream() {
-		return endPoint;
 	}
 
 }

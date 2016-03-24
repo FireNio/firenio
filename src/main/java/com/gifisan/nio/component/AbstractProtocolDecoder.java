@@ -11,8 +11,11 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		ByteBuffer buffer = ByteBuffer.allocate(1);
 
 		int length = endPoint.read(buffer);
-
+		
 		if (length < 1) {
+			if (length < 0) {
+				endPoint.endConnect();
+			}
 			return false;
 		}
 
@@ -59,6 +62,8 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		InputStream inputStream = readInputStream(streamLength, endPoint);
 
 		data.setInputStream(inputStream);
+		
+		endPoint.setInputStream(inputStream);
 	}
 
 	public void decodeMult(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header) throws IOException {
@@ -77,6 +82,8 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		data.setText(text);
 
 		data.setInputStream(inputStream);
+		
+		endPoint.setInputStream(inputStream);
 	}
 
 	protected boolean doDecode(EndPoint endPoint, ProtocolData data, Charset charset, byte type) throws IOException {
@@ -86,6 +93,8 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		if (header == null) {
 			return false;
 		}
+		
+		data.setProtocolType(type);
 
 		this.gainSessionID(endPoint, data, charset, header);
 
@@ -125,7 +134,7 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 
 	protected String readText(int length, Charset charset, EndPoint endPoint) throws IOException {
 
-		if (length < 0) {
+		if (length < 1) {
 
 			return null;
 		}

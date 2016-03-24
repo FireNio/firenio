@@ -2,7 +2,6 @@ package com.gifisan.nio.server;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.InputStream;
 import com.gifisan.nio.server.session.InnerSession;
 
 /**
@@ -17,47 +16,21 @@ import com.gifisan.nio.server.session.InnerSession;
  * 
  */
 public interface ServerEndPoint extends EndPoint {
-	
-	public abstract void endConnect();
-	
+
 	public abstract void attach(Attachment attachment);
 
 	public abstract Attachment attachment();
 
 	public abstract int getMark();
-	
-	public abstract ServerContext getContext() ;
+
+	public abstract ServerContext getContext();
 
 	public abstract long getEndPointID();
 
-	public abstract String getLocalAddr();
-
-	public abstract String getLocalHost();
-
-	public abstract int getLocalPort();
-
-	public abstract int getMaxIdleTime();
-
-	public abstract String getRemoteAddr();
-
-	public abstract String getRemoteHost();
-
-	public abstract int getRemotePort();
-
 	public abstract InnerSession getSession(byte sessionID);
-
-	public abstract boolean inStream();
-
-	public abstract boolean isBlocking();
 
 	public abstract boolean isEndConnect();
 
-	public abstract boolean isOpened();
-
-	public abstract int sessionSize();
-	
 	public abstract void setMark(int mark);
-
-	public abstract void setInputStream(InputStream inputStream);
 
 }

@@ -54,17 +54,10 @@ public class NIOSelectionReader implements SelectionAccept {
 
 		ServerEndPoint endPoint = getEndPoint(context,selectionKey);
 
-		if (endPoint.isEndConnect()) {
+		if (endPoint.isEndConnect() || endPoint.inStream()) {
 			return;
 		}
 
-		if (endPoint.inStream()) {
-			synchronized (endPoint) {
-				endPoint.notify();
-				return;
-			}
-		}
-		
 		ProtocolDecoder decoder = context.getProtocolDecoder();
 		
 		ServerProtocolData data = new ServerProtocolData();
@@ -72,7 +65,9 @@ public class NIOSelectionReader implements SelectionAccept {
 		boolean decoded = decoder.decode(endPoint,data,context.getEncoding());
 
 		if (!decoded) {
-			CloseUtil.close(endPoint);
+			if (endPoint.isEndConnect()) {
+				CloseUtil.close(endPoint);
+			}
 			return;
 		}
 

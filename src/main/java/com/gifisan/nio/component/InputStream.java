@@ -12,5 +12,5 @@ public interface InputStream {
 	public abstract int read(ByteBuffer buffer) throws IOException;
 	
 	public abstract void completedRead(ByteBuffer buffer) throws IOException;
-
+	
 }

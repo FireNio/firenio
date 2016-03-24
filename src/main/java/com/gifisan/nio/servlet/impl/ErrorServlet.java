@@ -16,7 +16,7 @@ public class ErrorServlet extends NIOServlet{
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage message = new RESMessage(500, exception.getMessage());
-		response.write(message.toString().getBytes(Encoding.DEFAULT));
+		response.write(message.toString(),Encoding.DEFAULT);
 		response.flush();
 	}
 

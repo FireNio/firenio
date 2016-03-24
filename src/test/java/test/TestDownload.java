@@ -42,13 +42,13 @@ public class TestDownload {
 			
 			int length = BUFFER.limit();
 			
-			while (length == BLOCK) {
+			while (BUFFER.limit() == length) {
 				outputStream.write(BUFFER.array());
 				BUFFER.clear();
-				length = inputStream.read(BUFFER);
+				inputStream.completedRead(BUFFER);
 			}
 			
-			if (length > 0) {
+			if (BUFFER.limit() > 0) {
 				outputStream.write(BUFFER.array());
 			}
 			

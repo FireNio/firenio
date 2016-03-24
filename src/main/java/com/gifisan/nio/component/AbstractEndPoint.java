@@ -26,6 +26,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 		maxIdleTime = socket.getSoTimeout();
 	}
 
+	// TODO 处理网速较慢的时候
 	public void completedRead(ByteBuffer buffer) throws NIOException{
 		
 		int limit = buffer.limit();
@@ -38,66 +39,107 @@ public abstract class AbstractEndPoint implements EndPoint {
 			
 			int length = _length;
 
-			long _last_read = System.currentTimeMillis();
+			long _last = 0;
+			
+			boolean _slowly = false;
 			
 			for (; length < limit;) {
 				
-				if (length < 64 ) {
+				if (_length < 0) {
+					throw new NIOException("bad network");
+				}
+				
+				if (_length == 0) {
 					
-					long _past = System.currentTimeMillis() - _last_read ;
+					long _past = System.currentTimeMillis() - _last;
 					
-					if (_past > 0 && length / _past < 11) {
-						// 网络速度小于10KB/ms，断开此连接
-						throw new NIOException("network is weak");
+					if (_past > 160000) {
+						
+						if (_slowly) {
+
+//							throw new NIOException("network is weak");
+							System.out.println("network is weak");
+							
+						}else{
+							
+							_last = System.currentTimeMillis();
+							
+							_slowly = true;
+						}
 					}
+				}else{
+					
+					_slowly = false;
+					
+					_last = System.currentTimeMillis();
 				}
 				
 				_length = channel.read(buffer);
 				
 				length += _length;
+			}
+		} catch (IOException e) {
+			throw handleException(e);
+		}
+	}
+
+	// TODO 处理网速较慢的时候
+	public void completedWrite(ByteBuffer buffer) throws NIOException {
+		
+		int limit = buffer.limit();
+
+		try {
+			
+			int _length = channel.write(buffer);
+			
+			int length = _length;
+			
+			long _last = 0;
+			
+			boolean _slowly = false;
+
+			for (; length < limit;) {
 				
-				_last_read = System.currentTimeMillis();
+				if (_length < 0) {
+					throw new NIOException("bad network");
+				}
+				
+				if (_length == 0) {
+					
+					long _past = System.currentTimeMillis() - _last;
+					
+					if (_past > 160000) {
+						
+						if (_slowly) {
+							
+//							throw new NIOException("network is weak");
+							System.out.println("network is weak");
+							
+						}else{
+							
+							_last = System.currentTimeMillis();
+							
+							_slowly = true;
+						}
+					}
+				}else{
+					
+					_slowly = false;
+					
+					_last = System.currentTimeMillis();
+				}
+				
+				_length = channel.write(buffer);
+				
+				length += _length;
 			}
 
 		} catch (IOException e) {
 			throw handleException(e);
 		}
 	}
-
-	public void completedWrite(ByteBuffer buffer) throws NIOException {
-		int limit = buffer.limit();
-
-		try {
-
-			int _length = channel.write(buffer);
-			
-			int length = _length;
-
-			for (; length < limit;) {
-				// TODO 处理网速较慢的时候
-				
-				long _last_read = System.currentTimeMillis();
-				
-				if (length < 64 ) {
-					
-					long _past = System.currentTimeMillis() - _last_read ;
-					
-					if (_past > 0 && length / _past < 11) {
-						// 网络速度小于10KB/ms，断开此连接
-						throw new NIOException("network is weak");
-					}
-				}
-				
-				_length = channel.write(buffer);
-				
-				length += _length;
-				
-				_last_read = System.currentTimeMillis();
-			}
-
-		} catch (IOException e) {
-			throw handleException(e);
-		}
+	
+	public void endConnect() {
 		
 	}
 

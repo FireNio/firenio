@@ -20,9 +20,9 @@ public class TestUpload {
 		ClientSesssion session = connector.getClientSession();
 		
 		long old = System.currentTimeMillis();
-		File file = new File("D:/temp1.zip");
+		File file = new File("D:/GIT/NimbleIO/temp1.zip");
 		FileInputStream inputStream = new FileInputStream(file);
-		Response response = session.request(serviceKey,param , 1);
+		Response response = session.request(serviceKey,param , inputStream);
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		System.out.println(response.getText());
 		
