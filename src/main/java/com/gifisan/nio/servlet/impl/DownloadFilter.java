@@ -9,9 +9,11 @@ import java.util.Map;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AsynchServiceAcceptor;
 import com.gifisan.nio.component.Configuration;
+import com.gifisan.nio.component.OutputStream;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.RequestParam;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
@@ -75,8 +77,6 @@ public class DownloadFilter extends AbstractNIOFilter {
 	
 	class DownloadJob extends AsynchServiceAcceptor {
 
-		private int		BLOCK	= 102400;
-
 		public DownloadJob(Request request, Response response) {
 			super(request, response);
 		}
@@ -102,36 +102,19 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 				int available = inputStream.available();
 
+				int BLOCK = 102400;
+
 				if (downloadLength == 0) {
 					downloadLength = available - start;
 				}
 
-				response.setStreamResponse(downloadLength);
+				response.setStream(downloadLength);
 				
 				response.flush();
 
-				inputStream.skip(start);
+				OutputStream outputStream = response.getOutputStream();
 
-				int BLOCK = this.BLOCK;
-
-				if (BLOCK > downloadLength) {
-					byte[] bytes = new byte[downloadLength];
-					inputStream.read(bytes);
-					response.completedWrite(bytes);
-				} else {
-					byte[] bytes = new byte[BLOCK];
-					int times = downloadLength / BLOCK;
-					int remain = downloadLength % BLOCK;
-					while (times > 0) {
-						inputStream.read(bytes);
-						response.completedWrite(bytes);
-						times--;
-					}
-					if (remain > 0) {
-						inputStream.read(bytes, 0, remain);
-						response.completedWrite(bytes, 0, remain);
-					}
-				}
+				StreamUtil.write(inputStream, outputStream, start, downloadLength, BLOCK);
 				
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);

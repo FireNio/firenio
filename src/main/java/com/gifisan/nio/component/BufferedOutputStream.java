@@ -2,11 +2,12 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class BufferedOutputStream implements OutputStream {
 
-	private byte	cache[]	= null;
+	private byte		cache[]	= null;
 	private int		count	= 0;
 
 	public BufferedOutputStream() {
@@ -80,8 +81,20 @@ public class BufferedOutputStream implements OutputStream {
 		return write(bytes, 0, bytes.length);
 	}
 
-	public void writeTo(OutputStream out) throws IOException {
+	public void write2OutputStream(OutputStream out) throws IOException {
 		out.write(cache, 0, count);
 	}
 
+	public void completedWrite(ByteBuffer buffer) throws IOException {
+		write(buffer.array());
+	}
+
+	public void completedWrite(byte[] bytes, int offset, int length) throws IOException {
+		write(bytes, offset, length);
+	}
+
+	public void completedWrite(byte[] bytes) throws IOException {
+		write(bytes);
+	}
+	
 }

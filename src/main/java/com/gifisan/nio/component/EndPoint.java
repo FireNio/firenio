@@ -4,11 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public interface EndPoint extends OutputStream, Closeable {
-	
-	public abstract void completedRead(ByteBuffer buffer) throws IOException;
-
-	public abstract void completedWrite(ByteBuffer buffer) throws IOException;
+public interface EndPoint extends Closeable {
 
 	public abstract void endConnect();
 
@@ -32,14 +28,22 @@ public interface EndPoint extends OutputStream, Closeable {
 
 	public abstract boolean isOpened();
 
-	public abstract int read(ByteBuffer buffer) throws IOException;
-
-	public abstract ByteBuffer read(int limit) throws IOException;
-
 	public abstract int sessionSize();
 
+	public abstract InputStream getInputStream();
+
 	public abstract void setInputStream(InputStream inputStream);
+	
+	public abstract ByteBuffer completedRead(int limit) throws IOException;
+	
+	public abstract void completedRead(ByteBuffer buffer) throws IOException;
+	
+	public abstract void completedWrite(ByteBuffer buffer) throws IOException;
+
+	public abstract int read(ByteBuffer buffer) throws IOException;
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
+	
+	
 
 }

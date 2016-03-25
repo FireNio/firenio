@@ -207,14 +207,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 		}
 	}
 
-	public ByteBuffer read(int limit) throws IOException {
-		ByteBuffer buffer = ByteBuffer.allocate(limit);
-
-		completedRead(buffer);
-		
-		return buffer;
-	}
-
 	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
 	}
@@ -239,6 +231,18 @@ public abstract class AbstractEndPoint implements EndPoint {
 		} catch (IOException e) {
 			throw handleException(e);
 		}
+	}
+
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
+	public ByteBuffer completedRead(int limit) throws IOException {
+		ByteBuffer buffer = ByteBuffer.allocate(limit);
+
+		completedRead(buffer);
+		
+		return buffer;
 	}
 
 	

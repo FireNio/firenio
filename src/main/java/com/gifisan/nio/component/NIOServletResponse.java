@@ -12,8 +12,6 @@ import com.gifisan.nio.server.session.NIOSession;
 
 public class NIOServletResponse implements InnerResponse {
 
-	// private static Logger logger = LoggerFactory.getLogger(NIOServletResponse.class);
-	private byte				emptyByte		= ' ';
 	private int				dataLength	= 0;
 	private ServerEndPoint		endPoint		= null;
 	private boolean			flushed		= false;
@@ -21,14 +19,14 @@ public class NIOServletResponse implements InnerResponse {
 	private NIOSession			session		= null;
 	private boolean			scheduled		= false;
 	private ProtocolEncoder		encoder		= null;
-	private byte 				sessionID 	= 0;
+	private byte				sessionID		= 0;
+	private OutputStream		outputStream	= null;
 
 	public NIOServletResponse(ServerEndPoint endPoint, NIOSession session) {
 		this.endPoint = endPoint;
 		this.session = session;
 		this.sessionID = session.getSessionID();
 		this.encoder = session.getServerContext().getProtocolEncoder();
-		
 	}
 
 	public void flush() throws IOException {
@@ -41,7 +39,7 @@ public class NIOServletResponse implements InnerResponse {
 		}
 
 		this.flushed = true;
-		
+
 		this.scheduled = true;
 
 		ByteBuffer buffer = encoder.encode(sessionID, textBuffer.toByteArray(), dataLength);
@@ -53,29 +51,12 @@ public class NIOServletResponse implements InnerResponse {
 		this.endPoint.completedWrite(buffer);
 	}
 
-	public void flushEmpty() throws IOException {
-		this.textBuffer.write(emptyByte);
-		this.flush();
-	}
-
-	public void setStreamResponse(int length) throws IOException {
+	public void setStream(int length) throws IOException {
 		if (length < 1) {
-			throw new IOException("invalidate length:"+length);
+			throw new IOException("invalidate length:" + length);
 		}
 
 		this.dataLength = length;
-	}
-
-	public int write(byte b) throws IOException {
-		return this.endPoint.write(b);
-	}
-
-	public int write(byte[] bytes) throws IOException {
-		return this.endPoint.write(bytes);
-	}
-
-	public int write(byte[] bytes, int offset, int length) throws IOException {
-		return this.endPoint.write(bytes, offset, length);
 	}
 
 	public void write(String content) {
@@ -106,32 +87,23 @@ public class NIOServletResponse implements InnerResponse {
 		textBuffer.write(bytes);
 	}
 
-	public void writeText(byte b) throws IOException {
+	public void write(byte b) throws IOException {
 		textBuffer.write(b);
-
-	}
-	
-	public void completedWrite(byte[] bytes, int offset, int length) throws IOException {
-		ByteBuffer buffer = ByteBuffer.wrap(bytes, offset, length);
-		completedWrite(buffer);
-	}
-	
-	
-	public void completedWrite(byte [] bytes) throws IOException{
-		ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		completedWrite(buffer);
-	}
-	
-	public void completedWrite(ByteBuffer buffer) throws IOException{
-		endPoint.completedWrite(buffer);
 	}
 
-	public void writeText(byte[] bytes) throws IOException {
+	public void write(byte[] bytes) throws IOException {
 		textBuffer.write(bytes);
 	}
 
-	public void writeText(byte[] bytes, int offset, int length) throws IOException {
+	public void write(byte[] bytes, int offset, int length) throws IOException {
 		textBuffer.write(bytes, offset, length);
+	}
+
+	public OutputStream getOutputStream() {
+		if (outputStream == null) {
+			outputStream = new EndPointOutputStream(endPoint);
+		}
+		return outputStream;
 	}
 
 }

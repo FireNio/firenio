@@ -13,4 +13,6 @@ public interface InputStream {
 	
 	public abstract void completedRead(ByteBuffer buffer) throws IOException;
 	
+	public abstract ByteBuffer completedRead(int limit) throws IOException;
+	
 }

@@ -1,6 +1,7 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public interface OutputStream {
 	/**
@@ -32,5 +33,10 @@ public interface OutputStream {
 	 */
 	public abstract int write(byte[] bytes, int offset, int length) throws IOException;
 	
+	public abstract void completedWrite(ByteBuffer buffer) throws IOException;
+	
+	public abstract void completedWrite(byte[] bytes, int offset, int length) throws IOException ;
+	
+	public abstract void completedWrite(byte [] bytes) throws IOException;
 	
 }

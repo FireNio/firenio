@@ -138,8 +138,8 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 
 			return null;
 		}
-
-		ByteBuffer buffer = endPoint.read(length);
+		
+		ByteBuffer buffer = endPoint.completedRead(length);
 
 		byte[] bytes = buffer.array();
 

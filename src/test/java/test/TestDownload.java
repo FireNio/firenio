@@ -3,12 +3,12 @@ package test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.InputStream;
 import com.gifisan.nio.component.ProtocolDecoder;
 
@@ -23,6 +23,8 @@ public class TestDownload {
 		
 		serviceKey = "upload-temp.zip";
 		
+		long old = System.currentTimeMillis();
+		
 		Response response = session.request(serviceKey, null);
 		
 		if (response.getProtocolType() == ProtocolDecoder.TEXT) {
@@ -35,26 +37,13 @@ public class TestDownload {
 			
 			FileOutputStream outputStream = new FileOutputStream(file);
 			
-			
-			int BLOCK = 102400;
-			ByteBuffer BUFFER = ByteBuffer.allocate(BLOCK);
-			inputStream.completedRead(BUFFER);
-			
-			int length = BUFFER.limit();
-			
-			while (BUFFER.limit() == length) {
-				outputStream.write(BUFFER.array());
-				BUFFER.clear();
-				inputStream.completedRead(BUFFER);
-			}
-			
-			if (BUFFER.limit() > 0) {
-				outputStream.write(BUFFER.array());
-			}
+			StreamUtil.write(inputStream, outputStream, 102400);
 			
 			CloseUtil.close(outputStream);
 			System.out.println("下载成功！");
 		}
+		
+		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
 		CloseUtil.close(connector);
 		

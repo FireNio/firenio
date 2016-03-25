@@ -64,4 +64,18 @@ public class EndPointInputStream implements InputStream {
 		return _length;
 	}
 
+	public ByteBuffer completedRead(int limit) throws IOException {
+		if (limit == 0) {
+			return null;
+		}
+		
+		ByteBuffer buffer = ByteBuffer.allocate(limit);
+		
+		completedRead(buffer);
+		
+		return buffer;
+	}
+	
+	
+
 }

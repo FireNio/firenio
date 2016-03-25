@@ -22,8 +22,9 @@ public class DefaultServerProtocolDecoder extends AbstractProtocolDecoder implem
 
 		// HTTP REQUEST ?
 		if (type == 71) {
-			endPoint.write(new byte[] { 105, 109, 32, 110, 111, 116, 32, 97, 110, 32, 104, 116, 116, 112, 32, 115,
+			ByteBuffer buffer = ByteBuffer.wrap(new byte[] { 105, 109, 32, 110, 111, 116, 32, 97, 110, 32, 104, 116, 116, 112, 32, 115,
 					101, 114, 118, 101, 114, 32, 58, 41 });
+			endPoint.completedWrite(buffer);
 			return false;
 		}
 
@@ -34,7 +35,7 @@ public class DefaultServerProtocolDecoder extends AbstractProtocolDecoder implem
 
 		int serviceNameLength = header[1];
 
-		ByteBuffer buffer = endPoint.read(serviceNameLength);
+		ByteBuffer buffer = endPoint.completedRead(serviceNameLength);
 
 		byte[] bytes = buffer.array();
 
