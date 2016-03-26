@@ -3,7 +3,7 @@ package com.gifisan.nio.component;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.StringUtil;
 
-public class DefaultParameters implements RequestParam{
+public class DefaultParameters implements Parameters{
 
 	private JSONObject object = null;
 	

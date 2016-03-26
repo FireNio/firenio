@@ -1,13 +1,13 @@
 package com.gifisan.nio.server;
 
 import com.gifisan.nio.component.InputStream;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.session.Session;
 
 public interface Request {
 	
-	public abstract RequestParam getParameters();
+	public abstract Parameters getParameters();
 	
 	public abstract String getContent();
 

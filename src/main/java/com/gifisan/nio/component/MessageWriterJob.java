@@ -22,7 +22,10 @@ public class MessageWriterJob implements Runnable {
 
 	public void run() {
 		try {
+			
 			consumer.push(message);
+			
+			context.consumerMessage(message);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			// 回炉

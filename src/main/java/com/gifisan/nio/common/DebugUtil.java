@@ -4,14 +4,14 @@ public class DebugUtil {
 
 	private static boolean	enableDebug	= true;
 
-	public static void debug(Exception e) {
+	public static void debug(Throwable e) {
 		if (enableDebug) {
 			e.printStackTrace();
 		}
 
 	}
 
-	public static String exception2string(Exception exception) {
+	public static String exception2string(Throwable exception) {
 		StackTraceElement[] es = exception.getStackTrace();
 		StringBuilder builder = new StringBuilder();
 		builder.append(exception.toString());

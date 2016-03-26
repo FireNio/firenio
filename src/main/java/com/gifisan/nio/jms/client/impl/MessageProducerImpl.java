@@ -19,11 +19,26 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 	public boolean offer(Message message) throws JMSException {
 		String param = message.toString();
 
-		Response response;
-		try {
-			response = session.request("JMSProducerServlet", param);
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
+		Response response = null;
+
+		int msgType = message.getMsgType();
+
+		if (msgType == 2) {
+			try {
+				response = session.request("JMSProducerServlet", param);
+			} catch (IOException e) {
+				throw new JMSException(e.getMessage(), e);
+			}
+		} else if (msgType == 3) {
+			ByteMessage _message = (ByteMessage) message;
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getContent());
+			try {
+				response = session.request("JMSProducerServlet", param, inputStream);
+			} catch (IOException e) {
+				throw new JMSException(e.getMessage(), e);
+			}
+		} else {
+			throw new JMSException("msgType:" + msgType);
 		}
 		String result = response.getText();
 
@@ -33,25 +48,6 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 		throw new JMSException(result);
 
 	}
-
-//	public boolean offer(ByteMessage message) throws JMSException {
-//		String param = message.toString();
-//		Response response = null;
-//		try {
-//			ByteArrayInputStream inputStream = new ByteArrayInputStream(message.getContent());
-//			response = session.request("JMSProducerServlet", param, inputStream);
-//		} catch (IOException e) {
-//			throw new JMSException(e.getMessage(), e);
-//		}
-//
-//		String result = response.getContent();
-//
-//		if (result.length() == 1) {
-//			return "T".equals(result);
-//		}
-//		throw new JMSException(result);
-//
-//	}
 
 	public boolean publish(Message message) throws JMSException {
 

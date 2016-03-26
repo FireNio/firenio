@@ -7,7 +7,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.server.NIOServer;
 import com.gifisan.nio.server.NIOServlet;
 import com.gifisan.nio.server.Request;
@@ -21,7 +21,7 @@ public class StopServerServlet extends NIOServlet {
 	private String				password		= null;
 	
 	public void accept(Request request, Response response) throws Exception {
-		RequestParam param = request.getParameters();
+		Parameters param = request.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
 		

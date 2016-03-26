@@ -15,7 +15,7 @@ import com.gifisan.nio.component.AsynchServiceAcceptor;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.OutputStream;
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
@@ -84,7 +84,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 		public void accept(Request request, Response response) throws Exception {
 			String serviceName = request.getServiceName();
 			String filePath = serviceName;
-			RequestParam param = request.getParameters();
+			Parameters param = request.getParameters();
 			int start = param.getIntegerParameter("start");
 			int downloadLength = param.getIntegerParameter("length");
 			File file = new File(filePath);

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
@@ -20,7 +20,7 @@ public class JMSLoginServlet extends JMSServlet {
 
 	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
-		RequestParam param = request.getParameters();
+		Parameters param = request.getParameters();
 
 		String _username = param.getParameter("username");
 

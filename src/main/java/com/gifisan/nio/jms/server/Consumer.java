@@ -2,6 +2,8 @@ package com.gifisan.nio.jms.server;
 
 import java.io.IOException;
 
+import com.gifisan.nio.component.OutputStream;
+import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.Response;
 
@@ -34,13 +36,31 @@ public class Consumer {
 		if (section != null) {
 			section.offerMessage(message);
 		}
-
+		
+		int msgType = message.getMsgType();
+		
 		String content = message.toString();
 
 		Response response = this.response;
 		
 		response.write(content);
+		
+		if (msgType == 2) {
+			
+			response.flush();
+			
+		}else{
+			ByteMessage byteMessage = (ByteMessage) message;
 
-		response.flush();
+			byte [] bytes = byteMessage.getContent();
+			
+			response.setStream(bytes.length);
+			
+			response.flush();
+			
+			OutputStream outputStream = response.getOutputStream();
+			
+			outputStream.completedWrite(bytes);
+		}
 	}
 }

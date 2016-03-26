@@ -23,5 +23,7 @@ public interface MQContext extends MessageQueue, LifeCycle{
 	
 	public abstract void setMessageDueTime(long dueTime);
 	
+	public abstract void consumerMessage(Message message);
+	
 	
 }

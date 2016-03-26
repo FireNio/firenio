@@ -2,7 +2,7 @@ package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
@@ -14,7 +14,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
-		RequestParam param = request.getParameters();
+		Parameters param = request.getParameters();
 
 		String messageID = param.getParameter("messageID");
 
@@ -43,7 +43,7 @@ public class JMSBrowserServlet extends JMSServlet {
 	private void accept(MQContext context, Response response, Message message, String messageID, String cmd) {
 
 		if ("size".equals(cmd)) {
-			int size = context.messageSize();
+			response.write(String.valueOf(context.messageSize()));
 		} else if ("browser".equals(cmd)) {
 
 			if (!StringUtil.isNullOrBlank(messageID)) {

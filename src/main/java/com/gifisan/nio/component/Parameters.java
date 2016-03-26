@@ -1,6 +1,6 @@
 package com.gifisan.nio.component;
 
-public interface RequestParam {
+public interface Parameters {
 
 	public abstract boolean getBooleanParameter(String key);
 

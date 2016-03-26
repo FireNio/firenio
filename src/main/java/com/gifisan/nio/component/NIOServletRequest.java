@@ -8,7 +8,7 @@ import com.gifisan.nio.server.session.Session;
 public class NIOServletRequest implements InnerRequest {
 
 	private ServerEndPoint		endPoint		= null;
-	private RequestParam		parameters	= null;
+	private Parameters		parameters	= null;
 	private ServerProtocolData	data			= null;
 	private String				serviceName	= null;
 	private Session			session		= null;
@@ -74,7 +74,7 @@ public class NIOServletRequest implements InnerRequest {
 		return endPoint.isOpened();
 	}
 
-	public RequestParam getParameters() {
+	public Parameters getParameters() {
 		if (parameters == null) {
 			parameters = new DefaultParameters(content);
 		}

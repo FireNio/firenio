@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.RequestUtil;
+import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.InputStream;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
@@ -40,8 +40,8 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		// Text Message
 		new MessageParseFromRequest() {
 			public Message parse(Request request) {
-				RequestParam param = request.getParameters();
-				String messageID = param.getParameter("messageID");
+				Parameters param = request.getParameters();
+				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
 				String content = param.getParameter("content");
 				TextMessage message = new TextMessage(messageID, queueName, content);
@@ -51,12 +51,12 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		},
 		new MessageParseFromRequest() {
 			public Message parse(Request request) {
-				RequestParam param = request.getParameters();
-				String messageID = param.getParameter("messageID");
+				Parameters param = request.getParameters();
+				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
 				InputStream inputStream = request.getInputStream();
 				try {
-					byte[] content = RequestUtil.completeRead(inputStream);
+					byte[] content = StreamUtil.completeRead(inputStream);
 					return new ByteMessage(messageID, queueName, content);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
@@ -99,8 +99,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public int messageSize() {
-		// TODO 。。。。
-		return 0;
+		return this.messageIDs.size();
 	}
 
 	public boolean offerMessage(Message message) {
@@ -111,9 +110,15 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 		return productLine.offerMessage(message);
 	}
+	
+	public void consumerMessage(Message message){
+		synchronized (messageIDs) {
+			messageIDs.remove(message.getMsgID());
+		}
+	}
 
 	public Message parse(Request request) {
-		RequestParam param = request.getParameters();
+		Parameters param = request.getParameters();
 		int msgType = param.getIntegerParameter("msgType");
 		Message message = messageParsesFromRequest[msgType].parse(request);
 		return message;

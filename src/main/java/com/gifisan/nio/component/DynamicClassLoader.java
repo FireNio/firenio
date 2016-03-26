@@ -3,14 +3,20 @@ package com.gifisan.nio.component;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.gifisan.nio.common.DebugUtil;
 
 public class DynamicClassLoader extends ClassLoader {
 
@@ -38,7 +44,7 @@ public class DynamicClassLoader extends ClassLoader {
 		if (entry == null) {
 			return null;
 		}
-		
+
 		if (entry.loadedClass == null) {
 			return defineClass(entry);
 		}
@@ -77,10 +83,10 @@ public class DynamicClassLoader extends ClassLoader {
 	public void scan(String file) throws IOException {
 		this.scan(new File(file));
 	}
-	
+
 	public void scan(File file) throws IOException {
 		this.scan0(file);
-		logger.info("预加载Class字节码到缓存[ {} ]个 " , clazzEntries.size());
+		logger.info("预加载Class字节码到缓存[ {} ]个 ", clazzEntries.size());
 	}
 
 	private void scan0(File file) throws IOException {
@@ -101,8 +107,7 @@ public class DynamicClassLoader extends ClassLoader {
 		} else {
 			logger.info("文件 [ {} ] 不存在", file.getAbsoluteFile());
 		}
-		
-		
+
 	}
 
 	private void scanZip(JarFile file) throws IOException {
@@ -121,18 +126,15 @@ public class DynamicClassLoader extends ClassLoader {
 				}
 			}
 		}
-		
+
 	}
 
 	public boolean matchSystem(String name) {
 
-		return name.startsWith("java") 
-				|| name.startsWith("sun") 
-				|| name.startsWith("com/sun")
-				|| matchExtend(name);
+		return name.startsWith("java") || name.startsWith("sun") || name.startsWith("com/sun") || matchExtend(name);
 
 	}
-	
+
 	public boolean matchExtend(String name) {
 
 		return name.startsWith("com/gifisan");
@@ -162,8 +164,6 @@ public class DynamicClassLoader extends ClassLoader {
 
 		classEntry.binaryContent = binaryContent;
 
-		classEntry.lastModified = entry.getTime();
-		
 		classEntry.className = name;
 
 		clazzEntries.put(name, classEntry);
@@ -179,11 +179,11 @@ public class DynamicClassLoader extends ClassLoader {
 
 		return defineClass(entry);
 	}
-	
+
 	private Class<?> defineClass(ClassEntry entry) throws ClassNotFoundException {
 
 		String name = entry.className;
-		
+
 		try {
 			Class<?> clazz = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length);
 
@@ -202,20 +202,45 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	class ClassEntry {
-		
+
 		private String		className		= null;
 
-		private long		lastModified	= -1;
-
-		private byte[]	binaryContent	= null;
+		private byte[]		binaryContent	= null;
 
 		private Class<?>	loadedClass	= null;
 
 	}
-	
-	public void unload(){
+
+	public void unload() {
 		this.clazzEntries.clear();
+
+		Set<Entry<String, ClassEntry>> entries = this.clazzEntries.entrySet();
+
+		for (Entry<String, ClassEntry> entry : entries) {
+			ClassEntry classEntry = entry.getValue();
+			if (classEntry.loadedClass != null) {
+				unloadClass(classEntry.loadedClass);
+			}
+		}
+
 		this.logger = null;
 		System.gc();
 	}
+
+	private void unloadClass(Class clazz) {
+		Field []fields = clazz.getDeclaredFields();
+		for(Field field:fields){
+			if (Modifier.isStatic(field.getModifiers())) {
+				try {
+					if (!field.isAccessible()) {
+						field.setAccessible(true);
+					}
+					field.set(null, null);
+				} catch (Throwable e) {
+					DebugUtil.debug(e);
+				}
+			}
+		}
+	}
+	
 }

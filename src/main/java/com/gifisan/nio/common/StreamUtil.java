@@ -84,4 +84,16 @@ public class StreamUtil {
 		}
 	}
 
+	public static byte [] completeRead(com.gifisan.nio.component.InputStream inputStream) throws IOException{
+		
+		int allLength = inputStream.available();
+		
+		ByteBuffer buffer = ByteBuffer.allocate(allLength);
+		
+		inputStream.completedRead(buffer);
+		
+		return buffer.array();
+	}
+	
+	
 }

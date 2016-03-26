@@ -6,7 +6,7 @@ import java.util.Map;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.MessageWriterJob;
-import com.gifisan.nio.component.RequestParam;
+import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.jms.Message;
@@ -80,7 +80,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 	public void pollMessage(Request request, Response response,JMSSessionAttachment attachment) {
 
-		RequestParam param = request.getParameters();
+		Parameters param = request.getParameters();
 
 		String queueName = param.getParameter("queueName");
 

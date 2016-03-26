@@ -1,7 +1,6 @@
 package com.gifisan.nio.jms;
 
 public class JMSException extends Exception{
-
 	
 	public JMSException(String reason){
 		super(reason);
