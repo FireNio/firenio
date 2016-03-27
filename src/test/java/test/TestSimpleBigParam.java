@@ -2,12 +2,10 @@ package test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.FileUtil;
 
@@ -17,7 +15,6 @@ public class TestSimpleBigParam {
 	public static void main(String[] args) throws IOException {
 
 		String serviceKey = "TestSimpleServlet";
-		Map param = ClientUtil.getParamMap();
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
@@ -29,9 +26,7 @@ public class TestSimpleBigParam {
 			builder.append("\n");
 			builder.append(temp);
 		}
-		param.put("param", builder.toString());
-		String paramString = JSONObject.toJSONString(param);
-		Response response = session.request(serviceKey, paramString);
+		ClientResponse response = session.request(serviceKey, builder.toString());
 		FileUtil.write(new File(TestSimpleBigParam.class.getName()), response.getText());
 		System.out.println("处理完成");
 		

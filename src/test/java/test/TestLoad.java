@@ -15,7 +15,7 @@ public class TestLoad {
 		String serviceKey = "TestSimpleServlet";
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
-		connector.connect(false);
+		connector.connect(true);
 		ClientSesssion session = connector.getClientSession();
 		
 		long old = System.currentTimeMillis();

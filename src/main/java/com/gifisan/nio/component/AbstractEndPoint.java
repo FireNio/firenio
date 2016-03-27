@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+//TODO 单connection 多session时 response write 使用队列
 public abstract class AbstractEndPoint implements EndPoint {
 
 	private SocketChannel		channel			= null;
@@ -16,7 +17,16 @@ public abstract class AbstractEndPoint implements EndPoint {
 	private int				maxIdleTime		= 0;
 	private InetSocketAddress	remote			= null;
 	private Socket				socket			= null;
-
+	private SlowlyNetworkReader 	accept 			= null;
+	
+	public void setSchedule(SlowlyNetworkReader accept) {
+		this.accept = accept;
+	}
+	
+	public SlowlyNetworkReader getSchedule() {
+		return accept;
+	}
+	
 	public AbstractEndPoint(SelectionKey selectionKey) throws SocketException {
 		this.channel = (SocketChannel) selectionKey.channel();
 		socket = channel.socket();
@@ -187,10 +197,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 
 	public abstract NIOException handleException(IOException exception) throws NIOException ;
 
-	public boolean inStream() {
-		return inputStream != null && !inputStream.complete();
-	}
-
 	public boolean isBlocking() {
 		return channel.isBlocking();
 	}
@@ -245,5 +251,11 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return buffer;
 	}
 
+	public boolean inStream() {
+		return inputStream != null && !inputStream.complete();
+	}
+
+	
+	
 	
 }

@@ -13,14 +13,15 @@ import com.gifisan.nio.server.selector.ServiceAcceptorJob;
 
 public class NormalServiceAcceptor implements ServiceAcceptorJob {
 
-	private Logger				logger	= LoggerFactory.getLogger(NormalServiceAcceptor.class);
-	private NIOServletRequest	request	= null;
-	private NIOServletResponse	response	= null;
-	private FilterService		service	= null;
-	private ServerEndPoint		endPoint	= null;
+	private Logger				logger		= LoggerFactory.getLogger(NormalServiceAcceptor.class);
+	private ServiceRequest		request		= null;
+	private ServiceResponse		response		= null;
+	private FilterService		service		= null;
+	private ServerEndPoint		endPoint		= null;
+	private ProtocolData		protocolData	= null;
 
-	public NormalServiceAcceptor(ServerEndPoint endPoint, FilterService service, NIOServletRequest request,
-			NIOServletResponse response) {
+	public NormalServiceAcceptor(ServerEndPoint endPoint, FilterService service, ServiceRequest request,
+			ServiceResponse response) {
 		this.endPoint = endPoint;
 		this.service = service;
 		this.request = request;
@@ -33,7 +34,7 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 			response.flush();
 		} catch (IOException e) {
 			// ignore
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 			// just close it
 			CloseUtil.close(endPoint);
 		}
@@ -43,9 +44,9 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 		try {
 			this.accept(request, response);
 		} catch (NIOException e) {
-			logger.error(e.getMessage(),e);
-		} catch(Throwable throwable){
-			logger.error(throwable.getMessage(),throwable);
+			logger.error(e.getMessage(), e);
+		} catch (Throwable throwable) {
+			logger.error(throwable.getMessage(), throwable);
 			this.accept(throwable);
 		} finally {
 			if (endPoint.isEndConnect()) {
@@ -55,13 +56,17 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 	}
 
 	public void accept(Request request, Response response) throws IOException {
-		service.accept(request, response);
+
+		this.request.update(endPoint, protocolData);
+		
+		this.response.update();
+		
+		this.service.accept(request, response);
 	}
 
-	public ServiceAcceptorJob update(ServerEndPoint endPoint,ServerProtocolData decoder) {
+	public ServiceAcceptorJob update(ServerEndPoint endPoint, ProtocolData protocolData) {
+		this.protocolData = protocolData;
 		this.endPoint = endPoint;
-		this.request.update(endPoint,decoder);
-		this.response.update();
 		return this;
 	}
 }

@@ -2,10 +2,10 @@ package com.gifisan.nio.server.session;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.AttributesImpl;
-import com.gifisan.nio.component.NIOServletRequest;
-import com.gifisan.nio.component.NIOServletResponse;
+import com.gifisan.nio.component.ServiceRequest;
+import com.gifisan.nio.component.ServiceResponse;
 import com.gifisan.nio.component.NormalServiceAcceptor;
-import com.gifisan.nio.component.ServerProtocolData;
+import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
@@ -20,16 +20,16 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	private long						lastuse			= creationTime;
 	private SessionEventListenerWrapper	listenerStub		= null;
 	private SessionEventListenerWrapper	lastListener		= null;
-	private NIOServletRequest			request			= null;
-	private NIOServletResponse			response			= null;
+	private ServiceRequest			request			= null;
+	private ServiceResponse			response			= null;
 	private ServiceAcceptorJob			acceptor			= null;
 
 	public NIOSession(ServerEndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
 		this.context = endPoint.getContext();
 		this.endPoint = endPoint;
-		this.request = new NIOServletRequest(context.getExecutorThreadPool(), this);
-		this.response = new NIOServletResponse(endPoint,this);
+		this.request = new ServiceRequest(context.getExecutorThreadPool(), this);
+		this.response = new ServiceResponse(endPoint,this);
 		this.acceptor = new NormalServiceAcceptor(endPoint, context.getFilterService(), request, response);
 	}
 
@@ -81,9 +81,9 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		}
 	}
 
-	public ServiceAcceptorJob updateAcceptor(ServerProtocolData decoder) {
+	public ServiceAcceptorJob updateAcceptor(ProtocolData protocolData) {
 		this.lastuse = System.currentTimeMillis();
-		return acceptor.update(endPoint,decoder);
+		return acceptor.update(endPoint,protocolData);
 	}
 
 	public int getEndpointMark() {

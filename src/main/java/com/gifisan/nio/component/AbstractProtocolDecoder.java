@@ -4,14 +4,27 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.gifisan.nio.component.protocol.Decoder;
+import com.gifisan.nio.component.protocol.MultDecoder;
+import com.gifisan.nio.component.protocol.StreamDecoder;
+import com.gifisan.nio.component.protocol.TextDecoder;
+
 public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 
-	public boolean decode(EndPoint endPoint, ProtocolData data, Charset charset) throws IOException {
+	protected Decoder[]	decoders	= new Decoder[4];
+
+	public AbstractProtocolDecoder(Charset charset) {
+		this.decoders[0] = new TextDecoder(charset);
+		this.decoders[1] = new StreamDecoder(charset);
+		this.decoders[2] = new MultDecoder(charset);
+	}
+
+	public boolean decode(EndPoint endPoint, ProtocolDataImpl data) throws IOException {
 
 		ByteBuffer buffer = ByteBuffer.allocate(1);
 
 		int length = endPoint.read(buffer);
-		
+
 		if (length < 1) {
 			if (length < 0) {
 				endPoint.endConnect();
@@ -29,83 +42,68 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 				return false;
 			}
 
-			return this.doDecode(endPoint, data, charset, type);
+			return this.doDecode(endPoint, data, type);
 
 		} else {
 
-			return this.doDecodeExtend(endPoint, data, charset, type);
+			return this.doDecodeExtend(endPoint, data, type);
 		}
 	}
 
-	public boolean doDecodeExtend(EndPoint endPoint, ProtocolData data, Charset charset, byte type) throws IOException {
+	public boolean doDecodeExtend(EndPoint endPoint, ProtocolDataImpl data, byte type) throws IOException {
 
 		return true;
 	}
 
-	public void decodeText(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header) throws IOException {
-
-		int contentLength = getTextLength(header);
-
-		String text = readText(contentLength, charset, endPoint);
-
-		data.setText(text);
-	}
-
-	public void decodeStream(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header) throws IOException {
-
-		if (endPoint.sessionSize() > 1) {
-			throw new IOException("unique session can be created when trans strean data");
-		}
-
-		int streamLength = getStreamLength(header);
-
-		InputStream inputStream = readInputStream(streamLength, endPoint);
-
-		data.setInputStream(inputStream);
-		
-		endPoint.setInputStream(inputStream);
-	}
-
-	public void decodeMult(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header) throws IOException {
-		if (endPoint.sessionSize() > 1) {
-			throw new IOException("unique session can be created when trans strean data");
-		}
-
-		int contentLength = getTextLength(header);
-
-		int streamLength = getStreamLength(header);
-
-		String text = readText(contentLength, charset, endPoint);
-
-		InputStream inputStream = readInputStream(streamLength, endPoint);
-
-		data.setText(text);
-
-		data.setInputStream(inputStream);
-		
-		endPoint.setInputStream(inputStream);
-	}
-
-	protected boolean doDecode(EndPoint endPoint, ProtocolData data, Charset charset, byte type) throws IOException {
+	protected boolean doDecode(EndPoint endPoint, ProtocolDataImpl data, byte type) throws IOException {
 
 		byte[] header = readHeader(endPoint);
 
 		if (header == null) {
 			return false;
 		}
-		
+
+		Decoder decoder = decoders[type];
+
 		data.setProtocolType(type);
 
-		this.gainSessionID(endPoint, data, charset, header);
+		data.setHeader(header);
 
-		this.gainNecessary(endPoint, data, charset, header);
+		data.setDecoder(decoder);
 
-		return headerDecoders[type].decode(this, endPoint, data, charset, header);
+		this.gainSessionID(endPoint, data, header);
 
+		this.gainNecessary(endPoint, data, header);
+
+		return decodeTextBuffer(decoder, endPoint, data, header);
 	}
 
-	protected void gainSessionID(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header)
+	protected boolean decodeTextBuffer(Decoder decoder, EndPoint endPoint, ProtocolDataImpl data, byte[] header)
 			throws IOException {
+
+		int textLength = getTextLength(header);
+
+		if (textLength == 0) {
+			decoder.decode(endPoint, data, header, null);
+
+			return true;
+		}
+
+		ByteBuffer buffer = ByteBuffer.allocate(textLength);
+
+		if (decoder.progressRead(endPoint, buffer)) {
+
+			decoder.decode(endPoint, data, header, buffer);
+
+			return true;
+		} else {
+			endPoint.setSchedule(new SlowlyNetworkReader(decoder, data, buffer));
+
+			return false;
+		}
+	}
+
+	protected void gainSessionID(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {
 
 		byte sessionID = header[0];
 
@@ -122,30 +120,6 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		int v1 = (header[3] & 0xff) << 8;
 		int v2 = (header[4] & 0xff) << 16;
 		return v0 | v1 | v2;
-	}
-
-	protected int getStreamLength(byte[] header) {
-		int v0 = (header[5] & 0xff);
-		int v1 = (header[6] & 0xff) << 8;
-		int v2 = (header[7] & 0xff) << 16;
-		int v3 = (header[8] & 0xff) << 24;
-		return v0 | v1 | v2 | v3;
-	}
-
-	protected String readText(int length, Charset charset, EndPoint endPoint) throws IOException {
-
-		if (length < 1) {
-
-			return null;
-		}
-		
-		ByteBuffer buffer = endPoint.completedRead(length);
-
-		byte[] bytes = buffer.array();
-
-		String content = new String(bytes, charset);
-
-		return content;
 	}
 
 	protected byte[] readHeader(EndPoint endPoint) throws IOException {
@@ -165,58 +139,4 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		return buffer.array();
 	}
 
-	protected InputStream readInputStream(int length, EndPoint endPoint) throws IOException {
-
-		return length == 0 ? null : new EndPointInputStream(endPoint, length);
-	}
-
-	private static abstract class Decoder {
-
-		abstract boolean decode(ProtocolDecoder decoder, EndPoint endPoint, ProtocolData data, Charset charset,
-				byte[] header) throws IOException;
-
-	}
-
-	private static final Decoder[]	headerDecoders	= new Decoder[] {
-											// TEXT
-			new Decoder() {
-				public boolean decode(ProtocolDecoder decoder, EndPoint endPoint, ProtocolData data,
-						Charset charset, byte[] header) throws IOException {
-
-					decoder.decodeText(endPoint, data, charset, header);
-
-					return true;
-
-				}
-			},
-			// STREAM
-			new Decoder() {
-				public boolean decode(ProtocolDecoder decoder, EndPoint endPoint, ProtocolData data,
-						Charset charset, byte[] header) throws IOException {
-
-					decoder.decodeStream(endPoint, data, charset, header);
-
-					return true;
-
-				}
-			},
-			// MULT
-			new Decoder() {
-				public boolean decode(ProtocolDecoder decoder, EndPoint endPoint, ProtocolData data,
-						Charset charset, byte[] header) throws IOException {
-
-					decoder.decodeMult(endPoint, data, charset, header);
-
-					return true;
-
-				}
-			},
-			// BEAT
-			new Decoder() {
-				public boolean decode(ProtocolDecoder decoder, EndPoint endPoint, ProtocolData data,
-						Charset charset, byte[] header) throws IOException {
-					return true;
-				}
-			}						
-	};
 }

@@ -57,12 +57,21 @@ public class NIOSelectionReader implements SelectionAccept {
 		if (endPoint.isEndConnect() || endPoint.inStream()) {
 			return;
 		}
-
+		
+		EndPointSchedule schedule = endPoint.getSchedule();
+		
+		if (schedule != null) {
+			if (schedule.schedule(endPoint)) {
+				dispatch(endPoint, schedule.getProtocolData());
+			}
+			return;
+		}
+		
 		ProtocolDecoder decoder = context.getProtocolDecoder();
 		
 		ServerProtocolData data = new ServerProtocolData();
 
-		boolean decoded = decoder.decode(endPoint,data,context.getEncoding());
+		boolean decoded = decoder.decode(endPoint,data);
 
 		if (!decoded) {
 			if (endPoint.isEndConnect()) {
@@ -74,25 +83,18 @@ public class NIOSelectionReader implements SelectionAccept {
 		if (data.isBeat()) {
 			return;
 		}
-
-//		String sessionID = decoder.getSessionID();
-
-//		NIOSessionFactory factory = context.getNIOSessionFactory();
-
-//		InnerSession session = factory.getSession(endPoint, sessionID,service);
 		
-//		Request request = session.getRequest(endPoint);
-		
-//		Response response = session.getResponse(endPoint);
+		dispatch(endPoint, data);
+
+	}
+	
+	private void dispatch(ServerEndPoint endPoint,ProtocolData data){
 		
 		InnerSession session = endPoint.getSession(data.getSessionID());
 		
 		ServiceAcceptorJob job = session.updateAcceptor(data);
 		
-//		ServletAcceptJob job = session.updateServletAcceptJob(endPoint);
-		
 		acceptorDispatcher.dispatch(job);
-
 	}
 
 }

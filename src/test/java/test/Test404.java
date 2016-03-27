@@ -3,8 +3,8 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 
 public class Test404 {
@@ -20,7 +20,7 @@ public class Test404 {
 		connector.connect();
 		ClientSesssion session = connector.getClientSession();
 		
-		Response response = session.request(serviceKey, param);
+		ClientResponse response = session.request(serviceKey, param);
 		System.out.println(response.getText());
 		
 		CloseUtil.close(connector);

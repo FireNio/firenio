@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.RESMessageDecoder;
 import com.gifisan.nio.jms.JMSException;
@@ -44,7 +44,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	private boolean transactionVal(String action) throws JMSException {
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSTransactionServlet", action);
 		} catch (IOException e) {
@@ -69,7 +69,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	public Message revice() throws JMSException {
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSConsumerServlet", reviceParam);
 		} catch (IOException e) {
@@ -80,7 +80,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	public Message subscibe() throws JMSException {
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSTransactionServlet", subscibeParam);
 		} catch (IOException e) {
@@ -100,7 +100,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		param.put("consumer", true);
 		String paramString = JSONObject.toJSONString(param);
 
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSLoginServlet", paramString);
 		} catch (IOException e) {

@@ -6,10 +6,13 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.common.DateUtil;
 
-public class DefaultServerProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
+public class ServerProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
 
+	public ServerProtocolDecoder(Charset charset) {
+		super(charset);
+	}
 
-	public boolean doDecodeExtend(EndPoint endPoint, ProtocolData data, Charset charset, byte type) throws IOException {
+	public boolean doDecodeExtend(EndPoint endPoint, ProtocolData data, byte type) throws IOException {
 
 		if (type == 3) {
 
@@ -31,7 +34,7 @@ public class DefaultServerProtocolDecoder extends AbstractProtocolDecoder implem
 		return false;
 	}
 
-	public void gainNecessary(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header) throws IOException {
+	public void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {
 
 		int serviceNameLength = header[1];
 

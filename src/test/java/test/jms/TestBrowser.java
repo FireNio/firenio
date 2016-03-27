@@ -23,8 +23,12 @@ public class TestBrowser {
 		browser.login("admin", "admin100");
 
 		Message message = browser.browser("wwww");
-
-		System.out.println(message);
+		
+		System.out.println("message:"+message);
+		
+		int size = browser.size();
+		
+		System.out.println("size:"+size);
 
 		browser.logout();
 

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.client.JMSConnection;
 
@@ -29,7 +29,7 @@ public class JMSConnectonImpl implements JMSConnection {
 		param.put("password", password);
 		String paramString = JSONObject.toJSONString(param);
 
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSLoginServlet", paramString);
 		} catch (IOException e) {

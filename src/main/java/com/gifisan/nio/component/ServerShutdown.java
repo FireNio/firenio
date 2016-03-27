@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 
 public class ServerShutdown {
@@ -46,7 +46,7 @@ public class ServerShutdown {
 
 		String param = "{username:\"" + username + "\",password:\"" + passwrod + "\"}";
 
-		Response response = session.request(serviceKey, param);
+		ClientResponse response = session.request(serviceKey, param);
 
 		System.out.println(response.getText());
 

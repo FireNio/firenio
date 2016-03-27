@@ -3,8 +3,8 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 
 public class TestSimple {
@@ -22,7 +22,7 @@ public class TestSimple {
 		
 		ClientSesssion session = connector.getClientSession();
 		
-		Response response = session.request(serviceKey, param);
+		ClientResponse response = session.request(serviceKey, param);
 		System.out.println(response.getText());
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());

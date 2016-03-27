@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 
@@ -19,7 +19,7 @@ public class TestMultiSession {
 
 		final ClientConnector connector = ClientUtil.getClientConnector();
 
-		connector.connect(false);
+		connector.connect(true);
 
 		for (int i = 0; i < 4; i++) {
 			new Thread(new Runnable() {
@@ -28,7 +28,7 @@ public class TestMultiSession {
 						ClientSesssion session = connector.getClientSession();
 						String s = "multi-session" + no.incrementAndGet();
 						System.out.println(s + " 已发送......");
-						Response response = session.request(serviceName, s);
+						ClientResponse response = session.request(serviceName, s);
 						System.out.println(response.getText());
 					} catch (IOException e) {
 						e.printStackTrace();

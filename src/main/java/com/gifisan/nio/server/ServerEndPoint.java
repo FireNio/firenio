@@ -16,7 +16,7 @@ import com.gifisan.nio.server.session.InnerSession;
  * 
  */
 public interface ServerEndPoint extends EndPoint {
-
+	
 	public abstract void attach(Attachment attachment);
 
 	public abstract Attachment attachment();

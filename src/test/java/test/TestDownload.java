@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.InputStream;
@@ -25,7 +25,7 @@ public class TestDownload {
 		
 		long old = System.currentTimeMillis();
 		
-		Response response = session.request(serviceKey, null);
+		ClientResponse response = session.request(serviceKey, null);
 		
 		if (response.getProtocolType() == ProtocolDecoder.TEXT) {
 			System.out.println(response.getText());

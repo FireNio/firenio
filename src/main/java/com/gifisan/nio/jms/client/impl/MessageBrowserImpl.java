@@ -3,8 +3,8 @@ package com.gifisan.nio.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageBrowser;
@@ -20,8 +20,9 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 	public Message browser(String messageID) throws JMSException {
 		JSONObject param = new JSONObject();
 		param.put("messageID", messageID);
+		param.put("cmd", "browser");
 		
-		Response response;
+		ClientResponse response;
 		try {
 			response = session.request("JMSBrowserServlet",param.toJSONString());
 		} catch (IOException e) {
@@ -34,8 +35,15 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 
 
 	public int size() throws JMSException {
-		// TODO jisuan
-		return 0;
+		String param = "{cmd:\"size\"}";
+		
+		ClientResponse response;
+		try {
+			response = session.request("JMSBrowserServlet",param);
+		} catch (IOException e) {
+			throw new JMSException(e.getMessage(),e);
+		}
+		return Integer.parseInt(response.getText());
 	}
 
 

@@ -22,8 +22,6 @@ public interface EndPoint extends Closeable {
 
 	public abstract int getRemotePort();
 
-	public abstract boolean inStream();
-
 	public abstract boolean isBlocking();
 
 	public abstract boolean isOpened();
@@ -44,6 +42,10 @@ public interface EndPoint extends Closeable {
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
 	
+	public abstract void setSchedule(SlowlyNetworkReader accept);
 	
-
+	public abstract SlowlyNetworkReader getSchedule();
+	
+	public abstract boolean inStream();
+	
 }

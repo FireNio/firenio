@@ -11,18 +11,19 @@ import com.gifisan.nio.concurrent.TaskExecutor;
 
 public class ClientConnector implements Runnable, Connectable, Closeable {
 
-	private ClientConnection	connection	= null;
-	private boolean		running		= true;
-	private Thread			carrier		= new Thread(this, "Response-acceptor");
-	private AtomicBoolean	connected		= new AtomicBoolean(false);
-	private ClientSesssion[]	sessions		= new ClientSesssion[4];
-	private AtomicInteger	sessionIndex	= new AtomicInteger(-1);
-	private MessageBus[]	buses		= new MessageBus[4];
-	private long			checkInterval	= 5 * 60 * 1000;
-	private AtomicBoolean	keepAlive		= new AtomicBoolean(false);
-	private TaskExecutor	taskExecutor	= null;
-	private boolean		unique		= false;
-	private ClientSesssion	uniqueSession	= null;
+	private ClientConnection		connection	= null;
+	private boolean			running		= true;
+	private ClientResponseTask	responseTask	= null;
+	private ClientRequestTask	requestTask	= null;
+	private AtomicBoolean		connected		= new AtomicBoolean(false);
+	private ClientSesssion[]		sessions		= new ClientSesssion[4];
+	private AtomicInteger		sessionIndex	= new AtomicInteger(-1);
+	private MessageBus[]		buses		= new MessageBus[4];
+	private long				checkInterval	= 5 * 60 * 1000;
+	private AtomicBoolean		keepAlive		= new AtomicBoolean(false);
+	private TaskExecutor		taskExecutor	= null;
+	private boolean			unique		= false;
+	private ClientSesssion		uniqueSession	= null;
 
 	public ClientSesssion getClientSession() throws IOException {
 		if (connected.get()) {
@@ -31,11 +32,11 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 			} else {
 				int _sessionID = sessionIndex.incrementAndGet();
 				if (_sessionID > 4) {
-					throw new IOException("max session size 4,now "+_sessionID);
+					throw new IOException("max session size 4,now " + _sessionID);
 				}
 				byte sessionID = (byte) _sessionID;
 				MessageBus bus = new MessageBus();
-				ClientSesssion session = new MultiSession(this.getClientConnection(), bus, sessionID);
+				ClientSesssion session = new MultiSession(requestTask, bus, sessionID);
 				buses[sessionID] = bus;
 				sessions[sessionID] = session;
 				return session;
@@ -45,16 +46,17 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	}
 
 	public ClientConnector(String host, int port) {
-		this.connection = new ClientConnection(host, port,this);
+		this.connection = new ClientConnection(host, port, this);
 	}
 
 	public void run() {
 
 		for (; running;) {
 			try {
-				Response response = connection.acceptResponse();
+				ClientResponse response = connection.acceptResponse();
 				if (response == null) {
-					break;
+					running = false;
+					continue;
 				}
 				MessageBus bus = buses[response.getSessionID()];
 				bus.setResponse(response);
@@ -68,6 +70,8 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(taskExecutor);
+			LifeCycleUtil.stop(requestTask);
+			LifeCycleUtil.stop(responseTask);
 			this.connection.close();
 		}
 
@@ -85,15 +89,22 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 		}
 	}
 
-	public void connect(boolean unique) throws IOException {
-		if (unique) {
-			connect();
-		}else{
+	public void connect(boolean mult) throws IOException {
+		if (mult) {
 			if (connected.compareAndSet(false, true)) {
 				this.running = true;
 				this.connection.connect(false);
-				this.carrier.start();
+				this.requestTask = new ClientRequestTask(connection);
+				this.responseTask = new ClientResponseTask(connection,buses);
+				try {
+					this.responseTask.start();
+					this.requestTask.start();
+				} catch (Exception e) {
+					throw new IOException(e.getMessage(),e);
+				}
 			}
+		} else {
+			connect();
 		}
 	}
 
@@ -138,9 +149,9 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 		this.checkInterval = checkInterval;
 		this.keepAlive();
 	}
-	
-	protected int getClientSesssionSize(){
-		int size = this.sessionIndex.get()+1;
+
+	protected int getClientSesssionSize() {
+		int size = this.sessionIndex.get() + 1;
 		return size > 4 ? 4 : size;
 	}
 

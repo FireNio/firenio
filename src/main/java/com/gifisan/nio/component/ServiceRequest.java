@@ -5,17 +5,17 @@ import com.gifisan.nio.server.InnerRequest;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.session.Session;
 
-public class NIOServletRequest implements InnerRequest {
+public class ServiceRequest implements InnerRequest {
 
 	private ServerEndPoint		endPoint		= null;
-	private Parameters		parameters	= null;
-	private ServerProtocolData	data			= null;
+	private Parameters			parameters	= null;
+	private ProtocolData		data			= null;
 	private String				serviceName	= null;
 	private Session			session		= null;
 	private ExecutorThreadPool	threadPool	= null;
 	private String				content		= null;
 
-	public NIOServletRequest(ExecutorThreadPool threadPool, Session session) {
+	public ServiceRequest(ExecutorThreadPool threadPool, Session session) {
 		this.threadPool = threadPool;
 		this.session = session;
 	}
@@ -81,7 +81,7 @@ public class NIOServletRequest implements InnerRequest {
 		return parameters;
 	}
 
-	public void update(ServerEndPoint endPoint, ServerProtocolData data) {
+	public void update(ServerEndPoint endPoint, ProtocolData data) {
 		this.endPoint = endPoint;
 		this.data = data;
 		this.content = data.getText();

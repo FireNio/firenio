@@ -18,7 +18,7 @@ public class UniqueSession implements ClientSesssion {
 		return timeout;
 	}
 
-	public Response request(String serviceName, String text) throws IOException {
+	public ClientResponse request(String serviceName, String text) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
@@ -30,7 +30,7 @@ public class UniqueSession implements ClientSesssion {
 		return connection.acceptResponse();
 	}
 
-	public Response request(String serviceName, String text, InputStream inputStream) throws IOException {
+	public ClientResponse request(String serviceName, String text, InputStream inputStream) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}

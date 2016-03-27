@@ -1,10 +1,11 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.component.DefaultParameters;
-import com.gifisan.nio.component.ProtocolDataImpl;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ProtocolDataImpl;
 
-public class Response extends ProtocolDataImpl {
+
+public class ClientResponse extends ProtocolDataImpl {
 
 	private Parameters	parameters	= null;
 

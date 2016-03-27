@@ -5,13 +5,13 @@ import java.util.concurrent.TimeUnit;
 
 public class MessageBus {
 
-	private Response					response	= null;
-	private ArrayBlockingQueue<Response>	queue	= new ArrayBlockingQueue<Response>(1);
+	private ClientResponse					response	= null;
+	private ArrayBlockingQueue<ClientResponse>	queue	= new ArrayBlockingQueue<ClientResponse>(1);
 
 	public void await(long timeout) {
 		if (timeout == 0) {
 			try {
-				Response response = null;
+				ClientResponse response = null;
 				for (; response == null;) {
 					response = queue.poll(16, TimeUnit.MILLISECONDS);
 
@@ -30,11 +30,11 @@ public class MessageBus {
 		}
 	}
 
-	public Response getResponse() {
+	public ClientResponse getResponse() {
 		return response;
 	}
 
-	public void setResponse(Response response) {
+	public void setResponse(ClientResponse response) {
 		this.queue.offer(response);
 	}
 

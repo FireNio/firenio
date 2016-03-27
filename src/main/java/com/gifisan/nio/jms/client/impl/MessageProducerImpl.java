@@ -3,8 +3,8 @@ package com.gifisan.nio.jms.client.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
-import com.gifisan.nio.client.Response;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
@@ -19,7 +19,7 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 	public boolean offer(Message message) throws JMSException {
 		String param = message.toString();
 
-		Response response = null;
+		ClientResponse response = null;
 
 		int msgType = message.getMsgType();
 

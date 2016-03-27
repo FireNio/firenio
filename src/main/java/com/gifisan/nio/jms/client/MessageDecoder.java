@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gifisan.nio.client.Response;
+import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
@@ -18,7 +18,7 @@ public class MessageDecoder {
 	
 	private static Logger logger = LoggerFactory.getLogger(MessageDecoder.class);
 	
-	public static Message decode(Response response) throws JMSException{
+	public static Message decode(ClientResponse response) throws JMSException{
 		int msgType = response.getParameters().getIntegerParameter("msgType");
 		Message message = messageParsesFromJSON[msgType].decode(response);
 		return message;
@@ -26,14 +26,14 @@ public class MessageDecoder {
 	
 	static interface MessageDecodeFromJSON {
 		
-		Message decode(Response object) throws JMSException;
+		Message decode(ClientResponse object) throws JMSException;
 	}
 	
 	private static MessageDecodeFromJSON[] messageParsesFromJSON = new MessageDecodeFromJSON[]{
 		//ERROR Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(Response response) {
+			public Message decode(ClientResponse response) {
 				Parameters param = response.getParameters();
 				ErrorMessage message = new ErrorMessage(param.getIntegerParameter("code"));
 				return message;
@@ -42,14 +42,14 @@ public class MessageDecoder {
 		//NULL Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(Response object) {
+			public Message decode(ClientResponse object) {
 				return null;
 			}
 		},
 		//Text Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(Response response) {
+			public Message decode(ClientResponse response) {
 				Parameters param = response.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
@@ -62,7 +62,7 @@ public class MessageDecoder {
 		},
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(Response response) throws JMSException {
+			public Message decode(ClientResponse response) throws JMSException {
 				Parameters param = response.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");

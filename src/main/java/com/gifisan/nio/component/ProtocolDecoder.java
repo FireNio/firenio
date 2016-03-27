@@ -1,7 +1,6 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * <pre>
@@ -14,28 +13,17 @@ import java.nio.charset.Charset;
  * </pre>
  * 
  */
-public interface ProtocolDecoder{
-	
-	public static final byte	BEAT			= 3;
-	public static final byte	MULT			= 2;
-	public static final byte	STREAM		= 1;
-	public static final byte	TEXT			= 0;
+public interface ProtocolDecoder {
 
-	public abstract boolean decode(EndPoint endPoint, ProtocolData data, Charset charset) throws IOException;
+	public static final byte	BEAT		= 3;
+	public static final byte	MULT		= 2;
+	public static final byte	STREAM	= 1;
+	public static final byte	TEXT		= 0;
 
-	public abstract boolean doDecodeExtend(EndPoint endPoint, ProtocolData data, Charset charset, byte type)
-			throws IOException;
+	public abstract boolean decode(EndPoint endPoint, ProtocolDataImpl data) throws IOException;
 
-	public abstract void gainNecessary(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header)
-			throws IOException;
+	public abstract boolean doDecodeExtend(EndPoint endPoint, ProtocolDataImpl data, byte type) throws IOException;
 
-	public abstract void decodeText(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header)
-			throws IOException;
-
-	public abstract void decodeStream(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header)
-			throws IOException;
-
-	public abstract void decodeMult(EndPoint endPoint, ProtocolData data, Charset charset, byte[] header)
-			throws IOException;
+	public abstract void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException;
 
 }

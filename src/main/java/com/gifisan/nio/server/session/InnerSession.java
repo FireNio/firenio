@@ -1,6 +1,6 @@
 package com.gifisan.nio.server.session;
 
-import com.gifisan.nio.component.ServerProtocolData;
+import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
 
 public interface InnerSession extends Session {
@@ -9,6 +9,6 @@ public interface InnerSession extends Session {
 	
 	public abstract void destroyImmediately();
 	
-	public abstract ServiceAcceptorJob updateAcceptor(ServerProtocolData decoder);
+	public abstract ServiceAcceptorJob updateAcceptor(ProtocolData decoder);
 	
 }

@@ -34,27 +34,29 @@ public class ClientConnection implements Connectable, Closeable {
 	private boolean			close		= false;
 	private boolean			closed		= false;
 	private boolean			unique		= true;
-	private ProtocolDecoder		decoder		= new ClientProtocolDecoder();
+	private ProtocolDecoder		decoder		= null;
 	private ClientConnector 		connector		= null;
 
 	public ClientConnection(String host, int port,ClientConnector connector) {
 		this.host = host;
 		this.port = port;
 		this.connector = connector;
+		this.decoder = new ClientProtocolDecoder(Encoding.DEFAULT);
 	}
 
-	private Response acceptResponse(ClientEndPoint endPoint) throws IOException {
+	private ClientResponse acceptResponse(ClientEndPoint endPoint) throws IOException {
 
-		Response response = new Response();
+		ClientResponse response = new ClientResponse();
 
-		if (!decoder.decode(endPoint, response, Encoding.DEFAULT)) {
+		if (!decoder.decode(endPoint, response)) {
 
 			throw new IOException("protocol type:" + response.getProtocolType());
 		}
+		
 		return response;
 	}
 
-	protected Response acceptResponse() throws IOException {
+	protected ClientResponse acceptResponse() throws IOException {
 		for (;;) {
 			selector.select(1000);
 			Set<SelectionKey> selectionKeys = selector.selectedKeys();

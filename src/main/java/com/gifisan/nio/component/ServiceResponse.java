@@ -10,7 +10,7 @@ import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.session.NIOSession;
 
-public class NIOServletResponse implements InnerResponse {
+public class ServiceResponse implements InnerResponse {
 
 	private int				dataLength	= 0;
 	private ServerEndPoint		endPoint		= null;
@@ -22,7 +22,7 @@ public class NIOServletResponse implements InnerResponse {
 	private byte				sessionID		= 0;
 	private OutputStream		outputStream	= null;
 
-	public NIOServletResponse(ServerEndPoint endPoint, NIOSession session) {
+	public ServiceResponse(ServerEndPoint endPoint, NIOSession session) {
 		this.endPoint = endPoint;
 		this.session = session;
 		this.sessionID = session.getSessionID();
@@ -43,7 +43,7 @@ public class NIOServletResponse implements InnerResponse {
 		this.scheduled = true;
 
 		ByteBuffer buffer = encoder.encode(sessionID, textBuffer.toByteArray(), dataLength);
-
+		
 		textBuffer.reset();
 
 		buffer.flip();
@@ -67,6 +67,7 @@ public class NIOServletResponse implements InnerResponse {
 	public Response update() {
 		this.flushed = false;
 		this.scheduled = false;
+		this.dataLength = 0;
 		return this;
 	}
 
@@ -81,7 +82,7 @@ public class NIOServletResponse implements InnerResponse {
 	public boolean schduled() {
 		return scheduled;
 	}
-
+	
 	public void write(String content, Charset encoding) {
 		byte[] bytes = content.getBytes(encoding);
 		textBuffer.write(bytes);
