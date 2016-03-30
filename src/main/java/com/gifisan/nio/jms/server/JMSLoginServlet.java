@@ -1,8 +1,6 @@
 package com.gifisan.nio.jms.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.server.Request;
@@ -13,7 +11,6 @@ import com.gifisan.nio.server.session.Session;
 public class JMSLoginServlet extends JMSServlet {
 
 	private byte			FALSE		= 'F';
-	private Logger			logger		= LoggerFactory.getLogger(JMSLoginServlet.class);
 	private String			password		= null;
 	private byte			TRUE			= 'T';
 	private String			username		= null;
@@ -44,12 +41,12 @@ public class JMSLoginServlet extends JMSServlet {
 
 			context.setLogined(true, session);
 			
-			logger.info("user [" + username + "] login successful!");
+			DebugUtil.debug("user [" + username + "] login successful!");
 			
 			response.write(TRUE);
 		} else {
 			request.getSession().disconnect();
-			logger.info("user [" + username + "] login failed!");
+			DebugUtil.debug("user [" + username + "] login failed!");
 			response.write(FALSE);
 
 		}

@@ -25,7 +25,7 @@ public class TestTeller {
 
 		producer.login("admin", "admin100");
 
-		TextMessage message = new TextMessage("wwww", "舒华", "你好，舒华");
+		TextMessage message = new TextMessage("msgID", "qName", "你好！");
 
 		long old = System.currentTimeMillis();
 		producer.offer(message);

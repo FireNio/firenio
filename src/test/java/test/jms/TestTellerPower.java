@@ -22,7 +22,7 @@ public class TestTellerPower {
 
 		producer.login("admin", "admin100");
 
-		TextMessage message = new TextMessage("wwww", "sssssss", "tttttttttttttt");
+		TextMessage message = new TextMessage("msgID", "qName", "你好！");
 
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {

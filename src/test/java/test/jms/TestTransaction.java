@@ -21,7 +21,7 @@ public class TestTransaction {
 		
 		ClientSesssion session = connector.getClientSession();
 		
-		MessageConsumer consumer = new MessageConsumerImpl(session, "sssssss");
+		MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
 
 		consumer.login("admin", "admin100");
 		

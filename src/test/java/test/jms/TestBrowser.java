@@ -22,7 +22,7 @@ public class TestBrowser {
 
 		browser.login("admin", "admin100");
 
-		Message message = browser.browser("wwww");
+		Message message = browser.browser("qName");
 		
 		System.out.println("message:"+message);
 		

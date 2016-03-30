@@ -22,7 +22,7 @@
 
 ``` java
    
-		ClientConnector connector = ClientUtil.getClientConnector();
+		ClientConnector connector = new ClientConnector("localhost", 8300);
 		
 		connector.connect();
 		
@@ -45,7 +45,7 @@
 
 ``` java
    
-		ClientConnector connector = ClientUtil.getClientConnector();
+		ClientConnector connector = new ClientConnector("localhost", 8300);
 		
 		connector.connect();
 		
@@ -62,6 +62,12 @@
 		consumer.logout();
 		
 		connector.close();
+```
+
+### 免费的服务
+``` java
+   
+		ClientConnector connector = new ClientConnector("wkapp.wicp.net", 11990);
 ```
 
 ### 示例详见 {src\test\java\test}

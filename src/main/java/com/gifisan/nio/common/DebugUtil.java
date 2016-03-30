@@ -32,4 +32,10 @@ public class DebugUtil {
 	public static void setEnableDebug(boolean enable) {
 		enableDebug = enable;
 	}
+	
+	public static void debug(String message){
+		if (enableDebug) {
+			System.out.println(message);
+		}
+	}
 }
