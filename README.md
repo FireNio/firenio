@@ -13,9 +13,55 @@
 
 ``` java
    
-  ServerLauncher launcher = new ServerLauncher();
+		ServerLauncher launcher = new ServerLauncher();
 		
-  launcher.launch();
+		launcher.launch();
+```
+
+### 发送消息
+
+``` java
+   
+		ClientConnector connector = ClientUtil.getClientConnector();
+		
+		connector.connect();
+		
+		ClientSesssion session = connector.getClientSession();
+		
+		MessageProducer producer = new MessageProducerImpl(session);
+
+		producer.login("admin", "admin100");
+
+		TextMessage message = new TextMessage("msgID", "qName", "hello world!");
+
+		producer.offer(message);
+
+		producer.logout();
+		
+		connector.close();
+```
+
+### 收取消息
+
+``` java
+   
+		ClientConnector connector = ClientUtil.getClientConnector();
+		
+		connector.connect();
+		
+		ClientSesssion session = connector.getClientSession();
+		
+		MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
+
+		consumer.login("admin", "admin100");
+
+		Message message = consumer.revice();
+
+		System.out.println(message);
+
+		consumer.logout();
+		
+		connector.close();
 ```
 
 ### 示例详见 {src\test\java\test}

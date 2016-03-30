@@ -38,7 +38,11 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 
 		Selector selector = this.selector;
 
-		selector.select(timeout);
+		int selected = selector.select(timeout);
+		
+		if (selected < 0) {
+			return;
+		}
 
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 

@@ -12,8 +12,7 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 		super(charset);
 	}
 
-	public boolean doDecodeExtend(EndPoint endPoint, ProtocolData data, byte type) throws IOException {
-
+	public boolean doDecodeExtend(EndPoint endPoint, ProtocolDataImpl data, byte type) throws IOException {
 		if (type == 3) {
 
 			System.out.println(">>read beat................." + DateUtil.now());
@@ -28,11 +27,13 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 			ByteBuffer buffer = ByteBuffer.wrap(new byte[] { 105, 109, 32, 110, 111, 116, 32, 97, 110, 32, 104, 116, 116, 112, 32, 115,
 					101, 114, 118, 101, 114, 32, 58, 41 });
 			endPoint.completedWrite(buffer);
+			endPoint.endConnect();
 			return false;
 		}
 
 		return false;
 	}
+
 
 	public void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {
 
