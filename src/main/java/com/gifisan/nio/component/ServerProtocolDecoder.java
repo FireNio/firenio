@@ -32,7 +32,7 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 		http.append("<body>");
 		http.append("	<p style=\"color:#FDA58C;\">");
 		http.append("		im not an http server :)  ");
-		http.append("		<a style=\"color:#F94F4F;\" href=\"https://github.com/NimbleIO/NimbleIO\" >fork me@https://github.com/nimbleio/nimbleio</a>");
+		http.append("		<a style=\"color:#F94F4F;\" href=\"https://github.com/NimbleIO/NimbleIO#readme\" >fork me@https://github.com/nimbleio/nimbleio</a>");
 		http.append("	</p>");
 		http.append("</body>");
 		http.append("</html>");

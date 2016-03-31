@@ -15,18 +15,4 @@ public interface LifeCycle {
 
 	public abstract void stop() throws Exception;
 
-	public abstract boolean isRunning();
-
-	public abstract boolean isStarting();
-
-	public abstract boolean isStopping();
-
-	public abstract boolean isStopped();
-
-	public abstract boolean isFailed();
-
-	public abstract void addLifeCycleListener(LifeCycleListener listener);
-
-	public abstract void removeLifeCycleListener(LifeCycleListener listener);
-
 }

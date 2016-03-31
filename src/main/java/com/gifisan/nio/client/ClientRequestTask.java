@@ -5,10 +5,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 
-public class ClientRequestTask extends AbstractLifeCycle implements Runnable {
+public class ClientRequestTask implements Runnable,LifeCycle {
 
 	private BlockingQueue<ClientRequest>		requests		= new ArrayBlockingQueue<ClientRequest>(4);
 	private Thread							owner		= null;
@@ -47,14 +47,14 @@ public class ClientRequestTask extends AbstractLifeCycle implements Runnable {
 		}
 	}
 
-	protected void doStart() throws Exception {
+	public void start() throws Exception {
 		this.running = true;
 		this.owner = new Thread(this, "Client-Requestor");
 		this.owner.start();
 
 	}
 
-	protected void doStop() throws Exception {
+	public void stop() throws Exception {
 		running = false;
 	}
 

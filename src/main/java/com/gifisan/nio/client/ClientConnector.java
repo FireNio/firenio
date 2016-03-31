@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
@@ -69,12 +68,11 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
-			LifeCycleUtil.stop(taskExecutor);
-			LifeCycleUtil.stop(requestTask);
-			LifeCycleUtil.stop(responseTask);
+			ClientLifeCycleUtil.stop(taskExecutor);
+			ClientLifeCycleUtil.stop(requestTask);
+			ClientLifeCycleUtil.stop(responseTask);
 			this.connection.close();
 		}
-
 	}
 
 	public boolean canTransStream() {

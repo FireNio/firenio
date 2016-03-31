@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.LifeCycle;
 
-public class ClientResponseTask extends AbstractLifeCycle implements Runnable {
+public class ClientResponseTask implements Runnable ,LifeCycle {
 
 	private BlockingQueue<ClientRequest>		requests		= new ArrayBlockingQueue<ClientRequest>(4);
 	private Thread							owner		= null;
@@ -47,14 +47,14 @@ public class ClientResponseTask extends AbstractLifeCycle implements Runnable {
 		}
 	}
 
-	protected void doStart() throws Exception {
+	public void start() throws Exception {
 		this.running = true;
 		this.owner = new Thread(this, "Client-Response-acceptor");
 		this.owner.start();
 
 	}
 
-	protected void doStop() throws Exception {
+	public void stop() throws Exception {
 		running = false;
 	}
 
