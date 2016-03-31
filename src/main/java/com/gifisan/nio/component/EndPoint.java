@@ -47,5 +47,7 @@ public interface EndPoint extends Closeable {
 	public abstract SlowlyNetworkReader getSchedule();
 	
 	public abstract boolean inStream();
+
+	public abstract boolean isEndConnect();
 	
 }

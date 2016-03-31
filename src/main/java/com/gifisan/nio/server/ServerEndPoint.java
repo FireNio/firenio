@@ -29,8 +29,6 @@ public interface ServerEndPoint extends EndPoint {
 
 	public abstract InnerSession getSession(byte sessionID);
 
-	public abstract boolean isEndConnect();
-
 	public abstract void setMark(int mark);
 
 }

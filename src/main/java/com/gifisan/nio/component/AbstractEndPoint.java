@@ -18,6 +18,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 	private InetSocketAddress	remote			= null;
 	private Socket				socket			= null;
 	private SlowlyNetworkReader 	accept 			= null;
+	private boolean			endConnect		= false;
 	
 	public void setSchedule(SlowlyNetworkReader accept) {
 		this.accept = accept;
@@ -149,8 +150,12 @@ public abstract class AbstractEndPoint implements EndPoint {
 		}
 	}
 	
+	public boolean isEndConnect() {
+		return endConnect;
+	}
+	
 	public void endConnect() {
-		
+		this.endConnect = true;
 	}
 
 	public String getLocalAddr() {
@@ -256,6 +261,8 @@ public abstract class AbstractEndPoint implements EndPoint {
 	}
 
 	
-	
+	public void close() throws IOException {
+		this.channel.close();
+	}
 	
 }

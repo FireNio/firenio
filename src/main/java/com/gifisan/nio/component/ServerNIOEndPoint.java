@@ -1,10 +1,8 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.ServerContext;
@@ -16,16 +14,13 @@ import com.gifisan.nio.server.session.NIOSession;
 public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoint {
 
 	private Attachment			attachment	= null;
-	private SocketChannel		channel		= null;
 	private ServerContext		context		= null;
-	private boolean			endConnect	= false;
 	private long				endPointID	= 0;
 	private ServerEndpointFactory	factory		= null;
 	private int				mark			= 0;
 	private SelectionKey		selectionKey	= null;
 	private InnerSession[]		sessions		= new InnerSession[4];
 	private int				sessionSize	= 0;
-	private Socket				socket		= null;
 
 	public ServerNIOEndPoint(ServerContext context, SelectionKey selectionKey, long endPointID) throws SocketException {
 		super(selectionKey);
@@ -33,11 +28,6 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 		this.factory = context.getServerEndpointFactory();
 		this.endPointID = endPointID;
 		this.selectionKey = selectionKey;
-		this.channel = (SocketChannel) selectionKey.channel();
-		socket = channel.socket();
-		if (socket == null) {
-			throw new SocketException("socket is empty");
-		}
 
 	}
 
@@ -61,12 +51,7 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 
 		this.factory.remove(this);
 
-		this.channel.close();
-
-	}
-
-	public void endConnect() {
-		this.endConnect = true;
+		super.close();
 	}
 
 	public ServerContext getContext() {
@@ -95,13 +80,9 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 	}
 
 	public NIOException handleException(IOException exception) throws NIOException {
-		this.endConnect = true;
+		this.endConnect();
 
 		return new NIOException(exception.getMessage(), exception);
-	}
-
-	public boolean isEndConnect() {
-		return endConnect;
 	}
 
 	public void removeSession(byte sessionID) {

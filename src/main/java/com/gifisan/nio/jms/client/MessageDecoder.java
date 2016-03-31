@@ -2,9 +2,6 @@ package com.gifisan.nio.jms.client;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.Parameters;
@@ -15,8 +12,6 @@ import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
 
 public class MessageDecoder {
-	
-	private static Logger logger = LoggerFactory.getLogger(MessageDecoder.class);
 	
 	public static Message decode(ClientResponse response) throws JMSException{
 		int msgType = response.getParameters().getIntegerParameter("msgType");
@@ -72,7 +67,6 @@ public class MessageDecoder {
 					return new ByteMessage(messageID,queueName,content);
 					
 				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
 					throw new JMSException(e.getMessage()+response.getText(),e);
 				}
 			}
