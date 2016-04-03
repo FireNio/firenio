@@ -18,7 +18,6 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 	private ServiceResponse		response		= null;
 	private FilterService		service		= null;
 	private ServerEndPoint		endPoint		= null;
-	private ProtocolData		protocolData	= null;
 
 	public NormalServiceAcceptor(ServerEndPoint endPoint, FilterService service, ServiceRequest request,
 			ServiceResponse response) {
@@ -43,8 +42,6 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 	public void run() {
 		try {
 			this.accept(request, response);
-		} catch (NIOException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Throwable throwable) {
 			logger.error(throwable.getMessage(), throwable);
 			this.accept(throwable);
@@ -56,17 +53,13 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 	}
 
 	public void accept(Request request, Response response) throws IOException {
-
-		this.request.update(endPoint, protocolData);
-		
-		this.response.update();
-		
 		this.service.accept(request, response);
 	}
 
 	public ServiceAcceptorJob update(ServerEndPoint endPoint, ProtocolData protocolData) {
-		this.protocolData = protocolData;
 		this.endPoint = endPoint;
+		this.request.update(endPoint, protocolData);
+		this.response = new ServiceResponse(endPoint, request.getSession());
 		return this;
 	}
 }

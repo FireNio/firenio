@@ -3,24 +3,23 @@ package com.gifisan.nio.jms.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.MessageWriterJob;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
-import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 
 public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
-	private ThreadPool				messageWriteThreadPool	= null;
-	private Map<String, ConsumerQueue>	consumerGroupMap		= null;
-	private MQContext				context				= null;
-	private MessageQ			messageGroup			= null;
-	private boolean				running				= false;
-	private long					dueTime				= 0;
+	private Map<String, ConsumerQueue>		consumerGroupMap		= null;
+	private MQContext					context				= null;
+	private MessageQ					messageGroup			= null;
+	private boolean					running				= false;
+	private long						dueTime				= 0;
+	private Logger						logger				= LoggerFactory.getLogger(P2PProductLine.class);
 
 	public P2PProductLine(MQContext context) {
 		this.context = context;
@@ -37,18 +36,12 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		//TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
-		this.messageWriteThreadPool = new BlockingQueueThreadPool("Message-writer", 1);
-
-		this.messageWriteThreadPool.start();
-
 	}
 
 	// TODO 处理剩下的message 和 receiver
 	protected void doStop() throws Exception {
 
 		this.running = false;
-
-		LifeCycleUtil.stop(messageWriteThreadPool);
 	}
 
 	private ConsumerQueue getConsumerGroup(String queueName) {
@@ -130,9 +123,17 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 				continue;
 			}
 
-			MessageWriterJob job = new MessageWriterJob(context,consumer, message);
+			try {
+				
+				consumer.push(message);
+				
+				context.consumerMessage(message);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				// 回炉
+				context.offerMessage(message);
 
-			messageWriteThreadPool.dispatch(job);
+			}
 
 		}
 

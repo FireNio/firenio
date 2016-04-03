@@ -6,10 +6,11 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.ProtocolData;
+import com.gifisan.nio.server.ServerEndPoint;
 
-public class MultDecoder extends AbstractDecoder {
+public class ServerMultDecoder extends ServerStreamDecoder {
 
-	public MultDecoder(Charset charset) {
+	public ServerMultDecoder(Charset charset) {
 		super(charset);
 	}
 
@@ -17,6 +18,7 @@ public class MultDecoder extends AbstractDecoder {
 
 		decodeText(endPoint, data, buffer);
 
-		decodeStream(endPoint, data, header);
+		decodeStream((ServerEndPoint) endPoint, data, header);
 	}
+	
 }

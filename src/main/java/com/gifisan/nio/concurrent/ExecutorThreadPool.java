@@ -6,26 +6,26 @@ import java.util.concurrent.TimeUnit;
 
 import com.gifisan.nio.AbstractLifeCycle;
 
-public class ExecutorThreadPool extends AbstractLifeCycle {
+public class ExecutorThreadPool extends AbstractLifeCycle implements ThreadPool{
 
-	private int	corePoolSize		= 4;
-	private int	maximumPoolSize	= 4 << 4;
-	private long	keepAliveTime		= 60 * 1000L;
-	private String	threadPoolName		= null;
+	private int		corePoolSize		= 4;
+	private int		maximumPoolSize	= 4 << 4;
+	private long		keepAliveTime		= 60 * 1000L;
+	private String		threadPoolName		= "ThreadPool";
 
-	public ExecutorThreadPool(int corePoolSize, String threadPoolName) {
+	public ExecutorThreadPool(String threadPoolName,int corePoolSize) {
 		this.corePoolSize = corePoolSize;
 		this.maximumPoolSize = corePoolSize << 4;
 		this.threadPoolName = threadPoolName;
 	}
 
-	public ExecutorThreadPool(int corePoolSize, int maximumPoolSize, String threadPoolName) {
+	public ExecutorThreadPool(String threadPoolName,int corePoolSize, int maximumPoolSize) {
 		this.corePoolSize = corePoolSize;
 		this.maximumPoolSize = maximumPoolSize;
 		this.threadPoolName = threadPoolName;
 	}
 
-	public ExecutorThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, String threadPoolName) {
+	public ExecutorThreadPool(String threadPoolName,int corePoolSize, int maximumPoolSize, long keepAliveTime) {
 		this.corePoolSize = corePoolSize;
 		this.maximumPoolSize = maximumPoolSize;
 		this.keepAliveTime = keepAliveTime;

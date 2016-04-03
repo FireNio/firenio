@@ -7,15 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AsynchServiceAcceptor;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.OutputStream;
-import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
@@ -37,7 +34,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 		String subfix = serviceName.substring(point);
 
 		if (canDownload(subfix)) {
-			ExecutorThreadPool executor = request.getExecutorThreadPool();
+			ExecutorThreadPool executor = request.getSession().getExecutorThreadPool();
 			
 			DownloadJob downloadJob = new DownloadJob(request, response);
 			
@@ -102,29 +99,19 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 				int available = inputStream.available();
 
-				int BLOCK = 102400;
-
 				if (downloadLength == 0) {
 					downloadLength = available - start;
 				}
-
-				response.setStream(downloadLength);
+				
+				response.setInputStream(inputStream);
 				
 				response.flush();
 
-				OutputStream outputStream = response.getOutputStream();
-
-				StreamUtil.write(inputStream, outputStream, start, downloadLength, BLOCK);
-				
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);
 			} catch (IOException e) {
 				DebugUtil.debug(e);
-			} finally {
-				CloseUtil.close(inputStream);
-			}
-			
+			} 
 		}
 	}
-	
 }

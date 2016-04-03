@@ -2,21 +2,17 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.protocol.Decoder;
-import com.gifisan.nio.component.protocol.MultDecoder;
-import com.gifisan.nio.component.protocol.StreamDecoder;
-import com.gifisan.nio.component.protocol.TextDecoder;
 
 public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 
 	protected Decoder[]	decoders	= new Decoder[4];
 
-	public AbstractProtocolDecoder(Charset charset) {
-		this.decoders[0] = new TextDecoder(charset);
-		this.decoders[1] = new StreamDecoder(charset);
-		this.decoders[2] = new MultDecoder(charset);
+	public AbstractProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
+		this.decoders[0] = textDecoder;
+		this.decoders[1] = streamDecoder;
+		this.decoders[2] = multDecoder;
 	}
 
 	public boolean decode(EndPoint endPoint, ProtocolDataImpl data) throws IOException {

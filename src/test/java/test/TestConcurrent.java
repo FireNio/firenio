@@ -7,19 +7,19 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.concurrent.BlockingQueueThreadPool;
+import com.gifisan.nio.concurrent.QueueThreadPool;
 
 public class TestConcurrent {
 
 	public static void main(String[] args) throws Exception {
 
-		BlockingQueueThreadPool pool = new BlockingQueueThreadPool("test-concurrent", 16);
+		QueueThreadPool pool = new QueueThreadPool("test-concurrent",10);
 
 		pool.addLifeCycleListener(new TestConcurrentListener());
 
 		pool.start();
 
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < 10; i++) {
 			pool.dispatch(new T(String.valueOf(i)));
 		}
 
@@ -55,13 +55,12 @@ class T implements Runnable {
 	public void run() {
 		try {
 			String serviceKey = "TestSimpleServlet";
-			String param = ClientUtil.getParamString();
 			ClientConnector connector = ClientUtil.getClientConnector();
 			connector.connect();
 			ClientSesssion session = connector.getClientSession();
 			
 			for (int i = 0; i < 100000; i++) {
-				session.request(serviceKey, param);
+				session.request(serviceKey, "==================");
 			}
 			
 			CloseUtil.close(connector);

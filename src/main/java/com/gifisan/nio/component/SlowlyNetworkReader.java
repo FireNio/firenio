@@ -14,7 +14,7 @@ public class SlowlyNetworkReader implements EndPointSchedule{
 	}
 
 	private Decoder			decoder		= null;
-	private ProtocolData	protocolData	= null;
+	private ProtocolData		protocolData	= null;
 	private ByteBuffer			buffer		= null;
 
 	protected Decoder getDecoder() {

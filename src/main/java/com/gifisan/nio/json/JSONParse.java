@@ -31,11 +31,7 @@ public static void main(String[] args) throws JSONSyntaxException {
 				com.alibaba.fastjson.JSONArray.parseArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
 			}
 
-			public String getTestName() {
-				return "Fast Json";
-			}
-			
-		}, 500000);
+		}, 500000,"Fast Json");
 	}
 	
 	private static void testMyJson(){
@@ -47,10 +43,7 @@ public static void main(String[] args) throws JSONSyntaxException {
 					DebugUtil.debug(e);
 				}
 			}
-			public String getTestName() {
-				return "My Json";
-			}
-		}, 500000);
+		}, 500000,"My Json");
 	}
 
 	

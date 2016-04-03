@@ -1,8 +1,6 @@
 package com.gifisan.nio.server;
 
-import com.gifisan.nio.component.InputStream;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.session.Session;
 
 public interface Request {
@@ -10,8 +8,6 @@ public interface Request {
 	public abstract Parameters getParameters();
 	
 	public abstract String getContent();
-
-	public abstract InputStream getInputStream();
 
 	public abstract String getLocalAddr();
 
@@ -34,7 +30,5 @@ public interface Request {
 	public abstract boolean isBlocking();
 	
 	public abstract boolean isOpened();
-	
-	public abstract ExecutorThreadPool getExecutorThreadPool();
 	
 }

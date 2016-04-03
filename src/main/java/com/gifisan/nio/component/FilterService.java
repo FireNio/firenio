@@ -40,8 +40,6 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 			accept(rootFilter, request, (InnerResponse) response);
 		} catch (FlushedException e) {
 			logger.error(e.getMessage(), e);
-		} catch (NIOException e) {
-			logger.error(e.getMessage(), e);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			this.acceptException(e, request, response);

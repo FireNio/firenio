@@ -1,13 +1,15 @@
 package com.gifisan.nio.concurrent;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.gifisan.nio.AbstractLifeCycle;
 
 public class PoolWorker extends AbstractLifeCycle implements Runnable {
 
-	private boolean		working	= false;
-	private Queue<Runnable>	jobs		= null;
+	private boolean					working	= false;
+	private ArrayBlockingQueue<Runnable>	jobs		= null;
 
-	public PoolWorker(Queue<Runnable> jobs) {
+	public PoolWorker(ArrayBlockingQueue<Runnable> jobs) {
 		this.jobs = jobs;
 	}
 
@@ -30,7 +32,7 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable {
 		for (; working;) {
 			Thread.sleep(8);
 		}
-//		new Exception("test").printStackTrace();
+		// new Exception("test").printStackTrace();
 	}
 
 }

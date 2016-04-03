@@ -2,13 +2,13 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.component.protocol.Decoder;
 
 public class ServerProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
 
@@ -16,8 +16,8 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	= null;
 
-	public ServerProtocolDecoder(Charset charset) {
-		super(charset);
+	public ServerProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
+		super(textDecoder, streamDecoder, multDecoder);
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");
@@ -53,7 +53,7 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 		// HTTP REQUEST ?
 		if (type == 71) {
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
-			endPoint.completedWrite(buffer);
+			endPoint.write(buffer);
 			endPoint.endConnect();
 			logger.info("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
 			return false;
@@ -67,7 +67,7 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 
 		int serviceNameLength = header[1];
 
-		ByteBuffer buffer = endPoint.completedRead(serviceNameLength);
+		ByteBuffer buffer = endPoint.read(serviceNameLength);
 
 		byte[] bytes = buffer.array();
 

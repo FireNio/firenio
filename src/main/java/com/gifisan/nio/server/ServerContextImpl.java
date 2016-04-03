@@ -11,26 +11,31 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.FilterService;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ServerProtocolDecoder;
 import com.gifisan.nio.component.ServerProtocolEncoder;
+import com.gifisan.nio.component.protocol.ServerMultDecoder;
+import com.gifisan.nio.component.protocol.ServerStreamDecoder;
+import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 
 public class ServerContextImpl extends AbstractLifeCycle implements ServerContext {
 
-	private Charset				encoding			= null;
-	private NIOServer				server			= null;
-	private ServerEndpointFactory		endpointFactory	= null;
-	private FilterService			filterService		= null;
-	private ExecutorThreadPool		servletLazyExecutor	= null;
-	private String					appLocalAddres		= null;
-	private Logger					logger			= LoggerFactory.getLogger(ServerContextImpl.class);
-	private int					serverPort		= 0;
-	private int					serverCoreSize		= 4;
-	private ProtocolDecoder			protocolDecoder	= null;
-	private ProtocolEncoder			protocolEncoder	= new ServerProtocolEncoder();
+	private Charset			encoding			= null;
+	private NIOServer			server			= null;
+	private ServerEndpointFactory	endpointFactory	= null;
+	private FilterService		filterService		= null;
+	private ExecutorThreadPool	servletLazyExecutor	= null;
+	private String				appLocalAddres		= null;
+	private Logger				logger			= LoggerFactory.getLogger(ServerContextImpl.class);
+	private int				serverPort		= 0;
+	private int				serverCoreSize		= 4;
+	private ProtocolDecoder		protocolDecoder	= null;
+	private ProtocolEncoder		protocolEncoder	= new ServerProtocolEncoder();
+	private EndPointWriter		endPointWriter		= new EndPointWriter();
 
 	public ServerContextImpl(NIOServer server) {
 		this.server = server;
@@ -42,14 +47,18 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.filterService = new FilterService(this);
-		this.servletLazyExecutor = new ExecutorThreadPool(serverCoreSize, "Servlet-lazy-acceptor");
-		this.protocolDecoder = new ServerProtocolDecoder(encoding);
-		
+		this.servletLazyExecutor = new ExecutorThreadPool("Servlet-lazy-acceptor",serverCoreSize);
+		this.protocolDecoder = new ServerProtocolDecoder(
+				new TextDecoder(encoding),
+				new ServerStreamDecoder(encoding),
+				new ServerMultDecoder(encoding));
+
 		logger.info("[NIOServer] 工作目录：{ {} }", appLocalAddres);
 		logger.info("[NIOServer] 项目编码：{ {} }", encoding);
 		logger.info("[NIOServer] 监听端口：{ {} }", serverPort);
 		logger.info("[NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
+		this.endPointWriter.start();
 		this.filterService.start();
 		this.servletLazyExecutor.start();
 		this.endpointFactory.start();
@@ -59,6 +68,7 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		LifeCycleUtil.stop(endpointFactory);
 		LifeCycleUtil.stop(servletLazyExecutor);
 		LifeCycleUtil.stop(filterService);
+		LifeCycleUtil.stop(endPointWriter);
 	}
 
 	public Charset getEncoding() {
@@ -141,4 +151,8 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		return this.protocolEncoder;
 	}
 
+	public EndPointWriter getEndPointWriter() {
+		return endPointWriter;
+	}
+	
 }

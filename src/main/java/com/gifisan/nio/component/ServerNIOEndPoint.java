@@ -1,7 +1,9 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.Attachment;
@@ -79,12 +81,6 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 		return session;
 	}
 
-	public NIOException handleException(IOException exception) throws NIOException {
-		this.endConnect();
-
-		return new NIOException(exception.getMessage(), exception);
-	}
-
 	public void removeSession(byte sessionID) {
 		InnerSession session = sessions[sessionID];
 
@@ -102,4 +98,33 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 		this.mark = mark;
 	}
 
+	public boolean flushServerOutputStream(ByteBuffer buffer) throws IOException {
+		InnerSession session = this.getCurrentSession();
+
+		OutputStream outputStream = session.getServerOutputStream();
+		
+		if (outputStream == null) {
+			throw new IOException("why did you not close this endpoint and did not handle it when a stream in.");
+		}
+
+		buffer.clear();
+
+		readed += read(buffer);
+
+		outputStream.write(buffer.array(), 0, buffer.position());
+
+		return readed == streamAvailable;
+	}
+
+	private int	streamAvailable	= 0;
+	private int	readed			= 0;
+
+	public void setStreamAvailable(int streamAvailable) {
+		this.streamAvailable = streamAvailable;
+
+	}
+
+	public boolean inStream() {
+		return readed < streamAvailable;
+	}
 }

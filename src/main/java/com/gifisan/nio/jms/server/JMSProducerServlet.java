@@ -1,5 +1,8 @@
 package com.gifisan.nio.jms.server;
 
+import java.io.OutputStream;
+
+import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
@@ -17,6 +20,13 @@ public class JMSProducerServlet extends JMSServlet {
 		MQContext context = getMQContext();
 
 		if (context.isLogined(session)) {
+			
+			OutputStream outputStream = session.getServerOutputStream();
+			
+			if (outputStream == null) {
+				session.setServerOutputStream(new BufferedOutputStream());
+				return;
+			}
 			
 			Message message = context.parse(request);
 

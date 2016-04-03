@@ -10,6 +10,8 @@ public class Node<T> {
 
 	private Node<T> next;
 	
+	private Node<T> previous;
+	
 	private T value;
 
 	Node<T> getNext() {
@@ -27,5 +29,15 @@ public class Node<T> {
 	public void setValue(T value) {
 		this.value = value;
 	}
+
+	public Node<T> getPrevious() {
+		return previous;
+	}
+
+	public void setPrevious(Node<T> previous) {
+		this.previous = previous;
+	}
+	
+	
 	
 }

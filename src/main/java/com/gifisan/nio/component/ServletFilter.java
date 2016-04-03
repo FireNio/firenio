@@ -66,8 +66,6 @@ public final class ServletFilter extends AbstractNIOFilter {
 			servlet.accept(request, response);
 		} catch (FlushedException e) {
 			logger.error(e.getMessage(),e);
-		} catch (NIOException e) {
-			logger.error(e.getMessage(),e);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 			this.accept(e, request, response);
@@ -89,7 +87,6 @@ public final class ServletFilter extends AbstractNIOFilter {
 		} else {
 			
 			this.accept(servlet, request, response);
-			
 		}
 	}
 

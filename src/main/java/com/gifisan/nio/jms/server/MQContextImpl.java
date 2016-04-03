@@ -1,18 +1,12 @@
 package com.gifisan.nio.jms.server;
 
-import java.io.IOException;
 import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.StreamUtil;
-import com.gifisan.nio.component.InputStream;
+import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
-import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.server.Request;
@@ -26,7 +20,6 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 		Message parse(Request request);
 	}
-	private Logger 				logger 		= LoggerFactory.getLogger(MQContextImpl.class);
 	private long					dueTime		= 0;
 	private final int				LOGINED		= 1;
 	private HashMap<String, Message>	messageIDs	= new HashMap<String, Message>();
@@ -54,14 +47,9 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 				Parameters param = request.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
-				InputStream inputStream = request.getInputStream();
-				try {
-					byte[] content = StreamUtil.completeRead(inputStream);
-					return new ByteMessage(messageID, queueName, content);
-				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
-					return ErrorMessage.IOEXCEPTION;
-				}
+				BufferedOutputStream outputStream = (BufferedOutputStream) request.getSession().getServerOutputStream();
+				byte[] content = outputStream.toByteArray();
+				return new ByteMessage(messageID, queueName, content);
 			}
 		}
 	};

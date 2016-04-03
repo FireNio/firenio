@@ -1,32 +1,19 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.InnerRequest;
 import com.gifisan.nio.server.ServerEndPoint;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.NIOSession;
 
 public class ServiceRequest implements InnerRequest {
 
 	private ServerEndPoint		endPoint		= null;
 	private Parameters			parameters	= null;
-	private ProtocolData		data			= null;
-	private String				serviceName	= null;
-	private Session			session		= null;
-	private ExecutorThreadPool	threadPool	= null;
+	private String				serviceName	= "";
+	private NIOSession			session		= null;
 	private String				content		= null;
 
-	public ServiceRequest(ExecutorThreadPool threadPool, Session session) {
-		this.threadPool = threadPool;
+	public ServiceRequest(NIOSession session) {
 		this.session = session;
-	}
-
-	public ExecutorThreadPool getExecutorThreadPool() {
-		return this.threadPool;
-	}
-
-	public InputStream getInputStream() {
-
-		return data.getInputStream();
 	}
 
 	public String getLocalAddr() {
@@ -61,7 +48,7 @@ public class ServiceRequest implements InnerRequest {
 		return serviceName;
 	}
 
-	public Session getSession() {
+	public NIOSession getSession() {
 
 		return session;
 	}
@@ -83,7 +70,6 @@ public class ServiceRequest implements InnerRequest {
 
 	public void update(ServerEndPoint endPoint, ProtocolData data) {
 		this.endPoint = endPoint;
-		this.data = data;
 		this.content = data.getText();
 		this.serviceName = data.getServiceName();
 		this.parameters = null;

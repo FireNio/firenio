@@ -19,6 +19,9 @@ import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.component.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ClientMultDecoder;
+import com.gifisan.nio.component.protocol.ClientStreamDecoder;
+import com.gifisan.nio.component.protocol.TextDecoder;
 
 public class ClientConnection implements Connectable, Closeable {
 
@@ -41,7 +44,10 @@ public class ClientConnection implements Connectable, Closeable {
 		this.host = host;
 		this.port = port;
 		this.connector = connector;
-		this.decoder = new ClientProtocolDecoder(Encoding.DEFAULT);
+		this.decoder = new ClientProtocolDecoder(
+				new TextDecoder(Encoding.DEFAULT),
+				new ClientStreamDecoder(Encoding.DEFAULT),
+				new ClientMultDecoder(Encoding.DEFAULT));
 	}
 
 	private ClientResponse acceptResponse(ClientEndPoint endPoint) throws IOException {

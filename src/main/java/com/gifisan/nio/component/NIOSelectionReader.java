@@ -2,6 +2,7 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
@@ -17,27 +18,27 @@ public class NIOSelectionReader implements SelectionAccept {
 
 	private ServerContext	context			= null;
 	private ThreadPool		acceptorDispatcher	= null;
+	private ByteBuffer		cache			= ByteBuffer.allocate(1024 * 100);
 
-	public NIOSelectionReader(ServerContext context,ThreadPool acceptorDispatcher) {
+	public NIOSelectionReader(ServerContext context, ThreadPool acceptorDispatcher) {
 		this.context = context;
 		this.acceptorDispatcher = acceptorDispatcher;
 	}
 
 	protected boolean isEndPoint(Object object) {
-		
-		return object != null && 
-				(object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
+
+		return object != null && (object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
 
 	}
-	
-	private ServerEndPoint getEndPoint(ServerContext context,SelectionKey selectionKey) throws SocketException {
+
+	private ServerEndPoint getEndPoint(ServerContext context, SelectionKey selectionKey) throws SocketException {
 
 		Object attachment = selectionKey.attachment();
 
 		if (isEndPoint(attachment)) {
 			return (ServerEndPoint) attachment;
 		}
-		
+
 		ServerEndpointFactory factory = context.getServerEndpointFactory();
 
 		ServerEndPoint endPoint = factory.manager(context, selectionKey);
@@ -49,29 +50,45 @@ public class NIOSelectionReader implements SelectionAccept {
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
-		
+
 		ServerContext context = this.context;
 
-		ServerEndPoint endPoint = getEndPoint(context,selectionKey);
+		ServerEndPoint endPoint = getEndPoint(context, selectionKey);
 
-		if (endPoint.isEndConnect() || endPoint.inStream()) {
+		if (endPoint.isEndConnect()) {
 			return;
 		}
-		
+
+		if (endPoint.inStream()) {
+			
+			if (endPoint.flushServerOutputStream(cache)) {
+				
+				InnerSession session = endPoint.getCurrentSession();
+				
+				endPoint.setCurrentSession(session);
+
+				ServiceAcceptorJob job = session.updateAcceptor();
+
+				acceptorDispatcher.dispatch(job);
+				return;
+			}
+			return;
+		}
+
 		EndPointSchedule schedule = endPoint.getSchedule();
-		
+
 		if (schedule != null) {
 			if (schedule.schedule(endPoint)) {
 				dispatch(endPoint, schedule.getProtocolData());
 			}
 			return;
 		}
-		
+
 		ProtocolDecoder decoder = context.getProtocolDecoder();
-		
+
 		ServerProtocolData data = new ServerProtocolData();
 
-		boolean decoded = decoder.decode(endPoint,data);
+		boolean decoded = decoder.decode(endPoint, data);
 
 		if (!decoded) {
 			if (endPoint.isEndConnect()) {
@@ -83,18 +100,33 @@ public class NIOSelectionReader implements SelectionAccept {
 		if (data.isBeat()) {
 			return;
 		}
-		
+
+		if (data.getProtocolType() != ProtocolDecoder.TEXT) {
+
+			InnerSession session = endPoint.getSession(data.getSessionID());
+
+			endPoint.setCurrentSession(session);
+
+			ServiceAcceptorJob job = session.updateAcceptor(data);
+
+			job.run();
+
+			return;
+		}
+
 		dispatch(endPoint, data);
 
 	}
-	
-	private void dispatch(ServerEndPoint endPoint,ProtocolData data){
-		
+
+	private void dispatch(ServerEndPoint endPoint, ProtocolData data) {
+
 		InnerSession session = endPoint.getSession(data.getSessionID());
-		
+
 		ServiceAcceptorJob job = session.updateAcceptor(data);
-		
+
 		acceptorDispatcher.dispatch(job);
 	}
+	
+	
 
 }

@@ -9,4 +9,6 @@ public interface ServiceAcceptorJob extends ServiceAcceptor, Runnable{
 	public abstract void accept(Throwable exception);
 	
 	public abstract ServiceAcceptorJob update(ServerEndPoint endPoint,ProtocolData decoder);
+	
+	
 }

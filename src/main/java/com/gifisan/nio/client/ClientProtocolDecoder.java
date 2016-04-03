@@ -2,7 +2,6 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.AbstractProtocolDecoder;
 import com.gifisan.nio.component.EndPoint;
@@ -12,8 +11,8 @@ import com.gifisan.nio.component.protocol.Decoder;
 
 public class ClientProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
 	
-	public ClientProtocolDecoder(Charset charset) {
-		super(charset);
+	public ClientProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
+		super(textDecoder, streamDecoder, multDecoder);
 	}
 
 	public void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {
@@ -32,7 +31,7 @@ public class ClientProtocolDecoder extends AbstractProtocolDecoder implements Pr
 			return true;
 		}
 		
-		ByteBuffer buffer = endPoint.completedRead(textLength);
+		ByteBuffer buffer = endPoint.read(textLength);
 		
 		decoder.decode(endPoint, data, header,buffer);
 		

@@ -18,7 +18,7 @@ public class ServerProtocolEncoder implements ProtocolEncoder{
 	}
 
 	// data with content
-	private ByteBuffer encode(byte sessionID, byte[] textArray) {
+	public ByteBuffer encode(byte sessionID, byte[] textArray) {
 
 		int textLength = textArray.length;
 		int allLength = textLength + 10;

@@ -3,6 +3,7 @@ package com.gifisan.nio.server;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.FilterService;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;
@@ -37,6 +38,8 @@ public interface ServerContext extends Attributes, LifeCycle {
 	public abstract ProtocolDecoder getProtocolDecoder();
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
+	
+	public abstract EndPointWriter getEndPointWriter();
 	
 	
 

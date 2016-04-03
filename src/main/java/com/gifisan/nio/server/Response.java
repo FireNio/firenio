@@ -1,9 +1,8 @@
 package com.gifisan.nio.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
-
-import com.gifisan.nio.component.OutputStream;
 
 public interface Response{
 	
@@ -15,7 +14,7 @@ public interface Response{
 	
 	public abstract void schdule();
 	
-	public abstract void setStream(int length) throws IOException;
+	public abstract void setInputStream(InputStream inputStream) throws IOException;
 	
 	public abstract void write(String text);
 	
@@ -27,6 +26,4 @@ public interface Response{
 
 	public abstract void write(byte[] bytes, int offset, int length) throws IOException;
 	
-	public abstract OutputStream getOutputStream();
-
 }

@@ -6,4 +6,6 @@ public interface ProtocolEncoder {
 
 	
 	public abstract ByteBuffer encode(byte sessionID, byte[] textArray, int streamLength) ;
+	
+	public abstract ByteBuffer encode(byte sessionID, byte[] textArray) ;
 }

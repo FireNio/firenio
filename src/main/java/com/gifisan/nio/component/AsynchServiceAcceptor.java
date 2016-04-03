@@ -35,8 +35,6 @@ public abstract class AsynchServiceAcceptor implements Runnable, ServiceAcceptor
 	public void run() {
 		try {
 			this.accept(request, response);
-		} catch (NIOException e) {
-			logger.error(e.getMessage(), e);
 		} catch (Throwable throwable) {
 			logger.error(throwable.getMessage(), throwable);
 			this.accept(throwable);

@@ -8,26 +8,21 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import com.gifisan.nio.server.session.InnerSession;
+
 //TODO 单connection 多session时 response write 使用队列
 public abstract class AbstractEndPoint implements EndPoint {
 
-	private SocketChannel		channel			= null;
-	private InputStream			inputStream		= null;
+	private SlowlyNetworkReader	accept			= null;
+	protected SocketChannel		channel			= null;
+	private InnerSession		currentSession		= null;
+	private boolean			endConnect		= false;
 	private InetSocketAddress	local			= null;
 	private int				maxIdleTime		= 0;
 	private InetSocketAddress	remote			= null;
 	private Socket				socket			= null;
-	private SlowlyNetworkReader 	accept 			= null;
-	private boolean			endConnect		= false;
-	
-	public void setSchedule(SlowlyNetworkReader accept) {
-		this.accept = accept;
-	}
-	
-	public SlowlyNetworkReader getSchedule() {
-		return accept;
-	}
-	
+	private byte				writingSessionID	= -1;
+
 	public AbstractEndPoint(SelectionKey selectionKey) throws SocketException {
 		this.channel = (SocketChannel) selectionKey.channel();
 		socket = channel.socket();
@@ -37,125 +32,16 @@ public abstract class AbstractEndPoint implements EndPoint {
 		maxIdleTime = socket.getSoTimeout();
 	}
 
-	// TODO 处理网速较慢的时候
-	public void completedRead(ByteBuffer buffer) throws NIOException{
-		
-		int limit = buffer.limit();
-		
-		SocketChannel channel = this.channel;
-
-		try {
-
-			int _length = channel.read(buffer);
-			
-			int length = _length;
-
-			long _last = 0;
-			
-			boolean _slowly = false;
-			
-			for (; length < limit;) {
-				
-				if (_length < 0) {
-					throw new NIOException("bad network");
-				}
-				
-				if (_length == 0) {
-					
-					long _past = System.currentTimeMillis() - _last;
-					
-					if (_past > 160000) {
-						
-						if (_slowly) {
-
-//							throw new NIOException("network is weak");
-							System.out.println("network is weak");
-							
-						}else{
-							
-							_last = System.currentTimeMillis();
-							
-							_slowly = true;
-						}
-					}
-				}else{
-					
-					_slowly = false;
-					
-					_last = System.currentTimeMillis();
-				}
-				
-				_length = channel.read(buffer);
-				
-				length += _length;
-			}
-		} catch (IOException e) {
-			throw handleException(e);
-		}
+	public void close() throws IOException {
+		this.channel.close();
 	}
 
-	// TODO 处理网速较慢的时候
-	public void completedWrite(ByteBuffer buffer) throws NIOException {
-		
-		int limit = buffer.limit();
-
-		try {
-			
-			int _length = channel.write(buffer);
-			
-			int length = _length;
-			
-			long _last = 0;
-			
-			boolean _slowly = false;
-
-			for (; length < limit;) {
-				
-				if (_length < 0) {
-					throw new NIOException("bad network");
-				}
-				
-				if (_length == 0) {
-					
-					long _past = System.currentTimeMillis() - _last;
-					
-					if (_past > 160000) {
-						
-						if (_slowly) {
-							
-//							throw new NIOException("network is weak");
-							System.out.println("network is weak");
-							
-						}else{
-							
-							_last = System.currentTimeMillis();
-							
-							_slowly = true;
-						}
-					}
-				}else{
-					
-					_slowly = false;
-					
-					_last = System.currentTimeMillis();
-				}
-				
-				_length = channel.write(buffer);
-				
-				length += _length;
-			}
-
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
-	
-	public boolean isEndConnect() {
-		return endConnect;
-	}
-	
 	public void endConnect() {
 		this.endConnect = true;
+	}
+
+	public InnerSession getCurrentSession() {
+		return currentSession;
 	}
 
 	public String getLocalAddr() {
@@ -172,7 +58,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 	public int getLocalPort() {
 		return local.getPort();
 	}
-
 
 	public int getMaxIdleTime() {
 		return maxIdleTime;
@@ -199,70 +84,53 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return remote.getPort();
 	}
 
-
-	public abstract NIOException handleException(IOException exception) throws NIOException ;
+	public SlowlyNetworkReader getSchedule() {
+		return accept;
+	}
 
 	public boolean isBlocking() {
 		return channel.isBlocking();
+	}
+
+	public boolean isEndConnect() {
+		return endConnect;
 	}
 
 	public boolean isOpened() {
 		return this.channel.isOpen();
 	}
 
+	public boolean isWriting(byte sessionID) {
+		return writingSessionID == sessionID;
+	}
+
 	public int read(ByteBuffer buffer) throws IOException {
-		try {
-			return this.channel.read(buffer);
-		} catch (IOException e) {
-			throw handleException(e);
-		}
+		return this.channel.read(buffer);
 	}
 
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
+	public void setCurrentSession(InnerSession session) {
+		this.currentSession = session;
 	}
 
-	public int write(byte b) throws NIOException {
-		ByteBuffer buffer = ByteBuffer.allocate(1);
-		buffer.put(b);
-		return write(buffer);
+	public void setSchedule(SlowlyNetworkReader accept) {
+		this.accept = accept;
 	}
 
-	public int write(byte[] bytes) throws NIOException {
-		return write(ByteBuffer.wrap(bytes));
+	public void setWriting(byte sessionID) {
+		this.writingSessionID = sessionID;
 	}
 
-	public int write(byte[] bytes, int offset, int length) throws NIOException {
-		return write(ByteBuffer.wrap(bytes, offset, length));
+	public int write(ByteBuffer buffer) throws IOException {
+		return channel.write(buffer);
 	}
 
-	public int write(ByteBuffer buffer) throws NIOException {
-		try {
-			return channel.write(buffer);
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
-
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public ByteBuffer completedRead(int limit) throws IOException {
+	public ByteBuffer read(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
-
-		completedRead(buffer);
-		
+		this.read(buffer);
+		if (buffer.limit() < limit) {
+			throw new IOException("poor network ");
+		}
 		return buffer;
-	}
-
-	public boolean inStream() {
-		return inputStream != null && !inputStream.complete();
-	}
-
-	
-	public void close() throws IOException {
-		this.channel.close();
 	}
 	
 }

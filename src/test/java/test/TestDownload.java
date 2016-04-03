@@ -7,9 +7,9 @@ import java.io.IOException;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.EndPointInputStream;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.StreamUtil;
-import com.gifisan.nio.component.InputStream;
 import com.gifisan.nio.component.ProtocolDecoder;
 
 public class TestDownload {
@@ -31,7 +31,7 @@ public class TestDownload {
 			System.out.println(response.getText());
 		}else{
 			
-			InputStream inputStream = response.getInputStream();
+			EndPointInputStream inputStream = response.getInputStream();
 			
 			File file = new File("download.zip");
 			

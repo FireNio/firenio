@@ -2,19 +2,20 @@ package com.gifisan.nio.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 
-public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
+public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 
 	private class LifedPoolWorker extends Thread {
 
 		private PoolWorker	worker	= null;
 
 		public LifedPoolWorker(PoolWorker worker, String name) {
-			super(ThreadPoolImpl.this.threadPrefix + "@PoolWorker-" + name);
+			super(QueueThreadPool.this.threadPrefix + "@PoolWorker-" + name);
 			this.worker = worker;
 		}
 
@@ -34,27 +35,24 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 
 	}
 
-	private Queue<Runnable>		jobs			= null;
+	private ArrayBlockingQueue<Runnable>		jobs			= null;
 	private int				size			= 4;
 	private String				threadPrefix	= null;
-	private List<LifedPoolWorker>	workers		= new ArrayList<ThreadPoolImpl.LifedPoolWorker>(size);
+	private List<LifedPoolWorker>	workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
 
 	/**
 	 * default size 4
 	 * 
 	 * @param threadPrefix
 	 */
-	public ThreadPoolImpl(Queue<Runnable> jobs, String threadPrefix) {
-		this.jobs = jobs;
-		this.size = 4;
-		this.threadPrefix = threadPrefix;
+	public QueueThreadPool(String threadPrefix) {
+		this(threadPrefix,4);
 	}
 
-	public ThreadPoolImpl(Queue<Runnable> jobs, String threadPrefix, int size) {
-		this.jobs = jobs;
+	public QueueThreadPool(String threadPrefix, int size) {
 		this.size = size;
 		this.threadPrefix = threadPrefix;
-
+		this.jobs = new ArrayBlockingQueue<Runnable>(1024*1000);
 	}
 
 	public void dispatch(Runnable job) {
@@ -84,7 +82,7 @@ public class ThreadPoolImpl extends AbstractLifeCycle implements ThreadPool {
 	}
 
 	protected void doStop() throws Exception {
-		while (!jobs.empty()) {
+		while (jobs.size() > 0) {
 			Thread.sleep(64);
 		}
 		synchronized (workers) {

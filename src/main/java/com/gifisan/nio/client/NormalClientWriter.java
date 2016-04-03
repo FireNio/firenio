@@ -15,7 +15,7 @@ public class NormalClientWriter implements ClientWriter {
 	}
 
 	public void writeText(ClientEndPoint endPoint, ByteBuffer buffer) throws IOException {
-		endPoint.completedWrite(buffer);
+		endPoint.write(buffer);
 	}
 
 	public void writeBeat(ClientEndPoint endPoint) throws IOException {

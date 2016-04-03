@@ -1,11 +1,16 @@
 package com.gifisan.nio.server.session;
 
+import java.io.OutputStream;
+
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.AttributesImpl;
-import com.gifisan.nio.component.ServiceRequest;
-import com.gifisan.nio.component.ServiceResponse;
 import com.gifisan.nio.component.NormalServiceAcceptor;
 import com.gifisan.nio.component.ProtocolData;
+import com.gifisan.nio.component.ServiceRequest;
+import com.gifisan.nio.component.ServiceResponse;
+import com.gifisan.nio.concurrent.ExecutorThreadPool;
+import com.gifisan.nio.server.InnerRequest;
+import com.gifisan.nio.server.InnerResponse;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
@@ -17,19 +22,20 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	private long						creationTime		= System.currentTimeMillis();
 	private ServerEndPoint				endPoint			= null;
 	private byte						sessionID			= 0;
-	private long						lastuse			= creationTime;
 	private SessionEventListenerWrapper	listenerStub		= null;
 	private SessionEventListenerWrapper	lastListener		= null;
-	private ServiceRequest			request			= null;
-	private ServiceResponse			response			= null;
+	private ServiceRequest				request			= null;
+	private ServiceResponse				response			= null;
 	private ServiceAcceptorJob			acceptor			= null;
+	private OutputStream				serverOutputStream 	= null;
+	private ExecutorThreadPool			executorThreadPool 	= null;
 
 	public NIOSession(ServerEndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
 		this.context = endPoint.getContext();
 		this.endPoint = endPoint;
-		this.request = new ServiceRequest(context.getExecutorThreadPool(), this);
-		this.response = new ServiceResponse(endPoint,this);
+		this.request = new ServiceRequest(this);
+		this.executorThreadPool = context.getExecutorThreadPool();
 		this.acceptor = new NormalServiceAcceptor(endPoint, context.getFilterService(), request, response);
 	}
 
@@ -60,10 +66,6 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 		return this.creationTime;
 	}
 
-	public long getLastAccessedTime() {
-		return this.lastuse;
-	}
-
 	public ServerContext getServerContext() {
 		return context;
 	}
@@ -82,8 +84,11 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	}
 
 	public ServiceAcceptorJob updateAcceptor(ProtocolData protocolData) {
-		this.lastuse = System.currentTimeMillis();
 		return acceptor.update(endPoint,protocolData);
+	}
+	
+	public ServiceAcceptorJob updateAcceptor() {
+		return acceptor;
 	}
 
 	public int getEndpointMark() {
@@ -93,7 +98,25 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	public void setEndpointMark(int mark) {
 		endPoint.setMark(mark);
 	}
-	
-	
+
+	public InnerRequest getRequest() {
+		return request;
+	}
+
+	public InnerResponse getResponse() {
+		return response;
+	}
+
+	public OutputStream getServerOutputStream() {
+		return serverOutputStream;
+	}
+
+	public void setServerOutputStream(OutputStream serverOutputStream) {
+		this.serverOutputStream = serverOutputStream;
+	}
+
+	public ExecutorThreadPool getExecutorThreadPool() {
+		return this.executorThreadPool;
+	}
 
 }
