@@ -33,4 +33,8 @@ public interface Session extends Attributes {
 	public abstract void setServerOutputStream(OutputStream serverOutputStream) ;
 	
 	public abstract ExecutorThreadPool getExecutorThreadPool();
+	
+	public abstract boolean isStream();
+	
+	public abstract void setStream(boolean stream);
 }

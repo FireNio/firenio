@@ -9,11 +9,9 @@ import java.util.Map;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.AsynchServiceAcceptor;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
@@ -21,69 +19,31 @@ import com.gifisan.nio.servlet.AbstractNIOFilter;
 
 public class DownloadFilter extends AbstractNIOFilter {
 
-	private boolean			exclude			= false;
-	private Map<String, String>	excludesMap		= null;
+	private boolean			exclude		= false;
+	private Map<String, String>	excludesMap	= null;
 
 	public void accept(Request request, Response response) throws Exception {
 
 		String serviceName = request.getServiceName();
+		
 		int point = serviceName.lastIndexOf('.');
+		
 		if (point == -1) {
 			return;
 		}
+		
 		String subfix = serviceName.substring(point);
 
 		if (canDownload(subfix)) {
-			ExecutorThreadPool executor = request.getSession().getExecutorThreadPool();
-			
-			DownloadJob downloadJob = new DownloadJob(request, response);
-			
-			response.schdule();
-			
-			executor.dispatch(downloadJob);
-			
-		}
 
-	}
-
-	private boolean canDownload(String subfix) {
-		return exclude ? !excludesMap.containsKey(subfix) : true;
-
-	}
-	
-	public void initialize(ServerContext context, Configuration config) throws Exception {
-		String excludesContent = (String) config.getAttribute("excludes");
-		if (StringUtil.isNullOrBlank(excludesContent)) {
-			return;
-		}
-		this.exclude = true;
-		this.excludesMap = new HashMap<String, String>();
-		String[] excludes = excludesContent.split("\\|");
-		for (String exclude : excludes) {
-			if (StringUtil.isNullOrBlank(exclude)) {
-				continue;
-			}
-			excludesMap.put(exclude, null);
-		}
-
-	}
-
-	public void destroy(ServerContext context, Configuration config) throws Exception {
-		
-	}
-	
-	class DownloadJob extends AsynchServiceAcceptor {
-
-		public DownloadJob(Request request, Response response) {
-			super(request, response);
-		}
-
-		public void accept(Request request, Response response) throws Exception {
-			String serviceName = request.getServiceName();
 			String filePath = serviceName;
+			
 			Parameters param = request.getParameters();
+			
 			int start = param.getIntegerParameter("start");
+			
 			int downloadLength = param.getIntegerParameter("length");
+			
 			File file = new File(filePath);
 
 			FileInputStream inputStream = null;
@@ -102,16 +62,42 @@ public class DownloadFilter extends AbstractNIOFilter {
 				if (downloadLength == 0) {
 					downloadLength = available - start;
 				}
-				
+
 				response.setInputStream(inputStream);
-				
+
 				response.flush();
 
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);
 			} catch (IOException e) {
 				DebugUtil.debug(e);
-			} 
+			}
 		}
+	}
+
+	private boolean canDownload(String subfix) {
+		return exclude ? !excludesMap.containsKey(subfix) : true;
+
+	}
+
+	public void initialize(ServerContext context, Configuration config) throws Exception {
+		String excludesContent = (String) config.getAttribute("excludes");
+		if (StringUtil.isNullOrBlank(excludesContent)) {
+			return;
+		}
+		this.exclude = true;
+		this.excludesMap = new HashMap<String, String>();
+		String[] excludes = excludesContent.split("\\|");
+		for (String exclude : excludes) {
+			if (StringUtil.isNullOrBlank(exclude)) {
+				continue;
+			}
+			excludesMap.put(exclude, null);
+		}
+
+	}
+
+	public void destroy(ServerContext context, Configuration config) throws Exception {
+
 	}
 }

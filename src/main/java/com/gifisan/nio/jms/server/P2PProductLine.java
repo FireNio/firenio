@@ -12,14 +12,14 @@ import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 
-public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
+public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable {
 
-	private Map<String, ConsumerQueue>		consumerGroupMap		= null;
-	private MQContext					context				= null;
-	private MessageQ					messageGroup			= null;
-	private boolean					running				= false;
-	private long						dueTime				= 0;
-	private Logger						logger				= LoggerFactory.getLogger(P2PProductLine.class);
+	private Logger							logger		= LoggerFactory.getLogger(P2PProductLine.class);
+	protected Map<String, ConsumerQueue>		consumerMap	= null;
+	protected MQContext					context		= null;
+	protected MessageQueue					queue		= null;
+	protected long						dueTime		= 0;
+	protected boolean						running		= false;
 
 	public P2PProductLine(MQContext context) {
 		this.context = context;
@@ -29,11 +29,11 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		this.running = true;
 
-		this.messageGroup = new MessageQ();
+		this.queue = new MessageQueue();
 
-		this.consumerGroupMap = new HashMap<String, ConsumerQueue>();
+		this.consumerMap = new HashMap<String, ConsumerQueue>();
 
-		//TODO ..... set dueTime
+		// TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
 	}
@@ -44,19 +44,19 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 		this.running = false;
 	}
 
-	private ConsumerQueue getConsumerGroup(String queueName) {
+	protected ConsumerQueue getConsumerGroup(String queueName) {
 
-		ConsumerQueue consumerGroup = consumerGroupMap.get(queueName);
+		ConsumerQueue consumerGroup = consumerMap.get(queueName);
 
 		if (consumerGroup == null) {
 
-			synchronized (consumerGroupMap) {
+			synchronized (consumerMap) {
 
-				consumerGroup = consumerGroupMap.get(queueName);
+				consumerGroup = consumerMap.get(queueName);
 
 				if (consumerGroup == null) {
 					consumerGroup = new ConsumerQueue();
-					consumerGroupMap.put(queueName, consumerGroup);
+					consumerMap.put(queueName, consumerGroup);
 				}
 			}
 		}
@@ -68,19 +68,19 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 	}
 
 	public boolean offerMessage(Message message) {
-		return messageGroup.offer(message);
+		return queue.offer(message);
 	}
 
-	public void pollMessage(Request request, Response response,JMSSessionAttachment attachment) {
+	public void pollMessage(Request request, Response response, JMSSessionAttachment attachment) {
 
 		Parameters param = request.getParameters();
 
 		String queueName = param.getParameter("queueName");
 
 		ConsumerQueue consumerGroup = getConsumerGroup(queueName);
-		
-		Consumer consumer = new Consumer(consumerGroup, attachment,response, queueName);
-		
+
+		Consumer consumer = new Consumer(consumerGroup, attachment, response, queueName);
+
 		consumerGroup.offer(consumer);
 	}
 
@@ -90,21 +90,15 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 		consumerGroup.remove(consumer);
 
-		//FIXME 这样做不安全，出现问题的可能性比较小，但是以后再想办法解决
-		if (consumerGroup.size() == 0) {
-			synchronized (consumerGroupMap) {
-				if (consumerGroup.size() == 0) {
-					consumerGroupMap.remove(consumer.getQueueName());
-				}
-			}
-		}
+		// FIXME 如果 consumerGroup 空了， 需要处理吗
+
 	}
 
 	public void run() {
-		
-		for (;running;) {
 
-			Message message = messageGroup.poll(16);
+		for (; running;) {
+
+			Message message = queue.poll(16);
 
 			if (message == null) {
 				continue;
@@ -124,9 +118,9 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 			}
 
 			try {
-				
+
 				consumer.push(message);
-				
+
 				context.consumerMessage(message);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -139,7 +133,7 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 
 	}
 
-	private void filterUseless(Message message) {
+	protected void filterUseless(Message message) {
 		long now = System.currentTimeMillis();
 		long dueTime = this.dueTime;
 
@@ -147,7 +141,6 @@ public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, R
 			this.offerMessage(message);
 		}
 		// 消息过期了
-
 	}
 
 	public void setDueTime(long dueTime) {

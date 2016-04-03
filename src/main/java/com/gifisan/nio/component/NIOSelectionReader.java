@@ -65,6 +65,8 @@ public class NIOSelectionReader implements SelectionAccept {
 				
 				InnerSession session = endPoint.getCurrentSession();
 				
+				session.setStream(false);
+				
 				endPoint.setCurrentSession(session);
 
 				ServiceAcceptorJob job = session.updateAcceptor();
@@ -104,6 +106,8 @@ public class NIOSelectionReader implements SelectionAccept {
 		if (data.getProtocolType() != ProtocolDecoder.TEXT) {
 
 			InnerSession session = endPoint.getSession(data.getSessionID());
+			
+			session.setStream(true);
 
 			endPoint.setCurrentSession(session);
 

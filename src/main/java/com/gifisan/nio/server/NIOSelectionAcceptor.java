@@ -31,7 +31,7 @@ public class NIOSelectionAcceptor extends AbstractLifeCycle implements Selection
 	protected void doStart() throws Exception {
 		int CORE_SIZE = context.getServerCoreSize();
 
-		this.acceptorDispatch = new ExecutorThreadPool( "Service-acceptor",1, CORE_SIZE + 1);
+		this.acceptorDispatch = new ExecutorThreadPool( "Service-acceptor-",1, CORE_SIZE + 1);
 		this.acceptorDispatch.start();
 
 		this.acceptors[1] = new NIOSelectionReader(context, acceptorDispatch);

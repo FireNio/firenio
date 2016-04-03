@@ -15,6 +15,6 @@ public interface Message {
 	public abstract String getMsgID();
 
 	public abstract int getMsgType();
-
+	
 	public abstract long getTimestamp();
 }

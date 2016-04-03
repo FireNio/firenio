@@ -13,68 +13,73 @@ import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
 
-public class MQContextImpl extends AbstractLifeCycle implements MQContext {
+public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 
-	
 	private interface MessageParseFromRequest {
 
 		Message parse(Request request);
 	}
-	private long					dueTime		= 0;
-	private final int				LOGINED		= 1;
-	private HashMap<String, Message>	messageIDs	= new HashMap<String, Message>();
-	private P2PProductLine			productLine	= new P2PProductLine(this);
+
+	private long					dueTime				= 0;
+	private final int				LOGINED				= 1;
+	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
+	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
+	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
 
 	private MessageParseFromRequest[]	messageParsesFromRequest	= new MessageParseFromRequest[] {
-		// ERROR Message
-		null,
-		// NULL Message
-		null,
-		// Text Message
-		new MessageParseFromRequest() {
-			public Message parse(Request request) {
-				Parameters param = request.getParameters();
-				String messageID = param.getParameter("msgID");
-				String queueName = param.getParameter("queueName");
-				String content = param.getParameter("content");
-				TextMessage message = new TextMessage(messageID, queueName, content);
+			// ERROR Message
+			null,
+			// NULL Message
+			null,
+			// Text Message
+			new MessageParseFromRequest() {
+				public Message parse(Request request) {
+					Parameters param = request.getParameters();
+					String messageID = param.getParameter("msgID");
+					String queueName = param.getParameter("queueName");
+					String content = param.getParameter("content");
+					TextMessage message = new TextMessage(messageID, queueName, content);
 
-				return message;
-			}
-		},
-		new MessageParseFromRequest() {
-			public Message parse(Request request) {
-				Parameters param = request.getParameters();
-				String messageID = param.getParameter("msgID");
-				String queueName = param.getParameter("queueName");
-				BufferedOutputStream outputStream = (BufferedOutputStream) request.getSession().getServerOutputStream();
-				byte[] content = outputStream.toByteArray();
-				return new ByteMessage(messageID, queueName, content);
-			}
-		}
-	};
+					return message;
+				}
+			}, new MessageParseFromRequest() {
+				public Message parse(Request request) {
+					Parameters param = request.getParameters();
+					String messageID = param.getParameter("msgID");
+					String queueName = param.getParameter("queueName");
+					BufferedOutputStream outputStream = (BufferedOutputStream) request.getSession()
+							.getServerOutputStream();
+					byte[] content = outputStream.toByteArray();
+					return new ByteMessage(messageID, queueName, content);
+				}
+			}										};
 
-	
-
-	MQContextImpl() {}
+	MQContextImpl() {
+	}
 
 	public Message browser(String messageID) {
-
 		return messageIDs.get(messageID);
 	}
 
 	protected void doStart() throws Exception {
 
-		productLine.start();
+		p2pProductLine.start();
+		
+		subProductLine.start();
 
-		Thread lineThread = new Thread(productLine, "Message-product-line");
+		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
+		
+		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
-		lineThread.start();
+		p2pThread.start();
+		
+		subThread.start();
 
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(productLine);
+		LifeCycleUtil.stop(p2pProductLine);
+		LifeCycleUtil.stop(subProductLine);
 
 	}
 
@@ -96,10 +101,15 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 			messageIDs.put(message.getMsgID(), message);
 		}
 
-		return productLine.offerMessage(message);
+		return p2pProductLine.offerMessage(message);
 	}
 	
-	public void consumerMessage(Message message){
+	public boolean publishMessage(Message message){
+		
+		return subProductLine.offerMessage(message);
+	}
+
+	public void consumerMessage(Message message) {
 		synchronized (messageIDs) {
 			messageIDs.remove(message.getMsgID());
 		}
@@ -112,10 +122,14 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		return message;
 	}
 
-	public void pollMessage(Request request, Response response,JMSSessionAttachment attachment) {
+	public void pollMessage(Request request, Response response, JMSSessionAttachment attachment) {
 
-		productLine.pollMessage(request, response,attachment);
+		p2pProductLine.pollMessage(request, response, attachment);
+	}
+	
+	public void subscribeMessage(Request request, Response response, JMSSessionAttachment attachment) {
 
+		subProductLine.pollMessage(request, response, attachment);
 	}
 
 	public void setLogined(boolean logined, Session session) {
@@ -124,15 +138,15 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	public void setMessageDueTime(long dueTime) {
 		this.dueTime = dueTime;
-		this.productLine.setDueTime(dueTime);
+		this.p2pProductLine.setDueTime(dueTime);
 	}
 
 	public void removeConsumer(Consumer consumer) {
-		this.productLine.removeConsumer(consumer);
-		
+		this.p2pProductLine.removeConsumer(consumer);
 	}
-
 	
-	
+	public void removeSubscribe(Consumer consumer) {
+		this.p2pProductLine.removeConsumer(consumer);
+	}
 
 }

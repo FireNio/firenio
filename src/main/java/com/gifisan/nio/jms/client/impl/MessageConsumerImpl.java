@@ -82,7 +82,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	public Message subscibe() throws JMSException {
 		ClientResponse response;
 		try {
-			response = session.request("JMSTransactionServlet", subscibeParam);
+			response = session.request("JMSSubscribeServlet", subscibeParam);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}

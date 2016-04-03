@@ -8,7 +8,7 @@ import com.gifisan.nio.server.Request;
 import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
 
-public class JMSProducerServlet extends JMSServlet {
+public class JMSPublishServlet extends JMSServlet {
 
 	private final byte	TRUE		= 'T';
 	private final byte	FALSE	= 'F';
@@ -33,7 +33,7 @@ public class JMSProducerServlet extends JMSServlet {
 			
 			Message message = context.parse(request);
 
-			byte result = context.offerMessage(message) ? TRUE : FALSE;
+			byte result = context.publishMessage(message) ? TRUE : FALSE;
 
 			response.write(result);
 

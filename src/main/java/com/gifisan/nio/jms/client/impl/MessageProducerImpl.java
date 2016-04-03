@@ -51,7 +51,35 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 
 	public boolean publish(Message message) throws JMSException {
 
-		throw new JMSException("publish");
+		String param = message.toString();
+
+		ClientResponse response = null;
+
+		int msgType = message.getMsgType();
+
+		if (msgType == 2) {
+			try {
+				response = session.request("JMSPublishServlet", param);
+			} catch (IOException e) {
+				throw new JMSException(e.getMessage(), e);
+			}
+		} else if (msgType == 3) {
+			ByteMessage _message = (ByteMessage) message;
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getContent());
+			try {
+				response = session.request("JMSPublishServlet", param, inputStream);
+			} catch (IOException e) {
+				throw new JMSException(e.getMessage(), e);
+			}
+		} else {
+			throw new JMSException("msgType:" + msgType);
+		}
+		String result = response.getText();
+
+		if (result.length() == 1) {
+			return "T".equals(result);
+		}
+		throw new JMSException(result);
 	}
 
 }

@@ -27,8 +27,9 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	private ServiceRequest				request			= null;
 	private ServiceResponse				response			= null;
 	private ServiceAcceptorJob			acceptor			= null;
-	private OutputStream				serverOutputStream 	= null;
-	private ExecutorThreadPool			executorThreadPool 	= null;
+	private OutputStream				serverOutputStream	= null;
+	private ExecutorThreadPool			executorThreadPool	= null;
+	private boolean					stream			= false;
 
 	public NIOSession(ServerEndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
@@ -52,10 +53,10 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	}
 
 	public void destroyImmediately() {
-		
+
 		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
 
-		for (;listenerWrapper != null;) {
+		for (; listenerWrapper != null;) {
 			listenerWrapper.onDestroy(this);
 			listenerWrapper = listenerWrapper.nextListener();
 		}
@@ -84,9 +85,9 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	}
 
 	public ServiceAcceptorJob updateAcceptor(ProtocolData protocolData) {
-		return acceptor.update(endPoint,protocolData);
+		return acceptor.update(endPoint, protocolData);
 	}
-	
+
 	public ServiceAcceptorJob updateAcceptor() {
 		return acceptor;
 	}
@@ -117,6 +118,14 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 
 	public ExecutorThreadPool getExecutorThreadPool() {
 		return this.executorThreadPool;
+	}
+
+	public boolean isStream() {
+		return stream;
+	}
+
+	public void setStream(boolean stream) {
+		this.stream = stream;
 	}
 
 }

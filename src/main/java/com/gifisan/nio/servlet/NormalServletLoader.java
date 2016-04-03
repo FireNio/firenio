@@ -115,6 +115,10 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 				
 			}
 			
+			if (servlets.containsKey(serviceName)) {
+				throw new IllegalArgumentException("repeat servlet[ "+serviceName+"@"+className+" ]");
+			}
+			
 			GenericServlet servlet = (GenericServlet) clazz.newInstance();
 			
 			servlets.put(serviceName, servlet);
