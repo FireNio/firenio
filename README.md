@@ -71,9 +71,9 @@
 ```
 
 
-### 案例(感谢android-chat-starter@https://github.com/madhur/android-chat-starter)
-
-	![](https://raw.githubusercontent.com/NimbleIO/NimbleIO/master/images/TEST-1.png)
+### 案例
+	(感谢android-chat-starter@https://github.com/madhur/android-chat-starter)
+![](https://raw.githubusercontent.com/NimbleIO/NimbleIO/master/images/TEST-1.png)
 
 
 ### 示例详见 {src\test\java\test}
