@@ -27,6 +27,11 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 		for (; running;) {
 
 			InnerResponse writer = writers.poll();
+//			try {
+//				writer = writers.poll(16,TimeUnit.MILLISECONDS);
+//			} catch (InterruptedException e1) {
+//				e1.printStackTrace();
+//			}
 			if (writer == null) {
 				continue;
 			}
