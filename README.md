@@ -72,6 +72,8 @@
 
 
 ### 案例
+案例地址：https://github.com/NimbleIO/android-chat-starter
+
 	(感谢android-chat-starter@https://github.com/madhur/android-chat-starter)
 ![](https://raw.githubusercontent.com/NimbleIO/NimbleIO/master/images/TEST-1.png)
 
