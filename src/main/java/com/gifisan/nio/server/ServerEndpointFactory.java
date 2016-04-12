@@ -50,6 +50,10 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 
 	public void run() {
 
+		if (endPoints.size() == 0) {
+			return;
+		}
+		
 		logger.info("[NIOServer] 回收过期会话，剩余数量：" + endPoints.size());
 
 		context.getEncoding();
