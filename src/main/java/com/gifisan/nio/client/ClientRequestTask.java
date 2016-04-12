@@ -1,16 +1,13 @@
 package com.gifisan.nio.client;
 
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import com.gifisan.nio.LifeCycle;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ClientRequestTask implements Runnable,LifeCycle {
 
-	private BlockingQueue<ClientRequest>		requests		= new ArrayBlockingQueue<ClientRequest>(4);
+	private LinkedListM2O<ClientRequest>		requests		= new LinkedListM2O<ClientRequest>(4);
 	private Thread							owner		= null;
 	private boolean						running		= false;
 	private ClientConnection					connection	= null;
@@ -27,12 +24,7 @@ public class ClientRequestTask implements Runnable,LifeCycle {
 
 		for (; running;) {
 
-			ClientRequest request = null;
-			try {
-				request = requests.poll(16, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				DebugUtil.debug(e);
-			}
+			ClientRequest request = requests.poll(16);
 			
 			if (request == null) {
 				continue;

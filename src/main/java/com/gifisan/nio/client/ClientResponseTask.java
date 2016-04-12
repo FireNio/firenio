@@ -1,14 +1,11 @@
 package com.gifisan.nio.client;
 
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import com.gifisan.nio.LifeCycle;
 
 public class ClientResponseTask implements Runnable ,LifeCycle {
 
-	private BlockingQueue<ClientRequest>		requests		= new ArrayBlockingQueue<ClientRequest>(4);
 	private Thread							owner		= null;
 	private boolean						running		= false;
 	private ClientConnection					connection	= null;
@@ -18,10 +15,6 @@ public class ClientResponseTask implements Runnable ,LifeCycle {
 	public ClientResponseTask(ClientConnection connection, MessageBus[] buses) {
 		this.connection = connection;
 		this.buses = buses;
-	}
-
-	public void offer(ClientRequest request) {
-		this.requests.offer(request);
 	}
 
 	public void run() {

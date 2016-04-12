@@ -1,21 +1,13 @@
 package com.gifisan.nio.jms.server;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ConsumerQueue {
 
-	private ArrayBlockingQueue<Consumer>	consumers	= new ArrayBlockingQueue<Consumer>(128);
+	private LinkedListM2O<Consumer>	consumers	= new LinkedListM2O<Consumer>(128);
 
 	public Consumer poll(long timeout) {
-		try {
-			return consumers.poll(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			DebugUtil.debug(e);
-		}
-		return null;
+		return consumers.poll(timeout);
 	}
 
 	public int size(){
@@ -26,7 +18,4 @@ public class ConsumerQueue {
 		return this.consumers.offer(consumer);
 	}
 	
-	public void remove(Consumer consumer) {
-		this.consumers.remove(consumer);
-	}
 }

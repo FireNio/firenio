@@ -3,15 +3,14 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.concurrent.LinkedList;
+import com.gifisan.nio.concurrent.LinkedListM2O;
 import com.gifisan.nio.server.InnerResponse;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
-	private Thread						owner	= null;
-	private boolean					running	= false;
-//	private BlockingQueue<InnerResponse>	writers	= new ArrayBlockingQueue<InnerResponse>(1024 * 5000);
-	private LinkedList<InnerResponse>		writers	= new LinkedList<InnerResponse>();
+	private Thread							owner	= null;
+	private boolean						running	= false;
+	private LinkedListM2O<InnerResponse>		writers	= new LinkedListM2O<InnerResponse>();
 
 	public void offer(InnerResponse response) {
 		this.writers.offer(response);
@@ -20,7 +19,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 	public void run() {
 
 //		BlockingQueue<InnerResponse> writers = this.writers;
-		LinkedList<InnerResponse> writers = this.writers;
+		LinkedListM2O<InnerResponse> writers = this.writers;
 
 		byte unwriting = -1;
 

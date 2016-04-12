@@ -141,12 +141,4 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 		this.p2pProductLine.setDueTime(dueTime);
 	}
 
-	public void removeConsumer(Consumer consumer) {
-		this.p2pProductLine.removeConsumer(consumer);
-	}
-	
-	public void removeSubscribe(Consumer consumer) {
-		this.p2pProductLine.removeConsumer(consumer);
-	}
-
 }

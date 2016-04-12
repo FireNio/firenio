@@ -84,16 +84,6 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 		consumerGroup.offer(consumer);
 	}
 
-	public void removeConsumer(Consumer consumer) {
-
-		ConsumerQueue consumerGroup = consumer.getConsumerGroup();
-
-		consumerGroup.remove(consumer);
-
-		// FIXME 如果 consumerGroup 空了， 需要处理吗
-
-	}
-
 	public void run() {
 
 		for (; running;) {

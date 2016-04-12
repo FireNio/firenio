@@ -1,12 +1,10 @@
 package com.gifisan.nio;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class UniqueThread implements Runnable {
 
-	private BlockingQueue<Runnable>	jobs		= new ArrayBlockingQueue<Runnable>(999);
+	private LinkedListM2O<Runnable>	jobs		= new LinkedListM2O<Runnable>(999);
 	private boolean				running	= false;
 	private Thread					thread	= null;
 
@@ -22,23 +20,19 @@ public class UniqueThread implements Runnable {
 
 	public void run() {
 		for (; running;) {
+			Runnable job = jobs.poll(1000);
+			if (job == null) {
+				continue;
+			}
 			try {
-				Runnable job = jobs.poll(1000, TimeUnit.MILLISECONDS);
-				if (job == null) {
-					continue;
-				}
-				try {
-					job.run();
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			} catch (InterruptedException e) {
+				job.run();
+			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	public void stop(){
+
+	public void stop() {
 		this.running = false;
 	}
 }
