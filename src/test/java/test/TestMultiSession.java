@@ -37,7 +37,7 @@ public class TestMultiSession {
 			}).start();
 		}
 
-		ThreadUtil.sleep(100);
+		ThreadUtil.sleep(500);
 
 		CloseUtil.close(connector);
 	}

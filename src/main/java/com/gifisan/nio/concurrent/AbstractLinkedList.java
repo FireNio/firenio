@@ -85,15 +85,6 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 			_lock.unlock();
 			
 			return poll();
-//			
-//			synchronized (_empty_lock) {
-//				try {
-//					_empty_lock.wait(timeout);
-//				} catch (InterruptedException e) {
-//					DebugUtil.debug(e);
-//				}
-//				return poll();
-//			}
 		}
 
 		Object obj = _array[getAndIncrement_start()];

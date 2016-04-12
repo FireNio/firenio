@@ -139,8 +139,8 @@ public class ClientConnection implements Connectable, Closeable {
 		}
 	}
 
-	public void connect(boolean unique) throws IOException {
-		this.unique = unique;
+	public void connect(boolean mult) throws IOException {
+		this.unique = !mult;
 		this.connect();
 	}
 

@@ -42,9 +42,7 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 
 		ServerNIOEndPoint endPoint = new ServerNIOEndPoint(context, selectionKey, genericID++);
 
-		synchronized (endPoints) {
-			endPoints.put(endPoint.getEndPointID(), endPoint);
-		}
+		endPoints.put(endPoint.getEndPointID(), endPoint);
 
 		return endPoint;
 
@@ -63,10 +61,8 @@ public class ServerEndpointFactory extends AbstractLifeCycle implements Runnable
 
 	public void remove(ServerEndPoint endPoint) {
 		Map<Long, ServerEndPoint> endPoints = this.endPoints;
-		synchronized (endPoints) {
-			endPoints.remove(endPoint.getEndPointID());
-			DebugUtil.debug("EndPoint removed >> " + endPoint.getEndPointID());
-		}
+		endPoints.remove(endPoint.getEndPointID());
+		DebugUtil.debug("EndPoint removed >> " + endPoint.getEndPointID());
 
 	}
 

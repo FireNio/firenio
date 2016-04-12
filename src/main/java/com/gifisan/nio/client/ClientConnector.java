@@ -91,7 +91,7 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 		if (mult) {
 			if (connected.compareAndSet(false, true)) {
 				this.running = true;
-				this.connection.connect(false);
+				this.connection.connect(mult);
 				this.requestTask = new ClientRequestTask(connection);
 				this.responseTask = new ClientResponseTask(connection,buses);
 				try {
