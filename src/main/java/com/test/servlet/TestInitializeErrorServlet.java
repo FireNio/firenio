@@ -1,10 +1,10 @@
 package com.test.servlet;
 
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.server.NIOServlet;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.service.NIOServlet;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class TestInitializeErrorServlet extends NIOServlet{
 	

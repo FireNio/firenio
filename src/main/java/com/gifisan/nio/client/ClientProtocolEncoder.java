@@ -78,7 +78,7 @@ public class ClientProtocolEncoder {
 		// >> 右移N位
 		// << 左移N位
 		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.MULT;
+		header[0] = ProtocolDecoder.MULTI;
 		encodeNecessary(header, sessionID, serviceNameLength);
 		encodeContent(header, textLength);
 		encodeStream(header, streamLength);

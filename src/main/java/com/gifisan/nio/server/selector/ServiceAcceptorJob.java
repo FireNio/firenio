@@ -2,7 +2,7 @@ package com.gifisan.nio.server.selector;
 
 import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.server.ServerEndPoint;
-import com.gifisan.nio.server.ServiceAcceptor;
+import com.gifisan.nio.service.ServiceAcceptor;
 
 public interface ServiceAcceptorJob extends ServiceAcceptor, Runnable{
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * <pre>
  * [0       ~              9]
- *  0       = 类型 [3=心跳，0=TEXT，1=STREAM，2=MULT]
+ *  0       = 类型 [3=心跳，0=TEXT，1=STREAM，2=MULTI]
  *  1       = session id
  *  2       = service name的长度
  *  3,4,5   = text content的长度
@@ -16,7 +16,7 @@ import java.io.IOException;
 public interface ProtocolDecoder {
 
 	public static final byte	BEAT		= 3;
-	public static final byte	MULT		= 2;
+	public static final byte	MULTI	= 2;
 	public static final byte	STREAM	= 1;
 	public static final byte	TEXT		= 0;
 

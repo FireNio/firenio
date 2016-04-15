@@ -16,8 +16,8 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	= null;
 
-	public ServerProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
-		super(textDecoder, streamDecoder, multDecoder);
+	public ServerProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multiDecoder) {
+		super(textDecoder, streamDecoder, multiDecoder);
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");

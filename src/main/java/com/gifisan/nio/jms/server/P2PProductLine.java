@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable {
 

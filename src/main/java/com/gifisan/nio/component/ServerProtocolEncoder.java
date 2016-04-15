@@ -47,7 +47,7 @@ public class ServerProtocolEncoder implements ProtocolEncoder{
 		// >> 右移N位
 		// << 左移N位
 		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.MULT;
+		header[0] = ProtocolDecoder.MULTI;
 		header[1] = sessionID;
 		encodeText(header, textLength);
 		encodeStream(header, streamLength);

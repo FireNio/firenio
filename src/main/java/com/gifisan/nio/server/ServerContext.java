@@ -4,10 +4,10 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.FilterService;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
+import com.gifisan.nio.service.FilterService;
 
 public interface ServerContext extends Attributes, LifeCycle {
 

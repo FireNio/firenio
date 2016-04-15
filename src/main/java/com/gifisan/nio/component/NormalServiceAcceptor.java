@@ -6,10 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
+import com.gifisan.nio.service.FilterService;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
+import com.gifisan.nio.service.ServiceRequest;
+import com.gifisan.nio.service.ServiceResponse;
 
 public class NormalServiceAcceptor implements ServiceAcceptorJob {
 

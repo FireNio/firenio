@@ -4,9 +4,9 @@ import java.io.OutputStream;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class JMSProducerServlet extends JMSServlet {
 

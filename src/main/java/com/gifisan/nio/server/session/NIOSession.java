@@ -6,14 +6,14 @@ import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.NormalServiceAcceptor;
 import com.gifisan.nio.component.ProtocolData;
-import com.gifisan.nio.component.ServiceRequest;
-import com.gifisan.nio.component.ServiceResponse;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.server.InnerRequest;
 import com.gifisan.nio.server.InnerResponse;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerEndPoint;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
+import com.gifisan.nio.service.ServiceRequest;
+import com.gifisan.nio.service.ServiceResponse;
 
 public class NIOSession extends AttributesImpl implements InnerSession {
 

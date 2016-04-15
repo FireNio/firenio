@@ -12,15 +12,15 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.FilterService;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ServerProtocolDecoder;
 import com.gifisan.nio.component.ServerProtocolEncoder;
-import com.gifisan.nio.component.protocol.ServerMultDecoder;
+import com.gifisan.nio.component.protocol.ServerMultiDecoder;
 import com.gifisan.nio.component.protocol.ServerStreamDecoder;
 import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
+import com.gifisan.nio.service.FilterService;
 
 public class ServerContextImpl extends AbstractLifeCycle implements ServerContext {
 
@@ -51,7 +51,7 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		this.protocolDecoder = new ServerProtocolDecoder(
 				new TextDecoder(encoding),
 				new ServerStreamDecoder(encoding),
-				new ServerMultDecoder(encoding));
+				new ServerMultiDecoder(encoding));
 
 		logger.info("[NIOServer] 工作目录：{ {} }", appLocalAddres);
 		logger.info("[NIOServer] 项目编码：{ {} }", encoding);

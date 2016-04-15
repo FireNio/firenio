@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.Response;
+import com.gifisan.nio.service.Response;
 
 public class Consumer {
 

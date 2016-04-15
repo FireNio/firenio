@@ -3,10 +3,10 @@ package com.gifisan.nio.jms.server;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class JMSLoginServlet extends JMSServlet {
 

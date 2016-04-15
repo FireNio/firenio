@@ -2,9 +2,9 @@ package com.test.servlet;
 
 import java.io.IOException;
 
-import com.gifisan.nio.server.NIOServlet;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
+import com.gifisan.nio.service.NIOServlet;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class TestExceptionServlet extends NIOServlet{
 

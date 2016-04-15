@@ -9,9 +9,9 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 

@@ -2,8 +2,8 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public interface CatchWriteException {
 

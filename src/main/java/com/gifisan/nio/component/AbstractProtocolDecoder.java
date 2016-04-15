@@ -9,10 +9,10 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 
 	protected Decoder[]	decoders	= new Decoder[4];
 
-	public AbstractProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
+	public AbstractProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multiDecoder) {
 		this.decoders[0] = textDecoder;
 		this.decoders[1] = streamDecoder;
-		this.decoders[2] = multDecoder;
+		this.decoders[2] = multiDecoder;
 	}
 
 	public boolean decode(EndPoint endPoint, ProtocolDataImpl data) throws IOException {

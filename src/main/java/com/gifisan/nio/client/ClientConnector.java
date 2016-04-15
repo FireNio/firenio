@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
 public class ClientConnector implements Runnable, Connectable, Closeable {
@@ -87,11 +86,11 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 		}
 	}
 
-	public void connect(boolean mult) throws IOException {
-		if (mult) {
+	public void connect(boolean multi) throws IOException {
+		if (multi) {
 			if (connected.compareAndSet(false, true)) {
 				this.running = true;
-				this.connection.connect(mult);
+				this.connection.connect(multi);
 				this.requestTask = new ClientRequestTask(connection);
 				this.responseTask = new ClientResponseTask(connection,buses);
 				try {

@@ -11,8 +11,8 @@ import com.gifisan.nio.component.protocol.Decoder;
 
 public class ClientProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
 	
-	public ClientProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multDecoder) {
-		super(textDecoder, streamDecoder, multDecoder);
+	public ClientProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multiDecoder) {
+		super(textDecoder, streamDecoder, multiDecoder);
 	}
 
 	public void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {

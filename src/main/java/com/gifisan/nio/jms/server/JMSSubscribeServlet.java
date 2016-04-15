@@ -2,9 +2,9 @@ package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class JMSSubscribeServlet extends JMSServlet{
 

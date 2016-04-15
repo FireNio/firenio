@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.server.session.InnerSession;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public interface InnerResponse extends Response{
 

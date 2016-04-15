@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.gifisan.nio.server.NIOServlet;
-import com.gifisan.nio.server.Request;
-import com.gifisan.nio.server.Response;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.NIOServlet;
+import com.gifisan.nio.service.Request;
+import com.gifisan.nio.service.Response;
 
 public class TestUploadServlet extends NIOServlet {
 
