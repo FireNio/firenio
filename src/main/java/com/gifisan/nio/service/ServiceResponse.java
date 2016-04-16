@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.FlushedException;
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.CatchWriteException;
 import com.gifisan.nio.component.EndPoint;
@@ -34,7 +33,6 @@ public class ServiceResponse implements InnerResponse {
 	private int				writedLength		= 0;
 	private ByteBuffer			streamBuffer		= null;
 	private EndPointWriter		endPointWriter		= null;
-	private WriterJob			writerJob			= null;
 
 	public ServiceResponse(ServerEndPoint endPoint, NIOSession session) {
 		this.endPoint = endPoint;
@@ -63,16 +61,30 @@ public class ServiceResponse implements InnerResponse {
 
 		if (dataLength > 0) {
 
-			this.writerJob = MULTI_WriterJob;
-		
-			this.endPointWriter.offer(this);
+			MultiResponseWriter writer = new MultiResponseWriter(
+					buffer, 
+					endPoint, 
+					sessionID, 
+					session.getRequest(), 
+					catchWriteException, 
+					writedLength, 
+					dataLength, 
+					inputStream, 
+					streamBuffer);
+			this.endPointWriter.offer(writer);
 			
 			return;
 		}
 
-		this.writerJob = TEXT_WriterJob;
-
-		this.endPointWriter.offer(this);
+		TextResponseWriter writer = new TextResponseWriter(
+				buffer, 
+				endPoint, 
+				sessionID, 
+				session.getRequest(), 
+				catchWriteException);
+		
+		
+		this.endPointWriter.offer(writer);
 		
 	}
 
@@ -125,143 +137,15 @@ public class ServiceResponse implements InnerResponse {
 		return sessionID;
 	}
 
-	public boolean complete() {
-		return writerJob.complete(this);
-	}
-
-	public void doWrite() throws IOException {
-		this.writerJob.doWrite(this);
-	}
-
 	public boolean complete1() {
 		return !buffer.hasRemaining() && writedLength == dataLength;
 	}
 
-	public void doWrite1() throws IOException {
-		ByteBuffer buffer = this.buffer;
-		EndPoint endPoint = this.endPoint;
-		if (buffer.hasRemaining()) {
-			endPoint.write(buffer);
-			if (buffer.hasRemaining()) {
-				return;
-			}
-		}
-
-		if (writedLength < dataLength) {
-			buffer = streamBuffer;
-			if (buffer.hasRemaining()) {
-				int length = endPoint.write(buffer);
-				writedLength += length;
-			} else {
-				fill(inputStream, buffer);
-				int length = endPoint.write(buffer);
-				writedLength += length;
-			}
-		}
-	}
-
-	private void fill(InputStream inputStream, ByteBuffer buffer) throws IOException {
-		byte[] array = buffer.array();
-		int pos = 0;
-		for (; pos < array.length;) {
-			int n = inputStream.read(array, pos, array.length - pos);
-			if (n <= 0)
-				break;
-			pos += n;
-		}
-		buffer.limit(pos);
-		buffer.flip();
-	}
-
-	public void catchException(Request request, Response response, IOException exception) {
-		// this.c
-		// FIXME ........
-		if (catchWriteException != null) {
-			catchWriteException.catchException(request, response, exception);
-		}
-	}
-
 	public void catchException(CatchWriteException catchWriteException) {
 		this.catchWriteException = catchWriteException;
-
 	}
 
 	public InnerSession getInnerSession() {
 		return session;
 	}
-
-	static interface WriterJob {
-
-		boolean complete(ServiceResponse response);
-
-		void doWrite(ServiceResponse response) throws IOException;
-	}
-
-	static class TextWriterJob implements WriterJob {
-
-		public boolean complete(ServiceResponse response) {
-			return !response.buffer.hasRemaining();
-		}
-
-		public void doWrite(ServiceResponse response) throws IOException {
-			ByteBuffer buffer = response.buffer;
-			EndPoint endPoint = response.endPoint;
-			if (buffer.hasRemaining()) {
-				endPoint.write(buffer);
-				if (buffer.hasRemaining()) {
-					return;
-				}
-			}
-		}
-	}
-
-	static class MultiWriterJob implements WriterJob {
-
-		public boolean complete(ServiceResponse response) {
-			if(!response.buffer.hasRemaining() && response.writedLength == response.dataLength){
-				CloseUtil.close(response.inputStream);
-				return true;
-			}
-			return false;
-		}
-
-		public void doWrite(ServiceResponse response) throws IOException {
-			ByteBuffer buffer = response.buffer;
-			EndPoint endPoint = response.endPoint;
-			if (buffer.hasRemaining()) {
-				endPoint.write(buffer);
-				if (buffer.hasRemaining()) {
-					return;
-				}
-			}
-
-			if (response.writedLength < response.dataLength) {
-				buffer = response.streamBuffer;
-				if (buffer.hasRemaining()) {
-					int length = endPoint.write(buffer);
-					response.writedLength += length;
-				} else {
-					fill(response.inputStream, buffer);
-					int length = endPoint.write(buffer);
-					response.writedLength += length;
-				}
-			}
-		}
-
-		private void fill(InputStream inputStream, ByteBuffer buffer) throws IOException {
-			byte[] array = buffer.array();
-			int pos = 0;
-			for (; pos < array.length;) {
-				int n = inputStream.read(array, pos, array.length - pos);
-				if (n <= 0)
-					break;
-				pos += n;
-			}
-			buffer.limit(pos);
-			buffer.flip();
-		}
-	}
-
-	private static WriterJob	TEXT_WriterJob		= new TextWriterJob();
-	private static WriterJob	MULTI_WriterJob		= new MultiWriterJob();
 }

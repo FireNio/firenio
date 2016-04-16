@@ -61,11 +61,13 @@ public class ClientConnector implements Connectable, Closeable {
 			
 			this.requestTask = new ClientRequestTask(connection);
 			
-			this.connection.connect(multi);
-			
 			if (multi) {
 				
+				this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
+
 				this.responseTask = new ClientResponseTask(connection, buses);
+				
+				this.connection.connect(multi);
 				
 				try {
 					
@@ -77,15 +79,15 @@ public class ClientConnector implements Connectable, Closeable {
 					
 				}
 				
-				this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
-				
 			} else {
 				
 				UniqueSession  uniqueSession = new UniqueSession(this.getClientConnection(), requestTask);
 				
 				this.clientSessionFactory = new UniqueClientSessionFactory(uniqueSession);
+				
+				this.connection.connect(multi);
 			}
-
+			
 			try {
 				
 				this.requestTask.start();

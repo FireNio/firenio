@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+import com.gifisan.nio.component.CatchWriteException;
+
 public interface Response{
 	
 	/**
@@ -25,5 +27,7 @@ public interface Response{
 	public abstract void write(byte[] bytes) throws IOException;
 
 	public abstract void write(byte[] bytes, int offset, int length) throws IOException;
+	
+	public abstract void catchException(CatchWriteException catchWriteException);
 	
 }

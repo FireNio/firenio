@@ -4,17 +4,17 @@ import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.concurrent.LinkedListM2O;
-import com.gifisan.nio.server.InnerResponse;
+import com.gifisan.nio.service.ResponseWriter;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 	private Thread							owner	= null;
 	private boolean						running	= false;
-	private LinkedListM2O<InnerResponse>		writers	= new LinkedListM2O<InnerResponse>();
+	private LinkedListM2O<ResponseWriter>		writers	= new LinkedListM2O<ResponseWriter>();
 //	private BlockingQueue<InnerResponse> writers = new ArrayBlockingQueue<InnerResponse>(10000 * 100);
 
-	public void offer(InnerResponse response) {
-		this.writers.offer(response);
+	public void offer(ResponseWriter writer) {
+		this.writers.offer(writer);
 	}
 
 	public void run() {
@@ -26,12 +26,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 		for (; running;) {
 
-			InnerResponse writer = writers.poll(16);
-//			try {
-//				writer = writers.poll(16,TimeUnit.MILLISECONDS);
-//			} catch (InterruptedException e1) {
-//				e1.printStackTrace();
-//			}
+			ResponseWriter writer = writers.poll(16);
 			
 			if (writer == null) {
 				continue;
@@ -59,7 +54,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 				e.printStackTrace();
 
-				writer.catchException(writer.getInnerSession().getRequest(), writer, e);
+				writer.catchException(writer.getRequest(), e);
 			}
 		}
 	}
