@@ -31,7 +31,7 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 			}
 		} else if (msgType == 3) {
 			ByteMessage _message = (ByteMessage) message;
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getContent());
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
 			try {
 				response = session.request("JMSProducerServlet", param, inputStream);
 			} catch (IOException e) {
@@ -65,7 +65,7 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 			}
 		} else if (msgType == 3) {
 			ByteMessage _message = (ByteMessage) message;
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getContent());
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
 			try {
 				response = session.request("JMSPublishServlet", param, inputStream);
 			} catch (IOException e) {

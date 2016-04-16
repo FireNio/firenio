@@ -37,8 +37,8 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 					Parameters param = request.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
-					String content = param.getParameter("content");
-					TextMessage message = new TextMessage(messageID, queueName, content);
+					String text = param.getParameter("text");
+					TextMessage message = new TextMessage(messageID, queueName, text);
 
 					return message;
 				}
@@ -47,15 +47,17 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 					Parameters param = request.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
+					String text = param.getParameter("text");
+					
 					BufferedOutputStream outputStream = (BufferedOutputStream) request.getSession()
 							.getServerOutputStream();
-					byte[] content = outputStream.toByteArray();
-					return new ByteMessage(messageID, queueName, content);
+					byte[] array = outputStream.toByteArray();
+					return new ByteMessage(messageID, queueName,text, array);
 				}
-			}										};
+			}										
+		};
 
-	MQContextImpl() {
-	}
+	MQContextImpl() {}
 
 	public Message browser(String messageID) {
 		return messageIDs.get(messageID);

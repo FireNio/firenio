@@ -48,8 +48,8 @@ public class MessageDecoder {
 				Parameters param = response.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
-				String content = param.getParameter("content");
-				TextMessage message = new TextMessage(messageID,queueName,content);
+				String text = param.getParameter("text");
+				TextMessage message = new TextMessage(messageID,queueName,text);
 				
 				
 				return message;
@@ -61,10 +61,11 @@ public class MessageDecoder {
 				Parameters param = response.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
+				String text = param.getParameter("text");
 				try {
-					byte[] content = StreamUtil.completeRead(response.getInputStream());
+					byte[] array = StreamUtil.completeRead(response.getInputStream());
 					
-					return new ByteMessage(messageID,queueName,content);
+					return new ByteMessage(messageID,queueName,text,array);
 					
 				} catch (IOException e) {
 					throw new JMSException(e.getMessage()+response.getText(),e);

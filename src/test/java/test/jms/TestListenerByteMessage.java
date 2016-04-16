@@ -36,7 +36,7 @@ public class TestListenerByteMessage {
 		
 		if (message.getMsgType() == Message.TYPE_BYTE) {
 			ByteMessage _Message = (ByteMessage) message;
-			System.out.println(new String(_Message.getContent(),Encoding.DEFAULT));
+			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
 		}
 
 		consumer.logout();

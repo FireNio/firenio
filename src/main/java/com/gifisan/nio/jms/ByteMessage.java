@@ -2,23 +2,18 @@ package com.gifisan.nio.jms;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class ByteMessage extends BasicMessage {
+public class ByteMessage extends TextMessage {
 
-	private byte[]	content	= null;
+	private byte[]	array	= null;
 
-	public ByteMessage(String messageID, String queueName, byte[] content) {
-		super(messageID, queueName);
-		this.content = content;
+	public ByteMessage(String messageID, String queueName,String text, byte[] array) {
+		super(messageID, queueName,text);
+		this.array = array;
 	}
 
-	public byte[] getContent() {
-		return content;
+	public byte[] getByteArray() {
+		return array;
 	}
-
-	public int getMsgType() {
-		return Message.TYPE_BYTE;
-	}
-
 	
 	public String toString() {
 		return new StringBuilder(24)
@@ -28,13 +23,19 @@ public class ByteMessage extends BasicMessage {
 			.append(getQueueName())
 			.append("\",\"timestamp\":")
 			.append(getTimestamp())
-			.append("}")
+			.append(",\"text\":\"")
+			.append(getText0())
+			.append("\"}")
 			.toString();
 	}
 
+	public int getMsgType() {
+		return Message.TYPE_BYTE;
+	}
+	
 	public static void main(String[] args) {
 		
-		ByteMessage message = new ByteMessage("mid","qname",null);
+		ByteMessage message = new ByteMessage("mid","qname","text",null);
 		
 		System.out.println(JSONObject.toJSON(message).toString());
 		System.out.println(message.toString());

@@ -52,7 +52,7 @@ public class Consumer {
 		}else{
 			ByteMessage byteMessage = (ByteMessage) message;
 
-			byte [] bytes = byteMessage.getContent();
+			byte [] bytes = byteMessage.getByteArray();
 			
 			response.setInputStream(new ByteArrayInputStream(bytes));
 			
