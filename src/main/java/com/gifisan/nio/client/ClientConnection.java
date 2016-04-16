@@ -13,10 +13,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.NetworkWeakException;
+import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DateUtil;
+import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.ProtocolData;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ClientMultiDecoder;
 import com.gifisan.nio.component.protocol.ClientStreamDecoder;
@@ -32,12 +35,12 @@ public class ClientConnection implements Connectable, Closeable {
 	private int				port			= 0;
 	private Selector			selector		= null;
 	private InetSocketAddress	serverAddress	= null;
-	private ClientWriter		writer		= new NormalClientWriter();
 	private boolean			close		= false;
 	private boolean			closed		= false;
 	private boolean			unique		= true;
 	private ProtocolDecoder		decoder		= null;
 	private ClientConnector 		connector		= null;
+	private byte[]			beat			= { 3 };
 
 	public ClientConnection(String host, int port,ClientConnector connector) {
 		this.host = host;
@@ -61,7 +64,7 @@ public class ClientConnection implements Connectable, Closeable {
 		return response;
 	}
 
-	protected ClientResponse acceptResponse() throws IOException {
+	public ClientResponse acceptResponse() throws IOException {
 		for (;;) {
 			selector.select(1000);
 			Set<SelectionKey> selectionKeys = selector.selectedKeys();
@@ -84,22 +87,23 @@ public class ClientConnection implements Connectable, Closeable {
 		}
 	}
 
-	protected ProtocolData acceptResponse(long timeout) throws IOException {
-		for (;;) {
-			selector.select(1000);
-			Set<SelectionKey> selectionKeys = selector.selectedKeys();
-			Iterator<SelectionKey> iterator = selectionKeys.iterator();
-			if (iterator.hasNext()) {
-				iterator.next();
-				iterator.remove();
-				return acceptResponse(endPoint);
-			}
-
-			if (netweak) {
-				throw new NetworkWeakException("server is unavailable");
-			}
-
+	public ClientResponse acceptResponse(long timeout) throws IOException {
+		
+		if (timeout == 0) {
+			return acceptResponse();
 		}
+		
+		selector.select(timeout);
+		Set<SelectionKey> selectionKeys = selector.selectedKeys();
+		Iterator<SelectionKey> iterator = selectionKeys.iterator();
+		if (iterator.hasNext()) {
+			iterator.next();
+			iterator.remove();
+			return acceptResponse(endPoint);
+		}
+
+		throw new TimeoutException("server is unavailable");
+
 	}
 
 	private void checkConnector() throws IOException {
@@ -155,14 +159,10 @@ public class ClientConnection implements Connectable, Closeable {
 				if (channel.isConnectionPending()) {
 					channel.finishConnect();
 					this.netweak = false;
-					this.endPoint = new ClientEndPoint(selectionKey,connector);
+					this.endPoint = new ClientEndPoint(selectionKey,connector.getClientSessionFactory());
 				}
 			}
 		}
-	}
-
-	protected void keepAlive() {
-		this.writer = new AliveClientWriter();
 	}
 
 	protected void setNetworkWeak() {
@@ -187,7 +187,7 @@ public class ClientConnection implements Connectable, Closeable {
 
 		buffer.flip();
 
-		writer.writeText(endPoint, buffer);
+		endPoint.write(buffer);
 
 		endPoint.register(selector, SelectionKey.OP_READ);
 	}
@@ -206,17 +206,19 @@ public class ClientConnection implements Connectable, Closeable {
 
 		buffer.flip();
 
-		writer.writeText(endPoint, buffer);
+		endPoint.write(buffer);
 		
-		writer.writeStream(endPoint, inputStream, 102400);
+		StreamUtil.write(inputStream, endPoint, 0, inputStream.available(), 102400);
 
 		endPoint.register(selector, SelectionKey.OP_READ);
 	}
 
 	protected void writeBeat() throws IOException {
 		checkConnector();
-		writer.writeBeat(endPoint);
-		System.out.println(">>write beat........." + DateUtil.now());
+		
+		endPoint.write(beat);
+		
+		DebugUtil.debug(">>write beat........." + DateUtil.now());
 	}
 
 }

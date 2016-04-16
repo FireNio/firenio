@@ -7,18 +7,19 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.gifisan.nio.client.session.ClientSessionFactory;
 import com.gifisan.nio.component.AbstractEndPoint;
 import com.gifisan.nio.component.EndPoint;
 
 public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 
-	public ClientEndPoint(SelectionKey selectionKey, ClientConnector clientConnector) throws SocketException {
+	public ClientEndPoint(SelectionKey selectionKey, ClientSessionFactory	clientSessionFactory) throws SocketException {
 		super(selectionKey);
-		this.clientConnector = clientConnector;
+		this.clientSessionFactory = clientSessionFactory;
 	}
 
-	private ClientConnector		clientConnector	= null;
-	private EndPointInputStream	inputStream		= null;
+	private ClientSessionFactory	clientSessionFactory	= null;
+	private EndPointInputStream	inputStream			= null;
 
 	public EndPointInputStream getInputStream() {
 		return inputStream;
@@ -33,7 +34,7 @@ public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 	}
 
 	public int sessionSize() {
-		return clientConnector.getClientSesssionSize();
+		return clientSessionFactory.getSessionSize();
 	}
 
 	public int write(ByteBuffer buffer) throws IOException {

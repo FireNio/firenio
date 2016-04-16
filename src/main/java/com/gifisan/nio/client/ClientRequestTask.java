@@ -7,7 +7,7 @@ import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ClientRequestTask implements Runnable,LifeCycle {
 
-	private LinkedListM2O<ClientRequest>		requests		= new LinkedListM2O<ClientRequest>(4);
+	private LinkedListM2O<ClientRequest>		requests		= new LinkedListM2O<ClientRequest>(5000);
 	private Thread							owner		= null;
 	private boolean						running		= false;
 	private ClientConnection					connection	= null;
@@ -31,7 +31,25 @@ public class ClientRequestTask implements Runnable,LifeCycle {
 			}
 			
 			try {
-				connection.write(request.getSessionID(), request.getServiceName(), request.getContent());
+				
+				if (request.getInputStream() != null) {
+					connection.write(
+							request.getSessionID(), 
+							request.getServiceName(), 
+							request.getText(),
+							request.getInputStream());
+					continue;
+				}
+				
+				if (request.getServiceName() == null) {
+					connection.writeBeat();
+					continue;
+				}
+				
+				connection.write(
+						request.getSessionID(), 
+						request.getServiceName(), 
+						request.getText());
 			} catch (IOException e) {
 				e.printStackTrace();
 				running = false;

@@ -5,64 +5,38 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.gifisan.nio.client.session.ClientSessionFactory;
+import com.gifisan.nio.client.session.MultiClientSessionFactory;
+import com.gifisan.nio.client.session.UniqueClientSessionFactory;
+import com.gifisan.nio.client.session.UniqueSession;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
-public class ClientConnector implements Runnable, Connectable, Closeable {
+public class ClientConnector implements Connectable, Closeable {
 
-	private ClientConnection		connection	= null;
-	private boolean			running		= true;
-	private ClientResponseTask	responseTask	= null;
-	private ClientRequestTask	requestTask	= null;
-	private AtomicBoolean		connected		= new AtomicBoolean(false);
-	private ClientSesssion[]		sessions		= new ClientSesssion[4];
-	private AtomicInteger		sessionIndex	= new AtomicInteger(-1);
-	private MessageBus[]		buses		= new MessageBus[4];
-	private long				checkInterval	= 5 * 60 * 1000;
-	private AtomicBoolean		keepAlive		= new AtomicBoolean(false);
-	private TaskExecutor		taskExecutor	= null;
-	private boolean			unique		= false;
-	private ClientSesssion		uniqueSession	= null;
+	private ClientConnection		connection			= null;
+	private ClientResponseTask	responseTask			= null;
+	private ClientRequestTask	requestTask			= null;
+	private AtomicBoolean		connected				= new AtomicBoolean(false);
+	private AtomicInteger		sessionIndex			= new AtomicInteger(-1);
+	private MessageBus[]		buses				= new MessageBus[4];
+	private AtomicBoolean		keepAlive				= new AtomicBoolean(false);
+	private TaskExecutor		taskExecutor			= null;
+	private ClientSessionFactory	clientSessionFactory	= null;
+
+	protected ClientSessionFactory getClientSessionFactory() {
+		return clientSessionFactory;
+	}
 
 	public ClientSesssion getClientSession() throws IOException {
 		if (connected.get()) {
-			if (unique) {
-				return uniqueSession;
-			} else {
-				int _sessionID = sessionIndex.incrementAndGet();
-				if (_sessionID > 4) {
-					throw new IOException("max session size 4,now " + _sessionID);
-				}
-				byte sessionID = (byte) _sessionID;
-				MessageBus bus = new MessageBus();
-				ClientSesssion session = new MultiSession(requestTask, bus, sessionID);
-				buses[sessionID] = bus;
-				sessions[sessionID] = session;
-				return session;
-			}
+			return clientSessionFactory.getClientSesssion();
 		}
 		throw new IOException("did not connected to server");
 	}
 
 	public ClientConnector(String host, int port) {
 		this.connection = new ClientConnection(host, port, this);
-	}
-
-	public void run() {
-
-		for (; running;) {
-			try {
-				ClientResponse response = connection.acceptResponse();
-				if (response == null) {
-					running = false;
-					continue;
-				}
-				MessageBus bus = buses[response.getSessionID()];
-				bus.setResponse(response);
-			} catch (IOException e) {
-				e.printStackTrace();
-				this.running = false;
-			}
-		}
 	}
 
 	public void close() throws IOException {
@@ -79,29 +53,47 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	}
 
 	public void connect() throws IOException {
-		if (connected.compareAndSet(false, true)) {
-			this.unique = true;
-			this.connection.connect();
-			this.uniqueSession = new UniqueSession(this.getClientConnection());
-		}
+		this.connect(false);
 	}
 
 	public void connect(boolean multi) throws IOException {
-		if (multi) {
-			if (connected.compareAndSet(false, true)) {
-				this.running = true;
-				this.connection.connect(multi);
-				this.requestTask = new ClientRequestTask(connection);
-				this.responseTask = new ClientResponseTask(connection,buses);
+		if (connected.compareAndSet(false, true)) {
+			
+			this.requestTask = new ClientRequestTask(connection);
+			
+			this.connection.connect(multi);
+			
+			if (multi) {
+				
+				this.responseTask = new ClientResponseTask(connection, buses);
+				
 				try {
+					
 					this.responseTask.start();
-					this.requestTask.start();
+					
 				} catch (Exception e) {
-					throw new IOException(e.getMessage(),e);
+					
+					throw new IOException(e.getMessage(), e);
+					
 				}
+				
+				this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
+				
+			} else {
+				
+				UniqueSession  uniqueSession = new UniqueSession(this.getClientConnection(), requestTask);
+				
+				this.clientSessionFactory = new UniqueClientSessionFactory(uniqueSession);
 			}
-		} else {
-			connect();
+
+			try {
+				
+				this.requestTask.start();
+				
+			} catch (Exception e) {
+				
+				DebugUtil.debug(e);
+			}
 		}
 	}
 
@@ -121,18 +113,12 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	 * 服务端会发现噢原来连接断开了，现在需要做的是一定要让客户端知道自己和服务端还连接着，</BR> 这样可以确保自己能够收到服务端发来的消息。
 	 */
 	public void keepAlive() {
-		if (keepAlive.compareAndSet(false, true)) {
-			this.connection.keepAlive();
-			try {
-				this.startTouchDistantJob();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+
+		this.keepAlive(5 * 60 * 1000);
 	}
 
-	private void startTouchDistantJob() throws Exception {
-		TouchDistantJob job = new TouchDistantJob(connection);
+	private void startTouchDistantJob(long checkInterval) throws Exception {
+		TouchDistantJob job = new TouchDistantJob(requestTask);
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}
@@ -143,13 +129,13 @@ public class ClientConnector implements Runnable, Connectable, Closeable {
 	 * @param checkInterval
 	 */
 	public void keepAlive(long checkInterval) {
-		this.checkInterval = checkInterval;
-		this.keepAlive();
-	}
-
-	protected int getClientSesssionSize() {
-		int size = this.sessionIndex.get() + 1;
-		return size > 4 ? 4 : size;
+		if (keepAlive.compareAndSet(false, true)) {
+			try {
+				this.startTouchDistantJob(checkInterval);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

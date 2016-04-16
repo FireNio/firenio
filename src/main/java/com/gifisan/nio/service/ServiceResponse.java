@@ -73,6 +73,7 @@ public class ServiceResponse implements InnerResponse {
 		this.writerJob = TEXT_WriterJob;
 
 		this.endPointWriter.offer(this);
+		
 	}
 
 	public void setInputStream(InputStream inputStream) throws IOException {

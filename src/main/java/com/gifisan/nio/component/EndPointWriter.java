@@ -11,6 +11,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 	private Thread							owner	= null;
 	private boolean						running	= false;
 	private LinkedListM2O<InnerResponse>		writers	= new LinkedListM2O<InnerResponse>();
+//	private BlockingQueue<InnerResponse> writers = new ArrayBlockingQueue<InnerResponse>(10000 * 100);
 
 	public void offer(InnerResponse response) {
 		this.writers.offer(response);
@@ -19,22 +20,23 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 	public void run() {
 
 //		BlockingQueue<InnerResponse> writers = this.writers;
-		LinkedListM2O<InnerResponse> writers = this.writers;
+//		LinkedListM2O<InnerResponse> writers = this.writers;
 
 		byte unwriting = -1;
 
 		for (; running;) {
 
-			InnerResponse writer = writers.poll(128);
+			InnerResponse writer = writers.poll(16);
 //			try {
 //				writer = writers.poll(16,TimeUnit.MILLISECONDS);
 //			} catch (InterruptedException e1) {
 //				e1.printStackTrace();
 //			}
+			
 			if (writer == null) {
 				continue;
 			}
-
+			
 			EndPoint endPoint = writer.getEndPoint();
 
 			if (endPoint.isWriting(writer.getSessionID())) {
@@ -48,7 +50,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 				if (writer.complete()) {
 
 					endPoint.setWriting(unwriting);
-
+					
 				} else {
 
 					writers.offer(writer);

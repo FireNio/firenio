@@ -1,20 +1,25 @@
-package com.gifisan.nio.client;
+package com.gifisan.nio.client.session;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.gifisan.nio.client.ClientRequest;
+import com.gifisan.nio.client.ClientRequestTask;
+import com.gifisan.nio.client.ClientResponse;
+import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.MessageBus;
 import com.gifisan.nio.common.StringUtil;
 
 public class MultiSession implements ClientSesssion {
 
-	private byte				sessionID		= 0;
 	private long				timeout		= 0;
 	private MessageBus			bus			= null;
 	private ClientRequestTask	requestTask	= null;
+	private ClientRequest 		request 		= new ClientRequest();
 
 	protected MultiSession(ClientRequestTask requestTask, MessageBus bus, byte sessionID) {
 		this.requestTask = requestTask;
-		this.sessionID = sessionID;
+		this.request.setSessionID(sessionID);
 		this.bus = bus;
 	}
 
@@ -27,7 +32,11 @@ public class MultiSession implements ClientSesssion {
 			throw new IOException("empty service name");
 		}
 
-		ClientRequest request = new ClientRequest(sessionID, serviceName, content);
+		ClientRequest request = this.request;
+		
+		request.setServiceName(serviceName);
+		
+		request.setText(content);
 		
 		requestTask.offer(request);
 

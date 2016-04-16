@@ -8,6 +8,8 @@ import com.gifisan.nio.service.Response;
 public class TestSimpleServlet extends NIOServlet{
 	
 	private TestSimple1 simple1 = new TestSimple1();
+	
+//	private AtomicInteger size = new AtomicInteger();
 
 	public void accept(Request request, Response response) throws Exception {
 
@@ -21,6 +23,7 @@ public class TestSimpleServlet extends NIOServlet{
 		response.write("$");
 		response.flush();
 		
+//		System.out.println("=============================="+size.incrementAndGet());
 	}
 
 }

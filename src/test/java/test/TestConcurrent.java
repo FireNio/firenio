@@ -13,13 +13,13 @@ public class TestConcurrent {
 
 	public static void main(String[] args) throws Exception {
 
-		QueueThreadPool pool = new QueueThreadPool("test-concurrent",10);
+		QueueThreadPool pool = new QueueThreadPool("test-concurrent", 10);
 
 		pool.addLifeCycleListener(new TestConcurrentListener());
 
 		pool.start();
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 4; i++) {
 			pool.dispatch(new T(String.valueOf(i)));
 		}
 
@@ -58,13 +58,13 @@ class T implements Runnable {
 			ClientConnector connector = ClientUtil.getClientConnector();
 			connector.connect();
 			ClientSesssion session = connector.getClientSession();
-			
-			for (int i = 0; i < 100000; i++) {
+
+			for (int i = 0; i < 50000; i++) {
 				session.request(serviceKey, "==================");
 			}
-			
+
 			CloseUtil.close(connector);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
