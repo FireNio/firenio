@@ -28,4 +28,13 @@ public interface MQContext extends Queue, LifeCycle{
 
 	public abstract void subscribeMessage(Request request, Response response, JMSSessionAttachment attachment);
 	
+	public abstract void setUsername(String username);
+
+	public abstract void setPassword(String password);
+
+	public abstract boolean login(Request request, JMSSessionAttachment attachment);
+
+	public abstract boolean isOnLine(String queueName);
+
+	public abstract void removeReceiver(String queueName);
 }

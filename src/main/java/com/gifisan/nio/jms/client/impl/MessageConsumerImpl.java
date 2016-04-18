@@ -16,8 +16,9 @@ import com.gifisan.nio.jms.client.MessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
-	private String	reviceParam	= null;
-	private String	subscibeParam	= null;
+	private String		reviceParam	= null;
+	private String		subscibeParam	= null;
+	private String		queueName		= null;
 
 	private void initParam(String queueName, long timeout) {
 		Map<String, String> param = new HashMap<String, String>();
@@ -36,6 +37,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 
 	public MessageConsumerImpl(ClientSesssion session, String queueName) throws JMSException {
 		super(session);
+		this.queueName = queueName;
 		this.initParam(queueName, 0);
 	}
 
@@ -98,6 +100,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		param.put("username", username);
 		param.put("password", password);
 		param.put("consumer", true);
+		param.put("queueName", this.queueName);
 		String paramString = JSONObject.toJSONString(param);
 
 		ClientResponse response;
@@ -112,6 +115,5 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 			throw new JMSException("用户名密码错误！");
 		}
 	}
-
 
 }

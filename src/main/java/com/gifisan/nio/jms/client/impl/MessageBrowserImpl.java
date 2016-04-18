@@ -50,7 +50,7 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 	public boolean isOnline(String queueName) throws JMSException{
 		
 		JSONObject param = new JSONObject();
-		param.put("messageID", queueName);
+		param.put("queueName", queueName);
 		param.put("cmd", JMSBrowserServlet.ONLINE);
 		
 		ClientResponse response;

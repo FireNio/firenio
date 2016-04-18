@@ -86,7 +86,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 	public void scan(File file) throws IOException {
 		this.scan0(file);
-		logger.info("预加载Class字节码到缓存[ {} ]个 ", clazzEntries.size());
+		logger.info(" [NIOServer] 预加载Class字节码到缓存[ {} ]个 ", clazzEntries.size());
 	}
 
 	private void scan0(File file) throws IOException {
@@ -105,14 +105,14 @@ public class DynamicClassLoader extends ClassLoader {
 				}
 			}
 		} else {
-			logger.info("文件 [ {} ] 不存在", file.getAbsoluteFile());
+			logger.info(" [NIOServer] 文件 [ {} ] 不存在", file.getAbsoluteFile());
 		}
 
 	}
 
 	private void scanZip(JarFile file) throws IOException {
 
-		logger.info("加载文件 [ {} ]", file.getName());
+		logger.info(" [NIOServer] 加载文件 [ {} ]", file.getName());
 
 		Enumeration<JarEntry> entries = (Enumeration<JarEntry>) file.entries();
 		for (; entries.hasMoreElements();) {
@@ -189,7 +189,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 			entry.loadedClass = clazz;
 
-			logger.debug("define class [ {} ]", name);
+			logger.debug(" [NIOServer] define class [ {} ]", name);
 
 			return clazz;
 		} catch (Throwable e) {
@@ -205,7 +205,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 		private String		className		= null;
 
-		private byte[]		binaryContent	= null;
+		private byte[]	binaryContent	= null;
 
 		private Class<?>	loadedClass	= null;
 

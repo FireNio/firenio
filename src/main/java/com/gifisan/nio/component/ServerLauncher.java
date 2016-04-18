@@ -13,7 +13,7 @@ public class ServerLauncher {
 
 		try {
 
-			logger.info("   [NIOServer] ======================================= 服务开始启动 =======================================");
+			logger.info("     [NIOServer] ======================================= 服务开始启动 =======================================");
 
 			Class clazz = Class.forName("com.gifisan.nio.server.NIOServer");
 

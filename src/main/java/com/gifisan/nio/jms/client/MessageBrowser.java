@@ -19,4 +19,6 @@ public interface MessageBrowser extends JMSConnection{
 	
 	public abstract int size() throws JMSException;
 	
+	public abstract boolean isOnline(String queueName) throws JMSException;
+	
 }

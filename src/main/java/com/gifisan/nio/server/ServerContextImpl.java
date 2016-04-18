@@ -53,13 +53,13 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 				new ServerStreamDecoder(encoding),
 				new ServerMultiDecoder(encoding));
 
-		logger.info("[NIOServer] 工作目录：{ {} }", appLocalAddres);
-		logger.info("[NIOServer] 项目编码：{ {} }", encoding);
-		logger.info("[NIOServer] 监听端口：{ {} }", serverPort);
-		logger.info("[NIOServer] 服务器核数：{ {} }", serverCoreSize);
+		logger.info("  [NIOServer] 工作目录：  { {} }", appLocalAddres);
+		logger.info("  [NIOServer] 项目编码：  { {} }", encoding);
+		logger.info("  [NIOServer] 监听端口：  { {} }", serverPort);
+		logger.info("  [NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
-		this.endPointWriter.start();
 		this.filterService.start();
+		this.endPointWriter.start();
 		this.servletLazyExecutor.start();
 		this.endpointFactory.start();
 	}

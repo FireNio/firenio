@@ -11,6 +11,8 @@ import com.gifisan.nio.jms.client.impl.MessageBrowserImpl;
 public class TestBrowser {
 
 	public static void main(String[] args) throws Exception {
+		
+		String queueName = "qName";
 
 		ClientConnector connector = ClientUtil.getClientConnector();
 
@@ -22,13 +24,17 @@ public class TestBrowser {
 
 		browser.login("admin", "admin100");
 
-		Message message = browser.browser("qName");
+		Message message = browser.browser(queueName);
 		
 		System.out.println("message:"+message);
 		
 		int size = browser.size();
 		
 		System.out.println("size:"+size);
+		
+		boolean isOnline = browser.isOnline(queueName);
+		
+		System.out.println("isOnline:"+isOnline);
 
 		browser.logout();
 
