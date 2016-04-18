@@ -30,10 +30,10 @@ public class JMSProducerServlet extends JMSServlet {
 			}
 			
 			Message message = context.parse(request);
+			
+			context.offerMessage(message);
 
-			byte result = ByteUtil.getByte(context.offerMessage(message));
-
-			response.write(result);
+			response.write(ByteUtil.TRUE);
 
 		} else {
 

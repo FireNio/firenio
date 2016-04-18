@@ -40,7 +40,7 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 
 		int selected = selector.select(timeout);
 		
-		if (selected < 0) {
+		if (selected < 1) {
 			return;
 		}
 
@@ -74,15 +74,20 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 	}
 
 	private void acceptException(SelectionKey selectionKey, IOException exception) {
+		
 		SelectableChannel channel = selectionKey.channel();
 
 		Object attachment = selectionKey.attachment();
 
 		if (isEndPoint(attachment)) {
+			
 			ServerEndPoint endPoint = (ServerEndPoint) attachment;
+			
 			CloseUtil.close(endPoint);
 		}
+		
 		CloseUtil.close(channel);
+		
 		selectionKey.cancel();
 
 		logger.error(exception.getMessage(), exception);

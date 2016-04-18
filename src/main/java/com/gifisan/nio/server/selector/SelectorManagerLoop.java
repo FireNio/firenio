@@ -14,52 +14,58 @@ import com.gifisan.nio.LifeCycleListener;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.server.ServerContext;
 
-public class SelectorManagerTask extends AbstractLifeCycle implements Runnable {
+public class SelectorManagerLoop extends AbstractLifeCycle implements Runnable {
 
-	private Logger			logger			= LoggerFactory.getLogger(SelectorManagerTask.class);
+	private Logger			logger			= LoggerFactory.getLogger(SelectorManagerLoop.class);
 	private SelectorManager	selectorManager	= null;
-	private Thread			task				= null;
-	private boolean		working			= false;
+	private Thread			looper			= null;
 
-	public SelectorManagerTask(ServerContext context) {
+	public SelectorManagerLoop(ServerContext context) {
+		
 		this.selectorManager = new SelectorManager(context);
 	}
 
 	public void run() {
-		while (isRunning()) {
+		for (;isRunning();) {
+			
 			try {
-				this.working = true;
-				selectorManager.accept(1000);
-				this.working = false;
+				
+				this.selectorManager.accept(1000);
+				
 			} catch (Throwable e) {
+				
 				logger.error(e.getMessage(),e);
 			}
 		}
 	}
 
 	protected void doStart() throws Exception {
+		
 		this.selectorManager.start();
+		
 		this.addLifeCycleListener(new EventListener());
-		this.task = new Thread(this, "Selector@" + this.selectorManager.getSelector());
+		
+		this.looper = new Thread(this, "Selector@" + this.selectorManager.getSelector());
 	}
 
 	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException {
+		
 		selectorManager.register(serverSocketChannel);
 	}
 
 	protected void doStop() throws Exception {
+		
 		LifeCycleUtil.stop(selectorManager);
-		while (working) {
-			Thread.sleep(1000);
-		}
+		
 		Selector selector = selectorManager.getSelector();
+		
 		selector.close();
 	}
 
 	private class EventListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
 		public void lifeCycleStarted(LifeCycle lifeCycle) {
-			task.start();
+			looper.start();
 		}
 
 		public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {

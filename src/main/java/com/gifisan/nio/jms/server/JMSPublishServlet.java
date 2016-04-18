@@ -31,9 +31,9 @@ public class JMSPublishServlet extends JMSServlet {
 			
 			Message message = context.parse(request);
 
-			byte result =  ByteUtil.getByte(context.publishMessage(message));
+			context.publishMessage(message);
 
-			response.write(result);
+			response.write(ByteUtil.TRUE);
 
 		} else {
 

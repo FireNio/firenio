@@ -8,6 +8,6 @@ public interface Queue {
 
 	public abstract void pollMessage(Request request,Response response,JMSSessionAttachment attachment) ;
 	
-	public abstract boolean offerMessage(Message message);
+	public abstract void offerMessage(Message message);
 	
 }

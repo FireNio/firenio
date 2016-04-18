@@ -24,7 +24,7 @@ public interface MQContext extends Queue, LifeCycle{
 	
 	public abstract void consumerMessage(Message message);
 
-	public abstract boolean publishMessage(Message message);
+	public abstract void publishMessage(Message message);
 
 	public abstract void subscribeMessage(Request request, Response response, JMSSessionAttachment attachment);
 	

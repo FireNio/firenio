@@ -10,7 +10,6 @@ import java.nio.channels.SocketChannel;
 
 import com.gifisan.nio.server.session.InnerSession;
 
-//TODO 单connection 多session时 response write 使用队列
 public abstract class AbstractEndPoint implements EndPoint {
 
 	private SlowlyNetworkReader	accept			= null;

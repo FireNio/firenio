@@ -28,27 +28,31 @@ public class MultiSession implements ClientSesssion {
 	}
 
 	public ClientResponse request(String serviceName, String content) throws IOException {
+		return request(serviceName, content, null);
+	}
+
+	public ClientResponse request(String serviceName, String content, InputStream inputStream) throws IOException {
+		
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
-
+		
 		ClientRequest request = this.request;
 		
 		request.setServiceName(serviceName);
 		
 		request.setText(content);
 		
+		request.setInputStream(inputStream);
+		
 		requestTask.offer(request);
 
 		MessageBus bus = this.bus;
 
+		//FIXME 处理bus cancel后，收到消息
 		bus.await(timeout);
 
 		return bus.getResponse();
-	}
-
-	public ClientResponse request(String serviceName, String content, InputStream inputStream) throws IOException {
-		throw new IllegalStateException("can not trans stream when multi session");
 	}
 
 	public void setTimeout(long timeout) {

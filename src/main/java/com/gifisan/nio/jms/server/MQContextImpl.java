@@ -102,18 +102,18 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 		return this.messageIDs.size();
 	}
 
-	public boolean offerMessage(Message message) {
+	public void offerMessage(Message message) {
 
 		synchronized (messageIDs) {
 			messageIDs.put(message.getMsgID(), message);
 		}
 
-		return p2pProductLine.offerMessage(message);
+		p2pProductLine.offerMessage(message);
 	}
 	
-	public boolean publishMessage(Message message){
+	public void publishMessage(Message message){
 		
-		return subProductLine.offerMessage(message);
+		subProductLine.offerMessage(message);
 	}
 
 	public void consumerMessage(Message message) {
@@ -146,6 +146,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext{
 	public void setMessageDueTime(long dueTime) {
 		this.dueTime = dueTime;
 		this.p2pProductLine.setDueTime(dueTime);
+		this.subProductLine.setDueTime(dueTime);
 	}
 	
 	public void setUsername(String username) {

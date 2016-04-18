@@ -54,7 +54,7 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 		if (type == 71) {
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
 			endPoint.write(buffer);
-			endPoint.endConnect();
+//			endPoint.endConnect();
 			logger.info("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
 			return false;
 		}else{

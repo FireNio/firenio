@@ -36,6 +36,7 @@ public class NIOSelectionAcceptor extends AbstractLifeCycle implements Selection
 
 		this.acceptors[1] = new NIOSelectionReader(context, acceptorDispatch);
 		this.acceptors[4] = new NIOSelectionWriter();
+		
 	}
 
 	protected void doStop() throws Exception {

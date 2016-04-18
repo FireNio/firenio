@@ -33,7 +33,6 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
 
-		// TODO ..... set dueTime
 		this.dueTime = context.getMessageDueTime();
 
 	}
@@ -67,8 +66,9 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 		return context;
 	}
 
-	public boolean offerMessage(Message message) {
-		return queue.offer(message);
+	public void offerMessage(Message message) {
+		
+		queue.offer(message);
 	}
 
 	public void pollMessage(Request request, Response response, JMSSessionAttachment attachment) {
