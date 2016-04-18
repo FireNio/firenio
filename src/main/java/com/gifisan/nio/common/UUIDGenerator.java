@@ -2,8 +2,8 @@ package com.gifisan.nio.common;
 
 import java.util.UUID;
 
-import com.gifisan.nio.test.ITest;
-import com.gifisan.nio.test.ITestHandle;
+import com.gifisan.nio.common.test.ITest;
+import com.gifisan.nio.common.test.ITestHandle;
 
 public class UUIDGenerator {
 

@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSesssion;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.test.ITest;
-import com.gifisan.nio.test.ITestHandle;
+import com.gifisan.nio.common.test.ITest;
+import com.gifisan.nio.common.test.ITestHandle;
 
 public class TestLoadUnique {
 	

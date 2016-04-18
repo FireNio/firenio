@@ -1,8 +1,8 @@
 package com.gifisan.nio.common.json;
 
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.test.ITest;
-import com.gifisan.nio.test.ITestHandle;
+import com.gifisan.nio.common.test.ITest;
+import com.gifisan.nio.common.test.ITestHandle;
 
 public class JSONParse {
 	

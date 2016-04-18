@@ -11,6 +11,13 @@ import com.gifisan.nio.service.Request;
 import com.gifisan.nio.service.Response;
 
 public class JMSBrowserServlet extends JMSServlet {
+	
+	public static String SIZE = "0";
+	
+	public static String BROWSER = "1";
+	
+	public static String ONLINE = "2";
+	
 
 	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
 
@@ -42,9 +49,9 @@ public class JMSBrowserServlet extends JMSServlet {
 
 	private void accept(MQContext context, Response response, Message message, String messageID, String cmd) {
 
-		if ("size".equals(cmd)) {
+		if (SIZE.equals(cmd)) {
 			response.write(String.valueOf(context.messageSize()));
-		} else if ("browser".equals(cmd)) {
+		} else if (BROWSER.equals(cmd)) {
 
 			if (!StringUtil.isNullOrBlank(messageID)) {
 				message = context.browser(messageID);
@@ -58,6 +65,9 @@ public class JMSBrowserServlet extends JMSServlet {
 					response.write(message.toString(), Encoding.DEFAULT);
 				}
 			}
+		}else if(ONLINE.equals(cmd)){
+			
+			
 		}
 	}
 

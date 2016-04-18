@@ -3,6 +3,7 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ClientRequestTask implements Runnable,LifeCycle {
@@ -11,9 +12,11 @@ public class ClientRequestTask implements Runnable,LifeCycle {
 	private Thread							owner		= null;
 	private boolean						running		= false;
 	private ClientConnection					connection	= null;
+	private ClientConnector					connector		= null;
 
-	public ClientRequestTask(ClientConnection connection) {
-		this.connection = connection;
+	public ClientRequestTask(ClientConnector connector) {
+		this.connector = connector;
+		this.connection = connector.getClientConnection();
 	}
 
 	public void offer(ClientRequest request) {
@@ -53,6 +56,7 @@ public class ClientRequestTask implements Runnable,LifeCycle {
 			} catch (IOException e) {
 				e.printStackTrace();
 				running = false;
+				CloseUtil.close(connector);
 			}
 		}
 	}

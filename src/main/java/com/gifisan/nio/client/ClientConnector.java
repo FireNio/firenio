@@ -59,7 +59,7 @@ public class ClientConnector implements Connectable, Closeable {
 	public void connect(boolean multi) throws IOException {
 		if (connected.compareAndSet(false, true)) {
 			
-			this.requestTask = new ClientRequestTask(connection);
+			this.requestTask = new ClientRequestTask(this);
 			
 			if (multi) {
 				

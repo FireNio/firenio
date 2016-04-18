@@ -1,4 +1,6 @@
-package com.gifisan.nio.test;
+package com.gifisan.nio.common.test;
+
+import java.math.BigDecimal;
 
 public class ITestHandle {
 
@@ -13,7 +15,9 @@ public class ITestHandle {
 				throw new RuntimeException(e);
 			}
 		}
+		long spend = (System.currentTimeMillis()-old);
 		System.out.println("## Execute Time:"+time);
-		System.out.println("## Expend Time:"+(System.currentTimeMillis()-old));
+		System.out.println("## OP/S:"+ new BigDecimal(time*1000).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP));
+		System.out.println("## Expend Time:"+spend);
 	}
 }

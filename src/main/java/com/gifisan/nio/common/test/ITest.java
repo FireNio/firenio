@@ -1,4 +1,4 @@
-package com.gifisan.nio.test;
+package com.gifisan.nio.common.test;
 
 public interface ITest {
 

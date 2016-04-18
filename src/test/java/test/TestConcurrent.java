@@ -19,7 +19,7 @@ public class TestConcurrent {
 
 		pool.start();
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 8; i++) {
 			pool.dispatch(new T(String.valueOf(i)));
 		}
 
@@ -59,7 +59,7 @@ class T implements Runnable {
 			connector.connect();
 			ClientSesssion session = connector.getClientSession();
 
-			for (int i = 0; i < 50000; i++) {
+			for (int i = 0; i < 125000; i++) {
 				session.request(serviceKey, "==================");
 			}
 
