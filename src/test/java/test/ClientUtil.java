@@ -5,11 +5,16 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.common.DebugUtil;
 
 public class ClientUtil {
 
 	public static ClientConnector getClientConnector(){
-		return new ClientConnector("localhost", 8300);
+		ClientConnector connector = new ClientConnector("localhost", 8300);
+		
+//		DebugUtil.info(connector.toString());
+		
+		return connector;
 //		return new ClientConnector("192.168.0.111", 8300);
 	}
 	

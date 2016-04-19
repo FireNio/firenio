@@ -16,18 +16,14 @@ import com.gifisan.nio.jms.client.MessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
-	private String		reviceParam	= null;
-	private String		subscibeParam	= null;
+	private String		parameter	= null;
 	private String		queueName		= null;
 
 	private void initParam(String queueName, long timeout) {
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("queueName", queueName);
 		param.put("timeout", String.valueOf(timeout));
-		param.put("subscibe", "F");
-		this.reviceParam = JSONObject.toJSONString(param);
-		param.put("subscibe", "T");
-		this.subscibeParam = JSONObject.toJSONString(param);
+		this.parameter = JSONObject.toJSONString(param);
 	}
 
 	public MessageConsumerImpl(ClientSesssion session, String queueName, long timeout) throws JMSException {
@@ -73,7 +69,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	public Message revice() throws JMSException {
 		ClientResponse response;
 		try {
-			response = session.request("JMSConsumerServlet", reviceParam);
+			response = session.request("JMSConsumerServlet", parameter);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -84,7 +80,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	public Message subscibe() throws JMSException {
 		ClientResponse response;
 		try {
-			response = session.request("JMSSubscribeServlet", subscibeParam);
+			response = session.request("JMSSubscribeServlet", parameter);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}

@@ -24,7 +24,7 @@ public class TestLoad {
 			public void test() throws Exception {
 				session.request("TestSimpleServlet", "TestSimpleServlet");
 			}
-		}, 10000, "TestLoad");
+		}, 500, "TestLoad");
 		
 		
 		CloseUtil.close(connector);

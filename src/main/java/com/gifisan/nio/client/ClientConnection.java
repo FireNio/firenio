@@ -67,9 +67,9 @@ public class ClientConnection implements Connectable, Closeable {
 
 	public ClientResponse acceptResponse() throws IOException {
 		for (;;) {
-			selector.select(1000);
-			Set<SelectionKey> selectionKeys = selector.selectedKeys();
-			Iterator<SelectionKey> iterator = selectionKeys.iterator();
+			
+			Iterator<SelectionKey> iterator = select(1000);
+			
 			if (iterator.hasNext()) {
 				iterator.next();
 				iterator.remove();
@@ -94,9 +94,8 @@ public class ClientConnection implements Connectable, Closeable {
 			return acceptResponse();
 		}
 		
-		selector.select(timeout);
-		Set<SelectionKey> selectionKeys = selector.selectedKeys();
-		Iterator<SelectionKey> iterator = selectionKeys.iterator();
+		Iterator<SelectionKey> iterator = select(timeout);
+
 		if (iterator.hasNext()) {
 			iterator.next();
 			iterator.remove();
@@ -149,9 +148,7 @@ public class ClientConnection implements Connectable, Closeable {
 	}
 
 	private void connect0(Selector selector) throws IOException {
-		selector.select();
-		Set<SelectionKey> selectionKeys = selector.selectedKeys();
-		Iterator<SelectionKey> iterator = selectionKeys.iterator();
+		Iterator<SelectionKey> iterator = select(1);
 		finishConnect(iterator);
 	}
 	
@@ -173,6 +170,13 @@ public class ClientConnection implements Connectable, Closeable {
 		}
 	}
 
+
+	private Iterator<SelectionKey> select(long timeout) throws IOException{
+		selector.select(timeout);
+		Set<SelectionKey> selectionKeys = selector.selectedKeys();
+		return selectionKeys.iterator();
+	}
+	
 	protected void setNetworkWeak() {
 		this.netweak = true;
 	}
@@ -229,4 +233,8 @@ public class ClientConnection implements Connectable, Closeable {
 		DebugUtil.debug(">>write beat........." + DateUtil.now());
 	}
 
+	public String toString() {
+		return host+":"+port;
+	}
+	
 }

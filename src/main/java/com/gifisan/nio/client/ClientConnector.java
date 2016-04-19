@@ -136,5 +136,9 @@ public class ClientConnector implements Connectable, Closeable {
 			}
 		}
 	}
+	
+	public String toString() {
+		return "Connector@"+this.connection.toString();
+	}
 
 }
