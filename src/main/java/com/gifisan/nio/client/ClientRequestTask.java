@@ -61,7 +61,7 @@ public class ClientRequestTask implements Runnable,LifeCycle {
 		}
 	}
 
-	public void start() throws Exception {
+	public void start() {
 		this.running = true;
 		this.owner = new Thread(this, "Client-Requestor");
 		this.owner.start();

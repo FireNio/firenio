@@ -26,7 +26,7 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 	public void lifeCycleStarted(LifeCycle lifeCycle) {
 		NIOServer server = (NIOServer) lifeCycle;
 		Connector connector = server.getConnector();
-		logger.info("  [NIOServer] 服务启动完成  @" + connector.getHost() + ":" + connector.getPort() + " 花费 "
+		logger.info("  [NIOServer] 服务启动完成  @127.0.0.1:" + connector.getPort() + " 花费 "
 				+ (System.currentTimeMillis() - staredTime) + " 毫秒");
 	}
 
@@ -46,8 +46,8 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - staredTime);
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
-		Object[] params = { connector.getHost(), connector.getPort(), hour };
-		logger.info("  [NIOServer] 服务运行时间  @{}:{} 共 {} 小时", params);
+		Object[] params = { connector.getPort(), hour };
+		logger.info("  [NIOServer] 服务运行时间  @127.0.0.1:{} 共 {} 小时", params);
 		logger.info("  [NIOServer] 开始停止服务，请稍等");
 	}
 

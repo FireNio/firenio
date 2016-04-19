@@ -9,7 +9,6 @@ import com.gifisan.nio.client.session.ClientSessionFactory;
 import com.gifisan.nio.client.session.MultiClientSessionFactory;
 import com.gifisan.nio.client.session.UniqueClientSessionFactory;
 import com.gifisan.nio.client.session.UniqueSession;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
 public class ClientConnector implements Connectable, Closeable {
@@ -63,40 +62,38 @@ public class ClientConnector implements Connectable, Closeable {
 			
 			if (multi) {
 				
-				this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
-
-				this.responseTask = new ClientResponseTask(connection, buses);
-				
-				this.connection.connect(multi);
-				
-				try {
-					
-					this.responseTask.start();
-					
-				} catch (Exception e) {
-					
-					throw new IOException(e.getMessage(), e);
-					
-				}
+				this.connectMulti();
 				
 			} else {
 				
-				UniqueSession  uniqueSession = new UniqueSession(this.getClientConnection(), requestTask);
-				
-				this.clientSessionFactory = new UniqueClientSessionFactory(uniqueSession);
-				
-				this.connection.connect(multi);
+				this.connectUnique();
 			}
-			
-			try {
 				
-				this.requestTask.start();
+			this.requestTask.start();
 				
-			} catch (Exception e) {
-				
-				DebugUtil.debug(e);
-			}
 		}
+	}
+	
+	private void connectMulti() throws IOException{
+		
+		this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
+
+		this.responseTask = new ClientResponseTask(connection, buses);
+		
+		this.connection.connect(true);
+		
+		this.responseTask.start();
+			
+	}
+	
+	private void connectUnique() throws IOException{
+		
+		UniqueSession  uniqueSession = new UniqueSession(this.getClientConnection(), requestTask);
+		
+		this.clientSessionFactory = new UniqueClientSessionFactory(uniqueSession);
+		
+		this.connection.connect();
+		
 	}
 
 	protected ClientConnection getClientConnection() {

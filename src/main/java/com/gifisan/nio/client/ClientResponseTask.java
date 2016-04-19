@@ -40,7 +40,7 @@ public class ClientResponseTask implements Runnable ,LifeCycle {
 		}
 	}
 
-	public void start() throws Exception {
+	public void start() {
 		this.running = true;
 		this.owner = new Thread(this, "Client-Response-acceptor");
 		this.owner.start();

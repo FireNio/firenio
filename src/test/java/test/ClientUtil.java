@@ -10,6 +10,7 @@ public class ClientUtil {
 
 	public static ClientConnector getClientConnector(){
 		return new ClientConnector("localhost", 8300);
+//		return new ClientConnector("192.168.0.111", 8300);
 	}
 	
 	public static String getParamString(){

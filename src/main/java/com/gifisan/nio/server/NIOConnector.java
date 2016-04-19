@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.server.selector.SelectorManagerLoop;
 
 public final class NIOConnector extends AbstractLifeCycle implements Connector {
@@ -18,28 +17,15 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	private ServerSocketChannel	channel			= null;
 	private ServerSocket		serverSocket		= null;
 	private SelectorManagerLoop	selectorManagerLoop	= null;
-	private String				host				= "127.0.0.1";
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 
 	public NIOConnector(ServerContext context) {
 		this.server = context.getServer();
 		this.selectorManagerLoop = new SelectorManagerLoop(context);
-		this.host = "localhost";
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
 	}
 
 	private InetSocketAddress getInetSocketAddress() {
-		if (StringUtil.isNullOrBlank(host)) {
-			return new InetSocketAddress(this.port);
-		}
-		return new InetSocketAddress(this.host, this.port);
+		return new InetSocketAddress(this.port);
 	}
 
 	public void connect() throws IOException {
@@ -52,10 +38,10 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 			serverSocket = channel.socket();
 			// localPort = serverSocket.getLocalPort();
 			// 进行服务的绑定
-			serverSocket.bind(getInetSocketAddress());
+			serverSocket.bind(getInetSocketAddress(),50);
 		}
 	}
-
+	
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
 			if (channel.isOpen()) {

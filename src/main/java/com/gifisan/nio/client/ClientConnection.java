@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.NetworkWeakException;
 import com.gifisan.nio.TimeoutException;
+import com.gifisan.nio.client.session.ClientSessionFactory;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
@@ -151,17 +152,24 @@ public class ClientConnection implements Connectable, Closeable {
 		selector.select();
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		Iterator<SelectionKey> iterator = selectionKeys.iterator();
+		finishConnect(iterator);
+	}
+	
+	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException{
 		for (; iterator.hasNext();) {
 			SelectionKey selectionKey = iterator.next();
 			iterator.remove();
-			SocketChannel channel = (SocketChannel) selectionKey.channel();
-			if (selectionKey.isConnectable()) {
-				if (channel.isConnectionPending()) {
-					channel.finishConnect();
-					this.netweak = false;
-					this.endPoint = new ClientEndPoint(selectionKey,connector.getClientSessionFactory());
-				}
-			}
+			finishConnect0(selectionKey);
+		}
+	}
+	
+	private void finishConnect0(SelectionKey selectionKey) throws IOException{
+		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
+			channel.finishConnect();
+			ClientSessionFactory clientSessionFactory = connector.getClientSessionFactory();
+			this.netweak = false;
+			this.endPoint = new ClientEndPoint(selectionKey,clientSessionFactory);
 		}
 	}
 
