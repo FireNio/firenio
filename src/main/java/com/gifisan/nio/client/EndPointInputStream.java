@@ -60,7 +60,12 @@ public class EndPointInputStream extends InputStream {
 	}
 
 	public void close() {
+		
 		ReentrantLock lock = this.lock;
+		
+		if (lock == null) {
+			return;
+		}
 		
 		lock.lock();
 		

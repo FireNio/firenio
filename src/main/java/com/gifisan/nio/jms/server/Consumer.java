@@ -1,8 +1,8 @@
 package com.gifisan.nio.jms.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.service.Response;

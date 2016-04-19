@@ -38,6 +38,8 @@ public class TestListenerByteMessage {
 			ByteMessage _Message = (ByteMessage) message;
 			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
 		}
+		
+		message = consumer.revice();
 
 		consumer.logout();
 		

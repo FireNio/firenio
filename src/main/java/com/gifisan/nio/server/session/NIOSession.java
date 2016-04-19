@@ -115,6 +115,11 @@ public class NIOSession extends AttributesImpl implements InnerSession {
 	public void setServerOutputStream(OutputStream serverOutputStream) {
 		this.serverOutputStream = serverOutputStream;
 	}
+	
+	public void removeServerOutputStream(){
+		this.serverOutputStream = null;
+		this.endPoint.resetServerOutputStream();
+	}
 
 	public ExecutorThreadPool getExecutorThreadPool() {
 		return this.executorThreadPool;

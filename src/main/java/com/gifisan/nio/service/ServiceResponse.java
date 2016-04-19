@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.component.BufferedOutputStream;
+import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.CatchWriteException;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
@@ -33,6 +34,7 @@ public class ServiceResponse implements InnerResponse {
 	private int				writedLength		= 0;
 	private ByteBuffer			streamBuffer		= null;
 	private EndPointWriter		endPointWriter		= null;
+	private ByteArrayInputStream bInputStream		= null;
 
 	public ServiceResponse(ServerEndPoint endPoint, NIOSession session) {
 		this.endPoint = endPoint;
@@ -55,26 +57,38 @@ public class ServiceResponse implements InnerResponse {
 
 		this.scheduled = true;
 		
-		this.session.setServerOutputStream(null);
+		this.session.removeServerOutputStream();
 
 		this.buffer = encoder.encode(sessionID, textBuffer.toByteArray(), dataLength);
 
 		this.buffer.flip();
 
 		if (dataLength > 0) {
-
-			MultiResponseWriter writer = new MultiResponseWriter(
+			
+			if (bInputStream == null) {
+				
+				MultiResponseWriter writer = new MultiResponseWriter(
+						buffer, 
+						endPoint, 
+						sessionID, 
+						session.getRequest(), 
+						catchWriteException, 
+						writedLength, 
+						dataLength, 
+						inputStream, 
+						streamBuffer);
+				this.endPointWriter.offer(writer);
+				return;
+			}
+			
+			BAISResponseWriter writer = new BAISResponseWriter(
 					buffer, 
 					endPoint, 
 					sessionID, 
 					session.getRequest(), 
 					catchWriteException, 
-					writedLength, 
-					dataLength, 
-					inputStream, 
-					streamBuffer);
+					bInputStream);
 			this.endPointWriter.offer(writer);
-			
 			return;
 		}
 
@@ -91,10 +105,14 @@ public class ServiceResponse implements InnerResponse {
 	}
 
 	public void setInputStream(InputStream inputStream) throws IOException {
-		this.inputStream = inputStream;
 		this.dataLength = inputStream.available();
-		this.streamBuffer = ByteBuffer.allocate(1024 * 100);
-		this.streamBuffer.position(this.streamBuffer.limit());
+		if (inputStream.getClass() != ByteArrayInputStream.class) {
+			this.inputStream = inputStream;
+			this.streamBuffer = ByteBuffer.allocate(1024 * 100);
+			this.streamBuffer.position(this.streamBuffer.limit());
+			return;
+		}
+		this.bInputStream = (ByteArrayInputStream) inputStream;
 	}
 
 	public void write(String content) {

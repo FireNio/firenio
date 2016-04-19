@@ -127,4 +127,11 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 	public boolean inStream() {
 		return readed < streamAvailable;
 	}
+
+	public void resetServerOutputStream() {
+		this.readed = 0;
+		this.streamAvailable = 0;
+	}
+	
+	
 }

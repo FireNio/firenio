@@ -14,7 +14,7 @@ public class TestListenerPower {
 
 		ClientConnector connector = ClientUtil.getClientConnector();
 		
-		connector.connect();
+		connector.connect(true);
 		
 		ClientSesssion session = connector.getClientSession();
 		
@@ -24,7 +24,7 @@ public class TestListenerPower {
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
 			Message message = consumer.revice();
-//			System.out.println(message);
+			System.out.println(message);
 		}
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));

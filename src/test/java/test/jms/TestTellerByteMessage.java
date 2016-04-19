@@ -18,7 +18,7 @@ public class TestTellerByteMessage {
 
 		ClientConnector connector = ClientUtil.getClientConnector();
 		
-		connector.connect();
+		connector.connect(true);
 		
 		ClientSesssion session = connector.getClientSession();
 		
@@ -26,9 +26,13 @@ public class TestTellerByteMessage {
 
 		producer.login("admin", "admin100");
 		
-		ByteMessage message = new ByteMessage("msgID", "qName", null,"你好！".getBytes(Encoding.DEFAULT));
+		ByteMessage message = new ByteMessage("msgID", "qName", "============","你好！".getBytes(Encoding.DEFAULT));
 
 		long old = System.currentTimeMillis();
+		producer.offer(message);
+		
+		producer.offer(message);
+		
 		producer.offer(message);
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));

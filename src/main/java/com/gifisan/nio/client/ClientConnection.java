@@ -72,7 +72,10 @@ public class ClientConnection implements Connectable, Closeable {
 	}
 
 	public ClientResponse acceptResponse() throws IOException {
+		
 		for (;;) {
+			
+			endPoint.register(selector, SelectionKey.OP_READ);
 			
 			Iterator<SelectionKey> iterator = select(1000);
 			
@@ -197,7 +200,7 @@ public class ClientConnection implements Connectable, Closeable {
 
 		ClientEndPoint endPoint = this.endPoint;
 
-		Selector selector = this.selector;
+//		Selector selector = this.selector;
 
 		// endPoint.register(selector, SelectionKey.OP_WRITE);
 
@@ -207,7 +210,7 @@ public class ClientConnection implements Connectable, Closeable {
 
 		endPoint.write(buffer);
 
-		endPoint.register(selector, SelectionKey.OP_READ);
+//		endPoint.register(selector, SelectionKey.OP_READ);
 	}
 
 	protected void write(byte sessionID, String serviceName, String text, InputStream inputStream) throws IOException {
@@ -216,7 +219,7 @@ public class ClientConnection implements Connectable, Closeable {
 
 		ClientEndPoint endPoint = this.endPoint;
 
-		Selector selector = this.selector;
+//		Selector selector = this.selector;
 
 		// endPoint.register(selector, SelectionKey.OP_WRITE);
 
@@ -228,7 +231,7 @@ public class ClientConnection implements Connectable, Closeable {
 		
 		StreamUtil.write(inputStream, endPoint, 0, inputStream.available(), 102400);
 
-		endPoint.register(selector, SelectionKey.OP_READ);
+//		endPoint.register(selector, SelectionKey.OP_READ);
 	}
 
 	protected void writeBeat() throws IOException {

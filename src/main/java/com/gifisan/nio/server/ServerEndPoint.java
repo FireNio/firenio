@@ -29,5 +29,7 @@ public interface ServerEndPoint extends EndPoint {
 	public abstract boolean flushServerOutputStream(ByteBuffer buffer) throws IOException;
 	
 	public abstract void setStreamAvailable(int streamAvailable) ;
+	
+	public abstract void resetServerOutputStream();
 
 }

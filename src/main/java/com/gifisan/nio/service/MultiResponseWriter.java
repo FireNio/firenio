@@ -11,10 +11,10 @@ import com.gifisan.nio.server.InnerRequest;
 
 public class MultiResponseWriter extends AbstractResponseWriter implements ResponseWriter {
 
-	private int		writedLength	= 0;
-	private int		dataLength	= 0;
-	private InputStream	inputStream	= null;
-	private ByteBuffer	streamBuffer	= null;
+	private int			writedLength	= 0;
+	private int			dataLength	= 0;
+	private InputStream		inputStream	= null;
+	private ByteBuffer		streamBuffer	= null;
 
 	public MultiResponseWriter(ByteBuffer buffer, EndPoint endPoint, byte sessionID, InnerRequest request,
 			CatchWriteException catchWriteException, int writedLength, int dataLength, InputStream inputStream,

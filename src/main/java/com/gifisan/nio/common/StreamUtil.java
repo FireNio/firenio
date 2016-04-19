@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.client.ClientEndPoint;
 import com.gifisan.nio.client.EndPointInputStream;
+import com.gifisan.nio.component.ByteArrayInputStream;
 
 public class StreamUtil {
 
@@ -37,9 +38,16 @@ public class StreamUtil {
 
 	public static void write(InputStream inputStream, ClientEndPoint endPoint, int start, int length, int block)
 			throws IOException {
+		
+		if (inputStream.getClass() == ByteArrayInputStream.class) {
+			ByteArrayInputStream byteArray = (ByteArrayInputStream)inputStream;
+			byte[] bytes = byteArray.toByteArray();
+			endPoint.write(ByteBuffer.wrap(bytes));
+			return;
+		}
 
 		inputStream.skip(start);
-
+		
 		if (block > length) {
 			byte[] bytes = new byte[length];
 			inputStream.read(bytes);
