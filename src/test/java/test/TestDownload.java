@@ -39,6 +39,7 @@ public class TestDownload {
 			
 			StreamUtil.write(inputStream, outputStream, 102400);
 			
+			CloseUtil.close(inputStream);
 			CloseUtil.close(outputStream);
 			System.out.println("下载成功！");
 		}

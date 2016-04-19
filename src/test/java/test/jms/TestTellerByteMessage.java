@@ -26,7 +26,7 @@ public class TestTellerByteMessage {
 
 		producer.login("admin", "admin100");
 		
-		ByteMessage message = new ByteMessage("msgID", "qName", "text===============","你好！".getBytes(Encoding.DEFAULT));
+		ByteMessage message = new ByteMessage("msgID", "qName", null,"你好！".getBytes(Encoding.DEFAULT));
 
 		long old = System.currentTimeMillis();
 		producer.offer(message);

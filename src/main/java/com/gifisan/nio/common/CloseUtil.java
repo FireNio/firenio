@@ -11,7 +11,7 @@ public class CloseUtil {
 		try {
 			closeable.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 	}
 }

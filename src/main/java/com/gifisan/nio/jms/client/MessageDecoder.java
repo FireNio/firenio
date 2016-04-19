@@ -3,6 +3,7 @@ package com.gifisan.nio.jms.client;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientResponse;
+import com.gifisan.nio.client.EndPointInputStream;
 import com.gifisan.nio.common.StreamUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
@@ -51,7 +52,6 @@ public class MessageDecoder {
 				String text = param.getParameter("text");
 				TextMessage message = new TextMessage(messageID,queueName,text);
 				
-				
 				return message;
 			}
 		},
@@ -63,7 +63,12 @@ public class MessageDecoder {
 				String queueName = param.getParameter("queueName");
 				String text = param.getParameter("text");
 				try {
-					byte[] array = StreamUtil.completeRead(response.getInputStream());
+					
+					EndPointInputStream inputStream = response.getInputStream();
+					
+					byte[] array = StreamUtil.completeRead(inputStream);
+					
+					inputStream.close();
 					
 					return new ByteMessage(messageID,queueName,text,array);
 					

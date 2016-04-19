@@ -19,7 +19,7 @@ public class TestListenerByteMessage {
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
 		
-		connector.connect();
+		connector.connect(true);
 		
 		ClientSesssion session = connector.getClientSession();
 		
