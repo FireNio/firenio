@@ -44,7 +44,7 @@ public class ExecutorThreadPool extends AbstractLifeCycle implements ThreadPool{
 		NamedThreadFactory threadFactory = new NamedThreadFactory(threadPoolName);
 
 		poolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<Runnable>(corePoolSize * 1000000), threadFactory);
+				new ArrayBlockingQueue<Runnable>(corePoolSize * 1024 << 3), threadFactory);
 	}
 
 	protected void doStop() throws Exception {

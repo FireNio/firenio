@@ -18,6 +18,7 @@ public class MessageQueue {
 			
 			//FIXME 处理message队列满了的情况
 			DebugUtil.info("队列满了=============="+message);
+			
 		}
 	}
 

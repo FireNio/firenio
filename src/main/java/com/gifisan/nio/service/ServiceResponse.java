@@ -54,6 +54,8 @@ public class ServiceResponse implements InnerResponse {
 		this.flushed = true;
 
 		this.scheduled = true;
+		
+		this.session.setServerOutputStream(null);
 
 		this.buffer = encoder.encode(sessionID, textBuffer.toByteArray(), dataLength);
 

@@ -59,6 +59,12 @@ public class ClientConnection implements Connectable, Closeable {
 
 		if (!decoder.decode(endPoint, response)) {
 
+			if (endPoint.isEndConnect()) {
+				CloseUtil.close(connector);
+				
+				throw new NetworkWeakException("newwork weak,please reconnect after a while");
+			}
+			
 			throw new IOException("protocol type:" + response.getProtocolType());
 		}
 		
