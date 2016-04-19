@@ -148,7 +148,7 @@ public class ClientConnection implements Connectable, Closeable {
 	}
 
 	private void connect0(Selector selector) throws IOException {
-		Iterator<SelectionKey> iterator = select(1);
+		Iterator<SelectionKey> iterator = select(0);
 		finishConnect(iterator);
 	}
 	
