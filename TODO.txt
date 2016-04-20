@@ -22,7 +22,7 @@
 --改进LinkedList参考ArrayBlockingQueue
 --判断某个Consumer是否在线
 
-对write操作进行优化
+对write操作进行优化,
 
 
 
