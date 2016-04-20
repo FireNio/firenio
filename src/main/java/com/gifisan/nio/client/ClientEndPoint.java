@@ -6,20 +6,30 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.client.session.ClientSessionFactory;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.AbstractEndPoint;
 import com.gifisan.nio.component.EndPoint;
 
+//FIXME 处理客户端网速慢的情况
 public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 
 	public ClientEndPoint(SelectionKey selectionKey, ClientSessionFactory	clientSessionFactory) throws SocketException {
 		super(selectionKey);
 		this.clientSessionFactory = clientSessionFactory;
 	}
+	
+	
 
 	private ClientSessionFactory	clientSessionFactory	= null;
 	private EndPointInputStream	inputStream			= null;
+//	private ReentrantLock lock = new ReentrantLock();
+//	private Condition writeWakeup = lock.newCondition();
+//	private Condition readWakeup = lock.newCondition();
+	
 
 	public EndPointInputStream getInputStream() {
 		return inputStream;
@@ -42,7 +52,22 @@ public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 
 		for (; buffer.hasRemaining();) {
 
-			channel.write(buffer);
+			int length = channel.write(buffer);
+			
+			if (length == 0) {
+//				ReentrantLock lock = this.lock;
+//				
+//				lock.lock();
+//				
+//				try {
+//					writeWakeup.await();
+//				} catch (InterruptedException e) {
+//					DebugUtil.debug(e);
+//					writeWakeup.signal();
+//				}
+//				
+//				lock.unlock();
+			}
 
 		}
 		return buffer.limit();
@@ -53,7 +78,22 @@ public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 
 		for (; buffer.hasRemaining();) {
 
-			channel.read(buffer);
+			int length =  channel.read(buffer);
+			
+			if (length == 0) {
+//				ReentrantLock lock = this.lock;
+//				
+//				lock.lock();
+//				
+//				try {
+//					readWakeup.await();
+//				} catch (InterruptedException e) {
+//					DebugUtil.debug(e);
+//					readWakeup.signal();
+//				}
+//				
+//				lock.unlock();
+			}
 
 		}
 		return buffer.limit();
@@ -61,7 +101,17 @@ public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
 
 	public void write(byte[] beat) throws IOException {
 		ByteBuffer buffer = ByteBuffer.wrap(beat);
-		buffer.flip();
 		this.write(buffer);
 	}
+	
+//	public void readWakeup(){
+//		
+//		ReentrantLock lock = this.lock;
+//		
+//		lock.lock();
+//		
+//		readWakeup.signal();
+//		
+//		lock.unlock();
+//	}
 }

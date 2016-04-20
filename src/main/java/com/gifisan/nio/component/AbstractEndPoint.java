@@ -99,8 +99,8 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return this.channel.isOpen();
 	}
 
-	public boolean isWriting(byte sessionID) {
-		return writingSessionID == sessionID;
+	public boolean canWrite(byte sessionID) {
+		return writingSessionID == -1 ? false : writingSessionID != sessionID;
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {

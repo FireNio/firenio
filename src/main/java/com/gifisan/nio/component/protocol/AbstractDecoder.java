@@ -23,13 +23,6 @@ public abstract class AbstractDecoder implements Decoder {
 		return v0 | v1 | v2 | v3;
 	}
 	
-	public boolean read(EndPoint endPoint ,ByteBuffer buffer) throws IOException{
-		
-		endPoint.read(buffer);
-		
-		return buffer.capacity() == buffer.position();
-	}
-	
 	protected void decodeText(EndPoint endPoint, ProtocolData data,ByteBuffer buffer) throws IOException {
 		
 		if (buffer == null) {
@@ -47,6 +40,6 @@ public abstract class AbstractDecoder implements Decoder {
 		
 		endPoint.read(buffer);
 		
-		return buffer.capacity() == buffer.position();
+		return buffer.position() == buffer.limit();
 	}
 }

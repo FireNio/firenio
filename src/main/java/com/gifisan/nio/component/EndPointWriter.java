@@ -34,19 +34,19 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 			
 			EndPoint endPoint = writer.getEndPoint();
 
-			if (endPoint.isWriting(writer.getSessionID())) {
+			if (!endPoint.canWrite(writer.getSessionID())) {
 				continue;
 			}
 
 			try {
 
-				writer.doWrite();
-
-				if (writer.complete()) {
+				if (writer.doWrite()) {
 
 					endPoint.setWriting(unwriting);
 					
 				} else {
+					
+					endPoint.setWriting(writer.getSessionID());
 
 					writers.offer(writer);
 				}

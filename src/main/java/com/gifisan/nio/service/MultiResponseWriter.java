@@ -17,13 +17,13 @@ public class MultiResponseWriter extends AbstractResponseWriter implements Respo
 	private ByteBuffer		streamBuffer	= null;
 
 	public MultiResponseWriter(ByteBuffer buffer, EndPoint endPoint, byte sessionID, InnerRequest request,
-			CatchWriteException catchWriteException, int writedLength, int dataLength, InputStream inputStream,
-			ByteBuffer streamBuffer) {
+			CatchWriteException catchWriteException, int writedLength, int dataLength, InputStream inputStream) {
 		super(buffer, endPoint, sessionID, request, catchWriteException);
 		this.writedLength = writedLength;
 		this.dataLength = dataLength;
 		this.inputStream = inputStream;
-		this.streamBuffer = streamBuffer;
+		this.streamBuffer = ByteBuffer.allocate(1024 * 1000);
+		this.streamBuffer.position(streamBuffer.limit());
 	}
 
 	public boolean complete() {
@@ -34,25 +34,27 @@ public class MultiResponseWriter extends AbstractResponseWriter implements Respo
 		return false;
 	}
 
-	public void doWrite() throws IOException {
+	public boolean doWrite() throws IOException {
+		ByteBuffer buffer = this.buffer;
+		
 		if (buffer.hasRemaining()) {
 			endPoint.write(buffer);
 			if (buffer.hasRemaining()) {
-				return;
+				return false;
 			}
 		}
 
 		if (writedLength < dataLength) {
 			buffer = streamBuffer;
 			if (buffer.hasRemaining()) {
-				int length = endPoint.write(buffer);
-				writedLength += length;
+				writedLength += endPoint.write(buffer);
 			} else {
 				fill(inputStream, buffer);
-				int length = endPoint.write(buffer);
-				writedLength += length;
+				writedLength += endPoint.write(buffer);
 			}
 		}
+		
+		return writedLength == dataLength;
 	}
 
 	private void fill(InputStream inputStream, ByteBuffer buffer) throws IOException {
@@ -64,7 +66,7 @@ public class MultiResponseWriter extends AbstractResponseWriter implements Respo
 				break;
 			pos += n;
 		}
-		buffer.limit(pos);
+		buffer.position(pos);
 		buffer.flip();
 	}
 }

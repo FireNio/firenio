@@ -18,9 +18,12 @@ public class TextResponseWriter extends AbstractResponseWriter implements Respon
 		return !this.buffer.hasRemaining();
 	}
 
-	public void doWrite() throws IOException {
+	public boolean doWrite() throws IOException {
+		ByteBuffer buffer = this.buffer;
 		if (buffer.hasRemaining()) {
 			endPoint.write(buffer);
+			return !buffer.hasRemaining();
 		}
+		return true;
 	}
 }

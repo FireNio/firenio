@@ -17,7 +17,7 @@ public class TestBeat {
 		ClientSesssion session = connector.getClientSession();
 		String param = ClientUtil.getParamString();
 		
-		connector.keepAlive(50);
+		connector.keepAlive(500);
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
 			session.request(serviceKey, param);

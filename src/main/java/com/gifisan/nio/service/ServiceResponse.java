@@ -32,7 +32,6 @@ public class ServiceResponse implements InnerResponse {
 	private ByteBuffer			buffer			= null;
 	private InputStream			inputStream		= null;
 	private int				writedLength		= 0;
-	private ByteBuffer			streamBuffer		= null;
 	private EndPointWriter		endPointWriter		= null;
 	private ByteArrayInputStream bInputStream		= null;
 
@@ -75,8 +74,7 @@ public class ServiceResponse implements InnerResponse {
 						catchWriteException, 
 						writedLength, 
 						dataLength, 
-						inputStream, 
-						streamBuffer);
+						inputStream);
 				this.endPointWriter.offer(writer);
 				return;
 			}
@@ -108,8 +106,6 @@ public class ServiceResponse implements InnerResponse {
 		this.dataLength = inputStream.available();
 		if (inputStream.getClass() != ByteArrayInputStream.class) {
 			this.inputStream = inputStream;
-			this.streamBuffer = ByteBuffer.allocate(1024 * 100);
-			this.streamBuffer.position(this.streamBuffer.limit());
 			return;
 		}
 		this.bInputStream = (ByteArrayInputStream) inputStream;

@@ -127,7 +127,6 @@ public abstract class AbstractProtocolDecoder implements ProtocolDecoder {
 		if (length < 9) {
 			// 如果一次读取不到9个byte
 			// 这样的连接持续下去也是无法进行业务操作
-			// 还有一种情况是有人在恶意攻击服务器
 
 			return null;
 		}

@@ -7,9 +7,9 @@ import com.gifisan.nio.server.InnerRequest;
 
 public interface ResponseWriter {
 
-	public abstract boolean complete();
+//	public abstract boolean complete();
 
-	public abstract void doWrite() throws IOException;
+	public abstract boolean doWrite() throws IOException;
 
 	public abstract EndPoint getEndPoint();
 

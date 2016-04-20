@@ -17,20 +17,19 @@ public class BAISResponseWriter extends AbstractResponseWriter implements Respon
 			CatchWriteException catchWriteException, ByteArrayInputStream inputStream) {
 		super(buffer, endPoint, sessionID, request, catchWriteException);
 		this.streamBuffer = ByteBuffer.wrap(inputStream.toByteArray());
-//		this.streamBuffer.flip();
 	}
 
 	public boolean complete() {
 		return !buffer.hasRemaining() && !streamBuffer.hasRemaining();
 	}
 
-	public void doWrite() throws IOException {
+	public boolean doWrite() throws IOException {
 		ByteBuffer buffer = this.buffer;
 
 		if (buffer.hasRemaining()) {
 			endPoint.write(buffer);
 			if (buffer.hasRemaining()) {
-				return;
+				return false;
 			}
 		}
 
@@ -38,7 +37,11 @@ public class BAISResponseWriter extends AbstractResponseWriter implements Respon
 
 		if (buffer.hasRemaining()) {
 			endPoint.write(buffer);
+			
+			return !buffer.hasRemaining();
 		}
+		
+		return true;
 	}
 
 }

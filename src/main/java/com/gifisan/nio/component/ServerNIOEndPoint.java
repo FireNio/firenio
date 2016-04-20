@@ -109,9 +109,11 @@ public class ServerNIOEndPoint extends AbstractEndPoint implements ServerEndPoin
 
 		buffer.clear();
 
-		readed += read(buffer);
+		int length = read(buffer);
 
-		outputStream.write(buffer.array(), 0, buffer.position());
+		outputStream.write(buffer.array(), 0, length);
+		
+		readed += length;
 
 		return readed == streamAvailable;
 	}

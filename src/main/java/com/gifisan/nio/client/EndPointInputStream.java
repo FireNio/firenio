@@ -58,6 +58,16 @@ public class EndPointInputStream extends InputStream {
 		endPoint.read(buffer);
 		return buffer.limit();
 	}
+	
+	public int read(byte[] b) throws IOException {
+		return read(b, 0, b.length);
+	}
+
+	public int read(byte[] b, int off, int len) throws IOException {
+		ByteBuffer buffer = ByteBuffer.wrap(b);
+		endPoint.read(buffer);
+		return buffer.limit();
+	}
 
 	public void close() {
 		

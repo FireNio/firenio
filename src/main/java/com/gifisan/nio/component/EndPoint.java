@@ -10,7 +10,7 @@ public interface EndPoint extends Closeable {
 
 	public abstract void endConnect();
 
-	public abstract boolean isWriting(byte sessionID);
+	public abstract boolean canWrite(byte sessionID);
 
 	public abstract void setWriting(byte sessionID);
 
