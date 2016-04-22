@@ -12,7 +12,7 @@ import com.gifisan.nio.component.AttributesImpl;
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
 	public NIOServer() {
-		this.context = new ServerContextImpl(this);
+		this.context = new ServerContextImpl();
 		this.connector = new NIOConnector(context);
 		this.addLifeCycleListener(new NIOServerListener());
 	}

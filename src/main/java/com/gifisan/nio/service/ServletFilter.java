@@ -2,17 +2,17 @@ package com.gifisan.nio.service;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.impl.ErrorServlet;
 
 public final class ServletFilter extends AbstractNIOFilter {
@@ -25,13 +25,13 @@ public final class ServletFilter extends AbstractNIOFilter {
 		this.classLoader = classLoader;
 	}
 
-	private void accept(Exception exception, Request request, Response response) throws IOException {
+	private void accept(Exception exception, Session session) throws IOException {
 		
 		ErrorServlet servlet = new ErrorServlet(exception);
 		
 		try {
 			
-			servlet.accept(request, response);
+			servlet.accept(session);
 			
 		} catch (IOException e) {
 			
@@ -44,68 +44,68 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	public void accept(Request request, Response response) throws IOException {
+	public void accept(Session session) throws IOException {
 		
-		String serviceName = request.getServiceName();
+		String serviceName = session.getServiceName();
 		
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			
-			this.accept404(request, response);
+			this.accept404(session);
 
 		} else {
 			
-			this.accept(serviceName, request, response);
+			this.accept(serviceName, session);
 			
 		}
 	}
 
-	private void accept(ServiceAcceptor servlet, Request request, Response response) throws IOException {
+	private void accept(ServiceAcceptor servlet, Session session) throws IOException {
 		try {
-			servlet.accept(request, response);
+			servlet.accept(session);
 		} catch (FlushedException e) {
 			logger.error(e.getMessage(),e);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
-			this.accept(e, request, response);
+			this.accept(e, session);
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
-			this.accept(e, request, response);
+			this.accept(e, session);
 		}
 
 	}
 
-	private void accept(String serviceName, Request request, Response response) throws IOException {
+	private void accept(String serviceName, Session session) throws IOException {
 		
 		ServiceAcceptor servlet = servletLoader.getServlet(serviceName);
 		
 		if (servlet == null) {
 			
-			this.accept404(request, response, serviceName);
+			this.accept404(session, serviceName);
 			
 		} else {
 			
-			this.accept(servlet, request, response);
+			this.accept(servlet, session);
 		}
 	}
 
-	private void accept404(Request request, Response response) throws IOException {
+	private void accept404(Session session) throws IOException {
 		
 		logger.info("[NIOServer] empty service name");
 		
-		response.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
+		session.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
 		
-		response.flush();
+		session.flush();
 	}
 
-	private void accept404(Request request, Response response, String serviceName) throws IOException {
+	private void accept404(Session session, String serviceName) throws IOException {
 		
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
 		
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 		
-		response.write(message.toString());
+		session.write(message.toString());
 		
-		response.flush();
+		session.flush();
 	}
 
 	public void destroy(ServerContext context, Configuration config) throws Exception {

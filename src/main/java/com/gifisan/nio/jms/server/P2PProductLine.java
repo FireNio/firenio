@@ -3,14 +3,12 @@ package com.gifisan.nio.jms.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.Session;
 
 public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable {
 
@@ -71,15 +69,15 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 		queue.offer(message);
 	}
 
-	public void pollMessage(Request request, Response response, JMSSessionAttachment attachment) {
+	public void pollMessage(Session session, JMSSessionAttachment attachment) {
 
-		Parameters param = request.getParameters();
+		Parameters param = session.getParameters();
 
 		String queueName = param.getParameter("queueName");
 
 		ConsumerQueue consumerGroup = getConsumerGroup(queueName);
 
-		Consumer consumer = new Consumer(consumerGroup, attachment, response, queueName);
+		Consumer consumer = new Consumer(consumerGroup, attachment, session, queueName);
 
 		consumerGroup.offer(consumer);
 	}

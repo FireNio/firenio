@@ -3,21 +3,20 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.protocol.Decoder;
 
-public class ServerProtocolDecoder extends AbstractProtocolDecoder implements ProtocolDecoder {
+public class ServerProtocolDecoder extends DefaultProtocolDecoder implements ProtocolDecoder {
 
 	private Logger			logger	= LoggerFactory.getLogger(ServerProtocolDecoder.class);
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	= null;
 
-	public ServerProtocolDecoder(Decoder textDecoder,Decoder streamDecoder,Decoder multiDecoder) {
-		super(textDecoder, streamDecoder, multiDecoder);
+	public ServerProtocolDecoder(Decoder textDecoder,Decoder multiDecoder) {
+		super(textDecoder, multiDecoder);
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");
@@ -63,22 +62,5 @@ public class ServerProtocolDecoder extends AbstractProtocolDecoder implements Pr
 		}
 	}
 
-	public void gainNecessary(EndPoint endPoint, ProtocolDataImpl data, byte[] header) throws IOException {
-
-		int serviceNameLength = header[1];
-
-		ByteBuffer buffer = endPoint.read(serviceNameLength);
-
-		byte[] bytes = buffer.array();
-
-		if (bytes == null || bytes.length == 0) {
-
-			throw new IOException("service name is empty");
-		}
-
-		String serviceName = new String(bytes, 0, serviceNameLength);
-
-		((ServerProtocolData) data).setServiceName(serviceName);
-	}
 
 }

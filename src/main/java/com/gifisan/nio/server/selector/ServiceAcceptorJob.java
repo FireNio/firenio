@@ -1,14 +1,13 @@
 package com.gifisan.nio.server.selector;
 
-import com.gifisan.nio.component.ProtocolData;
-import com.gifisan.nio.server.ServerEndPoint;
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.ServiceAcceptor;
 
 public interface ServiceAcceptorJob extends ServiceAcceptor, Runnable{
 
-	public abstract void accept(Throwable exception);
+	public abstract void update(ReadFuture future);
 	
-	public abstract ServiceAcceptorJob update(ServerEndPoint endPoint,ProtocolData decoder);
-	
+	public abstract void accept(Session session, ReadFuture future) ;
 	
 }

@@ -1,8 +1,8 @@
 package com.gifisan.nio.jms.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.jms.Message;
 
 public class SubscribeProductLine extends P2PProductLine implements Queue, Runnable {

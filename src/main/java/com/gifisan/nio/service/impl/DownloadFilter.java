@@ -12,19 +12,18 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.AbstractNIOFilter;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
 
 public class DownloadFilter extends AbstractNIOFilter {
 
 	private boolean			exclude		= false;
 	private Map<String, String>	excludesMap	= null;
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Session session) throws Exception {
 
-		String serviceName = request.getServiceName();
+		String serviceName = session.getServiceName();
 		
 		int point = serviceName.lastIndexOf('.');
 		
@@ -38,7 +37,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 			String filePath = serviceName;
 			
-			Parameters param = request.getParameters();
+			Parameters param = session.getParameters();
 			
 			int start = param.getIntegerParameter("start");
 			
@@ -50,8 +49,8 @@ public class DownloadFilter extends AbstractNIOFilter {
 			try {
 				if (!file.exists()) {
 					RESMessage message = new RESMessage(404, "file not found:" + filePath);
-					response.write(message.toString());
-					response.flush();
+					session.write(message.toString());
+					session.flush();
 					return;
 				}
 
@@ -63,9 +62,9 @@ public class DownloadFilter extends AbstractNIOFilter {
 					downloadLength = available - start;
 				}
 
-				response.setInputStream(inputStream);
+				session.setInputStream(inputStream);
 
-				response.flush();
+				session.flush();
 
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);
@@ -80,7 +79,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 	}
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(NIOContext context, Configuration config) throws Exception {
 		String excludesContent = (String) config.getAttribute("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
@@ -97,7 +96,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 	}
 
-	public void destroy(ServerContext context, Configuration config) throws Exception {
+	public void destroy(NIOContext context, Configuration config) throws Exception {
 
 	}
 }

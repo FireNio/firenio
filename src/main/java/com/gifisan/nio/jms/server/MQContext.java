@@ -2,9 +2,9 @@ package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.jms.Message;
+import com.gifisan.nio.server.session.NIOSession;
 import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.Session;
 
 public interface MQContext extends Queue, LifeCycle{
 	
@@ -16,7 +16,7 @@ public interface MQContext extends Queue, LifeCycle{
 	
 	public abstract int messageSize();
 	
-	public abstract Message parse(Request request);
+	public abstract Message parse(NIOSession session);
 	
 	public abstract void setLogined(boolean logined,Session session) ;
 	
@@ -26,13 +26,13 @@ public interface MQContext extends Queue, LifeCycle{
 
 	public abstract void publishMessage(Message message);
 
-	public abstract void subscribeMessage(Request request, Response response, JMSSessionAttachment attachment);
+	public abstract void subscribeMessage(Session session, JMSSessionAttachment attachment);
 	
 	public abstract void setUsername(String username);
 
 	public abstract void setPassword(String password);
 
-	public abstract boolean login(Request request, JMSSessionAttachment attachment);
+	public abstract boolean login(NIOSession session, JMSSessionAttachment attachment);
 
 	public abstract boolean isOnLine(String queueName);
 

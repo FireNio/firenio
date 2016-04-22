@@ -4,49 +4,68 @@ import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.concurrent.LinkedListM2O;
-import com.gifisan.nio.service.ResponseWriter;
+import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.WriteFuture;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 	private Thread							owner	= null;
 	private boolean						running	= false;
-	private LinkedListM2O<ResponseWriter>		writers	= new LinkedListM2O<ResponseWriter>();
-//	private BlockingQueue<InnerResponse> writers = new ArrayBlockingQueue<InnerResponse>(10000 * 100);
+	private LinkedListM2O<WriteFuture>		writers	= new LinkedListM2O<WriteFuture>();
 
-	public void offer(ResponseWriter writer) {
+	public void offer(WriteFuture writer) {
 		this.writers.offer(writer);
 	}
 
 	public void run() {
 
-//		BlockingQueue<InnerResponse> writers = this.writers;
-//		LinkedListM2O<InnerResponse> writers = this.writers;
-
 		byte unwriting = -1;
 
 		for (; running;) {
 
-			ResponseWriter writer = writers.poll(16);
+			WriteFuture writer = writers.poll(16);
 			
 			if (writer == null) {
 				continue;
 			}
 			
+			Session session = writer.getSession();
+			
 			EndPoint endPoint = writer.getEndPoint();
+			
+			if (endPoint.isNetworkWeak()) {
+				
+				endPoint.addWriter(writer);
+				
+				endPoint.interestWrite();
+				
+				continue;
+			}
+			
+			byte sessionID = session.getSessionID();
 
-			if (!endPoint.canWrite(writer.getSessionID())) {
+			if (!endPoint.canWrite(sessionID)) {
 				continue;
 			}
 
 			try {
 
-				if (writer.doWrite()) {
+				if (writer.write()) {
 
 					endPoint.setWriting(unwriting);
 					
 				} else {
 					
-					endPoint.setWriting(writer.getSessionID());
+					if (writer.isNetworkWeak()) {
+						
+						endPoint.addWriter(writer);
+						
+						endPoint.interestWrite();
+						
+						continue;
+					}
+					
+					endPoint.setWriting(sessionID);
 
 					writers.offer(writer);
 				}
@@ -54,7 +73,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 				e.printStackTrace();
 
-				writer.catchException(writer.getRequest(), e);
+				writer.catchException(e);
 			}
 		}
 	}

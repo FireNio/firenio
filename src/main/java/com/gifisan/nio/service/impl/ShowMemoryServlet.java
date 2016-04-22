@@ -1,20 +1,19 @@
 package com.gifisan.nio.service.impl;
 
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.NIOServlet;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
 
 public class ShowMemoryServlet extends NIOServlet{
 
 	private String				username		= null;
 	private String				password		= null;
 	
-	public void accept(Request request, Response response) throws Exception {
-		Parameters param = request.getParameters();
+	public void accept(Session session) throws Exception {
+		Parameters param = session.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
 		
@@ -32,16 +31,16 @@ public class ShowMemoryServlet extends NIOServlet{
 			builder.append("M;\n总内存：");
 			builder.append(runtime.maxMemory()/M + "M;");
 			
-			response.write("服务器内存使用情况：\n");
-			response.write(builder.toString());
+			session.write("服务器内存使用情况：\n");
+			session.write(builder.toString());
 		}else{
-			response.write(RESMessage.R_UNAUTH.toString());
+			session.write(RESMessage.R_UNAUTH.toString());
 		}
-		response.flush();
+		session.flush();
 		
 	}
 	
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(NIOContext context, Configuration config) throws Exception {
 		this.username = config.getProperty("username");
 		this.password = config.getProperty("password");
 	}

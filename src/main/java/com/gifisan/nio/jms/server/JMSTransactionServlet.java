@@ -1,20 +1,16 @@
 package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.NIOSession;
 
 public class JMSTransactionServlet extends JMSServlet{
 
-	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
+	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
 
-		Session session = request.getSession();
-		
 		MQContext context = getMQContext();
 		
 		if (context.isLogined(session)) {
-			String action = request.getContent();
+			String action = session.getRequestText();
 			
 			TransactionSection section = attachment.getTransactionSection();
 			
@@ -27,8 +23,8 @@ public class JMSTransactionServlet extends JMSServlet{
 				}else{
 					message = JMSRESMessage.R_TRANSACTION_BEGINED;
 				}
-				response.write(message.toString());
-				response.flush();
+				session.write(message.toString());
+				session.flush();
 				
 			}else if("commit".equals(action)){
 				RESMessage message = null;
@@ -43,8 +39,8 @@ public class JMSTransactionServlet extends JMSServlet{
 					attachment.setTransactionSection(null);
 				}
 				
-				response.write(message.toString());
-				response.flush();
+				session.write(message.toString());
+				session.flush();
 				
 			}else if("rollback".equals(action)){
 				RESMessage message = null;
@@ -58,8 +54,8 @@ public class JMSTransactionServlet extends JMSServlet{
 					}
 					attachment.setTransactionSection(null);
 				}
-				response.write(message.toString());
-				response.flush();
+				session.write(message.toString());
+				session.flush();
 			}
 //			else if("complete".equals(action)){
 //				RESMessage message = RESMessage.R_SUCCESS;
@@ -69,13 +65,13 @@ public class JMSTransactionServlet extends JMSServlet{
 //				
 //			}
 			else{
-				response.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
-				response.flush();
+				session.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
+				session.flush();
 			}
 		}else{
 			RESMessage message = JMSRESMessage.R_UNAUTH;
-			response.write(message.toString());
-			response.flush();
+			session.write(message.toString());
+			session.flush();
 		}
 	}
 	

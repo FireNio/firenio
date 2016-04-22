@@ -5,20 +5,20 @@ import java.io.IOException;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.Session;
 
 public class Consumer {
 
 	private String				queueName		= null;
 	private JMSSessionAttachment	attachment	= null;
 	private ConsumerQueue		consumerGroup	= null;
-	private Response response = null;
+	private Session			session		= null;
 
-	public Consumer(ConsumerQueue consumerGroup, JMSSessionAttachment attachment,Response response, String queueName) {
+	public Consumer(ConsumerQueue consumerGroup, JMSSessionAttachment attachment, Session session, String queueName) {
 		this.consumerGroup = consumerGroup;
 		this.queueName = queueName;
 		this.attachment = attachment;
-		this.response = response;
+		this.session = session;
 	}
 
 	public String getQueueName() {
@@ -36,27 +36,27 @@ public class Consumer {
 		if (section != null) {
 			section.offerMessage(message);
 		}
-		
+
 		int msgType = message.getMsgType();
-		
+
 		String content = message.toString();
 
-		Response response = this.response;
-		
-		response.write(content);
-		
+		Session session = this.session;
+
+		session.write(content);
+
 		if (msgType == 2) {
-			
-			response.flush();
-			
-		}else{
+
+			session.flush();
+
+		} else {
 			ByteMessage byteMessage = (ByteMessage) message;
 
-			byte [] bytes = byteMessage.getByteArray();
-			
-			response.setInputStream(new ByteArrayInputStream(bytes));
-			
-			response.flush();
+			byte[] bytes = byteMessage.getByteArray();
+
+			session.setInputStream(new ByteArrayInputStream(bytes));
+
+			session.flush();
 		}
 	}
 }

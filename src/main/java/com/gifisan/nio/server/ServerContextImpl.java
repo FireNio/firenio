@@ -1,46 +1,25 @@
 package com.gifisan.nio.server;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
-import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.ProtocolDecoder;
-import com.gifisan.nio.component.ProtocolEncoder;
-import com.gifisan.nio.component.ServerProtocolDecoder;
-import com.gifisan.nio.component.ServerProtocolEncoder;
-import com.gifisan.nio.component.protocol.ServerMultiDecoder;
-import com.gifisan.nio.component.protocol.ServerStreamDecoder;
-import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.service.FilterService;
 
-public class ServerContextImpl extends AbstractLifeCycle implements ServerContext {
+public class ServerContextImpl extends AbstractNIOContext implements ServerContext {
 
-	private Charset			encoding			= null;
 	private NIOServer			server			= null;
-	private ServerEndpointFactory	endpointFactory	= null;
 	private FilterService		filterService		= null;
 	private ExecutorThreadPool	servletLazyExecutor	= null;
 	private String				appLocalAddres		= null;
 	private Logger				logger			= LoggerFactory.getLogger(ServerContextImpl.class);
 	private int				serverPort		= 0;
 	private int				serverCoreSize		= 4;
-	private ProtocolDecoder		protocolDecoder	= null;
-	private ProtocolEncoder		protocolEncoder	= new ServerProtocolEncoder();
-	private EndPointWriter		endPointWriter		= new EndPointWriter();
-
-	public ServerContextImpl(NIOServer server) {
-		this.server = server;
-		this.endpointFactory = new ServerEndpointFactory(this);
-	}
 
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
@@ -48,35 +27,24 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.filterService = new FilterService(this);
 		this.servletLazyExecutor = new ExecutorThreadPool("Servlet-lazy-acceptor",serverCoreSize);
-		this.protocolDecoder = new ServerProtocolDecoder(
-				new TextDecoder(encoding),
-				new ServerStreamDecoder(encoding),
-				new ServerMultiDecoder(encoding));
+		this.selectionAcceptor = new  NIOSelectionAcceptor(this);
+		
 
 		logger.info("  [NIOServer] 工作目录：  { {} }", appLocalAddres);
-		logger.info("  [NIOServer] 项目编码：  { {} }", encoding);
+		logger.info("  [NIOServer] 项目编码：  { {} }", getEncoding());
 		logger.info("  [NIOServer] 监听端口：  { {} }", serverPort);
 		logger.info("  [NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
+		
 		this.filterService.start();
 		this.endPointWriter.start();
 		this.servletLazyExecutor.start();
-		this.endpointFactory.start();
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(endpointFactory);
 		LifeCycleUtil.stop(servletLazyExecutor);
 		LifeCycleUtil.stop(filterService);
 		LifeCycleUtil.stop(endPointWriter);
-	}
-
-	public Charset getEncoding() {
-		return encoding;
-	}
-
-	public ServerEndpointFactory getServerEndpointFactory() {
-		return endpointFactory;
 	}
 
 	public NIOServer getServer() {
@@ -85,10 +53,6 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 	public String getAppLocalAddress() {
 		return appLocalAddres;
-	}
-
-	public void setEncoding(Charset encoding) {
-		this.encoding = encoding;
 	}
 
 	public FilterService getFilterService() {
@@ -124,7 +88,6 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 
 	public void clearAttributes() {
 		this.attributes.clear();
-
 	}
 
 	public int getServerPort() {
@@ -143,16 +106,5 @@ public class ServerContextImpl extends AbstractLifeCycle implements ServerContex
 		this.serverCoreSize = serverCoreSize;
 	}
 
-	public ProtocolDecoder getProtocolDecoder() {
-		return this.protocolDecoder;
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return this.protocolEncoder;
-	}
-
-	public EndPointWriter getEndPointWriter() {
-		return endPointWriter;
-	}
 	
 }

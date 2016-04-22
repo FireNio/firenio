@@ -1,68 +1,36 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.server.ServerEndPoint;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.FilterService;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
-import com.gifisan.nio.service.ServiceRequest;
-import com.gifisan.nio.service.ServiceResponse;
 
 public class NormalServiceAcceptor implements ServiceAcceptorJob {
 
-	private Logger				logger		= LoggerFactory.getLogger(NormalServiceAcceptor.class);
-	private ServiceRequest		request		= null;
-	private ServiceResponse		response		= null;
-	private FilterService		service		= null;
-	private ServerEndPoint		endPoint		= null;
+	private Logger			logger	= LoggerFactory.getLogger(NormalServiceAcceptor.class);
+	private FilterService	service	= null;
+	private Session		session	= null;
+	private ReadFuture		future	= null;
 
-	public NormalServiceAcceptor(ServerEndPoint endPoint, FilterService service, ServiceRequest request,
-			ServiceResponse response) {
-		this.endPoint = endPoint;
+	public NormalServiceAcceptor(Session session, FilterService service) {
+		this.session = session;
 		this.service = service;
-		this.request = request;
-		this.response = response;
-	}
-
-	public void accept(Throwable exception) {
-		try {
-			// error connection , should not flush
-			response.flush();
-		} catch (IOException e) {
-			// ignore
-			logger.error(e.getMessage(), e);
-			// just close it
-			CloseUtil.close(endPoint);
-		}
 	}
 
 	public void run() {
+		this.accept(session, future);
+	}
+
+	public void accept(Session session, ReadFuture future) {
 		try {
-			this.accept(request, response);
-		} catch (Throwable throwable) {
-			logger.error(throwable.getMessage(), throwable);
-			this.accept(throwable);
-		} finally {
-			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint);
-			}
+			this.service.accept(session, future);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
-	public void accept(Request request, Response response) throws IOException {
-		this.service.accept(request, response);
-	}
-
-	public ServiceAcceptorJob update(ServerEndPoint endPoint, ProtocolData protocolData) {
-		this.endPoint = endPoint;
-		this.request.update(endPoint, protocolData);
-		this.response = new ServiceResponse(endPoint, request.getSession());
-		return this;
+	public void update(ReadFuture future) {
+		this.future = future;
 	}
 }

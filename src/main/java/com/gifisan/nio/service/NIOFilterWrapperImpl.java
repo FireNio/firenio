@@ -3,6 +3,7 @@ package com.gifisan.nio.service;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.session.Session;
 
 public class NIOFilterWrapperImpl extends AbstractLifeCycle implements NIOFilterWrapper {
 
@@ -17,8 +18,8 @@ public class NIOFilterWrapperImpl extends AbstractLifeCycle implements NIOFilter
 		this.config = config;
 	}
 
-	public void accept(Request request, Response response) throws Exception {
-		this.filter.accept(request, response);
+	public void accept(Session session) throws Exception {
+		this.filter.accept(session);
 	}
 
 	public void destroy(ServerContext context, Configuration config) throws Exception {

@@ -5,15 +5,11 @@ import java.io.OutputStream;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.NIOSession;
 
 public class JMSProducerServlet extends JMSServlet {
 
-	public void accept(Request request, Response response, JMSSessionAttachment attachment) throws Exception {
-
-		Session session = request.getSession();
+	public void accept(NIOSession session, JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 
@@ -29,19 +25,19 @@ public class JMSProducerServlet extends JMSServlet {
 				}
 			}
 			
-			Message message = context.parse(request);
+			Message message = context.parse(session);
 			
 			context.offerMessage(message);
 
-			response.write(ByteUtil.TRUE);
+			session.write(ByteUtil.TRUE);
 
 		} else {
 
-			response.write("用户未登录！");
+			session.write("用户未登录！");
 
 		}
 
-		response.flush();
+		session.flush();
 
 	}
 

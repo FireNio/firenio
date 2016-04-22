@@ -11,11 +11,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.client.session.ClientSessionFactory;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.AbstractEndPoint;
+import com.gifisan.nio.component.NIOEndPoint;
 import com.gifisan.nio.component.EndPoint;
 
 //FIXME 处理客户端网速慢的情况
-public class ClientEndPoint extends AbstractEndPoint implements EndPoint {
+public class ClientEndPoint extends NIOEndPoint implements EndPoint {
 
 	public ClientEndPoint(SelectionKey selectionKey, ClientSessionFactory	clientSessionFactory) throws SocketException {
 		super(selectionKey);

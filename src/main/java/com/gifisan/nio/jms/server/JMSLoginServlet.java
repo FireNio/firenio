@@ -4,24 +4,23 @@ import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.NIOSession;
 
 public class JMSLoginServlet extends JMSServlet {
 
-	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
+	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 		
-		if (context.login(request, attachment)) {
-			response.write(ByteUtil.TRUE);
+		if (context.login(session, attachment)) {
+			session.write(ByteUtil.TRUE);
 		}else{
-			request.getSession().disconnect();
-			DebugUtil.debug("user [" + request.getParameters().getParameter("username") + "] login failed!");
-			response.write(ByteUtil.FALSE);
+			session.disconnect();
+			DebugUtil.debug("user [" + session.getParameters().getParameter("username") + "] login failed!");
+			session.write(ByteUtil.FALSE);
 		}
 		
-		response.flush();
+		session.flush();
 
 	}
 	

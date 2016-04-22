@@ -2,7 +2,7 @@ package com.gifisan.nio.component;
 
 import java.nio.ByteBuffer;
 
-public class ServerProtocolEncoder implements ProtocolEncoder{
+public class DefaultProtocolEncoder implements ProtocolEncoder{
 
 	private void encodeText(byte[] header, int textLength) {
 		header[3] = (byte) (textLength & 0xff);
@@ -60,41 +60,15 @@ public class ServerProtocolEncoder implements ProtocolEncoder{
 
 	// data with stream
 	public ByteBuffer encode(byte sessionID, byte[] textArray, int streamLength) {
-
 		if (textArray == null || textArray.length == 0) {
-
-			if (streamLength < 1) {
-				return encode(sessionID);
-
-			} else {
-				return encode(sessionID, streamLength);
-			}
+			return encode(sessionID);
 		} else {
 			if (streamLength < 1) {
 				return encode(sessionID, textArray);
-
 			} else {
 				return encodeAll(sessionID, textArray, streamLength);
 			}
 		}
-	}
-
-	// data with stream
-	private ByteBuffer encode(byte sessionID, int streamLength) {
-
-		int allLength = 10;
-
-		ByteBuffer buffer = ByteBuffer.allocate(allLength);
-
-		// >> 右移N位
-		// << 左移N位
-		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.STREAM;
-		header[1] = sessionID;
-		encodeStream(header, streamLength);
-
-		buffer.put(header);
-		return buffer;
 	}
 
 	// data with text

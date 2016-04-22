@@ -13,10 +13,9 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 
 public class DynamicClassLoader extends ClassLoader {
 
@@ -99,7 +98,7 @@ public class DynamicClassLoader extends ClassLoader {
 			} else {
 				String fileName = file.getName();
 				if (fileName.endsWith(".class")) {
-					logger.warn("{} 已经被忽略", fileName);
+					logger.info(" [NIOServer] {} 已经被忽略", fileName);
 				} else if (fileName.endsWith(".jar")) {
 					scanZip(new JarFile(file));
 				}

@@ -7,9 +7,7 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
+import com.gifisan.nio.server.session.NIOSession;
 
 public class JMSBrowserServlet extends JMSServlet {
 	
@@ -19,13 +17,11 @@ public class JMSBrowserServlet extends JMSServlet {
 	
 	public static String ONLINE = "2";
 	
-	public void accept(Request request, Response response,JMSSessionAttachment attachment) throws Exception {
+	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
 
-		Parameters param = request.getParameters();
+		Parameters param = session.getParameters();
 
 		String messageID = param.getParameter("messageID");
-
-		Session session = request.getSession();
 
 		MQContext context = getMQContext();
 
@@ -38,7 +34,7 @@ public class JMSBrowserServlet extends JMSServlet {
 				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
 			} else {
 				if (SIZE.equals(cmd)) {
-					response.write(String.valueOf(context.messageSize()));
+					session.write(String.valueOf(context.messageSize()));
 				} else if (BROWSER.equals(cmd)) {
 
 					if (!StringUtil.isNullOrBlank(messageID)) {
@@ -48,9 +44,9 @@ public class JMSBrowserServlet extends JMSServlet {
 
 							message = NullMessage.NULL_MESSAGE;
 
-							response.write(message.toString());
+							session.write(message.toString());
 						} else {
-							response.write(message.toString(), Encoding.DEFAULT);
+							session.write(message.toString(), Encoding.DEFAULT);
 						}
 					}
 				}else if(ONLINE.equals(cmd)){
@@ -59,15 +55,15 @@ public class JMSBrowserServlet extends JMSServlet {
 					
 					byte result =  ByteUtil.getByte(bool);
 					
-					response.write(result);
+					session.write(result);
 				}
 			}
 		} else {
 			message = ErrorMessage.UNAUTH_MESSAGE;
-			response.write(message.toString());
+			session.write(message.toString());
 		}
 
-		response.flush();
+		session.flush();
 	}
 
 

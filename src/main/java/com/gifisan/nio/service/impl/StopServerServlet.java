@@ -1,18 +1,17 @@
 package com.gifisan.nio.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.server.NIOServer;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.session.NIOSession;
 import com.gifisan.nio.service.NIOServlet;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
 
 public class StopServerServlet extends NIOServlet {
 
@@ -20,21 +19,21 @@ public class StopServerServlet extends NIOServlet {
 	private String				username		= null;
 	private String				password		= null;
 	
-	public void accept(Request request, Response response) throws Exception {
-		Parameters param = request.getParameters();
+	public void accept(NIOSession session) throws Exception {
+		Parameters param = session.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
 		
 		boolean result = this.username.equals(username) && this.password.equals(password);
 		if (result) {
-			ServerContext context = request.getSession().getServerContext();
+			ServerContext context = (ServerContext) session.getContext();
 			NIOServer server = context.getServer();
 			new Thread(new StopServer(server)).start();
-			response.write("服务端正在处理停止服务命令...");
+			session.write("服务端正在处理停止服务命令...");
 		}else{
-			response.write(RESMessage.R_UNAUTH.toString());
+			session.write(RESMessage.R_UNAUTH.toString());
 		}
-		response.flush();
+		session.flush();
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {

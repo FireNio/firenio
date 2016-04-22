@@ -1,11 +1,9 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.jms.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.jms.server.Consumer;
-import com.gifisan.nio.jms.server.MQContext;
 
 public class MessageWriterJob implements Runnable {
 

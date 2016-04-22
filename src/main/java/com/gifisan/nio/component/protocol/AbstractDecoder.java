@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.ProtocolData;
 
 public abstract class AbstractDecoder implements Decoder {
 
@@ -15,7 +14,7 @@ public abstract class AbstractDecoder implements Decoder {
 		this.charset = charset;
 	}
 
-	protected int getStreamLength(byte[] header) {
+	protected int gainStreamLength(byte[] header) {
 		int v0 = (header[5] & 0xff);
 		int v1 = (header[6] & 0xff) << 8;
 		int v2 = (header[7] & 0xff) << 16;
@@ -23,23 +22,38 @@ public abstract class AbstractDecoder implements Decoder {
 		return v0 | v1 | v2 | v3;
 	}
 	
-	protected void decodeText(EndPoint endPoint, ProtocolData data,ByteBuffer buffer) throws IOException {
-		
-		if (buffer == null) {
-			return;
+	protected byte gainSessionID(byte[] header) throws IOException {
+
+		byte sessionID = header[0];
+
+		if (sessionID > 3 || sessionID < 0) {
+			throw new IOException("invalidate session id");
 		}
-		
-		byte[] bytes = buffer.array();
 
-		String content = new String(bytes, charset);
+		return sessionID;
 
-		data.setText(content);
+	}
+
+	protected int gainTextLength(byte[] header) {
+		int v0 = (header[2] & 0xff);
+		int v1 = (header[3] & 0xff) << 8;
+		int v2 = (header[4] & 0xff) << 16;
+		return v0 | v1 | v2;
 	}
 	
-	public boolean progressRead(EndPoint endPoint ,ByteBuffer buffer) throws IOException{
+	protected String gainServiceName(EndPoint endPoint, byte[] header) throws IOException {
+
+		int serviceNameLength = header[1];
 		
-		endPoint.read(buffer);
-		
-		return buffer.position() == buffer.limit();
+		if (serviceNameLength == 0) {
+
+			throw new IOException("service name is empty");
+		}
+
+		ByteBuffer buffer = endPoint.read(serviceNameLength);
+
+		byte[] bytes = buffer.array();
+
+		return new String(bytes, 0, serviceNameLength);
 	}
 }

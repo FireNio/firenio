@@ -1,0 +1,25 @@
+package com.gifisan.nio.common;
+
+public interface Logger {
+
+	public abstract void info(String message);
+	
+	public abstract void info(String message,Object param);
+	
+	public abstract void info(String message,Object param,Object param1);
+	
+	public abstract void info(String message,Object []param);
+	
+	public abstract void debug(String message);
+	
+	public abstract void debug(String message,Object param);
+	
+	public abstract void debug(String message,Object param,Object param1);
+	
+	public abstract void debug(String message,Object []param);
+	
+	public abstract void error(String object,Throwable throwable);
+	
+	
+	
+}

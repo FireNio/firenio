@@ -1,7 +1,6 @@
 package com.gifisan.nio.server.selector;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -10,28 +9,22 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.ServerNIOEndPoint;
-import com.gifisan.nio.server.NIOSelectionAcceptor;
-import com.gifisan.nio.server.SelectionAcceptor;
-import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServerEndPoint;
+import com.gifisan.nio.component.NIOEndPoint;
+import com.gifisan.nio.server.NIOContext;
 
-public final class SelectorManager extends AbstractLifeCycle implements SelectionAccept {
+public final class SelectorManager implements SelectionAcceptor {
 
 	private Logger				logger	= LoggerFactory.getLogger(SelectorManager.class);
 	private SelectionAcceptor	acceptor	= null;
 	private Selector			selector	= null;
-	private ServerSocketChannel	channel	= null;
 
-	public SelectorManager(ServerContext context) {
-		this.acceptor = new NIOSelectionAcceptor(context);
+	public SelectorManager(NIOContext context,Selector selector) {
+		this.selector = selector;
+		this.acceptor = context.getSelectionAcceptor();
 	}
 
 	public void accept(long timeout) throws IOException {
@@ -81,7 +74,7 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 
 		if (isEndPoint(attachment)) {
 			
-			ServerEndPoint endPoint = (ServerEndPoint) attachment;
+			EndPoint endPoint = (EndPoint) attachment;
 			
 			CloseUtil.close(endPoint);
 		}
@@ -94,7 +87,7 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 	}
 
 	private boolean isEndPoint(Object object) {
-		return object != null && (object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
+		return object != null && (object.getClass() == NIOEndPoint.class || object instanceof EndPoint);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
@@ -106,25 +99,6 @@ public final class SelectorManager extends AbstractLifeCycle implements Selectio
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
 		channel.register(selector, SelectionKey.OP_READ);
-	}
-
-	protected void doStart() throws Exception {
-		this.selector = Selector.open();
-		this.channel.register(selector, SelectionKey.OP_ACCEPT);
-		this.acceptor.start();
-
-	}
-
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(acceptor);
-	}
-
-	public Selector getSelector() {
-		return selector;
-	}
-
-	public void register(ServerSocketChannel serverSocketChannel) throws ClosedChannelException {
-		this.channel = serverSocketChannel;
 	}
 
 }

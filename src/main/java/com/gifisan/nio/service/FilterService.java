@@ -2,16 +2,16 @@ package com.gifisan.nio.service;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.server.InnerResponse;
+import com.gifisan.nio.component.Message;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.impl.ErrorServlet;
 
 public final class FilterService extends AbstractLifeCycle implements ServiceAcceptor, LifeCycle {
@@ -30,28 +30,31 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 	}
 
-	public void accept(Request request, Response response) throws IOException {
+	public void accept(Session session,Message message) throws IOException {
 
 		try {
-			accept(rootFilter, request, (InnerResponse) response);
+			
+			accept(rootFilter, session,message);
+			
 		} catch (FlushedException e) {
+			
 			logger.error(e.getMessage(), e);
-		} catch (IOException e) {
+			
+		} catch (Throwable e) {
+			
 			logger.error(e.getMessage(), e);
-			this.acceptException(e, request, response);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			this.acceptException(e, request, response);
+			
+			this.acceptException(session,message,e);
 		}
 	}
 
-	private void acceptException(Exception exception, Request request, Response response) throws IOException {
+	private void acceptException(Session session,Message message,Throwable exception) throws IOException {
 
 		ErrorServlet servlet = new ErrorServlet(exception);
 
 		try {
 
-			servlet.accept(request, response);
+			servlet.accept(session,message);
 
 		} catch (IOException e) {
 
@@ -60,17 +63,16 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		} catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
-
 		}
 	}
 
-	private boolean accept(NIOFilterWrapper filter, Request request, InnerResponse response) throws Exception {
+	private boolean accept(NIOFilterWrapper filter,Session session,Message message) throws Exception {
 
 		for (; filter != null;) {
 
-			filter.accept(request, response);
+			filter.accept(session,message);
 
-			if (response.schduled()) {
+			if (session.schduled()) {
 
 				return true;
 			}

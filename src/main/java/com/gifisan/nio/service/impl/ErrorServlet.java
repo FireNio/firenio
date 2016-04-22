@@ -1,33 +1,33 @@
 package com.gifisan.nio.service.impl;
 
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.component.Message;
 import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.NIOServlet;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
 
 public class ErrorServlet extends NIOServlet{
 	
-	public ErrorServlet(Exception exception) {
+	public ErrorServlet(Throwable exception) {
 		this.exception = exception;
 	}
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Session session,Message message) throws Exception {
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
-		RESMessage message = new RESMessage(500, exception.getMessage());
-		response.write(message.toString(),Encoding.DEFAULT);
-		response.flush();
+		RESMessage res = new RESMessage(500, exception.getMessage());
+		session.write(res.toString(),Encoding.DEFAULT);
+		session.flush(message,null);
 	}
 
-	private Exception exception = null;
+	private Throwable exception = null;
 
-	public Exception getException() {
+	public Throwable getException() {
 		return exception;
 	}
 
-	public void setException(Exception exception) {
+	public void setException(Throwable exception) {
 		this.exception = exception;
 	}
-	
+
 }

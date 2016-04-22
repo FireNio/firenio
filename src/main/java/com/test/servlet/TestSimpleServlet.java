@@ -1,9 +1,8 @@
 package com.test.servlet;
 
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.NIOServlet;
-import com.gifisan.nio.service.Request;
-import com.gifisan.nio.service.Response;
 
 public class TestSimpleServlet extends NIOServlet{
 	
@@ -11,17 +10,17 @@ public class TestSimpleServlet extends NIOServlet{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	public void accept(Request request, Response response) throws Exception {
+	public void accept(Session session) throws Exception {
 
-		String test = request.getContent();
+		String test = session.getRequestText();
 
 		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";
 		}
-		response.write(simple1.dynamic());
-		response.write(test);
-		response.write("$");
-		response.flush();
+		session.write(simple1.dynamic());
+		session.write(test);
+		session.write("$");
+		session.flush();
 		
 //		System.out.println("=============================="+size.incrementAndGet());
 	}

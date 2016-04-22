@@ -1,136 +1,126 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServerEndPoint;
-import com.gifisan.nio.server.ServerEndpointFactory;
-import com.gifisan.nio.server.selector.SelectionAccept;
-import com.gifisan.nio.server.selector.ServiceAcceptorJob;
-import com.gifisan.nio.server.session.InnerSession;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.selector.SelectionAcceptor;
 
-public class NIOSelectionReader implements SelectionAccept {
+public class NIOSelectionReader extends AbstractNIOSelection implements SelectionAcceptor {
 
-	private ServerContext	context			= null;
-	private ThreadPool		acceptorDispatcher	= null;
-	private ByteBuffer		cache			= ByteBuffer.allocate(1024 * 100);
+	private ReadFutureAcceptor	readFutureAcceptor	= null;
 
-	public NIOSelectionReader(ServerContext context, ThreadPool acceptorDispatcher) {
-		this.context = context;
-		this.acceptorDispatcher = acceptorDispatcher;
-	}
-
-	protected boolean isEndPoint(Object object) {
-
-		return object != null && (object.getClass() == ServerNIOEndPoint.class || object instanceof EndPoint);
-
-	}
-
-	private ServerEndPoint getEndPoint(ServerContext context, SelectionKey selectionKey) throws SocketException {
-
-		Object attachment = selectionKey.attachment();
-
-		if (isEndPoint(attachment)) {
-			return (ServerEndPoint) attachment;
-		}
-
-		ServerEndpointFactory factory = context.getServerEndpointFactory();
-
-		ServerEndPoint endPoint = factory.manager(context, selectionKey);
-
-		selectionKey.attach(endPoint);
-
-		return endPoint;
-
+	public NIOSelectionReader(NIOContext context) {
+		super(context);
+		this.readFutureAcceptor = context.getReadFutureAcceptor();
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		ServerContext context = this.context;
+		NIOContext context = this.context;
 
-		ServerEndPoint endPoint = getEndPoint(context, selectionKey);
+		EndPoint endPoint = getEndPoint(context, selectionKey);
 
 		if (endPoint.isEndConnect()) {
 			return;
 		}
 
-		if (endPoint.inStream()) {
+		IOReadFuture future = endPoint.getReadFuture();
+
+		if (future == null) {
 			
-			if (endPoint.flushServerOutputStream(cache)) {
-				
-				InnerSession session = endPoint.getCurrentSession();
-				
-				session.setStream(false);
-				
-				endPoint.setCurrentSession(session);
+			ProtocolDecoder decoder = context.getProtocolDecoder();
 
-				ServiceAcceptorJob job = session.updateAcceptor();
+			future = decoder.decode(endPoint);
 
-				acceptorDispatcher.dispatch(job);
+			if (future == null) {
+				if (endPoint.isEndConnect()) {
+					CloseUtil.close(endPoint);
+				}
 				return;
 			}
-			return;
-		}
-
-		EndPointSchedule schedule = endPoint.getSchedule();
-
-		if (schedule != null) {
-			if (schedule.schedule(endPoint)) {
-				dispatch(endPoint, schedule.getProtocolData());
-			}
-			return;
-		}
-
-		ProtocolDecoder decoder = context.getProtocolDecoder();
-
-		ServerProtocolData data = new ServerProtocolData();
-
-		boolean decoded = decoder.decode(endPoint, data);
-
-		if (!decoded) {
-			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint);
-			}
-			return;
-		}
-
-		if (data.isBeat()) {
-			return;
-		}
-
-		if (data.getProtocolType() != ProtocolDecoder.TEXT) {
-
-			InnerSession session = endPoint.getSession(data.getSessionID());
 			
-			session.setStream(true);
-
-			endPoint.setCurrentSession(session);
-
-			ServiceAcceptorJob job = session.updateAcceptor(data);
-
-			job.run();
-
-			return;
+			endPoint.setReadFuture(future);
 		}
 
-		dispatch(endPoint, data);
+		if (future.read()) {
+			
+			endPoint.setReadFuture(null);
+
+			readFutureAcceptor.accept(future.getSession(),future);
+		}
+
+//		if (endPoint.inStream()) {
+//
+//			if (endPoint.flushServerOutputStream(cache)) {
+//
+//				Session session = endPoint.getCurrentSession();
+//
+//				session.setStream(false);
+//
+//				endPoint.setCurrentSession(session);
+//
+//				ServiceAcceptorJob job = session.getServiceAcceptorJob(protocolData);
+//
+//				acceptorDispatcher.dispatch(job);
+//				return;
+//			}
+//			return;
+//		}
+//
+//		EndPointSchedule schedule = endPoint.getSchedule();
+//
+//		if (schedule != null) {
+//			if (schedule.schedule(endPoint)) {
+//				dispatch(endPoint, schedule.getProtocolData());
+//			}
+//			return;
+//		}
+//
+//		ProtocolDecoder decoder = context.getProtocolDecoder();
+//
+//		ServerProtocolData protocolData = new ServerProtocolData();
+//
+//		boolean decoded = decoder.decode(endPoint, protocolData);
+//
+//		if (!decoded) {
+//			if (endPoint.isEndConnect()) {
+//				CloseUtil.close(endPoint);
+//			}
+//			return;
+//		}
+//
+//		if (protocolData.isBeat()) {
+//			return;
+//		}
+//
+//		if (protocolData.getProtocolType() != ProtocolDecoder.TEXT) {
+//
+//			Session session = endPoint.getSession(protocolData.getSessionID());
+//
+//			session.setStream(true);
+//
+//			endPoint.setCurrentSession(session);
+//
+//			ServiceAcceptorJob job = session.getServiceAcceptorJob(protocolData);
+//
+//			job.run();
+//
+//			return;
+//		}
+//
+//		dispatch(endPoint, protocolData);
 
 	}
 
-	private void dispatch(ServerEndPoint endPoint, ProtocolData data) {
-
-		InnerSession session = endPoint.getSession(data.getSessionID());
-
-		ServiceAcceptorJob job = session.updateAcceptor(data);
-
-		acceptorDispatcher.dispatch(job);
-	}
-	
-	
+//	private void dispatch(EndPoint endPoint, ProtocolData protocolData) {
+//
+//		Session session = endPoint.getSession(protocolData.getSessionID());
+//
+//		ServiceAcceptorJob job = session.getServiceAcceptorJob(protocolData);
+//
+//		acceptorDispatcher.dispatch(job);
+//	}
 
 }
