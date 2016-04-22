@@ -9,7 +9,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.component.Message;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.impl.ErrorServlet;
@@ -30,11 +30,11 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 	}
 
-	public void accept(Session session,Message message) throws IOException {
+	public void accept(Session session,ReadFuture future) throws IOException {
 
 		try {
 			
-			accept(rootFilter, session,message);
+			accept(rootFilter, session,future);
 			
 		} catch (FlushedException e) {
 			
@@ -44,17 +44,17 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 			
 			logger.error(e.getMessage(), e);
 			
-			this.acceptException(session,message,e);
+			this.acceptException(session,future,e);
 		}
 	}
 
-	private void acceptException(Session session,Message message,Throwable exception) throws IOException {
+	private void acceptException(Session session,ReadFuture future,Throwable exception) throws IOException {
 
 		ErrorServlet servlet = new ErrorServlet(exception);
 
 		try {
 
-			servlet.accept(session,message);
+			servlet.accept(session,future);
 
 		} catch (IOException e) {
 
@@ -66,11 +66,11 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		}
 	}
 
-	private boolean accept(NIOFilterWrapper filter,Session session,Message message) throws Exception {
+	private boolean accept(NIOFilterWrapper filter,Session session,ReadFuture future) throws Exception {
 
 		for (; filter != null;) {
 
-			filter.accept(session,message);
+			filter.accept(session,future);
 
 			if (session.schduled()) {
 

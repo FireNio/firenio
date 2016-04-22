@@ -39,14 +39,12 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 		httpArray = http.toString().getBytes();
 	}
 
-	public boolean doDecodeExtend(EndPoint endPoint, ProtocolDataImpl data, byte type) throws IOException {
+	public IOReadFuture doDecodeExtend(EndPoint endPoint, byte type) throws IOException {
 		if (type == 3) {
 
 			DebugUtil.debug(">>read beat................." + DateUtil.now());
 
-			((ServerProtocolData) data).setBeat(true);
-
-			return true;
+			return null;
 		}
 
 		// HTTP REQUEST ?
@@ -55,10 +53,10 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 			endPoint.write(buffer);
 //			endPoint.endConnect();
 			logger.info("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
-			return false;
+			return null;
 		}else{
 			endPoint.endConnect();
-			return false;
+			return null;
 		}
 	}
 

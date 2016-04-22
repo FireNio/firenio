@@ -1,10 +1,14 @@
 package com.gifisan.nio.component;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.WriteFuture;
 
 public interface ProtocolEncoder {
-	
-	public abstract ByteBuffer encode(byte sessionID, byte[] textArray, int streamLength) ;
-	
-	public abstract ByteBuffer encode(byte sessionID, byte[] textArray) ;
+
+	public abstract WriteFuture encode(Session session, byte[] array, InputStream inputStream,
+			IOExceptionHandle handle) throws IOException;
+
 }

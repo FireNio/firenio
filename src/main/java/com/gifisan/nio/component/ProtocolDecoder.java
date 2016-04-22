@@ -21,6 +21,4 @@ public interface ProtocolDecoder {
 
 	public abstract IOReadFuture decode(EndPoint endPoint) throws IOException;
 
-	public abstract IOReadFuture doDecodeExtend(EndPoint endPoint, byte type) throws IOException;
-
 }

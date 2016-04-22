@@ -11,6 +11,8 @@ public interface ReadFuture {
 	
 	public abstract Parameters getParameters();
 	
+	public abstract OutputStream getOutputStream();
+	
 	public abstract void setIOEvent(OutputStream outputStream,IOExceptionHandle handle);
 	
 	

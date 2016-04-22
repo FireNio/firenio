@@ -10,8 +10,8 @@ import com.gifisan.nio.server.session.Session;
 public abstract class AbstractWriteFuture implements WriteFuture {
 
 	private IOExceptionHandle	handle	= null;
-	protected EndPoint			endPoint			= null;
 	private Session			session			= null;
+	protected EndPoint			endPoint			= null;
 	protected ByteBuffer		textBuffer		= null;
 
 	public AbstractWriteFuture(IOExceptionHandle handle, ByteBuffer textBuffer, Session session) {

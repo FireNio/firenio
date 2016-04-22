@@ -11,7 +11,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 	private Thread							owner	= null;
 	private boolean						running	= false;
-	private LinkedListM2O<WriteFuture>		writers	= new LinkedListM2O<WriteFuture>();
+	private LinkedListM2O<WriteFuture>			writers	= new LinkedListM2O<WriteFuture>();
 
 	public void offer(WriteFuture writer) {
 		this.writers.offer(writer);

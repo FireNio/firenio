@@ -1,41 +1,49 @@
 package com.gifisan.nio.client;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+import com.gifisan.nio.component.ReadFuture;
 
 public class MessageBus {
 
-	private ClientResponse					response	= null;
-	private ArrayBlockingQueue<ClientResponse>	queue	= new ArrayBlockingQueue<ClientResponse>(1);
+	private ReadFuture		response	= null;
+	private ReentrantLock	lock		= new ReentrantLock();
+	private Condition		notNull	= lock.newCondition();
 
-	public void await(long timeout) {
-		if (timeout == 0) {
+	public ReadFuture poll(long timeout) {
+		if (response == null) {
+			ReentrantLock lock = this.lock;
+
+			lock.lock();
+
 			try {
-				ClientResponse response = null;
-				for (; response == null;) {
-					response = queue.poll(16, TimeUnit.MILLISECONDS);
-
-				}
-				this.response = response;
+				notNull.await(timeout, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				notNull.signal();
+			}
 
-			}
-		} else {
-			try {
-				response = queue.poll(timeout, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			lock.unlock();
+
+			return response;
 		}
-	}
-
-	public ClientResponse getResponse() {
 		return response;
 	}
 
-	public void setResponse(ClientResponse response) {
-		this.queue.offer(response);
+	public void offer(ReadFuture response) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		this.response = response;
+
+		notNull.signal();
+
+		lock.unlock();
+
 	}
 
 }

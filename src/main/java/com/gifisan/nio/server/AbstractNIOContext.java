@@ -1,37 +1,24 @@
 package com.gifisan.nio.server;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.component.DefaultProtocolEncoder;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.ProtocolDecoder;
-import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ReadFutureAcceptor;
-import com.gifisan.nio.component.ServerProtocolDecoder;
 import com.gifisan.nio.component.SessionFactory;
-import com.gifisan.nio.component.protocol.ServerMultiDecoder;
-import com.gifisan.nio.component.protocol.MultiDecoder;
-import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.server.selector.SelectionAcceptor;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
-	private Charset			encoding			= null;
-	private ProtocolDecoder		protocolDecoder	= null;
-	private ProtocolEncoder		protocolEncoder	= new DefaultProtocolEncoder();
-	protected EndPointWriter	endPointWriter		= new EndPointWriter();
+	private EndPointWriter		endPointWriter		= new EndPointWriter();
+	protected Charset			encoding			= null;
 	protected SelectionAcceptor	selectionAcceptor	= null;
 	protected ReadFutureAcceptor	readFutureAcceptor	= null;
-	protected SessionFactory sessionFactory = null;
-	
-	
-	public AbstractNIOContext() {
-		this.protocolDecoder = new ServerProtocolDecoder(
-				new TextDecoder(encoding),
-				new MultiDecoder(encoding),
-				new ServerMultiDecoder(encoding));
-	}
+	protected SessionFactory	sessionFactory		= null;
 
 	public Charset getEncoding() {
 		return encoding;
@@ -39,14 +26,6 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 
 	public void setEncoding(Charset encoding) {
 		this.encoding = encoding;
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
 	}
 
 	public EndPointWriter getEndPointWriter() {
@@ -64,6 +43,36 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
-	
+
+	private Map<String, Object>	attributes	= new HashMap<String, Object>();
+
+	public Object removeAttribute(String key) {
+		return this.attributes.remove(key);
+	}
+
+	public void setAttribute(String key, Object value) {
+		this.attributes.put(key, value);
+	}
+
+	public Object getAttribute(String key) {
+		return this.attributes.get(key);
+	}
+
+	public Set<String> getAttributeNames() {
+		return this.attributes.keySet();
+	}
+
+	public void clearAttributes() {
+		this.attributes.clear();
+	}
+
+	protected void doStart() throws Exception {
+		this.endPointWriter.start();
+
+	}
+
+	protected void doStop() throws Exception {
+		LifeCycleUtil.stop(endPointWriter);
+	}
 
 }

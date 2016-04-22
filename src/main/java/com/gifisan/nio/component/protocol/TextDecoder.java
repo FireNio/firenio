@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.TextReadFuture;
 
@@ -15,7 +15,7 @@ public class TextDecoder extends AbstractDecoder implements Decoder{
 		super(charset);
 	}
 
-	public ReadFuture decode(EndPoint endPoint, byte[] header) throws IOException {
+	public IOReadFuture decode(EndPoint endPoint, byte[] header) throws IOException {
 
 		byte sessionID = gainSessionID(header);
 		

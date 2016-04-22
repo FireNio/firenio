@@ -45,16 +45,8 @@ public interface EndPoint extends Closeable {
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
 
-	public abstract void setSchedule(SlowlyNetworkReader accept);
-
-	public abstract SlowlyNetworkReader getSchedule();
-
 	public abstract boolean isEndConnect();
 
-	public abstract Session getCurrentSession();
-
-	public abstract void setCurrentSession(Session session);
-	
 	public abstract boolean isNetworkWeak();
 	
 	public abstract void attackNetwork(int length);
@@ -73,14 +65,6 @@ public interface EndPoint extends Closeable {
 
 	public abstract Session getSession(byte sessionID);
 
-	public abstract boolean inStream();
-	
-	public abstract boolean flushServerOutputStream(ByteBuffer buffer) throws IOException;
-	
-	public abstract void setStreamAvailable(int streamAvailable) ;
-	
-	public abstract void resetServerOutputStream();
-	
 	public abstract IOReadFuture getReadFuture();
 	
 	public abstract void setReadFuture(IOReadFuture future);

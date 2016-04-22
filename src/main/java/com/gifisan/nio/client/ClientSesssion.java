@@ -3,14 +3,20 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface ClientSesssion {
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.server.session.Session;
 
-	public abstract long getTimeout();
+public interface ClientSesssion extends Session {
 
-	public abstract ClientResponse request(String serviceName, String content) throws IOException;
+	public abstract void request(String serviceName, String content) throws IOException;
 
-	public abstract ClientResponse request(String serviceName, String content, InputStream inputStream) throws IOException;
+	public abstract void request(String serviceName, String content, InputStream inputStream) throws IOException;
 
-	public abstract void setTimeout(long timeout);
+	public abstract void request(String serviceName, String content, OnReadFuture onReadFuture) throws IOException;
 
+	public abstract void request(String serviceName, String content, InputStream inputStream, OnReadFuture onReadFuture)
+			throws IOException;
+
+	public abstract ReadFuture poll(long timeout);
+	
 }

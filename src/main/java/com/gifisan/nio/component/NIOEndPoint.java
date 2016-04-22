@@ -1,7 +1,6 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -18,22 +17,18 @@ import com.gifisan.nio.service.WriteFuture;
 
 public class NIOEndPoint implements EndPoint {
 
-	private SlowlyNetworkReader	accept			= null;
 	private Attachment			attachment		= null;
 	private boolean			attempts0			= false;
 	private boolean			attempts1			= false;
 	private SocketChannel		channel			= null;
 	private NIOContext			context			= null;
-	private Session			currentSession		= null;
 	private boolean			endConnect		= false;
 	private InetSocketAddress	local			= null;
-	private int				readed			= 0;
 	private InetSocketAddress	remote			= null;
 	private SelectionKey		selectionKey		= null;
 	private Session[]			sessions			= new Session[4];
 	private int				sessionSize		= 0;
 	private Socket				socket			= null;
-	private int				streamAvailable	= 0;
 	private List<WriteFuture>	writers			= new ArrayList<WriteFuture>();
 	private byte				writingSessionID	= -1;
 	private SessionFactory		sessionFactory		= null;
@@ -95,30 +90,6 @@ public class NIOEndPoint implements EndPoint {
 		this.endConnect = true;
 	}
 
-	public boolean flushServerOutputStream(ByteBuffer buffer) throws IOException {
-		Session session = this.getCurrentSession();
-
-		OutputStream outputStream = session.getServerOutputStream();
-
-		if (outputStream == null) {
-			throw new IOException("why did you not close this endpoint and did not handle it when a stream in.");
-		}
-
-		buffer.clear();
-
-		int length = read(buffer);
-
-		outputStream.write(buffer.array(), 0, length);
-
-		readed += length;
-
-		return readed == streamAvailable;
-	}
-
-	public Session getCurrentSession() {
-		return currentSession;
-	}
-
 	public String getLocalAddr() {
 		if (local == null) {
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
@@ -159,10 +130,6 @@ public class NIOEndPoint implements EndPoint {
 		return remote.getPort();
 	}
 
-	public SlowlyNetworkReader getSchedule() {
-		return accept;
-	}
-
 	public Session getSession(byte sessionID) {
 
 		Session session = sessions[sessionID];
@@ -180,10 +147,6 @@ public class NIOEndPoint implements EndPoint {
 		this.attempts0 = false;
 		this.attempts1 = false;
 		return writers;
-	}
-
-	public boolean inStream() {
-		return readed < streamAvailable;
 	}
 
 	public void interestWrite() {
@@ -228,26 +191,8 @@ public class NIOEndPoint implements EndPoint {
 		}
 	}
 
-	public void resetServerOutputStream() {
-		this.readed = 0;
-		this.streamAvailable = 0;
-	}
-
 	public int sessionSize() {
 		return sessionSize;
-	}
-
-	public void setCurrentSession(Session session) {
-		this.currentSession = session;
-	}
-
-	public void setSchedule(SlowlyNetworkReader accept) {
-		this.accept = accept;
-	}
-
-	public void setStreamAvailable(int streamAvailable) {
-		this.streamAvailable = streamAvailable;
-
 	}
 
 	public void setWriting(byte sessionID) {
@@ -269,7 +214,5 @@ public class NIOEndPoint implements EndPoint {
 	public void setReadFuture(IOReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
-	
-	
 
 }

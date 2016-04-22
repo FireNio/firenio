@@ -2,9 +2,7 @@ package com.gifisan.nio.server.session;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.Attachment;
@@ -12,27 +10,21 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.component.Message;
 import com.gifisan.nio.component.NormalServiceAcceptor;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.selector.ServiceAcceptorJob;
-import com.gifisan.nio.service.ByteArrayWriteFuture;
-import com.gifisan.nio.service.MultiWriteFuture;
-import com.gifisan.nio.service.TextWriteFuture;
+import com.gifisan.nio.service.WriteFuture;
 
-public class NIOSession extends AttributesImpl implements Session {
+public class NIOSession extends AttributesImpl implements IOSession {
 
 	private ServiceAcceptorJob			acceptor			= null;
 	private Attachment					attachment		= null;
-	private ByteArrayInputStream			bInputStream		= null;
 	private ServerContext				context			= null;
 	private long						creationTime		= System.currentTimeMillis();
-	private int						dataLength		= 0;
 	private ProtocolEncoder				encoder			= null;
 	private EndPoint					endPoint			= null;
 	private EndPointWriter				endPointWriter		= null;
@@ -41,8 +33,6 @@ public class NIOSession extends AttributesImpl implements Session {
 	private SessionEventListenerWrapper	lastListener		= null;
 	private SessionEventListenerWrapper	listenerStub		= null;
 	private boolean					scheduled			= false;
-	private OutputStream				serverOutputStream	= null;
-	private boolean					stream			= false;
 	private BufferedOutputStream			textCache			= new BufferedOutputStream();
 	private byte						sessionID			= 0;
 
@@ -84,8 +74,12 @@ public class NIOSession extends AttributesImpl implements Session {
 		// FIXME ......
 		this.endPoint.endConnect();
 	}
+	
+	public void flush() throws IOException {
+		flush(null);
+	}
 
-	public void flush(Message message, IOExceptionHandle catchWriteException) throws IOException {
+	public void flush(IOExceptionHandle handle) throws IOException {
 		if (flushed) {
 			throw new FlushedException("flushed already");
 		}
@@ -97,33 +91,12 @@ public class NIOSession extends AttributesImpl implements Session {
 		this.flushed = true;
 
 		this.scheduled = true;
-
-		this.removeServerOutputStream();
-
-		ByteBuffer textByteBuffer = encoder.encode(sessionID, textCache.toByteArray(), dataLength);
-
-		textByteBuffer.flip();
-
-		if (dataLength > 0) {
-
-			if (bInputStream == null) {
-
-				MultiWriteFuture writer = new MultiWriteFuture(catchWriteException, textByteBuffer, this,
-						inputStream);
-				this.endPointWriter.offer(writer);
-				return;
-			}
-
-			ByteArrayWriteFuture writer = new ByteArrayWriteFuture(catchWriteException, textByteBuffer, this,
-					bInputStream);
-			this.endPointWriter.offer(writer);
-			return;
-		}
-
-		TextWriteFuture writer = new TextWriteFuture(catchWriteException, textByteBuffer, this);
-
-		this.endPointWriter.offer(writer);
-
+		
+		WriteFuture future = encoder.encode(this, textCache.toByteArray(), inputStream, handle);
+		
+		this.inputStream = null;
+		
+		this.endPointWriter.offer(future);
 	}
 
 	public boolean flushed() {
@@ -170,25 +143,12 @@ public class NIOSession extends AttributesImpl implements Session {
 		return context;
 	}
 
-	public OutputStream getServerOutputStream() {
-		return serverOutputStream;
-	}
-
 	public boolean isBlocking() {
 		return endPoint.isBlocking();
 	}
 
 	public boolean isOpened() {
 		return endPoint.isOpened();
-	}
-
-	public boolean isStream() {
-		return stream;
-	}
-
-	public void removeServerOutputStream() {
-		this.serverOutputStream = null;
-		this.endPoint.resetServerOutputStream();
 	}
 
 	public void schdule() {
@@ -199,25 +159,8 @@ public class NIOSession extends AttributesImpl implements Session {
 		return scheduled;
 	}
 
-	public void setEndPoint(EndPoint endPoint) {
-		this.endPoint = endPoint;
-	}
-
 	public void setInputStream(InputStream inputStream) throws IOException {
-		this.dataLength = inputStream.available();
-		if (inputStream.getClass() != ByteArrayInputStream.class) {
-			this.inputStream = inputStream;
-			return;
-		}
-		this.bInputStream = (ByteArrayInputStream) inputStream;
-	}
-
-	public void setServerOutputStream(OutputStream serverOutputStream) {
-		this.serverOutputStream = serverOutputStream;
-	}
-
-	public void setStream(boolean stream) {
-		this.stream = stream;
+		this.inputStream = inputStream;
 	}
 
 	public ServiceAcceptorJob getServiceAcceptorJob() {
