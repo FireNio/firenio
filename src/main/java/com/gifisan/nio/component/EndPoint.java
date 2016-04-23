@@ -37,8 +37,6 @@ public interface EndPoint extends Closeable {
 
 	public abstract boolean isOpened();
 
-	public abstract int sessionSize();
-
 	public abstract int read(ByteBuffer buffer) throws IOException;
 	
 	public abstract ByteBuffer read(int limit) throws IOException;
@@ -63,7 +61,7 @@ public interface EndPoint extends Closeable {
 
 	public abstract Attachment attachment();
 
-	public abstract Session getSession(byte sessionID);
+	public abstract Session getSession(byte sessionID) throws IOException;
 
 	public abstract IOReadFuture getReadFuture();
 	

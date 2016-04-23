@@ -10,9 +10,9 @@ import com.gifisan.nio.server.session.Session;
 
 public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public MultiWriteFuture(Session session, ByteBuffer textBuffer, byte []textCache ,
+	public MultiWriteFuture(Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
 			InputStream inputStream,IOExceptionHandle handle) {
-		super(handle, textBuffer, textCache, session);
+		super(handle,serviceName, textBuffer, textCache, session);
 		this.inputStream = inputStream;
 		this.streamBuffer = ByteBuffer.allocate(1024 * 1000);
 		this.streamBuffer.position(streamBuffer.limit());

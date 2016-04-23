@@ -9,8 +9,9 @@ import com.gifisan.nio.server.session.Session;
 
 public class TextWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public TextWriteFuture(Session session, ByteBuffer textBuffer, byte []textCache ,IOExceptionHandle handle) {
-		super(handle, textBuffer, textCache, session);
+	public TextWriteFuture(Session session, String serviceName, ByteBuffer textBuffer, byte[] textCache,
+			IOExceptionHandle handle) {
+		super(handle, serviceName, textBuffer, textCache, session);
 	}
 
 	public boolean write() throws IOException {

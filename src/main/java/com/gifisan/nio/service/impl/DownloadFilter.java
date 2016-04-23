@@ -63,7 +63,9 @@ public class DownloadFilter extends AbstractNIOFilter {
 					downloadLength = available - start;
 				}
 
-				session.flush(inputStream,null);
+				session.write(inputStream,null);
+				
+				session.flush();
 
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);

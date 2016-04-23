@@ -25,8 +25,9 @@ public class TestMultiSession {
 			new Thread(new Runnable() {
 				public void run() {
 					try {
-						ClientSession session = connector.getClientSession((byte)no.getAndDecrement());
-						String s = "multi-session" + no.incrementAndGet();
+						byte  b = (byte)no.getAndIncrement();
+						ClientSession session = connector.getClientSession(b);
+						String s = "multi-session" + b;
 						System.out.println(s + " 已发送......");
 						ReadFuture future = session.request(serviceName, s);
 						System.out.println(future.getText());

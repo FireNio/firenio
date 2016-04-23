@@ -13,6 +13,7 @@ import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.ProtocolEncoder;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.component.ServerServiceAcceptor;
 import com.gifisan.nio.server.ServerContext;
 
@@ -25,6 +26,8 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		this.endPointWriter = context.getEndPointWriter();
 		
+		this.encoder = context.getProtocolEncoder();
+		
 		this.serviceAcceptor = new ServerServiceAcceptor(this, context.getFilterService());
 	}
 
@@ -32,20 +35,13 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private ProtocolEncoder				encoder			= null;
 	private EndPointWriter				endPointWriter		= null;
 	private boolean					flushed			= false;
-	private boolean					scheduled			= false;
+	private boolean					scheduled			= false;//guancha
 	private BufferedOutputStream			textCache			= new BufferedOutputStream();
-
+	private InputStream 				inputStream 		= null;
+	private IOExceptionHandle 			handle 			= null;
+	private ReadFuture					future			= null;
 	
-
 	public void flush() throws IOException {
-		flush(null);
-	}
-	
-	public void flush(IOExceptionHandle handle) throws IOException {
-		flush(null, handle);
-	}
-
-	public void flush(InputStream inputStream ,IOExceptionHandle handle) throws IOException {
 		if (flushed) {
 			throw new FlushedException("flushed already");
 		}
@@ -58,9 +54,13 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		this.scheduled = true;
 		
-		IOWriteFuture future = encoder.encode(this, textCache.toByteArray(), inputStream, handle);
+		IOWriteFuture writeFuture = encoder.encode(this,future.getServiceName(), textCache.toByteArray(), inputStream, handle);
 		
-		this.endPointWriter.offer(future);
+		this.inputStream = null;
+		
+		this.handle = null;
+		
+		this.endPointWriter.offer(writeFuture);
 	}
 
 	public boolean flushed() {
@@ -99,6 +99,21 @@ public class ServerSession extends AbstractSession implements IOSession {
 	public void write(String content, Charset encoding) {
 		byte[] bytes = content.getBytes(encoding);
 		textCache.write(bytes);
+	}
+
+	public void write(InputStream inputStream, IOExceptionHandle handle) throws IOException {
+		if (inputStream != null) {
+			throw new IOException("multi inputstream");
+		}
+		
+		this.inputStream = inputStream;
+		this.handle = handle;
+	}
+	
+	public void update(ReadFuture future){
+		this.future = future;
+		this.flushed = false;
+		this.scheduled = false;
 	}
 
 }

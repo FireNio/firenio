@@ -9,7 +9,7 @@ import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.TextReadFuture;
 
-public class TextDecoder extends AbstractDecoder implements Decoder{
+public class TextDecoder extends AbstractDecoder{
 	
 	public TextDecoder(Charset charset) {
 		super(charset);

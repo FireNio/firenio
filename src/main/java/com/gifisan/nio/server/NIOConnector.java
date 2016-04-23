@@ -55,7 +55,6 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 			if (channel.isOpen()) {
 				CloseUtil.close(this.channel);
 			}
-			selector.close();
 		}
 	}
 

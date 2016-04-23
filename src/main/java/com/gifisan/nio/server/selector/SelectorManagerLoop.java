@@ -15,9 +15,10 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements Runnable {
 	private Logger			logger			= LoggerFactory.getLogger(SelectorManagerLoop.class);
 	private SelectorManager	selectorManager	= null;
 	private Thread			looper			= null;
+	private Selector		selector			= null;
 
 	public SelectorManagerLoop(NIOContext context,Selector selector) {
-		
+		this.selector = selector;
 		this.selectorManager = new SelectorManager(context,selector);
 	}
 
@@ -43,7 +44,8 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements Runnable {
 	}
 
 	protected void doStop() throws Exception {
-		
+		this.selector.wakeup();
+		this.selector.close();
 	}
 
 	private class EventListener extends AbstractLifeCycleListener implements LifeCycleListener {

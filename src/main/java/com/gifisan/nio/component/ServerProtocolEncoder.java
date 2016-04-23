@@ -12,31 +12,33 @@ import com.gifisan.nio.service.TextWriteFuture;
 
 public class ServerProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(Session session, byte[] array, InputStream inputStream, IOExceptionHandle handle)
+	public IOWriteFuture encode(Session session,String serviceName, byte[] array, InputStream inputStream, IOExceptionHandle handle)
 			throws IOException {
 
+		byte [] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
+		
 		if (inputStream != null) {
 
 			int dataLength = inputStream.available();
 
-			ByteBuffer textBuffer = encodeAll(session.getSessionID(), array, dataLength);
+			ByteBuffer textBuffer = encodeAll(session.getSessionID(),serviceNameArray, array, dataLength);
 
 			textBuffer.flip();
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(session, textBuffer, array, inputStream, handle);
+				return new MultiWriteFuture(session,serviceName, textBuffer, array, inputStream, handle);
 			}
 
-			return new ByteArrayWriteFuture(session, textBuffer, array, (ByteArrayInputStream) inputStream, handle);
+			return new ByteArrayWriteFuture(session,serviceName, textBuffer, array, (ByteArrayInputStream) inputStream, handle);
 
 		}
 
-		ByteBuffer textBuffer = encodeText(session.getSessionID(), array);
+		ByteBuffer textBuffer = encodeText(session.getSessionID(),serviceNameArray, array);
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(session, textBuffer, array, handle);
+		return new TextWriteFuture(session,serviceName, textBuffer, array, handle);
 	}
 
 }

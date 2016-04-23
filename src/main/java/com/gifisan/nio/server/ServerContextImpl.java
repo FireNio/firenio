@@ -7,6 +7,7 @@ import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.ServerProtocolDecoder;
 import com.gifisan.nio.component.ServerProtocolEncoder;
 import com.gifisan.nio.component.ServerReadFutureAcceptor;
+import com.gifisan.nio.component.ServerSessionFactory;
 import com.gifisan.nio.component.protocol.MultiDecoder;
 import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
@@ -35,6 +36,7 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", this.serverCoreSize);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
+		this.sessionFactory = new ServerSessionFactory();
 		this.protocolDecoder = new ServerProtocolDecoder(
 				new TextDecoder(encoding), 
 				new MultiDecoder(encoding));
@@ -48,15 +50,15 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		logger.info("  [NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
 		this.serviceDispatcher.start();
+		this.endPointWriter.start();
 		this.filterService.start();
 
-		super.doStart();
 	}
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterService);
+		LifeCycleUtil.stop(endPointWriter);
 		LifeCycleUtil.stop(serviceDispatcher);
-		super.doStop();
 	}
 
 	public NIOServer getServer() {

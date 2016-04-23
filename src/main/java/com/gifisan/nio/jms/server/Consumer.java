@@ -54,7 +54,10 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			session.flush(new ByteArrayInputStream(bytes),null);
+			session.write(new ByteArrayInputStream(bytes),null);
+			
+			session.flush();
+			
 		}
 	}
 }

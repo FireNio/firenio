@@ -38,4 +38,13 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	public boolean hasOutputStream() {
 		return hasStream;
 	}
+
+	public String getText() {
+		if (text == null) {
+			text = new String(textBuffer.array(),0,textBuffer.position());
+		}
+		return text;
+	}
+	
+	
 }

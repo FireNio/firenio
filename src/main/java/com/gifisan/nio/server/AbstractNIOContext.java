@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
@@ -15,8 +14,8 @@ import com.gifisan.nio.server.selector.SelectionAcceptor;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
-	private EndPointWriter		endPointWriter		= new EndPointWriter();
 	protected Charset			encoding			= Encoding.DEFAULT;
+	protected EndPointWriter	endPointWriter		= new EndPointWriter();
 	protected SelectionAcceptor	selectionAcceptor	= null;
 	protected ReadFutureAcceptor	readFutureAcceptor	= null;
 	protected SessionFactory	sessionFactory		= null;
@@ -66,14 +65,4 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	public void clearAttributes() {
 		this.attributes.clear();
 	}
-
-	protected void doStart() throws Exception {
-		this.endPointWriter.start();
-
-	}
-
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(endPointWriter);
-	}
-
 }

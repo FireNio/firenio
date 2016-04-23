@@ -15,6 +15,32 @@ public class MessageBus {
 	private OnReadFuture 	onReadFuture = null;
 
 	public ReadFuture poll(long timeout) {
+		if (timeout == 0) {
+			
+			for(;;){
+				
+				if (future == null) {
+					
+					ReentrantLock lock = this.lock;
+
+					lock.lock();
+
+					try {
+						notNull.await(16, TimeUnit.MILLISECONDS);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						notNull.signal();
+					}
+
+					lock.unlock();
+					
+					continue;
+				}
+				
+				return future;
+			}
+		}
+		
 		if (future == null) {
 			ReentrantLock lock = this.lock;
 
@@ -36,7 +62,7 @@ public class MessageBus {
 
 	public void offer(ReadFuture future) {
 		
-		if (onReadFuture == null) {
+		if (onReadFuture != null) {
 			DefaultClientSession session = (DefaultClientSession) ((IOReadFuture)future).getSession(); 
 			try {
 				onReadFuture.onResponse(session, future);

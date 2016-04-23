@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.NIOEndPoint;
 import com.gifisan.nio.server.selector.SelectorManagerLoop;
@@ -29,15 +30,15 @@ public class ClientConnection implements Connectable, Closeable {
 		this.context = context;
 	}
 	
-	public ClientSession getClientSession(byte sessionID){
+	public ClientSession getClientSession(byte sessionID) throws IOException{
 		return (ClientSession) endPoint.getSession(sessionID);
 		
 	}
 
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
+			LifeCycleUtil.stop(selectorManagerLoop);
 			CloseUtil.close(endPoint);
-			this.selector.close();
 		}
 	}
 
@@ -70,7 +71,10 @@ public class ClientConnection implements Connectable, Closeable {
 		SocketChannel channel = (SocketChannel) selectionKey.channel();
 		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
 			channel.finishConnect();
-			this.endPoint = new NIOEndPoint(context,selectionKey);
+			channel.register(selector, SelectionKey.OP_READ);
+			EndPoint endPoint = new NIOEndPoint(context,selectionKey);
+			selectionKey.attach(endPoint);
+			this.endPoint = endPoint; 
 			this.selectorManagerLoop = new SelectorManagerLoop(context, selector);
 			try {
 				this.selectorManagerLoop.start();

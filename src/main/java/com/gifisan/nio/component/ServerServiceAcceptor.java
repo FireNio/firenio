@@ -33,5 +33,6 @@ public class ServerServiceAcceptor implements ServiceAcceptor,Runnable {
 
 	public void update(ReadFuture future) {
 		this.future = future;
+		this.session.update(future);
 	}
 }

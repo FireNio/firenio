@@ -60,7 +60,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		
 		session.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
 		
-		session.flush(null);
+		session.flush();
 	}
 
 	private void accept404(IOSession session,ReadFuture future, String serviceName) throws IOException {
@@ -71,7 +71,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		
 		session.write(message.toString());
 		
-		session.flush(null);
+		session.flush();
 	}
 
 	public void destroy(ServerContext context, Configuration config) throws Exception {

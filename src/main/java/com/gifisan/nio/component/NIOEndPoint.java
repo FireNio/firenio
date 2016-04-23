@@ -27,7 +27,6 @@ public class NIOEndPoint implements EndPoint {
 	private InetSocketAddress	remote			= null;
 	private SelectionKey		selectionKey		= null;
 	private Session[]			sessions			= new Session[4];
-	private int				sessionSize		= 0;
 	private Socket				socket			= null;
 	private List<IOWriteFuture>	writers			= new ArrayList<IOWriteFuture>();
 	private byte				writingSessionID	= -1;
@@ -71,7 +70,7 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public boolean canWrite(byte sessionID) {
-		return writingSessionID == -1 ? false : writingSessionID != sessionID;
+		return writingSessionID == -1 ? true : writingSessionID != sessionID;
 	}
 
 	public void close() throws IOException {
@@ -131,15 +130,17 @@ public class NIOEndPoint implements EndPoint {
 		return remote.getPort();
 	}
 
-	public Session getSession(byte sessionID) {
-
-		//FIXME ...throw
+	public Session getSession(byte sessionID) throws IOException {
+	
+		if (sessionID > 3 || sessionID < 0) {
+			throw new IOException("invalid session id "+sessionID);
+		}
+		
 		Session session = sessions[sessionID];
 
 		if (session == null) {
 			session = sessionFactory.getSession(this, sessionID);
 			sessions[sessionID] = session;
-			sessionSize = sessionID;
 		}
 
 		return session;
@@ -191,10 +192,6 @@ public class NIOEndPoint implements EndPoint {
 		if (session != null) {
 			session.destroyImmediately();
 		}
-	}
-
-	public int sessionSize() {
-		return sessionSize;
 	}
 
 	public void setWriting(byte sessionID) {

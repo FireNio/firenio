@@ -8,7 +8,7 @@ import com.gifisan.nio.server.session.Session;
 
 public interface ProtocolEncoder {
 
-	public abstract IOWriteFuture encode(Session session, byte[] array, InputStream inputStream,
+	public abstract IOWriteFuture encode(Session session, String serviceName, byte[] array, InputStream inputStream,
 			IOExceptionHandle handle) throws IOException;
 
 }

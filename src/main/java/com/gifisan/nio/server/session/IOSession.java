@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.ReadFuture;
 
 public interface IOSession extends Session{
 	
@@ -14,11 +15,7 @@ public interface IOSession extends Session{
 	
 	public abstract boolean flushed();
 	
-	public abstract void flush() throws IOException;
-
-	public abstract void flush(IOExceptionHandle handle) throws IOException;
-	
-	public abstract void flush(InputStream inputStream ,IOExceptionHandle handle) throws IOException ;
+	public abstract void flush() throws IOException ;
 
 	public abstract void write(byte b) throws IOException;
 
@@ -29,4 +26,9 @@ public interface IOSession extends Session{
 	public abstract void write(String content);
 
 	public abstract void write(String content, Charset encoding);
+	
+	public abstract void write(InputStream inputStream,IOExceptionHandle handle) throws IOException;
+
+	public abstract void update(ReadFuture future);
+	
 }

@@ -17,12 +17,13 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	protected InputStream		inputStream	= null;
 	private byte[]			textCache		= null;
 
-	public AbstractWriteFuture(IOExceptionHandle handle, ByteBuffer textBuffer, byte[] textCache, Session session) {
+	public AbstractWriteFuture(IOExceptionHandle handle,String serviceName, ByteBuffer textBuffer, byte[] textCache, Session session) {
 		this.handle = handle;
 		this.endPoint = ((AbstractSession)session).getEndPoint();
 		this.session = session;
 		this.textBuffer = textBuffer;
 		this.textCache = textCache;
+		this.serviceName = serviceName;
 	}
 
 	protected void attackNetwork(int length) {

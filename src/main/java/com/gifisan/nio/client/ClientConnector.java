@@ -5,11 +5,16 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.concurrent.TaskExecutor;
 import com.gifisan.nio.server.session.Session;
 
 public class ClientConnector implements Connectable, Closeable {
 
+	private Logger				logger				= LoggerFactory.getLogger(ClientConnector.class);
 	private ClientConnection		connection			= null;
 	private AtomicBoolean		connected				= new AtomicBoolean(false);
 	private AtomicInteger		sessionIndex			= new AtomicInteger(-1);
@@ -36,8 +41,9 @@ public class ClientConnector implements Connectable, Closeable {
 
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
-			ClientLifeCycleUtil.stop(taskExecutor);
-			this.connection.close();
+			LifeCycleUtil.stop(context);
+			LifeCycleUtil.stop(taskExecutor);
+			CloseUtil.close(connection);
 		}
 	}
 
@@ -46,7 +52,14 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	public void connect() throws IOException {
-		this.connection.connect();
+		if (connected.compareAndSet(false, true)) {
+			try {
+				this.context.start();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			this.connection.connect();
+		}
 	}
 	
 	protected ClientConnection getClientConnection() {

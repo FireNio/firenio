@@ -9,7 +9,7 @@ import com.gifisan.nio.server.session.Session;
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
 	public BeatWriteFuture(Session session) {
-		super(null, null, null, session);
+		super(null, null,null, null, session);
 	}
 
 	private ByteBuffer	beat	= ByteBuffer.wrap(new byte[] { 3 });

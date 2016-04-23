@@ -46,7 +46,7 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 
 			byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-			IOWriteFuture future = encoder.encode(this, array, inputStream, context.getClientIOExceptionHandle());
+			IOWriteFuture future = encoder.encode(this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
 
 			this.endPointWriter.offer(future);
 
@@ -96,7 +96,7 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 
 			byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-			IOWriteFuture future = encoder.encode(this, array, inputStream, context.getClientIOExceptionHandle());
+			IOWriteFuture future = encoder.encode(this,serviceName, array, inputStream, context.getClientIOExceptionHandle());
 
 			this.endPointWriter.offer(future);
 
