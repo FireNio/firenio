@@ -9,10 +9,11 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.component.FilterAcceptor;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.IOSession;
 
 public final class ServletFilter extends AbstractNIOFilter {
 
@@ -24,7 +25,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		this.classLoader = classLoader;
 	}
 
-	public void accept(Session session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 		
 		String serviceName = future.getServiceName();
 		
@@ -39,9 +40,9 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	private void accept(String serviceName, Session session,ReadFuture future) throws Exception {
+	private void accept(String serviceName, IOSession session,ReadFuture future) throws Exception {
 		
-		ServiceAcceptor servlet = servletLoader.getServlet(serviceName);
+		FilterAcceptor servlet = servletLoader.getServlet(serviceName);
 		
 		if (servlet == null) {
 			
@@ -53,16 +54,16 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	private void accept404(Session session,ReadFuture future) throws IOException {
+	private void accept404(IOSession session,ReadFuture future) throws IOException {
 		
 		logger.info("[NIOServer] empty service name");
 		
 		session.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
 		
-		session.flush(future,null);
+		session.flush(null);
 	}
 
-	private void accept404(Session session,ReadFuture future, String serviceName) throws IOException {
+	private void accept404(IOSession session,ReadFuture future, String serviceName) throws IOException {
 		
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
 		
@@ -70,7 +71,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		
 		session.write(message.toString());
 		
-		session.flush(future,null);
+		session.flush(null);
 	}
 
 	public void destroy(ServerContext context, Configuration config) throws Exception {

@@ -1,17 +1,21 @@
 package com.gifisan.nio.client;
 
+import com.gifisan.nio.component.EndPointWriter;
+import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.BeatWriteFuture;
 
 public class TouchDistantJob implements Runnable {
 
-	private ClientRequestTask	task	= null;
-	
-	private ClientRequest request = new ClientRequest();
+	private EndPointWriter	writer	= null;
 
-	public TouchDistantJob(ClientRequestTask task) {
-		this.task = task;
+	private BeatWriteFuture	beat		= null;
+
+	public TouchDistantJob(EndPointWriter writer,Session session) {
+		this.writer = writer;
+		this.beat = new BeatWriteFuture(session);
 	}
 
 	public void run() {
-		task.offer(request);
+		writer.offer(beat);
 	}
 }

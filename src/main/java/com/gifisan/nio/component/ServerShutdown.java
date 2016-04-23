@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.server.session.Session;
 
 public class ServerShutdown {
 
@@ -42,13 +42,13 @@ public class ServerShutdown {
 		
 		connector.connect();
 		
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession(Session.SESSION_ID_1);
 
 		String param = "{username:\"" + username + "\",password:\"" + passwrod + "\"}";
 
-		ClientResponse response = session.request(serviceKey, param);
+		ReadFuture future = session.request(serviceKey, param);
 
-		System.out.println(response.getText());
+		System.out.println(future.getText());
 
 		CloseUtil.close(connector);
 

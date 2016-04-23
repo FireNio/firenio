@@ -11,7 +11,7 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.server.session.Session;
 
@@ -19,7 +19,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	private interface MessageParseFromRequest {
 
-		Message parse(NIOSession session);
+		Message parse(ServerSession session);
 	}
 
 	private long					dueTime				= 0;
@@ -39,7 +39,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 			null,
 			// Text Message
 			new MessageParseFromRequest() {
-				public Message parse(NIOSession session) {
+				public Message parse(ServerSession session) {
 					Parameters param = session.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
@@ -49,7 +49,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 					return message;
 				}
 			}, new MessageParseFromRequest() {
-				public Message parse(NIOSession session) {
+				public Message parse(ServerSession session) {
 					Parameters param = session.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
@@ -123,7 +123,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		}
 	}
 
-	public Message parse(NIOSession session) {
+	public Message parse(ServerSession session) {
 		Parameters param = session.getParameters();
 		int msgType = param.getIntegerParameter("msgType");
 		Message message = messageParsesFromRequest[msgType].parse(session);
@@ -158,7 +158,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		this.password = password;
 	}
 
-	public boolean login(NIOSession session, JMSSessionAttachment attachment) {
+	public boolean login(ServerSession session, JMSSessionAttachment attachment) {
 
 		Parameters param = session.getParameters();
 

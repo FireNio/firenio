@@ -1,20 +1,9 @@
 package com.gifisan.nio.service;
 
-import java.io.IOException;
+import java.io.InputStream;
 
-import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.server.session.Session;
+public interface WriteFuture extends Future{
 
-public interface WriteFuture {
-
-	public abstract boolean write() throws IOException;
-
-	public abstract EndPoint getEndPoint();
-	
-	public abstract Session getSession();
-
-	public abstract boolean isNetworkWeak();
-
-	public abstract void catchException(IOException e);
+	public abstract InputStream getInputStream();
 	
 }

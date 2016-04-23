@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageBrowser;
@@ -13,7 +13,7 @@ import com.gifisan.nio.jms.server.JMSBrowserServlet;
 
 public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrowser{
 
-	public MessageBrowserImpl(ClientSesssion session) throws JMSException {
+	public MessageBrowserImpl(ClientSession session) throws JMSException {
 		super(session);
 	}
 

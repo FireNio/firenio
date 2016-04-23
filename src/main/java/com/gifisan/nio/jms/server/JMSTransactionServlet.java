@@ -1,11 +1,11 @@
 package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 
 public class JMSTransactionServlet extends JMSServlet{
 
-	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
+	public void accept(ServerSession session,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 		

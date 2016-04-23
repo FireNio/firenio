@@ -1,8 +1,6 @@
 package com.gifisan.nio.component;
 
 import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.server.selector.ServiceAcceptorJob;
-import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.server.session.Session;
 
 public class ServerReadFutureAcceptor implements ReadFutureAcceptor {
@@ -15,11 +13,11 @@ public class ServerReadFutureAcceptor implements ReadFutureAcceptor {
 
 	public void accept(Session session, ReadFuture future) {
 
-		ServiceAcceptorJob acceptorJob = ((IOSession) session).getServiceAcceptorJob();
+		ServerServiceAcceptor acceptor = (ServerServiceAcceptor) session.getServiceAcceptor();
 		
-		acceptorJob.update(future);
+		acceptor.update(future);
 		
-		dispatcher.dispatch(acceptorJob);
+		dispatcher.dispatch(acceptor);
 		
 	}
 

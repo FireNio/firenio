@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 
 public class TestStopServer {
@@ -15,7 +15,7 @@ public class TestStopServer {
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		String param = "{username:\"admin\",password:\"admin100\"}";
 		

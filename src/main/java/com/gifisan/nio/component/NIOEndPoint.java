@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.WriteFuture;
 
 public class NIOEndPoint implements EndPoint {
 
@@ -29,7 +29,7 @@ public class NIOEndPoint implements EndPoint {
 	private Session[]			sessions			= new Session[4];
 	private int				sessionSize		= 0;
 	private Socket				socket			= null;
-	private List<WriteFuture>	writers			= new ArrayList<WriteFuture>();
+	private List<IOWriteFuture>	writers			= new ArrayList<IOWriteFuture>();
 	private byte				writingSessionID	= -1;
 	private SessionFactory		sessionFactory		= null;
 	private IOReadFuture readFuture = null;
@@ -44,7 +44,7 @@ public class NIOEndPoint implements EndPoint {
 		}
 	}
 
-	public void addWriter(WriteFuture writer) {
+	public void addWriter(IOWriteFuture writer) {
 		if (isNetworkWeak()) {
 			writers.add(writer);
 		} else {
@@ -132,6 +132,7 @@ public class NIOEndPoint implements EndPoint {
 
 	public Session getSession(byte sessionID) {
 
+		//FIXME ...throw
 		Session session = sessions[sessionID];
 
 		if (session == null) {
@@ -143,7 +144,7 @@ public class NIOEndPoint implements EndPoint {
 		return session;
 	}
 
-	public List<WriteFuture> getWriter() {
+	public List<IOWriteFuture> getWriter() {
 		this.attempts0 = false;
 		this.attempts1 = false;
 		return writers;

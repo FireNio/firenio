@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ReadFutureAcceptor;
@@ -15,7 +16,7 @@ import com.gifisan.nio.server.selector.SelectionAcceptor;
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private EndPointWriter		endPointWriter		= new EndPointWriter();
-	protected Charset			encoding			= null;
+	protected Charset			encoding			= Encoding.DEFAULT;
 	protected SelectionAcceptor	selectionAcceptor	= null;
 	protected ReadFutureAcceptor	readFutureAcceptor	= null;
 	protected SessionFactory	sessionFactory		= null;

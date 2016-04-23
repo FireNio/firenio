@@ -3,7 +3,7 @@ package test.jms;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
 import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
@@ -16,7 +16,7 @@ public class TestListenerPower {
 		
 		connector.connect(true);
 		
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
 

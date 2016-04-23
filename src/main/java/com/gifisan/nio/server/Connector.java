@@ -1,13 +1,11 @@
 package com.gifisan.nio.server;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.client.Connectable;
 
-public interface Connector extends LifeCycle ,Closeable{
-	
-	public abstract void connect() throws IOException;
+public interface Connector extends Connectable, LifeCycle ,Closeable{
 	
 	public abstract void setPort(int port);
 	

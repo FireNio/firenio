@@ -3,13 +3,14 @@ package com.gifisan.nio.service;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.AbstractWriteFuture;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.server.session.Session;
 
 public class TextWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public TextWriteFuture(IOExceptionHandle handle, ByteBuffer textBuffer, Session session) {
-		super(handle, textBuffer, session);
+	public TextWriteFuture(Session session, ByteBuffer textBuffer, byte []textCache ,IOExceptionHandle handle) {
+		super(handle, textBuffer, textCache, session);
 	}
 
 	public boolean write() throws IOException {

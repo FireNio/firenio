@@ -3,7 +3,7 @@ package test.jms;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageProducer;
 import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
@@ -16,7 +16,7 @@ public class TestTellerPower {
 
 		connector.connect();
 
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 
 		MessageProducer producer = new MessageProducerImpl(session);
 

@@ -2,18 +2,14 @@ package com.gifisan.nio.component;
 
 import java.io.OutputStream;
 
+import com.gifisan.nio.service.Future;
 
-public interface ReadFuture {
+public interface ReadFuture extends Future{
 
-	public abstract String getServiceName() ;
-	
-	public abstract String getText();
-	
 	public abstract Parameters getParameters();
 	
 	public abstract OutputStream getOutputStream();
 	
 	public abstract void setIOEvent(OutputStream outputStream,IOExceptionHandle handle);
-	
 	
 }

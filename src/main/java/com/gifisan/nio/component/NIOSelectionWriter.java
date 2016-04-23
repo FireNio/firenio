@@ -5,9 +5,9 @@ import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.util.List;
 
+import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.selector.SelectionAcceptor;
-import com.gifisan.nio.service.WriteFuture;
 
 public class NIOSelectionWriter extends AbstractNIOSelection implements SelectionAcceptor{
 	
@@ -25,11 +25,11 @@ public class NIOSelectionWriter extends AbstractNIOSelection implements Selectio
 			return;
 		}
 		
-		List<WriteFuture> writers = endPoint.getWriter();
+		List<IOWriteFuture> writers = endPoint.getWriter();
 		
 		EndPointWriter endPointWriter = context.getEndPointWriter();
 		
-		for(WriteFuture writer:writers){
+		for(IOWriteFuture writer:writers){
 			endPointWriter.offer(writer);
 		}
 		

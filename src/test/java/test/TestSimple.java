@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 
 public class TestSimple {
@@ -20,7 +20,7 @@ public class TestSimple {
 		
 		connector.connect();
 		
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		ClientResponse response = session.request(serviceKey, param);
 		System.out.println(response.getText());

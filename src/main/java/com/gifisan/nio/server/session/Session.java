@@ -3,11 +3,23 @@ package com.gifisan.nio.server.session;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.service.ServiceAcceptor;
 
 public interface Session {
+	
+	public static byte SESSION_ID_1 = 0;
+	
+	public static byte SESSION_ID_2 = 1;
+	
+	public static byte SESSION_ID_3 = 2;
+	
+	public static byte SESSION_ID_4 = 3;
+	
+	public abstract ServiceAcceptor getServiceAcceptor();
 
+	public abstract void addEventListener(SessionEventListener listener);
+	
 	public abstract void attach(Attachment attachment);
 
 	public abstract Attachment attachment();
@@ -18,8 +30,6 @@ public interface Session {
 
 	public abstract NIOContext getContext();
 	
-	public abstract EndPoint getEndPoint();
-
 	public abstract String getLocalAddr();
 
 	public abstract String getLocalHost();
@@ -39,5 +49,7 @@ public interface Session {
 	public abstract boolean isOpened();
 
 	public abstract byte getSessionID();
+	
+	public abstract void destroyImmediately();
 
 }

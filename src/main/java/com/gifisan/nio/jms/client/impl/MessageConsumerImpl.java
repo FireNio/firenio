@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.RESMessageDecoder;
 import com.gifisan.nio.jms.JMSException;
@@ -26,12 +26,12 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		this.parameter = JSONObject.toJSONString(param);
 	}
 
-	public MessageConsumerImpl(ClientSesssion session, String queueName, long timeout) throws JMSException {
+	public MessageConsumerImpl(ClientSession session, String queueName, long timeout) throws JMSException {
 		super(session);
 		this.initParam(queueName, timeout);
 	}
 
-	public MessageConsumerImpl(ClientSesssion session, String queueName) throws JMSException {
+	public MessageConsumerImpl(ClientSession session, String queueName) throws JMSException {
 		super(session);
 		this.queueName = queueName;
 		this.initParam(queueName, 0);

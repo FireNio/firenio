@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 
@@ -25,7 +25,7 @@ public class TestMultiSession {
 			new Thread(new Runnable() {
 				public void run() {
 					try {
-						ClientSesssion session = connector.getClientSession();
+						ClientSession session = connector.getClientSession();
 						String s = "multi-session" + no.incrementAndGet();
 						System.out.println(s + " 已发送......");
 						ClientResponse response = session.request(serviceName, s);

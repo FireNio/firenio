@@ -4,11 +4,11 @@ import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 
 public class JMSLoginServlet extends JMSServlet {
 
-	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
+	public void accept(ServerSession session,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 		

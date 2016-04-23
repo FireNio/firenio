@@ -2,11 +2,11 @@ package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 
 public class JMSSubscribeServlet extends JMSServlet{
 
-	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
+	public void accept(ServerSession session,JMSSessionAttachment attachment) throws Exception {
 		
 		MQContext context = getMQContext();
 		

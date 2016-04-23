@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.WriteFuture;
 
 public interface EndPoint extends Closeable {
 
@@ -51,9 +51,9 @@ public interface EndPoint extends Closeable {
 	
 	public abstract void attackNetwork(int length);
 	
-	public abstract List<WriteFuture> getWriter() ;
+	public abstract List<IOWriteFuture> getWriter() ;
 
-	public abstract void addWriter(WriteFuture writer) ;
+	public abstract void addWriter(IOWriteFuture writer) ;
 	
 	public abstract void interestWrite() ;
 	

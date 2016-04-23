@@ -7,24 +7,14 @@ import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.ReadFuture;
 
-public abstract class ReadFutureImpl implements ReadFuture{
+public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture{
 	
 	private Parameters			parameters	= null;
-	protected String			serviceName	= null;
-	protected String			text			= null;
 	protected OutputStream		outputStream	= null;
 	protected IOExceptionHandle	handle		= null;
 	
 	public ReadFutureImpl(String serviceName) {
 		this.serviceName = serviceName;
-	}
-
-	public String getServiceName() {
-		return serviceName;
-	}
-	
-	public String getText() {
-		return text;
 	}
 
 	public Parameters getParameters() {

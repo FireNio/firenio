@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.AbstractReadFuture;
 import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.server.session.Session;
 

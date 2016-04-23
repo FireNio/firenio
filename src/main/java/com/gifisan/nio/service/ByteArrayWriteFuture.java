@@ -3,16 +3,18 @@ package com.gifisan.nio.service;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.AbstractWriteFuture;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.server.session.Session;
 
 //ByteArrayInputStreamResponseWriter
-public class ByteArrayWriteFuture extends AbstractWriteFuture implements WriteFuture {
+public class ByteArrayWriteFuture extends AbstractWriteFuture {
 
-	public ByteArrayWriteFuture(IOExceptionHandle handle, ByteBuffer textBuffer,
-			Session session, ByteArrayInputStream inputStream) {
-		super(handle, textBuffer, session);
+	public ByteArrayWriteFuture(Session session, ByteBuffer textBuffer, byte []textCache ,
+			ByteArrayInputStream inputStream,IOExceptionHandle handle) {
+		super(handle, textBuffer, textCache, session);
+		this.inputStream = inputStream;
 		this.streamBuffer = ByteBuffer.wrap(inputStream.toByteArray());
 	}
 

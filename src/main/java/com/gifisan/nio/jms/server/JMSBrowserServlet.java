@@ -7,7 +7,7 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 
 public class JMSBrowserServlet extends JMSServlet {
 	
@@ -17,7 +17,7 @@ public class JMSBrowserServlet extends JMSServlet {
 	
 	public static String ONLINE = "2";
 	
-	public void accept(NIOSession session,JMSSessionAttachment attachment) throws Exception {
+	public void accept(ServerSession session,JMSSessionAttachment attachment) throws Exception {
 
 		Parameters param = session.getParameters();
 

@@ -4,19 +4,34 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.SessionEventListener;
+import com.gifisan.nio.server.session.SessionEventListenerWrapper;
+import com.gifisan.nio.service.ServiceAcceptor;
 
-public abstract class AbstractSession implements Session{
+public abstract class AbstractSession extends AttributesImpl implements Session{
 
 	private Attachment					attachment		= null;
 	private long						creationTime		= System.currentTimeMillis();
-	private EndPoint					endPoint			= null;
 	private byte						sessionID			= 0;
+	protected EndPoint					endPoint			= null;
+	private SessionEventListenerWrapper	lastListener		= null;
+	private SessionEventListenerWrapper	listenerStub		= null;
+	protected ServiceAcceptor serviceAcceptor = null;
 
 	public AbstractSession(EndPoint endPoint, byte sessionID) {
 		this.sessionID = sessionID;
 		this.endPoint = endPoint;
 	}
 
+	public void addEventListener(SessionEventListener listener) {
+		if (this.listenerStub == null) {
+			this.listenerStub = new SessionEventListenerWrapper(listener);
+			this.lastListener = this.listenerStub;
+		} else {
+			this.lastListener.setNext(new SessionEventListenerWrapper(listener));
+		}
+	}
+	
 	public void attach(Attachment attachment) {
 		this.attachment = attachment;
 	}
@@ -34,7 +49,7 @@ public abstract class AbstractSession implements Session{
 		return this.creationTime;
 	}
 
-	public EndPoint getEndPoint() {
+	protected EndPoint getEndPoint() {
 		return endPoint;
 	}
 
@@ -78,7 +93,18 @@ public abstract class AbstractSession implements Session{
 		return sessionID;
 	}
 	
-	
-	
+	public void destroyImmediately() {
+
+		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
+
+		for (; listenerWrapper != null;) {
+			listenerWrapper.onDestroy(this);
+			listenerWrapper = listenerWrapper.nextListener();
+		}
+	}
+
+	public ServiceAcceptor getServiceAcceptor() {
+		return serviceAcceptor;
+	}
 	
 }

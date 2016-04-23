@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.EndPointInputStream;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.StreamUtil;
@@ -19,7 +19,7 @@ public class TestDownload {
 		String serviceKey = "TestDownloadServlet";
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		serviceKey = "upload-temp.zip";
 		

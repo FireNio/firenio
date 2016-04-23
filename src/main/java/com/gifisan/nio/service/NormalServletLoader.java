@@ -15,6 +15,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.component.FilterAcceptor;
 import com.gifisan.nio.server.ServerContext;
 
 public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
@@ -64,7 +65,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	public ServiceAcceptor getServlet(String serviceName) {
+	public FilterAcceptor getServlet(String serviceName) {
 		
 		return servlets.get(serviceName);
 		

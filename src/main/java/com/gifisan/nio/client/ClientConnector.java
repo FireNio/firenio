@@ -5,44 +5,34 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.client.session.ClientSessionFactory;
-import com.gifisan.nio.client.session.MultiClientSessionFactory;
-import com.gifisan.nio.client.session.UniqueClientSessionFactory;
-import com.gifisan.nio.client.session.UniqueSession;
 import com.gifisan.nio.concurrent.TaskExecutor;
+import com.gifisan.nio.server.session.Session;
 
 public class ClientConnector implements Connectable, Closeable {
 
 	private ClientConnection		connection			= null;
-	private ClientResponseTask	responseTask			= null;
-	private ClientRequestTask	requestTask			= null;
 	private AtomicBoolean		connected				= new AtomicBoolean(false);
 	private AtomicInteger		sessionIndex			= new AtomicInteger(-1);
-	private MessageBus[]		buses				= new MessageBus[4];
 	private AtomicBoolean		keepAlive				= new AtomicBoolean(false);
 	private TaskExecutor		taskExecutor			= null;
-	private ClientSessionFactory	clientSessionFactory	= null;
+	private ClientContext		context				= null;
 
-	protected ClientSessionFactory getClientSessionFactory() {
-		return clientSessionFactory;
+	public ClientContext getContext() {
+		return context;
 	}
 
-	public ClientSesssion getClientSession() throws IOException {
-		if (connected.get()) {
-			return clientSessionFactory.getClientSesssion();
-		}
-		throw new IOException("did not connected to server");
+	public ClientSession getClientSession(byte sessionID) throws IOException {
+		return connection.getClientSession(sessionID);
 	}
 
 	public ClientConnector(String host, int port) {
-		this.connection = new ClientConnection(host, port, this);
+		this.context = new ClientContext(host,port);
+		this.connection = new ClientConnection(context);
 	}
 
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
 			ClientLifeCycleUtil.stop(taskExecutor);
-			ClientLifeCycleUtil.stop(requestTask);
-			ClientLifeCycleUtil.stop(responseTask);
 			this.connection.close();
 		}
 	}
@@ -52,50 +42,9 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	public void connect() throws IOException {
-		this.connect(false);
-	}
-
-	public void connect(boolean multi) throws IOException {
-		if (connected.compareAndSet(false, true)) {
-			
-			this.requestTask = new ClientRequestTask(this);
-			
-			if (multi) {
-				
-				this.connectMulti();
-				
-			} else {
-				
-				this.connectUnique();
-			}
-				
-			this.requestTask.start();
-				
-		}
-	}
-	
-	private void connectMulti() throws IOException{
-		
-		this.clientSessionFactory = new MultiClientSessionFactory(buses, requestTask);
-
-		this.responseTask = new ClientResponseTask(connection, buses);
-		
-		this.connection.connect(true);
-		
-		this.responseTask.start();
-			
-	}
-	
-	private void connectUnique() throws IOException{
-		
-		UniqueSession  uniqueSession = new UniqueSession(this.getClientConnection(), requestTask);
-		
-		this.clientSessionFactory = new UniqueClientSessionFactory(uniqueSession);
-		
 		this.connection.connect();
-		
 	}
-
+	
 	protected ClientConnection getClientConnection() {
 		return this.connection;
 	}
@@ -117,7 +66,7 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(requestTask);
+		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),this.getClientSession(Session.SESSION_ID_1));
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}

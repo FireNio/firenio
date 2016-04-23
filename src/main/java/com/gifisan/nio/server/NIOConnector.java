@@ -21,7 +21,7 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	private SelectorManagerLoop	selectorManagerLoop	= null;
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	private Selector			selector			= null;
-	private NIOContext		context			= null;
+	private NIOContext			context			= null;
 
 	protected NIOConnector(NIOContext context) {
 		this.context = context;

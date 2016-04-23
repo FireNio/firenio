@@ -6,16 +6,16 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.client.JMSConnection;
 
 public class JMSConnectonImpl implements JMSConnection {
 
 	boolean		logined	= false;
-	ClientSesssion	session	= null;
+	ClientSession	session	= null;
 
-	public JMSConnectonImpl(ClientSesssion session) throws JMSException {
+	public JMSConnectonImpl(ClientSession session) throws JMSException {
 		this.session = session;
 	}
 

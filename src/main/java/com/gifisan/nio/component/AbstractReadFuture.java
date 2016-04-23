@@ -1,11 +1,10 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.ReadFutureImpl;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture {
 
@@ -15,7 +14,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 
 	public AbstractReadFuture(ByteBuffer textBuffer, Session session, String serviceName) {
 		super(serviceName);
-		this.endPoint = session.getEndPoint();
+		this.endPoint = ((AbstractSession)session).getEndPoint();
 		this.session = session;
 		this.textBuffer = textBuffer;
 	}
@@ -32,8 +31,6 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		if (this.handle == null) {
 			return;
 		}
-		this.handle.handle(session, e);
+		this.handle.handle(session, this, e);
 	}
-
-
 }

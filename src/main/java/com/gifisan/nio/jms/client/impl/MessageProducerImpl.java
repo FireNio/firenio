@@ -3,7 +3,7 @@ package com.gifisan.nio.jms.client.impl;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.JMSException;
@@ -12,7 +12,7 @@ import com.gifisan.nio.jms.client.MessageProducer;
 
 public class MessageProducerImpl extends JMSConnectonImpl implements MessageProducer {
 
-	public MessageProducerImpl(ClientSesssion session) throws JMSException {
+	public MessageProducerImpl(ClientSession session) throws JMSException {
 		super(session);
 	}
 

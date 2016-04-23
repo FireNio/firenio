@@ -3,17 +3,17 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.WriteFuture;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 	private Thread							owner	= null;
 	private boolean						running	= false;
-	private LinkedListM2O<WriteFuture>			writers	= new LinkedListM2O<WriteFuture>();
+	private LinkedListM2O<IOWriteFuture>			writers	= new LinkedListM2O<IOWriteFuture>();
 
-	public void offer(WriteFuture writer) {
+	public void offer(IOWriteFuture writer) {
 		this.writers.offer(writer);
 	}
 
@@ -23,7 +23,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 		for (; running;) {
 
-			WriteFuture writer = writers.poll(16);
+			IOWriteFuture writer = writers.poll(16);
 			
 			if (writer == null) {
 				continue;

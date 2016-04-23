@@ -2,19 +2,20 @@ package com.gifisan.nio.component;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.server.selector.ServiceAcceptorJob;
+import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.server.session.Session;
 import com.gifisan.nio.service.FilterService;
+import com.gifisan.nio.service.ServiceAcceptor;
 
-public class NormalServiceAcceptor implements ServiceAcceptorJob {
+public class ServerServiceAcceptor implements ServiceAcceptor,Runnable {
 
-	private Logger			logger	= LoggerFactory.getLogger(NormalServiceAcceptor.class);
+	private Logger			logger	= LoggerFactory.getLogger(ServerServiceAcceptor.class);
 	private FilterService	service	= null;
-	private Session		session	= null;
+	private IOSession		session	= null;
 	private ReadFuture		future	= null;
 
-	public NormalServiceAcceptor(Session session, FilterService service) {
-		this.session = session;
+	public ServerServiceAcceptor(Session session, FilterService service) {
+		this.session = (IOSession) session;
 		this.service = service;
 	}
 
@@ -24,7 +25,7 @@ public class NormalServiceAcceptor implements ServiceAcceptorJob {
 
 	public void accept(Session session, ReadFuture future) {
 		try {
-			this.service.accept(session, future);
+			this.service.accept(this.session, future);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

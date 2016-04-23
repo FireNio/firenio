@@ -5,7 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.TextMessage;
 import com.gifisan.nio.jms.client.MessageProducer;
@@ -19,7 +19,7 @@ public class TestTeller {
 		
 		connector.connect();
 		
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		MessageProducer producer = new MessageProducerImpl(session);
 

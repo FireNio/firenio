@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.jms.JMSException;
@@ -211,7 +211,7 @@ public class Portal {
 					try {
 						connector.connect();
 						
-						ClientSesssion session = connector.getClientSession();
+						ClientSession session = connector.getClientSession();
 						
 						browser = new MessageBrowserImpl(session);
 						browser.login(username, password);

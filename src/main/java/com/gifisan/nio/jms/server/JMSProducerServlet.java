@@ -5,11 +5,11 @@ import java.io.OutputStream;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 
 public class JMSProducerServlet extends JMSServlet {
 
-	public void accept(NIOSession session, JMSSessionAttachment attachment) throws Exception {
+	public void accept(ServerSession session, JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 

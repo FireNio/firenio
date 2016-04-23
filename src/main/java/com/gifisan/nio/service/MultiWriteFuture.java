@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.AbstractWriteFuture;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.server.session.Session;
 
 public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public MultiWriteFuture(IOExceptionHandle handle, ByteBuffer textBuffer, Session session, InputStream inputStream) {
-		super(handle, textBuffer, session);
+	public MultiWriteFuture(Session session, ByteBuffer textBuffer, byte []textCache ,
+			InputStream inputStream,IOExceptionHandle handle) {
+		super(handle, textBuffer, textCache, session);
 		this.inputStream = inputStream;
 		this.streamBuffer = ByteBuffer.allocate(1024 * 1000);
 		this.streamBuffer.position(streamBuffer.limit());
@@ -18,7 +20,6 @@ public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture
 
 	private int		writedLength	= 0;
 	private int		dataLength	= 0;
-	private InputStream	inputStream	= null;
 	private ByteBuffer	streamBuffer	= null;
 
 	public boolean write() throws IOException {
@@ -56,4 +57,5 @@ public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture
 		buffer.position(pos);
 		buffer.flip();
 	}
+	
 }

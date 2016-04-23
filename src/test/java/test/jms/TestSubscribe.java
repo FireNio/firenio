@@ -5,7 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
@@ -39,7 +39,7 @@ public class TestSubscribe {
 
 		connector.connect();
 
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 
 		MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
 

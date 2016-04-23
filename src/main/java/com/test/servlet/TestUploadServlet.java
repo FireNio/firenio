@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.gifisan.nio.server.session.NIOSession;
+import com.gifisan.nio.server.session.ServerSession;
 import com.gifisan.nio.service.NIOServlet;
 
 public class TestUploadServlet extends NIOServlet {
 
-	public void accept(NIOSession session) throws Exception {
+	public void accept(ServerSession session) throws Exception {
 		
 		OutputStream outputStream = session.getServerOutputStream();
 		

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.ClientSesssion;
+import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.FileUtil;
 
@@ -18,7 +18,7 @@ public class TestSimpleBigParam {
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ClientSesssion session = connector.getClientSession();
+		ClientSession session = connector.getClientSession();
 		
 		String temp = "网易科技腾讯科技阿里巴巴";
 		StringBuilder builder = new StringBuilder(temp);
