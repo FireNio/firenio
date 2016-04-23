@@ -20,6 +20,10 @@ public class ClientConnector implements Connectable, Closeable {
 	public ClientContext getContext() {
 		return context;
 	}
+	
+	public ClientSession getClientSession() throws IOException {
+		return connection.getClientSession(Session.SESSION_ID_1);
+	}
 
 	public ClientSession getClientSession(byte sessionID) throws IOException {
 		return connection.getClientSession(sessionID);
@@ -66,7 +70,7 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),this.getClientSession(Session.SESSION_ID_1));
+		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),this.getClientSession());
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}

@@ -2,19 +2,14 @@ package com.gifisan.nio.component;
 
 import java.lang.reflect.Method;
 
-import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
 
 public class ServerLauncher {
 
-	private Logger		logger	= LoggerFactory.getLogger(ServerLauncher.class);
-
 	public void launch() throws Exception {
 
 		try {
-
-			logger.info("     [NIOServer] ======================================= 服务开始启动 =======================================");
 
 			Class clazz = Class.forName("com.gifisan.nio.server.NIOServer");
 
@@ -27,7 +22,7 @@ public class ServerLauncher {
 //			new NIOServer().start();
 
 		} catch (Throwable e) {
-			logger.error("启动失败：" + e.getMessage(), e);
+			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
 		}
 	}
 

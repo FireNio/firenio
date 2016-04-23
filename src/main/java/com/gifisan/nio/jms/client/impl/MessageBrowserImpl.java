@@ -3,8 +3,8 @@ package com.gifisan.nio.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageBrowser;
@@ -23,27 +23,27 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 		param.put("messageID", messageID);
 		param.put("cmd", JMSBrowserServlet.BROWSER);
 		
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSBrowserServlet",param.toJSONString());
+			future = session.request("JMSBrowserServlet",param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}
 		
-		return MessageDecoder.decode(response);
+		return MessageDecoder.decode(future);
 	}
 
 
 	public int size() throws JMSException {
 		String param = "{cmd:\"0\"}";
 		
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSBrowserServlet",param);
+			future = session.request("JMSBrowserServlet",param);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}
-		return Integer.parseInt(response.getText());
+		return Integer.parseInt(future.getText());
 	}
 
 	
@@ -53,14 +53,14 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 		param.put("queueName", queueName);
 		param.put("cmd", JMSBrowserServlet.ONLINE);
 		
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSBrowserServlet",param.toJSONString());
+			future = session.request("JMSBrowserServlet",param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(),e);
 		}
 		
-		return "T".equals(response.getText());
+		return "T".equals(future.getText());
 	}
 
 

@@ -16,7 +16,7 @@ public class TestLoad {
 	public static void main(String[] args) throws IOException{
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
-		connector.connect(true);
+		connector.connect();
 		final ClientSession session = connector.getClientSession();
 		
 		ITestHandle.doTest(new ITest() {

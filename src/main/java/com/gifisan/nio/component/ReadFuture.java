@@ -12,4 +12,6 @@ public interface ReadFuture extends Future{
 	
 	public abstract void setIOEvent(OutputStream outputStream,IOExceptionHandle handle);
 	
+	public abstract boolean hasOutputStream();
+	
 }

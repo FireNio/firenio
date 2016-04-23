@@ -70,7 +70,7 @@ public class ClientConnection implements Connectable, Closeable {
 		SocketChannel channel = (SocketChannel) selectionKey.channel();
 		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
 			channel.finishConnect();
-			this.endPoint = new NIOEndPoint(selectionKey);
+			this.endPoint = new NIOEndPoint(context,selectionKey);
 			this.selectorManagerLoop = new SelectorManagerLoop(context, selector);
 			try {
 				this.selectorManagerLoop.start();

@@ -1,7 +1,8 @@
 package com.test.servlet;
 
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;
 
 public class TestSimpleServlet extends NIOServlet{
@@ -10,9 +11,9 @@ public class TestSimpleServlet extends NIOServlet{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	public void accept(Session session) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 
-		String test = session.getRequestText();
+		String test = future.getText();
 
 		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";

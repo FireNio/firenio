@@ -127,12 +127,26 @@ public class SharedBundle {
 				}
 			}
 		}
+		
+		boolean debug = getBooleanProperty("SERVER.DEBUG");
+
+		if (!debug) {
+			loadLog4jProperties("conf/log4j.properties");
+
+			storageProperties("conf/server.properties");
+			
+			debug = getBooleanProperty("SERVER.DEBUG");
+		}
+		
+		DebugUtil.setEnableDebug(debug);
+		
 	}
 
 	public void loadLog4jProperties(String file) throws IOException {
 		String filePath = baseDIR + file;
 		Properties log4j = loadProperties(FileUtil.openInputStream(new File(filePath)));
 		PropertyConfigurator.configure(log4j);
+		LoggerFactory.enableSLF4JLogger(true);
 	}
 
 	public Properties loadProperties(String file) throws IOException {

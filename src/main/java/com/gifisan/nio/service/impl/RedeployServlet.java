@@ -3,9 +3,10 @@ package com.gifisan.nio.service.impl;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.session.ServerSession;
+import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;
 
 public class RedeployServlet extends NIOServlet {
@@ -13,8 +14,8 @@ public class RedeployServlet extends NIOServlet {
 	private String	username	= null;
 	private String	password	= null;
 	
-	public void accept(ServerSession session) throws Exception {
-		Parameters param = session.getParameters();
+	public void accept(IOSession session,ReadFuture future) throws Exception {
+		Parameters param = future.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
 

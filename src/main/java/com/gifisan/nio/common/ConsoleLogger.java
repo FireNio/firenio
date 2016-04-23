@@ -1,61 +1,53 @@
 package com.gifisan.nio.common;
 
+
+
 public class ConsoleLogger implements Logger{
-
-	@Override
+	
+	
+	
 	public void info(String message) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.info(message);
 	}
 
-	@Override
 	public void info(String message, Object param) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.info(message, param);
 	}
 
-	@Override
 	public void info(String message, Object param, Object param1) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.info(message, param, param1);
 	}
 
-	@Override
 	public void info(String message, Object[] param) {
-		// TODO Auto-generated method stub
+		DebugUtil.info(message, param);
 		
 	}
 
-	@Override
 	public void debug(String message) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.debug(message);
 	}
 
-	@Override
 	public void debug(String message, Object param) {
-		// TODO Auto-generated method stub
+		DebugUtil.debug(message, param);
 		
 	}
 
-	@Override
 	public void debug(String message, Object param, Object param1) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.debug(message, param, param1);		
 	}
 
-	@Override
 	public void debug(String message, Object[] param) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.debug(message, param);		
 	}
 
-	@Override
 	public void error(String object, Throwable throwable) {
-		// TODO Auto-generated method stub
-		
+		DebugUtil.error(object, throwable);		
 	}
 
+	public static void main(String[] args) {
+		new ConsoleLogger().info("test {}", "www");
+		
+	}
 	
 
 	

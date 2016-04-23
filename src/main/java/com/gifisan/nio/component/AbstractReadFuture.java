@@ -11,6 +11,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	protected EndPoint			endPoint		= null;
 	protected Session			session		= null;
 	protected ByteBuffer		textBuffer	= null;
+	protected boolean 		hasStream 	= false;
 
 	public AbstractReadFuture(ByteBuffer textBuffer, Session session, String serviceName) {
 		super(serviceName);
@@ -32,5 +33,9 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 			return;
 		}
 		this.handle.handle(session, this, e);
+	}
+
+	public boolean hasOutputStream() {
+		return hasStream;
 	}
 }

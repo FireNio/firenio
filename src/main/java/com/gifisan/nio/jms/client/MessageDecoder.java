@@ -1,11 +1,8 @@
 package com.gifisan.nio.jms.client;
 
-import java.io.IOException;
-
-import com.gifisan.nio.client.ClientResponse;
-import com.gifisan.nio.client.EndPointInputStream;
-import com.gifisan.nio.common.StreamUtil;
+import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.JMSException;
@@ -14,23 +11,23 @@ import com.gifisan.nio.jms.TextMessage;
 
 public class MessageDecoder {
 	
-	public static Message decode(ClientResponse response) throws JMSException{
-		int msgType = response.getParameters().getIntegerParameter("msgType");
-		Message message = messageParsesFromJSON[msgType].decode(response);
+	public static Message decode(ReadFuture future) throws JMSException{
+		int msgType = future.getParameters().getIntegerParameter("msgType");
+		Message message = messageParsesFromJSON[msgType].decode(future);
 		return message;
 	}
 	
 	static interface MessageDecodeFromJSON {
 		
-		Message decode(ClientResponse object) throws JMSException;
+		Message decode(ReadFuture future) throws JMSException;
 	}
 	
 	private static MessageDecodeFromJSON[] messageParsesFromJSON = new MessageDecodeFromJSON[]{
 		//ERROR Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(ClientResponse response) {
-				Parameters param = response.getParameters();
+			public Message decode(ReadFuture future) {
+				Parameters param = future.getParameters();
 				ErrorMessage message = new ErrorMessage(param.getIntegerParameter("code"));
 				return message;
 			}
@@ -38,15 +35,15 @@ public class MessageDecoder {
 		//NULL Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(ClientResponse object) {
+			public Message decode(ReadFuture future) {
 				return null;
 			}
 		},
 		//Text Message
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(ClientResponse response) {
-				Parameters param = response.getParameters();
+			public Message decode(ReadFuture future) {
+				Parameters param = future.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
 				String text = param.getParameter("text");
@@ -57,24 +54,18 @@ public class MessageDecoder {
 		},
 		new MessageDecodeFromJSON() {
 			
-			public Message decode(ClientResponse response) throws JMSException {
-				Parameters param = response.getParameters();
+			public Message decode(ReadFuture future) throws JMSException {
+				Parameters param = future.getParameters();
 				String messageID = param.getParameter("msgID");
 				String queueName = param.getParameter("queueName");
 				String text = param.getParameter("text");
-				try {
+				
+				BufferedOutputStream outputStream = (BufferedOutputStream) future.getOutputStream();
+				
+				byte[] array = outputStream.toByteArray();
+				
+				return new ByteMessage(messageID,queueName,text,array);
 					
-					EndPointInputStream inputStream = response.getInputStream();
-					
-					byte[] array = StreamUtil.completeRead(inputStream);
-					
-					inputStream.close();
-					
-					return new ByteMessage(messageID,queueName,text,array);
-					
-				} catch (IOException e) {
-					throw new JMSException(e.getMessage()+response.getText(),e);
-				}
 			}
 		}
 	};

@@ -5,12 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.EndPointInputStream;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.StreamUtil;
-import com.gifisan.nio.component.ProtocolDecoder;
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.service.ServiceAcceptor;
 
 public class TestDownload {
 	
@@ -21,26 +20,28 @@ public class TestDownload {
 		connector.connect();
 		ClientSession session = connector.getClientSession();
 		
+		session.onStream("upload-temp.zip", new ServiceAcceptor() {
+			
+			public void accept(Session session, ReadFuture future) throws Exception {
+				File file = new File("download.zip");
+				
+				FileOutputStream outputStream = new FileOutputStream(file);
+				
+				future.setIOEvent(outputStream, null);
+				
+			}
+		});
+		
 		serviceKey = "upload-temp.zip";
 		
 		long old = System.currentTimeMillis();
 		
-		ClientResponse response = session.request(serviceKey, null);
+		ReadFuture future = session.request(serviceKey, null);
 		
-		if (response.getProtocolType() == ProtocolDecoder.TEXT) {
-			System.out.println(response.getText());
+		if (!future.hasOutputStream()) {
+			System.out.println(future.getText());
 		}else{
 			
-			EndPointInputStream inputStream = response.getInputStream();
-			
-			File file = new File("download.zip");
-			
-			FileOutputStream outputStream = new FileOutputStream(file);
-			
-			StreamUtil.write(inputStream, outputStream, 102400);
-			
-			CloseUtil.close(inputStream);
-			CloseUtil.close(outputStream);
 			System.out.println("下载成功！");
 		}
 		

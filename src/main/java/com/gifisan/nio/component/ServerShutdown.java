@@ -6,7 +6,6 @@ import java.util.Scanner;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.server.session.Session;
 
 public class ServerShutdown {
 
@@ -42,7 +41,7 @@ public class ServerShutdown {
 		
 		connector.connect();
 		
-		ClientSession session = connector.getClientSession(Session.SESSION_ID_1);
+		ClientSession session = connector.getClientSession();
 
 		String param = "{username:\"" + username + "\",password:\"" + passwrod + "\"}";
 

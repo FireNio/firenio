@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.client.JMSConnection;
 
@@ -29,13 +29,13 @@ public class JMSConnectonImpl implements JMSConnection {
 		param.put("password", password);
 		String paramString = JSONObject.toJSONString(param);
 
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSLoginServlet", paramString);
+			future = session.request("JMSLoginServlet", paramString);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		String result = response.getText();
+		String result = future.getText();
 		boolean logined = "T".equals(result);
 		if (!logined) {
 			throw new JMSException("用户名密码错误！");

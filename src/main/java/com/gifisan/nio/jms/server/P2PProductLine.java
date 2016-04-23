@@ -7,8 +7,9 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.IOSession;
 
 public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable {
 
@@ -69,9 +70,9 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 		queue.offer(message);
 	}
 
-	public void pollMessage(Session session, JMSSessionAttachment attachment) {
+	public void pollMessage(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
 
-		Parameters param = session.getParameters();
+		Parameters param = future.getParameters();
 
 		String queueName = param.getParameter("queueName");
 

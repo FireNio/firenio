@@ -12,8 +12,9 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.AbstractNIOFilter;
 
 public class DownloadFilter extends AbstractNIOFilter {
@@ -21,9 +22,9 @@ public class DownloadFilter extends AbstractNIOFilter {
 	private boolean			exclude		= false;
 	private Map<String, String>	excludesMap	= null;
 
-	public void accept(Session session) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 
-		String serviceName = session.getServiceName();
+		String serviceName = future.getServiceName();
 		
 		int point = serviceName.lastIndexOf('.');
 		
@@ -37,7 +38,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 			String filePath = serviceName;
 			
-			Parameters param = session.getParameters();
+			Parameters param = future.getParameters();
 			
 			int start = param.getIntegerParameter("start");
 			
@@ -62,9 +63,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 					downloadLength = available - start;
 				}
 
-				session.setInputStream(inputStream);
-
-				session.flush();
+				session.flush(inputStream,null);
 
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);

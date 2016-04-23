@@ -2,6 +2,8 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.StringUtil;
@@ -10,15 +12,17 @@ import com.gifisan.nio.component.ClientProtocolEncoder;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.service.ServiceAcceptor;
 
 public class DefaultClientSession extends AbstractSession implements ClientSession {
 
-	private MessageBus			bus			= null;
-	private ClientContext		context		= null;
-	private ClientProtocolEncoder	encoder		= null;
-	private EndPointWriter		endPointWriter	= null;
-	private long				timeout		= 0;
-	private AtomicBoolean		responsed		= new AtomicBoolean(true);
+	private MessageBus					bus			= null;
+	private ClientContext				context		= null;
+	private ClientProtocolEncoder			encoder		= null;
+	private EndPointWriter				endPointWriter	= null;
+	private long						timeout		= 0;
+	private AtomicBoolean				responsed		= new AtomicBoolean(true);
+	private Map<String, ServiceAcceptor>	onStreams		= new HashMap<String, ServiceAcceptor>();
 
 	public DefaultClientSession(EndPoint endPoint, byte sessionID) {
 		super(endPoint, sessionID);
@@ -57,7 +61,7 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 		this.bus.offer(future);
 		this.offer();
 	}
-	
+
 	public void offer() {
 		responsed.set(true);
 	}
@@ -99,6 +103,14 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 		}
 
 		throw new IOException("did not responsed");
+	}
+
+	public void onStream(String key, ServiceAcceptor acceptor) {
+		onStreams.put(key, acceptor);
+	}
+	
+	public ServiceAcceptor getServiceAcceptor(String serviceName){
+		return onStreams.get(serviceName);
 	}
 
 }

@@ -14,7 +14,7 @@ public class TestListenerPower {
 
 		ClientConnector connector = ClientUtil.getClientConnector();
 		
-		connector.connect(true);
+		connector.connect();
 		
 		ClientSession session = connector.getClientSession();
 		

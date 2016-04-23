@@ -2,7 +2,11 @@ package com.gifisan.nio.common;
 
 public class LoggerFactory {
 	
-	private static boolean enableSLF4JLogger = false;
+	static{
+		SharedBundle.instance();
+	}
+	
+	private static boolean enableSLF4JLogger;
 	
 	private static ConsoleLogger consoleLogger = new ConsoleLogger();
 

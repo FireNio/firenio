@@ -22,7 +22,7 @@ public abstract class AbstractNIOSelection implements SelectionAcceptor {
 			return (EndPoint) attachment;
 		}
 
-		EndPoint endPoint = new NIOEndPoint(selectionKey);
+		EndPoint endPoint = new NIOEndPoint(context,selectionKey);
 
 		selectionKey.attach(endPoint);
 

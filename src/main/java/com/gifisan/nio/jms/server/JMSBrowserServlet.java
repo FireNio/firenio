@@ -4,10 +4,11 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
-import com.gifisan.nio.server.session.ServerSession;
+import com.gifisan.nio.server.session.IOSession;
 
 public class JMSBrowserServlet extends JMSServlet {
 	
@@ -17,9 +18,9 @@ public class JMSBrowserServlet extends JMSServlet {
 	
 	public static String ONLINE = "2";
 	
-	public void accept(ServerSession session,JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
-		Parameters param = session.getParameters();
+		Parameters param = future.getParameters();
 
 		String messageID = param.getParameter("messageID");
 
@@ -27,7 +28,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 		Message message = NullMessage.NULL_MESSAGE;
 
-		if (context.isLogined(session)) {
+		if (context.isLogined(attachment)) {
 
 			String cmd = param.getParameter("cmd");
 			if (StringUtil.isNullOrBlank(cmd)) {

@@ -6,15 +6,17 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.gifisan.nio.component.EndPoint;
+
 public class EndPointInputStream extends InputStream {
 
-	private int				avaiable	= 0;
-	private int				position	= 0;
-	private ClientEndPoint		endPoint	= null;
-	private Condition			complete	= null;
-	private ReentrantLock		lock		= null;
+	private int			avaiable	= 0;
+	private int			position	= 0;
+	private EndPoint		endPoint	= null;
+	private Condition		complete	= null;
+	private ReentrantLock	lock		= null;
 
-	public EndPointInputStream(ClientEndPoint endPoint, int avaiable) {
+	public EndPointInputStream(EndPoint endPoint, int avaiable) {
 		this.endPoint = endPoint;
 		this.avaiable = avaiable;
 	}
@@ -26,7 +28,8 @@ public class EndPointInputStream extends InputStream {
 	public boolean complete() {
 		return avaiable == 0 || position >= avaiable;
 	}
-	public ByteBuffer read(int limit) throws IOException{
+
+	public ByteBuffer read(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
 		read(buffer);
 		return buffer;
@@ -58,7 +61,7 @@ public class EndPointInputStream extends InputStream {
 		endPoint.read(buffer);
 		return buffer.limit();
 	}
-	
+
 	public int read(byte[] b) throws IOException {
 		return read(b, 0, b.length);
 	}
@@ -70,22 +73,22 @@ public class EndPointInputStream extends InputStream {
 	}
 
 	public void close() {
-		
+
 		ReentrantLock lock = this.lock;
-		
+
 		if (lock == null) {
 			return;
 		}
-		
+
 		lock.lock();
-		
+
 		complete.signal();
-		
+
 		lock.unlock();
-		
+
 	}
-	
-	protected void setLock(ReentrantLock lock,Condition condition){
+
+	protected void setLock(ReentrantLock lock, Condition condition) {
 		this.lock = lock;
 		this.complete = condition;
 	}

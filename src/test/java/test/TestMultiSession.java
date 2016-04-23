@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.ReadFuture;
 
 public class TestMultiSession {
 
@@ -19,17 +19,17 @@ public class TestMultiSession {
 
 		final ClientConnector connector = ClientUtil.getClientConnector();
 
-		connector.connect(true);
+		connector.connect();
 
 		for (int i = 0; i < 4; i++) {
 			new Thread(new Runnable() {
 				public void run() {
 					try {
-						ClientSession session = connector.getClientSession();
+						ClientSession session = connector.getClientSession((byte)no.getAndDecrement());
 						String s = "multi-session" + no.incrementAndGet();
 						System.out.println(s + " 已发送......");
-						ClientResponse response = session.request(serviceName, s);
-						System.out.println(response.getText());
+						ReadFuture future = session.request(serviceName, s);
+						System.out.println(future.getText());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

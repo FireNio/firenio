@@ -12,6 +12,7 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 
 	public MultiReadFuture(ByteBuffer textBuffer, Session session, String serviceName,int dataLength) {
 		super(textBuffer, session, serviceName);
+		this.hasStream = true;
 		this.dataLength = dataLength;
 		this.streamBuffer = ByteBuffer.allocate(1024 * 1000);
 		this.streamBuffer.position(streamBuffer.limit());
@@ -57,9 +58,5 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 		outputStream.write(array, 0, buffer.position());
 
 		buffer.clear();
-	}
-	
-	public boolean hasOutputStream(){
-		return outputStream != null;
 	}
 }

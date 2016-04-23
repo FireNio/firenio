@@ -8,7 +8,6 @@ public class DebugUtil {
 		if (enableDebug) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public static String exception2string(Throwable exception) {
@@ -32,14 +31,55 @@ public class DebugUtil {
 	public static void setEnableDebug(boolean enable) {
 		enableDebug = enable;
 	}
-	
-	public static void debug(String message){
+
+	public static void debug(String message) {
 		if (enableDebug) {
 			System.out.println(message);
 		}
 	}
-	
-	public static void info(String message){
+
+	public static void info(String message) {
 		System.out.println(message);
 	}
+
+	public static void info(String message, Object param) {
+
+		System.out.println(MessageFormatter.format(message, param));
+	}
+
+	public static void info(String message, Object param, Object param1) {
+		System.out.println(MessageFormatter.format(message, param, param1));
+
+	}
+
+	public static void info(String message, Object[] param) {
+		System.out.println(MessageFormatter.arrayFormat(message, param));
+
+	}
+
+	public static void debug(String message, Object param) {
+		if (enableDebug) {
+			info(message, param);
+		}
+
+	}
+
+	public static void debug(String message, Object param, Object param1) {
+		if (enableDebug) {
+			info(message, param, param1);
+		}
+
+	}
+
+	public static void debug(String message, Object[] param) {
+		if (enableDebug) {
+			info(message, param);
+		}
+	}
+
+	public static void error(String object, Throwable throwable) {
+		System.out.println(object);
+		throwable.printStackTrace();
+	}
+
 }

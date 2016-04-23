@@ -5,8 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.component.ReadFuture;
 
 public class TestUpload {
 	
@@ -22,9 +22,9 @@ public class TestUpload {
 		long old = System.currentTimeMillis();
 		File file = new File("D:/GIT/NimbleIO/temp1.zip");
 		FileInputStream inputStream = new FileInputStream(file);
-		ClientResponse response = session.request(serviceKey,param , inputStream);
+		ReadFuture future = session.request(serviceKey,param , inputStream);
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
-		System.out.println(response.getText());
+		System.out.println(future.getText());
 		
 		connector.close();
 	}

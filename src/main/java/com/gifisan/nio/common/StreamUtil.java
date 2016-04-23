@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.client.ClientEndPoint;
 import com.gifisan.nio.client.EndPointInputStream;
 import com.gifisan.nio.component.ByteArrayInputStream;
+import com.gifisan.nio.component.EndPoint;
 
 public class StreamUtil {
 
@@ -36,7 +36,7 @@ public class StreamUtil {
 		}
 	}
 
-	public static void write(InputStream inputStream, ClientEndPoint endPoint, int start, int length, int block)
+	public static void write(InputStream inputStream, EndPoint endPoint, int start, int length, int block)
 			throws IOException {
 		
 		if (inputStream.getClass() == ByteArrayInputStream.class) {

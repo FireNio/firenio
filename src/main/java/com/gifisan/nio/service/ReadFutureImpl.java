@@ -32,7 +32,8 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture{
 		this.outputStream = outputStream;
 		this.handle = handle;
 	}
-	
-	
 
+	public boolean hasOutputStream() {
+		return outputStream != null;
+	}
 }

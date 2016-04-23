@@ -5,16 +5,16 @@ import java.io.IOException;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.IOSession;
 
 public class Consumer {
 
 	private String				queueName		= null;
 	private JMSSessionAttachment	attachment	= null;
 	private ConsumerQueue		consumerGroup	= null;
-	private Session			session		= null;
+	private IOSession			session		= null;
 
-	public Consumer(ConsumerQueue consumerGroup, JMSSessionAttachment attachment, Session session, String queueName) {
+	public Consumer(ConsumerQueue consumerGroup, JMSSessionAttachment attachment, IOSession session, String queueName) {
 		this.consumerGroup = consumerGroup;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -41,7 +41,7 @@ public class Consumer {
 
 		String content = message.toString();
 
-		Session session = this.session;
+		IOSession session = this.session;
 
 		session.write(content);
 
@@ -54,9 +54,7 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			session.setInputStream(new ByteArrayInputStream(bytes));
-
-			session.flush();
+			session.flush(new ByteArrayInputStream(bytes),null);
 		}
 	}
 }

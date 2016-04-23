@@ -4,28 +4,29 @@ import java.io.OutputStream;
 
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.ServerSession;
+import com.gifisan.nio.server.session.IOSession;
 
 public class JMSProducerServlet extends JMSServlet {
 
-	public void accept(ServerSession session, JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 
-		if (context.isLogined(session)) {
+		if (context.isLogined(attachment)) {
 			
-			if (session.isStream()) {
+			if (future.hasOutputStream()) {
 				
-				OutputStream outputStream = session.getServerOutputStream();
+				OutputStream outputStream = future.getOutputStream();
 				
 				if (outputStream == null) {
-					session.setServerOutputStream(new BufferedOutputStream());
+					future.setIOEvent(new BufferedOutputStream(),null);
 					return;
 				}
 			}
 			
-			Message message = context.parse(session);
+			Message message = context.parse(future);
 			
 			context.offerMessage(message);
 

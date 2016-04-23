@@ -4,8 +4,9 @@ import java.nio.charset.Charset;
 import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.AttributesImpl;
 
@@ -17,24 +18,16 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 		this.addLifeCycleListener(new NIOServerListener());
 	}
 
+	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
 	private Attributes		attributes	= new AttributesImpl();
 	private Connector		connector		= null;
 	private ServerContext	context		= null;
 	
 	protected void doStart() throws Exception {
+		
+		logger.info("     [NIOServer] ======================================= 服务开始启动 =======================================");
+
 		SharedBundle bundle = SharedBundle.instance();
-		
-		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-
-		if (!debug) {
-			bundle.loadLog4jProperties("conf/log4j.properties");
-
-			bundle.storageProperties("conf/server.properties");
-			
-			debug = bundle.getBooleanProperty("SERVER.DEBUG");
-		}
-		
-		DebugUtil.setEnableDebug(debug);
 		
 		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
 

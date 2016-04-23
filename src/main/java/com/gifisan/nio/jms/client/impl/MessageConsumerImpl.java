@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.RESMessageDecoder;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
@@ -16,8 +16,8 @@ import com.gifisan.nio.jms.client.MessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
-	private String		parameter	= null;
-	private String		queueName		= null;
+	private String	parameter	= null;
+	private String	queueName	= null;
 
 	private void initParam(String queueName, long timeout) {
 		Map<String, String> param = new HashMap<String, String>();
@@ -42,14 +42,14 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	private boolean transactionVal(String action) throws JMSException {
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSTransactionServlet", action);
+			future = session.request("JMSTransactionServlet", action);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
 
-		RESMessage message = RESMessageDecoder.decode(response.getText());
+		RESMessage message = RESMessageDecoder.decode(future.getText());
 		if (message.getCode() == 0) {
 			return true;
 		} else {
@@ -67,24 +67,24 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	public Message revice() throws JMSException {
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSConsumerServlet", parameter);
+			future = session.request("JMSConsumerServlet", parameter);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
 
-		return MessageDecoder.decode(response);
+		return MessageDecoder.decode(future);
 	}
 
 	public Message subscibe() throws JMSException {
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSSubscribeServlet", parameter);
+			future = session.request("JMSSubscribeServlet", parameter);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		return MessageDecoder.decode(response);
+		return MessageDecoder.decode(future);
 	}
 
 	public void login(String username, String password) throws JMSException {
@@ -99,13 +99,13 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		param.put("queueName", this.queueName);
 		String paramString = JSONObject.toJSONString(param);
 
-		ClientResponse response;
+		ReadFuture future;
 		try {
-			response = session.request("JMSLoginServlet", paramString);
+			future = session.request("JMSLoginServlet", paramString);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		String result = response.getText();
+		String result = future.getText();
 		boolean logined = "T".equals(result);
 		if (!logined) {
 			throw new JMSException("用户名密码错误！");

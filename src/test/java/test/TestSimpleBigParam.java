@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.FileUtil;
+import com.gifisan.nio.component.ReadFuture;
 
 public class TestSimpleBigParam {
 	
@@ -26,8 +26,8 @@ public class TestSimpleBigParam {
 			builder.append("\n");
 			builder.append(temp);
 		}
-		ClientResponse response = session.request(serviceKey, builder.toString());
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), response.getText());
+		ReadFuture future = session.request(serviceKey, builder.toString());
+		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getText());
 		System.out.println("处理完成");
 		
 		CloseUtil.close(connector);

@@ -3,9 +3,9 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.ReadFuture;
 
 public class TestSimple {
 	
@@ -22,8 +22,8 @@ public class TestSimple {
 		
 		ClientSession session = connector.getClientSession();
 		
-		ClientResponse response = session.request(serviceKey, param);
-		System.out.println(response.getText());
+		ReadFuture future = session.request(serviceKey, param);
+		System.out.println(future.getText());
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());
 		

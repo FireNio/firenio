@@ -12,7 +12,9 @@ public class JMSSessionAttachment implements Attachment {
 	private TransactionSection	transactionSection	= null;
 
 	private List<String>		queueNames		= new ArrayList<String>();
-	
+
+	private boolean			logined			= false;
+
 	public JMSSessionAttachment(MQContext context) {
 		this.context = context;
 	}
@@ -29,12 +31,20 @@ public class JMSSessionAttachment implements Attachment {
 		return context;
 	}
 
-	public void addQueueName(String queueName){
+	public void addQueueName(String queueName) {
 		this.queueNames.add(queueName);
 	}
-	
-	public List<String> getQueueNames (){
+
+	public List<String> getQueueNames() {
 		return queueNames;
+	}
+
+	public boolean isLogined() {
+		return logined;
+	}
+
+	public void setLogined(boolean logined) {
+		this.logined = logined;
 	}
 
 }

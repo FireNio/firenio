@@ -8,22 +8,20 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
-import com.gifisan.nio.server.session.ServerSession;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.server.session.IOSession;
 
 public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	private interface MessageParseFromRequest {
 
-		Message parse(ServerSession session);
+		Message parse(ReadFuture future);
 	}
 
 	private long					dueTime				= 0;
-	private final int				LOGINED				= 1;
 	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
 	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
 	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
@@ -39,8 +37,8 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 			null,
 			// Text Message
 			new MessageParseFromRequest() {
-				public Message parse(ServerSession session) {
-					Parameters param = session.getParameters();
+				public Message parse(ReadFuture future) {
+					Parameters param = future.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
 					String text = param.getParameter("text");
@@ -49,14 +47,13 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 					return message;
 				}
 			}, new MessageParseFromRequest() {
-				public Message parse(ServerSession session) {
-					Parameters param = session.getParameters();
+				public Message parse(ReadFuture future) {
+					Parameters param = future.getParameters();
 					String messageID = param.getParameter("msgID");
 					String queueName = param.getParameter("queueName");
 					String text = param.getParameter("text");
 
-					BufferedOutputStream outputStream = (BufferedOutputStream) session
-							.getServerOutputStream();
+					BufferedOutputStream outputStream = (BufferedOutputStream) future.getOutputStream();
 					byte[] array = outputStream.toByteArray();
 					return new ByteMessage(messageID, queueName, text, array);
 				}
@@ -95,10 +92,6 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		return this.dueTime;
 	}
 
-	public boolean isLogined(Session session) {
-		return LOGINED == session.getEndpointMark();
-	}
-
 	public int messageSize() {
 		return this.messageIDs.size();
 	}
@@ -123,25 +116,21 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		}
 	}
 
-	public Message parse(ServerSession session) {
-		Parameters param = session.getParameters();
+	public Message parse(ReadFuture future) {
+		Parameters param = future.getParameters();
 		int msgType = param.getIntegerParameter("msgType");
-		Message message = messageParsesFromRequest[msgType].parse(session);
+		Message message = messageParsesFromRequest[msgType].parse(future);
 		return message;
 	}
 
-	public void pollMessage(Session session, JMSSessionAttachment attachment) {
+	public void pollMessage(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
 
-		p2pProductLine.pollMessage(session, attachment);
+		p2pProductLine.pollMessage(session,future, attachment);
 	}
 
-	public void subscribeMessage(Session session, JMSSessionAttachment attachment) {
+	public void subscribeMessage(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
 
-		subProductLine.pollMessage(session, attachment);
-	}
-
-	public void setLogined(boolean logined, Session session) {
-		session.setEndpointMark(LOGINED);
+		subProductLine.pollMessage(session,future, attachment);
 	}
 
 	public void setMessageDueTime(long dueTime) {
@@ -158,9 +147,9 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		this.password = password;
 	}
 
-	public boolean login(ServerSession session, JMSSessionAttachment attachment) {
+	public boolean login(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
 
-		Parameters param = session.getParameters();
+		Parameters param = future.getParameters();
 
 		String _username = param.getParameter("username");
 
@@ -190,7 +179,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 				}
 			}
 
-			setLogined(true, session);
+			attachment.setLogined(true);
 
 			DebugUtil.debug("user [" + username + "] login successful!");
 
@@ -211,4 +200,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		}
 	}
 
+	public boolean isLogined(JMSSessionAttachment attachment) {
+		return attachment != null && attachment.isLogined();
+	}
 }

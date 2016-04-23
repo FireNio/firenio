@@ -34,7 +34,8 @@ public class NIOEndPoint implements EndPoint {
 	private SessionFactory		sessionFactory		= null;
 	private IOReadFuture readFuture = null;
 
-	public NIOEndPoint(SelectionKey selectionKey) throws SocketException {
+	public NIOEndPoint(NIOContext context,SelectionKey selectionKey) throws SocketException {
+		this.context = context;
 		this.selectionKey = selectionKey;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.sessionFactory = context.getSessionFactory();

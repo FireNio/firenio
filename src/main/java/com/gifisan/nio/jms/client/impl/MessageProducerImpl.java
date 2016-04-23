@@ -2,9 +2,9 @@ package com.gifisan.nio.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientResponse;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
+import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
@@ -19,13 +19,13 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 	public boolean offer(Message message) throws JMSException {
 		String param = message.toString();
 
-		ClientResponse response = null;
+		ReadFuture future = null;
 
 		int msgType = message.getMsgType();
 
 		if (msgType == 2) {
 			try {
-				response = session.request("JMSProducerServlet", param);
+				future = session.request("JMSProducerServlet", param);
 			} catch (IOException e) {
 				throw new JMSException(e.getMessage(), e);
 			}
@@ -33,14 +33,14 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 			ByteMessage _message = (ByteMessage) message;
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
 			try {
-				response = session.request("JMSProducerServlet", param, inputStream);
+				future = session.request("JMSProducerServlet", param, inputStream);
 			} catch (IOException e) {
 				throw new JMSException(e.getMessage(), e);
 			}
 		} else {
 			throw new JMSException("msgType:" + msgType);
 		}
-		String result = response.getText();
+		String result = future.getText();
 
 		if (result.length() == 1) {
 			return "T".equals(result);
@@ -53,13 +53,13 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 
 		String param = message.toString();
 
-		ClientResponse response = null;
+		ReadFuture future = null;
 
 		int msgType = message.getMsgType();
 
 		if (msgType == 2) {
 			try {
-				response = session.request("JMSPublishServlet", param);
+				future = session.request("JMSPublishServlet", param);
 			} catch (IOException e) {
 				throw new JMSException(e.getMessage(), e);
 			}
@@ -67,14 +67,14 @@ public class MessageProducerImpl extends JMSConnectonImpl implements MessageProd
 			ByteMessage _message = (ByteMessage) message;
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
 			try {
-				response = session.request("JMSPublishServlet", param, inputStream);
+				future = session.request("JMSPublishServlet", param, inputStream);
 			} catch (IOException e) {
 				throw new JMSException(e.getMessage(), e);
 			}
 		} else {
 			throw new JMSException("msgType:" + msgType);
 		}
-		String result = response.getText();
+		String result = future.getText();
 
 		if (result.length() == 1) {
 			return "T".equals(result);
