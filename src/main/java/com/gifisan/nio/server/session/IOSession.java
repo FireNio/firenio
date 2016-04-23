@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.Session;
 
 public interface IOSession extends Session{
 	

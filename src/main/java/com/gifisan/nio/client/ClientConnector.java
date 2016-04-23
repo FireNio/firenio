@@ -9,8 +9,8 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.TaskExecutor;
-import com.gifisan.nio.server.session.Session;
 
 public class ClientConnector implements Connectable, Closeable {
 

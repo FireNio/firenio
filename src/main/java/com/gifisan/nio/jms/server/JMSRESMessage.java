@@ -1,6 +1,6 @@
 package com.gifisan.nio.jms.server;
 
-import com.gifisan.nio.component.RESMessage;
+import com.gifisan.nio.server.RESMessage;
 
 public class JMSRESMessage {
 

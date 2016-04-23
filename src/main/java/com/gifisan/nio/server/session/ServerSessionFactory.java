@@ -1,9 +1,8 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server.session;
 
 import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionFactory;
-import com.gifisan.nio.server.session.ServerSession;
-import com.gifisan.nio.server.session.Session;
 
 public class ServerSessionFactory implements SessionFactory{
 

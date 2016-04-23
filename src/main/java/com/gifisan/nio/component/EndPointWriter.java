@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedListM2O;
-import com.gifisan.nio.server.session.Session;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 

@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.client.IOWriteFuture;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.FutureImpl;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 

@@ -6,8 +6,8 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOReadFuture;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.TextReadFuture;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TextReadFuture;
 
 public class TextDecoder extends AbstractDecoder{
 	

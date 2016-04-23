@@ -1,4 +1,4 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
 public class ServerEndPointFactory {
 

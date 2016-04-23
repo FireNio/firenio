@@ -3,8 +3,8 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.WriteFuture;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.WriteFuture;
 
 public interface IOWriteFuture extends WriteFuture{
 

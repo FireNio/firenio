@@ -1,12 +1,8 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-
-import com.gifisan.nio.component.AbstractWriteFuture;
-import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.server.session.Session;
 
 public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture {
 

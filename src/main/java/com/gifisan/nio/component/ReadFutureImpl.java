@@ -1,11 +1,6 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.component;
 
 import java.io.OutputStream;
-
-import com.gifisan.nio.component.DefaultParameters;
-import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
 
 public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture{
 	

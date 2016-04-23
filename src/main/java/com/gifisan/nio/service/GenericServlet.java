@@ -1,8 +1,8 @@
 package com.gifisan.nio.service;
 
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.FilterAcceptor;
 import com.gifisan.nio.component.HotDeploy;
+import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.ServerContext;
 
 public abstract class GenericServlet implements HotDeploy, FilterAcceptor {

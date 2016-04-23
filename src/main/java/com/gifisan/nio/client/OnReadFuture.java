@@ -1,7 +1,7 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.component.Session;
 
 public interface OnReadFuture {
 	

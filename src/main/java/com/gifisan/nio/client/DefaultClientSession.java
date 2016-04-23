@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.ClientProtocolEncoder;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ReadFuture;

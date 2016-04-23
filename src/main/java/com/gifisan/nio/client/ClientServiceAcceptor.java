@@ -1,9 +1,9 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.DefaultClientSession;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.service.ServiceAcceptor;
 
 public class ClientServiceAcceptor implements ServiceAcceptor {

@@ -1,16 +1,19 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.client;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.client.IOWriteFuture;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.ByteArrayWriteFuture;
-import com.gifisan.nio.service.MultiWriteFuture;
-import com.gifisan.nio.service.TextWriteFuture;
+import com.gifisan.nio.component.AbstractProtocolEncoder;
+import com.gifisan.nio.component.ByteArrayInputStream;
+import com.gifisan.nio.component.ByteArrayWriteFuture;
+import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.MultiWriteFuture;
+import com.gifisan.nio.component.ProtocolEncoder;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TextWriteFuture;
 
-public class ServerProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
+public class ClientProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(Session session,String serviceName, byte[] array, InputStream inputStream, IOExceptionHandle handle)
 			throws IOException {

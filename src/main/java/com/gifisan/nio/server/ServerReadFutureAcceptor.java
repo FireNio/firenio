@@ -1,7 +1,9 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
+import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.ReadFutureAcceptor;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.server.session.Session;
 
 public class ServerReadFutureAcceptor implements ReadFutureAcceptor {
 

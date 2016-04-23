@@ -2,9 +2,9 @@ package com.gifisan.nio.service.impl;
 
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.RESMessage;
 import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;

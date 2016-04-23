@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.gifisan.nio.client.IOWriteFuture;
-import com.gifisan.nio.server.session.Session;
 
 public interface ProtocolEncoder {
 

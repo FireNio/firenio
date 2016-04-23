@@ -1,4 +1,5 @@
-package com.gifisan.nio.server.session;
+package com.gifisan.nio.component;
+
 
 public class SessionEventListenerWrapper implements SessionEventListener{
 	

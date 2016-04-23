@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.gifisan.nio.server.Attributes;
-
 public class AttributesImpl implements Attributes{
 	
 	private Map<String, Object> attributes = new HashMap<String, Object>();

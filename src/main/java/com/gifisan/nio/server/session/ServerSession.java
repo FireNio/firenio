@@ -14,8 +14,8 @@ import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.component.ServerServiceAcceptor;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.ServerServiceAcceptor;
 
 public class ServerSession extends AbstractSession implements IOSession {
 

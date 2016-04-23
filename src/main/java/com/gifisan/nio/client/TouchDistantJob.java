@@ -1,8 +1,7 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.BeatWriteFuture;
+import com.gifisan.nio.component.Session;
 
 public class TouchDistantJob implements Runnable {
 

@@ -2,8 +2,6 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 
-import com.gifisan.nio.server.session.Session;
-
 public interface IOReadFuture extends ReadFuture{
 
 	public abstract boolean read() throws IOException;

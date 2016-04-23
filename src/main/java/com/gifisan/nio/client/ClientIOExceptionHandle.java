@@ -2,11 +2,10 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 
+import com.gifisan.nio.component.Future;
 import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.ErrorReadFuture;
-import com.gifisan.nio.service.Future;
-import com.gifisan.nio.service.WriteFuture;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.WriteFuture;
 
 public class ClientIOExceptionHandle implements IOExceptionHandle{
 

@@ -3,6 +3,7 @@ package com.gifisan.nio.server;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;

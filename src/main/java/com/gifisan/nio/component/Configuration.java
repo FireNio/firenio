@@ -4,7 +4,6 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.server.Attributes;
 
 public class Configuration implements Attributes {
 

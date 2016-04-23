@@ -6,13 +6,13 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.component.RESMessage;
-import com.gifisan.nio.component.RESMessageDecoder;
 import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
 import com.gifisan.nio.jms.client.MessageDecoder;
+import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.RESMessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 

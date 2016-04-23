@@ -1,4 +1,4 @@
-package com.gifisan.nio.server;
+package com.gifisan.nio.component;
 
 import java.util.Set;
 

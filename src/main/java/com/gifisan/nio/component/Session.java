@@ -1,4 +1,4 @@
-package com.gifisan.nio.server.session;
+package com.gifisan.nio.component;
 
 import java.net.SocketException;
 

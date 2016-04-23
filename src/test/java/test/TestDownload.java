@@ -8,7 +8,7 @@ import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.service.ServiceAcceptor;
 
 public class TestDownload {

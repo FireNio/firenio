@@ -1,10 +1,11 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.client;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.AbstractWriteFuture;
-import com.gifisan.nio.server.session.Session;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.WriteFuture;
 
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 

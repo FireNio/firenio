@@ -9,7 +9,6 @@ import java.util.List;
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.session.Session;
 
 public interface EndPoint extends Closeable {
 

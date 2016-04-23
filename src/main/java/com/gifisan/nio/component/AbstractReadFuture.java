@@ -3,9 +3,6 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.service.ReadFutureImpl;
-
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture {
 
 	protected EndPoint			endPoint		= null;

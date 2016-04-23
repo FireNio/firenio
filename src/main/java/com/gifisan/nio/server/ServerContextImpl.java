@@ -4,14 +4,11 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
-import com.gifisan.nio.component.ServerProtocolDecoder;
-import com.gifisan.nio.component.ServerProtocolEncoder;
-import com.gifisan.nio.component.ServerReadFutureAcceptor;
-import com.gifisan.nio.component.ServerSessionFactory;
 import com.gifisan.nio.component.protocol.MultiDecoder;
 import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
+import com.gifisan.nio.server.session.ServerSessionFactory;
 import com.gifisan.nio.service.FilterService;
 
 public class ServerContextImpl extends AbstractNIOContext implements ServerContext {

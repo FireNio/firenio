@@ -3,8 +3,8 @@ package com.gifisan.nio.jms.server;
 import java.util.List;
 
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.server.session.Session;
-import com.gifisan.nio.server.session.SessionEventListener;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.SessionEventListener;
 
 public class TransactionProtectListener implements SessionEventListener {
 
