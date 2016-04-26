@@ -20,7 +20,7 @@ public class TestGetPhoneNOServlet extends NIOServlet {
 		
 		session.write(phone);
 		
-		session.flush();
+		session.flush(future);
 	}
 
 }

@@ -37,7 +37,7 @@ public class ShowMemoryServlet extends NIOServlet{
 		}else{
 			session.write(RESMessage.R_UNAUTH.toString());
 		}
-		session.flush();
+		session.flush(future);
 		
 	}
 	

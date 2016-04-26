@@ -5,17 +5,18 @@ import java.io.IOException;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.NetworkException;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.server.FilterAcceptor;
+import com.gifisan.nio.component.IOReadFuture;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.impl.ErrorServlet;
 
-public final class FilterService extends AbstractLifeCycle implements FilterAcceptor, LifeCycle {
+public final class FilterService extends AbstractLifeCycle implements ServiceAcceptor, LifeCycle {
 
 	private Logger				logger		= LoggerFactory.getLogger(FilterService.class);
 	private ServerContext		context		= null;
@@ -31,13 +32,19 @@ public final class FilterService extends AbstractLifeCycle implements FilterAcce
 
 	}
 
-	public void accept(IOSession session,ReadFuture future) throws IOException {
+	public void accept(Session session,IOReadFuture future) throws IOException {
 
+		IOSession _IoSession = (IOSession) session;
+		
 		try {
 			
-			accept(rootFilter, session,future);
+			accept(rootFilter, _IoSession,future);
 			
 		} catch (FlushedException e) {
+			
+			logger.error(e.getMessage(), e);
+			
+		}catch(NetworkException e){
 			
 			logger.error(e.getMessage(), e);
 			
@@ -45,11 +52,11 @@ public final class FilterService extends AbstractLifeCycle implements FilterAcce
 			
 			logger.error(e.getMessage(), e);
 			
-			this.acceptException(session,future,e);
+			this.acceptException(_IoSession,future,e);
 		}
 	}
 
-	private void acceptException(IOSession session,ReadFuture future,Throwable exception) throws IOException {
+	private void acceptException(IOSession session,IOReadFuture future,Throwable exception) throws IOException {
 
 		ErrorServlet servlet = new ErrorServlet(exception);
 
@@ -67,13 +74,13 @@ public final class FilterService extends AbstractLifeCycle implements FilterAcce
 		}
 	}
 
-	private boolean accept(NIOFilterWrapper filter,IOSession session,ReadFuture future) throws Exception {
+	private boolean accept(NIOFilterWrapper filter,IOSession session,IOReadFuture future) throws Exception {
 
 		for (; filter != null;) {
 
 			filter.accept(session,future);
 
-			if (session.schduled()) {
+			if (((IOReadFuture)future).flushed()) {
 
 				return true;
 			}

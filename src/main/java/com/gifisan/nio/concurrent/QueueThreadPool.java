@@ -2,6 +2,7 @@ package com.gifisan.nio.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.DebugUtil;
@@ -34,10 +35,10 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 
 	}
 
-	private LinkedList<Runnable>		jobs		= null;
-	private int				size			= 4;
-	private String				threadPrefix	= null;
-	private List<LifedPoolWorker>	workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
+	private ArrayBlockingQueue<Runnable>	jobs			= null;
+	private int						size			= 4;
+	private String						threadPrefix	= null;
+	private List<LifedPoolWorker>			workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
 
 	/**
 	 * default size 4
@@ -45,22 +46,25 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	 * @param threadPrefix
 	 */
 	public QueueThreadPool(String threadPrefix) {
-		this(threadPrefix,4);
+		this(threadPrefix, 4);
 	}
 
 	public QueueThreadPool(String threadPrefix, int size) {
 		this.size = size;
 		this.threadPrefix = threadPrefix;
-		this.jobs = new LinkedListO2M<Runnable>(1024*1000);
+		this.jobs = new ArrayBlockingQueue<Runnable>(1024 * 8);
 	}
 
-	public void dispatch(Runnable job) {
+	public void dispatch(Runnable runnable) {
 		if (!isStarted()) {
 			// free time, ignore job
 			return;
 		}
 
-		jobs.offer(job);
+		for(;!jobs.offer(runnable);){
+			
+		}
+		
 	}
 
 	protected void doStart() throws Exception {

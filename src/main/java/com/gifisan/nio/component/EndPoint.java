@@ -14,9 +14,9 @@ public interface EndPoint extends Closeable {
 
 	public abstract void endConnect();
 
-	public abstract boolean canWrite(byte sessionID);
+	public abstract boolean enableWriting(long sessionID);
 
-	public abstract void setWriting(byte sessionID);
+	public abstract void setWriting(long sessionID);
 
 	public abstract String getLocalAddr();
 

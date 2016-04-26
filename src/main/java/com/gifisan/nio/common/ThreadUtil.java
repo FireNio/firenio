@@ -8,6 +8,5 @@ public class ThreadUtil {
 		} catch (InterruptedException e) {
 			DebugUtil.debug(e);
 		}
-
 	}
 }

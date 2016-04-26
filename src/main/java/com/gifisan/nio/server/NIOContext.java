@@ -5,11 +5,12 @@ import java.nio.charset.Charset;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.EndPointWriter;
+import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ProtocolDecoder;
 import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ReadFutureAcceptor;
+import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.SessionFactory;
-import com.gifisan.nio.server.selector.SelectionAcceptor;
 
 public interface NIOContext extends Attributes, LifeCycle {
 
@@ -28,5 +29,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract ReadFutureAcceptor getReadFutureAcceptor();
 	
 	public abstract SessionFactory getSessionFactory();
+	
+	public abstract OutputStreamAcceptor getOutputStreamAcceptor() ;
 	
 }

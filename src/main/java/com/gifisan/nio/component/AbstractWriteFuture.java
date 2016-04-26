@@ -3,25 +3,30 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.client.IOWriteFuture;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
-	private IOExceptionHandle	handle		= null;
-	private Session			session		= null;
 	protected EndPoint			endPoint		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected InputStream		inputStream	= null;
+	private IOExceptionHandle	handle		= null;
+	private Session			session		= null;
 	private byte[]			textCache		= null;
+	private long				futureID;
+	private static AtomicLong	_autoFutureID	= new AtomicLong(0);
 
-	public AbstractWriteFuture(IOExceptionHandle handle,String serviceName, ByteBuffer textBuffer, byte[] textCache, Session session) {
+	public AbstractWriteFuture(IOExceptionHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
+			Session session) {
 		this.handle = handle;
-		this.endPoint = ((AbstractSession)session).getEndPoint();
+		this.endPoint = ((AbstractSession) session).getEndPoint();
 		this.session = session;
 		this.textBuffer = textBuffer;
 		this.textCache = textCache;
 		this.serviceName = serviceName;
+		this.futureID = _autoFutureID.incrementAndGet();
 	}
 
 	protected void attackNetwork(int length) {
@@ -59,4 +64,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		return text;
 	}
 
+	public long getFutureID() {
+		return futureID;
+	}
 }

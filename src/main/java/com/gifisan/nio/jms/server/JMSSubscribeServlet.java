@@ -18,7 +18,7 @@ public class JMSSubscribeServlet extends JMSServlet{
 		}else{
 			Message message = ErrorMessage.UNAUTH_MESSAGE;
 			session.write(message.toString());
-			session.flush();
+			session.flush(future);
 			
 		}
 	}

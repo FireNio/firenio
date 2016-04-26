@@ -64,7 +64,7 @@ public class JMSBrowserServlet extends JMSServlet {
 			session.write(message.toString());
 		}
 
-		session.flush();
+		session.flush(future);
 	}
 
 

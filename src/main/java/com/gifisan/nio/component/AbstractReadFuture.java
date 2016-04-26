@@ -9,6 +9,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	protected Session			session		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected boolean 		hasStream 	= false;
+	private boolean 			flushed 		= false;
 
 	public AbstractReadFuture(ByteBuffer textBuffer, Session session, String serviceName) {
 		super(serviceName);
@@ -42,6 +43,13 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		}
 		return text;
 	}
-	
+
+	public boolean flushed() {
+		return flushed;
+	}
+
+	public void flush() {
+		flushed = true;
+	}
 	
 }

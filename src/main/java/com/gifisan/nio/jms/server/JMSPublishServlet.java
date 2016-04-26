@@ -37,6 +37,6 @@ public class JMSPublishServlet extends JMSServlet {
 
 		}
 
-		session.flush();
+		session.flush(future);
 	}
 }

@@ -6,71 +6,85 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.concurrent.LinkedList;
+import com.gifisan.nio.concurrent.LinkedListO2O;
 
 public class MessageBus {
 
-	private ReadFuture		future	= null;
-	private ReentrantLock	lock		= new ReentrantLock();
-	private Condition		notNull	= lock.newCondition();
-	private OnReadFuture 	onReadFuture = null;
+	private ReadFuture				future		= null;
+	private ReentrantLock			lock			= new ReentrantLock();
+	private Condition				notNull		= lock.newCondition();
+	private LinkedList<OnReadFuture>	onReadFutures	= new LinkedListO2O<OnReadFuture>(1024 * 10);
 
 	public ReadFuture poll(long timeout) {
 		if (timeout == 0) {
-			
-			for(;;){
-				
-				if (future == null) {
-					
-					ReentrantLock lock = this.lock;
 
-					lock.lock();
+			for (;;) {
 
-					try {
+				ReentrantLock lock = this.lock;
+
+				lock.lock();
+
+				try {
+					if (future == null) {
 						notNull.await(16, TimeUnit.MILLISECONDS);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						notNull.signal();
 					}
 
+					if (future == null) {
+						continue;
+					}
+
+					ReadFuture _Future = this.future;
+
+					this.future = null;
+
+					return _Future;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					notNull.signal();
+				} finally {
 					lock.unlock();
-					
-					continue;
 				}
-				
-				return future;
+
+				continue;
 			}
 		}
-		
-		if (future == null) {
-			ReentrantLock lock = this.lock;
 
-			lock.lock();
+		ReentrantLock lock = this.lock;
 
-			try {
+		lock.lock();
+
+		try {
+			if (future == null) {
 				notNull.await(timeout, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				notNull.signal();
 			}
 
-			lock.unlock();
+			ReadFuture _Future = this.future;
 
-			return future;
+			this.future = null;
+
+			return _Future;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			notNull.signal();
+			return null;
+		} finally {
+			lock.unlock();
 		}
-		return future;
 	}
 
+	
 	public void offer(ReadFuture future) {
-		
+
+		OnReadFuture onReadFuture = this.onReadFutures.poll();
+
 		if (onReadFuture != null) {
-			DefaultClientSession session = (DefaultClientSession) ((IOReadFuture)future).getSession(); 
+			ProtectedClientSession session = (ProtectedClientSession) ((IOReadFuture) future).getSession();
 			try {
 				onReadFuture.onResponse(session, future);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			onReadFuture = null;
 			session.offer();
 			return;
 		}
@@ -78,13 +92,20 @@ public class MessageBus {
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
-		
+
 		this.future = future;
 
 		notNull.signal();
 
 		lock.unlock();
+	}
 
+	public void onReadFuture(OnReadFuture onReadFuture) {
+		this.onReadFutures.forceOffer(onReadFuture);
+	}
+
+	public void reset() {
+		this.future = null;
 	}
 
 }

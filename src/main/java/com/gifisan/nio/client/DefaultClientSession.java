@@ -2,38 +2,18 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.service.ServiceAcceptor;
 
-public class DefaultClientSession extends AbstractSession implements ClientSession {
+public class DefaultClientSession extends AbstractClientSession implements ProtectedClientSession {
 
-	private MessageBus					bus			= null;
-	private ClientContext				context		= null;
-	private ClientProtocolEncoder			encoder		= null;
-	private EndPointWriter				endPointWriter	= null;
-	private long						timeout		= 0;
 	private AtomicBoolean				responsed		= new AtomicBoolean(true);
-	private Map<String, ServiceAcceptor>	onStreams		= new HashMap<String, ServiceAcceptor>();
 
 	public DefaultClientSession(EndPoint endPoint, byte sessionID) {
 		super(endPoint, sessionID);
-		this.bus = new MessageBus();
-		this.context = (ClientContext) endPoint.getContext();
-		this.encoder = context.getProtocolEncoder();
-		this.endPointWriter = context.getEndPointWriter();
-		this.serviceAcceptor = context.getServiceAcceptor();
-	}
-
-	public ReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, null);
 	}
 
 	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
@@ -56,33 +36,22 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 
 	}
 
-	public void offer(ReadFuture future) {
-		this.bus.offer(future);
-		this.offer();
-	}
-
 	public void offer() {
 		responsed.set(true);
 	}
 
-	public ClientContext getContext() {
-		return context;
-	}
-
 	public ReadFuture poll(long timeout) {
-		return bus.poll(timeout);
-	}
-
-	public long getTimeout() {
-		return timeout;
-	}
-
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
-
-	public void write(String serviceName, String content, OnReadFuture onReadFuture) throws IOException {
-		write(serviceName, content, null, onReadFuture);
+		ReadFuture future = messageBus.poll(timeout);
+		
+		if (future == null) {
+			return null;
+		}
+		
+		this.messageBus.reset();
+		
+		this.offer();
+		
+		return future;
 	}
 
 	public void write(String serviceName, String content, InputStream inputStream, OnReadFuture onReadFuture)
@@ -97,19 +66,16 @@ public class DefaultClientSession extends AbstractSession implements ClientSessi
 
 			IOWriteFuture future = encoder.encode(this,serviceName, array, inputStream, context.getClientIOExceptionHandle());
 
+			if (onReadFuture == null) {
+				onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
+			}
+			
+			this.messageBus.onReadFuture(onReadFuture);
+			
 			this.endPointWriter.offer(future);
 
 		}
 
 		throw new IOException("did not responsed");
 	}
-
-	public void onStream(String key, ServiceAcceptor acceptor) {
-		onStreams.put(key, acceptor);
-	}
-	
-	public ServiceAcceptor getServiceAcceptor(String serviceName){
-		return onStreams.get(serviceName);
-	}
-
 }

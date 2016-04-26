@@ -10,9 +10,8 @@ import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.component.ProtocolEncoder;
+import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerServiceAcceptor;
@@ -24,25 +23,17 @@ public class ServerSession extends AbstractSession implements IOSession {
 		
 		this.context = (ServerContext) endPoint.getContext();
 
-		this.endPointWriter = context.getEndPointWriter();
-		
-		this.encoder = context.getProtocolEncoder();
-		
 		this.serviceAcceptor = new ServerServiceAcceptor(this, context.getFilterService());
 	}
 
 	private ServerContext				context			= null;
-	private ProtocolEncoder				encoder			= null;
-	private EndPointWriter				endPointWriter		= null;
-	private boolean					flushed			= false;
-	private boolean					scheduled			= false;//guancha
 	private BufferedOutputStream			textCache			= new BufferedOutputStream();
 	private InputStream 				inputStream 		= null;
 	private IOExceptionHandle 			handle 			= null;
-	private ReadFuture					future			= null;
+	private ServerServiceAcceptor 		serviceAcceptor 	= null;
 	
-	public void flush() throws IOException {
-		if (flushed) {
+	public void flush(ReadFuture future) throws IOException {
+		if (((IOReadFuture) future).flushed()) {
 			throw new FlushedException("flushed already");
 		}
 
@@ -50,11 +41,9 @@ public class ServerSession extends AbstractSession implements IOSession {
 			throw new IOException("channel closed");
 		}
 
-		this.flushed = true;
-
-		this.scheduled = true;
-		
 		IOWriteFuture writeFuture = encoder.encode(this,future.getServiceName(), textCache.toByteArray(), inputStream, handle);
+		
+		this.textCache.reset();
 		
 		this.inputStream = null;
 		
@@ -62,21 +51,9 @@ public class ServerSession extends AbstractSession implements IOSession {
 		
 		this.endPointWriter.offer(writeFuture);
 	}
-
-	public boolean flushed() {
-		return flushed;
-	}
-
+	
 	public ServerContext getContext() {
 		return context;
-	}
-
-	public void schdule() {
-		this.scheduled = true;
-	}
-
-	public boolean schduled() {
-		return scheduled;
 	}
 
 	public void write(byte b) throws IOException {
@@ -110,10 +87,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 		this.handle = handle;
 	}
 	
-	public void update(ReadFuture future){
-		this.future = future;
-		this.flushed = false;
-		this.scheduled = false;
+	public ServerServiceAcceptor getServiceAcceptor() {
+		return serviceAcceptor;
 	}
-
 }

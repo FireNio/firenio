@@ -10,13 +10,7 @@ import com.gifisan.nio.component.Session;
 
 public interface IOSession extends Session{
 	
-	public abstract void schdule();
-
-	public abstract boolean schduled();
-	
-	public abstract boolean flushed();
-	
-	public abstract void flush() throws IOException ;
+	public abstract void flush(ReadFuture future) throws IOException ;
 
 	public abstract void write(byte b) throws IOException;
 
@@ -30,6 +24,4 @@ public interface IOSession extends Session{
 	
 	public abstract void write(InputStream inputStream,IOExceptionHandle handle) throws IOException;
 
-	public abstract void update(ReadFuture future);
-	
 }

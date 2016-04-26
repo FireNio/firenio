@@ -4,21 +4,23 @@ import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.client.IOWriteFuture;
+import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 	private Thread							owner	= null;
 	private boolean						running	= false;
-	private LinkedListM2O<IOWriteFuture>			writers	= new LinkedListM2O<IOWriteFuture>();
+	private LinkedList<IOWriteFuture>			writers	= new LinkedListM2O<IOWriteFuture>();
 
 	public void offer(IOWriteFuture writer) {
-		this.writers.offer(writer);
+		
+		this.writers.forceOffer(writer);
 	}
 
 	public void run() {
 
-		byte unwriting = -1;
+		byte unwriting = 0;
 
 		for (; running;) {
 
@@ -27,8 +29,6 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 			if (writer == null) {
 				continue;
 			}
-			
-			Session session = writer.getSession();
 			
 			EndPoint endPoint = writer.getEndPoint();
 			
@@ -41,16 +41,15 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 				continue;
 			}
 			
-			byte sessionID = session.getSessionID();
-
-			if (!endPoint.canWrite(sessionID)) {
+			if (!endPoint.enableWriting(writer.getFutureID())) {
+				writers.offer(writer);
 				continue;
 			}
 
 			try {
 
 				if (writer.write()) {
-
+					
 					endPoint.setWriting(unwriting);
 					
 				} else {
@@ -64,15 +63,17 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 						continue;
 					}
 					
-					endPoint.setWriting(sessionID);
+					endPoint.setWriting(writer.getFutureID());
 
-					writers.offer(writer);
+					writers.forceOffer(writer);
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 
 				e.printStackTrace();
+				
+				//FIXME
 
-				writer.catchException(e);
+				writer.catchException(new IOException(e));
 			}
 		}
 	}

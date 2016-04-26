@@ -7,32 +7,28 @@ import java.io.IOException;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.ClientStreamAcceptor;
 import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.service.ServiceAcceptor;
 
 public class TestDownload {
 	
 	public static void main(String[] args) throws IOException {
 
-		String serviceKey = "TestDownloadServlet";
+		String serviceKey = "upload-temp.zip";
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		ClientSession session = connector.getClientSession();
 		
-		session.onStream("upload-temp.zip", new ServiceAcceptor() {
+		session.onStreamRead(serviceKey, new ClientStreamAcceptor() {
 			
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(ClientSession session, ReadFuture future) throws Exception {
 				File file = new File("download.zip");
 				
 				FileOutputStream outputStream = new FileOutputStream(file);
 				
 				future.setIOEvent(outputStream, null);
-				
 			}
 		});
-		
-		serviceKey = "upload-temp.zip";
 		
 		long old = System.currentTimeMillis();
 		

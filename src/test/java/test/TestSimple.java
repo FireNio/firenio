@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.Session;
 
 public class TestSimple {
 	
@@ -16,7 +18,7 @@ public class TestSimple {
 		String serviceKey = "TestSimpleServlet";
 		String param = ClientUtil.getParamString();
 		
-		ClientConnector connector = ClientUtil.getClientConnector();
+		final ClientConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		
@@ -24,9 +26,16 @@ public class TestSimple {
 		
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
+		session.write(serviceKey, param,new OnReadFuture() {
+			
+			public void onResponse(Session sesssion, ReadFuture future) {
+				System.out.println(future.getText());
+				CloseUtil.close(connector);
+			}
+		});
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());
 		
-		CloseUtil.close(connector);
+		
 	}
 }

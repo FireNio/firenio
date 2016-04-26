@@ -15,7 +15,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.NIOEndPoint;
-import com.gifisan.nio.server.selector.SelectorManagerLoop;
+import com.gifisan.nio.component.SelectorManagerLoop;
 
 public class ClientConnection implements Connectable, Closeable {
 

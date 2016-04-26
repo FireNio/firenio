@@ -28,14 +28,15 @@ public class NIOEndPoint implements EndPoint {
 	private Session[]			sessions			= new Session[4];
 	private Socket				socket			= null;
 	private List<IOWriteFuture>	writers			= new ArrayList<IOWriteFuture>();
-	private byte				writingSessionID	= -1;
 	private SessionFactory		sessionFactory		= null;
-	private IOReadFuture readFuture = null;
+	private IOReadFuture 		readFuture 		= null;
+	private long				_futureID			= 0;
 
 	public NIOEndPoint(NIOContext context,SelectionKey selectionKey) throws SocketException {
 		this.context = context;
 		this.selectionKey = selectionKey;
 		this.channel = (SocketChannel) selectionKey.channel();
+//		this.channel = channel;
 		this.sessionFactory = context.getSessionFactory();
 		this.socket = channel.socket();
 		if (socket == null) {
@@ -68,8 +69,8 @@ public class NIOEndPoint implements EndPoint {
 		attempts0 = length == 0;
 	}
 
-	public boolean canWrite(byte sessionID) {
-		return writingSessionID == -1 ? true : writingSessionID != sessionID;
+	public boolean enableWriting(long futureID) {
+		return (_futureID == 0) || (_futureID == futureID);
 	}
 
 	public void close() throws IOException {
@@ -152,7 +153,7 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void interestWrite() {
-		selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_WRITE);
+		selectionKey.interestOps(SelectionKey.OP_WRITE);
 	}
 
 	public boolean isBlocking() {
@@ -193,8 +194,8 @@ public class NIOEndPoint implements EndPoint {
 		}
 	}
 
-	public void setWriting(byte sessionID) {
-		this.writingSessionID = sessionID;
+	public void setWriting(long futureID) {
+		this._futureID = futureID;
 	}
 
 	public int write(ByteBuffer buffer) throws IOException {
@@ -213,4 +214,8 @@ public class NIOEndPoint implements EndPoint {
 		this.readFuture = readFuture;
 	}
 
+	public String toString() {
+		return "remote /"+this.getRemoteHost() + "("+this.getRemoteAddr()+ "):" + this.getRemotePort();
+	}
+	
 }

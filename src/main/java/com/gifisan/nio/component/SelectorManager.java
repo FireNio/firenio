@@ -1,4 +1,4 @@
-package com.gifisan.nio.server.selector;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
@@ -12,8 +12,6 @@ import java.util.Set;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.NIOEndPoint;
 import com.gifisan.nio.server.NIOContext;
 
 public final class SelectorManager implements SelectionAcceptor {
@@ -99,6 +97,7 @@ public final class SelectorManager implements SelectionAcceptor {
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
 		channel.register(selector, SelectionKey.OP_READ);
+		
 	}
 
 }

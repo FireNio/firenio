@@ -8,7 +8,9 @@ public class ClientSessionFactory implements SessionFactory {
 
 	public Session getSession(EndPoint endPoint, byte sessionID) {
 
-		return new DefaultClientSession(endPoint, sessionID);
+//		return new DefaultClientSession(endPoint, sessionID);
+		
+		return new UnpreciseClientSession(endPoint, sessionID);
 	}
 
 }

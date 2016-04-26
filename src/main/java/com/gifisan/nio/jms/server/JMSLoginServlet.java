@@ -21,7 +21,7 @@ public class JMSLoginServlet extends JMSServlet {
 			session.write(ByteUtil.FALSE);
 		}
 		
-		session.flush();
+		session.flush(future);
 
 	}
 	

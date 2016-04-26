@@ -12,4 +12,8 @@ public interface IOReadFuture extends ReadFuture{
 
 	public abstract void catchException(IOException e);
 	
+	public abstract boolean flushed();
+	
+	public abstract void flush();
+	
 }

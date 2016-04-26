@@ -4,6 +4,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.ServerOutputStreamAcceptor;
 import com.gifisan.nio.component.protocol.MultiDecoder;
 import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
@@ -38,6 +39,7 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 				new TextDecoder(encoding), 
 				new MultiDecoder(encoding));
 		this.protocolEncoder = new ServerProtocolEncoder();
+		this.outputStreamAcceptor = new ServerOutputStreamAcceptor();
 		this.filterService = new FilterService(this);
 		this.selectionAcceptor = new NIOSelectionAcceptor(this);
 
@@ -46,9 +48,9 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		logger.info("  [NIOServer] 监听端口：  { {} }", serverPort);
 		logger.info("  [NIOServer] 服务器核数：{ {} }", serverCoreSize);
 
+		this.filterService.start();
 		this.serviceDispatcher.start();
 		this.endPointWriter.start();
-		this.filterService.start();
 
 	}
 

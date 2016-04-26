@@ -1,20 +1,28 @@
 package com.gifisan.nio.concurrent;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.gifisan.nio.AbstractLifeCycle;
 
 public class PoolWorker extends AbstractLifeCycle implements Runnable {
 
 	private boolean					working	= false;
-	private LinkedList<Runnable>	jobs		= null;
+	private BlockingQueue<Runnable>	jobs		= null;
 
-	public PoolWorker(LinkedList<Runnable> jobs) {
+	public PoolWorker(BlockingQueue<Runnable> jobs) {
 		this.jobs = jobs;
 	}
 
 	public void run() {
 		for (; isRunning();) {
 			working = true;
-			Runnable job = jobs.poll(16);
+			Runnable job = null;
+			try {
+				job = jobs.poll(16,TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			if (job != null) {
 				job.run();
 			}

@@ -51,7 +51,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 				if (!file.exists()) {
 					RESMessage message = new RESMessage(404, "file not found:" + filePath);
 					session.write(message.toString());
-					session.flush();
+					session.flush(future);
 					return;
 				}
 
@@ -65,7 +65,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 				session.write(inputStream,null);
 				
-				session.flush();
+				session.flush(future);
 
 			} catch (FileNotFoundException e) {
 				DebugUtil.debug(e);

@@ -1,4 +1,4 @@
-package com.gifisan.nio.server.selector;
+package com.gifisan.nio.component;
 
 import java.nio.channels.Selector;
 

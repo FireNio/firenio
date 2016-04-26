@@ -38,7 +38,7 @@ public class JMSProducerServlet extends JMSServlet {
 
 		}
 
-		session.flush();
+		session.flush(future);
 
 	}
 

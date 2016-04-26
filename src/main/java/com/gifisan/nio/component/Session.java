@@ -4,7 +4,6 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.service.ServiceAcceptor;
 
 public interface Session {
 	
@@ -16,8 +15,6 @@ public interface Session {
 	
 	public static byte SESSION_ID_4 = 3;
 	
-	public abstract ServiceAcceptor getServiceAcceptor();
-
 	public abstract void addEventListener(SessionEventListener listener);
 	
 	public abstract void attach(Attachment attachment);

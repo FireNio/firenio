@@ -14,10 +14,11 @@ public class LinkedListO2O<T> extends AbstractLinkedList<T> implements LinkedLis
 	}
 	
 	public int incrementAndGet_end() {
+		++_end;
 		if (_end == _capability) {
 			_end = 0;
 		}
-		return ++_end;
+		return _end;
 	}
 
 	public final int getAndIncrement_start() {

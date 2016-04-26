@@ -78,7 +78,7 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 
 		ConsumerQueue consumerGroup = getConsumerGroup(queueName);
 
-		Consumer consumer = new Consumer(consumerGroup, attachment, session, queueName);
+		Consumer consumer = new Consumer(consumerGroup, attachment, session,future, queueName);
 
 		consumerGroup.offer(consumer);
 	}

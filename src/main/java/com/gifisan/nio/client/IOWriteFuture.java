@@ -18,4 +18,6 @@ public interface IOWriteFuture extends WriteFuture{
 
 	public abstract void catchException(IOException e);
 	
+	public abstract long getFutureID();
+	
 }

@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.component.NIOSelectionReader;
 import com.gifisan.nio.component.NIOSelectionWriter;
-import com.gifisan.nio.server.selector.SelectionAcceptor;
+import com.gifisan.nio.component.SelectionAcceptor;
 
 public class NIOSelectionAcceptor implements SelectionAcceptor {
 
@@ -21,8 +21,7 @@ public class NIOSelectionAcceptor implements SelectionAcceptor {
 		int opt = selectionKey.readyOps();
 
 		acceptors[opt].accept(selectionKey);
+		
 	}
-
-
 
 }

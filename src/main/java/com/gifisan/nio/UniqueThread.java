@@ -1,15 +1,16 @@
 package com.gifisan.nio;
 
+import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class UniqueThread implements Runnable {
 
-	private LinkedListM2O<Runnable>	jobs		= new LinkedListM2O<Runnable>(999);
+	private LinkedList<Runnable>	jobs		= new LinkedListM2O<Runnable>(999);
 	private boolean				running	= false;
 	private Thread					thread	= null;
 
-	public void execute(Runnable job) {
-		jobs.offer(job);
+	public void execute(Runnable runnable) {
+		jobs.forceOffer(runnable);
 	}
 
 	public void start() {

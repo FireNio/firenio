@@ -9,7 +9,7 @@ public class DeployFilter extends AbstractNIOFilter {
 
 	public void accept(IOSession session,ReadFuture future) throws Exception {
 		session.write(RESMessage.R_FAIL.toString());
-		session.flush();
+		session.flush(future);
 	}
 	
 }

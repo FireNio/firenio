@@ -25,7 +25,7 @@ public class TestUploadServlet extends NIOServlet {
 			
 			session.write("上传成功！");
 			
-			session.flush();
+			session.flush(future);
 		}
 	}
 }

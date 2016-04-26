@@ -21,7 +21,7 @@ public class TestSimpleServlet extends NIOServlet{
 		session.write(simple1.dynamic());
 		session.write(test);
 		session.write("$");
-		session.flush();
+		session.flush(future);
 		
 //		System.out.println("=============================="+size.incrementAndGet());
 	}

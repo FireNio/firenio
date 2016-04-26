@@ -25,7 +25,7 @@ public class JMSTransactionServlet extends JMSServlet{
 					message = JMSRESMessage.R_TRANSACTION_BEGINED;
 				}
 				session.write(message.toString());
-				session.flush();
+				session.flush(future);
 				
 			}else if("commit".equals(action)){
 				RESMessage message = null;
@@ -41,7 +41,7 @@ public class JMSTransactionServlet extends JMSServlet{
 				}
 				
 				session.write(message.toString());
-				session.flush();
+				session.flush(future);
 				
 			}else if("rollback".equals(action)){
 				RESMessage message = null;
@@ -56,7 +56,7 @@ public class JMSTransactionServlet extends JMSServlet{
 					attachment.setTransactionSection(null);
 				}
 				session.write(message.toString());
-				session.flush();
+				session.flush(future);
 			}
 //			else if("complete".equals(action)){
 //				RESMessage message = RESMessage.R_SUCCESS;
@@ -67,12 +67,12 @@ public class JMSTransactionServlet extends JMSServlet{
 //			}
 			else{
 				session.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
-				session.flush();
+				session.flush(future);
 			}
 		}else{
 			RESMessage message = JMSRESMessage.R_UNAUTH;
 			session.write(message.toString());
-			session.flush();
+			session.flush(future);
 		}
 	}
 	

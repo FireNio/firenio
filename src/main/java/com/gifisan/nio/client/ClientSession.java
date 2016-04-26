@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.service.ServiceAcceptor;
+import com.gifisan.nio.component.ClientStreamAcceptor;
 
 public interface ClientSession extends Session {
 
@@ -26,6 +26,6 @@ public interface ClientSession extends Session {
 	
 	public abstract ClientContext getContext();
 	
-	public abstract void onStream(String key,ServiceAcceptor acceptor);
+	public abstract void onStreamRead(String key,ClientStreamAcceptor acceptor);
 
 }

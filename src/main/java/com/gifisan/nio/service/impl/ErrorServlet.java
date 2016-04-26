@@ -17,7 +17,7 @@ public class ErrorServlet extends NIOServlet{
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage res = new RESMessage(500, exception.getMessage());
 		session.write(res.toString(),Encoding.DEFAULT);
-		session.flush();
+		session.flush(future);
 	}
 
 	private Throwable exception = null;

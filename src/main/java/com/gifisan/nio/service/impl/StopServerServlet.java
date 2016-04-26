@@ -34,7 +34,7 @@ public class StopServerServlet extends NIOServlet {
 		}else{
 			session.write(RESMessage.R_UNAUTH.toString());
 		}
-		session.flush();
+		session.flush(future);
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {

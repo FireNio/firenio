@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.server.selector.SelectorManagerLoop;
+import com.gifisan.nio.component.SelectorManagerLoop;
 
 public final class NIOConnector extends AbstractLifeCycle implements Connector {
 

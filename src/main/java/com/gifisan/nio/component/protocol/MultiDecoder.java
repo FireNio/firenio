@@ -5,11 +5,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.component.MultiReadFuture;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.service.ServiceAcceptor;
+import com.gifisan.nio.component.OutputStreamAcceptor;
 
 public class MultiDecoder extends AbstractDecoder {
 
@@ -25,7 +25,7 @@ public class MultiDecoder extends AbstractDecoder {
 		
 		int dataLength = gainStreamLength(header);
 
-		Session session = endPoint.getSession(sessionID);
+		AbstractSession session = (AbstractSession) endPoint.getSession(sessionID);
 		
 		ByteBuffer textBuffer = ByteBuffer.allocate(textLength);
 		
@@ -33,10 +33,10 @@ public class MultiDecoder extends AbstractDecoder {
 		
 		MultiReadFuture future = new MultiReadFuture(textBuffer, session, serviceName,dataLength);
 		
-		ServiceAcceptor acceptor = session.getServiceAcceptor();
+		OutputStreamAcceptor outputStreamAcceptor = session.getOutputStreamAcceptor();
 		
 		try {
-			acceptor.accept(session, future);
+			outputStreamAcceptor.accept(session, future);
 		} catch (Exception e) {
 			DebugUtil.debug(e);
 		}
