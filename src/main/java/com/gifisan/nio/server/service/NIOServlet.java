@@ -1,4 +1,4 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.server.service;
 
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;

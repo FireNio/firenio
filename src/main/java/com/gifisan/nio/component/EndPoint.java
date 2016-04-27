@@ -6,7 +6,6 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 

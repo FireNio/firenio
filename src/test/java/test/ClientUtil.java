@@ -1,15 +1,23 @@
 package test;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.common.SharedBundle;
 
 public class ClientUtil {
 
-	public static ClientConnector getClientConnector(){
+	public static ClientConnector getClientConnector() throws IOException{
+		SharedBundle bundle = SharedBundle.instance();
+		
+		bundle.loadLog4jProperties("conf/log4j.properties");
+		
 		ClientConnector connector = new ClientConnector("localhost", 8300);
+		
+		
 		
 //		DebugUtil.info(connector.toString());
 		

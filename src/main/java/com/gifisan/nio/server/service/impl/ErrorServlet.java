@@ -1,10 +1,10 @@
-package com.gifisan.nio.service.impl;
+package com.gifisan.nio.server.service.impl;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.service.NIOServlet;
 import com.gifisan.nio.server.session.IOSession;
-import com.gifisan.nio.service.NIOServlet;
 
 public class ErrorServlet extends NIOServlet{
 	

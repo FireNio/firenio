@@ -1,9 +1,7 @@
-package com.gifisan.nio.client;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.WriteFuture;
 
 public interface IOWriteFuture extends WriteFuture{

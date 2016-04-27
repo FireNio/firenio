@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 

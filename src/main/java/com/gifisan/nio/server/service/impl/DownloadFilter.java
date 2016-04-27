@@ -1,4 +1,4 @@
-package com.gifisan.nio.service.impl;
+package com.gifisan.nio.server.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,8 +14,8 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.service.AbstractNIOFilter;
 import com.gifisan.nio.server.session.IOSession;
-import com.gifisan.nio.service.AbstractNIOFilter;
 
 public class DownloadFilter extends AbstractNIOFilter {
 

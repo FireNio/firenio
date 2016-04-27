@@ -1,6 +1,6 @@
 package com.gifisan.nio.server;
 
-import com.gifisan.nio.service.FilterService;
+import com.gifisan.nio.server.service.FilterService;
 
 public interface ServerContext extends NIOContext{
 

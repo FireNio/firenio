@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {

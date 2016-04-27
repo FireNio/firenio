@@ -1,4 +1,4 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.server.service;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

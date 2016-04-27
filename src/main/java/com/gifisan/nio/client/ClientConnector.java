@@ -9,6 +9,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
@@ -105,6 +106,14 @@ public class ClientConnector implements Connectable, Closeable {
 	
 	public String toString() {
 		return "Connector@"+this.connection.toString();
+	}
+	
+	public String getServerHost() {
+		return context.getServerHost();
+	}
+
+	public int getServerPort() {
+		return context.getServerPort();
 	}
 
 }

@@ -21,7 +21,7 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
 	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
 	private Attributes		attributes	= new AttributesImpl();
-	private Connector		connector		= null;
+	private NIOConnector	connector		= null;
 	private ServerContext	context		= null;
 	
 	protected void doStart() throws Exception {

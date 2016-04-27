@@ -2,7 +2,9 @@ package com.gifisan.nio.component;
 
 import java.lang.reflect.Method;
 
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.SharedBundle;
 
 
 public class ServerLauncher {
@@ -10,6 +12,16 @@ public class ServerLauncher {
 	public void launch() throws Exception {
 
 		try {
+			
+			SharedBundle bundle = SharedBundle.instance();
+			
+			bundle.loadLog4jProperties("conf/log4j.properties");
+
+			bundle.storageProperties("conf/server.properties");
+
+			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
+			
+			DebugUtil.setEnableDebug(debug);
 
 			Class clazz = Class.forName("com.gifisan.nio.server.NIOServer");
 

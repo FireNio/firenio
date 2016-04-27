@@ -5,8 +5,8 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ServiceAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.server.service.FilterService;
 import com.gifisan.nio.server.session.ServerSession;
-import com.gifisan.nio.service.FilterService;
 
 public class ServerServiceAcceptor implements ServiceAcceptor,Runnable {
 

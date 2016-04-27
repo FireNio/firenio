@@ -1,4 +1,4 @@
-package com.gifisan.nio.client;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 

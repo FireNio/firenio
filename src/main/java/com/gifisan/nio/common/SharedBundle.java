@@ -107,7 +107,7 @@ public class SharedBundle {
 	}
 
 	private void initialize() throws Exception {
-		URL url = SharedBundle.class.getClassLoader().getResource(".");
+		URL url = this.getClass().getClassLoader().getResource(".");
 		if (url == null) {
 			return;
 		}
@@ -130,19 +130,6 @@ public class SharedBundle {
 				}
 			}
 		}
-		
-		boolean debug = getBooleanProperty("SERVER.DEBUG");
-
-		if (!debug) {
-			loadLog4jProperties("conf/log4j.properties");
-
-			storageProperties("conf/server.properties");
-			
-			debug = getBooleanProperty("SERVER.DEBUG");
-		}
-		
-		DebugUtil.setEnableDebug(debug);
-		
 	}
 
 	public void loadLog4jProperties(String file) throws IOException {

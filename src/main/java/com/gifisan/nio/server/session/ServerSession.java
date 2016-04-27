@@ -3,9 +3,9 @@ package com.gifisan.nio.server.session;
 import java.io.IOException;
 
 import com.gifisan.nio.FlushedException;
-import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.ServerContext;

@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.Connectable;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.NIOEndPoint;
 import com.gifisan.nio.component.SelectorManagerLoop;

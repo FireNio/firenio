@@ -3,7 +3,6 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.client.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 

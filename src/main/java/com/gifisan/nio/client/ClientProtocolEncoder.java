@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.AbstractProtocolEncoder;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
