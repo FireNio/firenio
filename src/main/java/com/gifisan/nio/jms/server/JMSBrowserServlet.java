@@ -4,7 +4,7 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
@@ -18,7 +18,7 @@ public class JMSBrowserServlet extends JMSServlet {
 	
 	public static String ONLINE = "2";
 	
-	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();
 
@@ -35,7 +35,7 @@ public class JMSBrowserServlet extends JMSServlet {
 				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
 			} else {
 				if (SIZE.equals(cmd)) {
-					session.write(String.valueOf(context.messageSize()));
+					future.write(String.valueOf(context.messageSize()));
 				} else if (BROWSER.equals(cmd)) {
 
 					if (!StringUtil.isNullOrBlank(messageID)) {
@@ -45,9 +45,9 @@ public class JMSBrowserServlet extends JMSServlet {
 
 							message = NullMessage.NULL_MESSAGE;
 
-							session.write(message.toString());
+							future.write(message.toString());
 						} else {
-							session.write(message.toString(), Encoding.DEFAULT);
+							future.write(message.toString(), Encoding.DEFAULT);
 						}
 					}
 				}else if(ONLINE.equals(cmd)){
@@ -56,12 +56,12 @@ public class JMSBrowserServlet extends JMSServlet {
 					
 					byte result =  ByteUtil.getByte(bool);
 					
-					session.write(result);
+					future.write(result);
 				}
 			}
 		} else {
 			message = ErrorMessage.UNAUTH_MESSAGE;
-			session.write(message.toString());
+			future.write(message.toString());
 		}
 
 		session.flush(future);

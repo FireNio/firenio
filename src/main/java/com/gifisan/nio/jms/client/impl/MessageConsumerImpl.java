@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
@@ -91,6 +91,8 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		if (logined) {
 			return;
 		}
+		
+		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
 
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("username", username);

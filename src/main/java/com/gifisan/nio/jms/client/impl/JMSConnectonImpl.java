@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.client.JMSConnection;
 

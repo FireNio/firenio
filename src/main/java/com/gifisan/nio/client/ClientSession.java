@@ -3,9 +3,8 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.ClientStreamAcceptor;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public interface ClientSession extends Session {
 

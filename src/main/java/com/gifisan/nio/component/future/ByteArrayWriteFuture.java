@@ -1,14 +1,19 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.future;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.ByteArrayInputStream;
+import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.Session;
+
 //ByteArrayInputStreamResponseWriter
 public class ByteArrayWriteFuture extends AbstractWriteFuture {
 
-	public ByteArrayWriteFuture(Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
+	public ByteArrayWriteFuture(EndPoint endPoint,Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
 			ByteArrayInputStream inputStream,IOExceptionHandle handle) {
-		super(handle,serviceName, textBuffer, textCache, session);
+		super(endPoint,handle,serviceName, textBuffer, textCache, session);
 		this.inputStream = inputStream;
 		this.streamBuffer = ByteBuffer.wrap(inputStream.toByteArray());
 	}

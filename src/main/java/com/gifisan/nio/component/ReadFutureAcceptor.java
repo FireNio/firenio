@@ -1,6 +1,6 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.service.ServiceAcceptor;
+import com.gifisan.nio.component.future.IOReadFuture;
 
 
 public interface ReadFutureAcceptor extends ServiceAcceptor{

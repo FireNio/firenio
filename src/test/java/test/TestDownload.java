@@ -6,9 +6,9 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ClientStreamAcceptor;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.ClientStreamAcceptor;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestDownload {
 	
@@ -26,7 +26,7 @@ public class TestDownload {
 				
 				FileOutputStream outputStream = new FileOutputStream(file);
 				
-				future.setIOEvent(outputStream, null);
+				future.setOutputIOEvent(outputStream, null);
 			}
 		});
 		

@@ -1,4 +1,4 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.future;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,9 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.client.IOWriteFuture;
+import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.Session;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
@@ -18,10 +21,10 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	private long				futureID;
 	private static AtomicLong	_autoFutureID	= new AtomicLong(0);
 
-	public AbstractWriteFuture(IOExceptionHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
+	public AbstractWriteFuture(EndPoint endPoint,IOExceptionHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
 			Session session) {
 		this.handle = handle;
-		this.endPoint = ((AbstractSession) session).getEndPoint();
+		this.endPoint = endPoint;
 		this.session = session;
 		this.textBuffer = textBuffer;
 		this.textCache = textCache;

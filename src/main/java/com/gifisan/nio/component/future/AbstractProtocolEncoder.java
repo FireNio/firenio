@@ -1,6 +1,9 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.future;
 
 import java.nio.ByteBuffer;
+
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public abstract class AbstractProtocolEncoder implements ProtocolEncoder{
 
@@ -55,7 +58,7 @@ public abstract class AbstractProtocolEncoder implements ProtocolEncoder{
 		// >> 右移N位
 		// << 左移N位
 		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.MULTI;
+		header[0] = ProtocolDecoder.STREAM;
 		header[1] = sessionID;
 		header[2] = (byte) serviceNameLength;
 		calcStream(header, streamLength);

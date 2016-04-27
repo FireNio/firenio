@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.gifisan.nio.component.IOReadFuture;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListO2O;
 

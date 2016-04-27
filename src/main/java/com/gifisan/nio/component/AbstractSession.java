@@ -3,6 +3,7 @@ package com.gifisan.nio.component;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractSession extends AttributesImpl implements Session {
@@ -50,10 +51,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 
 	public long getCreationTime() {
 		return this.creationTime;
-	}
-
-	protected EndPoint getEndPoint() {
-		return endPoint;
 	}
 
 	public String getLocalAddr() {

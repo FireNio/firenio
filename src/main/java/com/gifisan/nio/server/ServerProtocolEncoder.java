@@ -5,18 +5,19 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.client.IOWriteFuture;
-import com.gifisan.nio.component.AbstractProtocolEncoder;
 import com.gifisan.nio.component.ByteArrayInputStream;
-import com.gifisan.nio.component.ByteArrayWriteFuture;
+import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOExceptionHandle;
-import com.gifisan.nio.component.MultiWriteFuture;
-import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.TextWriteFuture;
+import com.gifisan.nio.component.future.AbstractProtocolEncoder;
+import com.gifisan.nio.component.future.ByteArrayWriteFuture;
+import com.gifisan.nio.component.future.MultiWriteFuture;
+import com.gifisan.nio.component.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public class ServerProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(Session session,String serviceName, byte[] array, InputStream inputStream, IOExceptionHandle handle)
+	public IOWriteFuture encode(EndPoint endPoint,Session session,String serviceName, byte[] array, InputStream inputStream, IOExceptionHandle handle)
 			throws IOException {
 
 		byte [] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
@@ -31,10 +32,10 @@ public class ServerProtocolEncoder extends AbstractProtocolEncoder implements Pr
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(session,serviceName, textBuffer, array, inputStream, handle);
+				return new MultiWriteFuture(endPoint,session,serviceName, textBuffer, array, inputStream, handle);
 			}
 
-			return new ByteArrayWriteFuture(session,serviceName, textBuffer, array, (ByteArrayInputStream) inputStream, handle);
+			return new ByteArrayWriteFuture(endPoint,session,serviceName, textBuffer, array, (ByteArrayInputStream) inputStream, handle);
 
 		}
 
@@ -42,7 +43,7 @@ public class ServerProtocolEncoder extends AbstractProtocolEncoder implements Pr
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(session,serviceName, textBuffer, array, handle);
+		return new TextWriteFuture(endPoint,session,serviceName, textBuffer, array, handle);
 	}
 
 }

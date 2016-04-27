@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class ITestHandle {
 
-	public static void doTest(ITest test,int time,String testName) {
+	public static void doTest(ITest test,long time,String testName) {
 		System.out.println("################## Test start ####################");
 		System.out.println("## Test Name:"+testName);
 		long old = System.currentTimeMillis();
@@ -15,9 +15,10 @@ public class ITestHandle {
 				throw new RuntimeException(e);
 			}
 		}
-		long spend = (System.currentTimeMillis()-old);
+		long now = System.currentTimeMillis();
+		long spend = (now-old);
 		System.out.println("## Execute Time:"+time);
-		System.out.println("## OP/S:"+ new BigDecimal(time*1000).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP));
+		System.out.println("## OP/S:"+ new BigDecimal(time).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP).doubleValue() * 1000);
 		System.out.println("## Expend Time:"+spend);
 	}
 }

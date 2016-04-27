@@ -1,15 +1,20 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.server.session.ServerSession;
-import com.gifisan.nio.service.ServiceAcceptor;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.ServerServiceAcceptor;
 
 public class ServerOutputStreamAcceptor implements OutputStreamAcceptor {
 
+	private ServiceAcceptor	serviceAcceptor	= null;
+
+	public ServerOutputStreamAcceptor(ServerContext context) {
+		this.serviceAcceptor = new ServerServiceAcceptor(context);
+	}
+
 	public void accept(Session session, IOReadFuture future) throws Exception {
 
-		ServiceAcceptor acceptor = ((ServerSession) session).getServiceAcceptor();
-
-		acceptor.accept(session, future);
+		serviceAcceptor.accept(session, future);
 	}
 
 }

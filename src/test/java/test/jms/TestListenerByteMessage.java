@@ -40,6 +40,14 @@ public class TestListenerByteMessage {
 		}
 		
 		message = consumer.revice();
+		
+		System.out.println("Time:" + (System.currentTimeMillis() - old));
+		System.out.println(message);
+		
+		if (message.getMsgType() == Message.TYPE_BYTE) {
+			ByteMessage _Message = (ByteMessage) message;
+			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
+		}
 
 		consumer.logout();
 		

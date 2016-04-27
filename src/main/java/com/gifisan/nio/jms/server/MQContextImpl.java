@@ -8,7 +8,8 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.TextMessage;
@@ -123,12 +124,12 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		return message;
 	}
 
-	public void pollMessage(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session,future, attachment);
 	}
 
-	public void subscribeMessage(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
+	public void subscribeMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session,future, attachment);
 	}

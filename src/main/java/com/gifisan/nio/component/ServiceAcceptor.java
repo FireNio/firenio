@@ -1,7 +1,6 @@
-package com.gifisan.nio.service;
+package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.IOReadFuture;
-import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.future.IOReadFuture;
 
 public interface ServiceAcceptor {
 

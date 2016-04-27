@@ -69,6 +69,7 @@ public class ClientConnection implements Connectable, Closeable {
 	
 	private void finishConnect0(SelectionKey selectionKey) throws IOException{
 		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		// does it need connection pending ?
 		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
 			channel.finishConnect();
 			channel.register(selector, SelectionKey.OP_READ);
@@ -92,6 +93,10 @@ public class ClientConnection implements Connectable, Closeable {
 	
 	protected void wakeup() {
 		this.selector.wakeup();
+	}
+	
+	protected EndPoint getEndPoint(){
+		return endPoint;
 	}
 
 	public String toString() {

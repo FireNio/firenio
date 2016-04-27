@@ -1,17 +1,20 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.protocol;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
-import com.gifisan.nio.component.protocol.Decoder;
+import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.future.IOReadFuture;
 
 public class DefaultProtocolDecoder implements ProtocolDecoder {
 
-	protected Decoder[]	decoders	= new Decoder[4];
+	protected Decoder[]	decoders	= new Decoder[3];
 
-	public DefaultProtocolDecoder(Decoder textDecoder, Decoder multiDecoder) {
-		this.decoders[0] = textDecoder;
-		this.decoders[1] = multiDecoder;
+	public DefaultProtocolDecoder(Charset charset) {
+		this.decoders[TEXT] 	= new TextDecoder(charset);
+		this.decoders[STREAM] 	= new StreamDecoder(charset);
+		this.decoders[MULTI] 	= new MultiDecoder(charset);
 	}
 
 	public IOReadFuture decode(EndPoint endPoint) throws IOException {
@@ -29,7 +32,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 
 		byte type = buffer.get(0);
 
-		if (type < 2) {
+		if (type < 3) {
 
 			if (type < 0) {
 				return null;

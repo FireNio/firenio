@@ -4,10 +4,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.client.IOWriteFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 
 public interface EndPoint extends Closeable {
@@ -17,6 +17,8 @@ public interface EndPoint extends Closeable {
 	public abstract boolean enableWriting(long sessionID);
 
 	public abstract void setWriting(long sessionID);
+	
+	public abstract void setCurrentWriter(IOWriteFuture writer);
 
 	public abstract String getLocalAddr();
 
@@ -48,7 +50,7 @@ public interface EndPoint extends Closeable {
 	
 	public abstract void attackNetwork(int length);
 	
-	public abstract List<IOWriteFuture> getWriter() ;
+	public abstract void flushWriters() throws IOException ;
 
 	public abstract void addWriter(IOWriteFuture writer) ;
 	

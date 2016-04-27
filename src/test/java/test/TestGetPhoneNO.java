@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestGetPhoneNO {
 	

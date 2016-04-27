@@ -83,7 +83,7 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),this.getClientSession());
+		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),connection.getEndPoint(),this.getClientSession());
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}

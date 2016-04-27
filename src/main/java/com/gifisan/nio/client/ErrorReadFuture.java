@@ -2,7 +2,7 @@ package com.gifisan.nio.client;
 
 import java.io.InputStream;
 
-import com.gifisan.nio.component.ReadFutureImpl;
+import com.gifisan.nio.component.future.ReadFutureImpl;
 
 public class ErrorReadFuture extends ReadFutureImpl{
 

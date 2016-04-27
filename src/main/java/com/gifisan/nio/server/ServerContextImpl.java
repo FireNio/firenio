@@ -5,8 +5,6 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.ServerOutputStreamAcceptor;
-import com.gifisan.nio.component.protocol.MultiDecoder;
-import com.gifisan.nio.component.protocol.TextDecoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.server.session.ServerSessionFactory;
@@ -35,13 +33,10 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", this.serverCoreSize);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.sessionFactory = new ServerSessionFactory();
-		this.protocolDecoder = new ServerProtocolDecoder(
-				new TextDecoder(encoding), 
-				new MultiDecoder(encoding));
+		this.protocolDecoder = new ServerProtocolDecoder(encoding);
 		this.protocolEncoder = new ServerProtocolEncoder();
-		this.outputStreamAcceptor = new ServerOutputStreamAcceptor();
 		this.filterService = new FilterService(this);
-		this.selectionAcceptor = new NIOSelectionAcceptor(this);
+		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
 
 		logger.info("  [NIOServer] 工作目录：  { {} }", appLocalAddres);
 		logger.info("  [NIOServer] 项目编码：  { {} }", encoding);

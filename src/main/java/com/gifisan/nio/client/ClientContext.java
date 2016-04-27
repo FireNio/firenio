@@ -1,14 +1,9 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.ClientOutputStreamAcceptor;
-import com.gifisan.nio.component.ClientStreamAcceptor;
-import com.gifisan.nio.component.DefaultProtocolDecoder;
-import com.gifisan.nio.component.protocol.MultiDecoder;
-import com.gifisan.nio.component.protocol.TextDecoder;
+import com.gifisan.nio.component.protocol.DefaultProtocolDecoder;
 import com.gifisan.nio.server.AbstractNIOContext;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.NIOSelectionAcceptor;
 
 public class ClientContext extends AbstractNIOContext implements NIOContext {
 
@@ -54,8 +49,7 @@ public class ClientContext extends AbstractNIOContext implements NIOContext {
 //		this.serviceAcceptor = new ClientServiceAcceptor();
 		this.clientStreamAcceptor = new DefaultClientStreamAcceptor();
 		this.sessionFactory = new ClientSessionFactory();
-		this.protocolDecoder = new DefaultProtocolDecoder(new TextDecoder(encoding), new MultiDecoder(encoding));
-		this.selectionAcceptor = new NIOSelectionAcceptor(this);
+		this.protocolDecoder = new DefaultProtocolDecoder(encoding);
 		this.endPointWriter.start();
 	}
 

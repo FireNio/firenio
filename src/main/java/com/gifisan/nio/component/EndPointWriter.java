@@ -56,7 +56,11 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 					
 					if (writer.isNetworkWeak()) {
 						
-						endPoint.addWriter(writer);
+						endPoint.setWriting(writer.getFutureID());
+						
+						endPoint.setCurrentWriter(writer);
+						
+//						endPoint.addWriter(writer);
 						
 						endPoint.interestWrite();
 						
@@ -64,7 +68,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 					}
 					
 					endPoint.setWriting(writer.getFutureID());
-
+					
 					writers.forceOffer(writer);
 				}
 			} catch (Exception e) {

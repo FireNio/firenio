@@ -108,6 +108,9 @@ public class SharedBundle {
 
 	private void initialize() throws Exception {
 		URL url = SharedBundle.class.getClassLoader().getResource(".");
+		if (url == null) {
+			return;
+		}
 		File root = new File(url.getFile());
 		String path = root.getAbsolutePath();
 		path = URLDecoder.decode(path, "UTF-8");

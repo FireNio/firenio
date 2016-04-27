@@ -1,4 +1,4 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.future;
 
 import java.io.InputStream;
 

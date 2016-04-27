@@ -1,7 +1,6 @@
 package com.gifisan.nio.client;
 
-import com.gifisan.nio.component.ReadFuture;
-import com.gifisan.nio.component.ClientStreamAcceptor;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public interface ProtectedClientSession extends ClientSession{
 	

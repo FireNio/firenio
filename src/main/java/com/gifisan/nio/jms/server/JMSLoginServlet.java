@@ -3,22 +3,22 @@ package com.gifisan.nio.jms.server;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.IOSession;
 
 public class JMSLoginServlet extends JMSServlet {
 
-	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 		
 		if (context.login(session, future, attachment)) {
-			session.write(ByteUtil.TRUE);
+			future.write(ByteUtil.TRUE);
 		}else{
 			session.disconnect();
 			DebugUtil.debug("user [" + future.getParameters().getParameter("username") + "] login failed!");
-			session.write(ByteUtil.FALSE);
+			future.write(ByteUtil.FALSE);
 		}
 		
 		session.flush(future);

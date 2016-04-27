@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;
 
 public class TestUploadServlet extends NIOServlet {
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		
 		OutputStream outputStream = future.getOutputStream();
 		
@@ -20,10 +20,10 @@ public class TestUploadServlet extends NIOServlet {
 			
 			outputStream = new FileOutputStream(new File(fileName));
 
-			future.setIOEvent(outputStream, null);
+			future.setOutputIOEvent(outputStream, null);
 		}else{
 			
-			session.write("上传成功！");
+			future.write("上传成功！");
 			
 			session.flush(future);
 		}

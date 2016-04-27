@@ -1,6 +1,6 @@
 package com.test.servlet;
 
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;
 
@@ -10,7 +10,7 @@ public class TestGetPhoneNOServlet extends NIOServlet {
 	
 	private int index = 0;
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 
 		String phone = NOS[index++];
 		
@@ -18,7 +18,7 @@ public class TestGetPhoneNOServlet extends NIOServlet {
 			index = 0;
 		}
 		
-		session.write(phone);
+		future.write(phone);
 		
 		session.flush(future);
 	}

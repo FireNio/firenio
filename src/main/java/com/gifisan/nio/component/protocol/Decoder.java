@@ -3,7 +3,7 @@ package com.gifisan.nio.component.protocol;
 import java.io.IOException;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOReadFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
 
 public interface Decoder {
 	

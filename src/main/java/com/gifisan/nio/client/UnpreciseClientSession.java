@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public class UnpreciseClientSession extends AbstractClientSession implements ProtectedClientSession {
 
@@ -21,7 +21,7 @@ public class UnpreciseClientSession extends AbstractClientSession implements Pro
 
 		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
+		IOWriteFuture future = encoder.encode(endPoint,this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
 
 		this.endPointWriter.offer(future);
 
@@ -46,7 +46,7 @@ public class UnpreciseClientSession extends AbstractClientSession implements Pro
 
 		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(this,serviceName, array, inputStream, context.getClientIOExceptionHandle());
+		IOWriteFuture future = encoder.encode(endPoint,this,serviceName, array, inputStream, context.getClientIOExceptionHandle());
 
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;

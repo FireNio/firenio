@@ -11,7 +11,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.session.IOSession;
@@ -22,7 +22,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 	private boolean			exclude		= false;
 	private Map<String, String>	excludesMap	= null;
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 
 		String serviceName = future.getServiceName();
 		
@@ -50,7 +50,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 			try {
 				if (!file.exists()) {
 					RESMessage message = new RESMessage(404, "file not found:" + filePath);
-					session.write(message.toString());
+					future.write(message.toString());
 					session.flush(future);
 					return;
 				}
@@ -63,7 +63,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 					downloadLength = available - start;
 				}
 
-				session.write(inputStream,null);
+				future.setInputIOEvent(inputStream, null);
 				
 				session.flush(future);
 

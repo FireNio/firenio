@@ -2,7 +2,7 @@ package com.gifisan.nio.service;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.session.IOSession;
 
@@ -19,7 +19,7 @@ public class NIOFilterWrapperImpl extends AbstractLifeCycle implements NIOFilter
 		this.config = config;
 	}
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		this.filter.accept(session,future);
 	}
 

@@ -2,16 +2,16 @@ package com.gifisan.nio.server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.DefaultProtocolDecoder;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOReadFuture;
-import com.gifisan.nio.component.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.Decoder;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.DefaultProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
 
 public class ServerProtocolDecoder extends DefaultProtocolDecoder implements ProtocolDecoder {
 
@@ -19,8 +19,8 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	= null;
 
-	public ServerProtocolDecoder(Decoder textDecoder,Decoder multiDecoder) {
-		super(textDecoder, multiDecoder);
+	public ServerProtocolDecoder(Charset charset) {
+		super(charset);
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");
@@ -44,7 +44,7 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 	}
 
 	public IOReadFuture doDecodeExtend(EndPoint endPoint, byte type) throws IOException {
-		if (type == 3) {
+		if (type == ProtocolDecoder.BEAT) {
 
 			DebugUtil.debug(">>read beat................." + DateUtil.now());
 
@@ -52,7 +52,7 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 		}
 
 		// HTTP REQUEST ?
-		if (type == 71) {
+		if (type == ProtocolDecoder.HTTP) {
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
 			endPoint.write(buffer);
 //			endPoint.endConnect();

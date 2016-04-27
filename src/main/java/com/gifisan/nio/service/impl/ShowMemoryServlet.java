@@ -2,7 +2,7 @@ package com.gifisan.nio.service.impl;
 
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.session.IOSession;
@@ -13,7 +13,7 @@ public class ShowMemoryServlet extends NIOServlet{
 	private String				username		= null;
 	private String				password		= null;
 	
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		Parameters param = future.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
@@ -32,10 +32,10 @@ public class ShowMemoryServlet extends NIOServlet{
 			builder.append("M;\n总内存：");
 			builder.append(runtime.maxMemory()/M + "M;");
 			
-			session.write("服务器内存使用情况：\n");
-			session.write(builder.toString());
+			future.write("服务器内存使用情况：\n");
+			future.write(builder.toString());
 		}else{
-			session.write(RESMessage.R_UNAUTH.toString());
+			future.write(RESMessage.R_UNAUTH.toString());
 		}
 		session.flush(future);
 		

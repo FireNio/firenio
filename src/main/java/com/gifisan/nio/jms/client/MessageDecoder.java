@@ -2,7 +2,7 @@ package com.gifisan.nio.jms.client;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.JMSException;

@@ -1,15 +1,20 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.component.future;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.Session;
+
 public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public MultiWriteFuture(Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
-			InputStream inputStream,IOExceptionHandle handle) {
-		super(handle,serviceName, textBuffer, textCache, session);
+	public MultiWriteFuture(EndPoint endPoint,Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
+			InputStream inputStream,IOExceptionHandle handle) throws IOException {
+		super(endPoint,handle,serviceName, textBuffer, textCache, session);
 		this.inputStream = inputStream;
+		this.dataLength = inputStream.available();
 		this.streamBuffer = ByteBuffer.allocate(1024 * 1000);
 		this.streamBuffer.position(streamBuffer.limit());
 	}

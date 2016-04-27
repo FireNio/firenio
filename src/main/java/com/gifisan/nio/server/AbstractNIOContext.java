@@ -10,7 +10,6 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
-import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.SessionFactory;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
@@ -20,7 +19,6 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	protected EndPointWriter		endPointWriter			= new EndPointWriter();
 	protected OutputStreamAcceptor	outputStreamAcceptor	= null;
 	protected ReadFutureAcceptor		readFutureAcceptor		= null;
-	protected SelectionAcceptor		selectionAcceptor		= null;
 	protected SessionFactory		sessionFactory			= null;
 
 	public void clearAttributes() {
@@ -49,10 +47,6 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 
 	public ReadFutureAcceptor getReadFutureAcceptor() {
 		return readFutureAcceptor;
-	}
-
-	public SelectionAcceptor getSelectionAcceptor() {
-		return selectionAcceptor;
 	}
 
 	public SessionFactory getSessionFactory() {

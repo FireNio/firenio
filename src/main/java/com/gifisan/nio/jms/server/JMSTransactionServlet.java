@@ -1,12 +1,12 @@
 package com.gifisan.nio.jms.server;
 
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.session.IOSession;
 
 public class JMSTransactionServlet extends JMSServlet{
 
-	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 		
@@ -24,7 +24,7 @@ public class JMSTransactionServlet extends JMSServlet{
 				}else{
 					message = JMSRESMessage.R_TRANSACTION_BEGINED;
 				}
-				session.write(message.toString());
+				future.write(message.toString());
 				session.flush(future);
 				
 			}else if("commit".equals(action)){
@@ -40,7 +40,7 @@ public class JMSTransactionServlet extends JMSServlet{
 					attachment.setTransactionSection(null);
 				}
 				
-				session.write(message.toString());
+				future.write(message.toString());
 				session.flush(future);
 				
 			}else if("rollback".equals(action)){
@@ -55,7 +55,7 @@ public class JMSTransactionServlet extends JMSServlet{
 					}
 					attachment.setTransactionSection(null);
 				}
-				session.write(message.toString());
+				future.write(message.toString());
 				session.flush(future);
 			}
 //			else if("complete".equals(action)){
@@ -66,12 +66,12 @@ public class JMSTransactionServlet extends JMSServlet{
 //				
 //			}
 			else{
-				session.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
+				future.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
 				session.flush(future);
 			}
 		}else{
 			RESMessage message = JMSRESMessage.R_UNAUTH;
-			session.write(message.toString());
+			future.write(message.toString());
 			session.flush(future);
 		}
 	}

@@ -6,11 +6,10 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.OutputStreamAcceptor;
-import com.gifisan.nio.component.ProtocolDecoder;
-import com.gifisan.nio.component.ProtocolEncoder;
 import com.gifisan.nio.component.ReadFutureAcceptor;
-import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.SessionFactory;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public interface NIOContext extends Attributes, LifeCycle {
 
@@ -23,8 +22,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract ProtocolEncoder getProtocolEncoder();
 	
 	public abstract EndPointWriter getEndPointWriter();
-	
-	public abstract SelectionAcceptor getSelectionAcceptor();
 	
 	public abstract ReadFutureAcceptor getReadFutureAcceptor();
 	

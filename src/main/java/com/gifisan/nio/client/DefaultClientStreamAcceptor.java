@@ -2,10 +2,9 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.ClientStreamAcceptor;
-import com.gifisan.nio.component.IOReadFuture;
-import com.gifisan.nio.component.ReadFuture;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public class DefaultClientStreamAcceptor implements ClientStreamAcceptor {
 

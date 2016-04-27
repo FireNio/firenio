@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.ClientStreamAcceptor;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
 

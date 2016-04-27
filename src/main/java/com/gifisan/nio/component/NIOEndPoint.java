@@ -12,13 +12,13 @@ import java.util.List;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.client.IOWriteFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 
 public class NIOEndPoint implements EndPoint {
 
 	private Attachment			attachment		= null;
-	private boolean			attempts0			= false;
-	private boolean			attempts1			= false;
+	private int				attempts			= 0;
 	private SocketChannel		channel			= null;
 	private NIOContext			context			= null;
 	private boolean			endConnect		= false;
@@ -31,6 +31,8 @@ public class NIOEndPoint implements EndPoint {
 	private SessionFactory		sessionFactory		= null;
 	private IOReadFuture 		readFuture 		= null;
 	private long				_futureID			= 0;
+//	private ReentrantLock		lock				= new ReentrantLock();
+	private IOWriteFuture		currentWriter		= null;
 
 	public NIOEndPoint(NIOContext context,SelectionKey selectionKey) throws SocketException {
 		this.context = context;
@@ -45,11 +47,13 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void addWriter(IOWriteFuture writer) {
-		if (isNetworkWeak()) {
-			writers.add(writer);
-		} else {
-			context.getEndPointWriter().offer(writer);
-		}
+		
+//		ReentrantLock lock = this.lock;
+//		
+//		lock.lock();
+		_currentPusher.push(writer);
+		
+//		lock.unlock();
 	}
 
 	public void attach(Attachment attachment) {
@@ -61,12 +65,11 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void attackNetwork(int length) {
-		if (attempts0) {
-			attempts1 = length == 0;
+		if (length == 0) {
+			attempts++;
 			return;
 		}
-
-		attempts0 = length == 0;
+		attempts = 0;
 	}
 
 	public boolean enableWriting(long futureID) {
@@ -145,15 +148,77 @@ public class NIOEndPoint implements EndPoint {
 
 		return session;
 	}
-
-	public List<IOWriteFuture> getWriter() {
-		this.attempts0 = false;
-		this.attempts1 = false;
-		return writers;
+	
+	interface Pusher{
+		
+		void push(IOWriteFuture future);
 	}
+	
+	private Pusher _localPusher = new Pusher() {
+		
+		public void push(IOWriteFuture future) {
+			writers.add(future);
+		}
+	};
+	
+	private Pusher _remotePusher = new Pusher() {
+		
+		public void push(IOWriteFuture future) {
+			context.getEndPointWriter().offer(future);
+		}
+	};
+	
+	private Pusher _currentPusher = _localPusher;
+	
+	public void flushWriters() throws IOException {
+		
+//		ReentrantLock lock = this.lock;
+//		
+//		lock.lock();
+		
+		if (this.currentWriter == null) {
+			
+			flushWriters0();
+			
+		}else if (this.currentWriter.write()) {
+			
+			this.setWriting(0);
+			
+			flushWriters0();
+			
+		}
+		
+//		lock.unlock();
+		
+	}
+	
+	public void flushWriters0() throws IOException {
+			
+		_currentPusher = _remotePusher;
+		
+//			this._networkWeak = false;
+		
+		this.currentWriter = null;
+		
+		List<IOWriteFuture> writers = this.writers;
 
+		EndPointWriter endPointWriter = context.getEndPointWriter();
+
+		for (IOWriteFuture writer : writers) {
+			endPointWriter.offer(writer);
+		}
+
+		writers.clear();
+		
+		selectionKey.interestOps(SelectionKey.OP_READ);
+		
+		attempts = 0;
+		
+		_currentPusher = _localPusher;
+	}
+	
 	public void interestWrite() {
-		selectionKey.interestOps(SelectionKey.OP_WRITE);
+		selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_WRITE);
 	}
 
 	public boolean isBlocking() {
@@ -165,7 +230,7 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public boolean isNetworkWeak() {
-		return attempts1;
+		return attempts > 16;
 	}
 
 	public boolean isOpened() {
@@ -197,6 +262,10 @@ public class NIOEndPoint implements EndPoint {
 	public void setWriting(long futureID) {
 		this._futureID = futureID;
 	}
+	
+	public void setCurrentWriter(IOWriteFuture writer) {
+		this.currentWriter = writer;
+	}
 
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
@@ -215,7 +284,7 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public String toString() {
-		return "remote /"+this.getRemoteHost() + "("+this.getRemoteAddr()+ "):" + this.getRemotePort();
+		return "remote /"+this.getRemoteHost() + "("+this.getRemoteAddr()+ "):" + this.getRemotePort() + " lis-"+selectionKey.interestOps();
 	}
 	
 }

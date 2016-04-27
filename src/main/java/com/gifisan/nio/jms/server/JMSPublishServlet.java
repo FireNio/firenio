@@ -3,13 +3,14 @@ package com.gifisan.nio.jms.server;
 import java.io.OutputStream;
 
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.BufferedOutputStream;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.session.IOSession;
 
 public class JMSPublishServlet extends JMSServlet {
 
-	public void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 
@@ -20,7 +21,7 @@ public class JMSPublishServlet extends JMSServlet {
 				OutputStream outputStream = future.getOutputStream();
 				
 				if (outputStream == null) {
-					future.setIOEvent(outputStream, null);
+					future.setOutputIOEvent(new BufferedOutputStream(future.getStreamLength()), null);
 					return;
 				}
 			}
@@ -29,11 +30,11 @@ public class JMSPublishServlet extends JMSServlet {
 
 			context.publishMessage(message);
 
-			session.write(ByteUtil.TRUE);
+			future.write(ByteUtil.TRUE);
 
 		} else {
 
-			session.write("用户未登录！");
+			future.write("用户未登录！");
 
 		}
 

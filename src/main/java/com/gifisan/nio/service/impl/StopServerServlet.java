@@ -7,7 +7,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.NIOServer;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
@@ -20,7 +20,7 @@ public class StopServerServlet extends NIOServlet {
 	private String				username		= null;
 	private String				password		= null;
 	
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		Parameters param = future.getParameters();
 		String username = param.getParameter("username");
 		String password = param.getParameter("password");
@@ -30,9 +30,9 @@ public class StopServerServlet extends NIOServlet {
 			ServerContext context = (ServerContext) session.getContext();
 			NIOServer server = context.getServer();
 			new Thread(new StopServer(server)).start();
-			session.write("服务端正在处理停止服务命令...");
+			future.write("服务端正在处理停止服务命令...");
 		}else{
-			session.write(RESMessage.R_UNAUTH.toString());
+			future.write(RESMessage.R_UNAUTH.toString());
 		}
 		session.flush(future);
 	}

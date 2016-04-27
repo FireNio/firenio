@@ -1,6 +1,6 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.client;
 
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.component.future.ReadFuture;
 
 public interface ClientStreamAcceptor {
 

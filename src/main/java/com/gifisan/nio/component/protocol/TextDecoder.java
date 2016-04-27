@@ -5,9 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOReadFuture;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.TextReadFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.future.TextReadFuture;
 
 public class TextDecoder extends AbstractDecoder{
 	
@@ -27,7 +27,7 @@ public class TextDecoder extends AbstractDecoder{
 		
 		String serviceName = gainServiceName(endPoint, header);
 		
-		return new TextReadFuture(textBuffer, session, serviceName);
+		return new TextReadFuture(endPoint,textBuffer, session, serviceName);
 		
 	}
 }

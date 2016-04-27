@@ -1,7 +1,7 @@
 package com.gifisan.nio.service.impl;
 
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.component.ReadFuture;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.session.IOSession;
 import com.gifisan.nio.service.NIOServlet;
@@ -12,11 +12,11 @@ public class ErrorServlet extends NIOServlet{
 		this.exception = exception;
 	}
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage res = new RESMessage(500, exception.getMessage());
-		session.write(res.toString(),Encoding.DEFAULT);
+		future.write(res.toString(),Encoding.DEFAULT);
 		session.flush(future);
 	}
 
