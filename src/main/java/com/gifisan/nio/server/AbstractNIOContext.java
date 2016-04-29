@@ -10,6 +10,7 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
+import com.gifisan.nio.component.SelectorManagerLoop;
 import com.gifisan.nio.component.SessionFactory;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
@@ -20,6 +21,7 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	protected OutputStreamAcceptor	outputStreamAcceptor	= null;
 	protected ReadFutureAcceptor		readFutureAcceptor		= null;
 	protected SessionFactory		sessionFactory			= null;
+	protected SelectorManagerLoop	selectorManagerLoop		= null;
 
 	public void clearAttributes() {
 		this.attributes.clear();

@@ -28,7 +28,7 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 
 			IOWriteFuture future = encoder.encode(endPoint,this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
 
-			this.endPointWriter.offer(future);
+			this.endPointWriter.forceOffer(future);
 
 			return this.poll(timeout);
 		}
@@ -73,7 +73,7 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 			
 			this.messageBus.onReadFuture(onReadFuture);
 			
-			this.endPointWriter.offer(future);
+			this.endPointWriter.forceOffer(future);
 
 		}
 

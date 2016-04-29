@@ -13,12 +13,6 @@ import com.gifisan.nio.component.AttributesImpl;
 
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
-	public NIOServer() {
-		this.context = new ServerContextImpl(this);
-		this.connector = new NIOConnector(context);
-		this.addLifeCycleListener(new NIOServerListener());
-	}
-
 	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
 	private Attributes		attributes	= new AttributesImpl();
 	private NIOConnector	connector		= null;
@@ -38,11 +32,14 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 		
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 		
+		this.addLifeCycleListener(new NIOServerListener());
+		
+		this.context = new ServerContextImpl(this);
 		this.context.setServerPort(serverPort);
 		this.context.setEncoding(Charset.forName(encoding));
 		this.context.setServerCoreSize(bundle.getIntegerProperty("SERVER.CORE_SIZE",4));
 		
-		this.connector.setPort(context.getServerPort());
+		this.connector = new NIOConnector(context,serverPort);
 		
 		this.context.start();
 		this.connector.start();

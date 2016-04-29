@@ -51,10 +51,6 @@ public interface EndPoint extends Closeable {
 	
 	public abstract void flushWriters() throws IOException ;
 
-	public abstract void addWriter(IOWriteFuture writer) ;
-	
-	public abstract void interestWrite() ;
-	
 	public abstract NIOContext getContext();
 	
 	public abstract void attach(Attachment attachment);
@@ -66,5 +62,7 @@ public interface EndPoint extends Closeable {
 	public abstract IOReadFuture getReadFuture();
 	
 	public abstract void setReadFuture(IOReadFuture future);
+	
+	public abstract Long getEndPointID();
 
 }

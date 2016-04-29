@@ -8,10 +8,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 
 	protected int			_capability	= 0;
-	protected Object[]		_array		= null;
-	protected AtomicInteger	_size		= new AtomicInteger(0);
-	protected ReentrantLock	_lock		= new ReentrantLock();
-	private AtomicInteger			_real_size	= new AtomicInteger();
+	private Object[]		_array		= null;
+	private AtomicInteger	_size		= new AtomicInteger(0);
+	private ReentrantLock	_lock		= new ReentrantLock();
+	private AtomicInteger	_real_size	= new AtomicInteger();
 	private Condition		_notEmpty		= _lock.newCondition();
 	private boolean		_locked		= false;
 
@@ -25,20 +25,14 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 	}
 
 	public boolean offer(T object) {
-		int __size = _size.get();
-
-		if (__size == _capability) {
+		if (!tryIncrementSize()) {
 			return false;
 		}
 
-		if(!_size.compareAndSet(__size, ++__size)){
-			return false;
-		}
-		
-		int _c = incrementAndGet_end();
+		int _c = getAndincrementEnd();
 
 		_array[_c] = object;
-		
+
 		_real_size.incrementAndGet();
 
 		if (_locked) {
@@ -57,30 +51,55 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		return true;
 	}
 
-	private void incrementSize() {
+	private void forceIncrementSize() {
 
 		for (;;) {
 			int __size = _size.get();
+			
+			int _next = __size + 1;
 
-			if (__size > _capability) {
+			if (_next > _capability) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				continue;
 			}
 
-			if (_size.compareAndSet(__size, ++__size))
+			if (_size.compareAndSet(__size, _next))
 				return;
 		}
 	}
+	
+	private boolean tryIncrementSize() {
+
+		for (;;) {
+			int __size = _size.get();
+			
+			int _next = __size + 1;
+
+			if (_next > _capability) {
+				return false;
+			}
+
+			if (_size.compareAndSet(__size, _next))
+				return true;
+		}
+	}
+	
+	
 
 	public void forceOffer(T object) {
 
-		incrementSize();
+		forceIncrementSize();
 
-		int _c = incrementAndGet_end();
+		int _c = getAndincrementEnd();
 
 		_array[_c] = object;
 
 		_real_size.incrementAndGet();
-		
+
 		if (_locked) {
 
 			final ReentrantLock _lock = this._lock;
@@ -102,7 +121,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 			return null;
 		}
 
-		int index = getAndIncrement_start();
+		int index = getAndincrementStart();
 
 		Object obj = _array[index];
 
@@ -112,7 +131,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		}
 
 		_size.decrementAndGet();
-		
+
 		_real_size.decrementAndGet();
 
 		return (T) obj;
@@ -134,7 +153,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 			} catch (InterruptedException e1) {
 
 				e1.printStackTrace();
-				
+
 				_notEmpty.signal();
 
 			}
@@ -144,7 +163,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 			return poll();
 		}
 
-		int index = getAndIncrement_start();
+		int index = getAndincrementStart();
 
 		Object obj = _array[index];
 
@@ -153,7 +172,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		}
 
 		_size.decrementAndGet();
-		
+
 		_real_size.decrementAndGet();
 
 		return (T) obj;
@@ -162,5 +181,9 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 	public int size() {
 		return _size.get();
 	}
+	
+	protected abstract int getAndincrementStart();
+
+	protected abstract int getAndincrementEnd();
 
 }

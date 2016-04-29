@@ -11,12 +11,12 @@ import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.session.IOSession;
 
-public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable {
+public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
 	private Logger							logger		= LoggerFactory.getLogger(P2PProductLine.class);
 	protected Map<String, ConsumerQueue>		consumerMap	= null;
 	protected MQContext					context		= null;
-	protected MessageQueue					queue		= null;
+	protected MessageStorage				storage		= null;
 	protected long						dueTime		= 0;
 	protected boolean						running		= false;
 
@@ -28,7 +28,7 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 
 		this.running = true;
 
-		this.queue = new MessageQueue();
+		this.storage = new MessageStorage();
 
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
 
@@ -67,7 +67,7 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 
 	public void offerMessage(Message message) {
 		
-		queue.offer(message);
+		storage.offer(message);
 	}
 
 	public void pollMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
@@ -87,7 +87,7 @@ public class P2PProductLine extends AbstractLifeCycle implements Queue, Runnable
 
 		for (; running;) {
 
-			Message message = queue.poll(16);
+			Message message = storage.poll(16);
 
 			if (message == null) {
 				continue;

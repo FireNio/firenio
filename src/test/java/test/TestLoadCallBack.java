@@ -13,14 +13,14 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestLoadCallBack {
 	
+	public static int time = 10000;
+	public static final CountDownLatch latch = new CountDownLatch(time);
 	public static void main(String[] args) throws IOException{
 		
 		
 		ClientConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		final ClientSession session = connector.getClientSession();
-		int time = 10000;
-		final CountDownLatch latch = new CountDownLatch(time);
 		
 		System.out.println("################## Test start ####################");
 		long old = System.currentTimeMillis();
@@ -29,6 +29,10 @@ public class TestLoadCallBack {
 			session.write("TestSimpleServlet", "TestSimpleServlet",new OnReadFuture() {
 				public void onResponse(Session sesssion, ReadFuture future) {
 					latch.countDown();
+					long count = latch.getCount();
+					if (count % 10 == 0) {
+						System.out.println("************************================"+count);
+					}
 				}
 			});
 		}

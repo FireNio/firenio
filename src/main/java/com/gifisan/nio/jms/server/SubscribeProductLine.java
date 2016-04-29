@@ -5,7 +5,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.jms.Message;
 
-public class SubscribeProductLine extends P2PProductLine implements Queue, Runnable {
+public class SubscribeProductLine extends P2PProductLine implements MessageQueue, Runnable {
 
 	public SubscribeProductLine(MQContext context) {
 		super(context);
@@ -17,7 +17,7 @@ public class SubscribeProductLine extends P2PProductLine implements Queue, Runna
 
 		for (; running;) {
 
-			Message message = queue.poll(16);
+			Message message = storage.poll(16);
 
 			if (message == null) {
 				continue;

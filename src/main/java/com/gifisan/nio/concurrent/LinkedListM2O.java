@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedList<T>{
 
-	private AtomicInteger	_end			= new AtomicInteger(-1);
+	private AtomicInteger	_end			= new AtomicInteger(0);
 	private int			_start		= 0;
 
 	public LinkedListM2O(int _capability) {
@@ -15,14 +15,14 @@ public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedLis
 		super();
 	}
 
-	public final int getAndIncrement_start() {
+	public final int getAndincrementStart() {
 		if (_start == _capability) {
 			_start = 0;
 		}
 		return _start++;
 	}
 
-	public final int incrementAndGet_end() {
+	public final int getAndincrementEnd() {
 		for (;;) {
 			int current = _end.get();
 
@@ -33,7 +33,9 @@ public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedLis
 			}
 
 			if (_end.compareAndSet(current, next))
-				return next;
+				return current;
 		}
 	}
+
+	
 }

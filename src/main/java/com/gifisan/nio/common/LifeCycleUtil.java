@@ -7,16 +7,31 @@ import com.gifisan.nio.LifeCycle;
 
 public class LifeCycleUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(LifeCycleUtil.class);
-	
-	public static void stop(LifeCycle lifeCycle){
+	private static Logger	logger	= LoggerFactory.getLogger(LifeCycleUtil.class);
+
+	public static void stop(LifeCycle lifeCycle) {
 		if (lifeCycle == null) {
-			return ;
+			return;
 		}
 		try {
 			lifeCycle.stop();
 		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
+
+	public static void forceStop(LifeCycle lifeCycle) {
+		if (lifeCycle == null) {
+			return;
+		}
+
+		if (lifeCycle.isRunning()) {
+			try {
+				lifeCycle.stop();
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
 }

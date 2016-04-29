@@ -16,6 +16,6 @@ public class TouchDistantJob implements Runnable {
 	}
 
 	public void run() {
-		writer.offer(beat);
+		writer.forceOffer(beat);
 	}
 }

@@ -1,55 +1,56 @@
 package com.gifisan.nio.client;
 
-import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.Connectable;
+import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.SelectorManagerLoop;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.TaskExecutor;
+import com.gifisan.nio.server.Connector;
 
-public class ClientConnector implements Connectable, Closeable {
+public class ClientConnector implements Connector {
 
-	private Logger				logger				= LoggerFactory.getLogger(ClientConnector.class);
-	private ClientConnection		connection			= null;
-	private AtomicBoolean		connected				= new AtomicBoolean(false);
-	private AtomicInteger		sessionIndex			= new AtomicInteger(-1);
-	private AtomicBoolean		keepAlive				= new AtomicBoolean(false);
-	private TaskExecutor		taskExecutor			= null;
-	private ClientContext		context				= null;
+	private Logger				logger			= LoggerFactory.getLogger(ClientConnector.class);
+	private AtomicBoolean		connected			= new AtomicBoolean(false);
+	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
+	private TaskExecutor		taskExecutor		= null;
+	private EndPoint			endPoint			= null;
+	private Selector			selector			= null;
+	private InetSocketAddress	serverAddress		= null;
+	private SelectorManagerLoop	selectorManagerLoop	= null;
+	private ClientContext		context			= null;
 
 	public ClientContext getContext() {
 		return context;
 	}
-	
-	public ClientSession getClientSession() throws IOException {
-		return connection.getClientSession(Session.SESSION_ID_1);
-	}
 
-	public ClientSession getClientSession(byte sessionID) throws IOException {
-		return connection.getClientSession(sessionID);
+	public ClientSession getClientSession() throws IOException {
+		return getClientSession(Session.SESSION_ID_1);
 	}
 
 	public ClientConnector(String host, int port) {
-		this.context = new ClientContext(host,port);
-		this.connection = new ClientConnection(context);
+		this.context = new ClientContext(host, port);
 	}
 
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(context);
 			LifeCycleUtil.stop(taskExecutor);
-			CloseUtil.close(connection);
+			LifeCycleUtil.stop(selectorManagerLoop);
+			CloseUtil.close(endPoint);
 		}
-	}
-
-	public boolean canTransStream() {
-		return sessionIndex.get() == 0;
 	}
 
 	public void connect() throws IOException {
@@ -59,12 +60,8 @@ public class ClientConnector implements Connectable, Closeable {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			this.connection.connect();
+			this.doConnect();
 		}
-	}
-	
-	protected ClientConnection getClientConnection() {
-		return this.connection;
 	}
 
 	/**
@@ -84,7 +81,7 @@ public class ClientConnector implements Connectable, Closeable {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(),connection.getEndPoint(),this.getClientSession());
+		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(), endPoint, this.getClientSession());
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}
@@ -103,17 +100,70 @@ public class ClientConnector implements Connectable, Closeable {
 			}
 		}
 	}
-	
+
 	public String toString() {
-		return "Connector@"+this.connection.toString();
+		return "Connector@" + endPoint.toString();
 	}
-	
+
 	public String getServerHost() {
 		return context.getServerHost();
 	}
 
 	public int getServerPort() {
 		return context.getServerPort();
+	}
+
+	public ClientSession getClientSession(byte sessionID) throws IOException {
+		return (ClientSession) endPoint.getSession(sessionID);
+
+	}
+
+	private void doConnect() throws IOException {
+		this.serverAddress = new InetSocketAddress(context.getServerHost(), context.getServerPort());
+		SocketChannel channel = SocketChannel.open();
+		channel.configureBlocking(false);
+		selector = Selector.open();
+		channel.register(selector, SelectionKey.OP_CONNECT);
+		channel.connect(serverAddress);
+		connect0(selector);
+	}
+
+	private void connect0(Selector selector) throws IOException {
+		Iterator<SelectionKey> iterator = select(0);
+		finishConnect(iterator);
+	}
+
+	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException {
+		for (; iterator.hasNext();) {
+			SelectionKey selectionKey = iterator.next();
+			iterator.remove();
+			finishConnect0(selectionKey);
+		}
+	}
+
+	private void finishConnect0(SelectionKey selectionKey) throws IOException {
+		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		// does it need connection pending ?
+		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
+			channel.finishConnect();
+			channel.register(selector, SelectionKey.OP_READ);
+			SelectorManagerLoop selectorManagerLoop = new SelectorManagerLoop(context, selector);
+			EndPoint endPoint = new ClientEndPoint(context, selectionKey,selectorManagerLoop);
+			selectionKey.attach(endPoint);
+			this.endPoint = endPoint;
+			this.selectorManagerLoop = selectorManagerLoop;
+			try {
+				this.selectorManagerLoop.start();
+			} catch (Exception e) {
+				DebugUtil.debug(e);
+			}
+		}
+	}
+
+	private Iterator<SelectionKey> select(long timeout) throws IOException {
+		selector.select(timeout);
+		Set<SelectionKey> selectionKeys = selector.selectedKeys();
+		return selectionKeys.iterator();
 	}
 
 }

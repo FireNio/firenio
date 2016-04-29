@@ -17,7 +17,9 @@ public class ClientIOExceptionHandle implements IOExceptionHandle{
 		ErrorReadFuture eFuture = new ErrorReadFuture(
 				future.getServiceName(), 
 				future.getText(), 
-				writeFuture.getInputStream(), e);
+				clientSesssion,
+				writeFuture.getInputStream(), 
+				e);
 		clientSesssion.offer(eFuture);
 	}
 	

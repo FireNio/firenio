@@ -6,7 +6,7 @@ import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.session.IOSession;
 
-public interface MQContext extends Queue, LifeCycle {
+public interface MQContext extends MessageQueue, LifeCycle {
 
 	public abstract Message browser(String messageID);
 

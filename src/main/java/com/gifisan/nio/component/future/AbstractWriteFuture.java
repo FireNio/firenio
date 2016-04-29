@@ -3,8 +3,10 @@ package com.gifisan.nio.component.future;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.IOWriteFuture;
@@ -37,11 +39,19 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		endPoint.attackNetwork(length);
 	}
 
+	static AtomicInteger size = new AtomicInteger();
+	
 	public void catchException(IOException e) {
+//		TestConcurrentCallBack.latch.countDown();
+//		DebugUtil.debug("************============================"+e+TestConcurrentCallBack.latch.getCount());
 		if (this.handle == null) {
 			return;
 		}
-		this.handle.handle(session, this, e);
+		try {
+			this.handle.handle(session, this, e);
+		} catch (Exception e1) {
+			DebugUtil.debug(e1);
+		}
 	}
 
 	public EndPoint getEndPoint() {

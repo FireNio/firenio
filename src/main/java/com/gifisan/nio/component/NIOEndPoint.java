@@ -7,53 +7,68 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.NetworkException;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 
 public class NIOEndPoint implements EndPoint {
 
-	private Attachment			attachment		= null;
-	private int				attempts			= 0;
-	private SocketChannel		channel			= null;
-	private NIOContext			context			= null;
-	private boolean			endConnect		= false;
-	private InetSocketAddress	local			= null;
-	private InetSocketAddress	remote			= null;
-	private SelectionKey		selectionKey		= null;
-	private Session[]			sessions			= new Session[4];
-	private Socket				socket			= null;
-	private List<IOWriteFuture>	writers			= new ArrayList<IOWriteFuture>();
-	private SessionFactory		sessionFactory		= null;
-	private IOReadFuture 		readFuture 		= null;
-	private long				_futureID			= 0;
-//	private ReentrantLock		lock				= new ReentrantLock();
-	private IOWriteFuture		currentWriter		= null;
+	private Attachment			attachment	= null;
+	private int				attempts		= 0;
+	private SocketChannel		channel		= null;
+	private NIOContext			context		= null;
+	private boolean			endConnect	= false;
+	private InetSocketAddress	local		= null;
+	private InetSocketAddress	remote		= null;
+	private SelectionKey		selectionKey	= null;
+	private Session[]			sessions		= new Session[4];
+	private Socket				socket		= null;
+//	private List<IOWriteFuture>	writers		= new ArrayList<IOWriteFuture>();
+	private SessionFactory		sessionFactory	= null;
+	private IOReadFuture		readFuture	= null;
+	private long				_futureID		= 0;
+//	 private ReentrantLock 		lock 		= new ReentrantLock();
+	private IOWriteFuture		currentWriter	= null;
+	private AtomicBoolean		_closed		= new AtomicBoolean(false);
+	private Long				endPointID	= null;
+	private boolean 			_networkWeak	= false;
+	private static AtomicLong	autoEndPointID = new AtomicLong(10000);
+	
 
-	public NIOEndPoint(NIOContext context,SelectionKey selectionKey) throws SocketException {
+	public NIOEndPoint(NIOContext context, SelectionKey selectionKey) throws SocketException {
 		this.context = context;
 		this.selectionKey = selectionKey;
 		this.channel = (SocketChannel) selectionKey.channel();
-//		this.channel = channel;
+		// this.channel = channel;
 		this.sessionFactory = context.getSessionFactory();
 		this.socket = channel.socket();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
+		this.endPointID = autoEndPointID.getAndIncrement();
 	}
 
-	public void addWriter(IOWriteFuture writer) {
-		
-//		ReentrantLock lock = this.lock;
+//	public void addWriter(IOWriteFuture writer) throws IOException {
+//
+////		ReentrantLock lock = this.lock;
+//		//
+////		lock.lock();
 //		
-//		lock.lock();
-		_currentPusher.push(writer);
-		
-//		lock.unlock();
-	}
+////		if (isNetworkWeak()) {
+////			this._localPusher.push(writer);
+////		}else{
+////			this._remotePusher.push(writer);
+////		}
+//		
+//		_currentPusher.push(writer);
+//		
+////		lock.unlock();
+//	}
 
 	public void attach(Attachment attachment) {
 		this.attachment = attachment;
@@ -64,8 +79,16 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void attackNetwork(int length) {
+		
 		if (length == 0) {
-			attempts++;
+			if (_networkWeak) {
+				return;
+			}
+			
+			if (++attempts > 255) {
+				this.interestWrite();
+				_networkWeak = true;
+			}
 			return;
 		}
 		attempts = 0;
@@ -76,17 +99,29 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void close() throws IOException {
-		this.selectionKey.attach(null);
+		if (_closed.compareAndSet(false, true)) {
+			
+			this.endConnect = true;
+			
+			this.selectionKey.attach(null);
 
-		for (Session session : sessions) {
-			if (session == null) {
-				continue;
+			DebugUtil.debug(">>>>>> rm "+this.toString());
+
+			for (Session session : sessions) {
+				if (session == null) {
+					continue;
+				}
+				session.destroyImmediately();
 			}
-			session.destroyImmediately();
-		}
 
-		this.channel.close();
+			this.channel.close();
+			
+			this.extendClose();
+			
+		}
 	}
+	
+	protected void extendClose(){}
 
 	public void endConnect() {
 		this.endConnect = true;
@@ -133,11 +168,11 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public Session getSession(byte sessionID) throws IOException {
-	
+
 		if (sessionID > 3 || sessionID < 0) {
-			throw new IOException("invalid session id "+sessionID);
+			throw new IOException("invalid session id " + sessionID);
 		}
-		
+
 		Session session = sessions[sessionID];
 
 		if (session == null) {
@@ -147,76 +182,78 @@ public class NIOEndPoint implements EndPoint {
 
 		return session;
 	}
-	
-	interface Pusher{
-		
-		void push(IOWriteFuture future);
-	}
-	
-	private Pusher _localPusher = new Pusher() {
-		
-		public void push(IOWriteFuture future) {
-			writers.add(future);
-		}
-	};
-	
-	private Pusher _remotePusher = new Pusher() {
-		
-		public void push(IOWriteFuture future) {
-			context.getEndPointWriter().offer(future);
-		}
-	};
-	
-	private Pusher _currentPusher = _localPusher;
-	
+
+//	interface Pusher {
+//
+//		void push(IOWriteFuture future) throws IOException;
+//	}
+//
+//	private Pusher	_localPusher	= new Pusher() {
+//
+//		public void push(IOWriteFuture future) {
+//			writers.add(future);
+//		}
+//	};
+//
+//	private Pusher	_remotePusher	= new Pusher() {
+//
+//		public void push(IOWriteFuture future) throws IOException {
+//			if (!context.getEndPointWriter().offer(future)) {
+//				future.catchException(WriterOverflowException.INSTANCE);
+//			}
+//		}
+//	};
+
+//	private Pusher	_currentPusher	= _localPusher;
+
 	public void flushWriters() throws IOException {
+//		this._currentPusher = _remotePusher;
 		
-//		ReentrantLock lock = this.lock;
-//		
-//		lock.lock();
-		
-		if (this.currentWriter == null) {
-			
-			flushWriters0();
-			
-		}else if (this.currentWriter.write()) {
-			
-			this.setWriting(0);
-			
-			flushWriters0();
-			
-		}
-		
-//		lock.unlock();
-		
-	}
-	
-	public void flushWriters0() throws IOException {
-			
-		_currentPusher = _remotePusher;
-		
-//			this._networkWeak = false;
-		
-		this.currentWriter = null;
-		
-		List<IOWriteFuture> writers = this.writers;
+//		List<IOWriteFuture> writers = this.writers;
 
 		EndPointWriter endPointWriter = context.getEndPointWriter();
 
-		for (IOWriteFuture writer : writers) {
-			endPointWriter.offer(writer);
+		// ReentrantLock lock = this.lock;
+		//
+		// lock.lock();
+
+		if (this.currentWriter == null) {
+			this.flushWriters0(endPointWriter);
+		}else{
+			
+			if(this.currentWriter.write()){
+				this.currentWriter = null;
+				this.setWriting(0);
+				this.flushWriters0(endPointWriter);
+			 }else{
+				 return;
+			 }
 		}
 
-		writers.clear();
-		
-		selectionKey.interestOps(SelectionKey.OP_READ);
-		
-		attempts = 0;
-		
-		_currentPusher = _localPusher;
+//		for (IOWriteFuture writer : writers) {
+//			if (!endPointWriter.offer(writer)) {
+//				writer.catchException(WriterOverflowException.INSTANCE);
+//			}
+//		}
+
+//		writers.clear();
+
+//		_currentPusher = _localPusher;
+
+		// lock.unlock();
+
 	}
 	
-	public void interestWrite() {
+	private void flushWriters0(EndPointWriter endPointWriter){
+		this.attempts = 0;
+		this._networkWeak = false;
+		endPointWriter.collect();
+		selectionKey.interestOps(SelectionKey.OP_READ);
+		
+		
+	}
+
+	private void interestWrite() {
 		selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_WRITE);
 	}
 
@@ -229,7 +266,7 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public boolean isNetworkWeak() {
-		return attempts > 16;
+		return _networkWeak;
 	}
 
 	public boolean isOpened() {
@@ -244,7 +281,7 @@ public class NIOEndPoint implements EndPoint {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
 		this.read(buffer);
 		if (buffer.position() < limit) {
-			throw new IOException("poor network ");
+			throw new NetworkException("poor network ");
 		}
 		return buffer;
 	}
@@ -261,7 +298,7 @@ public class NIOEndPoint implements EndPoint {
 	public void setWriting(long futureID) {
 		this._futureID = futureID;
 	}
-	
+
 	public void setCurrentWriter(IOWriteFuture writer) {
 		this.currentWriter = writer;
 	}
@@ -283,7 +320,19 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public String toString() {
-		return "remote /"+this.getRemoteHost() + "("+this.getRemoteAddr()+ "):" + this.getRemotePort() + " lis-"+selectionKey.interestOps();
+		return new StringBuilder("EDP[id:")
+				.append(endPointID)
+				.append("] remote /")
+				.append(this.getRemoteHost())
+				.append("(")
+				.append(this.getRemoteAddr())
+				.append("):")
+				.append(this.getRemotePort())
+				.toString();
 	}
-	
+
+	public Long getEndPointID() {
+		return endPointID;
+	}
+
 }

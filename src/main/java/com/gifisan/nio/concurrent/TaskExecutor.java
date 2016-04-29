@@ -1,9 +1,10 @@
 package com.gifisan.nio.concurrent;
 
+import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 
-public class TaskExecutor implements Runnable ,LifeCycle {
+public class TaskExecutor extends AbstractLifeCycle implements Runnable ,LifeCycle {
 
 	private long		interval	= 0;
 	private Runnable	job		= null;
@@ -37,12 +38,12 @@ public class TaskExecutor implements Runnable ,LifeCycle {
 		}
 	}
 
-	public void start() throws Exception {
+	public void doStart() throws Exception {
 		this.thread.start();
 
 	}
 
-	public void stop() throws Exception {
+	public void doStop() throws Exception {
 		this.running = false;
 		synchronized (lock) {
 			lock.notify();

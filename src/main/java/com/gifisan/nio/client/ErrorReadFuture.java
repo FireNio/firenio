@@ -1,28 +1,28 @@
 package com.gifisan.nio.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 
-import com.gifisan.nio.component.future.ReadFutureImpl;
+import com.gifisan.nio.component.future.AbstractReadFuture;
+import com.gifisan.nio.component.future.IOReadFuture;
 
-public class ErrorReadFuture extends ReadFutureImpl{
+public class ErrorReadFuture extends AbstractReadFuture implements IOReadFuture{
 
-	public ErrorReadFuture(String serviceName,String text,InputStream inputStream,Exception exception) {
-		super(serviceName);
+	public ErrorReadFuture(String serviceName,String text,ProtectedClientSession session, InputStream inputStream,Exception exception) {
+		super(null, null, session, serviceName);
 		this.text = text;
 		this.inputStream = inputStream;
 		this.exception = exception;
 	}
 	
-	private InputStream inputStream = null;
-	
 	private Exception exception = null;
-
-	public InputStream getInputStream() {
-		return inputStream;
-	}
 
 	public Exception getException() {
 		return exception;
+	}
+
+	public boolean read() throws IOException {
+		return false;
 	}
 
 }

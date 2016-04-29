@@ -6,7 +6,6 @@ import com.gifisan.nio.component.Connectable;
 
 public interface Connector extends Connectable ,Closeable{
 	
-	public abstract void setPort(int port);
+	public abstract int getServerPort();
 	
-	public abstract int getPort();
 }

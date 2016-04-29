@@ -36,17 +36,10 @@ public class ClientContext extends AbstractNIOContext implements NIOContext {
 		return clientStreamAcceptor;
 	}
 
-//	private ServiceAcceptor	serviceAcceptor	= null;
-//
-//	public ServiceAcceptor getServiceAcceptor() {
-//		return serviceAcceptor;
-//	}
-
 	protected void doStart() throws Exception {
 		this.readFutureAcceptor = new ClientReadFutureAcceptor();
 		this.outputStreamAcceptor = new ClientOutputStreamAcceptor();
 		this.clientIOExceptionHandle = new ClientIOExceptionHandle();
-//		this.serviceAcceptor = new ClientServiceAcceptor();
 		this.clientStreamAcceptor = new DefaultClientStreamAcceptor();
 		this.sessionFactory = new ClientSessionFactory();
 		this.protocolDecoder = new DefaultProtocolDecoder(encoding);

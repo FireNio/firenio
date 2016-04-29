@@ -1,20 +1,13 @@
 package com.gifisan.nio.jms.server;
 
-import com.gifisan.nio.concurrent.LinkedList;
-import com.gifisan.nio.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
+import com.gifisan.nio.server.session.IOSession;
 
-public class MessageQueue {
+public interface MessageQueue {
 
-	private LinkedList<Message>	messages	= new LinkedListM2O<Message>();
-
-	public Message poll(long timeout) {
-		return messages.poll(timeout);
-	}
-
-	public void offer(Message message) {
-
-		messages.forceOffer(message);
-	}
-
+	public abstract void pollMessage(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) ;
+	
+	public abstract void offerMessage(Message message);
+	
 }

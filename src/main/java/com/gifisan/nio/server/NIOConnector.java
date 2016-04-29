@@ -15,20 +15,22 @@ import com.gifisan.nio.component.SelectorManagerLoop;
 
 public final class NIOConnector extends AbstractLifeCycle implements Connector {
 
-	private int				port				= 8600;
+	private int				serverPort		= 8600;
 	private ServerSocketChannel	channel			= null;
 	private ServerSocket		serverSocket		= null;
 	private SelectorManagerLoop	selectorManagerLoop	= null;
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	private Selector			selector			= null;
 	private NIOContext			context			= null;
+	
 
-	protected NIOConnector(NIOContext context) {
+	protected NIOConnector(NIOContext context,int serverPort) {
 		this.context = context;
+		this.serverPort = serverPort;
 	}
 
 	private InetSocketAddress getInetSocketAddress() {
-		return new InetSocketAddress(this.port);
+		return new InetSocketAddress(this.serverPort);
 	}
 
 	public void connect() throws IOException {
@@ -58,8 +60,8 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 		}
 	}
 
-	public int getPort() {
-		return this.port;
+	public int getServerPort() {
+		return this.serverPort;
 	}
 
 	protected void doStart() throws Exception {
@@ -77,11 +79,10 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 		LifeCycleUtil.stop(selectorManagerLoop);
 
 		this.close();
-
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	protected SelectorManagerLoop getSelectorManagerLoop() {
+		return selectorManagerLoop;
 	}
 
 }

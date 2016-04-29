@@ -42,7 +42,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 		
 		_Future.flush();
 		
-		this.endPointWriter.offer(writeFuture);
+		this.endPointWriter.forceOffer(writeFuture);
 	}
 	
 	public ServerContext getContext() {

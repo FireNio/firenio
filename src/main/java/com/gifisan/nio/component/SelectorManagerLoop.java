@@ -41,6 +41,8 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 		if (isEndPoint(attachment)) {
 
 			EndPoint endPoint = (EndPoint) attachment;
+			
+			endPoint.endConnect();
 
 			CloseUtil.close(endPoint);
 		}
