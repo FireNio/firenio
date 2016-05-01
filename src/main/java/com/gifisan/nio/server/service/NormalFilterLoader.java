@@ -6,10 +6,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.FileUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
@@ -29,7 +29,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 	private NIOFilterWrapper loadFilters(ServerContext context, DynamicClassLoader classLoader) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
-		String config = FileUtil.readContentByCls("conf/filters.config", Encoding.DEFAULT);
+		String config = PropertiesLoader.loadContent("filters.config", Encoding.UTF8);
 		
 		if (StringUtil.isNullOrBlank(config)) {
 			

@@ -6,15 +6,13 @@ import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public class JMSProducerServlet extends JMSServlet {
 
 	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
-		MQContext context = getMQContext();
-
-		if (context.isLogined(attachment)) {
+		if (attachment.getAuthority() != null && attachment.getAuthority().isAuthored()) {
 			
 			if (future.hasOutputStream()) {
 				
@@ -25,6 +23,8 @@ public class JMSProducerServlet extends JMSServlet {
 					return;
 				}
 			}
+
+			MQContext context = getMQContext();
 			
 			Message message = context.parse(future);
 			

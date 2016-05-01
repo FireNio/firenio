@@ -105,7 +105,7 @@ public class NIOEndPoint implements EndPoint {
 			
 			this.selectionKey.attach(null);
 
-			DebugUtil.debug(">>>>>> rm "+this.toString());
+			DebugUtil.debug(">>>> rm "+this.toString());
 
 			for (Session session : sessions) {
 				if (session == null) {
@@ -211,7 +211,7 @@ public class NIOEndPoint implements EndPoint {
 		
 //		List<IOWriteFuture> writers = this.writers;
 
-		EndPointWriter1 endPointWriter = context.getEndPointWriter();
+		EndPointWriter endPointWriter = context.getEndPointWriter();
 
 		// ReentrantLock lock = this.lock;
 		//
@@ -244,7 +244,7 @@ public class NIOEndPoint implements EndPoint {
 
 	}
 	
-	private void flushWriters0(EndPointWriter1 endPointWriter){
+	private void flushWriters0(EndPointWriter endPointWriter){
 		this.attempts = 0;
 		this._networkWeak = false;
 		endPointWriter.collect();
@@ -320,14 +320,15 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public String toString() {
-		return new StringBuilder("EDP[id:")
+		return new StringBuilder("[edp(id:")
 				.append(endPointID)
-				.append("] remote /")
+				.append(") remote /")
 				.append(this.getRemoteHost())
 				.append("(")
 				.append(this.getRemoteAddr())
 				.append("):")
 				.append(this.getRemotePort())
+				.append("]")
 				.toString();
 	}
 

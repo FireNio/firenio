@@ -33,5 +33,18 @@ public class LifeCycleUtil {
 			}
 		}
 	}
+	
+	public static void start(LifeCycle lifeCycle){
+		
+		if (lifeCycle == null) {
+			return;
+		}
+		try {
+			lifeCycle.start();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+	}
 
 }

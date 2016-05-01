@@ -13,9 +13,9 @@ import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.ServiceAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.impl.ErrorServlet;
-import com.gifisan.nio.server.session.IOSession;
 
 public final class FilterService extends AbstractLifeCycle implements ServiceAcceptor, LifeCycle {
 

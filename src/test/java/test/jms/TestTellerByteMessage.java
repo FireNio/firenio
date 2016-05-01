@@ -29,12 +29,11 @@ public class TestTellerByteMessage {
 		ByteMessage message = new ByteMessage("msgID", "qName", "============","你好！".getBytes(Encoding.DEFAULT));
 
 		long old = System.currentTimeMillis();
-		producer.offer(message);
 		
 		producer.offer(message);
 		
 		producer.offer(message);
-
+		
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 
 		producer.logout();

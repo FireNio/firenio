@@ -20,7 +20,6 @@ public class SharedBundle {
 
 	private String			baseDIR		= null;
 	private AtomicBoolean	initialized	= new AtomicBoolean(false);
-//	private Logger			logger		= null;
 	private Properties		properties	= new Properties();
 
 	private SharedBundle() {
@@ -132,17 +131,24 @@ public class SharedBundle {
 		}
 	}
 
-	public void loadLog4jProperties(String file) throws IOException {
-		String filePath = baseDIR + file;
-		Properties log4j = loadProperties(FileUtil.openInputStream(new File(filePath)));
-		PropertyConfigurator.configure(log4j);
-		LoggerFactory.enableSLF4JLogger(true);
+	public boolean loadLog4jProperties(String file) throws IOException {
+		File _file = loadFile(file);
+		
+		if (_file.exists()) {
+			Properties log4j = loadProperties(FileUtil.openInputStream(_file));
+			PropertyConfigurator.configure(log4j);
+			LoggerFactory.enableSLF4JLogger(true);
+			return true;
+		}
+		return false;
 	}
 
 	public Properties loadProperties(String file) throws IOException {
-		String filePath = baseDIR + file;
-//		logger.info("load properties [ {} ]", filePath);
-		return loadProperties(FileUtil.openInputStream(new File(filePath)));
+		File _file = loadFile(file);
+		if (_file.exists()) {
+			return loadProperties(FileUtil.openInputStream(_file));
+		}
+		return null;
 	}
 
 	public Properties loadProperties(InputStream inputStream) throws IOException {
@@ -154,13 +160,20 @@ public class SharedBundle {
 			CloseUtil.close(inputStream);
 		}
 	}
-
-	public void storageProperties(String file) throws IOException {
-		String filePath = baseDIR + file;
-//		logger.info("加载配置文件 [ {} ]", filePath);
-		storageProperties(FileUtil.openInputStream(new File(filePath)));
+	
+	public File loadFile(String file){
+		return new File(baseDIR + file);
 	}
 
+	public boolean storageProperties(String file) throws IOException {
+		File _file = loadFile(file);
+		if (_file.exists()) {
+			storageProperties(FileUtil.openInputStream(_file));
+			return true;
+		}
+		return false;
+	}
+	
 	public void storageProperties(InputStream inputStream) throws IOException {
 		Properties temp = new Properties();
 		try {

@@ -1,25 +1,14 @@
 package com.gifisan.nio.server.service.impl;
 
-import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
-import com.gifisan.nio.server.session.IOSession;
 
 public class ShowMemoryServlet extends NIOServlet{
 
-	private String				username		= null;
-	private String				password		= null;
-	
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		Parameters param = future.getParameters();
-		String username = param.getParameter("username");
-		String password = param.getParameter("password");
-		
-		boolean result = this.username.equals(username) && this.password.equals(password);
-		if (result) {
+		if (session.getLoginCenter().validate(session, future)) {
 			int M = 1024 * 1024;
 			Runtime runtime = Runtime.getRuntime();
 			StringBuilder builder = new StringBuilder();
@@ -41,10 +30,4 @@ public class ShowMemoryServlet extends NIOServlet{
 		
 	}
 	
-	public void initialize(ServerContext context, Configuration config) throws Exception {
-		this.username = config.getProperty("username");
-		this.password = config.getProperty("password");
-	}
-
-
 }

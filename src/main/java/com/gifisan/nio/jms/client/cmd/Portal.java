@@ -84,7 +84,7 @@ public class Portal {
 	}
 	
 	private CmdResponse exec(CmdRequest request){
-		System.out.println(">>>>>>>>>>>>>>"+request);
+		System.out.println(">>>> "+request);
 		
 		String cmd = request.getCmd();
 		Executable executable = executes.get(cmd);

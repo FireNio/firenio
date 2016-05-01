@@ -9,9 +9,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.FileUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
@@ -131,7 +131,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 	private Map<String, GenericServlet> loadServlets(ServerContext context, DynamicClassLoader classLoader)
 			throws Exception {
 		
-		String config = FileUtil.readContentByCls("conf/servlets.config", Encoding.UTF8);
+		String config = PropertiesLoader.loadContent("servlets.config", Encoding.UTF8);
 		
 		if (!StringUtil.isNullOrBlank(config)) {
 			

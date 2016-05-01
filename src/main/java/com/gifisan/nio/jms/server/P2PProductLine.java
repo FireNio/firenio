@@ -9,7 +9,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public class P2PProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 

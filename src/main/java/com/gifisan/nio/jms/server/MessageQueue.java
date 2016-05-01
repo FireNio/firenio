@@ -2,7 +2,7 @@ package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public interface MessageQueue {
 

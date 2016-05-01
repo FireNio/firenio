@@ -8,7 +8,7 @@ import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public class JMSBrowserServlet extends JMSServlet {
 	
@@ -24,21 +24,25 @@ public class JMSBrowserServlet extends JMSServlet {
 
 		String messageID = param.getParameter("messageID");
 
-		MQContext context = getMQContext();
-
 		Message message = NullMessage.NULL_MESSAGE;
 
-		if (context.isLogined(attachment)) {
+		if (attachment.getAuthority() != null && attachment.getAuthority().isAuthored()) {
 
 			String cmd = param.getParameter("cmd");
 			if (StringUtil.isNullOrBlank(cmd)) {
 				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
 			} else {
+				
+				MQContext context = getMQContext();
+				
 				if (SIZE.equals(cmd)) {
+					
 					future.write(String.valueOf(context.messageSize()));
+					
 				} else if (BROWSER.equals(cmd)) {
 
 					if (!StringUtil.isNullOrBlank(messageID)) {
+						
 						message = context.browser(messageID);
 
 						if (message == null) {
@@ -47,6 +51,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 							future.write(message.toString());
 						} else {
+							
 							future.write(message.toString(), Encoding.DEFAULT);
 						}
 					}

@@ -23,7 +23,7 @@ public class TestListenerPower {
 		consumer.login("admin", "admin100");
 		long old = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
-			Message message = consumer.revice();
+			Message message = consumer.receive();
 			System.out.println(message);
 		}
 

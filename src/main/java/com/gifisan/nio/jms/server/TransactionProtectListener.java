@@ -27,6 +27,6 @@ public class TransactionProtectListener implements SessionEventListener {
 			context.removeReceiver(queueName);
 		}
 		
-		DebugUtil.debug(">> TransactionProtectListener execute");
+		DebugUtil.debug(">>>> TransactionProtectListener execute");
 	}
 }

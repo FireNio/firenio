@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 
 
@@ -13,11 +14,21 @@ public class ServerLauncher {
 
 		try {
 			
+			PropertiesLoader.load();
+			
 			SharedBundle bundle = SharedBundle.instance();
 			
-			bundle.loadLog4jProperties("conf/log4j.properties");
-
-			bundle.storageProperties("conf/server.properties");
+//			if (bundle.storageProperties("../classes/server.properties")) {
+//				
+//				bundle.loadLog4jProperties("../classes/log4j.properties");
+//			}else{
+//				
+//				if(!bundle.storageProperties("conf/server.properties")){
+//					throw new Error("conf/server.properties unexist");
+//				}
+//				
+//				bundle.loadLog4jProperties("conf/log4j.properties");
+//			}
 
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 			

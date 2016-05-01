@@ -11,9 +11,9 @@ import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.FilterAcceptor;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.session.IOSession;
 
 public final class ServletFilter extends AbstractNIOFilter {
 

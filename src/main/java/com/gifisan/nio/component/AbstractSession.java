@@ -3,6 +3,7 @@ package com.gifisan.nio.component;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 
@@ -16,7 +17,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	protected EndPoint					endPoint				= null;
 	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
 	protected ProtocolEncoder			encoder				= null;
-	protected EndPointWriter1			endPointWriter			= null;
+	protected EndPointWriter			endPointWriter			= null;
 
 	public AbstractSession(EndPoint endPoint, byte sessionID) {
 		NIOContext context = endPoint.getContext();
@@ -45,7 +46,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public void disconnect() {
-		// FIXME ......
+		// FIXME 处理disconnect后write失败问题,主动向客户端强制发送close指令，然后close
 		this.endPoint.endConnect();
 	}
 
@@ -112,6 +113,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public String toString() {
-		return "session - "+this.getSessionID() + " edp["+endPoint.toString()+"]";
+		return MessageFormatter.format("session-{},edp-{}", sessionID, endPoint.toString());
 	}
 }

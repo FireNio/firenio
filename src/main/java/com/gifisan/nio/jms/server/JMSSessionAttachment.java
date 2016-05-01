@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.component.ActiveAuthority;
 
 public class JMSSessionAttachment implements Attachment {
 
 	private MQContext			context			= null;
-
 	private TransactionSection	transactionSection	= null;
-
+	private ActiveAuthority		authority			= null;
 	private List<String>		queueNames		= new ArrayList<String>();
-
-	private boolean			logined			= false;
 
 	public JMSSessionAttachment(MQContext context) {
 		this.context = context;
@@ -39,12 +37,12 @@ public class JMSSessionAttachment implements Attachment {
 		return queueNames;
 	}
 
-	public boolean isLogined() {
-		return logined;
+	public ActiveAuthority getAuthority() {
+		return authority;
 	}
 
-	public void setLogined(boolean logined) {
-		this.logined = logined;
+	protected void setAuthority(ActiveAuthority authority) {
+		this.authority = authority;
 	}
 
 }

@@ -1,10 +1,12 @@
 package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public interface MQContext extends MessageQueue, LifeCycle {
 
@@ -14,25 +16,23 @@ public interface MQContext extends MessageQueue, LifeCycle {
 
 	public abstract long getMessageDueTime();
 	
-	public abstract boolean isLogined(JMSSessionAttachment attachment);
-
 	public abstract boolean isOnLine(String queueName);
-
-	public abstract boolean login(IOSession session, ReadFuture future, JMSSessionAttachment attachment);
 
 	public abstract int messageSize();
 
-	public abstract Message parse(ReadFuture future);
+	public abstract Message parse(ReadFuture future) throws JMSException;
 
 	public abstract void publishMessage(Message message);
+	
+	public abstract void addReceiver(String queueName);
 
 	public abstract void removeReceiver(String queueName);
 
 	public abstract void setMessageDueTime(long dueTime);
+	
+	public abstract void reload();
 
-	public abstract void setPassword(String password);
-
-	public abstract void setUsername(String username);
+	public abstract LoginCenter getLoginCenter();
 
 	public abstract void subscribeMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment);
 }

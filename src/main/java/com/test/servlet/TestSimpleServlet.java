@@ -2,8 +2,8 @@ package com.test.servlet;
 
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
-import com.gifisan.nio.server.session.IOSession;
 
 public class TestSimpleServlet extends NIOServlet{
 	

@@ -6,7 +6,7 @@ import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.server.IOSession;
 
 public class Consumer {
 

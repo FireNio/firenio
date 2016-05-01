@@ -17,7 +17,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
-public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPointWriter1 {
+public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
 
 	private Thread						owner			= null;
 	private boolean					running			= false;

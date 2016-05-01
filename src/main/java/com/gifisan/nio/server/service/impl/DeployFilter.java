@@ -1,9 +1,9 @@
 package com.gifisan.nio.server.service.impl;
 
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
-import com.gifisan.nio.server.session.IOSession;
 
 public class DeployFilter extends AbstractNIOFilter {
 

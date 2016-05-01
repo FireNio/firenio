@@ -3,8 +3,8 @@ package com.gifisan.nio.server.service;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.session.IOSession;
 
 public class NIOFilterWrapperImpl extends AbstractLifeCycle implements NIOFilterWrapper {
 

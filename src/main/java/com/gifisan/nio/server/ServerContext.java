@@ -1,5 +1,6 @@
 package com.gifisan.nio.server;
 
+import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.server.service.FilterService;
 
 public interface ServerContext extends NIOContext{
@@ -19,6 +20,8 @@ public interface ServerContext extends NIOContext{
 	public abstract void setServerCoreSize(int serverCoreSize);
 
 	public abstract void setServerPort(int serverPort);
+
+	public abstract LoginCenter getLoginCenter();
 	
 	
 }

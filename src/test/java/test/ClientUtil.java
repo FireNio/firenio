@@ -6,14 +6,13 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientConnector;
-import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.common.PropertiesLoader;
 
 public class ClientUtil {
 
 	public static ClientConnector getClientConnector() throws IOException{
-		SharedBundle bundle = SharedBundle.instance();
 		
-		bundle.loadLog4jProperties("conf/log4j.properties");
+		PropertiesLoader.load("log4j.properties");
 		
 		ClientConnector connector = new ClientConnector("localhost", 8300);
 		

@@ -12,11 +12,11 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
-import com.gifisan.nio.server.session.IOSession;
 
 public class DownloadFilter extends AbstractNIOFilter {
 

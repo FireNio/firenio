@@ -1,4 +1,4 @@
-package com.gifisan.nio.server.session;
+package com.gifisan.nio.server;
 
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.Session;

@@ -45,7 +45,7 @@ public class TestSubscribe {
 
 		consumer.login("admin", "admin100");
 
-		Message message = consumer.subscibe();
+		Message message = consumer.subscribe();
 
 		System.out.println(message);
 

@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.Attributes;
-import com.gifisan.nio.component.EndPointWriter1;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
@@ -21,7 +21,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
 	
-	public abstract EndPointWriter1 getEndPointWriter();
+	public abstract EndPointWriter getEndPointWriter();
 	
 	public abstract ReadFutureAcceptor getReadFutureAcceptor();
 	

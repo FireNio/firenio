@@ -41,7 +41,7 @@ public class TestTransaction {
 
 		consumer.beginTransaction();
 		
-		Message message = consumer.revice();
+		Message message = consumer.receive();
 
 		consumer.commit();
 		
@@ -54,7 +54,7 @@ public class TestTransaction {
 
 		consumer.beginTransaction();
 		
-		Message message = consumer.revice();
+		Message message = consumer.receive();
 
 		consumer.rollback();
 		

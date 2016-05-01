@@ -27,7 +27,7 @@ public class TestListener {
 		
 		long old = System.currentTimeMillis();
 
-		Message message = consumer.revice();
+		Message message = consumer.receive();
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 		System.out.println(message);

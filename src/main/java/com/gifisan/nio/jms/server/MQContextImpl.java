@@ -4,61 +4,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.ServerReadFuture;
-import com.gifisan.nio.jms.ByteMessage;
+import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.jms.TextMessage;
-import com.gifisan.nio.server.session.IOSession;
+import com.gifisan.nio.jms.decode.DefaultMessageDecoder;
+import com.gifisan.nio.jms.decode.MessageDecoder;
+import com.gifisan.nio.server.IOSession;
 
 public class MQContextImpl extends AbstractLifeCycle implements MQContext {
-
-	private interface MessageParseFromRequest {
-
-		Message parse(ReadFuture future);
-	}
 
 	private long					dueTime				= 0;
 	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
 	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
 	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
 	private HashSet<String>			receivers				= new HashSet<String>();
-	private String					username				= null;
-	private String					password				= null;
-
-	private MessageParseFromRequest[]	messageParsesFromRequest	= new MessageParseFromRequest[] {
-													// ERROR
-													// Message
-			null,
-			// NULL Message
-			null,
-			// Text Message
-			new MessageParseFromRequest() {
-				public Message parse(ReadFuture future) {
-					Parameters param = future.getParameters();
-					String messageID = param.getParameter("msgID");
-					String queueName = param.getParameter("queueName");
-					String text = param.getParameter("text");
-					TextMessage message = new TextMessage(messageID, queueName, text);
-
-					return message;
-				}
-			}, new MessageParseFromRequest() {
-				public Message parse(ReadFuture future) {
-					Parameters param = future.getParameters();
-					String messageID = param.getParameter("msgID");
-					String queueName = param.getParameter("queueName");
-					String text = param.getParameter("text");
-
-					BufferedOutputStream outputStream = (BufferedOutputStream) future.getOutputStream();
-					byte[] array = outputStream.toByteArray();
-					return new ByteMessage(messageID, queueName, text, array);
-				}
-			}										};
+	private LoginCenter				loginCenter			= null;
+	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
 
 	MQContextImpl() {
 	}
@@ -69,14 +33,18 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	protected void doStart() throws Exception {
 
+		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
+		
+		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
+		
+		loginCenter = new DefaultJMSLoginCenter();
+		
+		loginCenter.start();
+		
 		p2pProductLine.start();
 
 		subProductLine.start();
-
-		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
-
-		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
-
+		
 		p2pThread.start();
 
 		subThread.start();
@@ -117,11 +85,8 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		}
 	}
 
-	public Message parse(ReadFuture future) {
-		Parameters param = future.getParameters();
-		int msgType = param.getIntegerParameter("msgType");
-		Message message = messageParsesFromRequest[msgType].parse(future);
-		return message;
+	public Message parse(ReadFuture future) throws JMSException {
+		return messageDecoder.decode(future);
 	}
 
 	public void pollMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
@@ -140,54 +105,10 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		this.subProductLine.setDueTime(dueTime);
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public boolean login(IOSession session,ReadFuture future, JMSSessionAttachment attachment) {
-
-		Parameters param = future.getParameters();
-
-		String _username = param.getParameter("username");
-
-		String _password = param.getParameter("password");
-
-		if (username.equals(_username) && password.equals(_password)) {
-
-			if (attachment == null) {
-
-				attachment = new JMSSessionAttachment(this);
-
-				session.attach(attachment);
-			}
-
-			boolean isConsumer = param.getBooleanParameter("consumer");
-
-			if (isConsumer) {
-				session.addEventListener(new TransactionProtectListener());
-
-				String queueName = param.getParameter("queueName");
-
-				attachment.addQueueName(queueName);
-
-				synchronized (receivers) {
-
-					receivers.add(queueName);
-				}
-			}
-
-			attachment.setLogined(true);
-
-			DebugUtil.debug("user [" + username + "] login successful!");
-
-			return true;
+	public void addReceiver(String queueName){
+		synchronized (receivers) {
+			receivers.add(queueName);
 		}
-
-		return false;
 	}
 
 	public boolean isOnLine(String queueName) {
@@ -195,13 +116,19 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public void removeReceiver(String queueName) {
-
 		synchronized (receivers) {
 			receivers.remove(queueName);
 		}
 	}
 
-	public boolean isLogined(JMSSessionAttachment attachment) {
-		return attachment != null && attachment.isLogined();
+	public LoginCenter getLoginCenter() {
+		return loginCenter;
 	}
+
+	public void reload() {
+		LifeCycleUtil.stop(loginCenter);
+		
+		LifeCycleUtil.start(loginCenter);
+	}
+
 }

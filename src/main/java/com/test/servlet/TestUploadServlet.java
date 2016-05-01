@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
-import com.gifisan.nio.server.session.IOSession;
 
 public class TestUploadServlet extends NIOServlet {
 

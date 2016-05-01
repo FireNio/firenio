@@ -29,7 +29,7 @@ public class TestListenerByteMessage {
 		
 		long old = System.currentTimeMillis();
 
-		Message message = consumer.revice();
+		Message message = consumer.receive();
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 		System.out.println(message);
@@ -39,7 +39,7 @@ public class TestListenerByteMessage {
 			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
 		}
 		
-		message = consumer.revice();
+		message = consumer.receive();
 		
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 		System.out.println(message);

@@ -10,14 +10,17 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.client.MessageConsumer;
-import com.gifisan.nio.jms.client.MessageDecoder;
+import com.gifisan.nio.jms.client.OnMessage;
+import com.gifisan.nio.jms.decode.DefaultMessageDecoder;
+import com.gifisan.nio.jms.decode.MessageDecoder;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
-	private String	parameter	= null;
-	private String	queueName	= null;
+	private String			parameter		= null;
+	private String			queueName		= null;
+	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
 
 	private void initParam(String queueName, long timeout) {
 		Map<String, String> param = new HashMap<String, String>();
@@ -66,7 +69,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		return transactionVal("rollback");
 	}
 
-	public Message revice() throws JMSException {
+	public Message receive() throws JMSException {
 		ReadFuture future;
 		try {
 			future = session.request("JMSConsumerServlet", parameter);
@@ -74,24 +77,49 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 			throw new JMSException(e.getMessage(), e);
 		}
 
-		return MessageDecoder.decode(future);
+		return messageDecoder.decode(future);
+	}
+	
+	//TODO complete this 考虑收到失败message的处理 
+	//TODO cancel receive
+	public Message receive(OnMessage onMessage) throws JMSException {
+		ReadFuture future;
+		try {
+			future = session.request("JMSConsumerServlet", parameter);
+		} catch (IOException e) {
+			throw new JMSException(e.getMessage(), e);
+		}
+
+		return messageDecoder.decode(future);
 	}
 
-	public Message subscibe() throws JMSException {
+	public Message subscribe() throws JMSException {
 		ReadFuture future;
 		try {
 			future = session.request("JMSSubscribeServlet", parameter);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		return MessageDecoder.decode(future);
+		return messageDecoder.decode(future);
+	}
+	
+	//TODO complete this 考虑收到失败message的处理
+	//TODO cancel subscribe
+	public Message subscribe(OnMessage onMessage) throws JMSException {
+		ReadFuture future;
+		try {
+			future = session.request("JMSSubscribeServlet", parameter);
+		} catch (IOException e) {
+			throw new JMSException(e.getMessage(), e);
+		}
+		return messageDecoder.decode(future);
 	}
 
 	public void login(String username, String password) throws JMSException {
 		if (logined) {
 			return;
 		}
-		
+
 		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
 
 		Map<String, Object> param = new HashMap<String, Object>();

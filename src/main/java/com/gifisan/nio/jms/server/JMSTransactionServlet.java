@@ -1,16 +1,14 @@
 package com.gifisan.nio.jms.server;
 
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.session.IOSession;
 
 public class JMSTransactionServlet extends JMSServlet{
 
 	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
-		MQContext context = getMQContext();
-		
-		if (context.isLogined(attachment)) {
+		if (attachment.getAuthority() != null && attachment.getAuthority().isAuthored()) {
 			String action = future.getText();
 			
 			TransactionSection section = attachment.getTransactionSection();
@@ -18,7 +16,7 @@ public class JMSTransactionServlet extends JMSServlet{
 			if ("begin".equals(action)) {
 				RESMessage message = null;
 				if (section == null) {
-					section = new TransactionSection(context);
+					section = new TransactionSection(getMQContext());
 					attachment.setTransactionSection(section);
 					message = RESMessage.R_SUCCESS;
 				}else{

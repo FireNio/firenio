@@ -3,8 +3,8 @@ package com.test.servlet;
 import java.io.IOException;
 
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
-import com.gifisan.nio.server.session.IOSession;
 
 public class TestExceptionServlet extends NIOServlet{
 
