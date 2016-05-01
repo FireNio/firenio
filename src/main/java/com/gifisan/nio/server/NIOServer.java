@@ -5,22 +5,24 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.AttributesImpl;
 
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
-	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
+//	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
 	private Attributes		attributes	= new AttributesImpl();
 	private NIOConnector	connector		= null;
 	private ServerContext	context		= null;
 	
+	public NIOServer() {
+		this.addLifeCycleListener(new NIOServerListener());
+	}
+
 	protected void doStart() throws Exception {
 		
-		logger.info("     [NIOServer] ======================================= 服务开始启动 =======================================");
+//		logger.info("          [NIOServer] ======================================= 服务开始启动 =======================================");
 
 		SharedBundle bundle = SharedBundle.instance();
 		
@@ -31,8 +33,6 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 		}
 		
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-		
-		this.addLifeCycleListener(new NIOServerListener());
 		
 		this.context = new ServerContextImpl(this);
 		this.context.setServerPort(serverPort);

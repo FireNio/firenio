@@ -8,7 +8,6 @@ import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.SharedBundle;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
@@ -79,13 +78,13 @@ public class TestConcurrentCallBack {
 
 				for (int i = 0; i < cycle; i++) {
 					session.write("TestSimpleServlet", "TestSimpleServlet", new OnReadFuture() {
-						public void onResponse(Session sesssion, ReadFuture future) {
+						public void onResponse(ClientSession sesssion, ReadFuture future) {
 //							if (future instanceof ErrorReadFuture) {
 //								System.out.println(future);
 //							}
 							latch.countDown();
 //							long count = latch.getCount();
-//							if (count % 10000 == 0) {
+//							if (count % 4000 == 0) {
 //								System.out.println("************************================"+count);
 //							}
 						}

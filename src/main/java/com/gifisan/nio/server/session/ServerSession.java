@@ -2,9 +2,11 @@ package com.gifisan.nio.server.session;
 
 import java.io.IOException;
 
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOExceptionHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -29,7 +31,11 @@ public class ServerSession extends AbstractSession implements IOSession {
 		}
 
 		if (!endPoint.isOpened()) {
-			throw new IOException("channel closed");
+			IOExceptionHandle handle = _Future.getInputIOHandle();
+			if (handle != null) {
+				handle.handle(this, _Future, DisconnectException.INSTANCE);
+			}
+			return ;
 		}
 
 		IOWriteFuture writeFuture = encoder.encode(
@@ -42,7 +48,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 		
 		_Future.flush();
 		
-		this.endPointWriter.forceOffer(writeFuture);
+		this.endPointWriter.offer(writeFuture);
 	}
 	
 	public ServerContext getContext() {

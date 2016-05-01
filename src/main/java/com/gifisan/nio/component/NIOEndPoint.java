@@ -211,7 +211,7 @@ public class NIOEndPoint implements EndPoint {
 		
 //		List<IOWriteFuture> writers = this.writers;
 
-		EndPointWriter endPointWriter = context.getEndPointWriter();
+		EndPointWriter1 endPointWriter = context.getEndPointWriter();
 
 		// ReentrantLock lock = this.lock;
 		//
@@ -244,7 +244,7 @@ public class NIOEndPoint implements EndPoint {
 
 	}
 	
-	private void flushWriters0(EndPointWriter endPointWriter){
+	private void flushWriters0(EndPointWriter1 endPointWriter){
 		this.attempts = 0;
 		this._networkWeak = false;
 		endPointWriter.collect();

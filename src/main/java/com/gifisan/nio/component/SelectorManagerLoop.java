@@ -32,7 +32,7 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 		this._write_acceptor = new NIOSelectionWriter(context);
 	}
 
-	private void acceptException(SelectionKey selectionKey, IOException exception) {
+	protected void acceptException(SelectionKey selectionKey, IOException exception) {
 
 		SelectableChannel channel = selectionKey.channel();
 

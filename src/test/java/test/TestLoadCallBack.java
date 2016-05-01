@@ -8,7 +8,6 @@ import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestLoadCallBack {
@@ -27,7 +26,7 @@ public class TestLoadCallBack {
 		
 		for (int i = 0; i < time; i++) {
 			session.write("TestSimpleServlet", "TestSimpleServlet",new OnReadFuture() {
-				public void onResponse(Session sesssion, ReadFuture future) {
+				public void onResponse(ClientSession sesssion, ReadFuture future) {
 					latch.countDown();
 					long count = latch.getCount();
 					if (count % 10 == 0) {

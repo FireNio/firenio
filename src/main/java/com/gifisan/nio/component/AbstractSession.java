@@ -16,7 +16,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	protected EndPoint					endPoint				= null;
 	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
 	protected ProtocolEncoder			encoder				= null;
-	protected EndPointWriter			endPointWriter			= null;
+	protected EndPointWriter1			endPointWriter			= null;
 
 	public AbstractSession(EndPoint endPoint, byte sessionID) {
 		NIOContext context = endPoint.getContext();
@@ -101,6 +101,10 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 			listenerWrapper.onDestroy(this);
 			listenerWrapper = listenerWrapper.nextListener();
 		}
+	}
+	
+	protected EndPoint getEndPoint(){
+		return endPoint;
 	}
 
 	public OutputStreamAcceptor getOutputStreamAcceptor() {

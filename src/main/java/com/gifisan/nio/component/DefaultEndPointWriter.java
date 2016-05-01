@@ -10,33 +10,31 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.concurrent.LinkedList;
-import com.gifisan.nio.concurrent.LinkedListABQ;
+import com.gifisan.nio.concurrent.LinkedListM2O;
 
-public class EndPointWriter extends AbstractLifeCycle implements Runnable {
+public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPointWriter1 {
 
 	private Thread						owner			= null;
 	private boolean					running			= false;
-	private LinkedList<IOWriteFuture>		writers			= new LinkedListABQ<IOWriteFuture>(1024 * 80);
-	private IOException					ioClosedException	= new IOException("disconnected");
 	private boolean					collect			= false;
+	private LinkedList<IOWriteFuture>		writers			= new LinkedListM2O<IOWriteFuture>(1024 * 8 * 16);
 	private Map<Long, List<IOWriteFuture>>	lazyEndPoints		= new HashMap<Long, List<IOWriteFuture>>();
 
 	public void collect() {
 		this.collect = true;
 	}
 
-	public void forceOffer(IOWriteFuture writer) {
+	public void offer(IOWriteFuture future) {
 
-		this.writers.forceOffer(writer);
-	}
+		if (!this.writers.offer(future)) {
 
-	public boolean offer(IOWriteFuture writer) {
-
-		return this.writers.offer(writer);
+			future.catchException(WriterOverflowException.INSTANCE);
+		}
 	}
 
 	private void collectEndPoints() {
@@ -66,7 +64,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 			for (IOWriteFuture _Future : list) {
 
-				offer0(_Future);
+				offer(_Future);
 			}
 
 			iterator.remove();
@@ -74,14 +72,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 		}
 	}
 
-	private void offer0(IOWriteFuture future) {
-		if (!this.writers.offer(future)) {
-
-			future.catchException(WriterOverflowException.INSTANCE);
-		}
-	}
-
-	private void trashWriter(IOWriteFuture future) {
+	private void lazyWriter(IOWriteFuture future) {
 		Long endPointID = future.getEndPoint().getEndPointID();
 		List<IOWriteFuture> list = lazyEndPoints.get(endPointID);
 
@@ -114,7 +105,7 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 			EndPoint endPoint = writer.getEndPoint();
 
 			if (endPoint.isEndConnect()) {
-				writer.catchException(ioClosedException);
+				writer.catchException(DisconnectException.INSTANCE);
 				continue;
 			}
 
@@ -122,13 +113,13 @@ public class EndPointWriter extends AbstractLifeCycle implements Runnable {
 
 				if (endPoint.isNetworkWeak()) {
 
-					this.trashWriter(writer);
+					this.lazyWriter(writer);
 
 					continue;
 				}
 
 				if (!endPoint.enableWriting(writer.getFutureID())) {
-					offer0(writer);
+					offer(writer);
 					continue;
 				}
 

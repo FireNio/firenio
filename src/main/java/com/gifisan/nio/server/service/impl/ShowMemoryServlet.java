@@ -3,8 +3,8 @@ package com.gifisan.nio.server.service.impl;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
-import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 import com.gifisan.nio.server.session.IOSession;
 
@@ -41,7 +41,7 @@ public class ShowMemoryServlet extends NIOServlet{
 		
 	}
 	
-	public void initialize(NIOContext context, Configuration config) throws Exception {
+	public void initialize(ServerContext context, Configuration config) throws Exception {
 		this.username = config.getProperty("username");
 		this.password = config.getProperty("password");
 	}

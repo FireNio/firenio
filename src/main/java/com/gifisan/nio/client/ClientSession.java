@@ -16,6 +16,8 @@ public interface ClientSession extends Session {
 
 	public abstract void write(String serviceName, String content, InputStream inputStream, OnReadFuture onReadFuture)
 			throws IOException;
+	
+	public abstract void listen(String serviceName, String content, OnReadFuture onReadFuture) throws IOException;
 
 	public abstract ReadFuture poll(long timeout);
 

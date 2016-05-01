@@ -22,23 +22,15 @@ import com.gifisan.nio.server.Connector;
 
 public class ClientConnector implements Connector {
 
-	private Logger				logger			= LoggerFactory.getLogger(ClientConnector.class);
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
-	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
-	private TaskExecutor		taskExecutor		= null;
-	private EndPoint			endPoint			= null;
-	private Selector			selector			= null;
-	private InetSocketAddress	serverAddress		= null;
-	private SelectorManagerLoop	selectorManagerLoop	= null;
 	private ClientContext		context			= null;
-
-	public ClientContext getContext() {
-		return context;
-	}
-
-	public ClientSession getClientSession() throws IOException {
-		return getClientSession(Session.SESSION_ID_1);
-	}
+	private EndPoint			endPoint			= null;
+	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
+	private Logger				logger			= LoggerFactory.getLogger(ClientConnector.class);
+	private Selector			selector			= null;
+	private SelectorManagerLoop	selectorManagerLoop	= null;
+	private InetSocketAddress	serverAddress		= null;
+	private TaskExecutor		taskExecutor		= null;
 
 	public ClientConnector(String host, int port) {
 		this.context = new ClientContext(host, port);
@@ -60,8 +52,73 @@ public class ClientConnector implements Connector {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			this.doConnect();
+			
+			this.connect0();
+			
+			try {
+				this.selectorManagerLoop.start();
+			} catch (Exception e) {
+				DebugUtil.debug(e);
+			}
 		}
+	}
+
+	private void finishConnect(Selector selector) throws IOException {
+		Iterator<SelectionKey> iterator = select(0);
+		finishConnect(iterator);
+	}
+
+	private void connect0() throws IOException {
+		this.serverAddress = new InetSocketAddress(context.getServerHost(), context.getServerPort());
+		SocketChannel channel = SocketChannel.open();
+		channel.configureBlocking(false);
+		selector = Selector.open();
+		channel.register(selector, SelectionKey.OP_CONNECT);
+		channel.connect(serverAddress);
+		finishConnect(selector);
+	}
+
+	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException {
+		for (; iterator.hasNext();) {
+			SelectionKey selectionKey = iterator.next();
+			iterator.remove();
+			finishConnect0(selectionKey);
+		}
+	}
+
+	private void finishConnect0(SelectionKey selectionKey) throws IOException {
+		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		// does it need connection pending ?
+		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
+			channel.finishConnect();
+			channel.register(selector, SelectionKey.OP_READ);
+			SelectorManagerLoop selectorManagerLoop = new ClientSelectorManagerLoop(context, selector);
+			EndPoint endPoint = new ClientEndPoint(context, selectionKey,selectorManagerLoop);
+			selectionKey.attach(endPoint);
+			this.endPoint = endPoint;
+			this.selectorManagerLoop = selectorManagerLoop;
+		}
+	}
+
+	public ClientSession getClientSession() throws IOException {
+		return getClientSession(Session.SESSION_ID_1);
+	}
+
+	public ClientSession getClientSession(byte sessionID) throws IOException {
+		return (ClientSession) endPoint.getSession(sessionID);
+
+	}
+
+	public ClientContext getContext() {
+		return context;
+	}
+
+	public String getServerHost() {
+		return context.getServerHost();
+	}
+
+	public int getServerPort() {
+		return context.getServerPort();
 	}
 
 	/**
@@ -80,12 +137,6 @@ public class ClientConnector implements Connector {
 		this.keepAlive(5 * 60 * 1000);
 	}
 
-	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(), endPoint, this.getClientSession());
-		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
-		this.taskExecutor.start();
-	}
-
 	/**
 	 * 这个方法不一定按照你指定的时间间隔做心跳动作，但是它一定会努力去做的
 	 * 
@@ -101,69 +152,20 @@ public class ClientConnector implements Connector {
 		}
 	}
 
-	public String toString() {
-		return "Connector@" + endPoint.toString();
-	}
-
-	public String getServerHost() {
-		return context.getServerHost();
-	}
-
-	public int getServerPort() {
-		return context.getServerPort();
-	}
-
-	public ClientSession getClientSession(byte sessionID) throws IOException {
-		return (ClientSession) endPoint.getSession(sessionID);
-
-	}
-
-	private void doConnect() throws IOException {
-		this.serverAddress = new InetSocketAddress(context.getServerHost(), context.getServerPort());
-		SocketChannel channel = SocketChannel.open();
-		channel.configureBlocking(false);
-		selector = Selector.open();
-		channel.register(selector, SelectionKey.OP_CONNECT);
-		channel.connect(serverAddress);
-		connect0(selector);
-	}
-
-	private void connect0(Selector selector) throws IOException {
-		Iterator<SelectionKey> iterator = select(0);
-		finishConnect(iterator);
-	}
-
-	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException {
-		for (; iterator.hasNext();) {
-			SelectionKey selectionKey = iterator.next();
-			iterator.remove();
-			finishConnect0(selectionKey);
-		}
-	}
-
-	private void finishConnect0(SelectionKey selectionKey) throws IOException {
-		SocketChannel channel = (SocketChannel) selectionKey.channel();
-		// does it need connection pending ?
-		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
-			channel.finishConnect();
-			channel.register(selector, SelectionKey.OP_READ);
-			SelectorManagerLoop selectorManagerLoop = new SelectorManagerLoop(context, selector);
-			EndPoint endPoint = new ClientEndPoint(context, selectionKey,selectorManagerLoop);
-			selectionKey.attach(endPoint);
-			this.endPoint = endPoint;
-			this.selectorManagerLoop = selectorManagerLoop;
-			try {
-				this.selectorManagerLoop.start();
-			} catch (Exception e) {
-				DebugUtil.debug(e);
-			}
-		}
-	}
-
 	private Iterator<SelectionKey> select(long timeout) throws IOException {
 		selector.select(timeout);
 		Set<SelectionKey> selectionKeys = selector.selectedKeys();
 		return selectionKeys.iterator();
+	}
+
+	private void startTouchDistantJob(long checkInterval) throws Exception {
+		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(), endPoint, this.getClientSession());
+		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
+		this.taskExecutor.start();
+	}
+
+	public String toString() {
+		return "Connector@" + endPoint.toString();
 	}
 
 }

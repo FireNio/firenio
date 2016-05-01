@@ -1,5 +1,7 @@
 package com.gifisan.nio.client;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,6 +17,7 @@ public class MessageBus {
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				notNull		= lock.newCondition();
 	private LinkedList<OnReadFuture>	onReadFutures	= new LinkedListO2O<OnReadFuture>(1024 * 10);
+	private Map<String,OnReadFuture>	listeners		= new HashMap<String, OnReadFuture>();
 
 	public ReadFuture poll(long timeout) {
 		if (timeout == 0) {
@@ -75,8 +78,15 @@ public class MessageBus {
 
 	
 	public void offer(ReadFuture future) {
-
-		OnReadFuture onReadFuture = this.onReadFutures.poll();
+		
+		OnReadFuture onReadFuture = listeners.get(future.getServiceName());
+		
+		if (onReadFuture != null) {
+			onReadFuture.onResponse((ProtectedClientSession) ((IOReadFuture) future).getSession(), future);
+			return;
+		}
+		
+		onReadFuture = this.onReadFutures.poll();
 
 		if (onReadFuture != null) {
 			ProtectedClientSession session = (ProtectedClientSession) ((IOReadFuture) future).getSession();
@@ -98,6 +108,10 @@ public class MessageBus {
 		notNull.signal();
 
 		lock.unlock();
+	}
+	
+	public void listen(String serviceName,OnReadFuture onReadFuture){
+		this.listeners.put(serviceName, onReadFuture);
 	}
 
 	public void onReadFuture(OnReadFuture onReadFuture) {

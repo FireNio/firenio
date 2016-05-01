@@ -17,12 +17,12 @@ public class TextWriteFuture extends AbstractWriteFuture implements WriteFuture 
 	public boolean write() throws IOException {
 
 		ByteBuffer buffer = this.textBuffer;
-		if (buffer.hasRemaining()) {
+//		if (buffer.hasRemaining()) {
 			attackNetwork(endPoint.write(buffer));
 
 			return !buffer.hasRemaining();
-		}
-		return true;
+//		}
+//		return true;
 
 	}
 }

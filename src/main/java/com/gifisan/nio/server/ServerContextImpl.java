@@ -38,6 +38,7 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		this.filterService = new FilterService(this);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
 
+		logger.info("  [NIOServer] ======================================= 服务开始启动 =======================================");
 		logger.info("  [NIOServer] 工作目录：  { {} }", appLocalAddres);
 		logger.info("  [NIOServer] 项目编码：  { {} }", encoding);
 		logger.info("  [NIOServer] 监听端口：  { {} }", serverPort);

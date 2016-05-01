@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
@@ -52,5 +54,25 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	public ClientStreamAcceptor getStreamAcceptor(String serviceName) {
 		return streamAcceptors.get(serviceName);
 	}
+
+	public void listen(String serviceName, String content, OnReadFuture onReadFuture) throws IOException {
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
+
+		IOWriteFuture future = encoder.encode(endPoint,this,serviceName, array, null, context.getClientIOExceptionHandle());
+
+		if (onReadFuture == null) {
+			throw new IOException("none OnReadFuture");
+		}
+		
+		this.messageBus.listen(serviceName, onReadFuture);
+		
+		this.endPointWriter.offer(future);
+	}
+	
+	
 
 }

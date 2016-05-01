@@ -14,6 +14,7 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
 import com.gifisan.nio.server.session.IOSession;
 
@@ -80,7 +81,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 	}
 
-	public void initialize(NIOContext context, Configuration config) throws Exception {
+	public void initialize(ServerContext context, Configuration config) throws Exception {
 		String excludesContent = (String) config.getAttribute("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
