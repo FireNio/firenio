@@ -1,16 +1,21 @@
 package com.gifisan.nio.concurrent;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 
-public class TaskExecutor extends AbstractLifeCycle implements Runnable ,LifeCycle {
+public class TaskExecutor extends AbstractLifeCycle implements Runnable, LifeCycle {
 
-	private long		interval	= 0;
-	private Runnable	job		= null;
-	private byte[]	lock		= { 0 };
-	private boolean	running	= true;
-	private Thread		thread	= null;
+	private long			interval	= 0;
+	private Thread			thread	= null;
+	private Runnable		job		= null;
+	private boolean		running	= true;
+	private ReentrantLock	lock		= new ReentrantLock();
+	private Condition		wait		= lock.newCondition();
 
 	public TaskExecutor(Runnable job, String name, long interval) {
 		this.job = job;
@@ -20,16 +25,21 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable ,LifeCyc
 
 	public void run() {
 		long interval = this.interval;
-		byte[] lock = this.lock;
 		Runnable job = this.job;
 		for (;;) {
+			
+			ReentrantLock lock = this.lock;
+			
+			lock.lock();
+			
 			try {
-				synchronized (lock) {
-					lock.wait(interval);
-				}
+				wait.await(interval, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				DebugUtil.debug(e);
 			}
+			
+			lock.unlock();
+			
 			if (running) {
 				job.run();
 			} else {
@@ -45,8 +55,13 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable ,LifeCyc
 
 	public void doStop() throws Exception {
 		this.running = false;
-		synchronized (lock) {
-			lock.notify();
-		}
+		
+		ReentrantLock lock = this.lock;
+		
+		lock.lock();
+		
+		wait.signal();
+		
+		lock.unlock();
 	}
 }

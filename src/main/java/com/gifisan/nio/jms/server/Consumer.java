@@ -1,7 +1,6 @@
 package com.gifisan.nio.jms.server;
 
-import java.io.IOException;
-
+import com.gifisan.nio.common.ReadFutureFactory;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
@@ -12,13 +11,13 @@ public class Consumer {
 
 	private String				queueName		= null;
 	private JMSSessionAttachment	attachment	= null;
-	private ConsumerQueue		consumerGroup	= null;
+	private ConsumerQueue		consumerQueue	= null;
 	private IOSession			session		= null;
 	private ServerReadFuture		future		= null;
 
-	public Consumer(ConsumerQueue consumerGroup, JMSSessionAttachment attachment, IOSession session,
+	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, IOSession session,
 			ServerReadFuture future, String queueName) {
-		this.consumerGroup = consumerGroup;
+		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
 		this.session = session;
@@ -29,11 +28,12 @@ public class Consumer {
 		return queueName;
 	}
 
-	public ConsumerQueue getConsumerGroup() {
-		return consumerGroup;
+	public ConsumerQueue getconsumerQueue() {
+		return consumerQueue;
 	}
 
-	public void push(Message message) throws IOException {
+	//FIXME push 失败时对message进行回收
+	public void push(Message message) {
 
 		TransactionSection section = attachment.getTransactionSection();
 
@@ -63,5 +63,9 @@ public class Consumer {
 			session.flush(future);
 
 		}
+	}
+	
+	public Consumer clone(){
+		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(future), queueName);
 	}
 }

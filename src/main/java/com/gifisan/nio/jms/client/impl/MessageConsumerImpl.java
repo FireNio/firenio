@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ListenOnReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
@@ -18,9 +19,11 @@ import com.gifisan.nio.server.RESMessageDecoder;
 
 public class MessageConsumerImpl extends JMSConnectonImpl implements MessageConsumer {
 
-	private String			parameter		= null;
-	private String			queueName		= null;
-	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
+	private String			parameter				= null;
+	private String			queueName				= null;
+	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
+	private boolean		sendReceiveCommand		= true;
+	private boolean		sendSubscribeCommand	= true;
 
 	private void initParam(String queueName, long timeout) {
 		Map<String, String> param = new HashMap<String, String>();
@@ -70,49 +73,81 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	}
 
 	public Message receive() throws JMSException {
-		ReadFuture future;
-		try {
-			future = session.request("JMSConsumerServlet", parameter);
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
-		}
+
+		sendReceiveCommand();
+
+		ReadFuture future = session.poll(0);
 
 		return messageDecoder.decode(future);
 	}
-	
-	//TODO complete this 考虑收到失败message的处理 
-	//TODO cancel receive
-	public Message receive(OnMessage onMessage) throws JMSException {
-		ReadFuture future;
-		try {
-			future = session.request("JMSConsumerServlet", parameter);
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
-		}
 
-		return messageDecoder.decode(future);
+	// TODO complete this 考虑收到失败message的处理
+	// TODO cancel receive
+	public void receive(OnMessage onMessage) throws JMSException {
+		
+		sendReceiveCommandCallback(onMessage);
 	}
 
 	public Message subscribe() throws JMSException {
-		ReadFuture future;
-		try {
-			future = session.request("JMSSubscribeServlet", parameter);
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
-		}
+		
+		sendSubscribeCommand();
+		
+		ReadFuture future = session.poll(0);
+		
 		return messageDecoder.decode(future);
 	}
+
+	// TODO complete this 考虑收到失败message的处理
+	// TODO cancel subscribe
+	public void subscribe(OnMessage onMessage) throws JMSException {
+		
+		sendSubscribeCommandCallback(onMessage);
+	}
 	
-	//TODO complete this 考虑收到失败message的处理
-	//TODO cancel subscribe
-	public Message subscribe(OnMessage onMessage) throws JMSException {
-		ReadFuture future;
-		try {
-			future = session.request("JMSSubscribeServlet", parameter);
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
+	private void sendReceiveCommand() throws JMSException {
+		if (sendReceiveCommand) {
+			sendReceiveCommand = false;
+			try {
+				session.listen("JMSConsumerServlet", parameter,new ListenOnReadFuture(session));
+			} catch (IOException e) {
+				throw new JMSException(e);
+			}
 		}
-		return messageDecoder.decode(future);
+	}
+
+	private void sendReceiveCommandCallback(OnMessage onMessage) throws JMSException {
+		if (sendReceiveCommand) {
+			try {
+				session.listen("JMSConsumerServlet", parameter, new ConsumerOnReadFuture(onMessage));
+				sendReceiveCommand = false;
+			} catch (IOException e) {
+				throw new JMSException(e);
+			}
+		}
+	}
+	
+	private void sendSubscribeCommand() throws JMSException {
+		if (sendSubscribeCommand) {
+			try {
+				session.listen("JMSConsumerServlet", parameter, new ListenOnReadFuture(session));
+				sendSubscribeCommand = false;
+			} catch (IOException e) {
+				throw new JMSException(e);
+			}
+
+		}
+	}
+
+	private void sendSubscribeCommandCallback(OnMessage onMessage) throws JMSException {
+		if (sendSubscribeCommand) {
+			try {
+				session.listen("JMSConsumerServlet", parameter, new ConsumerOnReadFuture(onMessage));
+				sendSubscribeCommand = false;
+			} catch (IOException e) {
+				throw new JMSException(e);
+			}
+
+		}
 	}
 
 	public void login(String username, String password) throws JMSException {

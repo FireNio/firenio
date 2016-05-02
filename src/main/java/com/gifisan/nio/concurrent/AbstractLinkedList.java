@@ -125,11 +125,6 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 
 		Object obj = _array[index];
 
-		for (; obj == null;) {
-
-			obj = _array[index];
-		}
-
 		_size.decrementAndGet();
 
 		_real_size.decrementAndGet();
@@ -166,10 +161,6 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		int index = getAndincrementStart();
 
 		Object obj = _array[index];
-
-		for (; obj == null;) {
-			obj = _array[index];
-		}
 
 		_size.decrementAndGet();
 

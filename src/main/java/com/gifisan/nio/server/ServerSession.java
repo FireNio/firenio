@@ -3,7 +3,6 @@ package com.gifisan.nio.server;
 import java.io.IOException;
 
 import com.gifisan.nio.DisconnectException;
-import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
 import com.gifisan.nio.component.EndPoint;
@@ -26,11 +25,11 @@ public class ServerSession extends AbstractSession implements IOSession {
 		this.loginCenter = context.getLoginCenter();
 	}
 
-	public void flush(ReadFuture future) throws IOException {
+	public void flush(ReadFuture future){
 		IOReadFuture _Future = (IOReadFuture) future;
 
 		if (_Future.flushed()) {
-			throw new FlushedException("flushed already");
+			throw new IllegalStateException("flushed already");
 		}
 
 		if (!endPoint.isOpened()) {
@@ -41,17 +40,25 @@ public class ServerSession extends AbstractSession implements IOSession {
 			return;
 		}
 
-		IOWriteFuture writeFuture = encoder.encode(
-				endPoint, 
-				this, 
-				_Future.getServiceName(), 
-				_Future.getTextCache().toByteArray(), 
-				_Future.getInputStream(), 
-				_Future.getInputIOHandle());
+		IOWriteFuture writeFuture;
+		try {
+			writeFuture = encoder.encode(
+					endPoint, 
+					this, 
+					_Future.getServiceName(), 
+					_Future.getTextCache().toByteArray(), 
+					_Future.getInputStream(), 
+					_Future.getInputIOHandle());
+			
+			_Future.flush();
 
-		_Future.flush();
-
-		this.endPointWriter.offer(writeFuture);
+			this.endPointWriter.offer(writeFuture);
+		} catch (IOException e) {
+			IOExceptionHandle handle = _Future.getInputIOHandle();
+			if (handle != null) {
+				handle.handle(this, _Future, DisconnectException.INSTANCE);
+			}
+		}
 	}
 
 	public ActiveAuthority getAuthority() {

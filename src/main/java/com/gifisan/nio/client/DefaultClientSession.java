@@ -48,8 +48,6 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 			return null;
 		}
 		
-		this.messageBus.reset();
-		
 		this.offer();
 		
 		return future;

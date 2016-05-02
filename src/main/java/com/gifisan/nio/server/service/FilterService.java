@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.LifeCycle;
-import com.gifisan.nio.NetworkException;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -42,10 +41,6 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 			accept(rootFilter, _IoSession,future);
 			
 		} catch (FlushedException e) {
-			
-			logger.error(e.getMessage(), e);
-			
-		}catch(NetworkException e){
 			
 			logger.error(e.getMessage(), e);
 			

@@ -2,9 +2,6 @@ package com.gifisan.nio.client;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -13,79 +10,39 @@ import com.gifisan.nio.concurrent.LinkedListO2O;
 
 public class MessageBus {
 
-	private ReadFuture				future		= null;
-	private ReentrantLock			lock			= new ReentrantLock();
-	private Condition				notNull		= lock.newCondition();
+	private LinkedList<ReadFuture>	futures		= new LinkedListO2O<ReadFuture>();
 	private LinkedList<OnReadFuture>	onReadFutures	= new LinkedListO2O<OnReadFuture>(1024 * 10);
-	private Map<String,OnReadFuture>	listeners		= new HashMap<String, OnReadFuture>();
+	private Map<String, OnReadFuture>	listeners		= new HashMap<String, OnReadFuture>();
 
 	public ReadFuture poll(long timeout) {
 		if (timeout == 0) {
 
 			for (;;) {
 
-				ReentrantLock lock = this.lock;
+				ReadFuture future = futures.poll(16);
 
-				lock.lock();
-
-				try {
-					if (future == null) {
-						notNull.await(16, TimeUnit.MILLISECONDS);
-					}
-
-					if (future == null) {
-						continue;
-					}
-
-					ReadFuture _Future = this.future;
-
-					this.future = null;
-
-					return _Future;
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					notNull.signal();
-				} finally {
-					lock.unlock();
+				if (future == null) {
+					continue;
 				}
 
-				continue;
+				return future;
 			}
 		}
 
-		ReentrantLock lock = this.lock;
+		ReadFuture future = futures.poll(timeout);
 
-		lock.lock();
-
-		try {
-			if (future == null) {
-				notNull.await(timeout, TimeUnit.MILLISECONDS);
-			}
-
-			ReadFuture _Future = this.future;
-
-			this.future = null;
-
-			return _Future;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			notNull.signal();
-			return null;
-		} finally {
-			lock.unlock();
-		}
+		return future;
 	}
 
-	
-	public void offer(ReadFuture future) {
-		
+	public void filterOffer(ReadFuture future) {
+
 		OnReadFuture onReadFuture = listeners.get(future.getServiceName());
-		
+
 		if (onReadFuture != null) {
 			onReadFuture.onResponse((ProtectedClientSession) ((IOReadFuture) future).getSession(), future);
 			return;
 		}
-		
+
 		onReadFuture = this.onReadFutures.poll();
 
 		if (onReadFuture != null) {
@@ -98,28 +55,25 @@ public class MessageBus {
 			session.offer();
 			return;
 		}
-		
-		ReentrantLock lock = this.lock;
 
-		lock.lock();
-
-		this.future = future;
-
-		notNull.signal();
-
-		lock.unlock();
+		this.futures.offer(future);
 	}
 	
-	public void listen(String serviceName,OnReadFuture onReadFuture){
+	public void offer(ReadFuture future){
+		
+		this.futures.offer(future);
+	}
+
+	public void listen(String serviceName, OnReadFuture onReadFuture) {
 		this.listeners.put(serviceName, onReadFuture);
+	}
+
+	public void cancelListen(String serviceName) {
+		this.listeners.remove(serviceName);
 	}
 
 	public void onReadFuture(OnReadFuture onReadFuture) {
 		this.onReadFutures.forceOffer(onReadFuture);
-	}
-
-	public void reset() {
-		this.future = null;
 	}
 
 }

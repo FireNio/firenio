@@ -1,4 +1,4 @@
-package com.gifisan.nio;
+package com.gifisan.nio.common;
 
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;

@@ -2,7 +2,7 @@ package com.gifisan.nio.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.DebugUtil;
@@ -35,9 +35,10 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 
 	}
 
-	private ArrayBlockingQueue<Runnable>	jobs			= null;
+	private LinkedList<Runnable>			jobs			= null;
 	private int						size			= 4;
 	private String						threadPrefix	= null;
+	private ReentrantLock				lock			= new ReentrantLock();
 	private List<LifedPoolWorker>			workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
 
 	/**
@@ -52,7 +53,7 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	public QueueThreadPool(String threadPrefix, int size) {
 		this.size = size;
 		this.threadPrefix = threadPrefix;
-		this.jobs = new ArrayBlockingQueue<Runnable>(1024 * 8);
+		this.jobs = new LinkedListABQ<Runnable>(1024 * 8);
 	}
 
 	public void dispatch(Runnable runnable) {
@@ -61,14 +62,19 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 			return;
 		}
 
-		for(;!jobs.offer(runnable);){
-			
+		for (; !jobs.offer(runnable);) {
+
 		}
-		
+
 	}
 
 	protected void doStart() throws Exception {
-		synchronized (workers) {
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
 			for (int i = 0; i < size; i++) {
 				LifedPoolWorker lifedPoolWorker = produceWorker(i);
 				workers.add(lifedPoolWorker);
@@ -81,22 +87,29 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 					workers.remove(worker);
 				}
 			}
+		} finally {
+
+			lock.unlock();
 		}
+
 	}
 
 	protected void doStop() throws Exception {
 		while (jobs.size() > 0) {
 			Thread.sleep(64);
 		}
-		synchronized (workers) {
-			for (LifedPoolWorker worker : workers) {
-				try {
-					worker.stopWork();
-				} catch (Exception e) {
-					DebugUtil.debug(e);
-				}
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		for (LifedPoolWorker worker : workers) {
+			try {
+				worker.stopWork();
+			} catch (Exception e) {
+				DebugUtil.debug(e);
 			}
 		}
+		lock.unlock();
 	}
 
 	private LifedPoolWorker produceWorker(int index) {

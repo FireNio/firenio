@@ -2,6 +2,7 @@ package com.gifisan.nio.jms.server;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -16,13 +17,15 @@ import com.gifisan.nio.server.IOSession;
 
 public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
-	private long					dueTime				= 0;
-	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
-	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
-	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
-	private HashSet<String>			receivers				= new HashSet<String>();
-	private LoginCenter				loginCenter			= null;
-	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
+	private long					dueTime		= 0;
+	private HashMap<String, Message>	messageIDs	= new HashMap<String, Message>();
+	private P2PProductLine			p2pProductLine	= new P2PProductLine(this);
+	private SubscribeProductLine		subProductLine	= new SubscribeProductLine(this);
+	private HashSet<String>			receivers		= new HashSet<String>();
+	private LoginCenter				loginCenter	= null;
+	private MessageDecoder			messageDecoder	= new DefaultMessageDecoder();
+	private ReentrantLock			messageIDsLock	= new ReentrantLock();
+	private ReentrantLock			reveiversLock	= new ReentrantLock();
 
 	MQContextImpl() {
 	}
@@ -34,17 +37,17 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	protected void doStart() throws Exception {
 
 		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
-		
+
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
-		
+
 		loginCenter = new DefaultJMSLoginCenter();
-		
+
 		loginCenter.start();
-		
+
 		p2pProductLine.start();
 
 		subProductLine.start();
-		
+
 		p2pThread.start();
 
 		subThread.start();
@@ -67,9 +70,13 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	public void offerMessage(Message message) {
 
-		synchronized (messageIDs) {
-			messageIDs.put(message.getMsgID(), message);
-		}
+		ReentrantLock lock = this.messageIDsLock;
+
+		lock.lock();
+
+		messageIDs.put(message.getMsgID(), message);
+
+		lock.unlock();
 
 		p2pProductLine.offerMessage(message);
 	}
@@ -80,23 +87,27 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public void consumerMessage(Message message) {
-		synchronized (messageIDs) {
-			messageIDs.remove(message.getMsgID());
-		}
+		ReentrantLock lock = this.messageIDsLock;
+
+		lock.lock();
+
+		messageIDs.remove(message.getMsgID());
+
+		lock.unlock();
 	}
 
 	public Message parse(ReadFuture future) throws JMSException {
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
 
-		p2pProductLine.pollMessage(session,future, attachment);
+		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
+	public void subscribeMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
 
-		subProductLine.pollMessage(session,future, attachment);
+		subProductLine.pollMessage(session, future, attachment);
 	}
 
 	public void setMessageDueTime(long dueTime) {
@@ -105,10 +116,12 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		this.subProductLine.setDueTime(dueTime);
 	}
 
-	public void addReceiver(String queueName){
-		synchronized (receivers) {
-			receivers.add(queueName);
-		}
+	public void addReceiver(String queueName) {
+		ReentrantLock lock = this.reveiversLock;
+
+		lock.lock();
+		receivers.add(queueName);
+		lock.unlock();
 	}
 
 	public boolean isOnLine(String queueName) {
@@ -116,9 +129,13 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public void removeReceiver(String queueName) {
-		synchronized (receivers) {
-			receivers.remove(queueName);
-		}
+		ReentrantLock lock = this.reveiversLock;
+
+		lock.lock();
+
+		receivers.remove(queueName);
+
+		lock.unlock();
 	}
 
 	public LoginCenter getLoginCenter() {
@@ -127,7 +144,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 	public void reload() {
 		LifeCycleUtil.stop(loginCenter);
-		
+
 		LifeCycleUtil.start(loginCenter);
 	}
 

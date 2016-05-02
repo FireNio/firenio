@@ -1,18 +1,19 @@
 package com.gifisan.nio.jms.server;
 
-
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.jms.Message;
 
-public class SubscribeProductLine extends P2PProductLine implements MessageQueue, Runnable {
+public class SubscribeProductLine extends AbstractProductLine implements MessageQueue, Runnable {
 
 	public SubscribeProductLine(MQContext context) {
 		super(context);
 	}
 
-	private Logger			logger	= LoggerFactory.getLogger(P2PProductLine.class);
+	protected ConsumerQueue createConsumerQueue() {
 
+		return new SUBConsumerQueue();
+	}
+
+	//FIXME 完善消息匹配机制
 	public void run() {
 
 		for (; running;) {
@@ -25,23 +26,27 @@ public class SubscribeProductLine extends P2PProductLine implements MessageQueue
 
 			String queueName = message.getQueueName();
 
-			ConsumerQueue consumerGroup = getConsumerGroup(queueName);
+			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-			
-			Consumer consumer = consumerGroup.poll(16);
+			Consumer[] consumers = consumerQueue.snapshot();
 
-			for(;consumer!=null;){
-				
+			if (consumers[0] == null) {
 				filterUseless(message);
-				
-				try {
-
-					consumer.push(message);
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-				consumer = consumerGroup.poll(16);
+				continue;
 			}
+
+			for (int i = 0; i < consumers.length; i++) {
+
+				Consumer consumer = consumers[i];
+
+				if (consumer == null) {
+					break;
+				}
+
+				consumer.push(message);
+			}
+			
+			context.consumerMessage(message);
 		}
 	}
 }

@@ -28,7 +28,7 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	}
 
 	public void offer(ReadFuture future) {
-		this.messageBus.offer(future);
+		this.messageBus.filterOffer(future);
 	}
 
 	public ClientContext getContext() {
@@ -73,6 +73,12 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		this.endPointWriter.offer(future);
 	}
 	
-	
+	public void cancelListen(String serviceName){
+		this.messageBus.cancelListen(serviceName);
+	}
+
+	public MessageBus getMessageBus() {
+		return messageBus;
+	}
 
 }
