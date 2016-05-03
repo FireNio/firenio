@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.gifisan.nio.common.MessageFormatter;
+
 public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 
 	protected int			_capability	= 0;
@@ -176,5 +178,9 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 	protected abstract int getAndincrementStart();
 
 	protected abstract int getAndincrementEnd();
+	
+	public String toString() {
+		return MessageFormatter.format("capability {} , size {}", _capability,_real_size.get());
+	}
 
 }

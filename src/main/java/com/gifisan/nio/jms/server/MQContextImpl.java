@@ -17,15 +17,16 @@ import com.gifisan.nio.server.IOSession;
 
 public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
-	private long					dueTime		= 0;
-	private HashMap<String, Message>	messageIDs	= new HashMap<String, Message>();
-	private P2PProductLine			p2pProductLine	= new P2PProductLine(this);
-	private SubscribeProductLine		subProductLine	= new SubscribeProductLine(this);
-	private HashSet<String>			receivers		= new HashSet<String>();
-	private LoginCenter				loginCenter	= null;
-	private MessageDecoder			messageDecoder	= new DefaultMessageDecoder();
-	private ReentrantLock			messageIDsLock	= new ReentrantLock();
-	private ReentrantLock			reveiversLock	= new ReentrantLock();
+	private long					dueTime				= 0;
+	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
+	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
+	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
+	private HashSet<String>			receivers				= new HashSet<String>();
+	private LoginCenter				loginCenter			= null;
+	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
+	private ReentrantLock			messageIDsLock			= new ReentrantLock();
+	private ReentrantLock			reveiversLock			= new ReentrantLock();
+	private ConsumerPushFailedHandle	consumerPushFailedHandle	= null;
 
 	MQContextImpl() {
 	}
@@ -40,7 +41,9 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
-		loginCenter = new DefaultJMSLoginCenter();
+		this.loginCenter = new DefaultJMSLoginCenter();
+		
+		this.consumerPushFailedHandle = new ConsumerPushFailedHandle(this);
 
 		loginCenter.start();
 
@@ -146,6 +149,10 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		LifeCycleUtil.stop(loginCenter);
 
 		LifeCycleUtil.start(loginCenter);
+	}
+
+	public ConsumerPushFailedHandle getConsumerPushFailedHandle() {
+		return consumerPushFailedHandle;
 	}
 
 }

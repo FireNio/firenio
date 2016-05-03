@@ -33,6 +33,8 @@ public interface MQContext extends MessageQueue, LifeCycle {
 	public abstract void reload();
 
 	public abstract LoginCenter getLoginCenter();
+	
+	public abstract ConsumerPushFailedHandle getConsumerPushFailedHandle() ;
 
 	public abstract void subscribeMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment);
 }

@@ -6,8 +6,11 @@ import com.gifisan.nio.jms.Transaction;
 
 public interface MessageConsumer extends Transaction , JMSConnection{
 	
-	public Message receive() throws JMSException;
+	public abstract Message receive() throws JMSException;
 	
-	public Message subscribe() throws JMSException;
+	public abstract void receive(OnMessage onMessage) throws JMSException ;
+	
+	public abstract Message subscribe() throws JMSException;
 
+	public abstract void subscribe(OnMessage onMessage) throws JMSException ;
 }

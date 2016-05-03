@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.Message;
@@ -52,6 +53,8 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
 		Consumer consumer = new Consumer(consumerQueue, attachment, session,future, queueName);
+		
+		attachment.addConsumer(consumer);
 
 		consumerQueue.offer(consumer);
 	}
@@ -86,10 +89,12 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		long now = System.currentTimeMillis();
 		long dueTime = this.dueTime;
 
-		if (now - message.getTimestamp() < dueTime) {
-			this.offerMessage(message);
+		if (now - message.getTimestamp() > dueTime) {
+			// 消息过期了
+			DebugUtil.debug(">>>> message invalidate : {}",message);
+			return;
 		}
-		// 消息过期了
+		this.offerMessage(message);
 	}
 
 	public void setDueTime(long dueTime) {

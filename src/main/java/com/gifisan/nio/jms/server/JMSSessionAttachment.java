@@ -8,13 +8,16 @@ import com.gifisan.nio.component.ActiveAuthority;
 
 public class JMSSessionAttachment implements Attachment {
 
-	private MQContext			context			= null;
-	private TransactionSection	transactionSection	= null;
-	private ActiveAuthority		authority			= null;
-	private List<String>		queueNames		= new ArrayList<String>();
+	private MQContext				context				= null;
+	private TransactionSection		transactionSection		= null;
+	private ActiveAuthority			authority				= null;
+	private List<String>			queueNames			= new ArrayList<String>();
+	private List<Consumer>			consumers				= new ArrayList<Consumer>();
+	private ConsumerPushFailedHandle	consumerPushFailedHandle	= null;
 
 	public JMSSessionAttachment(MQContext context) {
 		this.context = context;
+		this.consumerPushFailedHandle = context.getConsumerPushFailedHandle();
 	}
 
 	public TransactionSection getTransactionSection() {
@@ -43,6 +46,18 @@ public class JMSSessionAttachment implements Attachment {
 
 	protected void setAuthority(ActiveAuthority authority) {
 		this.authority = authority;
+	}
+
+	public void addConsumer(Consumer consumer) {
+		this.consumers.add(consumer);
+	}
+
+	public List<Consumer> getConsumers() {
+		return consumers;
+	}
+
+	public ConsumerPushFailedHandle getConsumerPushFailedHandle() {
+		return consumerPushFailedHandle;
 	}
 
 }

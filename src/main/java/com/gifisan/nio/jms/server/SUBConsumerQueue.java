@@ -57,5 +57,20 @@ public class SUBConsumerQueue implements ConsumerQueue {
 	public Consumer poll(long timeout) {
 		return null;
 	}
+
+	public void remove(List<Consumer> consumers) {
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		for(Consumer consumer:consumers){
+			
+			this.consumers.remove(consumer);
+		}
+
+		lock.unlock();
+	}
+	
+	
 	
 }

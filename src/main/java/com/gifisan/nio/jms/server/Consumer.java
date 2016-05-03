@@ -28,11 +28,11 @@ public class Consumer {
 		return queueName;
 	}
 
-	public ConsumerQueue getconsumerQueue() {
+	public ConsumerQueue getConsumerQueue() {
 		return consumerQueue;
 	}
 
-	//FIXME push 失败时对message进行回收
+	//FIXME push 失败时对message进行回收,并移除Consumer
 	public void push(Message message) {
 
 		TransactionSection section = attachment.getTransactionSection();
@@ -46,10 +46,14 @@ public class Consumer {
 		String content = message.toString();
 
 		IOSession session = this.session;
-
+		
+		future.attach(message);
+		
 		future.write(content);
 
 		if (msgType == 2) {
+			
+			future.setInputIOEvent(null, attachment.getConsumerPushFailedHandle());
 
 			session.flush(future);
 
@@ -58,7 +62,7 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			future.setInputIOEvent(new ByteArrayInputStream(bytes), null);
+			future.setInputIOEvent(new ByteArrayInputStream(bytes), attachment.getConsumerPushFailedHandle());
 
 			session.flush(future);
 

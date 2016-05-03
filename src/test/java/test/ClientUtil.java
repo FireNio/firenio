@@ -16,8 +16,6 @@ public class ClientUtil {
 		
 		ClientConnector connector = new ClientConnector("localhost", 8300);
 		
-		
-		
 //		DebugUtil.info(connector.toString());
 		
 		return connector;
