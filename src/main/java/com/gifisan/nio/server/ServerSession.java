@@ -6,7 +6,7 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.future.IOReadFuture;
@@ -33,16 +33,15 @@ public class ServerSession extends AbstractSession implements IOSession {
 		}
 
 		if (!endPoint.isOpened()) {
-			IOExceptionHandle handle = _Future.getInputIOHandle();
+			IOEventHandle handle = _Future.getInputIOHandle();
 			if (handle != null) {
 				handle.handle(this, _Future, DisconnectException.INSTANCE);
 			}
 			return;
 		}
 
-		IOWriteFuture writeFuture;
 		try {
-			writeFuture = encoder.encode(
+			IOWriteFuture writeFuture = encoder.encode(
 					endPoint, 
 					this, 
 					_Future.getServiceName(), 
@@ -51,10 +50,12 @@ public class ServerSession extends AbstractSession implements IOSession {
 					_Future.getInputIOHandle());
 			
 			_Future.flush();
+			
+			writeFuture.attach(_Future.attachment());
 
 			this.endPointWriter.offer(writeFuture);
 		} catch (IOException e) {
-			IOExceptionHandle handle = _Future.getInputIOHandle();
+			IOEventHandle handle = _Future.getInputIOHandle();
 			if (handle != null) {
 				handle.handle(this, _Future, DisconnectException.INSTANCE);
 			}

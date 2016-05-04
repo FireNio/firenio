@@ -33,7 +33,7 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 
 		if (!this.writers.offer(future)) {
 
-			future.catchException(WriterOverflowException.INSTANCE);
+			future.onException(WriterOverflowException.INSTANCE);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 			EndPoint endPoint = writer.getEndPoint();
 
 			if (endPoint.isEndConnect()) {
-				writer.catchException(DisconnectException.INSTANCE);
+				writer.onException(DisconnectException.INSTANCE);
 				continue;
 			}
 
@@ -126,6 +126,8 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 				if (writer.write()) {
 
 					endPoint.setWriting(unwriting);
+					
+					writer.onSuccess();
 
 				} else {
 
@@ -143,28 +145,28 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 					if (!writers.offer(writer)) {
 						CloseUtil.close(endPoint);
 
-						writer.catchException(WriterOverflowException.INSTANCE);
+						writer.onException(WriterOverflowException.INSTANCE);
 					}
 
 				}
 			} catch (WriterOverflowException e) {
 				DebugUtil.debug(e);
 
-				writer.catchException(new IOException(e));
+				writer.onException(new IOException(e));
 
 			} catch (IOException e) {
 				DebugUtil.debug(e);
 
 				CloseUtil.close(endPoint);
 
-				writer.catchException(e);
+				writer.onException(e);
 
 			} catch (Exception e) {
 				DebugUtil.debug(e);
 
 				CloseUtil.close(endPoint);
 
-				writer.catchException(new IOException(e));
+				writer.onException(new IOException(e));
 			}
 		}
 	}

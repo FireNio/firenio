@@ -13,7 +13,7 @@ public class JMSSessionAttachment implements Attachment {
 	private ActiveAuthority			authority				= null;
 	private List<String>			queueNames			= new ArrayList<String>();
 	private List<Consumer>			consumers				= new ArrayList<Consumer>();
-	private ConsumerPushFailedHandle	consumerPushFailedHandle	= null;
+	private ConsumerPushHandle	consumerPushFailedHandle	= null;
 
 	public JMSSessionAttachment(MQContext context) {
 		this.context = context;
@@ -56,7 +56,7 @@ public class JMSSessionAttachment implements Attachment {
 		return consumers;
 	}
 
-	public ConsumerPushFailedHandle getConsumerPushFailedHandle() {
+	public ConsumerPushHandle getConsumerPushFailedHandle() {
 		return consumerPushFailedHandle;
 	}
 

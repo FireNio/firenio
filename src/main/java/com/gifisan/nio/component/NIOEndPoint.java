@@ -222,6 +222,7 @@ public class NIOEndPoint implements EndPoint {
 		}else{
 			
 			if(this.currentWriter.write()){
+				this.currentWriter.onSuccess();
 				this.currentWriter = null;
 				this.setWriting(0);
 				this.flushWriters0(endPointWriter);

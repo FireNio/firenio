@@ -32,14 +32,13 @@ public class TestListenerCallBack {
 			
 			public void onReceive(Message message) {
 				System.out.println(message);
-				consumer.logout();
-				CloseUtil.close(connector);
 			}
 		});
 
 		
 		ThreadUtil.sleep(1000);
-		
+		consumer.logout();
+		CloseUtil.close(connector);
 		
 
 	}

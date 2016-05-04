@@ -14,6 +14,7 @@ import com.gifisan.nio.LifeCycleListener;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.server.NIOContext;
 
 public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionAcceptor, Runnable {
@@ -24,6 +25,7 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 	private SelectionAcceptor	_read_acceptor		= null;
 	private SelectionAcceptor	_write_acceptor	= null;
 	private SelectionAcceptor	_accept_acceptor	= null;
+	private boolean			working			= false;
 
 	public SelectorManagerLoop(NIOContext context, Selector selector) {
 		this.selector = selector;
@@ -62,12 +64,17 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 		for (; isRunning();) {
 
 			try {
+				
+				working = true;
 
 				Selector selector = this.selector;
 
 				int selected = selector.select(1000);
 
 				if (selected < 1) {
+					
+					working = false;
+					
 					continue;
 				}
 
@@ -84,10 +91,14 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 					accept(selectionKey);
 
 				}
+				
+				working = false;
 
 			} catch (Throwable e) {
 
 				logger.error(e.getMessage(), e);
+				
+				working = false;
 			}
 		}
 	}
@@ -123,7 +134,14 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 	}
 
 	protected void doStop() throws Exception {
+
 		this.selector.wakeup();
+		
+		for(;working;){
+			
+			ThreadUtil.sleep(8);
+		}
+		
 		this.selector.close();
 	}
 
@@ -136,7 +154,9 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 		public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 			logger.error(exception.getMessage(), exception);
 		}
-
 	}
-
+	
+	public boolean isMonitor(Thread thread){
+		return this.looper == thread;
+	}
 }

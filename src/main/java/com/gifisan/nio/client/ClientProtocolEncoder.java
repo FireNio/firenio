@@ -6,18 +6,18 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.AbstractProtocolEncoder;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.AbstractProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public class ClientProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(EndPoint endPoint,Session session,String serviceName, byte[] array, InputStream inputStream, IOExceptionHandle handle)
+	public IOWriteFuture encode(EndPoint endPoint,Session session,String serviceName, byte[] array, InputStream inputStream, IOEventHandle handle)
 			throws IOException {
 
 		byte [] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());

@@ -1,9 +1,6 @@
-package com.gifisan.nio.component.future;
+package com.gifisan.nio.component.protocol;
 
 import java.nio.ByteBuffer;
-
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public abstract class AbstractProtocolEncoder implements ProtocolEncoder{
 

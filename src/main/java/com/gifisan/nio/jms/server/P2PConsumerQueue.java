@@ -19,7 +19,7 @@ public class P2PConsumerQueue implements ConsumerQueue{
 		}
 		
 		//FIXME offer when pushed
-		offer(consumer);
+//		offer(consumer);
 		
 		return consumer.clone();
 	}

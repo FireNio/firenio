@@ -37,6 +37,13 @@ public class ClientConnector implements Connector {
 	}
 
 	public void close() throws IOException {
+		
+		Thread thread = Thread.currentThread();
+		
+		if (selectorManagerLoop.isMonitor(thread)) {
+			throw new IllegalStateException("not allow to close on future callback");
+		}
+		
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(context);
 			LifeCycleUtil.stop(taskExecutor);

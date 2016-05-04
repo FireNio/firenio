@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
@@ -46,11 +46,11 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		}
 	}
 
-	public IOExceptionHandle getInputIOHandle() {
+	public IOEventHandle getInputIOHandle() {
 		return inputIOHandle;
 	}
 
-	public IOExceptionHandle getOutputIOHandle() {
+	public IOEventHandle getOutputIOHandle() {
 		return outputIOHandle;
 	}
 

@@ -26,7 +26,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
 	private ReentrantLock			messageIDsLock			= new ReentrantLock();
 	private ReentrantLock			reveiversLock			= new ReentrantLock();
-	private ConsumerPushFailedHandle	consumerPushFailedHandle	= null;
+	private ConsumerPushHandle	consumerPushFailedHandle	= null;
 
 	MQContextImpl() {
 	}
@@ -43,7 +43,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 
 		this.loginCenter = new DefaultJMSLoginCenter();
 		
-		this.consumerPushFailedHandle = new ConsumerPushFailedHandle(this);
+		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
 
 		loginCenter.start();
 
@@ -151,7 +151,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 		LifeCycleUtil.start(loginCenter);
 	}
 
-	public ConsumerPushFailedHandle getConsumerPushFailedHandle() {
+	public ConsumerPushHandle getConsumerPushFailedHandle() {
 		return consumerPushFailedHandle;
 	}
 

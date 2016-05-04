@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public class TextWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
 	public TextWriteFuture(EndPoint endPoint, Session session, String serviceName, ByteBuffer textBuffer,
-			byte[] textCache, IOExceptionHandle handle) {
+			byte[] textCache, IOEventHandle handle) {
 		super(endPoint, handle, serviceName, textBuffer, textCache, session);
 	}
 

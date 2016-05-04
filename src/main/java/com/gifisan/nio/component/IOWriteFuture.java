@@ -14,7 +14,9 @@ public interface IOWriteFuture extends WriteFuture{
 
 	public abstract boolean isNetworkWeak();
 
-	public abstract void catchException(IOException e);
+	public abstract void onException(IOException e);
+	
+	public abstract void onSuccess();
 	
 	public abstract long getFutureID();
 	

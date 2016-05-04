@@ -14,6 +14,7 @@ public class Consumer {
 	private ConsumerQueue		consumerQueue	= null;
 	private IOSession			session		= null;
 	private ServerReadFuture		future		= null;
+	private Message 			message 		= null;
 
 	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, IOSession session,
 			ServerReadFuture future, String queueName) {
@@ -34,6 +35,8 @@ public class Consumer {
 
 	//FIXME push 失败时对message进行回收,并移除Consumer
 	public void push(Message message) {
+		
+		this.message = message;
 
 		TransactionSection section = attachment.getTransactionSection();
 
@@ -47,7 +50,7 @@ public class Consumer {
 
 		IOSession session = this.session;
 		
-		future.attach(message);
+		future.attach(this);
 		
 		future.write(content);
 
@@ -69,6 +72,15 @@ public class Consumer {
 		}
 	}
 	
+	public void refresh(){
+		
+		this.future = ReadFutureFactory.create(future);
+	}
+	
+	public Message getMessage() {
+		return message;
+	}
+
 	public Consumer clone(){
 		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(future), queueName);
 	}

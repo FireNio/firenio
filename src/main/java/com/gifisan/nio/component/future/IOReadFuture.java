@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public interface IOReadFuture extends ServerReadFuture{
@@ -23,9 +23,9 @@ public interface IOReadFuture extends ServerReadFuture{
 	
 	public abstract void flush();
 	
-	public abstract IOExceptionHandle getInputIOHandle();
+	public abstract IOEventHandle getInputIOHandle();
 	
-	public abstract IOExceptionHandle getOutputIOHandle();
+	public abstract IOEventHandle getOutputIOHandle();
 	
 	public abstract BufferedOutputStream getTextCache();
 	

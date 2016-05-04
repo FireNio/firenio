@@ -75,5 +75,8 @@ public class MessageBus {
 	public void onReadFuture(OnReadFuture onReadFuture) {
 		this.onReadFutures.forceOffer(onReadFuture);
 	}
-
+	
+	public int size(){
+		return futures.size();
+	}
 }

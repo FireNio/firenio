@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOWriteFuture;
@@ -79,6 +80,18 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 
 	public MessageBus getMessageBus() {
 		return messageBus;
+	}
+
+	public void destroyImmediately() {
+		
+		MessageBus bus = this.messageBus;
+		
+		for(;bus.size() > 0;){
+			
+			ThreadUtil.sleep(8);
+		}
+		
+		super.destroyImmediately();
 	}
 
 }

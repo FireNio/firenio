@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.EndPoint;
-import com.gifisan.nio.component.IOExceptionHandle;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public class TextReadFuture extends AbstractReadFuture implements IOReadFuture {
@@ -23,7 +23,7 @@ public class TextReadFuture extends AbstractReadFuture implements IOReadFuture {
 	public void catchException(IOException e) {
 	}
 
-	public void setIOEvent(OutputStream outputStream, IOExceptionHandle handle) {
+	public void setIOEvent(OutputStream outputStream, IOEventHandle handle) {
 	}
 
 }
