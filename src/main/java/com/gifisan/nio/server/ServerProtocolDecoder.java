@@ -2,7 +2,6 @@ package com.gifisan.nio.server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
@@ -19,8 +18,7 @@ public class ServerProtocolDecoder extends DefaultProtocolDecoder implements Pro
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	= null;
 
-	public ServerProtocolDecoder(Charset charset) {
-		super(charset);
+	public ServerProtocolDecoder() {
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");

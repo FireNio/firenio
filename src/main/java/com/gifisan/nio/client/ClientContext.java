@@ -42,7 +42,7 @@ public class ClientContext extends AbstractNIOContext implements NIOContext {
 		this.clientIOExceptionHandle = new ClientIOExceptionHandle();
 		this.clientStreamAcceptor = new DefaultClientStreamAcceptor();
 		this.sessionFactory = new ClientSessionFactory();
-		this.protocolDecoder = new DefaultProtocolDecoder(encoding);
+		this.protocolDecoder = new DefaultProtocolDecoder();
 		this.endPointWriter.start();
 	}
 

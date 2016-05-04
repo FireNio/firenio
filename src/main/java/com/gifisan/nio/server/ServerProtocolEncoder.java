@@ -12,38 +12,38 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
-import com.gifisan.nio.component.protocol.AbstractProtocolEncoder;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.DefaultProtocolEncoder;
 
-public class ServerProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
+public class ServerProtocolEncoder extends DefaultProtocolEncoder {
 
-	public IOWriteFuture encode(EndPoint endPoint,Session session,String serviceName, byte[] array, InputStream inputStream, IOEventHandle handle)
-			throws IOException {
+	public IOWriteFuture encode(EndPoint endPoint, Session session, String serviceName, byte[] array,
+			InputStream inputStream, IOEventHandle handle) throws IOException {
 
-		byte [] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
-		
+		byte[] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
+
 		if (inputStream != null) {
 
 			int dataLength = inputStream.available();
 
-			ByteBuffer textBuffer = encodeAll(session.getSessionID(),serviceNameArray, array, dataLength);
+			ByteBuffer textBuffer = encodeAll(session.getSessionID(), serviceNameArray, array, dataLength);
 
 			textBuffer.flip();
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(endPoint,session,serviceName, textBuffer, array, inputStream, handle);
+				return new MultiWriteFuture(endPoint, session, serviceName, textBuffer, array, inputStream, handle);
 			}
 
-			return new ByteArrayWriteFuture(endPoint,session,serviceName, textBuffer, array, (ByteArrayInputStream) inputStream, handle);
+			return new ByteArrayWriteFuture(endPoint, session, serviceName, textBuffer, array,
+					(ByteArrayInputStream) inputStream, handle);
 
 		}
 
-		ByteBuffer textBuffer = encodeText(session.getSessionID(),serviceNameArray, array);
+		ByteBuffer textBuffer = encodeText(session.getSessionID(), serviceNameArray, array);
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(endPoint,session,serviceName, textBuffer, array, handle);
+		return new TextWriteFuture(endPoint, session, serviceName, textBuffer, array, handle);
 	}
 
 }

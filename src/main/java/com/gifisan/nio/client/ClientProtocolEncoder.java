@@ -12,10 +12,9 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
-import com.gifisan.nio.component.protocol.AbstractProtocolEncoder;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.DefaultProtocolEncoder;
 
-public class ClientProtocolEncoder extends AbstractProtocolEncoder implements ProtocolEncoder {
+public class ClientProtocolEncoder extends DefaultProtocolEncoder{
 
 	public IOWriteFuture encode(EndPoint endPoint,Session session,String serviceName, byte[] array, InputStream inputStream, IOEventHandle handle)
 			throws IOException {

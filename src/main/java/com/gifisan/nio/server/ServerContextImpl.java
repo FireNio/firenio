@@ -35,7 +35,7 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", this.serverCoreSize);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.sessionFactory = new ServerSessionFactory();
-		this.protocolDecoder = new ServerProtocolDecoder(encoding);
+		this.protocolDecoder = new ServerProtocolDecoder();
 		this.protocolEncoder = new ServerProtocolEncoder();
 		this.loginCenter = new DefaultServerLoginCenter();
 		this.filterService = new FilterService(this);

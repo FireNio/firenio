@@ -2,7 +2,7 @@ package com.gifisan.nio.component.protocol;
 
 import java.nio.ByteBuffer;
 
-public abstract class AbstractProtocolEncoder implements ProtocolEncoder{
+public abstract class DefaultProtocolEncoder implements ProtocolEncoder{
 
 	private void calcText(byte[] header, int textLength) {
 		header[3] = (byte) (textLength & 0xff);
