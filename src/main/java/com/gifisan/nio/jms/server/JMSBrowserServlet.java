@@ -1,10 +1,11 @@
 package com.gifisan.nio.jms.server;
 
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.ErrorMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.jms.NullMessage;
@@ -52,7 +53,20 @@ public class JMSBrowserServlet extends JMSServlet {
 							future.write(message.toString());
 						} else {
 							
-							future.write(message.toString(), Encoding.DEFAULT);
+							int msgType = message.getMsgType();
+
+							String content = message.toString();
+
+							future.write(content);
+							
+							if (msgType == 3) {
+								
+								ByteMessage byteMessage = (ByteMessage) message;
+
+								byte[] bytes = byteMessage.getByteArray();
+
+								future.setInputIOEvent(new ByteArrayInputStream(bytes),null);
+							} 
 						}
 					}
 				}else if(ONLINE.equals(cmd)){

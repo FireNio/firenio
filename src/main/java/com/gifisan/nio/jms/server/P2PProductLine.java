@@ -42,4 +42,8 @@ public class P2PProductLine extends AbstractProductLine implements MessageQueue,
 			context.consumerMessage(message);
 		}
 	}
+	
+	public int messageSize(){
+		return storage.size();
+	}
 }

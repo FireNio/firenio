@@ -1,6 +1,8 @@
 package com.gifisan.nio.jms.client.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
@@ -13,6 +15,8 @@ import com.gifisan.nio.jms.decode.MessageDecoder;
 import com.gifisan.nio.jms.server.JMSBrowserServlet;
 
 public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrowser {
+	
+	private final String SERVICE_NAME = "JMSBrowserServlet";
 
 	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
 
@@ -27,7 +31,7 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 
 		ReadFuture future;
 		try {
-			future = session.request("JMSBrowserServlet", param.toJSONString());
+			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -40,7 +44,7 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 
 		ReadFuture future;
 		try {
-			future = session.request("JMSBrowserServlet", param);
+			future = session.request(SERVICE_NAME, param);
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
@@ -55,12 +59,37 @@ public class MessageBrowserImpl extends JMSConnectonImpl implements MessageBrows
 
 		ReadFuture future;
 		try {
-			future = session.request("JMSBrowserServlet", param.toJSONString());
+			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
 
 		return "T".equals(future.getText());
+	}
+	
+	public void login(String username, String password) throws JMSException {
+		if (logined) {
+			return;
+		}
+
+		session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
+
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("username", username);
+		param.put("password", password);
+		String paramString = JSONObject.toJSONString(param);
+
+		ReadFuture future;
+		try {
+			future = session.request("JMSLoginServlet", paramString);
+		} catch (IOException e) {
+			throw new JMSException(e.getMessage(), e);
+		}
+		String result = future.getText();
+		boolean logined = "T".equals(result);
+		if (!logined) {
+			throw new JMSException("用户名密码错误！");
+		}
 	}
 
 }

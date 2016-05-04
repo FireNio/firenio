@@ -1,4 +1,4 @@
-package com.gifisan.nio.jms.client.cmd;
+package com.gifisan.nio.common.cmd;
 
 public class CmdResponse {
 

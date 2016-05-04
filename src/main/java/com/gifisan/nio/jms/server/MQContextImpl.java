@@ -26,7 +26,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
 	private ReentrantLock			messageIDsLock			= new ReentrantLock();
 	private ReentrantLock			reveiversLock			= new ReentrantLock();
-	private ConsumerPushHandle	consumerPushFailedHandle	= null;
+	private ConsumerPushHandle		consumerPushFailedHandle	= null;
 
 	MQContextImpl() {
 	}
@@ -68,7 +68,7 @@ public class MQContextImpl extends AbstractLifeCycle implements MQContext {
 	}
 
 	public int messageSize() {
-		return this.messageIDs.size();
+		return this.p2pProductLine.messageSize();
 	}
 
 	public void offerMessage(Message message) {
