@@ -35,13 +35,13 @@ public class JMSLoginServlet extends JMSServlet {
 			
 			if (!loginCenter.logined(session, future)) {
 				
-//				session.disconnect();
-				
 				DebugUtil.debug(">>>> {} login failed !",param.getParameter("username"));
 				
 				future.write(ByteUtil.FALSE);
 				
 				session.flush(future);
+
+				session.disconnect();
 				
 				return ;
 			}

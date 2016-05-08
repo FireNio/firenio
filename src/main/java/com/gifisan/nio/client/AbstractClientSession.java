@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
@@ -20,7 +21,7 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 
 	public AbstractClientSession(EndPoint endPoint, byte sessionID) {
 		super(endPoint, sessionID);
-		this.messageBus = new MessageBus();
+		this.messageBus = new MessageBus(this);
 		this.context = (ClientContext) endPoint.getContext();
 	}
 
@@ -60,13 +61,17 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
-
+		
 		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
 		IOWriteFuture future = encoder.encode(endPoint,this,serviceName, array, null, context.getClientIOExceptionHandle());
 
 		if (onReadFuture == null) {
-			throw new IOException("none OnReadFuture");
+			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
+		}
+		
+		if (closed()) {
+			throw DisconnectException.INSTANCE;
 		}
 		
 		this.messageBus.listen(serviceName, onReadFuture);

@@ -79,7 +79,13 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 	public String getText() {
 		if (text == null) {
-			text = new String(textCache, session.getContext().getEncoding());
+			if (textCache == null) {
+				text = "";
+			}else{
+				text = new String(textCache, session.getContext().getEncoding());
+			}
+			
+			
 		}
 		return text;
 	}

@@ -77,5 +77,10 @@ public class ServerSession extends AbstractSession implements IOSession {
 	public LoginCenter getLoginCenter() {
 		return loginCenter;
 	}
+	
+	public void disconnect() {
+		this.endPoint.endConnect();
+		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint,this));
+	}
 
 }

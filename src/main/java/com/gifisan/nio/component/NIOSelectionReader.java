@@ -13,9 +13,11 @@ public class NIOSelectionReader implements SelectionAcceptor {
 
 	private ReadFutureAcceptor	readFutureAcceptor	= null;
 	private NIOContext			context			= null;
+	private EndPointWriter		endPointWriter		= null;
 
-	public NIOSelectionReader(NIOContext context) {
+	public NIOSelectionReader(NIOContext context,EndPointWriter endPointWriter) {
 		this.context = context;
+		this.endPointWriter = endPointWriter;
 		this.readFutureAcceptor = context.getReadFutureAcceptor();
 	}
 	
@@ -24,7 +26,7 @@ public class NIOSelectionReader implements SelectionAcceptor {
 		EndPoint endPoint = (EndPoint) selectionKey.attachment();
 		
 		if (endPoint == null) {
-			endPoint = new NIOEndPoint(context, selectionKey);
+			endPoint = new NIOEndPoint(context, selectionKey,endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 		return endPoint;

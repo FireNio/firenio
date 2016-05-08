@@ -70,6 +70,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	}
 
 	public void flush() {
+		endPoint.incrementWriter();
 		flushed = true;
 	}
 

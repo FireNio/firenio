@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
@@ -38,11 +39,14 @@ public class NIOEndPoint implements EndPoint {
 	private Long				endPointID	= null;
 	private boolean 			_networkWeak	= false;
 	private static AtomicLong	autoEndPointID = new AtomicLong(10000);
+	private AtomicInteger		writers		= new AtomicInteger();
+	private EndPointWriter		endPointWriter = null;
 	
 
-	public NIOEndPoint(NIOContext context, SelectionKey selectionKey) throws SocketException {
+	public NIOEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter) throws SocketException {
 		this.context = context;
 		this.selectionKey = selectionKey;
+		this.endPointWriter = endPointWriter;
 		this.channel = (SocketChannel) selectionKey.channel();
 		// this.channel = channel;
 		this.sessionFactory = context.getSessionFactory();
@@ -99,6 +103,11 @@ public class NIOEndPoint implements EndPoint {
 	}
 
 	public void close() throws IOException {
+		
+		if (writers.get() > 0) {
+			return ;
+		}
+		
 		if (_closed.compareAndSet(false, true)) {
 			
 			this.endConnect = true;
@@ -211,21 +220,20 @@ public class NIOEndPoint implements EndPoint {
 		
 //		List<IOWriteFuture> writers = this.writers;
 
-		EndPointWriter endPointWriter = context.getEndPointWriter();
-
 		// ReentrantLock lock = this.lock;
 		//
 		// lock.lock();
 
 		if (this.currentWriter == null) {
-			this.flushWriters0(endPointWriter);
+			this.flushWriters0();
 		}else{
 			
 			if(this.currentWriter.write()){
+				this.decrementWriter();
 				this.currentWriter.onSuccess();
 				this.currentWriter = null;
 				this.setWriting(0);
-				this.flushWriters0(endPointWriter);
+				this.flushWriters0();
 			 }else{
 				 return;
 			 }
@@ -245,13 +253,22 @@ public class NIOEndPoint implements EndPoint {
 
 	}
 	
-	private void flushWriters0(EndPointWriter endPointWriter){
+	protected void flushWriters0(){
+		
 		this.attempts = 0;
+		
 		this._networkWeak = false;
+		
 		endPointWriter.collect();
+		
 		selectionKey.interestOps(SelectionKey.OP_READ);
 		
-		
+//		if (endConnect) {
+//			
+//			EndPoint endPoint = this;
+//			
+//			CloseUtil.close(endPoint);
+//		}
 	}
 
 	private void interestWrite() {
@@ -336,5 +353,18 @@ public class NIOEndPoint implements EndPoint {
 	public Long getEndPointID() {
 		return endPointID;
 	}
+	
+	public void incrementWriter(){
+		writers.incrementAndGet();
+	}
+	
+	public void decrementWriter(){
+		writers.decrementAndGet();
+	}
 
+	public EndPointWriter getEndPointWriter() {
+		return endPointWriter;
+	}
+
+	
 }

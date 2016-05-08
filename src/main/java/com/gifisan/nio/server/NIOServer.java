@@ -8,6 +8,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.AttributesImpl;
+import com.gifisan.nio.component.Connector;
 
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 

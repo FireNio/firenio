@@ -14,40 +14,50 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.Connector;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.SelectorManagerLoop;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.TaskExecutor;
-import com.gifisan.nio.server.Connector;
 
 public class ClientConnector implements Connector {
 
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	private ClientContext		context			= null;
-	private EndPoint			endPoint			= null;
+	private ClientEndPoint		endPoint			= null;
 	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
 	private Logger				logger			= LoggerFactory.getLogger(ClientConnector.class);
 	private Selector			selector			= null;
-	private SelectorManagerLoop	selectorManagerLoop	= null;
 	private InetSocketAddress	serverAddress		= null;
 	private TaskExecutor		taskExecutor		= null;
+	private SelectorManagerLoop	selectorManagerLoop	= null;
+	private ClientEndPointWriter	endPointWriter		= null;
+
+	protected SelectorManagerLoop getSelectorManagerLoop() {
+		return selectorManagerLoop;
+	}
+
+	protected EndPointWriter getEndPointWriter() {
+		return endPointWriter;
+	}
 
 	public ClientConnector(String host, int port) {
 		this.context = new ClientContext(host, port);
 	}
 
 	public void close() throws IOException {
-		
+
 		Thread thread = Thread.currentThread();
-		
+
 		if (selectorManagerLoop.isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");
 		}
-		
+
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(context);
 			LifeCycleUtil.stop(taskExecutor);
 			LifeCycleUtil.stop(selectorManagerLoop);
+			LifeCycleUtil.stop(endPointWriter);
 			CloseUtil.close(endPoint);
 		}
 	}
@@ -59,10 +69,14 @@ public class ClientConnector implements Connector {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			
+
 			this.connect0();
 			
+
 			try {
+				
+				this.endPointWriter.start();
+				
 				this.selectorManagerLoop.start();
 			} catch (Exception e) {
 				DebugUtil.debug(e);
@@ -99,11 +113,12 @@ public class ClientConnector implements Connector {
 		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
 			channel.finishConnect();
 			channel.register(selector, SelectionKey.OP_READ);
-			SelectorManagerLoop selectorManagerLoop = new ClientSelectorManagerLoop(context, selector);
-			EndPoint endPoint = new ClientEndPoint(context, selectionKey,selectorManagerLoop);
+			this.endPointWriter = new ClientEndPointWriter();
+			this.endPoint = new ClientEndPoint(context, selectionKey, this);
+			endPointWriter.setEndPoint(this.endPoint);
+			this.selectorManagerLoop = new ClientSelectorManagerLoop(context, selector,
+					endPointWriter);
 			selectionKey.attach(endPoint);
-			this.endPoint = endPoint;
-			this.selectorManagerLoop = selectorManagerLoop;
 		}
 	}
 
@@ -166,7 +181,7 @@ public class ClientConnector implements Connector {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(context.getEndPointWriter(), endPoint, this.getClientSession());
+		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint, this.getClientSession());
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}

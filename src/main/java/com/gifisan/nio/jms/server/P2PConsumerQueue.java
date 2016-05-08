@@ -9,7 +9,6 @@ public class P2PConsumerQueue implements ConsumerQueue{
 
 	private LinkedList<Consumer>	consumers	= new LinkedListM2O<Consumer>(128);
 
-	//FIXME flush失败后如何处理，写入queue不太合适
 	public Consumer poll(long timeout) {
 		
 		Consumer consumer = consumers.poll(timeout);
@@ -17,9 +16,6 @@ public class P2PConsumerQueue implements ConsumerQueue{
 		if (consumer == null) {
 			return null;
 		}
-		
-		//FIXME offer when pushed
-//		offer(consumer);
 		
 		return consumer.clone();
 	}

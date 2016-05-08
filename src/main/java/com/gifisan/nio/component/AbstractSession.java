@@ -18,10 +18,11 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
 	protected ProtocolEncoder			encoder				= null;
 	protected EndPointWriter			endPointWriter			= null;
+	private boolean					closed				= false;
 
 	public AbstractSession(EndPoint endPoint, byte sessionID) {
 		NIOContext context = endPoint.getContext();
-		this.endPointWriter = context.getEndPointWriter();
+		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.outputStreamAcceptor = context.getOutputStreamAcceptor();
 		this.sessionID = sessionID;
@@ -43,11 +44,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 
 	public Attachment attachment() {
 		return this.attachment;
-	}
-
-	public void disconnect() {
-		// FIXME 处理disconnect后write失败问题,主动向客户端强制发送close指令，然后close
-		this.endPoint.endConnect();
 	}
 
 	public long getCreationTime() {
@@ -96,6 +92,8 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 
 	public void destroyImmediately() {
 
+		this.closed = true;
+		
 		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
 
 		for (; listenerWrapper != null;) {
@@ -114,5 +112,9 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 
 	public String toString() {
 		return MessageFormatter.format("session-{},edp-{}", sessionID, endPoint.toString());
+	}
+
+	public boolean closed(){
+		return closed;
 	}
 }

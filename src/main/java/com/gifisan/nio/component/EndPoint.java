@@ -65,4 +65,9 @@ public interface EndPoint extends Closeable {
 	
 	public abstract Long getEndPointID();
 
+	public abstract void incrementWriter();
+	
+	public abstract void decrementWriter();
+	
+	public abstract EndPointWriter getEndPointWriter();
 }

@@ -27,11 +27,11 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 	private SelectionAcceptor	_accept_acceptor	= null;
 	private boolean			working			= false;
 
-	public SelectorManagerLoop(NIOContext context, Selector selector) {
+	public SelectorManagerLoop(NIOContext context, Selector selector,EndPointWriter endPointWriter) {
 		this.selector = selector;
 		this._accept_acceptor = new NIOSelectionAcceptor(selector);
-		this._read_acceptor = new NIOSelectionReader(context);
-		this._write_acceptor = new NIOSelectionWriter(context);
+		this._read_acceptor = new NIOSelectionReader(context,endPointWriter);
+		this._write_acceptor = new NIOSelectionWriter(context,endPointWriter);
 	}
 
 	protected void acceptException(SelectionKey selectionKey, IOException exception) {

@@ -6,6 +6,7 @@ import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestSimple {
@@ -29,12 +30,13 @@ public class TestSimple {
 			
 			public void onResponse(ClientSession sesssion, ReadFuture future) {
 				System.out.println(future.getText());
-				CloseUtil.close(connector);
 			}
 		});
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());
 		
+		ThreadUtil.sleep(500);
+		CloseUtil.close(connector);
 		
 	}
 }

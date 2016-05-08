@@ -21,8 +21,6 @@ public interface Session {
 
 	public abstract Attachment attachment();
 
-	public abstract void disconnect();
-
 	public abstract long getCreationTime();
 
 	public abstract NIOContext getContext();
@@ -48,5 +46,7 @@ public interface Session {
 	public abstract byte getSessionID();
 	
 	public abstract void destroyImmediately();
+	
+	public abstract boolean closed();
 
 }

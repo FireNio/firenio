@@ -13,7 +13,7 @@ public class LoggerFilter extends AbstractNIOFilter {
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		
-		if (future.hasOutputStream() && future.getOutputStream() != null) {
+		if (!future.hasOutputStream() || (future.hasOutputStream() && future.getOutputStream() != null)) {
 			logger.info("请求IP：{}，服务名称：{}，请求内容：{}", new String[] { 
 					session.getRemoteAddr(), 
 					future.getServiceName(),

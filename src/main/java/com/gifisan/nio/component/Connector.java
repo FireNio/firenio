@@ -1,8 +1,6 @@
-package com.gifisan.nio.server;
+package com.gifisan.nio.component;
 
 import java.io.Closeable;
-
-import com.gifisan.nio.component.Connectable;
 
 public interface Connector extends Connectable ,Closeable{
 	

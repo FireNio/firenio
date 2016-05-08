@@ -8,6 +8,7 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.LifeCycleListener;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.Connector;
 
 public class NIOServerListener extends AbstractLifeCycleListener implements LifeCycleListener {
 

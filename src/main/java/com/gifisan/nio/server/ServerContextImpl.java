@@ -50,13 +50,11 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 		this.filterService.start();
 		this.loginCenter.start();
 		this.serviceDispatcher.start();
-		this.endPointWriter.start();
 
 	}
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterService);
-		LifeCycleUtil.stop(endPointWriter);
 		LifeCycleUtil.stop(serviceDispatcher);
 		LifeCycleUtil.stop(loginCenter);
 	}

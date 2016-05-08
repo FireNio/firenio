@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
+@Deprecated
 public class DefaultClientSession extends AbstractClientSession implements ProtectedClientSession {
 
 	private AtomicBoolean				responsed		= new AtomicBoolean(true);
@@ -41,7 +43,7 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 		responsed.set(true);
 	}
 
-	public ReadFuture poll(long timeout) {
+	public ReadFuture poll(long timeout) throws DisconnectException {
 		ReadFuture future = messageBus.poll(timeout);
 		
 		if (future == null) {

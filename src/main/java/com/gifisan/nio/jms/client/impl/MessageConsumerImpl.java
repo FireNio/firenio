@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ListenOnReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -76,8 +77,19 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 
 		sendReceiveCommand();
 
-		ReadFuture future = session.poll(0);
-
+		return poll();
+	}
+	
+	private Message poll() throws JMSException{
+		
+		ReadFuture future;
+		
+		try {
+			future = session.poll(0);
+		} catch (DisconnectException e) {
+			throw new JMSException(e.getMessage(),e);
+		}
+		
 		return messageDecoder.decode(future);
 	}
 
@@ -92,9 +104,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		
 		sendSubscribeCommand();
 		
-		ReadFuture future = session.poll(0);
-		
-		return messageDecoder.decode(future);
+		return poll();
 	}
 
 	// TODO complete this 考虑收到失败message的处理

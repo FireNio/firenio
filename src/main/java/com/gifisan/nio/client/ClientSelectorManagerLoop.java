@@ -8,6 +8,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOEndPoint;
 import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.SelectorManagerLoop;
@@ -17,8 +18,8 @@ public class ClientSelectorManagerLoop extends SelectorManagerLoop implements Se
 
 	private Logger				logger			= LoggerFactory.getLogger(ClientSelectorManagerLoop.class);
 
-	public ClientSelectorManagerLoop(NIOContext context, Selector selector) {
-		super(context, selector);
+	public ClientSelectorManagerLoop(NIOContext context, Selector selector,EndPointWriter endPointWriter) {
+		super(context, selector,endPointWriter);
 	}
 
 	protected void acceptException(SelectionKey selectionKey, IOException exception) {

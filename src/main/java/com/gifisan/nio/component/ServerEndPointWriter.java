@@ -17,7 +17,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
-public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
+public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
 
 	private Thread						owner			= null;
 	private boolean					running			= false;
@@ -103,20 +103,24 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 			}
 
 			EndPoint endPoint = writer.getEndPoint();
-
+			
 			if (endPoint.isEndConnect()) {
+				if (endPoint.isOpened()) {
+					CloseUtil.close(endPoint);
+				}
+				endPoint.decrementWriter();
 				writer.onException(DisconnectException.INSTANCE);
+				continue;
+			}
+			
+			if (endPoint.isNetworkWeak()) {
+
+				this.lazyWriter(writer);
+
 				continue;
 			}
 
 			try {
-
-				if (endPoint.isNetworkWeak()) {
-
-					this.lazyWriter(writer);
-
-					continue;
-				}
 
 				if (!endPoint.enableWriting(writer.getFutureID())) {
 					offer(writer);
@@ -127,7 +131,13 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 
 					endPoint.setWriting(unwriting);
 					
+					endPoint.decrementWriter();
+					
 					writer.onSuccess();
+					
+					if (endPoint.isEndConnect()) {
+						CloseUtil.close(endPoint);
+					}
 
 				} else {
 
@@ -145,15 +155,12 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 					if (!writers.offer(writer)) {
 						CloseUtil.close(endPoint);
 
+						endPoint.decrementWriter();
+						
 						writer.onException(WriterOverflowException.INSTANCE);
 					}
 
 				}
-			} catch (WriterOverflowException e) {
-				DebugUtil.debug(e);
-
-				writer.onException(new IOException(e));
-
 			} catch (IOException e) {
 				DebugUtil.debug(e);
 
@@ -173,7 +180,7 @@ public class DefaultEndPointWriter extends AbstractLifeCycle implements EndPoint
 
 	public void doStart() throws Exception {
 		this.running = true;
-		this.owner = new Thread(this, "EndPoint-Writer");
+		this.owner = new Thread(this, "Server-EndPoint-Writer");
 		this.owner.start();
 
 	}

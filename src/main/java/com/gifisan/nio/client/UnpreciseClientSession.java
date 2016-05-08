@@ -3,6 +3,7 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.IOWriteFuture;
@@ -24,6 +25,10 @@ public class UnpreciseClientSession extends AbstractClientSession implements Pro
 
 		IOWriteFuture future = encoder.encode(endPoint,this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
 
+		if (closed()) {
+			throw DisconnectException.INSTANCE;
+		}
+		
 		this.endPointWriter.offer(future);
 
 		return this.poll(timeout);
@@ -34,7 +39,7 @@ public class UnpreciseClientSession extends AbstractClientSession implements Pro
 		
 	}
 	
-	public ReadFuture poll(long timeout) {
+	public ReadFuture poll(long timeout) throws DisconnectException {
 		return messageBus.poll(timeout);
 	}
 
@@ -51,6 +56,10 @@ public class UnpreciseClientSession extends AbstractClientSession implements Pro
 
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
+		}
+		
+		if (closed()) {
+			throw DisconnectException.INSTANCE;
 		}
 		
 		this.messageBus.onReadFuture(onReadFuture);

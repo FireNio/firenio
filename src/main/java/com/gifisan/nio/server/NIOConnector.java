@@ -11,7 +11,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.Connector;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.SelectorManagerLoop;
+import com.gifisan.nio.component.ServerEndPointWriter;
 
 public final class NIOConnector extends AbstractLifeCycle implements Connector {
 
@@ -19,9 +22,10 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	private ServerSocketChannel	channel			= null;
 	private ServerSocket		serverSocket		= null;
 	private SelectorManagerLoop	selectorManagerLoop	= null;
-	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	private Selector			selector			= null;
 	private NIOContext			context			= null;
+	private EndPointWriter		endPointWriter		= null;
+	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	
 
 	protected NIOConnector(NIOContext context,int serverPort) {
@@ -55,7 +59,7 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	public void close() throws IOException {
 		if (connected.compareAndSet(true, false)) {
 			if (channel.isOpen()) {
-				CloseUtil.close(this.channel);
+				CloseUtil.close(channel);
 			}
 		}
 	}
@@ -67,16 +71,21 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 	protected void doStart() throws Exception {
 
 		this.connect();
+		
+		this.endPointWriter = new ServerEndPointWriter();
 
-		this.selectorManagerLoop = new SelectorManagerLoop(context, selector);
+		this.selectorManagerLoop = new SelectorManagerLoop(context, selector,endPointWriter);
 
+		this.endPointWriter.start();
+		
 		this.selectorManagerLoop.start();
-
 	}
 
 	protected void doStop() throws Exception {
 
 		LifeCycleUtil.stop(selectorManagerLoop);
+		
+		LifeCycleUtil.stop(endPointWriter);
 
 		this.close();
 	}

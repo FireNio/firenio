@@ -3,6 +3,7 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -19,7 +20,7 @@ public interface ClientSession extends Session {
 	
 	public abstract void listen(String serviceName, String content, OnReadFuture onReadFuture) throws IOException;
 
-	public abstract ReadFuture poll(long timeout);
+	public abstract ReadFuture poll(long timeout) throws DisconnectException;
 
 	public abstract long getTimeout();
 

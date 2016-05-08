@@ -5,7 +5,7 @@ import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class UniqueThread implements Runnable {
 
-	private LinkedList<Runnable>	jobs		= new LinkedListM2O<Runnable>(999);
+	private LinkedList<Runnable>		jobs		= new LinkedListM2O<Runnable>(999);
 	private boolean				running	= false;
 	private Thread					thread	= null;
 

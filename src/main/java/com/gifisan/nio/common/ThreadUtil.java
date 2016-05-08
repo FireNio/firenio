@@ -9,4 +9,8 @@ public class ThreadUtil {
 			DebugUtil.debug(e);
 		}
 	}
+	
+	public static void execute(Runnable runnable){
+		new Thread(runnable).start();
+	}
 }
