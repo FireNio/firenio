@@ -22,8 +22,10 @@
 --改进LinkedList参考ArrayBlockingQueue
 --判断某个Consumer是否在线
 --对write操作进行优化,
-session.disconnect()
-加入room机制
+--session.disconnect()
+
+stream acceptor 是否把写入文件的操作放到单独的线程。
+加入room机制（RTP or WebSocket）
 
 
 

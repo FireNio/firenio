@@ -164,6 +164,7 @@ public class ClientConnector implements Connector {
 	 * 
 	 * @param checkInterval
 	 */
+	//FIXME 是否需要服务端反馈
 	public void keepAlive(long checkInterval) {
 		if (keepAlive.compareAndSet(false, true)) {
 			try {
