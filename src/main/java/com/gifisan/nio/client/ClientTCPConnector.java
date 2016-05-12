@@ -7,8 +7,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -18,6 +23,8 @@ import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPSelectorLoop;
+import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.udp.DatagramPacket;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
 public class ClientTCPConnector implements Connector {
@@ -32,7 +39,7 @@ public class ClientTCPConnector implements Connector {
 	private TaskExecutor		taskExecutor		= null;
 	private TCPSelectorLoop		selectorLoop		= null;
 	private ClientEndPointWriter	endPointWriter		= null;
-	
+	private ClientUDPConnector	udpConnector		= null;
 
 	protected TCPSelectorLoop getSelectorLoop() {
 		return selectorLoop;
@@ -59,6 +66,7 @@ public class ClientTCPConnector implements Connector {
 			LifeCycleUtil.stop(taskExecutor);
 			LifeCycleUtil.stop(selectorLoop);
 			LifeCycleUtil.stop(endPointWriter);
+			CloseUtil.close(udpConnector);
 			CloseUtil.close(endPoint);
 		}
 	}
@@ -132,7 +140,7 @@ public class ClientTCPConnector implements Connector {
 
 	}
 
-	public ClientContext getContext() {
+	protected ClientContext getContext() {
 		return context;
 	}
 
@@ -191,5 +199,106 @@ public class ClientTCPConnector implements Connector {
 	public String toString() {
 		return "TCP:Connector@" + endPoint.toString();
 	}
+
+	protected ClientUDPConnector getUDPConnector() throws Exception {
+		
+		if (udpConnector == null) {
+			ClientSession session = getClientSession();
+			
+			ReadFuture future = session.request("PutSession2FactoryServlet", null);
+			
+			if (future instanceof ErrorReadFuture) {
+				
+				ErrorReadFuture _Future = ((ErrorReadFuture)future);
+				
+				throw _Future.getException();
+			}
+			
+			String sessionID = future.getText();
+			
+			JSONObject json = new JSONObject();
+			
+			json.put("serviceName", "BIND_SESSION");
+			
+			json.put("sessionID", sessionID);
+			
+			DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
+			
+//			final AtomicBoolean called = new AtomicBoolean(false);
+			
+			final ReentrantLock _lock = new ReentrantLock();
+			
+			final Condition	called = _lock.newCondition();
+			
+			final String BIND_SESSION_CALLBACK = "BIND_SESSION_CALLBACK";
+			
+			final AtomicBoolean atoCalled = new AtomicBoolean();
+			
+			session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
+				
+				public void onResponse(ClientSession session, ReadFuture future) {
+					
+					_lock.lock();
+					
+					called.signal();
+					
+					atoCalled.compareAndSet(false, true);
+					
+					_lock.unlock();
+					
+					session.cancelListen(BIND_SESSION_CALLBACK);
+					
+				}
+			});
+			
+			ClientUDPConnector udpConnector = new ClientUDPConnector(this,sessionID);
+			
+			udpConnector.connect();
+			
+			for (int i = 0; i < 10; i++) {
+				
+				udpConnector.send(packet);
+				
+				_lock.lock();
+				
+				try {
+					
+					if (!atoCalled.get()) {
+						called.await(300, TimeUnit.MILLISECONDS);
+					}
+					
+					if (atoCalled.get()) {
+						break;
+					}
+					
+				} catch (Exception e) {
+					DebugUtil.debug(e);
+					called.signal();
+				}finally{
+					
+					_lock.unlock();
+				}
+			}
+			
+			if (atoCalled.get()) {
+				this.udpConnector = udpConnector;
+			}else{
+				CloseUtil.close(udpConnector);
+				
+				throw DisconnectException.INSTANCE;
+			}
+		}
+		
+		return udpConnector;
+	}
+	
+	
+	public void sendUDPPacket(DatagramPacket packet) throws Exception{
+		
+		ClientUDPConnector connector = getUDPConnector();
+		
+		connector.send(packet);
+	}
+	
 
 }

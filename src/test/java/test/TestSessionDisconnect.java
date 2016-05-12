@@ -2,11 +2,9 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.OnReadFuture;
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestSessionDisconnect {
@@ -15,7 +13,7 @@ public class TestSessionDisconnect {
 	public static void main(String[] args) throws IOException {
 
 
-		String serviceKey = "TestSessionDisconnectServlet";
+		String serviceName = "TestSessionDisconnectServlet";
 		String param = ClientUtil.getParamString();
 		
 		ClientTCPConnector connector = null;
@@ -26,14 +24,17 @@ public class TestSessionDisconnect {
 			
 			ClientSession session = connector.getClientSession();
 			
-			ReadFuture future = session.request(serviceKey, param);
+			ReadFuture future = session.request(serviceName, param);
 			System.out.println(future.getText());
-			session.write(serviceKey, param,new OnReadFuture() {
-				
-				public void onResponse(ClientSession sesssion, ReadFuture future) {
+			
+			session.listen(serviceName, new OnReadFuture() {
+				public void onResponse(ClientSession session, ReadFuture future) {
 					System.out.println(future.getText());
 				}
 			});
+			
+			
+			session.write(serviceName, param);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{

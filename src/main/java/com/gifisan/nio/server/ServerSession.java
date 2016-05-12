@@ -5,10 +5,11 @@ import java.io.IOException;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
+import com.gifisan.nio.component.ManagedIOSessionFactory;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -81,6 +82,19 @@ public class ServerSession extends AbstractSession implements IOSession {
 	public void disconnect() {
 		this.endPoint.endConnect();
 		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint,this));
+	}
+
+	public void destroyImmediately() {
+		
+		ManagedIOSessionFactory factory = context.getManagedIOSessionFactory();
+		
+		factory.removeIOSession(this);
+		
+		super.destroyImmediately();
+	}
+
+	protected TCPEndPoint getEndPoint() {
+		return super.getEndPoint();
 	}
 
 }

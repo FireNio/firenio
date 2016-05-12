@@ -7,10 +7,11 @@ import java.nio.channels.Selector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.SelectionAcceptor;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.server.NIOContext;
 
@@ -28,7 +29,7 @@ public class ClientSelectorManagerLoop extends TCPSelectorLoop implements Select
 
 		if (isEndPoint(attachment)) {
 
-			EndPoint endPoint = (EndPoint) attachment;
+			TCPEndPoint endPoint = (TCPEndPoint) attachment;
 			
 			endPoint.endConnect();
 

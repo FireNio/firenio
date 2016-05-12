@@ -7,6 +7,10 @@ import com.gifisan.nio.component.future.IOReadFuture;
 
 public interface TCPEndPoint extends EndPoint{
 	
+	public abstract void endConnect();
+	
+	public abstract boolean isEndConnect();
+	
 	public abstract boolean enableWriting(long sessionID);
 
 	public abstract void setWriting(long sessionID);
@@ -30,6 +34,10 @@ public interface TCPEndPoint extends EndPoint{
 	public abstract void incrementWriter();
 	
 	public abstract void decrementWriter();
+	
+	public abstract int read(ByteBuffer buffer) throws IOException;
+
+	public abstract int write(ByteBuffer buffer) throws IOException;
 	
 	public abstract ByteBuffer read(int limit) throws IOException;
 	

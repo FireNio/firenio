@@ -7,9 +7,17 @@ public class DefaultParameters implements Parameters{
 
 	private JSONObject object = null;
 	
+	private String json = null;
+	
 	public DefaultParameters(String json){
 		if (!StringUtil.isNullOrBlank(json)) {
-			object = JSONObject.parseObject(json);
+			try {
+				object = JSONObject.parseObject(json);
+			} catch (Exception e) {
+				throw new IllegalArgumentException(json,e);
+			}
+			
+			this.json = json;
 		}
 	}
 	
@@ -72,6 +80,8 @@ public class DefaultParameters implements Parameters{
 		return value;
 	}
 
-	
+	public String toString() {
+		return json;
+	}
 	
 }

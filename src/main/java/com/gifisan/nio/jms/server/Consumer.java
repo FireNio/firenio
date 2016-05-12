@@ -1,11 +1,11 @@
 package com.gifisan.nio.jms.server;
 
-import com.gifisan.nio.common.ReadFutureFactory;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.jms.ByteMessage;
 import com.gifisan.nio.jms.Message;
 import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.ReadFutureFactory;
 
 public class Consumer {
 

@@ -1,4 +1,4 @@
-package com.gifisan.nio.common;
+package com.gifisan.nio.server;
 
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -16,6 +16,18 @@ public class ReadFutureFactory {
 				null, 
 				_Future.getSession(), 
 				_Future.getServiceName());
+
+	}
+	
+	public static ServerReadFuture create(IOSession session,String serviceName) {
+
+		ServerSession serverSession = (ServerSession) session;
+		
+		return new TextReadFuture(
+				serverSession.getEndPoint(),
+				null, 
+				session, 
+				serviceName);
 
 	}
 

@@ -1,7 +1,6 @@
 package com.gifisan.nio.component;
 
 import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +16,7 @@ public class UDPEndPointFactory {
 		UDPEndPoint endPoint = (UDPEndPoint) selectionKey.attachment();
 		
 		if (endPoint == null) {
-			endPoint = new DefaultUDPEndPoint(context, (DatagramChannel) selectionKey.channel());
+			endPoint = new ServerUDPEndPoint(context, selectionKey);
 			selectionKey.attach(endPoint);
 			endPoints.put(endPoint.getEndPointID(), endPoint);
 		}

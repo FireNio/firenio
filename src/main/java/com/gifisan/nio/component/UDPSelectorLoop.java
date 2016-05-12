@@ -38,7 +38,11 @@ public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		} catch (IOException e) {
 			acceptException(selectionKey, e);
 		}
+	}
 
+	private void acceptException(SelectionKey selectionKey, IOException e) {
+		
+		logger.error(e.getMessage(),e);
 	}
 
 	protected Thread getLooperThread() {

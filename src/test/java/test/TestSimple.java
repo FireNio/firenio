@@ -26,12 +26,15 @@ public class TestSimple {
 		
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
-		session.write(serviceKey, param,new OnReadFuture() {
+		
+		session.listen(serviceKey, new OnReadFuture() {
 			
-			public void onResponse(ClientSession sesssion, ReadFuture future) {
+			public void onResponse(ClientSession session, ReadFuture future) {
 				System.out.println(future.getText());
 			}
 		});
+		
+		session.write(serviceKey, param);
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());
 		

@@ -116,9 +116,13 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	
 	private void sendReceiveCommand() throws JMSException {
 		if (sendReceiveCommand) {
-			sendReceiveCommand = false;
 			try {
-				session.listen("JMSConsumerServlet", parameter,new ListenOnReadFuture(session));
+
+				session.listen("JMSConsumerServlet",new ListenOnReadFuture(session));
+				
+				session.write("JMSConsumerServlet", parameter);
+
+				sendReceiveCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
 			}
@@ -128,7 +132,11 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	private void sendReceiveCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendReceiveCommand) {
 			try {
-				session.listen("JMSConsumerServlet", parameter, new ConsumerOnReadFuture(onMessage));
+				
+				session.listen("JMSConsumerServlet", new ConsumerOnReadFuture(onMessage));
+				
+				session.write("JMSConsumerServlet", parameter);
+
 				sendReceiveCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
@@ -139,7 +147,11 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	private void sendSubscribeCommand() throws JMSException {
 		if (sendSubscribeCommand) {
 			try {
-				session.listen("JMSConsumerServlet", parameter, new ListenOnReadFuture(session));
+				
+				session.listen("JMSSubscribeServlet", new ListenOnReadFuture(session));
+				
+				session.write("JMSSubscribeServlet", parameter);
+				
 				sendSubscribeCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
@@ -151,7 +163,11 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 	private void sendSubscribeCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendSubscribeCommand) {
 			try {
-				session.listen("JMSConsumerServlet", parameter, new ConsumerOnReadFuture(onMessage));
+				
+				session.listen("JMSSubscribeServlet", new ConsumerOnReadFuture(onMessage));
+				
+				session.write("JMSSubscribeServlet", parameter);
+				
 				sendSubscribeCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
@@ -166,6 +182,7 @@ public class MessageConsumerImpl extends JMSConnectonImpl implements MessageCons
 		}
 
 		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
+		session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());
 
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("username", username);

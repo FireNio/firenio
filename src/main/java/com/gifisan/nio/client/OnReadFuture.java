@@ -6,5 +6,5 @@ public interface OnReadFuture {
 	
 	public static final EmptyOnReadFuture EMPTY_ON_READ_FUTURE = new EmptyOnReadFuture();
 	
-	public abstract void onResponse(ClientSession sesssion ,ReadFuture future);
+	public abstract void onResponse(ClientSession session ,ReadFuture future);
 }

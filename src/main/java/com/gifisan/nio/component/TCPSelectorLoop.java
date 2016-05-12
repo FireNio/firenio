@@ -1,9 +1,11 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.server.NIOContext;
@@ -42,8 +44,34 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		} catch (IOException e) {
 			acceptException(selectionKey, e);
 		}
-
 	}
+	
+	protected void acceptException(SelectionKey selectionKey, IOException exception) {
+
+		SelectableChannel channel = selectionKey.channel();
+
+		Object attachment = selectionKey.attachment();
+
+		if (isTCPEndPoint(attachment)) {
+
+			TCPEndPoint endPoint = (TCPEndPoint) attachment;
+			
+			endPoint.endConnect();
+
+			CloseUtil.close(endPoint);
+		}
+
+		CloseUtil.close(channel);
+
+		selectionKey.cancel();
+
+		logger.error(exception.getMessage(), exception);
+	}
+	
+	private boolean isTCPEndPoint(Object object) {
+		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof TCPEndPoint);
+	}
+
 
 	protected Thread getLooperThread() {
 

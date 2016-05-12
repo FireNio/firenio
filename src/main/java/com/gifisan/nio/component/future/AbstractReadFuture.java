@@ -100,4 +100,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		return textCache;
 	}
 	
+	public String toString() {
+		return serviceName+"@"+getText();
+	}
 }

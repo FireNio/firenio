@@ -74,21 +74,26 @@ public class TestConcurrentCallBack {
 
 		public void run() {
 			try {
+				
+				String serviceName = "TestSimpleServlet";
 				ClientSession session = connector.getClientSession();
 
+				
+				session.listen(serviceName, new OnReadFuture() {
+					public void onResponse(ClientSession session, ReadFuture future) {
+//						if (future instanceof ErrorReadFuture) {
+//							System.out.println(future);
+//						}
+						latch.countDown();
+//						long count = latch.getCount();
+//						if (count % 4000 == 0) {
+//							System.out.println("************************================"+count);
+//						}
+					}
+				});
+				
 				for (int i = 0; i < cycle; i++) {
-					session.write("TestSimpleServlet", "TestSimpleServlet", new OnReadFuture() {
-						public void onResponse(ClientSession sesssion, ReadFuture future) {
-//							if (future instanceof ErrorReadFuture) {
-//								System.out.println(future);
-//							}
-							latch.countDown();
-//							long count = latch.getCount();
-//							if (count % 4000 == 0) {
-//								System.out.println("************************================"+count);
-//							}
-						}
-					});
+					session.write(serviceName, serviceName);
 				}
 
 			} catch (IOException e) {

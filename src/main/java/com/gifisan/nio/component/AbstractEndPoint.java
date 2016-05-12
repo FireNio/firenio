@@ -1,26 +1,19 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.NetworkException;
 import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractEndPoint implements EndPoint {
 
+	private static AtomicLong	autoEndPointID = new AtomicLong(10000);
 	private Attachment			attachment	= null;
 	private NIOContext			context		= null;
-	private InetSocketAddress	local		= null;
-	private InetSocketAddress	remote		= null;
-	private Socket				socket		= null;
 	private Long				endPointID	= null;
-	private static AtomicLong	autoEndPointID = new AtomicLong(10000);
-	protected boolean			endConnect	= false;
+	protected InetSocketAddress	local		= null;
+	protected InetSocketAddress	remote		= null;
 	
 
 	public AbstractEndPoint(NIOContext context){
@@ -36,17 +29,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return attachment;
 	}
 
-	public void endConnect() {
-		this.endConnect = true;
-	}
-
-	public String getLocalAddr() {
-		if (local == null) {
-			local = (InetSocketAddress) socket.getLocalSocketAddress();
-		}
-		return local.getAddress().getCanonicalHostName();
-	}
-
 	public String getLocalHost() {
 		return local.getHostName();
 	}
@@ -54,51 +36,66 @@ public abstract class AbstractEndPoint implements EndPoint {
 	public int getLocalPort() {
 		return local.getPort();
 	}
-
-	public int getMaxIdleTime() throws SocketException {
-		return socket.getSoTimeout();
-	}
-
-	public String getRemoteAddr() {
-		if (remote == null) {
-			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
+	
+	public String getLocalAddr() {
+		
+		InetSocketAddress address = getLocalSocketAddress();
+		
+		if (address == null) {
+			
+			return "closed";
 		}
-		return remote.getAddress().getCanonicalHostName();
+		
+		return address.getHostName();
+	}
+	
+	protected abstract InetSocketAddress getLocalSocketAddress() ;
+	
+	public String getRemoteAddr() {
+		InetSocketAddress address = getLocalSocketAddress();
+		
+		if (address == null) {
+			
+			return "closed";
+		}
+		
+		return address.getAddress().getCanonicalHostName();
 	}
 
 	public String getRemoteHost() {
-		if (remote == null) {
-			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
+		
+		InetSocketAddress address = getRemoteSocketAddress();
+		
+		if (address == null) {
+			
+			return "closed";
 		}
-		return remote.getAddress().getHostName();
+		
+		return address.getAddress().getHostName();
 	}
 
 	public int getRemotePort() {
-		if (remote == null) {
-			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
+		
+		InetSocketAddress address = getRemoteSocketAddress();
+		
+		if (address == null) {
+			
+			return -1;
 		}
-		return remote.getPort();
+		
+		return address.getPort();
 	}
 
-	public boolean isEndConnect() {
-		return endConnect;
-	}
-
-	public ByteBuffer read(int limit) throws IOException {
-		ByteBuffer buffer = ByteBuffer.allocate(limit);
-		this.read(buffer);
-		if (buffer.position() < limit) {
-			throw new NetworkException("poor network ");
-		}
-		return buffer;
-	}
+	protected abstract InetSocketAddress getRemoteSocketAddress();
 
 	public NIOContext getContext() {
 		return context;
 	}
 
 	public String toString() {
-		return new StringBuilder("[edp(id:")
+		return new StringBuilder("[")
+				.append(getMarkPrefix())
+				.append("(id:")
 				.append(endPointID)
 				.append(") remote /")
 				.append(this.getRemoteHost())
@@ -109,6 +106,8 @@ public abstract class AbstractEndPoint implements EndPoint {
 				.append("]")
 				.toString();
 	}
+	
+	protected abstract String getMarkPrefix();
 
 	public Long getEndPointID() {
 		return endPointID;

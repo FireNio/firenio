@@ -14,7 +14,7 @@ public class ClientUtil {
 		
 		PropertiesLoader.load("log4j.properties");
 		
-		ClientTCPConnector connector = new ClientTCPConnector("localhost", 8300);
+		ClientTCPConnector connector = new ClientTCPConnector("localhost", 8900);
 		
 //		DebugUtil.info(connector.toString());
 		
@@ -24,6 +24,7 @@ public class ClientUtil {
 	
 	public static String getParamString(){
 		Map params = new HashMap();
+		params.put("serviceName", "test");
 		params.put("username", "admin");
 		params.put("password", "admin100");
 		return JSONObject.toJSONString(params);

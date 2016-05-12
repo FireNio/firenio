@@ -18,7 +18,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 		this.onMessage = onMessage;
 	}
 
-	public void onResponse(ClientSession sesssion, ReadFuture future) {
+	public void onResponse(ClientSession session, ReadFuture future) {
 		try {
 			
 			Message message = messageDecoder.decode(future);

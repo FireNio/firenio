@@ -9,13 +9,13 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class TestListenSimple {
+public class TestPutSession2Factory {
 	
 	
 	public static void main(String[] args) throws IOException {
 
 
-		String serviceKey = "TestListenSimpleServlet";
+		String serviceKey = "PutSession2FactoryServlet";
 		String param = ClientUtil.getParamString();
 		
 		final ClientTCPConnector connector = ClientUtil.getClientConnector();
@@ -27,16 +27,17 @@ public class TestListenSimple {
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
-		session.listen(serviceKey,new OnReadFuture() {
-			
+		session.listen(serviceKey, new OnReadFuture() {
 			public void onResponse(ClientSession session, ReadFuture future) {
 				System.out.println(future.getText());
 			}
 		});
 		
-		session.write(serviceKey, param, null);
+		session.write(serviceKey, param);
+//		response = session.request(serviceKey, param);
+//		System.out.println(response.getContent());
 		
-		ThreadUtil.sleep(1000);
+		ThreadUtil.sleep(500);
 		CloseUtil.close(connector);
 		
 	}

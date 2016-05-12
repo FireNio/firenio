@@ -9,10 +9,10 @@ import com.gifisan.nio.component.future.ReadFuture;
 public class DefaultClientStreamAcceptor implements ClientStreamAcceptor {
 
 	public void accept(ClientSession session, ReadFuture future) throws Exception {
-		ProtectedClientSession clientSesssion = (ProtectedClientSession) session;
+		ProtectedClientSession clientSession = (ProtectedClientSession) session;
 		
 		
-		ClientStreamAcceptor acceptor = clientSesssion.getStreamAcceptor(future.getServiceName());
+		ClientStreamAcceptor acceptor = clientSession.getStreamAcceptor(future.getServiceName());
 		
 		if (acceptor == null) {
 			throw new IOException("null acceptor ,service name:"+future.getServiceName());

@@ -10,17 +10,17 @@ import com.gifisan.nio.component.future.WriteFuture;
 public class ClientIOExceptionHandle extends DefaultIOEventHandle{
 
 	public void handle(Session session, Future future, IOException e) {
-		ProtectedClientSession clientSesssion = (ProtectedClientSession) session;
+		ProtectedClientSession clientSession = (ProtectedClientSession) session;
 		
 		WriteFuture writeFuture = (WriteFuture) future;
 		
 		ErrorReadFuture eFuture = new ErrorReadFuture(
 				future.getServiceName(), 
 				future.getText(), 
-				clientSesssion,
+				clientSession,
 				writeFuture.getInputStream(), 
 				e);
-		clientSesssion.offer(eFuture);
+		clientSession.offer(eFuture);
 	}
 	
 }

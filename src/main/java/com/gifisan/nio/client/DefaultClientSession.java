@@ -13,7 +13,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 @Deprecated
 public class DefaultClientSession extends AbstractClientSession implements ProtectedClientSession {
 
-	private AtomicBoolean				responsed		= new AtomicBoolean(true);
+	private AtomicBoolean	responsed	= new AtomicBoolean(true);
 
 	public DefaultClientSession(TCPEndPoint endPoint, byte sessionID) {
 		super(endPoint, sessionID);
@@ -28,7 +28,8 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 
 			byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-			IOWriteFuture future = encoder.encode(endPoint,this,serviceName,array, inputStream, context.getClientIOExceptionHandle());
+			IOWriteFuture future = encoder.encode(endPoint, this, serviceName, array, inputStream,
+					context.getClientIOExceptionHandle());
 
 			this.endPointWriter.offer(future);
 
@@ -45,18 +46,17 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 
 	public ReadFuture poll(long timeout) throws DisconnectException {
 		ReadFuture future = messageBus.poll(timeout);
-		
+
 		if (future == null) {
 			return null;
 		}
-		
+
 		this.offer();
-		
+
 		return future;
 	}
 
-	public void write(String serviceName, String content, InputStream inputStream, OnReadFuture onReadFuture)
-			throws IOException {
+	public void write(String serviceName, String content, InputStream inputStream) throws IOException {
 
 		if (responsed.compareAndSet(true, false)) {
 			if (StringUtil.isNullOrBlank(serviceName)) {
@@ -65,19 +65,14 @@ public class DefaultClientSession extends AbstractClientSession implements Prote
 
 			byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-			IOWriteFuture future = encoder.encode(endPoint,this,serviceName, array, inputStream, context.getClientIOExceptionHandle());
+			IOWriteFuture future = encoder.encode(endPoint, this, serviceName, array, inputStream,
+					context.getClientIOExceptionHandle());
 
-			if (onReadFuture == null) {
-				onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
-			}
-			
-			this.messageBus.onReadFuture(onReadFuture);
-			
 			this.endPointWriter.offer(future);
 
 		}
 
 		throw new IOException("did not responsed");
 	}
-	
+
 }

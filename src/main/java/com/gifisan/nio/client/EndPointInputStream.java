@@ -6,17 +6,17 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 
 public class EndPointInputStream extends InputStream {
 
 	private int			avaiable	= 0;
 	private int			position	= 0;
-	private EndPoint		endPoint	= null;
+	private TCPEndPoint		endPoint	= null;
 	private Condition		complete	= null;
 	private ReentrantLock	lock		= null;
 
-	public EndPointInputStream(EndPoint endPoint, int avaiable) {
+	public EndPointInputStream(TCPEndPoint endPoint, int avaiable) {
 		this.endPoint = endPoint;
 		this.avaiable = avaiable;
 	}

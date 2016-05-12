@@ -10,7 +10,7 @@ public class ListenOnReadFuture implements OnReadFuture {
 		this.messageBus = ((ProtectedClientSession)session).getMessageBus();
 	}
 
-	public void onResponse(ClientSession sesssion, ReadFuture future) {
+	public void onResponse(ClientSession session, ReadFuture future) {
 		messageBus.offer(future);
 	}
 

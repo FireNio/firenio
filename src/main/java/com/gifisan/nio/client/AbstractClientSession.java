@@ -9,7 +9,6 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
@@ -21,7 +20,7 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 
 	public AbstractClientSession(TCPEndPoint endPoint, byte logicSessionID) {
 		super(endPoint, logicSessionID);
-		this.messageBus = new MessageBus(this);
+		this.messageBus = new MessageBus(this);	
 		this.context = (ClientContext) endPoint.getContext();
 	}
 
@@ -45,8 +44,8 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		this.timeout = timeout;
 	}
 
-	public void write(String serviceName, String content, OnReadFuture onReadFuture) throws IOException {
-		write(serviceName, content, null, onReadFuture);
+	public void write(String serviceName, String content) throws IOException {
+		write(serviceName, content, null);
 	}
 
 	public void onStreamRead(String key, ClientStreamAcceptor acceptor) {
@@ -57,15 +56,11 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		return streamAcceptors.get(serviceName);
 	}
 
-	public void listen(String serviceName, String content, OnReadFuture onReadFuture) throws IOException {
+	public void listen(String serviceName,OnReadFuture onReadFuture) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 		
-		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
-
-		IOWriteFuture future = encoder.encode(endPoint,this,serviceName, array, null, context.getClientIOExceptionHandle());
-
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
 		}
@@ -76,7 +71,6 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		
 		this.messageBus.listen(serviceName, onReadFuture);
 		
-		this.endPointWriter.offer(future);
 	}
 	
 	public void cancelListen(String serviceName){

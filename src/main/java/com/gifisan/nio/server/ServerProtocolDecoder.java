@@ -7,7 +7,7 @@ import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
@@ -41,7 +41,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 		httpArray = http.toString().getBytes();
 	}
 
-	public IOReadFuture doDecodeExtend(EndPoint endPoint, byte type) throws IOException {
+	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
 		if (type == ProtocolDecoder.BEAT) {
 
 			DebugUtil.debug(">>read beat................." + DateUtil.now());

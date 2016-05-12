@@ -1,16 +1,12 @@
 package com.gifisan.nio.component;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.NIOContext;
 
 public interface EndPoint extends Closeable {
-
-	public abstract void endConnect();
 
 	public abstract String getLocalAddr();
 
@@ -28,8 +24,6 @@ public interface EndPoint extends Closeable {
 
 	public abstract boolean isBlocking();
 
-	public abstract boolean isEndConnect();
-
 	public abstract NIOContext getContext();
 	
 	public abstract void attach(Attachment attachment);
@@ -38,7 +32,4 @@ public interface EndPoint extends Closeable {
 
 	public abstract Long getEndPointID();
 
-	public abstract int read(ByteBuffer buffer) throws IOException;
-
-	public abstract int write(ByteBuffer buffer) throws IOException;
 }

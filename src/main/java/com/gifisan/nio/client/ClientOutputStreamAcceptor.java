@@ -10,15 +10,15 @@ public class ClientOutputStreamAcceptor implements OutputStreamAcceptor {
 
 	public void accept(Session session, IOReadFuture future) throws Exception {
 
-		ProtectedClientSession clientSesssion = (ProtectedClientSession) session;
+		ProtectedClientSession clientSession = (ProtectedClientSession) session;
 
-		ClientStreamAcceptor acceptor = clientSesssion.getStreamAcceptor(future.getServiceName());
+		ClientStreamAcceptor acceptor = clientSession.getStreamAcceptor(future.getServiceName());
 
 		if (acceptor == null) {
 			throw new IOException("null acceptor ,service name:" + future.getServiceName());
 		}
 
-		acceptor.accept(clientSesssion, future);
+		acceptor.accept(clientSession, future);
 	}
 
 }

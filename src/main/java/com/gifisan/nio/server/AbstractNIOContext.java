@@ -8,6 +8,7 @@ import java.util.Set;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
+import com.gifisan.nio.component.ManagedIOSessionFactory;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
@@ -21,6 +22,7 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 
 	private Map<String, Object>		attributes			= new HashMap<String, Object>();
 	private UDPEndPointFactory		udpEndPointFactory		= new UDPEndPointFactory();
+	private ManagedIOSessionFactory	managedIOSessionFactory	= new ManagedIOSessionFactory();
 	protected Charset				encoding				= Encoding.DEFAULT;
 	protected ProtocolEncoder		protocolEncoder		= new DefaultTCPProtocolEncoder();
 	protected ProtocolDecoder		protocolDecoder		= new DefaultTCPProtocolDecoder();
@@ -84,6 +86,11 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	public UDPEndPointFactory getUDPEndPointFactory() {
 		return udpEndPointFactory;
 	}
+
+	public ManagedIOSessionFactory getManagedIOSessionFactory() {
+		return managedIOSessionFactory;
+	}
 	
 	
+
 }

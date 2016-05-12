@@ -16,6 +16,7 @@ public class TestLoadCallBack {
 	public static final CountDownLatch latch = new CountDownLatch(time);
 	public static void main(String[] args) throws IOException{
 		
+		String serviceName = "TestSimpleServlet";
 		
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
@@ -24,16 +25,19 @@ public class TestLoadCallBack {
 		System.out.println("################## Test start ####################");
 		long old = System.currentTimeMillis();
 		
-		for (int i = 0; i < time; i++) {
-			session.write("TestSimpleServlet", "TestSimpleServlet",new OnReadFuture() {
-				public void onResponse(ClientSession sesssion, ReadFuture future) {
-					latch.countDown();
-					long count = latch.getCount();
-					if (count % 10 == 0) {
-						System.out.println("************************================"+count);
-					}
+		
+		session.listen(serviceName, new OnReadFuture() {
+			public void onResponse(ClientSession session, ReadFuture future) {
+				latch.countDown();
+				long count = latch.getCount();
+				if (count % 10 == 0) {
+					System.out.println("************************================"+count);
 				}
-			});
+			}
+		});
+		
+		for (int i = 0; i < time; i++) {
+			session.write(serviceName, serviceName);
 		}
 		
 		try {

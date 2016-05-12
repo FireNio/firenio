@@ -23,32 +23,6 @@ public abstract class AbstractSelectorLoop extends AbstractLifeCycle implements 
 	protected Thread			looper			= null;
 	protected Selector			selector			= null;
 
-	protected void acceptException(SelectionKey selectionKey, IOException exception) {
-
-		SelectableChannel channel = selectionKey.channel();
-
-		Object attachment = selectionKey.attachment();
-
-		if (isEndPoint(attachment)) {
-
-			EndPoint endPoint = (EndPoint) attachment;
-			
-			endPoint.endConnect();
-
-			CloseUtil.close(endPoint);
-		}
-
-		CloseUtil.close(channel);
-
-		selectionKey.cancel();
-
-		logger.error(exception.getMessage(), exception);
-	}
-
-	private boolean isEndPoint(Object object) {
-		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof EndPoint);
-	}
-
 	public void run() {
 		for (; isRunning();) {
 

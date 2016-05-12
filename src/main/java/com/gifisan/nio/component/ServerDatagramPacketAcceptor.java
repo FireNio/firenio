@@ -3,9 +3,13 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.component.protocol.udp.DatagramPacket;
 import com.gifisan.nio.component.protocol.udp.DatagramRequest;
+import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.ReadFutureFactory;
 
 public class ServerDatagramPacketAcceptor implements DatagramPacketAcceptor {
 
@@ -22,13 +26,15 @@ public class ServerDatagramPacketAcceptor implements DatagramPacketAcceptor {
 		
 		UDPEndPointFactory factory = context.getUDPEndPointFactory();
 
-		UDPEndPoint targetEndPoint = factory.getUDPEndPoint(packet.getTargetEndpoint());
+		UDPEndPoint targetEndPoint = factory.getUDPEndPoint(packet.getTargetEndpointID());
 		
 		if (targetEndPoint == null) {
 			return;
 		}
 
-		targetEndPoint.write(ByteBuffer.wrap(packet.getData()));
+		
+		
+		targetEndPoint.sendPacket(ByteBuffer.wrap(packet.getData()));
 
 	}
 
@@ -37,8 +43,32 @@ public class ServerDatagramPacketAcceptor implements DatagramPacketAcceptor {
 		String serviceName = request.getServiceName();
 
 		if ("BIND_SESSION".equals(serviceName)) {
-
-			// FIXME BIND SESSION
+			
+			Parameters parameters = request.getParameters();
+			
+			String sessionID = parameters.getParameter("sessionID");
+			
+			NIOContext context = endPoint.getContext();
+			
+			ManagedIOSessionFactory factory = context.getManagedIOSessionFactory();
+			
+			IOSession session = factory.getIOSession(sessionID);
+			
+			if (session == null) {
+				return ;
+			}
+			
+			endPoint.setTCPSession(session);
+			
+			ServerReadFuture future = ReadFutureFactory.create(session, "BIND_SESSION_CALLBACK");
+			
+			future.write("SUCCESS");
+			
+			session.flush(future);
+			
+		}else{
+			
+			DebugUtil.debug(">>>>"+request.getServiceName());
 		}
 	}
 
