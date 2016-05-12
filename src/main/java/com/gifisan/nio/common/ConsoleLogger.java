@@ -43,6 +43,11 @@ public class ConsoleLogger implements Logger{
 	public void error(String object, Throwable throwable) {
 		DebugUtil.error(object, throwable);		
 	}
+	
+	public void error(String object) {
+		DebugUtil.error(object);		
+		
+	}
 
 	public static void main(String[] args) {
 		new ConsoleLogger().info("test {}", "www");

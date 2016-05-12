@@ -13,22 +13,22 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.SelectorManagerLoop;
+import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.ServerEndPointWriter;
 
-public final class NIOConnector extends AbstractLifeCycle implements Connector {
+public final class TCPConnector extends AbstractLifeCycle implements Connector {
 
-	private int				serverPort		= 8600;
+	private int				serverPort		= 0;
 	private ServerSocketChannel	channel			= null;
 	private ServerSocket		serverSocket		= null;
-	private SelectorManagerLoop	selectorManagerLoop	= null;
+	private TCPSelectorLoop		selectorLoop		= null;
 	private Selector			selector			= null;
 	private NIOContext			context			= null;
 	private EndPointWriter		endPointWriter		= null;
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	
 
-	protected NIOConnector(NIOContext context,int serverPort) {
+	protected TCPConnector(NIOContext context,int serverPort) {
 		this.context = context;
 		this.serverPort = serverPort;
 	}
@@ -45,7 +45,6 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 			this.channel.configureBlocking(false);
 			// 检索与此通道关联的服务器套接字
 			this.serverSocket = channel.socket();
-			// localPort = serverSocket.getLocalPort();
 			// 进行服务的绑定
 			this.serverSocket.bind(getInetSocketAddress(), 50);
 			// 打开selector
@@ -74,24 +73,24 @@ public final class NIOConnector extends AbstractLifeCycle implements Connector {
 		
 		this.endPointWriter = new ServerEndPointWriter();
 
-		this.selectorManagerLoop = new SelectorManagerLoop(context, selector,endPointWriter);
+		this.selectorLoop = new TCPSelectorLoop(context, selector,endPointWriter);
 
 		this.endPointWriter.start();
 		
-		this.selectorManagerLoop.start();
+		this.selectorLoop.start();
 	}
 
 	protected void doStop() throws Exception {
 
-		LifeCycleUtil.stop(selectorManagerLoop);
+		LifeCycleUtil.stop(selectorLoop);
 		
 		LifeCycleUtil.stop(endPointWriter);
 
 		this.close();
 	}
 
-	protected SelectorManagerLoop getSelectorManagerLoop() {
-		return selectorManagerLoop;
+	protected TCPSelectorLoop getSelectorManagerLoop() {
+		return selectorLoop;
 	}
 
 }

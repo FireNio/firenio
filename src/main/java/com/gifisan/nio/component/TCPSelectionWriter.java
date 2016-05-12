@@ -6,23 +6,23 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.server.NIOContext;
 
-public class NIOSelectionWriter implements SelectionAcceptor {
+public class TCPSelectionWriter implements SelectionAcceptor {
 
 	private NIOContext		context		= null;
 	private EndPointWriter	endPointWriter	= null;
 
-	public NIOSelectionWriter(NIOContext context, EndPointWriter endPointWriter) {
+	public TCPSelectionWriter(NIOContext context, EndPointWriter endPointWriter) {
 		this.context = context;
 		this.endPointWriter = endPointWriter;
 	}
 
-	private EndPoint getEndPoint(SelectionKey selectionKey) throws SocketException {
+	private TCPEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException {
 
-		EndPoint endPoint = (EndPoint) selectionKey.attachment();
+		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 
 		if (endPoint == null) {
 			// maybe not happen
-			endPoint = new NIOEndPoint(context, selectionKey, endPointWriter);
+			endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 		return endPoint;
@@ -31,7 +31,7 @@ public class NIOSelectionWriter implements SelectionAcceptor {
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		EndPoint endPoint = getEndPoint(selectionKey);
+		TCPEndPoint endPoint = getEndPoint(selectionKey);
 
 		if (endPoint.isEndConnect()) {
 			return;

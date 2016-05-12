@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
@@ -18,8 +18,8 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private ServerContext	context		= null;
 	private LoginCenter		loginCenter	= null;
 
-	public ServerSession(EndPoint endPoint, byte sessionID) {
-		super(endPoint, sessionID);
+	public ServerSession(TCPEndPoint endPoint, byte logicSessionID) {
+		super(endPoint, logicSessionID);
 
 		this.context = (ServerContext) endPoint.getContext();
 		this.loginCenter = context.getLoginCenter();

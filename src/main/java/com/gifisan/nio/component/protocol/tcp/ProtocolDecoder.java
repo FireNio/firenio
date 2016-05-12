@@ -1,8 +1,8 @@
-package com.gifisan.nio.component.protocol;
+package com.gifisan.nio.component.protocol.tcp;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 
 /**
@@ -24,6 +24,6 @@ public interface ProtocolDecoder {
 	public static final byte	STREAM	= 1;
 	public static final byte	TEXT		= 0;
 
-	public abstract IOReadFuture decode(EndPoint endPoint) throws IOException;
+	public abstract IOReadFuture decode(TCPEndPoint endPoint) throws IOException;
 
 }

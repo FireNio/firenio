@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public class TextReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	public TextReadFuture(EndPoint endPoint,ByteBuffer textBuffer, Session session, String serviceName) {
+	public TextReadFuture(TCPEndPoint endPoint,ByteBuffer textBuffer, Session session, String serviceName) {
 		super(endPoint,textBuffer, session, serviceName);
 	}
 

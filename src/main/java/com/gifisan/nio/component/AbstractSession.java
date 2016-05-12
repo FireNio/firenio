@@ -4,28 +4,30 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.common.MessageFormatter;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.common.UUIDGenerator;
+import com.gifisan.nio.component.protocol.tcp.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractSession extends AttributesImpl implements Session {
 
 	private Attachment					attachment			= null;
 	private long						creationTime			= System.currentTimeMillis();
-	private byte						sessionID				= 0;
+	private byte						logicSessionID			= 0;
+	private boolean					closed				= false;
 	private SessionEventListenerWrapper	lastListener			= null;
 	private SessionEventListenerWrapper	listenerStub			= null;
-	protected EndPoint					endPoint				= null;
+	protected TCPEndPoint				endPoint				= null;
 	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
 	protected ProtocolEncoder			encoder				= null;
 	protected EndPointWriter			endPointWriter			= null;
-	private boolean					closed				= false;
+	protected String 					sessionID				= null;
 
-	public AbstractSession(EndPoint endPoint, byte sessionID) {
+	public AbstractSession(TCPEndPoint endPoint, byte logicSessionID) {
 		NIOContext context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.outputStreamAcceptor = context.getOutputStreamAcceptor();
-		this.sessionID = sessionID;
+		this.logicSessionID = logicSessionID;
 		this.endPoint = endPoint;
 	}
 
@@ -86,14 +88,14 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return endPoint.isOpened();
 	}
 
-	public byte getSessionID() {
-		return sessionID;
+	public byte getLogicSessionID() {
+		return logicSessionID;
 	}
 
 	public void destroyImmediately() {
 
 		this.closed = true;
-		
+
 		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
 
 		for (; listenerWrapper != null;) {
@@ -101,8 +103,8 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 			listenerWrapper = listenerWrapper.nextListener();
 		}
 	}
-	
-	protected EndPoint getEndPoint(){
+
+	protected TCPEndPoint getEndPoint() {
 		return endPoint;
 	}
 
@@ -111,10 +113,19 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public String toString() {
-		return MessageFormatter.format("session-{},edp-{}", sessionID, endPoint.toString());
+		return MessageFormatter.format("session-{},edp-{}", logicSessionID, endPoint.toString());
 	}
 
-	public boolean closed(){
+	public boolean closed() {
 		return closed;
 	}
+
+	public String getSessionID() {
+		if (sessionID == null) {
+			sessionID = UUIDGenerator.random();
+		}
+		return sessionID;
+	}
+	
+	
 }

@@ -36,7 +36,6 @@ public class PoolWorker extends AbstractLifeCycle implements Runnable {
 		for (; working;) {
 			Thread.sleep(8);
 		}
-		// new Exception("test").printStackTrace();
 	}
 
 }

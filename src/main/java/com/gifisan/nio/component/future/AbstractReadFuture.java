@@ -6,27 +6,27 @@ import java.nio.charset.Charset;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
 
-	protected EndPoint			endPoint		= null;
+	protected TCPEndPoint			endPoint		= null;
 	protected Session			session		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected boolean			hasStream		= false;
 	private boolean			flushed		= false;
 	private BufferedOutputStream	textCache		= new BufferedOutputStream();
 
-	public AbstractReadFuture(EndPoint endPoint, ByteBuffer textBuffer, Session session, String serviceName) {
+	public AbstractReadFuture(TCPEndPoint endPoint, ByteBuffer textBuffer, Session session, String serviceName) {
 		super(serviceName);
 		this.endPoint = endPoint;
 		this.session = session;
 		this.textBuffer = textBuffer;
 	}
 
-	public EndPoint getEndPoint() {
+	public TCPEndPoint getEndPoint() {
 		return endPoint;
 	}
 

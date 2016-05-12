@@ -8,7 +8,7 @@ public interface IOWriteFuture extends WriteFuture{
 
 	public abstract boolean write() throws IOException;
 
-	public abstract EndPoint getEndPoint();
+	public abstract TCPEndPoint getEndPoint();
 	
 	public abstract Session getSession();
 

@@ -3,6 +3,7 @@ package com.gifisan.nio.component;
 import java.util.Set;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.PropertiesException;
 import com.gifisan.nio.common.StringUtil;
 
 public class Configuration implements Attributes {
@@ -53,10 +54,10 @@ public class Configuration implements Attributes {
 		return _config.getString(key);
 	}
 
-	public String getPropertyNoBlank(String key) throws Exception {
+	public String getPropertyNoBlank(String key) throws PropertiesException {
 		String object = (String) _config.get(key);
 		if (StringUtil.isNullOrBlank(object)) {
-			throw new Exception("property " + key + " is empty");
+			throw new PropertiesException("property " + key + " is empty");
 		}
 		return object;
 

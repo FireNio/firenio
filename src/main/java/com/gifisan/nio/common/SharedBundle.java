@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import com.gifisan.nio.PropertiesException;
+
 public class SharedBundle {
 
 	private static SharedBundle	bundle	= new SharedBundle();
@@ -97,10 +99,10 @@ public class SharedBundle {
 		return value;
 	}
 
-	public String getPropertyNoBlank(String key) throws Exception {
+	public String getPropertyNoBlank(String key) throws PropertiesException {
 		String value = properties.getProperty(key);
 		if (StringUtil.isNullOrBlank(value)) {
-			throw new Exception("property " + key + " is empty");
+			throw new PropertiesException("property " + key + " is empty");
 		}
 		return value;
 	}
@@ -133,7 +135,7 @@ public class SharedBundle {
 
 	public boolean loadLog4jProperties(String file) throws IOException {
 		File _file = loadFile(file);
-		
+
 		if (_file.exists()) {
 			Properties log4j = loadProperties(FileUtil.openInputStream(_file));
 			PropertyConfigurator.configure(log4j);
@@ -160,8 +162,8 @@ public class SharedBundle {
 			CloseUtil.close(inputStream);
 		}
 	}
-	
-	public File loadFile(String file){
+
+	public File loadFile(String file) {
 		return new File(baseDIR + file);
 	}
 
@@ -173,7 +175,7 @@ public class SharedBundle {
 		}
 		return false;
 	}
-	
+
 	public void storageProperties(InputStream inputStream) throws IOException {
 		Properties temp = new Properties();
 		try {

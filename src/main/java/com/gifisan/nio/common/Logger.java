@@ -18,7 +18,9 @@ public interface Logger {
 	
 	public abstract void debug(String message,Object []param);
 	
-	public abstract void error(String object,Throwable throwable);
+	public abstract void error(String object);
+	
+	public abstract void error(String object,Throwable throwable); 
 	
 	
 	

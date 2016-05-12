@@ -43,7 +43,9 @@ public interface Session {
 
 	public abstract boolean isOpened();
 
-	public abstract byte getSessionID();
+	public abstract String getSessionID();
+	
+	public abstract byte getLogicSessionID();
 	
 	public abstract void destroyImmediately();
 	

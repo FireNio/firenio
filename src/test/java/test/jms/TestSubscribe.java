@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.jms.JMSException;
 import com.gifisan.nio.jms.Message;
@@ -35,7 +35,7 @@ public class TestSubscribe {
 
 	private static void test() throws Exception {
 
-		ClientConnector connector = ClientUtil.getClientConnector();
+		ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 

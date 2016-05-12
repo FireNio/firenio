@@ -16,32 +16,33 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.SelectorManagerLoop;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
-public class ClientConnector implements Connector {
+public class ClientTCPConnector implements Connector {
 
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	private ClientContext		context			= null;
-	private ClientEndPoint		endPoint			= null;
+	private ClientTCPEndPoint	endPoint			= null;
 	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
-	private Logger				logger			= LoggerFactory.getLogger(ClientConnector.class);
+	private Logger				logger			= LoggerFactory.getLogger(ClientTCPConnector.class);
 	private Selector			selector			= null;
 	private InetSocketAddress	serverAddress		= null;
 	private TaskExecutor		taskExecutor		= null;
-	private SelectorManagerLoop	selectorManagerLoop	= null;
+	private TCPSelectorLoop		selectorLoop		= null;
 	private ClientEndPointWriter	endPointWriter		= null;
+	
 
-	protected SelectorManagerLoop getSelectorManagerLoop() {
-		return selectorManagerLoop;
+	protected TCPSelectorLoop getSelectorLoop() {
+		return selectorLoop;
 	}
 
 	protected EndPointWriter getEndPointWriter() {
 		return endPointWriter;
 	}
 
-	public ClientConnector(String host, int port) {
+	public ClientTCPConnector(String host, int port) {
 		this.context = new ClientContext(host, port);
 	}
 
@@ -49,14 +50,14 @@ public class ClientConnector implements Connector {
 
 		Thread thread = Thread.currentThread();
 
-		if (selectorManagerLoop.isMonitor(thread)) {
+		if (selectorLoop.isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");
 		}
 
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(context);
 			LifeCycleUtil.stop(taskExecutor);
-			LifeCycleUtil.stop(selectorManagerLoop);
+			LifeCycleUtil.stop(selectorLoop);
 			LifeCycleUtil.stop(endPointWriter);
 			CloseUtil.close(endPoint);
 		}
@@ -77,7 +78,7 @@ public class ClientConnector implements Connector {
 				
 				this.endPointWriter.start();
 				
-				this.selectorManagerLoop.start();
+				this.selectorLoop.start();
 			} catch (Exception e) {
 				DebugUtil.debug(e);
 			}
@@ -114,9 +115,9 @@ public class ClientConnector implements Connector {
 			channel.finishConnect();
 			channel.register(selector, SelectionKey.OP_READ);
 			this.endPointWriter = new ClientEndPointWriter();
-			this.endPoint = new ClientEndPoint(context, selectionKey, this);
+			this.endPoint = new ClientTCPEndPoint(context, selectionKey, this);
 			endPointWriter.setEndPoint(this.endPoint);
-			this.selectorManagerLoop = new ClientSelectorManagerLoop(context, selector,
+			this.selectorLoop = new ClientSelectorManagerLoop(context, selector,
 					endPointWriter);
 			selectionKey.attach(endPoint);
 		}
@@ -188,7 +189,7 @@ public class ClientConnector implements Connector {
 	}
 
 	public String toString() {
-		return "Connector@" + endPoint.toString();
+		return "TCP:Connector@" + endPoint.toString();
 	}
 
 }

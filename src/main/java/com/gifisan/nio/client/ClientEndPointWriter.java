@@ -10,7 +10,7 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedList;
@@ -20,7 +20,7 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	private Thread					owner		= null;
 	private boolean				running		= false;
-	private ClientEndPoint			endPoint		= null;
+	private ClientTCPEndPoint			endPoint		= null;
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
 	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 8 * 16);
@@ -60,7 +60,7 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 				continue;
 			}
 
-			EndPoint endPoint = writer.getEndPoint();
+			TCPEndPoint endPoint = writer.getEndPoint();
 			
 			if (endPoint.isEndConnect()) {
 				
@@ -139,7 +139,7 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	}
 	
-	protected void setEndPoint(ClientEndPoint endPoint) {
+	protected void setEndPoint(ClientTCPEndPoint endPoint) {
 		this.endPoint = endPoint;
 	}
 

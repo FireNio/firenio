@@ -97,7 +97,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 		if (array.size() == 0) {
 
-			throw new Exception("empty servlet config");
+			throw new Error("empty servlet config");
 
 		}
 
@@ -137,7 +137,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 			throws Exception {
 
 		String config = PropertiesLoader.loadContent("servlets.config", Encoding.UTF8);
-
+		
 		if (!StringUtil.isNullOrBlank(config)) {
 
 			JSONArray array = JSONObject.parseArray(config);
@@ -146,7 +146,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 		} else {
 
-			throw new Exception("[NIOServer] 不存在Servlet配置文件");
+			throw new Error("不存在Servlet配置文件");
 
 		}
 	}

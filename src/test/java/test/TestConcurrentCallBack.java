@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.SharedBundle;
@@ -28,7 +28,7 @@ public class TestConcurrentCallBack {
 		
 		ThreadPool pool = new ExecutorThreadPool("TestConcurrentCallBack", 8);
 
-		ClientConnector []connectors = new ClientConnector[thread];
+		ClientTCPConnector []connectors = new ClientTCPConnector[thread];
 		
 		for (int i = 0; i < connectors.length; i++) {
 			
@@ -66,9 +66,9 @@ public class TestConcurrentCallBack {
 	
 	static class T implements Runnable{
 		
-		private ClientConnector connector = null;
+		private ClientTCPConnector connector = null;
 		
-		public T(ClientConnector connector) {
+		public T(ClientTCPConnector connector) {
 			this.connector = connector;
 		}
 

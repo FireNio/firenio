@@ -48,5 +48,9 @@ public class SLF4JLogger implements Logger{
 	public void error(String object, Throwable throwable) {
 		logger.error(object,throwable);
 	}
+
+	public void error(String object) {
+		logger.error(object);
+	}
 	
 }

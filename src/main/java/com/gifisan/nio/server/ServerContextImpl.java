@@ -5,6 +5,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.LoginCenter;
+import com.gifisan.nio.component.ServerDatagramPacketAcceptor;
 import com.gifisan.nio.component.ServerOutputStreamAcceptor;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
@@ -15,13 +16,11 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 	private NIOServer				server			= null;
 	private FilterService			filterService		= null;
 	private String					appLocalAddres		= null;
-	private Logger					logger			= LoggerFactory.getLogger(ServerContextImpl.class);
 	private int					serverPort		= 0;
 	private int					serverCoreSize		= 4;
 	private ThreadPool				serviceDispatcher	= null;
-	private ServerProtocolDecoder		protocolDecoder	= null;
-	private ServerProtocolEncoder		protocolEncoder	= null;
 	private LoginCenter				loginCenter		= null;
+	private Logger					logger			= LoggerFactory.getLogger(ServerContextImpl.class);
 
 	public ServerContextImpl(NIOServer server) {
 		this.server = server;
@@ -32,11 +31,11 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 //		this.appLocalAddres = "22222";
+		this.datagramPacketAcceptor = new ServerDatagramPacketAcceptor();
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", this.serverCoreSize);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.sessionFactory = new ServerSessionFactory();
 		this.protocolDecoder = new ServerProtocolDecoder();
-		this.protocolEncoder = new ServerProtocolEncoder();
 		this.loginCenter = new DefaultServerLoginCenter();
 		this.filterService = new FilterService(this);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
@@ -89,14 +88,6 @@ public class ServerContextImpl extends AbstractNIOContext implements ServerConte
 
 	public void setServerCoreSize(int serverCoreSize) {
 		this.serverCoreSize = serverCoreSize;
-	}
-
-	public ServerProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	public ServerProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
 	}
 
 	public LoginCenter getLoginCenter() {

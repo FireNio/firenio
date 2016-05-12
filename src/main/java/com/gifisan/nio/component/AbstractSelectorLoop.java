@@ -15,24 +15,13 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.server.NIOContext;
 
-public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionAcceptor, Runnable {
+public abstract class AbstractSelectorLoop extends AbstractLifeCycle implements SelectorLoop {
 
-	private Logger				logger			= LoggerFactory.getLogger(SelectorManagerLoop.class);
-	private Thread				looper			= null;
-	private Selector			selector			= null;
-	private SelectionAcceptor	_read_acceptor		= null;
-	private SelectionAcceptor	_write_acceptor	= null;
-	private SelectionAcceptor	_accept_acceptor	= null;
+	private Logger				logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean			working			= false;
-
-	public SelectorManagerLoop(NIOContext context, Selector selector,EndPointWriter endPointWriter) {
-		this.selector = selector;
-		this._accept_acceptor = new NIOSelectionAcceptor(selector);
-		this._read_acceptor = new NIOSelectionReader(context,endPointWriter);
-		this._write_acceptor = new NIOSelectionWriter(context,endPointWriter);
-	}
+	protected Thread			looper			= null;
+	protected Selector			selector			= null;
 
 	protected void acceptException(SelectionKey selectionKey, IOException exception) {
 
@@ -57,7 +46,7 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 	}
 
 	private boolean isEndPoint(Object object) {
-		return object != null && (object.getClass() == NIOEndPoint.class || object instanceof EndPoint);
+		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof EndPoint);
 	}
 
 	public void run() {
@@ -103,35 +92,16 @@ public class SelectorManagerLoop extends AbstractLifeCycle implements SelectionA
 		}
 	}
 
-	public void accept(SelectionKey selectionKey) throws IOException {
-		if (!selectionKey.isValid()) {
-			return;
-		}
-
-		try {
-
-			if (selectionKey.isReadable()) {
-				_read_acceptor.accept(selectionKey);
-			} else if (selectionKey.isWritable()) {
-				_write_acceptor.accept(selectionKey);
-			} else if (selectionKey.isAcceptable()) {
-				_accept_acceptor.accept(selectionKey);
-			}else if(selectionKey.isConnectable()){
-				logger.info("=================");
-			}
-
-		} catch (IOException e) {
-			acceptException(selectionKey, e);
-		}
-
-	}
+	public abstract void accept(SelectionKey selectionKey) throws IOException ;
 
 	protected void doStart() throws Exception {
 
 		this.addLifeCycleListener(new EventListener());
 
-		this.looper = new Thread(this, "Selector@" + this.selector.toString());
+		this.looper = getLooperThread();
 	}
+	
+	protected abstract Thread getLooperThread();
 
 	protected void doStop() throws Exception {
 

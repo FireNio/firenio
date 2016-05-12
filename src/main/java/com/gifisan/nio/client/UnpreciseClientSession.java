@@ -5,13 +5,13 @@ import java.io.InputStream;
 
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class UnpreciseClientSession extends AbstractClientSession implements ProtectedClientSession {
 
-	public UnpreciseClientSession(EndPoint endPoint, byte sessionID) {
+	public UnpreciseClientSession(TCPEndPoint endPoint, byte sessionID) {
 		super(endPoint, sessionID);
 	}
 

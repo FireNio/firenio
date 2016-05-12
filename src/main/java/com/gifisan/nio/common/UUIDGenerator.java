@@ -18,9 +18,9 @@ public class UUIDGenerator {
 		ITestHandle.doTest(new ITest() {
 			
 			public void test() {
-				UUID.randomUUID().toString();
+				random();
 			}
-		}, 1000,"uuid");
+		}, 1000000,"uuid");
 		
 		
 		String id = UUID.randomUUID().toString();

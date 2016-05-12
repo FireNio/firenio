@@ -2,7 +2,7 @@ package com.gifisan.nio.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
@@ -23,7 +23,7 @@ public class DisconnectExecutable extends JMSCommandExecutor {
 		
 		browser.logout();
 		
-		ClientConnector connector = getClientConnector(context);
+		ClientTCPConnector connector = getClientConnector(context);
 		
 		CloseUtil.close(connector);
 		

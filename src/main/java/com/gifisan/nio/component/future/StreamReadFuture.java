@@ -6,13 +6,13 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.Session;
 
 public class StreamReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	public StreamReadFuture(EndPoint endPoint,Session session, String serviceName,int dataLength) {
+	public StreamReadFuture(TCPEndPoint endPoint,Session session, String serviceName,int dataLength) {
 		super(endPoint,null, session, serviceName);
 		this.hasStream = true;
 		this.dataLength = dataLength;

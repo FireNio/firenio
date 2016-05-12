@@ -9,12 +9,12 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.NIOEndPoint;
+import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.SelectionAcceptor;
-import com.gifisan.nio.component.SelectorManagerLoop;
+import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.server.NIOContext;
 
-public class ClientSelectorManagerLoop extends SelectorManagerLoop implements SelectionAcceptor, Runnable {
+public class ClientSelectorManagerLoop extends TCPSelectorLoop implements SelectionAcceptor, Runnable {
 
 	private Logger				logger			= LoggerFactory.getLogger(ClientSelectorManagerLoop.class);
 
@@ -39,7 +39,7 @@ public class ClientSelectorManagerLoop extends SelectorManagerLoop implements Se
 	}
 
 	private boolean isEndPoint(Object object) {
-		return object != null && (object.getClass() == NIOEndPoint.class || object instanceof EndPoint);
+		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof EndPoint);
 	}
 
 }

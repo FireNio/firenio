@@ -1,6 +1,6 @@
 package com.gifisan.nio.jms.client.cmd;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.common.cmd.Executable;
 import com.gifisan.nio.jms.client.MessageBrowser;
@@ -11,11 +11,11 @@ public abstract class JMSCommandExecutor implements Executable {
 
 	private String		KEY_BROWSER	= "KEY_BROWSER";
 
-	protected ClientConnector getClientConnector(CommandContext context) {
-		return (ClientConnector) context.getAttribute(KEY_CONNECTOR);
+	protected ClientTCPConnector getClientConnector(CommandContext context) {
+		return (ClientTCPConnector) context.getAttribute(KEY_CONNECTOR);
 	}
 
-	protected void setClientConnector(CommandContext context, ClientConnector connector) {
+	protected void setClientConnector(CommandContext context, ClientTCPConnector connector) {
 		context.setAttribute(KEY_CONNECTOR, connector);
 	}
 

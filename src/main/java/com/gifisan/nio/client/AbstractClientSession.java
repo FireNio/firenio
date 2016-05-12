@@ -8,7 +8,7 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -19,8 +19,8 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	protected ClientContext					context			= null;
 	protected long						timeout			= 0;
 
-	public AbstractClientSession(EndPoint endPoint, byte sessionID) {
-		super(endPoint, sessionID);
+	public AbstractClientSession(TCPEndPoint endPoint, byte logicSessionID) {
+		super(endPoint, logicSessionID);
 		this.messageBus = new MessageBus(this);
 		this.context = (ClientContext) endPoint.getContext();
 	}

@@ -1,18 +1,18 @@
-package com.gifisan.nio.component.protocol;
+package com.gifisan.nio.component.protocol.tcp;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.MultiReadFuture;
 import com.gifisan.nio.component.future.StreamReadFuture;
 import com.gifisan.nio.component.future.TextReadFuture;
 
-public class DefaultProtocolDecoder implements ProtocolDecoder {
+public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 
-	public IOReadFuture decode(EndPoint endPoint) throws IOException {
+	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
 
 		ByteBuffer buffer = ByteBuffer.allocate(1);
 
@@ -41,7 +41,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		}
 	}
 
-	public IOReadFuture decodeMulti(EndPoint endPoint, byte[] header) throws IOException {
+	public IOReadFuture decodeMulti(TCPEndPoint endPoint, byte[] header) throws IOException {
 		
 		byte sessionID = gainSessionID(header);
 		
@@ -58,7 +58,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		return new MultiReadFuture(endPoint,textBuffer, session, serviceName,dataLength);
 	}
 
-	public IOReadFuture decodeStream(EndPoint endPoint, byte[] header) throws IOException {
+	public IOReadFuture decodeStream(TCPEndPoint endPoint, byte[] header) throws IOException {
 
 		byte sessionID = gainSessionID(header);
 
@@ -71,7 +71,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		return new StreamReadFuture(endPoint, session, serviceName, dataLength);
 	}
 	
-	public IOReadFuture decodeText(EndPoint endPoint, byte[] header) throws IOException {
+	public IOReadFuture decodeText(TCPEndPoint endPoint, byte[] header) throws IOException {
 
 		byte sessionID = gainSessionID(header);
 		
@@ -87,7 +87,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		
 	}
 	
-	private IOReadFuture doDecode(EndPoint endPoint, byte type) throws IOException {
+	private IOReadFuture doDecode(TCPEndPoint endPoint, byte type) throws IOException {
 
 		byte[] header = readHeader(endPoint);
 
@@ -105,12 +105,12 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		}
 	}
 	
-	public IOReadFuture doDecodeExtend(EndPoint endPoint, byte type) throws IOException {
+	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
 
 		return null;
 	}
 
-	private String gainServiceName(EndPoint endPoint, byte[] header) throws IOException {
+	private String gainServiceName(TCPEndPoint endPoint, byte[] header) throws IOException {
 
 		int serviceNameLength = header[1];
 		
@@ -153,7 +153,7 @@ public class DefaultProtocolDecoder implements ProtocolDecoder {
 		return v0 | v1 | v2;
 	}
 	
-	private byte[] readHeader(EndPoint endPoint) throws IOException {
+	private byte[] readHeader(TCPEndPoint endPoint) throws IOException {
 
 		ByteBuffer buffer = ByteBuffer.allocate(9);
 

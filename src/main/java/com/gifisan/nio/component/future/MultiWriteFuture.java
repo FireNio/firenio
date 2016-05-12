@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
 public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public MultiWriteFuture(EndPoint endPoint,Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
+	public MultiWriteFuture(TCPEndPoint endPoint,Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
 			InputStream inputStream,IOEventHandle handle) throws IOException {
 		super(endPoint,handle,serviceName, textBuffer, textCache, session);
 		this.inputStream = inputStream;

@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
@@ -17,7 +17,7 @@ public class TestMultiSession {
 
 		final String serviceName = "TestSimpleServlet";
 
-		final ClientConnector connector = ClientUtil.getClientConnector();
+		final ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 

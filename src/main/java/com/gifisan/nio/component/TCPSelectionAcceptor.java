@@ -6,11 +6,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-public class NIOSelectionAcceptor implements SelectionAcceptor {
+public class TCPSelectionAcceptor implements SelectionAcceptor {
 
 	private Selector	selector	= null;
 
-	public NIOSelectionAcceptor(Selector selector) {
+	public TCPSelectionAcceptor(Selector selector) {
 		this.selector = selector;
 	}
 

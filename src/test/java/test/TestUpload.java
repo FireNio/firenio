@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -15,7 +15,7 @@ public class TestUpload {
 
 		String serviceKey = "TestUploadServlet";
 		String param = "temp.zip";
-		ClientConnector connector = ClientUtil.getClientConnector();
+		ClientTCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		ClientSession session = connector.getClientSession();
 		

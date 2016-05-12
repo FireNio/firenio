@@ -2,7 +2,9 @@ package com.gifisan.nio.component;
 
 import java.lang.reflect.Method;
 
+import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
@@ -12,6 +14,8 @@ public class ServerLauncher {
 
 	public void launch() throws Exception {
 
+		Object instance = null;
+		
 		try {
 			
 			PropertiesLoader.load();
@@ -36,7 +40,7 @@ public class ServerLauncher {
 
 			Class clazz = Class.forName("com.gifisan.nio.server.NIOServer");
 
-			Object instance = clazz.newInstance();
+			instance = clazz.newInstance();
 
 			Method start = instance.getClass().getMethod("start");
 
@@ -46,6 +50,9 @@ public class ServerLauncher {
 
 		} catch (Throwable e) {
 			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
+			
+			LifeCycleUtil.stop((LifeCycle)instance);
+			
 		}
 	}
 

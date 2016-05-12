@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
@@ -18,7 +18,7 @@ public class TestSimple {
 		String serviceKey = "TestSimpleServlet";
 		String param = ClientUtil.getParamString();
 		
-		final ClientConnector connector = ClientUtil.getClientConnector();
+		final ClientTCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		

@@ -3,14 +3,14 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.AbstractWriteFuture;
 import com.gifisan.nio.component.future.WriteFuture;
 
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public BeatWriteFuture(EndPoint endPoint,Session session) {
+	public BeatWriteFuture(TCPEndPoint endPoint,Session session) {
 		super(endPoint,null, null,null, null, session);
 	}
 

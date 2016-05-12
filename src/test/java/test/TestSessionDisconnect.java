@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
@@ -18,7 +18,7 @@ public class TestSessionDisconnect {
 		String serviceKey = "TestSessionDisconnectServlet";
 		String param = ClientUtil.getParamString();
 		
-		ClientConnector connector = null;
+		ClientTCPConnector connector = null;
 		try {
 			connector = ClientUtil.getClientConnector();
 			

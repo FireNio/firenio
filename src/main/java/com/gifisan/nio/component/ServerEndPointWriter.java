@@ -56,7 +56,7 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 			IOWriteFuture future = list.get(0);
 
-			EndPoint endPoint = future.getEndPoint();
+			TCPEndPoint endPoint = future.getEndPoint();
 
 			if (endPoint.isNetworkWeak()) {
 				continue;
@@ -102,7 +102,7 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 				continue;
 			}
 
-			EndPoint endPoint = writer.getEndPoint();
+			TCPEndPoint endPoint = writer.getEndPoint();
 			
 			if (endPoint.isEndConnect()) {
 				if (endPoint.isOpened()) {

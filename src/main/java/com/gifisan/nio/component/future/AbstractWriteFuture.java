@@ -6,23 +6,23 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.EndPoint;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
-	protected EndPoint			endPoint		= null;
-	protected ByteBuffer		textBuffer	= null;
-	protected InputStream		inputStream	= null;
 	private IOEventHandle		handle		= null;
 	private Session			session		= null;
 	private byte[]			textCache		= null;
-	private long				futureID;
+	private long				futureID		= 0;
+	protected TCPEndPoint		endPoint		= null;
+	protected ByteBuffer		textBuffer	= null;
+	protected InputStream		inputStream	= null;
 	private static AtomicLong	_autoFutureID	= new AtomicLong(0);
 
-	public AbstractWriteFuture(EndPoint endPoint,IOEventHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
+	public AbstractWriteFuture(TCPEndPoint endPoint,IOEventHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
 			Session session) {
 		this.handle = handle;
 		this.endPoint = endPoint;
@@ -39,7 +39,6 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	}
 
 	public void onException(IOException e) {
-//		DebugUtil.debug("************============================"+e+TestConcurrentCallBack.latch.getCount());
 		if (this.handle == null) {
 			return;
 		}
@@ -61,7 +60,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		}
 	}
 
-	public EndPoint getEndPoint() {
+	public TCPEndPoint getEndPoint() {
 		return endPoint;
 	}
 

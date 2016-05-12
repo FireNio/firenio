@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ClientConnector;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.PropertiesLoader;
 
 public class ClientUtil {
 
-	public static ClientConnector getClientConnector() throws IOException{
+	public static ClientTCPConnector getClientConnector() throws IOException{
 		
 		PropertiesLoader.load("log4j.properties");
 		
-		ClientConnector connector = new ClientConnector("localhost", 8300);
+		ClientTCPConnector connector = new ClientTCPConnector("localhost", 8300);
 		
 //		DebugUtil.info(connector.toString());
 		

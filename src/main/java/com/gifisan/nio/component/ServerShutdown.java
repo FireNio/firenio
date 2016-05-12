@@ -3,8 +3,8 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.util.Scanner;
 
-import com.gifisan.nio.client.ClientConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -38,7 +38,7 @@ public class ServerShutdown {
 
 		String serviceKey = "stop-server";
 
-		ClientConnector connector = new ClientConnector("localhost", port);
+		ClientTCPConnector connector = new ClientTCPConnector("localhost", port);
 		
 		connector.connect();
 		

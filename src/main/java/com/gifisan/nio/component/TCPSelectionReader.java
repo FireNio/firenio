@@ -6,27 +6,27 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
 import com.gifisan.nio.server.NIOContext;
 
-public class NIOSelectionReader implements SelectionAcceptor {
+public class TCPSelectionReader implements SelectionAcceptor {
 
 	private ReadFutureAcceptor	readFutureAcceptor	= null;
 	private NIOContext			context			= null;
 	private EndPointWriter		endPointWriter		= null;
 
-	public NIOSelectionReader(NIOContext context,EndPointWriter endPointWriter) {
+	public TCPSelectionReader(NIOContext context,EndPointWriter endPointWriter) {
 		this.context = context;
 		this.endPointWriter = endPointWriter;
 		this.readFutureAcceptor = context.getReadFutureAcceptor();
 	}
 	
-	private EndPoint getEndPoint(SelectionKey selectionKey) throws SocketException{
+	private TCPEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException{
 		
-		EndPoint endPoint = (EndPoint) selectionKey.attachment();
+		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 		
 		if (endPoint == null) {
-			endPoint = new NIOEndPoint(context, selectionKey,endPointWriter);
+			endPoint = new DefaultTCPEndPoint(context, selectionKey,endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 		return endPoint;
@@ -37,7 +37,7 @@ public class NIOSelectionReader implements SelectionAcceptor {
 
 		NIOContext context = this.context;
 
-		EndPoint endPoint = getEndPoint(selectionKey);
+		TCPEndPoint endPoint = getEndPoint(selectionKey);
 
 		if (endPoint.isEndConnect()) {
 			return;

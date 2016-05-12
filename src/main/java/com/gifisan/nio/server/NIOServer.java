@@ -12,47 +12,56 @@ import com.gifisan.nio.component.Connector;
 
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
-//	private Logger			logger		= LoggerFactory.getLogger(NIOServer.class);
 	private Attributes		attributes	= new AttributesImpl();
-	private NIOConnector	connector		= null;
+	private TCPConnector	tcpConnector	= null;
+	private UDPConnector	udpConnector	= null;
 	private ServerContext	context		= null;
-	
+
 	public NIOServer() {
 		this.addLifeCycleListener(new NIOServerListener());
 	}
 
 	protected void doStart() throws Exception {
-		
-//		logger.info("          [NIOServer] ======================================= 服务开始启动 =======================================");
 
 		SharedBundle bundle = SharedBundle.instance();
-		
+
 		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
 
-		if (serverPort == 0) {
-			throw new Exception("未设置服务端口或端口为0");
+		if (serverPort < 1) {
+			throw new IllegalArgumentException("SERVER.PORT 参数错误");
 		}
-		
+
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-		
+
 		this.context = new ServerContextImpl(this);
 		this.context.setServerPort(serverPort);
 		this.context.setEncoding(Charset.forName(encoding));
-		this.context.setServerCoreSize(bundle.getIntegerProperty("SERVER.CORE_SIZE",4));
-		
-		this.connector = new NIOConnector(context,serverPort);
+		this.context.setServerCoreSize(bundle.getIntegerProperty("SERVER.CORE_SIZE", 4));
+
+		this.tcpConnector = new TCPConnector(context, serverPort);
 		
 		this.context.start();
-		this.connector.start();
+		
+		this.tcpConnector.start();
+		
+		boolean UDP_BOOT = bundle.getBooleanProperty("SERVER.UDP_BOOT");
+		
+		if (UDP_BOOT) {
+			
+			this.udpConnector = new UDPConnector(context, serverPort+1);
+			
+			this.udpConnector.start();
+		}
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(connector);
+		LifeCycleUtil.stop(udpConnector);
+		LifeCycleUtil.stop(tcpConnector);
 		LifeCycleUtil.stop(context);
 	}
 
 	protected Connector getConnector() {
-		return connector;
+		return tcpConnector;
 	}
 
 	public Object removeAttribute(String key) {

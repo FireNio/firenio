@@ -9,10 +9,10 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.DefaultProtocolDecoder;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolDecoder;
+import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
 
-public class ServerProtocolDecoder extends DefaultProtocolDecoder implements ProtocolDecoder {
+public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements ProtocolDecoder {
 
 	private Logger			logger	= LoggerFactory.getLogger(ServerProtocolDecoder.class);
 	private StringBuilder	http		= new StringBuilder();

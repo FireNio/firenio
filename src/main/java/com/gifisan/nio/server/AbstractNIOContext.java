@@ -7,17 +7,27 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
+import com.gifisan.nio.component.UDPEndPointFactory;
+import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolDecoder;
+import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolEncoder;
+import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.tcp.ProtocolEncoder;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private Map<String, Object>		attributes			= new HashMap<String, Object>();
+	private UDPEndPointFactory		udpEndPointFactory		= new UDPEndPointFactory();
 	protected Charset				encoding				= Encoding.DEFAULT;
+	protected ProtocolEncoder		protocolEncoder		= new DefaultTCPProtocolEncoder();
+	protected ProtocolDecoder		protocolDecoder		= new DefaultTCPProtocolDecoder();
 	protected OutputStreamAcceptor	outputStreamAcceptor	= null;
 	protected ReadFutureAcceptor		readFutureAcceptor		= null;
 	protected SessionFactory		sessionFactory			= null;
+	protected DatagramPacketAcceptor	datagramPacketAcceptor	= null;
 
 	public void clearAttributes() {
 		this.attributes.clear();
@@ -34,10 +44,6 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	public Charset getEncoding() {
 		return encoding;
 	}
-
-//	public EndPointWriter getEndPointWriter() {
-//		return endPointWriter;
-//	}
 
 	public OutputStreamAcceptor getOutputStreamAcceptor() {
 		return outputStreamAcceptor;
@@ -62,4 +68,22 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 	public void setEncoding(Charset encoding) {
 		this.encoding = encoding;
 	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return protocolEncoder;
+	}
+
+	public ProtocolDecoder getProtocolDecoder() {
+		return protocolDecoder;
+	}
+
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return datagramPacketAcceptor;
+	}
+
+	public UDPEndPointFactory getUDPEndPointFactory() {
+		return udpEndPointFactory;
+	}
+	
+	
 }

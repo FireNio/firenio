@@ -78,8 +78,12 @@ public class DebugUtil {
 	}
 
 	public static void error(String object, Throwable throwable) {
-		System.out.println(object);
+		System.err.println(object);
 		throwable.printStackTrace();
+	}
+	
+	public static void error(String object) {
+		System.err.println(object);
 	}
 
 }
