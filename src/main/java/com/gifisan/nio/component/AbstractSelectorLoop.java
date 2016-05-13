@@ -1,7 +1,6 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
@@ -11,7 +10,6 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.AbstractLifeCycleListener;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.LifeCycleListener;
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;

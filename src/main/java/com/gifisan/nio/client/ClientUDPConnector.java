@@ -76,7 +76,7 @@ public class ClientUDPConnector implements Connector {
 		selector = Selector.open();
 		channel.register(selector, SelectionKey.OP_READ);
 		channel.connect(getInetSocketAddress());
-		this.endPoint = new ClientUDPEndPoint(context, channel);
+		this.endPoint = new ClientUDPEndPoint(context, channel,serverSocket);
 		this.selectorLoop = new UDPSelectorLoop(context, selector);
 	}
 	
@@ -148,6 +148,10 @@ public class ClientUDPConnector implements Connector {
 		buffer.position(DatagramPacket.PACKET_HEADER);
 		buffer.put(data);
 		buffer.flip();
+	}
+	
+	protected String getSessionID(){
+		return sessionID;
 	}
 
 }

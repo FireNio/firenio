@@ -14,15 +14,11 @@ public interface EndPoint extends Closeable {
 
 	public abstract int getLocalPort();
 
-	public abstract int getMaxIdleTime() throws SocketException;
-
 	public abstract String getRemoteAddr();
 
 	public abstract String getRemoteHost();
 
 	public abstract int getRemotePort();
-
-	public abstract boolean isBlocking();
 
 	public abstract NIOContext getContext();
 	
@@ -31,5 +27,7 @@ public interface EndPoint extends Closeable {
 	public abstract Attachment attachment();
 
 	public abstract Long getEndPointID();
+
+	public abstract int getMaxIdleTime() throws SocketException;
 
 }

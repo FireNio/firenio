@@ -3,6 +3,7 @@ package com.gifisan.nio.server;
 import java.io.IOException;
 
 import com.gifisan.nio.DisconnectException;
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
 import com.gifisan.nio.component.IOEventHandle;
@@ -10,6 +11,7 @@ import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.ManagedIOSessionFactory;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -18,6 +20,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private ActiveAuthority	authority		= null;
 	private ServerContext	context		= null;
 	private LoginCenter		loginCenter	= null;
+	private UDPEndPoint		udpEndPoint 	= null;
 
 	public ServerSession(TCPEndPoint endPoint, byte logicSessionID) {
 		super(endPoint, logicSessionID);
@@ -90,11 +93,22 @@ public class ServerSession extends AbstractSession implements IOSession {
 		
 		factory.removeIOSession(this);
 		
+		CloseUtil.close(udpEndPoint);
+		
 		super.destroyImmediately();
 	}
 
 	protected TCPEndPoint getEndPoint() {
 		return super.getEndPoint();
+	}
+	
+	public void setUDPEndPoint(UDPEndPoint udpEndPoint){
+		
+		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
+			throw new  IllegalArgumentException("udpEndPoint setted");
+		}
+		
+		this.udpEndPoint = udpEndPoint;
 	}
 
 }

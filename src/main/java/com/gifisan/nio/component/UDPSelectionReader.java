@@ -1,13 +1,14 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.protocol.udp.DatagramPacket;
 import com.gifisan.nio.server.NIOContext;
-import com.sun.net.ssl.internal.ssl.Debug;
 
 public class UDPSelectionReader implements SelectionAcceptor {
 
@@ -21,17 +22,21 @@ public class UDPSelectionReader implements SelectionAcceptor {
 	public void accept(SelectionKey selectionKey) throws IOException {
 
 		NIOContext context = this.context;
-
-		UDPEndPointFactory factory = context.getUDPEndPointFactory();
-
-		UDPEndPoint endPoint = factory.getUDPEndPoint(context, selectionKey);
 		
 		cacheBuffer.clear();
 
-		DatagramPacket packet = endPoint.readPacket(cacheBuffer);
+		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
+		
+		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(cacheBuffer);
+
+		UDPEndPointFactory factory = context.getUDPEndPointFactory();
+
+		DatagramPacket packet = new DatagramPacket(cacheBuffer, remoteSocketAddress);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
 
+		UDPEndPoint endPoint = factory.getUDPEndPoint(context, selectionKey,remoteSocketAddress);
+		
 		acceptor.accept(endPoint, packet);
 		
 		DebugUtil.error("========================"+endPoint);

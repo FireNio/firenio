@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
@@ -8,15 +9,16 @@ import com.gifisan.nio.server.NIOContext;
 
 public class ClientUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoint {
 
-	private ClientSession	session		= null;
+	private ClientSession	session	= null;
 
-	public ClientUDPEndPoint(NIOContext context,DatagramChannel channel) throws SocketException {
-		super(context,channel);
+	public ClientUDPEndPoint(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
+			throws SocketException {
+		super(context, channel, remote);
 	}
 
 	protected void extendClose() {
 		if (session != null) {
-			
+
 			session.destroyImmediately();
 		}
 	}
@@ -28,7 +30,5 @@ public class ClientUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoin
 	public void setTCPSession(Session session) {
 		this.session = (ClientSession) session;
 	}
-	
-	
 
 }

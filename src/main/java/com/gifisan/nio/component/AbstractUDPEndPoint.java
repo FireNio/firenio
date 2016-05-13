@@ -10,24 +10,23 @@ import java.nio.channels.DatagramChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.protocol.udp.DatagramPacket;
 import com.gifisan.nio.server.NIOContext;
 
 //FIXME 不可以根据selection key 来
 public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UDPEndPoint {
 
-	private DatagramChannel	channel		= null;
-	private DatagramSocket	socket		= null;
-	private AtomicBoolean	_closed		= new AtomicBoolean(false);
-	
-	
+	private DatagramChannel	channel	= null;
+	private DatagramSocket	socket	= null;
+	private AtomicBoolean	_closed	= new AtomicBoolean(false);
 
-	public AbstractUDPEndPoint(NIOContext context,DatagramChannel channel) throws SocketException {
+	public AbstractUDPEndPoint(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
+			throws SocketException {
 		super(context);
 		this.channel = channel;
+		this.remote = remote;
 		this.socket = channel.socket();
 		if (socket == null) {
-			throw new SocketException("socket is empty");
+			throw new SocketException("null socket");
 		}
 	}
 
@@ -35,49 +34,22 @@ public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UD
 
 		if (_closed.compareAndSet(false, true)) {
 
+			UDPEndPointFactory factory = getContext().getUDPEndPointFactory();
+			
+			factory.removeUDPEndPoint(this);
+			
 			DebugUtil.debug(">>>> rm " + this.toString());
-			
-			extendClose();
-			
-			this.channel.close();
-			
+
 		}
 	}
-	
-	protected abstract void extendClose();
 
-	public boolean isBlocking() {
-		return channel.isBlocking();
-	}
+	public void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
 
-	public int read(ByteBuffer buffer) throws IOException {
-		return this.channel.read(buffer);
-	}
-
-	public int write(ByteBuffer buffer) throws IOException {
-		return channel.write(buffer);
-	}
-
-	public DatagramPacket readPacket(ByteBuffer buffer) throws IOException {
-
-//		SocketAddress address = channel.receive(buffer);
-//		
-//		if (remote == null) {
-//			remote = (InetSocketAddress)address;
-//		}
-		
-		this.remote = (InetSocketAddress) channel.receive(buffer);
-		
-		return new DatagramPacket(buffer);
-	}
-	
-	public void sendPacket(ByteBuffer buffer,SocketAddress socketAddress) throws IOException {
-		
 		channel.send(buffer, socketAddress);
 	}
-	
+
 	public void sendPacket(ByteBuffer buffer) throws IOException {
-		
+
 		channel.send(buffer, getRemoteSocketAddress());
 	}
 
@@ -87,21 +59,17 @@ public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UD
 
 	protected InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
-			local = (InetSocketAddress)socket.getLocalSocketAddress();
+			local = (InetSocketAddress) socket.getLocalSocketAddress();
 		}
 		return local;
 	}
 
-	protected InetSocketAddress getRemoteSocketAddress() {
-		if (remote == null) {
-			remote = (InetSocketAddress)socket.getRemoteSocketAddress();
-		}
+	public InetSocketAddress getRemoteSocketAddress() {
 		return remote;
 	}
 
 	protected String getMarkPrefix() {
 		return "UDP";
 	}
-	
-	
+
 }

@@ -1,5 +1,6 @@
 package com.gifisan.nio.component.protocol.udp;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -17,61 +18,63 @@ import com.gifisan.nio.common.MathUtil;
  */
 public class DatagramPacket {
 
-	public static final int	PACKET_HEADER		= 8 + 8 + 4;
-	public static final int	PACKET_MAX		= 1500 - 20 - 8;
-	
-	private byte[]	data				= null;
-	private int		sequenceNo		= 0;		// 4 byte
-	private long		targetEndpointID	= 0;		// 8 byte
-	private long		timestamp			= 0;		// 8 byte
-	private byte [] 	source			= null;
-	private String		dataString		= null;
-	private int 		sourceLength		= 0;
+	public static final int		PACKET_HEADER		= 8 + 8 + 4;
+	public static final int		PACKET_MAX		= 1500 - 20 - 8;
 
-	public DatagramPacket(ByteBuffer buffer) {
-		
+	private byte[]			data				= null;
+	private int				sequenceNo		= 0;			// 4 byte
+	private long				targetEndpointID	= 0;			// 8 byte
+	private long				timestamp			= 0;			// 8 byte
+	private byte[]			source			= null;
+	private String				dataString		= null;
+	private int				sourceLength		= 0;
+	private InetSocketAddress	remoteSocketAddress	= null;
+
+	public DatagramPacket(ByteBuffer buffer,InetSocketAddress remoteSocketAddress) {
+
 		this.source = buffer.array();
 		this.sourceLength = buffer.position();
 		this.timestamp = MathUtil.byte2Long(source, 0);
 		this.sequenceNo = MathUtil.byte2Int(source, 8);
 		this.targetEndpointID = MathUtil.byte2Long(source, 12);
-
-//		System.arraycopy(data, 0, this.source, 0, buffer.position());
+		this.remoteSocketAddress = remoteSocketAddress;
+		
+		// System.arraycopy(data, 0, this.source, 0, buffer.position());
 	}
 
-	public DatagramPacket(long timestamp, int sequenceNO, long targetEndPointID,byte [] data) {
+	public DatagramPacket(long timestamp, int sequenceNO, long targetEndPointID, byte[] data) {
 		this.timestamp = timestamp;
 		this.sequenceNo = sequenceNO;
 		this.targetEndpointID = targetEndPointID;
 		this.data = data;
 	}
-	
-	public DatagramPacket(byte [] data) {
+
+	public DatagramPacket(byte[] data) {
 		this.data = data;
 	}
 
 	public byte[] getData() {
 		if (data == null) {
-			
+
 			int length = sourceLength - PACKET_HEADER;
-			
+
 			data = new byte[length];
-			
+
 			System.arraycopy(source, PACKET_HEADER, data, 0, length);
 		}
 		return data;
 	}
-	
-	public String getDataString(Charset encoding){
-		
+
+	public String getDataString(Charset encoding) {
+
 		if (dataString == null) {
-			
+
 			int length = sourceLength - PACKET_HEADER;
-			
-			dataString = new String(source,PACKET_HEADER,length,encoding);
+
+			dataString = new String(source, PACKET_HEADER, length, encoding);
 		}
-		
-		return dataString; 
+
+		return dataString;
 	}
 
 	public int getSequenceNo() {
@@ -84,6 +87,10 @@ public class DatagramPacket {
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	protected InetSocketAddress getRemoteSocketAddress() {
+		return remoteSocketAddress;
 	}
 
 }

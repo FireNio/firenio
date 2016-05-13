@@ -20,7 +20,7 @@ public class UUIDGenerator {
 			public void test() {
 				random();
 			}
-		}, 1000000,"uuid");
+		}, 10000000,"uuid");
 		
 		
 		String id = UUID.randomUUID().toString();

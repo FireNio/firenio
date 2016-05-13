@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -9,20 +10,17 @@ import com.gifisan.nio.server.NIOContext;
 
 public class ServerUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoint {
 
-	private SelectionKey	selectionKey	= null;
-	private IOSession		session		= null;
+	private IOSession	session	= null;
 
-	public ServerUDPEndPoint(NIOContext context, SelectionKey selectionKey) throws SocketException {
-		super(context, (DatagramChannel) selectionKey.channel());
-		this.selectionKey = selectionKey;
+	public ServerUDPEndPoint(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote)
+			throws SocketException {
+		super(context, (DatagramChannel) selectionKey.channel(), remote);
 	}
 
 	/**
 	 * 服务端的close不会被触发
 	 */
 	protected void extendClose() {
-
-		this.selectionKey.attach(null);
 
 		if (session != null) {
 

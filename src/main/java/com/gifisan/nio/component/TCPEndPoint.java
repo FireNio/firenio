@@ -43,4 +43,6 @@ public interface TCPEndPoint extends EndPoint{
 	
 	public abstract EndPointWriter getEndPointWriter();
 	
+	public abstract boolean isBlocking();
+	
 }
