@@ -6,7 +6,7 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.server.NIOContext;
 
 public class TCPSelectionReader implements SelectionAcceptor {

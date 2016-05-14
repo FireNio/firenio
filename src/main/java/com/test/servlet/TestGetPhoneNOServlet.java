@@ -5,6 +5,8 @@ import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class TestGetPhoneNOServlet extends NIOServlet {
+	
+	public static final String SERVICE_NAME = TestGetPhoneNOServlet.class.getSimpleName();
 
 	private String [] NOS = {"13811112222","18599991111","18599991111","13811112222"};
 	

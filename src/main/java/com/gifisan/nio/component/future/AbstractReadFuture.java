@@ -12,7 +12,7 @@ import com.gifisan.nio.component.Session;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
 
-	protected TCPEndPoint			endPoint		= null;
+	protected TCPEndPoint		endPoint		= null;
 	protected Session			session		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected boolean			hasStream		= false;
@@ -74,15 +74,15 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		flushed = true;
 	}
 
-	public void write(byte b) throws IOException {
+	public void write(byte b) {
 		textCache.write(b);
 	}
 
-	public void write(byte[] bytes) throws IOException {
+	public void write(byte[] bytes) {
 		textCache.write(bytes);
 	}
 
-	public void write(byte[] bytes, int offset, int length) throws IOException {
+	public void write(byte[] bytes, int offset, int length) {
 		textCache.write(bytes, offset, length);
 	}
 

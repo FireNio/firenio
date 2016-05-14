@@ -13,10 +13,10 @@ import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.UDPEndPointFactory;
-import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolDecoder;
-import com.gifisan.nio.component.protocol.tcp.DefaultTCPProtocolEncoder;
-import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.tcp.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
+import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 

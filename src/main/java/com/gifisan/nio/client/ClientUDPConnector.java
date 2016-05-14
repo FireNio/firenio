@@ -6,8 +6,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -17,7 +22,9 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ClientUDPEndPoint;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.UDPSelectorLoop;
-import com.gifisan.nio.component.protocol.udp.DatagramPacket;
+import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
 
 public class ClientUDPConnector implements Connector {
 
@@ -29,16 +36,16 @@ public class ClientUDPConnector implements Connector {
 	private UDPSelectorLoop		selectorLoop		= null;
 	private ByteBuffer			cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private InetSocketAddress	serverSocket		= null;
-	private String 			sessionID 		= null;
-	
+	private ClientSession		session			= null;
 	
 	protected UDPSelectorLoop getSelectorLoop() {
 		return selectorLoop;
 	}
 
-	protected ClientUDPConnector(ClientTCPConnector connector,String sessionID) {
-		this.context = connector.getContext();
-		this.sessionID = sessionID;
+	public ClientUDPConnector(ClientSession session) throws Exception {
+		this.session = session;
+		this.context = session.getContext();
+		this.bindSession();
 	}
 
 	public void close() throws IOException {
@@ -62,7 +69,6 @@ public class ClientUDPConnector implements Connector {
 			this.connect0();
 
 			try {
-
 				this.selectorLoop.start();
 			} catch (Exception e) {
 				DebugUtil.debug(e);
@@ -103,7 +109,7 @@ public class ClientUDPConnector implements Connector {
 		return "UDP:Connector@" + endPoint.toString();
 	}
 	
-	public void send(DatagramPacket packet) {
+	public void sendDatagramPacket(DatagramPacket packet) {
 		
 		allocate(cacheBuffer, packet);
 		
@@ -128,18 +134,18 @@ public class ClientUDPConnector implements Connector {
 				buffer, 
 				packet.getTimestamp(), 
 				packet.getSequenceNo(), 
-				packet.getTargetEndpointID(), 
+				packet.getRoomID(), 
 				packet.getData());
 		
 	}
 	
-	private void allocate(ByteBuffer buffer,long timestamp, int sequenceNO, long targetEndPointID,byte [] data) {
+	private void allocate(ByteBuffer buffer,long timestamp, int sequenceNO, int roomID,byte [] data) {
 		
 		byte [] bytes = buffer.array();
 		
 		MathUtil.long2Byte(bytes, timestamp, 0);
 		MathUtil.int2Byte(bytes, sequenceNO, 8);
-		MathUtil.long2Byte(bytes, targetEndPointID, 12);
+		MathUtil.long2Byte(bytes, roomID, 12);
 		
 		allocate(buffer, data);
 	}
@@ -150,8 +156,77 @@ public class ClientUDPConnector implements Connector {
 		buffer.flip();
 	}
 	
-	protected String getSessionID(){
-		return sessionID;
+	private void bindSession() throws Exception{
+		
+		ClientSession session = this.session;
+		
+		String sessionID = session.getSessionID();
+		
+		JSONObject json = new JSONObject();
+		
+		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
+		
+		json.put("sessionID", sessionID);
+		
+		DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
+		
+		final ReentrantLock _lock = new ReentrantLock();
+		
+		final Condition	called = _lock.newCondition();
+		
+		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
+		
+		final AtomicBoolean atoCalled = new AtomicBoolean();
+		
+		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
+			
+			public void onResponse(ClientSession session, ReadFuture future) {
+				
+				_lock.lock();
+				
+				called.signal();
+				
+				atoCalled.compareAndSet(false, true);
+				
+				_lock.unlock();
+				
+				session.cancelListen(BIND_SESSION_CALLBACK);
+				
+			}
+		});
+		
+		this.connect();
+		
+		for (int i = 0; i < 10; i++) {
+			
+			this.sendDatagramPacket(packet);
+			
+			_lock.lock();
+			
+			try {
+				
+				if (!atoCalled.get()) {
+					called.await(300, TimeUnit.MILLISECONDS);
+				}
+				
+				if (atoCalled.get()) {
+					break;
+				}
+				
+			} catch (Exception e) {
+				DebugUtil.debug(e);
+				called.signal();
+			}finally{
+				
+				_lock.unlock();
+			}
+		}
+		
+		if (!atoCalled.get()) {
+			CloseUtil.close(this);
+			
+			throw DisconnectException.INSTANCE;
+		}
 	}
-
+	
 }

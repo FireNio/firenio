@@ -1,18 +1,19 @@
 package com.gifisan.nio.server.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.ServerContext;
 
 public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoader {
@@ -35,9 +36,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			
 			logger.info(" [NIOServer] 没有配置Filter");
 			
-			NIOFilterWrapperImpl filter = new NIOFilterWrapperImpl(context, new ServletFilter(classLoader), null);
-			
-			return filter;
+			return loadFilters(context, classLoader, new JSONArray());
 			
 		} else {
 			
@@ -64,27 +63,45 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			String clazz = object.getString("class");
 			
 			Configuration filterConfig = new Configuration(object);
-			
 
 			NIOFilter filter = (NIOFilter) classLoader.forName(clazz).newInstance();
 
-			NIOFilterWrapperImpl _filter = new NIOFilterWrapperImpl(context, filter, filterConfig);
+			DefaultNIOFilterWrapper _filter = new DefaultNIOFilterWrapper(context, filter, filterConfig);
 
 			if (last == null) {
 				
 				last = _filter;
 				
 				rootFilter = _filter;
-				
 			} else {
 				
 				last.setNextFilter(_filter);
-				
 			}
+		}
+		
+		List<NIOFilter> pluginFilters = ((DefaultServerContext)context).getPluginFilters();
+		
+		if (pluginFilters.size() > 0 ) {
+			
+			for (int i = 0; i < pluginFilters.size(); i++) {
+				
+				NIOFilter filter = pluginFilters.get(i);
 
+				DefaultNIOFilterWrapper _filter = new DefaultNIOFilterWrapper(context, filter, null);
+
+				if (last == null) {
+					
+					last = _filter;
+					
+					rootFilter = _filter;
+				} else {
+					
+					last.setNextFilter(_filter);
+				}
+			}
 		}
 
-		NIOFilterWrapperImpl filter = new NIOFilterWrapperImpl(context, new ServletFilter(classLoader), null);
+		DefaultNIOFilterWrapper filter = new DefaultNIOFilterWrapper(context, new ServletFilter(classLoader), null);
 
 		if (last == null) {
 			rootFilter = filter;
@@ -107,7 +124,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		
 		for (; filter != null;) {
 			
-			filter.start();
+			filter.initialize(context, filter.getConfig());
 			
 			filter = filter.nextFilter();
 			
@@ -118,7 +135,11 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		
 		for (; filter != null;) {
 			
-			LifeCycleUtil.stop(filter);
+			try {
+				filter.destroy(context, filter.getConfig());
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+			}
 			
 			filter = filter.nextFilter();
 			

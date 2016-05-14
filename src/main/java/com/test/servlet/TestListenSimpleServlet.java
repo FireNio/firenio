@@ -8,6 +8,7 @@ import com.gifisan.nio.server.service.NIOServlet;
 
 public class TestListenSimpleServlet extends NIOServlet{
 	
+	public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 	
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 

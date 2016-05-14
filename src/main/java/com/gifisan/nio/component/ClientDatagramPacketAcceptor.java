@@ -2,7 +2,7 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.protocol.udp.DatagramPacket;
+import com.gifisan.nio.component.protocol.DatagramPacket;
 
 public class ClientDatagramPacketAcceptor implements DatagramPacketAcceptor{
 

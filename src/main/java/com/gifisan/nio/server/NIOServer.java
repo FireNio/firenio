@@ -33,7 +33,7 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 
-		this.context = new ServerContextImpl(this);
+		this.context = new DefaultServerContext(this);
 		this.context.setServerPort(serverPort);
 		this.context.setEncoding(Charset.forName(encoding));
 		this.context.setServerCoreSize(bundle.getIntegerProperty("SERVER.CORE_SIZE", 4));

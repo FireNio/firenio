@@ -7,10 +7,10 @@ import test.ClientUtil;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.jms.ByteMessage;
-import com.gifisan.nio.jms.JMSException;
-import com.gifisan.nio.jms.client.MessageProducer;
-import com.gifisan.nio.jms.client.impl.MessageProducerImpl;
+import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.client.MessageProducer;
+import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
 
 public class TestTellerByteMessage {
 
@@ -22,7 +22,7 @@ public class TestTellerByteMessage {
 		
 		ClientSession session = connector.getClientSession();
 		
-		MessageProducer producer = new MessageProducerImpl(session);
+		MessageProducer producer = new DefaultMessageProducer(session);
 
 		producer.login("admin", "admin100");
 		

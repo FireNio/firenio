@@ -53,6 +53,14 @@ public class Configuration implements Attributes {
 	public String getProperty(String key) {
 		return _config.getString(key);
 	}
+	
+	public String getProperty(String key,String defaultValue) {
+		String value = _config.getString(key);
+		if (StringUtil.isNullOrBlank(value)) {
+			return defaultValue;
+		}
+		return value;
+	}
 
 	public String getPropertyNoBlank(String key) throws PropertiesException {
 		String object = (String) _config.get(key);

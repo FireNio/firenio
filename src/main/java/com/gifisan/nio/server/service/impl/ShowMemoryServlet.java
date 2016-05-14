@@ -1,14 +1,18 @@
 package com.gifisan.nio.server.service.impl;
 
+import test.TestShowMemory;
+
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class ShowMemoryServlet extends NIOServlet{
+	
+	public static final String SERVICE_NAME = TestShowMemory.class.getSimpleName();
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		if (session.getLoginCenter().validate(session, future)) {
+		if (session.getLoginCenter().isValidate(session, future)) {
 			int M = 1024 * 1024;
 			Runtime runtime = Runtime.getRuntime();
 			StringBuilder builder = new StringBuilder();

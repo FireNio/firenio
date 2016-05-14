@@ -6,10 +6,10 @@ import test.ClientUtil;
 
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.jms.JMSException;
-import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.jms.client.MessageConsumer;
-import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
+import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.Message;
+import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestSubscribe {
 
@@ -41,7 +41,7 @@ public class TestSubscribe {
 
 		ClientSession session = connector.getClientSession();
 
-		MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
+		MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
 
 		consumer.login("admin", "admin100");
 

@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,7 +11,7 @@ public class ManagedIOSessionFactory {
 	private Map<String, IOSession>	sessions	= new HashMap<String, IOSession>();
 	private ReentrantLock			lock		= new ReentrantLock();
 
-	public void putIOSession(IOSession session) throws SocketException {
+	public void putIOSession(IOSession session) {
 
 		ReentrantLock lock = this.lock;
 

@@ -17,7 +17,7 @@ public class StopServerServlet extends NIOServlet {
 	private Logger				logger		= LoggerFactory.getLogger(StopServerServlet.class);
 	
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		if (session.getLoginCenter().validate(session, future)) {
+		if (session.getLoginCenter().isValidate(session, future)) {
 			ServerContext context = (ServerContext) session.getContext();
 			NIOServer server = context.getServer();
 			new Thread(new StopServer(server)).start();
@@ -40,13 +40,13 @@ public class StopServerServlet extends NIOServlet {
 			
 			ThreadUtil.sleep(500);
 			
-			logger.info("  [NIOServer] 执行命令：<停止服务>");
+			logger.info("   [NIOServer] 执行命令：<停止服务>");
 			
 			String[] words = new String[] { "五", "四", "三", "二", "一" };
 			
 			for (int i = 0; i < 5; i++) {
 				
-				logger.info("  [NIOServer] 服务将在" + words[i] + "秒后开始停止，请稍等");
+				logger.info("   [NIOServer] 服务将在" + words[i] + "秒后开始停止，请稍等");
 				
 				ThreadUtil.sleep(1000);
 				

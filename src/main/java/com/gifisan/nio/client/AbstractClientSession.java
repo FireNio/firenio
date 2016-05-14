@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.DisconnectException;
+import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.server.service.impl.PutSession2FactoryServlet;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
 
@@ -92,5 +94,29 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		
 		super.destroyImmediately();
 	}
+
+	public String getSessionID() {
+		if (sessionID == null) {
+			
+			try {
+				ReadFuture future = request(PutSession2FactoryServlet.class.getSimpleName(), null);
+				
+				if (future instanceof ErrorReadFuture) {
+					
+					ErrorReadFuture _Future = ((ErrorReadFuture)future);
+					
+					throw new IOException(_Future.getException());
+				}
+				
+				this.sessionID = future.getText();
+			} catch (IOException e) {
+				DebugUtil.debug(e);
+			}
+			
+		}
+		return sessionID;
+	}
+	
+	
 
 }

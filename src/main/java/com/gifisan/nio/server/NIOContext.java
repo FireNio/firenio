@@ -10,8 +10,8 @@ import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.UDPEndPointFactory;
-import com.gifisan.nio.component.protocol.tcp.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.tcp.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 
 public interface NIOContext extends Attributes, LifeCycle {
 

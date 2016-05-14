@@ -7,7 +7,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.protocol.udp.DatagramPacket;
+import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.server.NIOContext;
 
 public class UDPSelectionReader implements SelectionAcceptor {

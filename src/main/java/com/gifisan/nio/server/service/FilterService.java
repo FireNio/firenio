@@ -24,12 +24,11 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 	private FilterLoader		filterLoader	= null;
 	private DynamicClassLoader	classLoader	= null;
 
-	public FilterService(ServerContext context) {
+	public FilterService(ServerContext context,DynamicClassLoader classLoader) {
 
-		this.classLoader = new DynamicClassLoader();
+		this.classLoader = classLoader;
 
 		this.context = context;
-
 	}
 
 	public void accept(Session session,IOReadFuture future) throws IOException {

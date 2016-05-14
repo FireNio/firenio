@@ -6,6 +6,8 @@ import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class PutSession2FactoryServlet extends NIOServlet{
+	
+	public static final String SERVICE_NAME = PutSession2FactoryServlet.class.getSimpleName();
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		

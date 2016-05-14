@@ -1,5 +1,6 @@
 package com.gifisan.nio.server.service;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.ServerContext;
 
@@ -58,12 +60,11 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 				servlet.destroy(context, servlet.getConfig());
 
-				logger.info("[NIOServer] 卸载完成 [ {} ]", servlet);
+				logger.info(" [NIOServer] 卸载完成 [ {} ]", servlet);
 
 			} catch (Throwable e) {
 
 				logger.error(e.getMessage(), e);
-
 			}
 		}
 
@@ -86,19 +87,28 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 			servlet.initialize(context, servlet.getConfig());
 
-			logger.info("[NIOServer] 加载完成 [ {} ]", servlet);
+			logger.info(" [NIOServer] 加载完成 [ {} ]", servlet);
 
 		}
 	}
 
 	private Map<String, GenericServlet> loadServlets(JSONArray array, DynamicClassLoader classLoader) throws Exception {
 
+		DefaultServerContext context2 = (DefaultServerContext)context;
+		
+		Map<String, GenericServlet> pluginServlets = context2.getPluginServlets();
+		
 		Map<String, GenericServlet> servlets = new LinkedHashMap<String, GenericServlet>();
 
+		servlets.putAll(pluginServlets);
+
 		if (array.size() == 0) {
-
-			throw new Error("empty servlet config");
-
+			
+			if (servlets.size() == 0) {
+				
+				throw new Error("empty servlet config");
+			}
+			return servlets;
 		}
 
 		for (int i = 0; i < array.size(); i++) {
@@ -116,7 +126,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 			if (StringUtil.isNullOrBlank(serviceName)) {
 
 				serviceName = clazz.getSimpleName();
-
 			}
 
 			if (servlets.containsKey(serviceName)) {
@@ -145,19 +154,30 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 			return loadServlets(array, classLoader);
 
 		} else {
-
-			throw new Error("不存在Servlet配置文件");
-
+			
+			DefaultServerContext context2 = (DefaultServerContext)context;
+			
+			Map<String, GenericServlet> pluginServlets = context2.getPluginServlets();
+			
+			if (pluginServlets.size() == 0) {
+				throw new Error("不存在Servlet配置文件");
+			}
+			
+			Map<String, GenericServlet> result = new HashMap<String, GenericServlet>();
+			
+			result.putAll(pluginServlets);
+			
+			return result;
 		}
 	}
 
 	public void prepare(ServerContext context, Configuration config) throws Exception {
 
-		logger.info("[NIOServer] 尝试加载新的Servlet配置......");
+		logger.info(" [NIOServer] 尝试加载新的Servlet配置......");
 
 		this.servlets = loadServlets(context, classLoader);
 
-		logger.info("[NIOServer] 尝试启动新的Servlet配置......");
+		logger.info(" [NIOServer] 尝试启动新的Servlet配置......");
 
 		this.prepare(servlets);
 
@@ -173,7 +193,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 			servlet.prepare(context, servlet.getConfig());
 
-			logger.info("[NIOServer] 新的Servlet [ {} ] Prepare完成", servlet);
+			logger.info(" [NIOServer] 新的Servlet [ {} ] Prepare完成", servlet);
 
 		}
 	}
@@ -194,11 +214,11 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 				servlet.unload(context, servlet.getConfig());
 
-				logger.info("[NIOServer] 旧的Servlet [ {} ] Unload完成", servlet);
+				logger.info(" [NIOServer] 旧的Servlet [ {} ] Unload完成", servlet);
 
 			} catch (Throwable e) {
 
-				logger.info("[NIOServer] 旧的Servlet [ {} ] Unload失败", servlet);
+				logger.info(" [NIOServer] 旧的Servlet [ {} ] Unload失败", servlet);
 
 				logger.error(e.getMessage(), e);
 

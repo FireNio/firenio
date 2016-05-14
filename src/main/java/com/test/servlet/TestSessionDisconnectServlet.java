@@ -7,6 +7,8 @@ import com.gifisan.nio.server.service.NIOServlet;
 
 public class TestSessionDisconnectServlet extends NIOServlet{
 	
+	public static final String SERVICE_NAME = TestSessionDisconnectServlet.class.getSimpleName();
+	
 	private TestSimple1 simple1 = new TestSimple1();
 	
 //	private AtomicInteger size = new AtomicInteger();

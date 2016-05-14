@@ -7,9 +7,11 @@ import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class RedeployServlet extends NIOServlet {
+	
+	public static final String SERVICE_NAME = RedeployServlet.class.getSimpleName();
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		if (session.getLoginCenter().validate(session, future)) {
+		if (session.getLoginCenter().isValidate(session, future)) {
 			ServerContext context = (ServerContext) session.getContext();
 			RESMessage message =  context.redeploy()  ? RESMessage.R_SUCCESS : RESMessage.R_FAIL;
 			future.write(message.toString());

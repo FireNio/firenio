@@ -8,11 +8,11 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.jms.JMSException;
-import com.gifisan.nio.jms.Message;
-import com.gifisan.nio.jms.client.MessageConsumer;
-import com.gifisan.nio.jms.client.OnMessage;
-import com.gifisan.nio.jms.client.impl.MessageConsumerImpl;
+import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.Message;
+import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
+import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestListenerCallBack {
 
@@ -24,7 +24,7 @@ public class TestListenerCallBack {
 		
 		ClientSession session = connector.getClientSession();
 		
-		final MessageConsumer consumer = new MessageConsumerImpl(session, "qName");
+		final MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
 
 		consumer.login("admin", "admin100");
 		

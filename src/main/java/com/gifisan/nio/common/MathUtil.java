@@ -17,6 +17,16 @@ public class MathUtil {
 		return v0 | v1 | v2 | v3;
 
 	}
+	
+	public static int byte2IntFrom2Byte(byte[] bytes, int offset) {
+
+		checkLength(bytes, 2, offset);
+
+		int v0 = (bytes[offset + 0] & 0xff);
+		int v1 = (bytes[offset + 1] & 0xff) << 8*1;
+		return v0 | v1;
+
+	}
 
 	private static void checkLength(byte[] bytes, int length, int offset) {
 
@@ -58,6 +68,14 @@ public class MathUtil {
 		bytes[offset + 1] = (byte) ((value >> 8*1) & 0xff);
 		bytes[offset + 2] = (byte) ((value >> 8*2) & 0xff);
 		bytes[offset + 3] = (byte) ((value >> 8*3));
+	}
+	
+	public static void intTo2Byte(byte[] bytes, int value, int offset) {
+		
+		checkLength(bytes, 2, offset);
+
+		bytes[offset + 0] = (byte) (value & 0xff);
+		bytes[offset + 1] = (byte) (value >> 8*1);
 	}
 
 	public static void long2Byte(byte[] bytes, long value, int offset) {

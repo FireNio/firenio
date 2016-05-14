@@ -1,16 +1,18 @@
 package com.gifisan.nio.component;
 
+import java.io.IOException;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.common.UUIDGenerator;
-import com.gifisan.nio.component.protocol.tcp.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractSession extends AttributesImpl implements Session {
 
 	private Attachment					attachment			= null;
+	private Attachment[]				attachments			= new Attachment[4];
 	private long						creationTime			= System.currentTimeMillis();
 	private byte						logicSessionID			= 0;
 	private boolean					closed				= false;
@@ -40,12 +42,31 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		}
 	}
 
-	public void attach(Attachment attachment) {
-		this.attachment = attachment;
+
+	public Attachment getAttachment() {
+		return attachment;
 	}
 
-	public Attachment attachment() {
-		return this.attachment;
+	public void setAttachment(Attachment attachment) {
+		this.attachment = attachment;
+	}
+	
+	public Attachment getAttachment(PluginContext context) {
+		
+		if (context == null) {
+			throw new IllegalArgumentException("null context");
+		}
+		
+		return attachments[context.getPluginIndex()];
+	}
+
+	public void setAttachment(PluginContext context,Attachment attachment) {
+		
+		if (context == null) {
+			throw new IllegalArgumentException("null context");
+		}
+		
+		this.attachments[context.getPluginIndex()] = attachment;
 	}
 
 	public long getCreationTime() {
@@ -120,7 +141,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return closed;
 	}
 
-	public String getSessionID() {
+	public String getSessionID(){
 		if (sessionID == null) {
 			sessionID = UUIDGenerator.random();
 		}
