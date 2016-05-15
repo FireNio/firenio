@@ -12,7 +12,7 @@ public abstract class AbstractPluginContext extends InitializeableImpl implement
 	private static AtomicInteger 	_index		= new AtomicInteger();
 
 	protected AbstractPluginContext() {
-		this.pluginIndex = _index.getAndDecrement();
+		this.pluginIndex = _index.getAndIncrement();
 	}
 
 	public int getPluginIndex() {
@@ -24,14 +24,12 @@ public abstract class AbstractPluginContext extends InitializeableImpl implement
 	}
 
 	public boolean isLogined(IOSession session) {
-
-		Authority authority = session.getAuthority(this);
-
-		return authority != null && authority.isAuthored();
+		
+		return this.loginCenter.isLogined(session);
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
-		this.loginCenter = new PluginLoginCenter(this);
+		this.loginCenter = new FixedPluginLoginCenter(this);
 		
 		this.loginCenter.initialize(context, config);
 	}

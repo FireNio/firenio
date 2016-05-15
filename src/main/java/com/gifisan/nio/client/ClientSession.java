@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.gifisan.nio.DisconnectException;
+import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
@@ -31,5 +32,7 @@ public interface ClientSession extends Session {
 	public abstract ClientContext getContext();
 
 	public abstract void onStreamRead(String key, ClientStreamAcceptor acceptor);
+	
+	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
 
 }

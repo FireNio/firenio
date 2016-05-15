@@ -21,6 +21,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ClientUDPEndPoint;
 import com.gifisan.nio.component.Connector;
+import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
@@ -82,8 +83,9 @@ public class ClientUDPConnector implements Connector {
 		selector = Selector.open();
 		channel.register(selector, SelectionKey.OP_READ);
 		channel.connect(getInetSocketAddress());
-		this.endPoint = new ClientUDPEndPoint(context, channel,serverSocket);
+		this.endPoint = new ClientUDPEndPoint(session, channel,serverSocket);
 		this.selectorLoop = new UDPSelectorLoop(context, selector);
+		this.context.setUDPEndPointFactory(new ClientUDPEndPointFactory(endPoint));
 	}
 	
 	private InetSocketAddress getInetSocketAddress() {
@@ -122,11 +124,15 @@ public class ClientUDPConnector implements Connector {
 		}
 	}
 	
+	public void onDatagramPacketReceived(final DatagramPacketAcceptor receive){
+		((ProtectedClientSession)session).setDatagramPacketAcceptor(receive);
+	}
+	
 	private void allocate(ByteBuffer buffer,DatagramPacket packet) {
 		
 		buffer.clear();
 		
-		if (packet.getTimestamp() == 0) {
+		if (packet.getTimestamp() == -1) {
 			allocate(buffer, packet.getData());
 			return;
 		}

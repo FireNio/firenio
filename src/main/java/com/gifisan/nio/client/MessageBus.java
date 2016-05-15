@@ -8,6 +8,7 @@ import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListO2O;
+import com.gifisan.nio.concurrent.ThreadPool;
 
 public class MessageBus {
 
@@ -15,9 +16,11 @@ public class MessageBus {
 	private LinkedList<OnReadFuture>	onReadFutures	= new LinkedListO2O<OnReadFuture>(1024 * 10);
 	private Map<String, OnReadFuture>	listeners		= new HashMap<String, OnReadFuture>();
 	private ProtectedClientSession	clientSession	= null;
+	private ThreadPool				executor		= null;
 	
 	protected MessageBus(ProtectedClientSession clientSession) {
 		this.clientSession = clientSession;
+		this.executor = clientSession.getContext().getExecutorThreadPool();
 	}
 
 	public ReadFuture poll(long timeout) throws DisconnectException {
@@ -48,25 +51,38 @@ public class MessageBus {
 		return future;
 	}
 
-	public void filterOffer(ReadFuture future) {
+	public void filterOffer(final ReadFuture future) {
 
-		OnReadFuture onReadFuture = listeners.get(future.getServiceName());
+		final OnReadFuture onReadFuture = listeners.get(future.getServiceName());
 
 		if (onReadFuture != null) {
-			onReadFuture.onResponse((ProtectedClientSession) ((IOReadFuture) future).getSession(), future);
+			
+			this.executor.dispatch(new Runnable() {
+				
+				public void run() {
+					onReadFuture.onResponse((ProtectedClientSession) ((IOReadFuture) future).getSession(), future);
+				}
+			});
+			
 			return;
 		}
 
-		onReadFuture = this.onReadFutures.poll();
+		final OnReadFuture onReadFuture1 = this.onReadFutures.poll();
 
-		if (onReadFuture != null) {
-			ProtectedClientSession session = (ProtectedClientSession) ((IOReadFuture) future).getSession();
-			try {
-				onReadFuture.onResponse(session, future);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			session.offer();
+		if (onReadFuture1 != null) {
+		
+			executor.dispatch(new Runnable() {
+				
+				public void run() {
+					ProtectedClientSession session = (ProtectedClientSession) ((IOReadFuture) future).getSession();
+					try {
+						onReadFuture1.onResponse(session, future);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					session.offer();
+				}
+			});
 			return;
 		}
 

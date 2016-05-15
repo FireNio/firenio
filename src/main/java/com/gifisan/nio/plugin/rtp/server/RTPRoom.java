@@ -31,10 +31,11 @@ public class RTPRoom {
 		return roomID;
 	}
 
-	public RTPRoom(RTPContext context) {
+	public RTPRoom(RTPContext context,IOSession session) {
 		this.roomID = genRoomID();
 		this.roomFactory = context.getRTPRoomFactory();
 		this.context = context;
+		this.join(session.getUDPEndPoint());
 	}
 	
 	private Integer genRoomID() {
@@ -70,7 +71,7 @@ public class RTPRoom {
 			buffer.flip();
 
 			try {
-				endPoint.sendPacket(buffer);
+				point.sendPacket(buffer);
 			} catch (Throwable e) {
 				DebugUtil.debug(e);
 			}

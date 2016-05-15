@@ -5,15 +5,16 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.server.NIOContext;
 
 public class ClientUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoint {
 
 	private ClientSession	session	= null;
 
-	public ClientUDPEndPoint(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
+	public ClientUDPEndPoint(ClientSession session, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
-		super(context, channel, remote);
+		
+		super(session.getContext(), channel, remote);
+		this.session = session;
 	}
 
 	protected void extendClose() {

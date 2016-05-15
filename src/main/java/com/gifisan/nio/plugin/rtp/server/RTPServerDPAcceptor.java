@@ -18,11 +18,15 @@ import com.gifisan.nio.server.ServerSession;
 
 public class RTPServerDPAcceptor implements DatagramPacketAcceptor {
 	
-	private RTPContext context = RTPContextFactory.getRTPContext();
-	
 	public static final String BIND_SESSION = "BIND_SESSION";
 	
 	public static final String BIND_SESSION_CALLBACK = "BIND_SESSION_CALLBACK";
+
+	private RTPContext context = null;
+	
+	protected RTPServerDPAcceptor(RTPContext context) {
+		this.context = context;
+	}
 
 	public void accept(UDPEndPoint endPoint, DatagramPacket packet) throws IOException {
 

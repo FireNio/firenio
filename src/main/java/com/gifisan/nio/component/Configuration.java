@@ -9,6 +9,10 @@ import com.gifisan.nio.common.StringUtil;
 public class Configuration implements Attributes {
 
 	private JSONObject	_config	= null;
+	
+	public Configuration(String json){
+		this(JSONObject.parseObject(json));
+	}
 
 	public Configuration(JSONObject config) {
 		this._config = config;

@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;

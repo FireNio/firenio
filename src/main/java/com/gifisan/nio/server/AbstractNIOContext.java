@@ -12,6 +12,7 @@ import com.gifisan.nio.component.ManagedIOSessionFactory;
 import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.SessionFactory;
+import com.gifisan.nio.component.ServerUDPEndPointFactory;
 import com.gifisan.nio.component.UDPEndPointFactory;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
@@ -21,12 +22,12 @@ import com.gifisan.nio.component.protocol.ProtocolEncoder;
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private Map<String, Object>		attributes			= new HashMap<String, Object>();
-	private UDPEndPointFactory		udpEndPointFactory		= new UDPEndPointFactory();
 	private ManagedIOSessionFactory	managedIOSessionFactory	= new ManagedIOSessionFactory();
 	protected Charset				encoding				= Encoding.DEFAULT;
 	protected ProtocolEncoder		protocolEncoder		= new DefaultTCPProtocolEncoder();
 	protected ProtocolDecoder		protocolDecoder		= new DefaultTCPProtocolDecoder();
 	protected OutputStreamAcceptor	outputStreamAcceptor	= null;
+	protected UDPEndPointFactory		udpEndPointFactory		= null;
 	protected ReadFutureAcceptor		readFutureAcceptor		= null;
 	protected SessionFactory		sessionFactory			= null;
 	protected DatagramPacketAcceptor	datagramPacketAcceptor	= null;

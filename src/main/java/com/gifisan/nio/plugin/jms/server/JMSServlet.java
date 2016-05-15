@@ -13,7 +13,17 @@ public abstract class JMSServlet extends NIOServlet{
 	}
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		this.accept(session, future,(JMSSessionAttachment) session.getAttachment(context));
+		
+		JMSSessionAttachment attachment = (JMSSessionAttachment) session.getAttachment(context);
+		
+		if (attachment == null) {
+
+			attachment = new JMSSessionAttachment(context);
+
+			session.setAttachment(context, attachment);
+		}
+		
+		this.accept(session, future,attachment);
 	}
 	
 	public abstract void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception;

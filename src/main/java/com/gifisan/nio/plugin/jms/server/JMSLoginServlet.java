@@ -15,13 +15,6 @@ public class JMSLoginServlet extends JMSServlet {
 
 		MQContext context = getMQContext();
 		
-		if (attachment == null) {
-
-			attachment = new JMSSessionAttachment(context);
-
-			session.setAttachment(context, attachment);
-		}
-		
 		if (!context.isLogined(session)) {
 			
 			LoginCenter loginCenter = context.getLoginCenter();

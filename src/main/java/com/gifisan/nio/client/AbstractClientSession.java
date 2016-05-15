@@ -9,6 +9,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
+import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.PutSession2FactoryServlet;
@@ -19,11 +20,12 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	protected MessageBus					messageBus		= null;
 	protected ClientContext					context			= null;
 	protected long						timeout			= 0;
+	protected DatagramPacketAcceptor			datagramPacketAcceptor = null;
 
 	public AbstractClientSession(TCPEndPoint endPoint, byte logicSessionID) {
 		super(endPoint, logicSessionID);
-		this.messageBus = new MessageBus(this);	
 		this.context = (ClientContext) endPoint.getContext();
+		this.messageBus = new MessageBus(this);	
 	}
 
 	public ReadFuture request(String serviceName, String content) throws IOException {
@@ -115,6 +117,14 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 			
 		}
 		return sessionID;
+	}
+
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return datagramPacketAcceptor;
+	}
+
+	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 	
 	

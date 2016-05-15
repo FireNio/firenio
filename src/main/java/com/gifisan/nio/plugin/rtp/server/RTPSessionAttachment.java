@@ -1,6 +1,7 @@
 package com.gifisan.nio.plugin.rtp.server;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.server.IOSession;
 
 public class RTPSessionAttachment implements Attachment {
 
@@ -12,10 +13,10 @@ public class RTPSessionAttachment implements Attachment {
 		return rtpRoom;
 	}
 
-	public RTPRoom createRTPRoom() {
+	public RTPRoom createRTPRoom(IOSession session) {
 		if (rtpRoom == null) {
 			
-			rtpRoom = new RTPRoom(context);
+			rtpRoom = new RTPRoom(context,session);
 			
 			RTPRoomFactory factory = context.getRTPRoomFactory();
 			

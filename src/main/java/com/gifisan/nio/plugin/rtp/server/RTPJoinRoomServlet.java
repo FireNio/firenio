@@ -1,11 +1,9 @@
 package com.gifisan.nio.plugin.rtp.server;
 
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
-import com.test.servlet.TestExceptionServlet;
 
 public class RTPJoinRoomServlet extends RTPServlet{
 	
@@ -17,9 +15,7 @@ public class RTPJoinRoomServlet extends RTPServlet{
 		
 		if (context.isLogined(session)) {
 			
-			Parameters parameters = future.getParameters();
-
-			int roomID = parameters.getIntegerParameter("roomID");
+			Integer roomID = Integer.valueOf(future.getText());
 			
 			RTPRoomFactory roomFactory = context.getRTPRoomFactory();
 			
@@ -42,14 +38,13 @@ public class RTPJoinRoomServlet extends RTPServlet{
 				
 				future.write(ByteUtil.FALSE);
 			}
-
-			session.flush(future);
 		}else{
 			
 			future.write(ByteUtil.FALSE);
 		}
-		
+
 		session.flush(future);
+		
 	}
 	
 }

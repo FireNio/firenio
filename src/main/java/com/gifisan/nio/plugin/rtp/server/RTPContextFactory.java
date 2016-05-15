@@ -2,8 +2,6 @@ package com.gifisan.nio.plugin.rtp.server;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gifisan.nio.server.ServerContext;
-
 public class RTPContextFactory {
 
 	private static RTPContext	context		= null;
@@ -13,10 +11,10 @@ public class RTPContextFactory {
 		return context;
 	}
 
-	public static void initializeContext(ServerContext context) throws Exception {
+	public static void initializeContext(RTPContext context) throws Exception {
 		if (initialized.compareAndSet(false, true)) {
 
-			RTPContextFactory.context = (RTPContext) context.getPluginContext(RTPContext.class);
+			RTPContextFactory.context = context;
 		}
 	}
 

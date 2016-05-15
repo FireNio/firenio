@@ -21,14 +21,8 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 	public void configServlet(Map<String, GenericServlet> servlets) {
 
 		servlets.put(RTPLoginServlet.SERVICE_NAME, new RTPLoginServlet());
-		
-		
-		
-		
-		
-		
-		
-		
+		servlets.put(RTPJoinRoomServlet.SERVICE_NAME, new RTPJoinRoomServlet());
+		servlets.put(RTPCreateRoomServlet.SERVICE_NAME, new RTPCreateRoomServlet());
 		
 	}
 
@@ -36,14 +30,21 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 
 		DefaultServerContext _context = (DefaultServerContext) context;
 
-		_context.setDatagramPacketAcceptor(new RTPServerDPAcceptor());
+		_context.setDatagramPacketAcceptor(new RTPServerDPAcceptor(this));
 
 		super.initialize(context, config);
+		
+		RTPContextFactory.initializeContext(this);
 
 	}
 
 	public RTPRoomFactory getRTPRoomFactory() {
 		return rtpRoomFactory;
 	}
+
+	public void destroy(ServerContext context, Configuration config) throws Exception {
+		RTPContextFactory.setNullRTPContext();
+	}
+	
 	
 }

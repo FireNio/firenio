@@ -15,9 +15,9 @@ import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.component.ServerOutputStreamAcceptor;
+import com.gifisan.nio.component.ServerUDPEndPointFactory;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.ApplicationConfigurationLoader;
 import com.gifisan.nio.server.configuration.FileSystemACLoader;
@@ -56,7 +56,6 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
-		this.datagramPacketAcceptor = new RTPServerDPAcceptor();
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.sessionFactory = new ServerSessionFactory();
@@ -64,6 +63,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		this.loginCenter = new ServerLoginCenter();
 		this.filterService = new FilterService(this,classLoader);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
+		this.udpEndPointFactory = new ServerUDPEndPointFactory();
 		
 		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");
 		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
@@ -163,6 +163,9 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	}
 	
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		if (this.datagramPacketAcceptor != null) {
+			throw new IllegalArgumentException("already setted");
+		}
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 	

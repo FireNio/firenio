@@ -62,7 +62,7 @@ public class DatagramPacket {
 
 			data = new byte[length];
 
-			System.arraycopy(source, PACKET_HEADER, data, 0, length);
+			System.arraycopy(source.array(), PACKET_HEADER, data, 0, length);
 		}
 		return data;
 	}
@@ -100,6 +100,9 @@ public class DatagramPacket {
 	public long getTimestamp() {
 		
 		if (timestamp == -1) {
+			if (source == null) {
+				return timestamp;
+			}
 			timestamp = MathUtil.byte2Long(source.array(), 0);
 		}
 		

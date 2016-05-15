@@ -6,7 +6,6 @@ import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
-import com.test.servlet.TestExceptionServlet;
 
 public class RTPLoginServlet extends RTPServlet {
 	
