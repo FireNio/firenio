@@ -30,7 +30,6 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
 				
-
 		this.dueTime = context.getMessageDueTime();
 
 	}

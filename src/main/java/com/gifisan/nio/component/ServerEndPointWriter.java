@@ -178,14 +178,14 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 		}
 	}
 
-	public void doStart() throws Exception {
+	protected void doStart() throws Exception {
 		this.running = true;
 		this.owner = new Thread(this, "Server-EndPoint-Writer");
 		this.owner.start();
 
 	}
 
-	public void doStop() throws Exception {
+	protected void doStop() throws Exception {
 		running = false;
 	}
 }

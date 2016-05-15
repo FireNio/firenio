@@ -1,5 +1,6 @@
 package com.gifisan.nio.plugin.rtp.server;
 
+import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
 
@@ -13,15 +14,13 @@ public class RTPCreateRoomServlet extends RTPServlet{
 		
 		if (context.isLogined(session)) {
 			
-			RTPRoom room = attachment.createRTPRoom();
+			attachment.createRTPRoom();
 			
-			Integer roomID = room.getRoomID();
-			
-			future.write(roomID.toString());
+			future.write(ByteUtil.TRUE);
 			
 		}else{
 			
-			future.write(String.valueOf(-1));
+			future.write(ByteUtil.FALSE);
 		}
 		
 		session.flush(future);

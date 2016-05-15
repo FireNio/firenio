@@ -167,6 +167,46 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		
 	}
 	
+	public void prepare(ServerContext context, Configuration config) throws Exception {
+		
+		MQContext old = MQContextFactory.getMQContext();
+		
+		//FIXME 把老的Context中的数据放到这里
+		
+		long dueTime = config.getLongProperty("due-time");
+
+		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
+		
+		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
+
+		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
+
+		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
+		
+		super.initialize(context, config);
+		
+		p2pProductLine.start();
+
+		subProductLine.start();
+
+		p2pThread.start();
+
+		subThread.start();
+		
+		MQContextFactory.setNullMQContext();
+		
+		MQContextFactory.initializeContext(this);
+	}
+
+	public void unload(ServerContext context, Configuration config) throws Exception {
+		LifeCycleUtil.stop(p2pProductLine);
+		LifeCycleUtil.stop(subProductLine);
+		MQContextFactory.setNullMQContext();
+		super.destroy(context, config);
+	}
+	
+	
+	
 	
 	
 }

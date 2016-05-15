@@ -1,14 +1,13 @@
 package com.gifisan.nio.server;
 
-import java.nio.charset.Charset;
 import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.Connector;
+import com.gifisan.nio.server.configuration.ServerConfiguration;
 
 public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
@@ -23,32 +22,25 @@ public final class NIOServer extends AbstractLifeCycle implements Attributes {
 
 	protected void doStart() throws Exception {
 
-		SharedBundle bundle = SharedBundle.instance();
-
-		int serverPort = bundle.getIntegerProperty("SERVER.PORT");
-
-		if (serverPort < 1) {
-			throw new IllegalArgumentException("SERVER.PORT 参数错误");
-		}
-
-		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-
 		this.context = new DefaultServerContext(this);
-		this.context.setServerPort(serverPort);
-		this.context.setEncoding(Charset.forName(encoding));
-		this.context.setServerCoreSize(bundle.getIntegerProperty("SERVER.CORE_SIZE", 4));
-
-		this.tcpConnector = new TCPConnector(context, serverPort);
 		
 		this.context.start();
 		
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		int SERVER_PORT = configuration.getSERVER_PORT();
+		
+		if (SERVER_PORT < 1) {
+			throw new IllegalArgumentException("SERVER.PORT 参数错误");
+		}
+
+		this.tcpConnector = new TCPConnector(context, SERVER_PORT);
+		
 		this.tcpConnector.start();
 		
-		boolean UDP_BOOT = bundle.getBooleanProperty("SERVER.UDP_BOOT");
-		
-		if (UDP_BOOT) {
+		if (configuration.isSERVER_UDP_BOOT()) {
 			
-			this.udpConnector = new UDPConnector(context, serverPort+1);
+			this.udpConnector = new UDPConnector(context, SERVER_PORT+1);
 			
 			this.udpConnector.start();
 		}

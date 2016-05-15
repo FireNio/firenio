@@ -12,8 +12,6 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Connector;
-import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.ServerEndPointWriter;
 import com.gifisan.nio.component.UDPSelectorLoop;
 
 public final class UDPConnector extends AbstractLifeCycle implements Connector {
@@ -24,7 +22,6 @@ public final class UDPConnector extends AbstractLifeCycle implements Connector {
 	private UDPSelectorLoop		selectorLoop		= null;
 	private Selector			selector			= null;
 	private NIOContext			context			= null;
-	private EndPointWriter		endPointWriter		= null;
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
 	
 
@@ -72,12 +69,8 @@ public final class UDPConnector extends AbstractLifeCycle implements Connector {
 
 		this.connect();
 		
-		this.endPointWriter = new ServerEndPointWriter();
-
 		this.selectorLoop = new UDPSelectorLoop(context, selector);
 
-		this.endPointWriter.start();
-		
 		this.selectorLoop.start();
 	}
 
@@ -85,8 +78,6 @@ public final class UDPConnector extends AbstractLifeCycle implements Connector {
 
 		LifeCycleUtil.stop(selectorLoop);
 		
-		LifeCycleUtil.stop(endPointWriter);
-
 		this.close();
 	}
 

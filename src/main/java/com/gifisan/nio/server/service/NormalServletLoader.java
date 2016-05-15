@@ -1,25 +1,21 @@
 package com.gifisan.nio.server.service;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.configuration.ServletsConfiguration;
 
 public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
 
@@ -28,15 +24,17 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 	private ReentrantLock				lock			= new ReentrantLock();
 	private Logger						logger		= LoggerFactory.getLogger(NormalServletLoader.class);
 	private Map<String, GenericServlet>	servlets		= new LinkedHashMap<String, GenericServlet>();
-
+	private ServletsConfiguration			configuration	= null;
+	
 	public NormalServletLoader(ServerContext context, DynamicClassLoader classLoader) {
+		this.configuration = context.getConfiguration().getServletsConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
 	}
 
 	protected void doStart() throws Exception {
 
-		Map<String, GenericServlet> servlets = loadServlets(context, this.classLoader);
+		Map<String, GenericServlet> servlets = loadServlets(configuration,classLoader);
 
 		this.initializeServlets(servlets);
 
@@ -92,8 +90,10 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	private Map<String, GenericServlet> loadServlets(JSONArray array, DynamicClassLoader classLoader) throws Exception {
+	private Map<String, GenericServlet> loadServlets(ServletsConfiguration configuration,DynamicClassLoader classLoader) throws Exception {
 
+		List<Configuration> servletConfigurations = configuration.getServlets();
+		
 		DefaultServerContext context2 = (DefaultServerContext)context;
 		
 		Map<String, GenericServlet> pluginServlets = context2.getPluginServlets();
@@ -102,7 +102,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 		servlets.putAll(pluginServlets);
 
-		if (array.size() == 0) {
+		if (servletConfigurations.size() == 0) {
 			
 			if (servlets.size() == 0) {
 				
@@ -111,22 +111,15 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 			return servlets;
 		}
 
-		for (int i = 0; i < array.size(); i++) {
+		for (int i = 0; i < servletConfigurations.size(); i++) {
 
-			JSONObject object = array.getJSONObject(i);
+			Configuration config = servletConfigurations.get(i);
 
-			String className = object.getString("class");
-
-			String serviceName = object.getString("serviceName");
-
-			Configuration config = new Configuration(object);
+			String className = config.getProperty("class","empty");
 
 			Class<?> clazz = classLoader.forName(className);
 
-			if (StringUtil.isNullOrBlank(serviceName)) {
-
-				serviceName = clazz.getSimpleName();
-			}
+			String serviceName = config.getProperty("serviceName",clazz.getSimpleName());
 
 			if (servlets.containsKey(serviceName)) {
 				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");
@@ -142,44 +135,17 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		return servlets;
 	}
 
-	private Map<String, GenericServlet> loadServlets(ServerContext context, DynamicClassLoader classLoader)
-			throws Exception {
-
-		String config = PropertiesLoader.loadContent("servlets.config", Encoding.UTF8);
-		
-		if (!StringUtil.isNullOrBlank(config)) {
-
-			JSONArray array = JSONObject.parseArray(config);
-
-			return loadServlets(array, classLoader);
-
-		} else {
-			
-			DefaultServerContext context2 = (DefaultServerContext)context;
-			
-			Map<String, GenericServlet> pluginServlets = context2.getPluginServlets();
-			
-			if (pluginServlets.size() == 0) {
-				throw new Error("不存在Servlet配置文件");
-			}
-			
-			Map<String, GenericServlet> result = new HashMap<String, GenericServlet>();
-			
-			result.putAll(pluginServlets);
-			
-			return result;
-		}
-	}
-
 	public void prepare(ServerContext context, Configuration config) throws Exception {
 
 		logger.info(" [NIOServer] 尝试加载新的Servlet配置......");
 
-		this.servlets = loadServlets(context, classLoader);
+		this.servlets = loadServlets(configuration, classLoader);
 
 		logger.info(" [NIOServer] 尝试启动新的Servlet配置......");
 
 		this.prepare(servlets);
+		
+		this.softStart();
 
 	}
 

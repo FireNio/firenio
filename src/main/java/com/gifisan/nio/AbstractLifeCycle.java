@@ -158,6 +158,8 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		} catch (Exception e) {
 
 			this.failed = true;
+			
+			this.starting = false;
 
 			this.fireFailed(e);
 
@@ -167,6 +169,10 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		this.starting = false;
 
 		this.running = true;
+		
+		this.stopped = false;
+		
+		this.stopping = false;
 
 		this.fireEvent(RUNNING);
 
@@ -175,7 +181,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 	public void stop() throws Exception {
 		
 		if (this.starting != true && this.running != true) {
-			throw new IllegalStateException("stopped");
+			throw new IllegalStateException("stopped,"+this.toString());
 		}
 
 		this.running = false;
@@ -199,8 +205,20 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		this.stopping = false;
 
 		this.stopped = true;
-
+		
 		this.fireEvent(STOPPED);
+
+	}
+	
+	public void softStart(){
+		
+		this.starting = false;
+
+		this.running = true;
+		
+		this.stopped = false;
+		
+		this.stopping = false;
 
 	}
 

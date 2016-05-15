@@ -22,7 +22,7 @@ public class TestRedeploy {
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1; i++) {
 			
 			future = session.request(serviceKey, param);
 			

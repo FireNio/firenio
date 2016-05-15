@@ -9,6 +9,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.component.ServiceAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
@@ -23,6 +24,7 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 	private NIOFilterWrapper		rootFilter	= null;
 	private FilterLoader		filterLoader	= null;
 	private DynamicClassLoader	classLoader	= null;
+	private PluginLoader		pluginLoader	= null;
 
 	public FilterService(ServerContext context,DynamicClassLoader classLoader) {
 
@@ -88,9 +90,13 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 	protected void doStart() throws Exception {
 
 		this.classLoader.scan(context.getAppLocalAddress());
+		
+		this.pluginLoader = new NormalPluginLoader(context,classLoader);
 
 		this.filterLoader = new NormalFilterLoader(context, classLoader);
 
+		this.pluginLoader.start();
+		
 		this.filterLoader.start();
 
 		this.rootFilter = filterLoader.getRootFilter();
@@ -99,19 +105,22 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterLoader);
+		LifeCycleUtil.stop(pluginLoader);
 	}
 
 	public boolean redeploy() {
 
-		logger.info(" [NIOServer] ======================================= 开始服务升级 =======================================");
+		logger.info("       [NIOServer] ======================================= 开始服务升级 =======================================");
 
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
+		
+		PluginLoader pluginLoader = new NormalPluginLoader(context, classLoader);
 
 		try {
 
-			logger.info(" [NIOServer] 加载项目组件包");
+			logger.info("       [NIOServer] 加载项目组件包");
 
 			classLoader.scan(context.getAppLocalAddress());
 
@@ -119,7 +128,22 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 			logger.error(e.getMessage(), e);
 
-			logger.info("      [NIOServer] ======================================= 服务升级失败 =======================================");
+			logger.info("       [NIOServer] ======================================= 服务升级失败 =======================================");
+
+			return false;
+		}
+		
+
+
+		try {
+
+			pluginLoader.prepare(context, null);
+
+		} catch (Throwable e) {
+
+			logger.error(e.getMessage(), e);
+
+			logger.info("       [NIOServer] ======================================= 服务升级失败 =======================================");
 
 			return false;
 		}
@@ -132,28 +156,32 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 			logger.error(e.getMessage(), e);
 
-			logger.info("      [NIOServer] ======================================= 服务升级失败 =======================================");
+			logger.info("       [NIOServer] ======================================= 服务升级失败 =======================================");
 
 			return false;
 		}
 
 		this.rootFilter = filterLoader.getRootFilter();
 
-		this.subdeploy(this.filterLoader);
+		this.unloadFilterLoader(this.filterLoader);
+		
+		this.unloadPluginLoader(this.pluginLoader);
 
 		this.filterLoader = filterLoader;
 
+		this.pluginLoader = pluginLoader;
+		
 		this.classLoader.unload();
 
 		this.classLoader = classLoader;
 
-		logger.info("      [NIOServer] ======================================= 服务升级完成 =======================================");
+		logger.info("       [NIOServer] ======================================= 服务升级完成 =======================================");
 
 		return true;
 
 	}
 
-	private void subdeploy(FilterLoader filterLoader) {
+	private void unloadFilterLoader(FilterLoader filterLoader) {
 
 		try {
 
@@ -162,8 +190,23 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		} catch (Throwable e) {
 
 			logger.error(e.getMessage(), e);
-
 		}
+	}
+	
+	private void unloadPluginLoader(PluginLoader pluginLoader) {
+
+		try {
+
+			pluginLoader.unload(context, null);
+
+		} catch (Throwable e) {
+
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	public PluginContext [] getPluginContexts(){
+		return pluginLoader.getPluginContexts();
 	}
 
 }

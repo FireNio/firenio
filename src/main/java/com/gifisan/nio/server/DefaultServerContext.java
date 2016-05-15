@@ -18,26 +18,27 @@ import com.gifisan.nio.component.ServerOutputStreamAcceptor;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
+import com.gifisan.nio.server.configuration.ApplicationConfiguration;
+import com.gifisan.nio.server.configuration.ApplicationConfigurationLoader;
+import com.gifisan.nio.server.configuration.FileSystemACLoader;
+import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.nio.server.service.FilterService;
 import com.gifisan.nio.server.service.GenericServlet;
 import com.gifisan.nio.server.service.NIOFilter;
-import com.gifisan.nio.server.service.NormalPluginLoader;
-import com.gifisan.nio.server.service.PluginLoader;
 
 public class DefaultServerContext extends AbstractNIOContext implements ServerContext {
 
-	private NIOServer					server			= null;
-	private FilterService				filterService		= null;
 	private String						appLocalAddres		= null;
-	private int						serverPort		= 0;
-	private int						serverCoreSize		= 4;
-	private ThreadPool					serviceDispatcher	= null;
-	private LoginCenter					loginCenter		= null;
-	private PluginContext[]				pluginContexts		= new PluginContext[4];
+	private ApplicationConfiguration		configuration		= null;
+	private ApplicationConfigurationLoader	configurationLoader	= new FileSystemACLoader();
+	private FilterService				filterService		= null;
 	private Logger						logger			= LoggerFactory.getLogger(DefaultServerContext.class);
-	private Map<String, GenericServlet>	pluginServlets		= new HashMap<String, GenericServlet>();
+	private LoginCenter					loginCenter		= null;
 	private List<NIOFilter>				pluginFilters		= new ArrayList<NIOFilter>();
-	private PluginLoader 				pluginLoader		= null;
+	private Map<String, GenericServlet>	pluginServlets		= new HashMap<String, GenericServlet>();
+	private NIOServer					server			= null;
+	private ServerConfiguration			serverConfiguration = null;
+	private ThreadPool					serviceDispatcher	= null;
 
 	public DefaultServerContext(NIOServer server) {
 		this.server = server;
@@ -46,90 +47,52 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
 		
+		this.configuration = configurationLoader.loadConfiguration(bundle);
+		
+		this.serverConfiguration = configuration.getServerConfiguration();
+		
+		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+		
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.datagramPacketAcceptor = new RTPServerDPAcceptor();
-		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", this.serverCoreSize);
+		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.sessionFactory = new ServerSessionFactory();
 		this.protocolDecoder = new ServerProtocolDecoder();
 		this.loginCenter = new ServerLoginCenter();
 		this.filterService = new FilterService(this,classLoader);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
-		this.pluginLoader = new NormalPluginLoader(this,classLoader);
 		
 		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");
 		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
 		logger.info("[NIOServer] 项目编码：  { {} }", encoding);
-		logger.info("[NIOServer] 监听端口：  { {} }", serverPort);
-		logger.info("[NIOServer] 服务器核数：{ {} }", serverCoreSize);
+		logger.info("[NIOServer] 监听端口：  { {} }", serverConfiguration.getSERVER_PORT());
+		logger.info("[NIOServer] 服务器核数：{ {} }", SERVER_CORE_SIZE);
 		
-		this.pluginLoader.start();
-		this.pluginContexts = pluginLoader.getPluginContexts();
-		this.configPluginFilterAndServlet();
-
 		this.filterService.start();
 		this.loginCenter.initialize(this, null);
 		this.serviceDispatcher.start();
-
-	}
-	
-	private void configPluginFilterAndServlet(){
 		
-		for (PluginContext context : pluginContexts) {
-
-			if (context == null) {
-				continue;
-			}
-
-			context.configFilter(pluginFilters);
-			context.configServlet(pluginServlets);
-		}
 	}
 
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterService);
 		LifeCycleUtil.stop(serviceDispatcher);
-		LifeCycleUtil.stop(pluginLoader);
 		InitializeUtil.destroy(loginCenter, this, null);
-		
 	}
-
-	public NIOServer getServer() {
-		return server;
-	}
-
+	
 	public String getAppLocalAddress() {
 		return appLocalAddres;
 	}
 
+	public ApplicationConfiguration getConfiguration() {
+		return configuration;
+	}
+
 	public FilterService getFilterService() {
 		return filterService;
-	}
-
-	public boolean redeploy() {
-		
-		//FIXME plugin redeploy
-		
-		
-		return this.filterService.redeploy();
-	}
-
-	public int getServerPort() {
-		return serverPort;
-	}
-
-	public void setServerPort(int serverPort) {
-		this.serverPort = serverPort;
-	}
-
-	public int getServerCoreSize() {
-		return serverCoreSize;
-	}
-
-	public void setServerCoreSize(int serverCoreSize) {
-		this.serverCoreSize = serverCoreSize;
 	}
 
 	public LoginCenter getLoginCenter() {
@@ -138,6 +101,8 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 
 	public PluginContext getPluginContext(Class clazz) {
 
+		PluginContext [] pluginContexts = filterService.getPluginContexts();
+		
 		for (PluginContext context : pluginContexts) {
 
 			if (context == null) {
@@ -151,15 +116,54 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		return null;
 	}
 
+	public List<NIOFilter> getPluginFilters() {
+		return pluginFilters;
+	}
+
 	public Map<String, GenericServlet> getPluginServlets() {
 		return pluginServlets;
 	}
 
-	public List<NIOFilter> getPluginFilters() {
-		return pluginFilters;
+	public NIOServer getServer() {
+		return server;
+	}
+
+	public ServerConfiguration getServerConfiguration() {
+		return serverConfiguration;
+	}
+
+	public boolean redeploy() {
+		
+		ApplicationConfiguration configuration;
+		try {
+			configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
+		} catch (Exception e) {
+			logger.info(e.getMessage(),e);
+			return false;
+		}
+		
+		
+		
+		ServerConfiguration serverConfiguration = configuration.getServerConfiguration();
+		
+		if (serverConfiguration.getSERVER_PORT() != this.serverConfiguration.getSERVER_PORT()) {
+			return false;
+		}
+		
+		boolean redeployed = filterService.redeploy();
+		
+		if (redeployed) {
+			
+			this.configuration = configuration;
+			
+			this.serverConfiguration = serverConfiguration;
+		}
+		
+		return redeployed;
 	}
 	
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
+	
 }

@@ -33,12 +33,12 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 		this.parameter = JSONObject.toJSONString(param);
 	}
 
-	public DefaultMessageConsumer(ClientSession session, String queueName, long timeout) throws JMSException {
+	public DefaultMessageConsumer(ClientSession session, String queueName, long timeout) {
 		super(session);
 		this.initParam(queueName, timeout);
 	}
 
-	public DefaultMessageConsumer(ClientSession session, String queueName) throws JMSException {
+	public DefaultMessageConsumer(ClientSession session, String queueName) {
 		super(session);
 		this.queueName = queueName;
 		this.initParam(queueName, 0);

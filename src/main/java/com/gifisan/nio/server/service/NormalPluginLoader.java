@@ -1,19 +1,17 @@
 package com.gifisan.nio.server.service;
 
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.PluginContext;
+import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.configuration.PluginsConfiguration;
 
 public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoader {
 
@@ -21,19 +19,22 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 	private DynamicClassLoader	classLoader	= null;
 	private ReentrantLock		lock			= new ReentrantLock();
 	private Logger				logger		= LoggerFactory.getLogger(NormalPluginLoader.class);
-	private PluginContext[]		plugins		= new PluginContext[4];
+	private PluginContext[]		pluginContexts	= new PluginContext[4];
+	private PluginsConfiguration	configuration	= null;
 
 	public NormalPluginLoader(ServerContext context, DynamicClassLoader classLoader) {
+		this.configuration = context.getConfiguration().getPluginsConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
 	}
 
 	protected void doStart() throws Exception {
 
-		loadPlugins(context, this.classLoader);
+		loadPlugins(context, this.classLoader, this.configuration);
 
-		this.initializePlugins(plugins);
+		this.initializePlugins(pluginContexts);
 
+		this.configPluginFilterAndServlet((DefaultServerContext) context);
 	}
 
 	protected void doStop() throws Exception {
@@ -41,9 +42,9 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
-		
-		for (PluginContext plugin : plugins) {
-			
+
+		for (PluginContext plugin : pluginContexts) {
+
 			if (plugin == null) {
 				continue;
 			}
@@ -59,18 +60,18 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 				logger.error(e.getMessage(), e);
 			}
 		}
-
+		
 		lock.unlock();
 	}
-	
+
 	public PluginContext[] getPluginContexts() {
-		return plugins;
+		return pluginContexts;
 	}
 
 	private void initializePlugins(PluginContext[] plugins) throws Exception {
-		
+
 		for (PluginContext plugin : plugins) {
-			
+
 			if (plugin == null) {
 				continue;
 			}
@@ -81,40 +82,28 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		}
 	}
 
-	private void loadPlugins(JSONArray array, DynamicClassLoader classLoader) throws Exception {
+	private void loadPlugins(ServerContext context, DynamicClassLoader classLoader, PluginsConfiguration configuration)
+			throws Exception {
 
-		if (array.size() > 4) {
+		List<Configuration> plugins = configuration.getPlugins();
+
+		if (plugins.size() > 4) {
 			throw new IllegalArgumentException("plugin size max to 4");
 		}
-		
-		for (int i = 0; i < array.size(); i++) {
 
-			JSONObject object = array.getJSONObject(i);
+		for (int i = 0; i < plugins.size(); i++) {
 
-			String className = object.getString("class");
+			Configuration config = plugins.get(i);
 
-			Configuration config = new Configuration(object);
+			String className = config.getProperty("class", "empty");
 
 			Class<?> clazz = classLoader.forName(className);
 
 			PluginContext plugin = (PluginContext) clazz.newInstance();
 
-			plugins[i] = plugin;
+			pluginContexts[i] = plugin;
 
 			plugin.setConfig(config);
-
-		}
-	}
-
-	private void loadPlugins(ServerContext context, DynamicClassLoader classLoader) throws Exception {
-
-		String config = PropertiesLoader.loadContent("plugins.config", Encoding.UTF8);
-
-		if (!StringUtil.isNullOrBlank(config)) {
-
-			JSONArray array = JSONObject.parseArray(config);
-
-			loadPlugins(array, classLoader);
 
 		}
 	}
@@ -123,18 +112,20 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 		logger.info("  [NIOServer] 尝试加载新的Servlet配置......");
 
-		loadPlugins(context, classLoader);
+		loadPlugins(context, classLoader, this.configuration);
 
 		logger.info("  [NIOServer] 尝试启动新的Servlet配置......");
 
-		this.prepare(plugins);
-
+		this.prepare(context,pluginContexts);
+		
+		this.softStart();
+		
 	}
 
-	private void prepare(PluginContext[] plugins) throws Exception {
+	private void prepare(ServerContext context,PluginContext[] plugins) throws Exception {
 
 		for (PluginContext plugin : plugins) {
-			
+
 			if (plugin == null) {
 				continue;
 			}
@@ -144,6 +135,8 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 			logger.info("  [NIOServer] 新的Servlet [ {} ] Prepare完成", plugin);
 
 		}
+		
+		this.configPluginFilterAndServlet((DefaultServerContext) context);
 	}
 
 	public void unload(ServerContext context, Configuration config) throws Exception {
@@ -152,8 +145,8 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 		lock.lock();
 
-		for (PluginContext plugin : plugins) {
-			
+		for (PluginContext plugin : pluginContexts) {
+
 			if (plugin == null) {
 				continue;
 			}
@@ -174,6 +167,19 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 		}
 		lock.unlock();
+	}
+	
+	private void configPluginFilterAndServlet(DefaultServerContext serverContext){
+		
+		for (PluginContext context : pluginContexts) {
+
+			if (context == null) {
+				continue;
+			}
+
+			context.configFilter(serverContext.getPluginFilters());
+			context.configServlet(serverContext.getPluginServlets());
+		}
 	}
 
 }

@@ -12,7 +12,7 @@ import com.gifisan.nio.plugin.jms.client.MessageProducer;
 
 public class DefaultMessageProducer extends DefaultJMSConnecton implements MessageProducer {
 
-	public DefaultMessageProducer(ClientSession session) throws JMSException {
+	public DefaultMessageProducer(ClientSession session){
 		super(session);
 	}
 

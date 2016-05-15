@@ -104,7 +104,7 @@ public class DynamicClassLoader extends ClassLoader {
 				}
 			}
 		} else {
-			logger.info("  [NIOServer] 文件 [ {} ] 不存在", file.getAbsoluteFile());
+			logger.info("  [NIOServer] 文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
 		}
 
 	}

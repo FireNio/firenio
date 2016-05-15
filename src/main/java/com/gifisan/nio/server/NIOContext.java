@@ -17,8 +17,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract Charset getEncoding();
 
-	public abstract void setEncoding(Charset encoding);
-
 	public abstract ProtocolDecoder getProtocolDecoder();
 	
 	public abstract ProtocolEncoder getProtocolEncoder();

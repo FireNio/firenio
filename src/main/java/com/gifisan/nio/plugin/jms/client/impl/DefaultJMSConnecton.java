@@ -15,7 +15,7 @@ public class DefaultJMSConnecton implements JMSConnection {
 	boolean		logined	= false;
 	ClientSession	session	= null;
 
-	public DefaultJMSConnecton(ClientSession session) throws JMSException {
+	public DefaultJMSConnecton(ClientSession session){
 		this.session = session;
 	}
 

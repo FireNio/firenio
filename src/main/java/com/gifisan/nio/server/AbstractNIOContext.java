@@ -67,10 +67,6 @@ public abstract class AbstractNIOContext extends AbstractLifeCycle implements NI
 		this.attributes.put(key, value);
 	}
 
-	public void setEncoding(Charset encoding) {
-		this.encoding = encoding;
-	}
-
 	public ProtocolEncoder getProtocolEncoder() {
 		return protocolEncoder;
 	}

@@ -20,7 +20,7 @@ public class DefaultMessageBrowser extends DefaultJMSConnecton implements Messag
 
 	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
 
-	public DefaultMessageBrowser(ClientSession session) throws JMSException {
+	public DefaultMessageBrowser(ClientSession session) {
 		super(session);
 	}
 
