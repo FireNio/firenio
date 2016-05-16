@@ -11,8 +11,8 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public class UnpreciseClientSession extends AbstractClientSession implements ProtectedClientSession {
 
-	public UnpreciseClientSession(TCPEndPoint endPoint, byte sessionID) {
-		super(endPoint, sessionID);
+	public UnpreciseClientSession(TCPEndPoint endPoint) {
+		super(endPoint);
 	}
 
 	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {

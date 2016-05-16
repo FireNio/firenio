@@ -22,8 +22,8 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	protected long						timeout			= 0;
 	protected DatagramPacketAcceptor			datagramPacketAcceptor = null;
 
-	public AbstractClientSession(TCPEndPoint endPoint, byte logicSessionID) {
-		super(endPoint, logicSessionID);
+	public AbstractClientSession(TCPEndPoint endPoint) {
+		super(endPoint);
 		this.context = (ClientContext) endPoint.getContext();
 		this.messageBus = new MessageBus(this);	
 	}

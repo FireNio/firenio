@@ -7,7 +7,7 @@ import java.nio.channels.Selector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.DefaultTCPEndPoint;
+import com.gifisan.nio.component.AbstractTCPEndPoint;
 import com.gifisan.nio.component.EndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.SelectionAcceptor;
@@ -40,7 +40,7 @@ public class ClientSelectorManagerLoop extends TCPSelectorLoop implements Select
 	}
 
 	private boolean isEndPoint(Object object) {
-		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof EndPoint);
+		return object != null && (object.getClass() == AbstractTCPEndPoint.class || object instanceof EndPoint);
 	}
 
 }

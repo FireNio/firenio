@@ -11,8 +11,8 @@ import com.gifisan.nio.component.Authority;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
-import com.gifisan.nio.component.ManagedIOSessionFactory;
 import com.gifisan.nio.component.PluginContext;
+import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
@@ -26,8 +26,8 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private ActiveAuthority		authority		= null;
 	private ActiveAuthority[]	authoritys	= new ActiveAuthority[4];
 
-	public ServerSession(TCPEndPoint endPoint, byte logicSessionID) {
-		super(endPoint, logicSessionID);
+	public ServerSession(TCPEndPoint endPoint) {
+		super(endPoint);
 
 		this.context = (ServerContext) endPoint.getContext();
 		this.loginCenter = context.getLoginCenter();
@@ -89,7 +89,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 	public void destroyImmediately() {
 
-		ManagedIOSessionFactory factory = context.getManagedIOSessionFactory();
+		SessionFactory factory = context.getSessionFactory();
 
 		factory.removeIOSession(this);
 

@@ -26,7 +26,8 @@
 
 stream acceptor 是否把写入文件的操作放到单独的线程。
 加入room机制（RTP or WebSocket）
-
+关闭Session时删除UDPContext相关信息
+UDP接收端定义Array根据SequenceNo填充Array，500MS后handle该array
 
 
 

@@ -6,7 +6,7 @@ import java.nio.channels.DatagramChannel;
 
 import com.gifisan.nio.client.ClientSession;
 
-public class ClientUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoint {
+public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 
 	private ClientSession	session	= null;
 

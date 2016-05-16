@@ -15,7 +15,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 
-public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
+public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
 	private AtomicBoolean		_closed		= new AtomicBoolean(false);
 	private long				_futureID		= 0;
@@ -26,19 +26,16 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private EndPointWriter		endPointWriter = null;
 	private IOReadFuture		readFuture	= null;
 	private SelectionKey		selectionKey	= null;
-	private SessionFactory		sessionFactory	= null;
-	private Session[]			sessions		= new Session[4];
 	private Socket				socket		= null;
 	private AtomicInteger		writers		= new AtomicInteger();
 	private boolean			endConnect	= false;
 	
 
-	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter) throws SocketException {
+	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter) throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
 		this.endPointWriter = endPointWriter;
 		this.channel = (SocketChannel) selectionKey.channel();
-		this.sessionFactory = context.getSessionFactory();
 		this.socket = channel.socket();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
@@ -75,12 +72,9 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 			DebugUtil.debug(">>>> rm "+this.toString());
 
-			for (Session session : sessions) {
-				if (session == null) {
-					continue;
-				}
-				session.destroyImmediately();
-			}
+			Session session = getSession();
+			
+			session.destroyImmediately();
 
 			this.channel.close();
 			
@@ -204,22 +198,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return remote;
 	}
 
-	public Session getSession(byte sessionID) throws IOException {
-
-		if (sessionID > 3 || sessionID < 0) {
-			throw new IOException("invalid session id " + sessionID);
-		}
-
-		Session session = sessions[sessionID];
-
-		if (session == null) {
-			session = sessionFactory.getSession(this, sessionID);
-			sessions[sessionID] = session;
-		}
-
-		return session;
-	}
-
 	public void incrementWriter(){
 		writers.incrementAndGet();
 	}
@@ -253,15 +231,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return this.channel.read(buffer);
 	}
 	
-	public void removeSession(byte sessionID) {
-		Session session = sessions[sessionID];
-
-		sessions[sessionID] = null;
-		if (session != null) {
-			session.destroyImmediately();
-		}
-	}
-
 	public void setCurrentWriter(IOWriteFuture writer) {
 		this.currentWriter = writer;
 	}

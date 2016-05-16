@@ -26,7 +26,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 		
 		if (endPoint == null) {
-			endPoint = new DefaultTCPEndPoint(context, selectionKey,endPointWriter);
+			endPoint = new ServerTCPEndPoint(context, selectionKey,endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 		return endPoint;

@@ -69,7 +69,7 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 	}
 	
 	private boolean isTCPEndPoint(Object object) {
-		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof TCPEndPoint);
+		return object != null && (object.getClass() == AbstractTCPEndPoint.class || object instanceof TCPEndPoint);
 	}
 
 

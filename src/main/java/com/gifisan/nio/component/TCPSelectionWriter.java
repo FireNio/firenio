@@ -22,7 +22,7 @@ public class TCPSelectionWriter implements SelectionAcceptor {
 
 		if (endPoint == null) {
 			// maybe not happen
-			endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
+			endPoint = new ServerTCPEndPoint(context, selectionKey, endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 		return endPoint;

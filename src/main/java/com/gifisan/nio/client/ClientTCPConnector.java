@@ -16,7 +16,6 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.concurrent.TaskExecutor;
 
@@ -125,12 +124,7 @@ public class ClientTCPConnector implements Connector {
 	}
 
 	public ClientSession getClientSession() throws IOException {
-		return getClientSession(Session.SESSION_ID_1);
-	}
-
-	public ClientSession getClientSession(byte sessionID) throws IOException {
-		return (ClientSession) endPoint.getSession(sessionID);
-
+		return endPoint.getSession();
 	}
 
 	protected ClientContext getContext() {

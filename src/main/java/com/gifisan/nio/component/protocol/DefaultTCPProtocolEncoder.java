@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
@@ -14,40 +15,39 @@ import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
 
 public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
+	
+	private final int PROTOCOL_HADER = ProtocolDecoder.PROTOCOL_HADER;
 
 	private void calcText(byte[] header, int textLength) {
-		header[3] = (byte) (textLength & 0xff);
-		header[4] = (byte) ((textLength >> 8) & 0xff);
-		header[5] = (byte) ((textLength >> 16) & 0xff);
+		header[2] = (byte) (textLength & 0xff);
+		header[3] = (byte) ((textLength >> 8) & 0xff);
+		header[4] = (byte) ((textLength >> 16) & 0xff);
 	}
 
 	private void calcStream(byte[] header, int streamLength) {
-		header[6] = (byte) (streamLength & 0xff);
-		header[7] = (byte) ((streamLength >> 8) & 0xff);
-		header[8] = (byte) ((streamLength >> 16) & 0xff);
-		header[9] = (byte) (streamLength >>> 24);
+		
+		MathUtil.int2Byte(header, streamLength, 5);
 	}
 
 	// data with content
-	protected ByteBuffer encodeText(byte sessionID,byte [] serviceNameArray, byte[] textArray) {
+	protected ByteBuffer encodeText(byte [] serviceNameArray, byte[] textArray) {
 		
 		if (textArray == null || textArray.length == 0) {
 			
-			return encodeNone(sessionID,serviceNameArray);
+			return encodeNone(serviceNameArray);
 		}
 		
 		int textLength = textArray.length;
 		int serviceNameLength = serviceNameArray.length;
-		int allLength = textLength + serviceNameLength + 10;
+		int allLength = textLength + serviceNameLength + PROTOCOL_HADER;
 
 		ByteBuffer buffer = ByteBuffer.allocate(allLength);
 
 		// >> 右移N位
 		// << 左移N位
-		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.TEXT;
-		header[1] = sessionID;
-		header[2] = (byte) serviceNameLength;
+		byte[] header = new byte[PROTOCOL_HADER];
+		header[0] = ProtocolDecoder.TYPE_TEXT;
+		header[1] = (byte) serviceNameLength;
 		calcText(header, textLength);
 
 		buffer.put(header);
@@ -57,18 +57,17 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
 	}
 
 
-	private ByteBuffer encodeStream(byte sessionID,byte [] serviceNameArray, int streamLength) {
+	private ByteBuffer encodeStream(byte [] serviceNameArray, int streamLength) {
 
 		int serviceNameLength = serviceNameArray.length;
 		
-		ByteBuffer buffer = ByteBuffer.allocate(10 + serviceNameLength);
+		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + serviceNameLength);
 
 		// >> 右移N位
 		// << 左移N位
-		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.STREAM;
-		header[1] = sessionID;
-		header[2] = (byte) serviceNameLength;
+		byte[] header = new byte[PROTOCOL_HADER];
+		header[0] = ProtocolDecoder.TYPE_STREAM;
+		header[1] = (byte) serviceNameLength;
 		calcStream(header, streamLength);
 
 		buffer.put(header);
@@ -78,25 +77,24 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
 	}
 
 	// data with stream
-	protected ByteBuffer encodeAll(byte sessionID,byte [] serviceNameArray, byte[] textArray, int streamLength) {
+	protected ByteBuffer encodeAll(byte [] serviceNameArray, byte[] textArray, int streamLength) {
 
 		if (textArray == null || textArray.length == 0) {
 
-			return encodeStream(sessionID,serviceNameArray, streamLength);
+			return encodeStream(serviceNameArray, streamLength);
 		}
 
 		int textLength = textArray.length;
 		int serviceNameLength = serviceNameArray.length;
-		int allLength = textLength + serviceNameLength + 10;
+		int allLength = textLength + serviceNameLength + PROTOCOL_HADER;
 
 		ByteBuffer buffer = ByteBuffer.allocate(allLength);
 
 		// >> 右移N位
 		// << 左移N位
-		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.MULTI;
-		header[1] = sessionID;
-		header[2] = (byte) serviceNameLength;
+		byte[] header = new byte[PROTOCOL_HADER];
+		header[0] = ProtocolDecoder.TYPE_MULTI;
+		header[1] = (byte) serviceNameLength;
 		calcText(header, textLength);
 		calcStream(header, streamLength);
 
@@ -107,18 +105,17 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
 
 	}
 
-	private ByteBuffer encodeNone(byte sessionID,byte [] serviceNameArray) {
+	private ByteBuffer encodeNone(byte [] serviceNameArray) {
 
 		int serviceNameLength = serviceNameArray.length;
 
-		ByteBuffer buffer = ByteBuffer.allocate(10 + serviceNameLength);
+		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + serviceNameLength);
 
 		// >> 右移N位
 		// << 左移N位
-		byte[] header = new byte[10];
-		header[0] = ProtocolDecoder.TEXT;
-		header[1] = sessionID;
-		header[2] = (byte) serviceNameLength;
+		byte[] header = new byte[PROTOCOL_HADER];
+		header[0] = ProtocolDecoder.TYPE_TEXT;
+		header[1] = (byte) serviceNameLength;
 		buffer.put(header);
 		buffer.put(serviceNameArray);
 		return buffer;
@@ -128,12 +125,16 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
 			InputStream inputStream, IOEventHandle handle) throws IOException {
 
 		byte[] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
+		
+		if (serviceName.length() > 127) {
+			throw new IllegalArgumentException("service name too long ,"+serviceName);
+		}
 
 		if (inputStream != null) {
 
 			int dataLength = inputStream.available();
 
-			ByteBuffer textBuffer = encodeAll(session.getLogicSessionID(), serviceNameArray, array, dataLength);
+			ByteBuffer textBuffer = encodeAll(serviceNameArray, array, dataLength);
 
 			textBuffer.flip();
 
@@ -147,7 +148,7 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
 
 		}
 
-		ByteBuffer textBuffer = encodeText(session.getLogicSessionID(), serviceNameArray, array);
+		ByteBuffer textBuffer = encodeText(serviceNameArray, array);
 
 		textBuffer.flip();
 

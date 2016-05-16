@@ -26,5 +26,7 @@ public interface IOSession extends Session {
 	public abstract void disconnect();
 	
 	public abstract UDPEndPoint getUDPEndPoint();
+	
+	public abstract ServerContext getContext();
 
 }

@@ -42,7 +42,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 	}
 
 	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
-		if (type == ProtocolDecoder.BEAT) {
+		if (type == ProtocolDecoder.TYPE_BEAT) {
 
 			DebugUtil.debug(">>read beat................." + DateUtil.now());
 
@@ -50,7 +50,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 		}
 
 		// HTTP REQUEST ?
-		if (type == ProtocolDecoder.HTTP) {
+		if (type == ProtocolDecoder.TYPE_HTTP) {
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
 			endPoint.write(buffer);
 //			endPoint.endConnect();

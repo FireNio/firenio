@@ -8,7 +8,7 @@ import java.nio.channels.SelectionKey;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
 
-public class ServerUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoint {
+public class ServerUDPEndPoint extends AbstractUDPEndPoint {
 
 	private IOSession	session	= null;
 
@@ -35,5 +35,7 @@ public class ServerUDPEndPoint extends AbstractUDPEndPoint implements UDPEndPoin
 	public void setTCPSession(Session session) {
 		this.session = (IOSession) session;
 	}
+	
+	
 
 }

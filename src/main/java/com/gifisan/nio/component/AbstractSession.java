@@ -13,7 +13,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	private Attachment					attachment			= null;
 	private Attachment[]				attachments			= new Attachment[4];
 	private long						creationTime			= System.currentTimeMillis();
-	private byte						logicSessionID			= 0;
 	private boolean					closed				= false;
 	private SessionEventListenerWrapper	lastListener			= null;
 	private SessionEventListenerWrapper	listenerStub			= null;
@@ -21,14 +20,13 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
 	protected ProtocolEncoder			encoder				= null;
 	protected EndPointWriter			endPointWriter			= null;
-	protected String 					sessionID				= null;
+	protected String					sessionID				= null;
 
-	public AbstractSession(TCPEndPoint endPoint, byte logicSessionID) {
+	public AbstractSession(TCPEndPoint endPoint) {
 		NIOContext context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.outputStreamAcceptor = context.getOutputStreamAcceptor();
-		this.logicSessionID = logicSessionID;
 		this.endPoint = endPoint;
 	}
 
@@ -41,7 +39,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		}
 	}
 
-
 	public Attachment getAttachment() {
 		return attachment;
 	}
@@ -49,22 +46,22 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	public void setAttachment(Attachment attachment) {
 		this.attachment = attachment;
 	}
-	
+
 	public Attachment getAttachment(PluginContext context) {
-		
+
 		if (context == null) {
 			throw new IllegalArgumentException("null context");
 		}
-		
+
 		return attachments[context.getPluginIndex()];
 	}
 
-	public void setAttachment(PluginContext context,Attachment attachment) {
-		
+	public void setAttachment(PluginContext context, Attachment attachment) {
+
 		if (context == null) {
 			throw new IllegalArgumentException("null context");
 		}
-		
+
 		this.attachments[context.getPluginIndex()] = attachment;
 	}
 
@@ -108,10 +105,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return endPoint.isOpened();
 	}
 
-	public byte getLogicSessionID() {
-		return logicSessionID;
-	}
-
 	public void destroyImmediately() {
 
 		this.closed = true;
@@ -133,19 +126,18 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public String toString() {
-		return MessageFormatter.format("session-{},edp-{}", logicSessionID, endPoint.toString());
+		return MessageFormatter.format("session@{}", endPoint.toString());
 	}
 
 	public boolean closed() {
 		return closed;
 	}
 
-	public String getSessionID(){
+	public String getSessionID() {
 		if (sessionID == null) {
 			sessionID = UUIDGenerator.random();
 		}
 		return sessionID;
 	}
-	
-	
+
 }

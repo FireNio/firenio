@@ -16,6 +16,7 @@ import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.component.ServerOutputStreamAcceptor;
 import com.gifisan.nio.component.ServerUDPEndPointFactory;
+import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
@@ -36,8 +37,9 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	private LoginCenter					loginCenter		= null;
 	private List<NIOFilter>				pluginFilters		= new ArrayList<NIOFilter>();
 	private Map<String, GenericServlet>	pluginServlets		= new HashMap<String, GenericServlet>();
+	private SessionFactory				sessionFactory		= new SessionFactory();
 	private NIOServer					server			= null;
-	private ServerConfiguration			serverConfiguration = null;
+	private ServerConfiguration			serverConfiguration	= null;
 	private ThreadPool					serviceDispatcher	= null;
 
 	public DefaultServerContext(NIOServer server) {
@@ -46,35 +48,38 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
-		
+
 		this.configuration = configurationLoader.loadConfiguration(bundle);
-		
+
 		this.serverConfiguration = configuration.getServerConfiguration();
-		
+
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-		
+
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
-		this.sessionFactory = new ServerSessionFactory();
 		this.protocolDecoder = new ServerProtocolDecoder();
 		this.loginCenter = new ServerLoginCenter();
-		this.filterService = new FilterService(this,classLoader);
+		this.filterService = new FilterService(this, classLoader);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
-		
+
 		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");
 		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
 		logger.info("[NIOServer] 项目编码：  { {} }", encoding);
 		logger.info("[NIOServer] 监听端口：  { {} }", serverConfiguration.getSERVER_PORT());
 		logger.info("[NIOServer] 服务器核数：{ {} }", SERVER_CORE_SIZE);
-		
+
 		this.filterService.start();
 		this.loginCenter.initialize(this, null);
 		this.serviceDispatcher.start();
-		
+
+	}
+	
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
 	}
 
 	protected void doStop() throws Exception {
@@ -82,7 +87,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		LifeCycleUtil.stop(serviceDispatcher);
 		InitializeUtil.destroy(loginCenter, this, null);
 	}
-	
+
 	public String getAppLocalAddress() {
 		return appLocalAddres;
 	}
@@ -101,8 +106,8 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 
 	public PluginContext getPluginContext(Class clazz) {
 
-		PluginContext [] pluginContexts = filterService.getPluginContexts();
-		
+		PluginContext[] pluginContexts = filterService.getPluginContexts();
+
 		for (PluginContext context : pluginContexts) {
 
 			if (context == null) {
@@ -133,40 +138,38 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	}
 
 	public boolean redeploy() {
-		
+
 		ApplicationConfiguration configuration;
 		try {
 			configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e);
+			logger.info(e.getMessage(), e);
 			return false;
 		}
-		
-		
-		
+
 		ServerConfiguration serverConfiguration = configuration.getServerConfiguration();
-		
+
 		if (serverConfiguration.getSERVER_PORT() != this.serverConfiguration.getSERVER_PORT()) {
 			return false;
 		}
-		
+
 		boolean redeployed = filterService.redeploy();
-		
+
 		if (redeployed) {
-			
+
 			this.configuration = configuration;
-			
+
 			this.serverConfiguration = serverConfiguration;
 		}
-		
+
 		return redeployed;
 	}
-	
+
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
 		if (this.datagramPacketAcceptor != null) {
 			throw new IllegalArgumentException("already setted");
 		}
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
-	
+
 }
