@@ -13,7 +13,6 @@ public class ReadFutureFactory {
 
 		return new TextReadFuture(
 				_Future.getEndPoint(), 
-				null, 
 				_Future.getSession(), 
 				_Future.getServiceName());
 
@@ -25,7 +24,6 @@ public class ReadFutureFactory {
 		
 		return new TextReadFuture(
 				serverSession.getEndPoint(),
-				null, 
 				session, 
 				serviceName);
 

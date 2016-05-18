@@ -24,10 +24,10 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 	private Thread						owner		= null;
 	private boolean					running		= false;
 	private boolean					collect		= false;
-	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512 );
+	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
 	private Map<Long, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Long, List<IOWriteFuture>>();
-	private Logger logger = LoggerFactory.getLogger(ServerEndPointWriter.class);
-	
+	private Logger						logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
+
 	public void collect() {
 		this.collect = true;
 	}
@@ -158,7 +158,7 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 		if (futureFromEndPoint.write()) {
 
 			endPoint.decrementWriter();
-			
+
 			endPoint.setCurrentWriter(null);
 
 			futureFromEndPoint.onSuccess();
@@ -174,9 +174,9 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 			if (!writers.offer(futureFromWriters)) {
 
 				endPoint.decrementWriter();
-				
-				logger.debug("give up {}",futureFromWriters.getFutureID());
-				
+
+				logger.debug("give up {}", futureFromWriters.getFutureID());
+
 				futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
 			}
 		}

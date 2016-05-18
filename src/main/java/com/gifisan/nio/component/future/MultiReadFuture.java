@@ -12,30 +12,30 @@ import com.gifisan.nio.component.Session;
 
 public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	public MultiReadFuture(TCPEndPoint endPoint,ByteBuffer textBuffer, Session session, String serviceName,int dataLength) {
-		super(endPoint,textBuffer, session, serviceName);
-		this.hasStream = true;
-		this.dataLength = dataLength;
-		int bufferLength = 1024 * 1000;
-		bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
-		this.streamBuffer = ByteBuffer.allocate(bufferLength);
-//		this.streamBuffer.position(streamBuffer.limit());
+	private int				dataLength	= 0;
+	private int				readLength	= -1;
+	private ByteBuffer			streamBuffer	= null;
+	
+	public MultiReadFuture(TCPEndPoint endPoint,Session session) {
+		super(endPoint, session);
 	}
 
-	private int				readLength	= 0;
-	private int				dataLength	= 0;
-	private ByteBuffer			streamBuffer	= null;
-
-	public boolean read() throws IOException {
+	protected void decode(TCPEndPoint endPoint, byte[] header) throws IOException {
 		
-		ByteBuffer buffer = this.textBuffer;
+		this.hasStream = true;
+		
+		this.dataLength = gainStreamLength(header);
 
-		if (buffer.hasRemaining()) {
-			endPoint.read(buffer);
-			if (buffer.hasRemaining()) {
-				return false;
-			}
-			
+		int bufferLength = 1024 * 1000;
+		
+		bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
+		
+		this.streamBuffer = ByteBuffer.allocate(bufferLength);
+	}
+
+	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
+		
+		if (readLength == -1) {
 			AbstractSession _Session = (AbstractSession) this.session;
 			
 			OutputStreamAcceptor outputStreamAcceptor = _Session.getOutputStreamAcceptor();
@@ -49,10 +49,11 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 			if (!this.hasOutputStream()) {
 				throw new IOException("none outputstream");
 			}
+			readLength = 0;
 		}
 
 		if (readLength < dataLength) {
-			buffer = streamBuffer;
+			ByteBuffer buffer = streamBuffer;
 
 			endPoint.read(buffer);
 
@@ -61,7 +62,7 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 
 		return readLength == dataLength;
 	}
-
+	
 	private void fill(OutputStream outputStream, ByteBuffer buffer) throws IOException {
 
 		byte[] array = buffer.array();
@@ -78,8 +79,9 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 
 		buffer.clear();
 	}
-	
+
 	public int getStreamLength(){
 		return dataLength;
 	}
+	
 }

@@ -12,12 +12,8 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 	private Parameters			parameters	= null;
 	protected OutputStream		outputStream	= null;
 	protected InputStream		inputStream	= null;
-	protected IOEventHandle	outputIOHandle	= null;
-	protected IOEventHandle	inputIOHandle	= null;
-
-	public ReadFutureImpl(String serviceName) {
-		this.serviceName = serviceName;
-	}
+	protected IOEventHandle		outputIOHandle	= null;
+	protected IOEventHandle		inputIOHandle	= null;
 
 	public Parameters getParameters() {
 		if (parameters == null) {
@@ -51,4 +47,5 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 	public int getStreamLength() {
 		return 0;
 	}
+	
 }

@@ -5,10 +5,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
 
@@ -18,12 +20,20 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	protected boolean			hasStream		= false;
 	private boolean			flushed		= false;
 	private BufferedOutputStream	textCache		= new BufferedOutputStream();
+	private ByteBuffer			header		= ByteBuffer.allocate(ProtocolDecoder.PROTOCOL_HADER - 1);
+	private boolean			headerComplete	= false;
+	private boolean			textBufferComplete = false;
+	private int	textLength = 0;
 
-	public AbstractReadFuture(TCPEndPoint endPoint, ByteBuffer textBuffer, Session session, String serviceName) {
-		super(serviceName);
+	public AbstractReadFuture(TCPEndPoint endPoint, Session session, String serviceName) {
 		this.endPoint = endPoint;
 		this.session = session;
-		this.textBuffer = textBuffer;
+		this.serviceName = serviceName;
+	}
+	
+	public AbstractReadFuture(TCPEndPoint endPoint, Session session) {
+		this.endPoint = endPoint;
+		this.session = session;
 	}
 
 	public TCPEndPoint getEndPoint() {
@@ -32,6 +42,82 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 
 	public Session getSession() {
 		return session;
+	}
+	
+	public boolean read() throws IOException {
+		
+		TCPEndPoint endPoint = this.endPoint;
+		
+		if (!headerComplete) {
+			
+			ByteBuffer header = this.header;
+			
+			endPoint.read(header);
+			
+			if (header.hasRemaining()) {
+				return false;
+			}
+			
+			headerComplete = true;
+			
+			byte [] headerBytes = header.array();
+			
+			int textContentBufferLength = gainTextLength(headerBytes) + headerBytes[0];
+			
+			this.textBuffer = ByteBuffer.allocate(textContentBufferLength);
+			
+			this.decode(endPoint, header.array());
+		}
+		
+		if (!textBufferComplete) {
+			ByteBuffer buffer = this.textBuffer;
+			
+			endPoint.read(buffer);
+			
+			if (buffer.hasRemaining()) {
+				return false;
+			}
+			
+			textBufferComplete = true;
+			
+			this.gainServiceName(endPoint, header,buffer);
+			
+			this.gainText(endPoint, header, buffer);
+		}
+		
+		return doRead(endPoint);
+	}
+	
+	protected abstract boolean doRead(TCPEndPoint endPoint) throws IOException;
+	
+	protected void decode(TCPEndPoint endPoint, byte[] header) throws IOException{
+		
+	}
+	
+	protected int gainStreamLength(byte[] header) {
+		return MathUtil.byte2Int(header, 4);
+	}
+
+	protected int gainTextLength(byte[] header) {
+		int v0 = (header[1] & 0xff);
+		int v1 = (header[2] & 0xff) << 8;
+		int v2 = (header[3] & 0xff) << 16;
+		
+		this.textLength = v0 | v1 | v2;
+		
+		return textLength;
+	}
+	
+	protected void gainServiceName(TCPEndPoint endPoint, ByteBuffer header,ByteBuffer buffer) throws IOException {
+
+		byte[] bytes = buffer.array();
+
+		this.serviceName = new String(bytes, 0, header.array()[0]);
+	}
+	
+	protected void gainText(TCPEndPoint endPoint,ByteBuffer header,  ByteBuffer buffer) throws IOException {
+
+		this.text = new String(buffer.array(), header.array()[0],textLength,endPoint.getContext().getEncoding());
 	}
 
 	public void catchOutputException(IOException e) {
@@ -56,13 +142,6 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 
 	public boolean hasOutputStream() {
 		return hasStream;
-	}
-
-	public String getText() {
-		if (text == null) {
-			text = new String(textBuffer.array(), 0, textBuffer.position(), session.getContext().getEncoding());
-		}
-		return text;
 	}
 
 	public boolean flushed() {
@@ -99,8 +178,8 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	public BufferedOutputStream getTextCache() {
 		return textCache;
 	}
-	
+
 	public String toString() {
-		return serviceName+"@"+getText();
+		return serviceName + "@" + getText();
 	}
 }

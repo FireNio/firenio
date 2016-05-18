@@ -5,7 +5,7 @@ public class FutureImpl implements Future {
 
 	protected String	serviceName	= null;
 	protected String	text			= null;
-	private Object	attachment	= null;
+	private Object		attachment	= null;
 
 	public String getServiceName() {
 		return serviceName;

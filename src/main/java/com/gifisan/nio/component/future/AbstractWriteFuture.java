@@ -56,6 +56,9 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	}
 	
 	public void onSuccess() {
+		
+//		logger.debug(">>>>>>>>>>>>>>>>>>>>> writed..");
+		
 		if (this.handle == null) {
 			return;
 		}

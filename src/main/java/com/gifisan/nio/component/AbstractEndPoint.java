@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -39,27 +40,27 @@ public abstract class AbstractEndPoint implements EndPoint {
 	
 	public String getLocalAddr() {
 		
-		InetSocketAddress address = getLocalSocketAddress();
+		InetAddress address = local.getAddress();
 		
 		if (address == null) {
-			
-			return "closed";
+			return "127.0.0.1";
 		}
 		
-		return address.getHostName();
+		return address.getHostAddress();
 	}
 	
 	protected abstract InetSocketAddress getLocalSocketAddress() ;
 	
 	public String getRemoteAddr() {
-		InetSocketAddress address = getLocalSocketAddress();
+		
+		InetSocketAddress address = getRemoteSocketAddress();
 		
 		if (address == null) {
 			
 			return "closed";
 		}
 		
-		return address.getAddress().getCanonicalHostName();
+		return address.getAddress().getHostAddress();
 	}
 
 	public String getRemoteHost() {

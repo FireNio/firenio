@@ -1,29 +1,22 @@
 package com.gifisan.nio.component.future;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TCPEndPoint;
 
 public class TextReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	public TextReadFuture(TCPEndPoint endPoint,ByteBuffer textBuffer, Session session, String serviceName) {
-		super(endPoint,textBuffer, session, serviceName);
+	public TextReadFuture(TCPEndPoint endPoint, Session session, String serviceName) {
+		super(endPoint, session, serviceName);
 	}
 
-	public boolean read() throws IOException {
-		ByteBuffer buffer = this.textBuffer;
-		endPoint.read(buffer);
-		return !buffer.hasRemaining();
+	public TextReadFuture(TCPEndPoint endPoint, Session session) {
+		super(endPoint, session);
 	}
 
-	public void catchException(IOException e) {
-	}
-
-	public void setIOEvent(OutputStream outputStream, IOEventHandle handle) {
+	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
+		return true;
 	}
 
 }
