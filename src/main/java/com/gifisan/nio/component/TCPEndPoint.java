@@ -11,11 +11,9 @@ public interface TCPEndPoint extends EndPoint{
 	
 	public abstract boolean isEndConnect();
 	
-	public abstract boolean enableWriting(long sessionID);
-
-	public abstract void setWriting(long sessionID);
-	
 	public abstract void setCurrentWriter(IOWriteFuture writer);
+	
+	public abstract IOWriteFuture getCurrentWriter();
 	
 	public abstract boolean isOpened();
 	

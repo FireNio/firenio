@@ -3,7 +3,8 @@ package com.gifisan.nio.plugin.rtp.server;
 import java.io.IOException;
 
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.SessionFactory;
@@ -22,6 +23,8 @@ public class RTPServerDPAcceptor implements DatagramPacketAcceptor {
 	public static final String BIND_SESSION = "BIND_SESSION";
 	
 	public static final String BIND_SESSION_CALLBACK = "BIND_SESSION_CALLBACK";
+	
+	private Logger logger = LoggerFactory.getLogger(RTPServerDPAcceptor.class);
 
 	private RTPContext context = null;
 	
@@ -91,7 +94,7 @@ public class RTPServerDPAcceptor implements DatagramPacketAcceptor {
 			
 		}else{
 			
-			DebugUtil.debug(">>>>"+request.getServiceName());
+			logger.debug(">>>> {}",request.getServiceName());
 		}
 	}
 

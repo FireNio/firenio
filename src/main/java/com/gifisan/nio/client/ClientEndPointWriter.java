@@ -10,9 +10,9 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOWriteFuture;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
@@ -20,20 +20,20 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	private Thread					owner		= null;
 	private boolean				running		= false;
-	private ClientTCPEndPoint			endPoint		= null;
+	private ClientTCPEndPoint		endPoint		= null;
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
-	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 8 * 16);
-	
+	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 64);
+
 	public void collect() {
 
-		ReentrantLock lock = this.lock;
+//		ReentrantLock lock = this.lock;
+//
+//		lock.lock();
+//
+//		networkWeak.signal();
 
-		lock.lock();
-
-		networkWeak.signal();
-
-		lock.unlock();
+//		lock.unlock();
 
 	}
 
@@ -52,7 +52,7 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 			IOWriteFuture writer = writers.poll(16);
 
 			if (writer == null) {
-				
+
 				if (endPoint.isEndConnect()) {
 					CloseUtil.close(endPoint);
 				}
@@ -61,16 +61,16 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 			}
 
 			TCPEndPoint endPoint = writer.getEndPoint();
-			
+
 			if (endPoint.isEndConnect()) {
-				
+
 				if (endPoint.isOpened()) {
-					
+
 					CloseUtil.close(endPoint);
 				}
-				
+
 				writer.onException(DisconnectException.INSTANCE);
-				
+
 				continue;
 			}
 
@@ -83,12 +83,12 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 						endPoint.decrementWriter();
 
 						writer.onSuccess();
-						
+
 						break;
 
 					} else {
-						
-						waitWrite(writer);
+
+//						waitWrite(writer, endPoint);
 					}
 				}
 			} catch (IOException e) {
@@ -103,19 +103,19 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 			}
 		}
 	}
-	
-	private void waitWrite(IOWriteFuture writer){
-		
-		for (;;) {
 
-			if (writer.isNetworkWeak()) {
+	private void waitWrite(IOWriteFuture writer, TCPEndPoint endPoint) {
+
+		if (writer.isNetworkWeak()) {
+
+			for (;;) {
 
 				ReentrantLock lock = this.lock;
 
 				lock.lock();
 
 				try {
-					networkWeak.await(16, TimeUnit.MILLISECONDS);
+					networkWeak.await(1, TimeUnit.MILLISECONDS);
 				} catch (Exception e) {
 					DebugUtil.debug(e);
 					networkWeak.signal();
@@ -129,16 +129,17 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 				}
 				break;
 			}
+
 		}
 	}
-		
+
 	public void doStart() throws Exception {
 		this.running = true;
 		this.owner = new Thread(this, "Client-EndPoint-Writer");
 		this.owner.start();
 
 	}
-	
+
 	protected void setEndPoint(ClientTCPEndPoint endPoint) {
 		this.endPoint = endPoint;
 	}

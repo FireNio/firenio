@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
@@ -21,6 +23,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	protected ByteBuffer		textBuffer	= null;
 	protected InputStream		inputStream	= null;
 	private static AtomicLong	_autoFutureID	= new AtomicLong(0);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractWriteFuture.class);
 
 	public AbstractWriteFuture(TCPEndPoint endPoint,IOEventHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
 			Session session) {
@@ -39,6 +42,9 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	}
 
 	public void onException(IOException e) {
+		
+		logger.error(e.getMessage(),e);
+		
 		if (this.handle == null) {
 			return;
 		}

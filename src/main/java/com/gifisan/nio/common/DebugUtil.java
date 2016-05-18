@@ -32,58 +32,58 @@ public class DebugUtil {
 		enableDebug = enable;
 	}
 
-	public static void debug(String message) {
+	public static void debug(String className, String message) {
 		if (enableDebug) {
-			System.out.println(message);
+			System.out.println(className + "===" + message);
 		}
 	}
 
-	public static void info(String message) {
-		System.out.println(message);
+	public static void info(String className, String message) {
+		System.out.println(className + message);
 	}
 
-	public static void info(String message, Object param) {
+	public static void info(String className, String message, Object param) {
 
-		System.out.println(MessageFormatter.format(message, param));
+		System.out.println(className + MessageFormatter.format(message, param));
 	}
 
-	public static void info(String message, Object param, Object param1) {
-		System.out.println(MessageFormatter.format(message, param, param1));
-
-	}
-
-	public static void info(String message, Object[] param) {
-		System.out.println(MessageFormatter.arrayFormat(message, param));
+	public static void info(String className, String message, Object param, Object param1) {
+		System.out.println(className + MessageFormatter.format(message, param, param1));
 
 	}
 
-	public static void debug(String message, Object param) {
+	public static void info(String className, String message, Object[] param) {
+		System.out.println(className + MessageFormatter.arrayFormat(message, param));
+
+	}
+
+	public static void debug(String className, String message, Object param) {
 		if (enableDebug) {
-			info(message, param);
-		}
-
-	}
-
-	public static void debug(String message, Object param, Object param1) {
-		if (enableDebug) {
-			info(message, param, param1);
+			info(className, message, param);
 		}
 
 	}
 
-	public static void debug(String message, Object[] param) {
+	public static void debug(String className, String message, Object param, Object param1) {
 		if (enableDebug) {
-			info(message, param);
+			info(className, message, param, param1);
+		}
+
+	}
+
+	public static void debug(String className, String message, Object[] param) {
+		if (enableDebug) {
+			info(className, message, param);
 		}
 	}
 
-	public static void error(String object, Throwable throwable) {
-		System.err.println(object);
+	public static void error(String className, String message, Throwable throwable) {
+		System.err.println(message);
 		throwable.printStackTrace();
 	}
-	
-	public static void error(String object) {
-		System.err.println(object);
+
+	public static void error(String messsage) {
+		System.err.println(messsage);
 	}
 
 }

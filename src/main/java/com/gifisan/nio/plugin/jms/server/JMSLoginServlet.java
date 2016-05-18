@@ -1,7 +1,8 @@
 package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
@@ -10,6 +11,8 @@ import com.gifisan.nio.server.IOSession;
 public class JMSLoginServlet extends JMSServlet {
 	
 	public static final String SERVICE_NAME = JMSLoginServlet.class.getSimpleName();
+	
+	private Logger logger = LoggerFactory.getLogger(JMSLoginServlet.class);
 	
 	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
 
@@ -23,7 +26,7 @@ public class JMSLoginServlet extends JMSServlet {
 			
 			if (!loginCenter.login(session, future)) {
 				
-				DebugUtil.debug(">>>> {} login failed !",param.getParameter("username"));
+				logger.debug(">>>> {} login failed !",param.getParameter("username"));
 				
 				future.write(ByteUtil.FALSE);
 				
@@ -46,7 +49,7 @@ public class JMSLoginServlet extends JMSServlet {
 				context.addReceiver(queueName);
 			}
 
-			DebugUtil.debug(">>>> {} login successful !",param.getParameter("username"));
+			logger.debug(">>>> {} login successful !",param.getParameter("username"));
 			
 		}
 		future.write(ByteUtil.TRUE);

@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.plugin.jms.Message;
@@ -17,6 +18,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 	protected long						dueTime		= 0;
 	protected boolean						running		= false;
 	protected Map<String, ConsumerQueue>		consumerMap	= null;
+	private Logger							logger		= LoggerFactory.getLogger(AbstractProductLine.class);
 
 	public AbstractProductLine(MQContext context) {
 		this.context = context;
@@ -27,9 +29,9 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		this.running = true;
 
 		this.storage = new MessageStorage();
-		
+
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
-				
+
 		this.dueTime = context.getMessageDueTime();
 
 	}
@@ -42,8 +44,8 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 	public MQContext getContext() {
 		return context;
 	}
-	
-	public void pollMessage(IOSession session,ServerReadFuture future, JMSSessionAttachment attachment) {
+
+	public void pollMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
 
 		Parameters param = future.getParameters();
 
@@ -51,13 +53,13 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 
 		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-		Consumer consumer = new Consumer(consumerQueue, attachment, session,future, queueName);
-		
+		Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
+
 		attachment.addConsumer(consumer);
 
 		consumerQueue.offer(consumer);
 	}
-	
+
 	protected ConsumerQueue getConsumerQueue(String queueName) {
 
 		ConsumerQueue consumerQueue = consumerMap.get(queueName);
@@ -80,7 +82,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 	protected abstract ConsumerQueue createConsumerQueue();
 
 	public void offerMessage(Message message) {
-		
+
 		storage.offer(message);
 	}
 
@@ -90,7 +92,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 
 		if (now - message.getTimestamp() > dueTime) {
 			// 消息过期了
-			DebugUtil.debug(">>>> message invalidate : {}",message);
+			logger.debug(">>>> message invalidate : {}", message);
 			return;
 		}
 		this.offerMessage(message);

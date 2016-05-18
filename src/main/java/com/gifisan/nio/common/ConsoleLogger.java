@@ -4,54 +4,56 @@ package com.gifisan.nio.common;
 
 public class ConsoleLogger implements Logger{
 	
+	private String className = null;
 	
-	
+	protected ConsoleLogger(Class clazz) {
+		this.className = "["+clazz.getName()+"] ";
+	}
+
 	public void info(String message) {
-		DebugUtil.info(message);
+		DebugUtil.info(className,message);
 	}
 
 	public void info(String message, Object param) {
-		DebugUtil.info(message, param);
+		DebugUtil.info(className,message, param);
 	}
 
 	public void info(String message, Object param, Object param1) {
-		DebugUtil.info(message, param, param1);
+		DebugUtil.info(className,message, param, param1);
 	}
 
 	public void info(String message, Object[] param) {
-		DebugUtil.info(message, param);
+		DebugUtil.info(className,message, param);
 		
 	}
 
 	public void debug(String message) {
-		DebugUtil.debug(message);
+		DebugUtil.debug(className,message);
 	}
 
 	public void debug(String message, Object param) {
-		DebugUtil.debug(message, param);
+		DebugUtil.debug(className,message, param);
 		
 	}
 
 	public void debug(String message, Object param, Object param1) {
-		DebugUtil.debug(message, param, param1);		
+		DebugUtil.debug(className,message, param, param1);		
 	}
 
 	public void debug(String message, Object[] param) {
-		DebugUtil.debug(message, param);		
+		DebugUtil.debug(className,message, param);		
 	}
 
 	public void error(String object, Throwable throwable) {
-		DebugUtil.error(object, throwable);		
+		DebugUtil.error(className,object, throwable);		
 	}
 	
 	public void error(String object) {
 		DebugUtil.error(object);		
-		
 	}
 
 	public static void main(String[] args) {
-		new ConsoleLogger().info("test {}", "www");
-		
+		new ConsoleLogger(ConsoleLogger.class).info("test {}", "www");
 	}
 	
 

@@ -9,7 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.server.NIOContext;
 
 //FIXME 不可以根据selection key 来
@@ -18,6 +19,8 @@ public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UD
 	private DatagramChannel	channel	= null;
 	private DatagramSocket	socket	= null;
 	private AtomicBoolean	_closed	= new AtomicBoolean(false);
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractUDPEndPoint.class);
 
 	public AbstractUDPEndPoint(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
@@ -38,7 +41,7 @@ public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UD
 			
 			factory.removeUDPEndPoint(this);
 			
-			DebugUtil.debug(">>>> rm " + this.toString());
+			LOGGER.debug(">>>> rm {}" , this.toString());
 
 		}
 	}

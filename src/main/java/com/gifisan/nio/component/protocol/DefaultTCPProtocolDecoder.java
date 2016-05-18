@@ -132,6 +132,7 @@ public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 		return v0 | v1 | v2;
 	}
 	
+	//FIXME read protocol
 	private byte[] readHeader(TCPEndPoint endPoint) throws IOException {
 
 		ByteBuffer buffer = ByteBuffer.allocate(8);

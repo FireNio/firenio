@@ -11,14 +11,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.NetworkException;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
 	private AtomicBoolean		_closed		= new AtomicBoolean(false);
-	private long				_futureID		= 0;
 	private boolean 			_networkWeak	= false;
 	private int				attempts		= 0;
 	private SocketChannel		channel		= null;
@@ -29,6 +29,8 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	private Socket				socket		= null;
 	private AtomicInteger		writers		= new AtomicInteger();
 	private boolean			endConnect	= false;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTCPEndPoint.class);
 	
 
 	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter) throws SocketException {
@@ -70,7 +72,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 			
 			this.selectionKey.attach(null);
 
-			DebugUtil.debug(">>>> rm "+this.toString());
+			LOGGER.debug(">>>> rm {}",this.toString());
 
 			Session session = getSession();
 			
@@ -85,10 +87,6 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 	public void decrementWriter(){
 		writers.decrementAndGet();
-	}
-	
-	public boolean enableWriting(long futureID) {
-		return (_futureID == 0) || (_futureID == futureID);
 	}
 
 	protected void extendClose(){}
@@ -125,20 +123,19 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		//
 		// lock.lock();
 
-		if (this.currentWriter == null) {
+//		if (this.currentWriter == null) {
 			this.flushWriters0();
-		}else{
-			
-			if(this.currentWriter.write()){
-				this.decrementWriter();
-				this.currentWriter.onSuccess();
-				this.currentWriter = null;
-				this.setWriting(0);
-				this.flushWriters0();
-			 }else{
-				 return;
-			 }
-		}
+//		}else{
+//			
+//			if(this.currentWriter.write()){
+//				this.decrementWriter();
+//				this.currentWriter.onSuccess();
+//				this.currentWriter = null;
+//				this.flushWriters0();
+//			 }else{
+//				 return;
+//			 }
+//		}
 
 //		for (IOWriteFuture writer : writers) {
 //			if (!endPointWriter.offer(writer)) {
@@ -156,11 +153,11 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	
 	protected void flushWriters0(){
 		
+		endPointWriter.collect();
+		
 		this.attempts = 0;
 		
 		this._networkWeak = false;
-		
-		endPointWriter.collect();
 		
 		selectionKey.interestOps(SelectionKey.OP_READ);
 		
@@ -239,10 +236,6 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		this.readFuture = readFuture;
 	}
 
-	public void setWriting(long futureID) {
-		this._futureID = futureID;
-	}
-
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
@@ -259,4 +252,8 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		return endConnect;
 	}
 
+	public IOWriteFuture getCurrentWriter() {
+		return currentWriter;
+	}
+	
 }

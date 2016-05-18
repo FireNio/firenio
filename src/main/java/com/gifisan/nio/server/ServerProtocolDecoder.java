@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.DateUtil;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -44,7 +43,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
 		if (type == ProtocolDecoder.TYPE_BEAT) {
 
-			DebugUtil.debug(">>read beat................." + DateUtil.now());
+			logger.debug(">>read beat................. {}" , DateUtil.now());
 
 			return null;
 		}

@@ -8,19 +8,25 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestLoadCallBack {
 	
-	public static int time = 10000;
+	public static int time = 20000;
 	public static final CountDownLatch latch = new CountDownLatch(time);
 	public static void main(String[] args) throws IOException{
+		
+		
+		
 		
 		String serviceName = "TestSimpleServlet";
 		
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		final ClientSession session = connector.getClientSession();
+		final Logger logger = LoggerFactory.getLogger(TestLoadCallBack.class);
 		
 		System.out.println("################## Test start ####################");
 		long old = System.currentTimeMillis();
@@ -31,7 +37,7 @@ public class TestLoadCallBack {
 				latch.countDown();
 				long count = latch.getCount();
 				if (count % 10 == 0) {
-					System.out.println("************************================"+count);
+					logger.info("************************================"+count);
 				}
 			}
 		});

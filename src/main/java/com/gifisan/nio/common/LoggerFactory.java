@@ -8,8 +8,6 @@ public class LoggerFactory {
 	
 	private static boolean enableSLF4JLogger;
 	
-	private static ConsoleLogger consoleLogger = new ConsoleLogger();
-
 	public static void enableSLF4JLogger(boolean enable){
 		enableSLF4JLogger = enable;
 	}
@@ -18,7 +16,7 @@ public class LoggerFactory {
 		if (enableSLF4JLogger) {
 			return new SLF4JLogger(org.slf4j.LoggerFactory.getLogger(clazz));
 		}
-		return consoleLogger;
+		return new ConsoleLogger(clazz);
 	}
 	
 	

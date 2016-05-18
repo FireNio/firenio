@@ -14,17 +14,20 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
 
-	private Thread						owner			= null;
-	private boolean					running			= false;
-	private boolean					collect			= false;
-	private LinkedList<IOWriteFuture>		writers			= new LinkedListM2O<IOWriteFuture>(1024 * 8 * 16);
-	private Map<Long, List<IOWriteFuture>>	lazyEndPoints		= new HashMap<Long, List<IOWriteFuture>>();
-
+	private Thread						owner		= null;
+	private boolean					running		= false;
+	private boolean					collect		= false;
+	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512 );
+	private Map<Long, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Long, List<IOWriteFuture>>();
+	private Logger logger = LoggerFactory.getLogger(ServerEndPointWriter.class);
+	
 	public void collect() {
 		this.collect = true;
 	}
@@ -86,8 +89,6 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	public void run() {
 
-		byte unwriting = 0;
-
 		for (; running;) {
 
 			if (collect) {
@@ -95,86 +96,108 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 				collectEndPoints();
 			}
 
-			IOWriteFuture writer = writers.poll(16);
+			IOWriteFuture futureFromWriters = writers.poll(16);
 
-			if (writer == null) {
+			if (futureFromWriters == null) {
 
 				continue;
 			}
 
-			TCPEndPoint endPoint = writer.getEndPoint();
-			
+			TCPEndPoint endPoint = futureFromWriters.getEndPoint();
+
 			if (endPoint.isEndConnect()) {
 				if (endPoint.isOpened()) {
 					CloseUtil.close(endPoint);
 				}
 				endPoint.decrementWriter();
-				writer.onException(DisconnectException.INSTANCE);
+				futureFromWriters.onException(DisconnectException.INSTANCE);
 				continue;
 			}
-			
+
 			if (endPoint.isNetworkWeak()) {
 
-				this.lazyWriter(writer);
+				this.lazyWriter(futureFromWriters);
 
 				continue;
 			}
 
 			try {
 
-				if (!endPoint.enableWriting(writer.getFutureID())) {
-					offer(writer);
+				IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriter();
+
+				if (futureFromEndPoint != null) {
+
+					doWriteFutureFromEndPoint(futureFromEndPoint, futureFromWriters, endPoint);
+
 					continue;
 				}
 
-				if (writer.write()) {
+				doWriteFutureFromWriters(futureFromWriters, endPoint);
 
-					endPoint.setWriting(unwriting);
-					
-					endPoint.decrementWriter();
-					
-					writer.onSuccess();
-					
-					if (endPoint.isEndConnect()) {
-						CloseUtil.close(endPoint);
-					}
-
-				} else {
-
-					if (writer.isNetworkWeak()) {
-
-						endPoint.setWriting(writer.getFutureID());
-
-						endPoint.setCurrentWriter(writer);
-
-						continue;
-					}
-
-					endPoint.setWriting(writer.getFutureID());
-
-					if (!writers.offer(writer)) {
-						CloseUtil.close(endPoint);
-
-						endPoint.decrementWriter();
-						
-						writer.onException(WriterOverflowException.INSTANCE);
-					}
-
-				}
 			} catch (IOException e) {
 				DebugUtil.debug(e);
 
 				CloseUtil.close(endPoint);
 
-				writer.onException(e);
+				futureFromWriters.onException(e);
 
 			} catch (Exception e) {
 				DebugUtil.debug(e);
 
 				CloseUtil.close(endPoint);
 
-				writer.onException(new IOException(e));
+				futureFromWriters.onException(new IOException(e));
 			}
+		}
+	}
+
+	// write future from endPoint
+	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromWriters,
+			TCPEndPoint endPoint) throws IOException {
+
+		if (futureFromEndPoint.write()) {
+
+			endPoint.decrementWriter();
+			
+			endPoint.setCurrentWriter(null);
+
+			futureFromEndPoint.onSuccess();
+
+			doWriteFutureFromWriters(futureFromWriters, endPoint);
+
+			if (endPoint.isEndConnect()) {
+				CloseUtil.close(endPoint);
+			}
+
+		} else {
+
+			if (!writers.offer(futureFromWriters)) {
+
+				endPoint.decrementWriter();
+				
+				logger.debug("give up {}",futureFromWriters.getFutureID());
+				
+				futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
+			}
+		}
+	}
+
+	// write future from writers
+	private void doWriteFutureFromWriters(IOWriteFuture futureFromWriters, TCPEndPoint endPoint) throws IOException {
+
+		if (futureFromWriters.write()) {
+
+			endPoint.decrementWriter();
+
+			futureFromWriters.onSuccess();
+
+			if (endPoint.isEndConnect()) {
+				CloseUtil.close(endPoint);
+			}
+
+		} else {
+
+			endPoint.setCurrentWriter(futureFromWriters);
 		}
 	}
 

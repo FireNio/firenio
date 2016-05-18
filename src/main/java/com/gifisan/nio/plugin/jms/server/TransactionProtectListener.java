@@ -2,13 +2,16 @@ package com.gifisan.nio.plugin.jms.server;
 
 import java.util.List;
 
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
 public class TransactionProtectListener implements SessionEventListener {
 	
 	private MQContext context = null;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionProtectListener.class);
 	
 	protected TransactionProtectListener(MQContext context) {
 		this.context = context;
@@ -41,6 +44,6 @@ public class TransactionProtectListener implements SessionEventListener {
 			consumers.get(0).getConsumerQueue().remove(consumers);
 		}
 		
-		DebugUtil.debug(">>>> TransactionProtectListener execute");
+		LOGGER.debug(">>>> TransactionProtectListener execute");
 	}
 }

@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.OnReadFuture;
-import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 
 public class TestConcurrentCallBack {
 	
-	static int thread = 8;
+	static int thread = 4;
 	
 	static int cycle = 50000;
 	
@@ -24,9 +24,9 @@ public class TestConcurrentCallBack {
 
 	public static void main(String[] args) throws Exception {
 		
-		SharedBundle.instance().loadLog4jProperties("conf/log4j.properties");
+		PropertiesLoader.load("log4j.properties");
 		
-		ThreadPool pool = new ExecutorThreadPool("TestConcurrentCallBack", 8);
+		ThreadPool pool = new ExecutorThreadPool("TestConcurrentCallBack", thread);
 
 		ClientTCPConnector []connectors = new ClientTCPConnector[thread];
 		
@@ -86,7 +86,7 @@ public class TestConcurrentCallBack {
 //						}
 						latch.countDown();
 //						long count = latch.getCount();
-//						if (count % 4000 == 0) {
+//						if (count % 1000 == 0) {
 //							System.out.println("************************================"+count);
 //						}
 					}

@@ -7,6 +7,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.PropertiesLoader;
+import com.gifisan.nio.common.SharedBundle;
 
 public class ClientUtil {
 
@@ -14,7 +15,13 @@ public class ClientUtil {
 		
 		PropertiesLoader.load("log4j.properties");
 		
-		ClientTCPConnector connector = new ClientTCPConnector("localhost", 8900);
+		PropertiesLoader.load("server.properties");
+		
+		String host = "localhost";
+		
+		host = "192.168.1.97";
+		
+		ClientTCPConnector connector = new ClientTCPConnector(host, SharedBundle.instance().getIntegerProperty("SERVER.PORT"));
 		
 //		DebugUtil.info(connector.toString());
 		
