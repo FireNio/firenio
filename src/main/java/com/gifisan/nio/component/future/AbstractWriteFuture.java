@@ -5,13 +5,12 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TCPEndPoint;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
@@ -43,7 +42,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 	public void onException(IOException e) {
 		
-		logger.error(e.getMessage(),e);
+//		logger.error(e.getMessage(),e);
 		
 		if (this.handle == null) {
 			return;
@@ -51,7 +50,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		try {
 			this.handle.handle(session, this, e);
 		} catch (Throwable e1) {
-			DebugUtil.debug(e1);
+			logger.debug(e1);
 		}
 	}
 	
@@ -65,7 +64,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		try {
 			this.handle.handle(session, this);
 		} catch (Throwable e) {
-			DebugUtil.debug(e);
+			logger.debug(e);
 		}
 	}
 

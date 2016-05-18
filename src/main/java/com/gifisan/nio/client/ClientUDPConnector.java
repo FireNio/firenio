@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -72,7 +71,7 @@ public class ClientUDPConnector implements Connector {
 			try {
 				this.selectorLoop.start();
 			} catch (Exception e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
 		}
 	}
@@ -220,7 +219,7 @@ public class ClientUDPConnector implements Connector {
 				}
 				
 			} catch (Exception e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 				called.signal();
 			}finally{
 				

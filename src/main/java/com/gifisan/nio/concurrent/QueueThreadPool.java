@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 
 public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
+	
+	private Logger	logger		= LoggerFactory.getLogger(QueueThreadPool.class);
 
 	private class LifedPoolWorker extends Thread {
 
@@ -83,7 +86,7 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 				try {
 					worker.startWork();
 				} catch (Exception e) {
-					DebugUtil.debug(e);
+					logger.debug(e);
 					workers.remove(worker);
 				}
 			}
@@ -106,7 +109,7 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 			try {
 				worker.stopWork();
 			} catch (Exception e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
 		}
 		lock.unlock();

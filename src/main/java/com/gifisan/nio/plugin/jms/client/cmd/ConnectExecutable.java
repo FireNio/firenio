@@ -2,9 +2,10 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
@@ -13,6 +14,8 @@ import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
 
 public class ConnectExecutable extends JMSCommandExecutor {
 
+	private Logger	logger		= LoggerFactory.getLogger(ConnectExecutable.class);
+	
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();
@@ -61,7 +64,7 @@ public class ConnectExecutable extends JMSCommandExecutor {
 			setMessageBrowser(context, null);
 			response.setResponse(e.getMessage());
 			//debug
-			DebugUtil.debug(e);
+			logger.debug(e);
 		}
 		return response;
 	}

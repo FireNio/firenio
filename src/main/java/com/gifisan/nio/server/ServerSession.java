@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.ActiveAuthority;
 import com.gifisan.nio.component.Authority;
@@ -25,6 +26,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private UDPEndPoint			udpEndPoint	= null;
 	private ActiveAuthority		authority		= null;
 	private ActiveAuthority[]	authoritys	= new ActiveAuthority[4];
+	private static final Logger	logger		= LoggerFactory.getLogger(ServerSession.class);
 
 	public ServerSession(TCPEndPoint endPoint) {
 		super(endPoint);
@@ -58,7 +60,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 			this.endPointWriter.offer(writeFuture);
 		} catch (IOException e) {
-			DebugUtil.debug(e);
+			logger.debug(e);
 			IOEventHandle handle = _Future.getInputIOHandle();
 			if (handle != null) {
 				handle.handle(this, _Future, DisconnectException.INSTANCE);

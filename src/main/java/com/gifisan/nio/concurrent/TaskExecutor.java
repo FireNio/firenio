@@ -6,7 +6,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 
 public class TaskExecutor extends AbstractLifeCycle implements Runnable, LifeCycle {
 
@@ -16,6 +17,7 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable, LifeCyc
 	private boolean		running	= true;
 	private ReentrantLock	lock		= new ReentrantLock();
 	private Condition		wait		= lock.newCondition();
+	private Logger	logger		= LoggerFactory.getLogger(TaskExecutor.class);
 
 	public TaskExecutor(Runnable job, String name, long interval) {
 		this.job = job;
@@ -35,7 +37,7 @@ public class TaskExecutor extends AbstractLifeCycle implements Runnable, LifeCyc
 			try {
 				wait.await(interval, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
 			
 			lock.unlock();

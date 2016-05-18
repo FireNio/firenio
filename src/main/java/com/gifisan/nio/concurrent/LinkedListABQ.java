@@ -3,11 +3,13 @@ package com.gifisan.nio.concurrent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 
 public class LinkedListABQ<T> implements LinkedList<T> {
-	
-	private ArrayBlockingQueue<T> queue = null;
+
+	private ArrayBlockingQueue<T>	queue	= null;
+	private Logger				logger	= LoggerFactory.getLogger(LinkedListABQ.class);
 
 	public LinkedListABQ(int capacity) {
 		this.queue = new ArrayBlockingQueue<T>(capacity);
@@ -18,8 +20,8 @@ public class LinkedListABQ<T> implements LinkedList<T> {
 	}
 
 	public void forceOffer(T object) {
-		for(;!queue.offer(object);){
-			
+		for (; !queue.offer(object);) {
+
 		}
 	}
 
@@ -31,7 +33,7 @@ public class LinkedListABQ<T> implements LinkedList<T> {
 		try {
 			return queue.poll(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			DebugUtil.debug(e);
+			logger.debug(e);
 			return null;
 		}
 	}
@@ -40,7 +42,4 @@ public class LinkedListABQ<T> implements LinkedList<T> {
 		return queue.size();
 	}
 
-	
-	
-	
 }

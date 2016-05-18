@@ -9,7 +9,8 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -24,16 +25,17 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
 	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 64);
+	private Logger					logger		= LoggerFactory.getLogger(ClientEndPointWriter.class);
 
 	public void collect() {
 
-//		ReentrantLock lock = this.lock;
-//
-//		lock.lock();
-//
-//		networkWeak.signal();
+		// ReentrantLock lock = this.lock;
+		//
+		// lock.lock();
+		//
+		// networkWeak.signal();
 
-//		lock.unlock();
+		// lock.unlock();
 
 	}
 
@@ -88,16 +90,16 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 					} else {
 
-//						waitWrite(writer, endPoint);
+						waitWrite(writer, endPoint);
 					}
 				}
 			} catch (IOException e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 
 				writer.onException(e);
 
 			} catch (Exception e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 
 				writer.onException(new IOException(e));
 			}
@@ -117,7 +119,7 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 				try {
 					networkWeak.await(1, TimeUnit.MILLISECONDS);
 				} catch (Exception e) {
-					DebugUtil.debug(e);
+					logger.debug(e);
 					networkWeak.signal();
 				}
 
@@ -129,7 +131,6 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 				}
 				break;
 			}
-
 		}
 	}
 

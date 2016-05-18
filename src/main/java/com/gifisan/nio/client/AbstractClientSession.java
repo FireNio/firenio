@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.DisconnectException;
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
@@ -20,12 +21,13 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	protected MessageBus					messageBus		= null;
 	protected ClientContext					context			= null;
 	protected long						timeout			= 0;
-	protected DatagramPacketAcceptor			datagramPacketAcceptor = null;
+	protected DatagramPacketAcceptor			dpAcceptor		= null;
+	private Logger							logger			= LoggerFactory.getLogger(AbstractClientSession.class);
 
 	public AbstractClientSession(TCPEndPoint endPoint) {
 		super(endPoint);
 		this.context = (ClientContext) endPoint.getContext();
-		this.messageBus = new MessageBus(this);	
+		this.messageBus = new MessageBus(this);
 	}
 
 	public ReadFuture request(String serviceName, String content) throws IOException {
@@ -60,24 +62,24 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 		return streamAcceptors.get(serviceName);
 	}
 
-	public void listen(String serviceName,OnReadFuture onReadFuture) throws IOException {
+	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
-		
+
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
 		}
-		
+
 		if (closed()) {
 			throw DisconnectException.INSTANCE;
 		}
-		
+
 		this.messageBus.listen(serviceName, onReadFuture);
-		
+
 	}
-	
-	public void cancelListen(String serviceName){
+
+	public void cancelListen(String serviceName) {
 		this.messageBus.cancelListen(serviceName);
 	}
 
@@ -86,47 +88,45 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	}
 
 	public void destroyImmediately() {
-		
+
 		MessageBus bus = this.messageBus;
-		
-		for(;bus.size() > 0;){
-			
+
+		for (; bus.size() > 0;) {
+
 			ThreadUtil.sleep(8);
 		}
-		
+
 		super.destroyImmediately();
 	}
 
 	public String getSessionID() {
 		if (sessionID == null) {
-			
+
 			try {
 				ReadFuture future = request(PutSession2FactoryServlet.class.getSimpleName(), null);
-				
+
 				if (future instanceof ErrorReadFuture) {
-					
-					ErrorReadFuture _Future = ((ErrorReadFuture)future);
-					
+
+					ErrorReadFuture _Future = ((ErrorReadFuture) future);
+
 					throw new IOException(_Future.getException());
 				}
-				
+
 				this.sessionID = future.getText();
 			} catch (IOException e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
-			
+
 		}
 		return sessionID;
 	}
 
 	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return datagramPacketAcceptor;
+		return dpAcceptor;
 	}
 
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
+		this.dpAcceptor = datagramPacketAcceptor;
 	}
-	
-	
 
 }

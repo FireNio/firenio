@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
@@ -236,7 +235,7 @@ public class DynamicClassLoader extends ClassLoader {
 					}
 					field.set(null, null);
 				} catch (Throwable e) {
-					DebugUtil.debug(e);
+					logger.debug(e);
 				}
 			}
 		}

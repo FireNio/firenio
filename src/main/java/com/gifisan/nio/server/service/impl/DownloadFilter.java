@@ -2,12 +2,12 @@ package com.gifisan.nio.server.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
@@ -22,6 +22,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 	private boolean			exclude		= false;
 	private Map<String, String>	excludesMap	= null;
+	private static final Logger	logger		= LoggerFactory.getLogger(DownloadFilter.class);
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 
@@ -68,10 +69,8 @@ public class DownloadFilter extends AbstractNIOFilter {
 				
 				session.flush(future);
 
-			} catch (FileNotFoundException e) {
-				DebugUtil.debug(e);
 			} catch (IOException e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
 		}
 	}

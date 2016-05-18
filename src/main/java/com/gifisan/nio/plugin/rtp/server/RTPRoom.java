@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.gifisan.nio.common.DebugUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.server.IOSession;
@@ -24,7 +25,8 @@ public class RTPRoom {
 	private List<UDPEndPoint>				endPoints		= new ArrayList<UDPEndPoint>();
 	private Integer						roomID		= 0;
 	private RTPRoomFactory					roomFactory	= null;
-	private RTPContext						context		= null; 
+	private RTPContext						context		= null;
+	private static final Logger				logger		= LoggerFactory.getLogger(RTPRoom.class);
 	
 	
 	public Integer getRoomID() {
@@ -73,7 +75,7 @@ public class RTPRoom {
 			try {
 				point.sendPacket(buffer);
 			} catch (Throwable e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 			}
 		}
 

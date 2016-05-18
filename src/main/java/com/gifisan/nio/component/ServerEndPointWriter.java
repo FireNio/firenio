@@ -13,7 +13,6 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.concurrent.LinkedList;
@@ -135,14 +134,14 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 				doWriteFutureFromWriters(futureFromWriters, endPoint);
 
 			} catch (IOException e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 
 				CloseUtil.close(endPoint);
 
 				futureFromWriters.onException(e);
 
 			} catch (Exception e) {
-				DebugUtil.debug(e);
+				logger.debug(e);
 
 				CloseUtil.close(endPoint);
 
@@ -198,6 +197,8 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 		} else {
 
 			endPoint.setCurrentWriter(futureFromWriters);
+			
+			offer(futureFromWriters);
 		}
 	}
 

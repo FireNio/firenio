@@ -52,6 +52,10 @@ public class ConsoleLogger implements Logger{
 		DebugUtil.error(object);		
 	}
 
+	public void debug(Throwable throwable) {
+		DebugUtil.debug(throwable);
+	}
+
 	public static void main(String[] args) {
 		new ConsoleLogger(ConsoleLogger.class).info("test {}", "www");
 	}

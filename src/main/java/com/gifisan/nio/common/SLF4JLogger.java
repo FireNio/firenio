@@ -52,5 +52,11 @@ public class SLF4JLogger implements Logger{
 	public void error(String object) {
 		logger.error(object);
 	}
+
+	public void debug(Throwable throwable) {
+		if (logger.isDebugEnabled()) {
+			logger.error(throwable.getMessage(),throwable);
+		}
+	}
 	
 }
