@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.common.MathUtil;
+import com.gifisan.nio.common.MessageFormatter;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class DatagramPacket {
 		this.remoteSocketAddress = remoteSocketAddress;
 	}
 
-	public DatagramPacket(long timestamp, int sequenceNO, int roomID, byte[] data) {
+	protected DatagramPacket(long timestamp, int sequenceNO, int roomID, byte[] data) {
 		this.timestamp = timestamp;
 		this.sequenceNo = sequenceNO;
 		this.roomID = roomID;
@@ -115,6 +116,10 @@ public class DatagramPacket {
 
 	public ByteBuffer getSource() {
 		return source;
+	}
+	
+	public String toString() {
+		return MessageFormatter.format("data:{},_____seq:{},______timestamp:{}",new Object[]{ new String(getData()),sequenceNo,timestamp});
 	}
 
 }

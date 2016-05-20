@@ -1,5 +1,8 @@
 package com.gifisan.nio.component;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 public interface Parameters {
 
 	public abstract boolean getBooleanParameter(String key);
@@ -13,6 +16,10 @@ public interface Parameters {
 	public abstract long getLongParameter(String key, long defaultValue);
 
 	public abstract Object getObjectParameter(String key);
+	
+	public abstract JSONObject getJSONObject(String key);
+	
+	public abstract JSONArray getJSONArray(String key);
 
 	public abstract String getParameter(String key);
 

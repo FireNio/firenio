@@ -81,7 +81,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
-		String excludesContent = (String) config.getAttribute("excludes");
+		String excludesContent = (String) config.getParameter("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;
 		}

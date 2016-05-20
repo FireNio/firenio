@@ -43,7 +43,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 			Configuration filterConfig = filters.get(i);
 
-			String clazzName = filterConfig.getProperty("class", "empty");
+			String clazzName = filterConfig.getParameter("class", "empty");
 
 			NIOFilter filter = (NIOFilter) classLoader.forName(clazzName).newInstance();
 

@@ -39,7 +39,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
 		
-		long dueTime = config.getLongProperty("due-time");
+		long dueTime = config.getLongParameter("due-time");
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 		
@@ -173,7 +173,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		
 		//FIXME 把老的Context中的数据放到这里
 		
-		long dueTime = config.getLongProperty("due-time");
+		long dueTime = config.getLongParameter("due-time");
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 		

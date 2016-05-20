@@ -95,7 +95,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 			Configuration config = plugins.get(i);
 
-			String className = config.getProperty("class", "empty");
+			String className = config.getParameter("class", "empty");
 
 			Class<?> clazz = classLoader.forName(className);
 

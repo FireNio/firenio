@@ -9,37 +9,50 @@ import com.gifisan.nio.plugin.jms.ByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
+import com.gifisan.nio.plugin.jms.server.JMSProducerServlet;
+import com.gifisan.nio.plugin.jms.server.JMSPublishServlet;
 
 public class DefaultMessageProducer extends DefaultJMSConnecton implements MessageProducer {
 
-	public DefaultMessageProducer(ClientSession session){
+	public DefaultMessageProducer(ClientSession session) {
 		super(session);
 	}
 
 	public boolean offer(Message message) throws JMSException {
+		return offer(message, JMSProducerServlet.SERVICE_NAME);
+	}
+	
+	private boolean offer(Message message,String serviceName) throws JMSException {
+		
 		String param = message.toString();
 
 		ReadFuture future = null;
 
 		int msgType = message.getMsgType();
 
-		if (msgType == 2) {
-			try {
-				future = session.request("JMSProducerServlet", param);
-			} catch (IOException e) {
-				throw new JMSException(e.getMessage(), e);
+		try {
+
+			if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
+
+				future = session.request(serviceName, param);
+
+			} else if (msgType == Message.TYPE_BYTE) {
+				
+				ByteMessage _message = (ByteMessage) message;
+				
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
+				
+				future = session.request(serviceName, param, inputStream);
+				
+			} else {
+				
+				throw new JMSException("msgType:" + msgType);
 			}
-		} else if (msgType == 3) {
-			ByteMessage _message = (ByteMessage) message;
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
-			try {
-				future = session.request("JMSProducerServlet", param, inputStream);
-			} catch (IOException e) {
-				throw new JMSException(e.getMessage(), e);
-			}
-		} else {
-			throw new JMSException("msgType:" + msgType);
+		} catch (IOException e) {
+			
+			throw new JMSException(e.getMessage(), e);
 		}
+		
 		String result = future.getText();
 
 		if (result.length() == 1) {
@@ -51,35 +64,7 @@ public class DefaultMessageProducer extends DefaultJMSConnecton implements Messa
 
 	public boolean publish(Message message) throws JMSException {
 
-		String param = message.toString();
-
-		ReadFuture future = null;
-
-		int msgType = message.getMsgType();
-
-		if (msgType == 2) {
-			try {
-				future = session.request("JMSPublishServlet", param);
-			} catch (IOException e) {
-				throw new JMSException(e.getMessage(), e);
-			}
-		} else if (msgType == 3) {
-			ByteMessage _message = (ByteMessage) message;
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
-			try {
-				future = session.request("JMSPublishServlet", param, inputStream);
-			} catch (IOException e) {
-				throw new JMSException(e.getMessage(), e);
-			}
-		} else {
-			throw new JMSException("msgType:" + msgType);
-		}
-		String result = future.getText();
-
-		if (result.length() == 1) {
-			return "T".equals(result);
-		}
-		throw new JMSException(result);
+		return offer(message, JMSPublishServlet.SERVICE_NAME);
 	}
 
 }

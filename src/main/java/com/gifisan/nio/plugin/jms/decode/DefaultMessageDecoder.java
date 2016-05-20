@@ -6,13 +6,14 @@ import com.gifisan.nio.plugin.jms.Message;
 
 public class DefaultMessageDecoder implements MessageDecoder {
 	
-	private MessageDecoder[] decoders = new MessageDecoder[4];
+	private MessageDecoder[] decoders = new MessageDecoder[5];
 	
 	public DefaultMessageDecoder(){
-		decoders[0] = new ErrorMessageDecoder();
-		decoders[1] = new EmptyMessageDecoder();
-		decoders[2] = new TextMessageDecoder();
-		decoders[3] = new ByteMessageDecoder();
+		decoders[Message.TYPE_ERROR] = new ErrorMessageDecoder();
+		decoders[Message.TYPE_NULL] = new EmptyMessageDecoder();
+		decoders[Message.TYPE_TEXT] = new TextMessageDecoder();
+		decoders[Message.TYPE_BYTE] = new ByteMessageDecoder();
+		decoders[Message.TYPE_MAP] = new MapMessageDecoder();
 	}
 	
 	public Message decode(ReadFuture future) throws JMSException{

@@ -42,7 +42,7 @@ public class ClientContext extends AbstractNIOContext implements NIOContext {
 		this.outputStreamAcceptor = new ClientOutputStreamAcceptor();
 		this.clientIOExceptionHandle = new ClientIOExceptionHandle();
 		this.clientStreamAcceptor = new DefaultClientStreamAcceptor();
-		this.executorThreadPool = new ExecutorThreadPool("JobExecutor", 1, 8);
+		this.executorThreadPool = new ExecutorThreadPool("JobExecutor", 8, 16);
 		this.executorThreadPool.start();
 	}
 

@@ -1,26 +1,31 @@
 package com.gifisan.nio.component;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.StringUtil;
 
-public class DefaultParameters implements Parameters{
+public class DefaultParameters implements Parameters {
 
-	private JSONObject object = null;
-	
-	private String json = null;
-	
-	public DefaultParameters(String json){
+	private JSONObject	object	= null;
+
+	private String		json		= null;
+
+	public DefaultParameters(String json) {
 		if (!StringUtil.isNullOrBlank(json)) {
 			try {
 				object = JSONObject.parseObject(json);
 			} catch (Exception e) {
-				throw new IllegalArgumentException(json,e);
+				throw new IllegalArgumentException(json, e);
 			}
-			
+
 			this.json = json;
 		}
 	}
 	
+	public DefaultParameters(JSONObject object) {
+		this.object = object;
+	}
+
 	public boolean getBooleanParameter(String key) {
 		if (object == null) {
 			return false;
@@ -81,7 +86,18 @@ public class DefaultParameters implements Parameters{
 	}
 
 	public String toString() {
+		if (json == null) {
+			json = object.toJSONString();
+		}
 		return json;
 	}
-	
+
+	public JSONObject getJSONObject(String key) {
+		return object.getJSONObject(key);
+	}
+
+	public JSONArray getJSONArray(String key) {
+		return object.getJSONArray(key);
+	}
+
 }

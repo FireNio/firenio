@@ -7,9 +7,11 @@ import test.ClientUtil;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestListener {
@@ -29,17 +31,23 @@ public class TestListener {
 			
 			MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
 
-			consumer.login("admin", "admin1001");
+			consumer.login("admin", "admin100");
 			
 			long old = System.currentTimeMillis();
 
-			Message message = consumer.receive();
+			consumer.receive(new OnMessage() {
+				
+				public void onReceive(Message message) {
+					System.out.println(message);
+					
+				}
+			});
 
 			System.out.println("Time:" + (System.currentTimeMillis() - old));
-			System.out.println(message);
+
+			ThreadUtil.sleep(500);
 
 			consumer.logout();
-			
 			
 		} catch (IOException e) {
 			e.printStackTrace();

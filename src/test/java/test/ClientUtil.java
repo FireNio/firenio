@@ -17,7 +17,7 @@ public class ClientUtil {
 		
 		PropertiesLoader.load("server.properties");
 		
-		String host = "192.168.1.71";
+		String host = "192.168.1.48";
 		
 //		host = "192.168.1.97";
 		

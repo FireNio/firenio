@@ -115,11 +115,11 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 			Configuration config = servletConfigurations.get(i);
 
-			String className = config.getProperty("class","empty");
+			String className = config.getParameter("class","empty");
 
 			Class<?> clazz = classLoader.forName(className);
 
-			String serviceName = config.getProperty("serviceName",clazz.getSimpleName());
+			String serviceName = config.getParameter("serviceName",clazz.getSimpleName());
 
 			if (servlets.containsKey(serviceName)) {
 				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");

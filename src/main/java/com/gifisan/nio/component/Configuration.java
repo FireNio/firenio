@@ -1,85 +1,15 @@
 package com.gifisan.nio.component;
 
-import java.util.Set;
-
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.PropertiesException;
-import com.gifisan.nio.common.StringUtil;
 
-public class Configuration implements Attributes {
+public class Configuration extends DefaultParameters{
 
-	private JSONObject	_config	= null;
-	
-	public Configuration(String json){
-		this(JSONObject.parseObject(json));
+	public Configuration(JSONObject object) {
+		super(object);
 	}
 
-	public Configuration(JSONObject config) {
-		this._config = config;
-	}
-
-	public Object removeAttribute(String key) {
-		return this._config.remove(key);
-	}
-
-	public void setAttribute(String key, Object value) {
-		this._config.put(key, value);
-	}
-
-	public Object getAttribute(String key) {
-		return this._config.get(key);
-	}
-
-	public Set<String> getAttributeNames() {
-		return this._config.keySet();
-	}
-
-	public void clearAttributes() {
-		this._config.clear();
-	}
-
-	public boolean getBooleanProperty(String key) {
-		return _config.getBooleanValue(key);
-	}
-
-	public double getDoubleProperty(String key) {
-		return _config.getDoubleValue(key);
-	}
-
-	public int getIntegerProperty(String key) {
-		return _config.getIntValue(key);
-	}
-
-	public long getLongProperty(String key) {
-		return _config.getLongValue(key);
-	}
-
-	public String getProperty(String key) {
-		return _config.getString(key);
-	}
-	
-	public String getProperty(String key,String defaultValue) {
-		String value = _config.getString(key);
-		if (StringUtil.isNullOrBlank(value)) {
-			return defaultValue;
-		}
-		return value;
-	}
-
-	public String getPropertyNoBlank(String key) throws PropertiesException {
-		String object = (String) _config.get(key);
-		if (StringUtil.isNullOrBlank(object)) {
-			throw new PropertiesException("property " + key + " is empty");
-		}
-		return object;
-
-	}
-	
-	public String toString() {
-		if (_config == null) {
-			return "empty";
-		}
-		return this._config.toJSONString();
+	public Configuration(String json) {
+		super(json);
 	}
 
 }

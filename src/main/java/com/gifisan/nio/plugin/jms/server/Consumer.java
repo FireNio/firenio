@@ -54,7 +54,7 @@ public class Consumer {
 		
 		future.write(content);
 
-		if (msgType == 2) {
+		if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 			
 			future.setInputIOEvent(null, attachment.getConsumerPushFailedHandle());
 
@@ -68,7 +68,6 @@ public class Consumer {
 			future.setInputIOEvent(new ByteArrayInputStream(bytes), attachment.getConsumerPushFailedHandle());
 
 			session.flush(future);
-
 		}
 	}
 	

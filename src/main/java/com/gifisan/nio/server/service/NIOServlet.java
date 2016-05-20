@@ -34,7 +34,7 @@ public abstract class NIOServlet extends GenericServlet {
 			serviceName = this.getClass().getSimpleName();
 		}else{
 			
-			serviceName = configuration.getProperty("serviceName");
+			serviceName = configuration.getParameter("serviceName");
 			
 			if (StringUtil.isNullOrBlank(serviceName)) {
 				serviceName = this.getClass().getSimpleName();

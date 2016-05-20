@@ -59,8 +59,8 @@ public class PluginLoginCenter extends InitializeableImpl implements LoginCenter
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
-		this.username = config.getProperty("USERNAME", "admin");
-		this.password = config.getProperty("PASSWORD", "admin100");
+		this.username = config.getParameter("USERNAME", "admin");
+		this.password = config.getParameter("PASSWORD", "admin100");
 	}
 
 }

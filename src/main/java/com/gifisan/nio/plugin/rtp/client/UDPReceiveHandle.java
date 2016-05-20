@@ -1,28 +1,29 @@
 package com.gifisan.nio.plugin.rtp.client;
 
-import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.component.DefaultParameters;
+import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.protocol.DatagramPacketGroup;
+import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.nio.plugin.jms.TextMessage;
 
 public abstract class UDPReceiveHandle {
 
 	public void onMessage(RTPClient client,Message message){
 
-		if (message instanceof TextMessage) {
+		if (message instanceof MapMessage) {
 
-			TextMessage m = (TextMessage)message;
+			MapMessage m = (MapMessage)message;
 			
-			Configuration configuration = new Configuration(m.getText());
+			Parameters parameters = new DefaultParameters(m.getJSONObject());
 			
-			String cmd = configuration.getProperty("cmd");
+			String cmd = parameters.getParameter("cmd");
 			
 			if ("invite".equals(cmd)) {
-				onInvite(client,m, configuration);
+				onInvite(client,m, parameters);
 			}else if("invite-reply".equals(cmd)){
-				onInviteReplyed(client,m, configuration);
+				onInviteReplyed(client,m, parameters);
 			}else{
-				onOtherMessage(client,m,configuration);
+				onOtherMessage(client,m,parameters);
 			}
 		}else{
 			onOtherMessage(client,message);
@@ -33,14 +34,14 @@ public abstract class UDPReceiveHandle {
 		
 	}
 	
-	public void onOtherMessage(RTPClient client,TextMessage message,Configuration configuration){
+	public void onOtherMessage(RTPClient client,MapMessage message,Parameters parameters){
 		
 	}
 	
-	public abstract void onReceiveUDPPacket(RTPClient client,DatagramPacket packet);
+	public abstract void onReceiveUDPPacket(RTPClient client,DatagramPacketGroup group);
 	
-	public abstract void onInvite(RTPClient client,TextMessage message,Configuration configuration);
+	public abstract void onInvite(RTPClient client,MapMessage message,Parameters parameters);
 	
-	public abstract void onInviteReplyed(RTPClient client,TextMessage message,Configuration configuration);
+	public abstract void onInviteReplyed(RTPClient client,MapMessage message,Parameters parameters);
 	
 }

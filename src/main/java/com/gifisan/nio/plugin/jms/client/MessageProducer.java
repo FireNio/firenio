@@ -5,7 +5,6 @@ import com.gifisan.nio.plugin.jms.Message;
 
 public interface MessageProducer extends JMSConnection{
 
-	
 	public boolean offer(Message message) throws JMSException;
 	
 	public boolean publish(Message message) throws JMSException;
