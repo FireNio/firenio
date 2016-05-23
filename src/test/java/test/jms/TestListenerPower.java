@@ -6,6 +6,7 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestListenerPower {
@@ -22,9 +23,17 @@ public class TestListenerPower {
 
 		consumer.login("admin", "admin100");
 		long old = System.currentTimeMillis();
+		
+		OnMessage onMessage = new OnMessage() {
+			
+			public void onReceive(Message message) {
+				System.out.println(message);
+			}
+		};
+		
+		
 		for (int i = 0; i < 10000; i++) {
-			Message message = consumer.receive();
-			System.out.println(message);
+			consumer.receive(onMessage);
 		}
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));

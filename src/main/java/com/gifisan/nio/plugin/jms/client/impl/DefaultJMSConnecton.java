@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.JMSConnection;
@@ -29,16 +30,17 @@ public class DefaultJMSConnecton implements JMSConnection {
 		param.put("password", password);
 		String paramString = JSONObject.toJSONString(param);
 
-		ReadFuture future;
 		try {
-			future = session.request("JMSLoginServlet", paramString);
+			ReadFuture future = session.request("JMSLoginServlet", paramString);
+			
+			String result = future.getText();
+			
+			if (ByteUtil.isFalse(result)) {
+				
+				throw new JMSException("用户名密码错误！");
+			}
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
-		}
-		String result = future.getText();
-		boolean logined = "T".equals(result);
-		if (!logined) {
-			throw new JMSException("用户名密码错误！");
 		}
 	}
 

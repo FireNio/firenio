@@ -14,4 +14,11 @@ public class ByteUtil {
 		return TRUE == b;
 	}
 	
+	public static boolean isTrue(String text){
+		return "T".equals(text);
+	}
+	
+	public static boolean isFalse(String text){
+		return "F".equals(text);
+	}
 }

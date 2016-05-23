@@ -11,6 +11,7 @@ import com.gifisan.nio.plugin.jms.ByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestListenerByteMessage {
@@ -27,27 +28,20 @@ public class TestListenerByteMessage {
 
 		consumer.login("admin", "admin100");
 		
-		long old = System.currentTimeMillis();
+		final long old = System.currentTimeMillis();
 
-		Message message = consumer.receive();
-
-		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		System.out.println(message);
-		
-		if (message.getMsgType() == Message.TYPE_BYTE) {
-			ByteMessage _Message = (ByteMessage) message;
-			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
-		}
-		
-		message = consumer.receive();
-		
-		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		System.out.println(message);
-		
-		if (message.getMsgType() == Message.TYPE_BYTE) {
-			ByteMessage _Message = (ByteMessage) message;
-			System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
-		}
+		consumer.receive(new OnMessage() {
+			
+			public void onReceive(Message message) {
+				System.out.println(message);
+				if (message.getMsgType() == Message.TYPE_BYTE) {
+					ByteMessage _Message = (ByteMessage) message;
+					System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
+				}
+				
+				System.out.println("Time:" + (System.currentTimeMillis() - old));
+			}
+		});
 
 		consumer.logout();
 		

@@ -8,7 +8,7 @@ public class ClientReadFutureAcceptor implements ReadFutureAcceptor {
 
 	public void accept(Session session, IOReadFuture future) {
 
-		((UnpreciseClientSession) session).offer(future);
+		((ProtectedClientSession) session).offerReadFuture(future);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
@@ -64,7 +65,7 @@ public class DefaultMessageBrowser extends DefaultJMSConnecton implements Messag
 			throw new JMSException(e.getMessage(), e);
 		}
 
-		return "T".equals(future.getText());
+		return ByteUtil.isTrue(future.getText());
 	}
 	
 	public void login(String username, String password) throws JMSException {

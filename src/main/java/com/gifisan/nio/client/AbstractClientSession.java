@@ -1,6 +1,7 @@
 package com.gifisan.nio.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,60 +9,90 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.server.service.impl.PutSession2FactoryServlet;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
 
-	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
-	protected MessageBus					messageBus		= null;
 	protected ClientContext					context			= null;
-	protected long						timeout			= 0;
 	protected DatagramPacketAcceptor			dpAcceptor		= null;
-	private Logger							logger			= LoggerFactory.getLogger(AbstractClientSession.class);
+	private ThreadPool				executor		= null;
+	private Map<String, OnReadFuture>	listeners		= new HashMap<String, OnReadFuture>();
+
+	private Logger							logger			= LoggerFactory
+																.getLogger(AbstractClientSession.class);
+
+	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
 
 	public AbstractClientSession(TCPEndPoint endPoint) {
 		super(endPoint);
 		this.context = (ClientContext) endPoint.getContext();
-		this.messageBus = new MessageBus(this);
+		this.executor = context.getExecutorThreadPool();
 	}
 
-	public ReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, null);
+	/**
+	 * 不建议使用
+	 */
+	@Deprecated
+	public void cancelListen(String serviceName) {
+		this.listeners.remove(serviceName);
 	}
 
-	public void offer(ReadFuture future) {
-		this.messageBus.filterOffer(future);
+	public void destroyImmediately() {
+
+		super.destroyImmediately();
 	}
 
 	public ClientContext getContext() {
 		return context;
 	}
 
-	public long getTimeout() {
-		return timeout;
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return dpAcceptor;
 	}
 
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
+	public String getSessionID() {
+		if (sessionID == null) {
 
-	public void write(String serviceName, String content) throws IOException {
-		write(serviceName, content, null);
-	}
+			try {
 
-	public void onStreamRead(String key, ClientStreamAcceptor acceptor) {
-		streamAcceptors.put(key, acceptor);
-	}
+				WaiterOnReadFuture waiterOnReadFuture = new WaiterOnReadFuture();
 
+				listen(PutSession2FactoryServlet.SERVICE_NAME, waiterOnReadFuture);
+
+				write(PutSession2FactoryServlet.SERVICE_NAME, null);
+
+				if (waiterOnReadFuture.await(3000)) {
+
+					ReadFuture future = waiterOnReadFuture.getReadFuture();
+
+					if (future instanceof ErrorReadFuture) {
+
+						ErrorReadFuture _Future = ((ErrorReadFuture) future);
+
+						throw new IOException(_Future.getException());
+					}
+
+					sessionID = future.getText();
+				}
+
+			} catch (IOException e) {
+				logger.debug(e);
+			}
+
+		}
+		return sessionID;
+	}
+	
 	public ClientStreamAcceptor getStreamAcceptor(String serviceName) {
 		return streamAcceptors.get(serviceName);
 	}
-
+	
 	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
@@ -75,58 +106,45 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 			throw DisconnectException.INSTANCE;
 		}
 
-		this.messageBus.listen(serviceName, onReadFuture);
+		this.listeners.put(serviceName, onReadFuture);
 
 	}
 
-	public void cancelListen(String serviceName) {
-		this.messageBus.cancelListen(serviceName);
-	}
+	public void offerReadFuture(final IOReadFuture future) {
+		final OnReadFuture onReadFuture = listeners.get(future.getServiceName());
 
-	public MessageBus getMessageBus() {
-		return messageBus;
-	}
+		if (onReadFuture != null) {
 
-	public void destroyImmediately() {
+			this.executor.dispatch(new Runnable() {
 
-		MessageBus bus = this.messageBus;
-
-		for (; bus.size() > 0;) {
-
-			ThreadUtil.sleep(8);
-		}
-
-		super.destroyImmediately();
-	}
-
-	public String getSessionID() {
-		if (sessionID == null) {
-
-			try {
-				ReadFuture future = request(PutSession2FactoryServlet.class.getSimpleName(), null);
-
-				if (future instanceof ErrorReadFuture) {
-
-					ErrorReadFuture _Future = ((ErrorReadFuture) future);
-
-					throw new IOException(_Future.getException());
+				public void run() {
+					onReadFuture.onResponse((ProtectedClientSession) future.getSession(), future);
 				}
-
-				this.sessionID = future.getText();
-			} catch (IOException e) {
-				logger.debug(e);
-			}
-
+			});
 		}
-		return sessionID;
 	}
 
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return dpAcceptor;
+	public void onStreamRead(String key, ClientStreamAcceptor acceptor) {
+		streamAcceptors.put(key, acceptor);
+	}
+
+	public ReadFuture request(String serviceName, String content) throws IOException {
+		return request(serviceName, content, 3000);
+	}
+
+	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
+		return request(serviceName, content, inputStream, 3000);
+	}
+	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {
+		return request(serviceName, content, null, timeout);
 	}
 
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
 		this.dpAcceptor = datagramPacketAcceptor;
+	}
+
+	public void write(String serviceName, String content) throws IOException {
+		write(serviceName, content, null);
 	}
 
 }

@@ -5,16 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ListenOnReadFuture;
+import com.gifisan.nio.client.WaiterOnReadFuture;
+import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
-import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
+import com.gifisan.nio.plugin.jms.server.JMSLoginServlet;
+import com.gifisan.nio.plugin.jms.server.JMSTransactionServlet;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 
@@ -49,20 +50,31 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 	}
 
 	private boolean transactionVal(String action) throws JMSException {
-		ReadFuture future;
 		try {
-			future = session.request("JMSTransactionServlet", action);
+
+			WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+
+			session.listen(JMSTransactionServlet.SERVICE_NAME, onReadFuture);
+
+			session.write(JMSTransactionServlet.SERVICE_NAME, action);
+
+			if (onReadFuture.await(3000)) {
+
+				ReadFuture future = onReadFuture.getReadFuture();
+
+				RESMessage message = RESMessageDecoder.decode(future.getText());
+
+				if (message.getCode() == 0) {
+					return true;
+				} else {
+					throw new JMSException(message.getDescription());
+				}
+			}
+
+			throw JMSException.TIME_OUT;
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-
-		RESMessage message = RESMessageDecoder.decode(future.getText());
-		if (message.getCode() == 0) {
-			return true;
-		} else {
-			throw new JMSException(message.getDescription());
-		}
-
 	}
 
 	public boolean commit() throws JMSException {
@@ -73,101 +85,43 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 		return transactionVal("rollback");
 	}
 
-	public Message receive() throws JMSException {
-
-		sendReceiveCommand();
-
-		return poll();
-	}
-	
-	private Message poll() throws JMSException{
-		
-		ReadFuture future;
-		
-		try {
-			future = session.poll(0);
-		} catch (DisconnectException e) {
-			throw new JMSException(e.getMessage(),e);
-		}
-		
-		return messageDecoder.decode(future);
-	}
-
 	// TODO complete this 考虑收到失败message的处理
 	// TODO cancel receive
 	public void receive(OnMessage onMessage) throws JMSException {
-		
-		sendReceiveCommandCallback(onMessage);
-	}
 
-	public Message subscribe() throws JMSException {
-		
-		sendSubscribeCommand();
-		
-		return poll();
+		sendReceiveCommandCallback(onMessage);
 	}
 
 	// TODO complete this 考虑收到失败message的处理
 	// TODO cancel subscribe
 	public void subscribe(OnMessage onMessage) throws JMSException {
-		
+
 		sendSubscribeCommandCallback(onMessage);
-	}
-	
-	private void sendReceiveCommand() throws JMSException {
-		if (sendReceiveCommand) {
-			try {
-
-				session.listen("JMSConsumerServlet",new ListenOnReadFuture(session));
-				
-				session.write("JMSConsumerServlet", parameter);
-
-				sendReceiveCommand = false;
-			} catch (IOException e) {
-				throw new JMSException(e);
-			}
-		}
 	}
 
 	private void sendReceiveCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendReceiveCommand) {
 			try {
-				
-				session.listen("JMSConsumerServlet", new ConsumerOnReadFuture(onMessage));
-				
+
+				session.listen("JMSConsumerServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+
 				session.write("JMSConsumerServlet", parameter);
 
 				sendReceiveCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
 			}
-		}
-	}
-	
-	private void sendSubscribeCommand() throws JMSException {
-		if (sendSubscribeCommand) {
-			try {
-				
-				session.listen("JMSSubscribeServlet", new ListenOnReadFuture(session));
-				
-				session.write("JMSSubscribeServlet", parameter);
-				
-				sendSubscribeCommand = false;
-			} catch (IOException e) {
-				throw new JMSException(e);
-			}
-
 		}
 	}
 
 	private void sendSubscribeCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendSubscribeCommand) {
 			try {
-				
-				session.listen("JMSSubscribeServlet", new ConsumerOnReadFuture(onMessage));
-				
+
+				session.listen("JMSSubscribeServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+
 				session.write("JMSSubscribeServlet", parameter);
-				
+
 				sendSubscribeCommand = false;
 			} catch (IOException e) {
 				throw new JMSException(e);
@@ -189,19 +143,36 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 		param.put("password", password);
 		param.put("consumer", true);
 		param.put("queueName", this.queueName);
+
 		String paramString = JSONObject.toJSONString(param);
 
-		ReadFuture future;
 		try {
-			future = session.request("JMSLoginServlet", paramString);
+			WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+
+			session.listen(JMSLoginServlet.SERVICE_NAME, onReadFuture);
+
+			session.write(JMSLoginServlet.SERVICE_NAME, paramString);
+
+			if (!onReadFuture.await(3000)) {
+
+				
+				throw JMSException.TIME_OUT;
+				
+			}
+			
+			ReadFuture future = onReadFuture.getReadFuture();
+
+			String result = future.getText();
+
+			if (ByteUtil.isFalse(result)) {
+
+				throw new JMSException("用户名密码错误！");
+			}
+
 		} catch (IOException e) {
 			throw new JMSException(e.getMessage(), e);
 		}
-		String result = future.getText();
-		boolean logined = "T".equals(result);
-		if (!logined) {
-			throw new JMSException("用户名密码错误！");
-		}
+
 	}
 
 }

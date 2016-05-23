@@ -20,7 +20,7 @@ public class ClientIOExceptionHandle extends DefaultIOEventHandle{
 				clientSession,
 				writeFuture.getInputStream(), 
 				e);
-		clientSession.offer(eFuture);
+		clientSession.offerReadFuture(eFuture);
 	}
 	
 }

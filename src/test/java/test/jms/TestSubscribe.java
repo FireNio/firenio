@@ -9,6 +9,7 @@ import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestSubscribe {
@@ -45,9 +46,12 @@ public class TestSubscribe {
 
 		consumer.login("admin", "admin100");
 
-		Message message = consumer.subscribe();
-
-		System.out.println(message);
+		consumer.subscribe(new OnMessage() {
+			
+			public void onReceive(Message message) {
+				System.out.println(message);
+			}
+		});
 
 		consumer.logout();
 

@@ -9,6 +9,7 @@ import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
+import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestTransaction {
@@ -41,12 +42,17 @@ public class TestTransaction {
 
 		consumer.beginTransaction();
 		
-		Message message = consumer.receive();
+		consumer.receive(new OnMessage() {
+			
+			public void onReceive(Message message) {
+				System.out.println(message);
+			}
+		});
 
 		consumer.commit();
 		
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		System.out.println(message);
+		
 	}
 	
 	static void rollback(MessageConsumer consumer) throws JMSException{
@@ -54,13 +60,17 @@ public class TestTransaction {
 
 		consumer.beginTransaction();
 		
-		Message message = consumer.receive();
+		consumer.receive(new OnMessage() {
+			
+			public void onReceive(Message message) {
+				
+				System.out.println(message);
+			}
+		});
 
 		consumer.rollback();
 		
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		System.out.println(message);
-		
 	}
 
 }

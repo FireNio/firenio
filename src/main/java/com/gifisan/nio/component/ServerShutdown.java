@@ -19,6 +19,7 @@ public class ServerShutdown {
 	}
 
 	public void shutdown(String [] args) throws IOException {
+		
 		if (args == null || args.length < 3) {
 
 			System.out.print("参数不正确，按回车键退出>>");
@@ -36,7 +37,7 @@ public class ServerShutdown {
 
 		String passwrod = args[2];
 
-		String serviceKey = "stop-server";
+		String serviceName = "stop-server";
 
 		ClientTCPConnector connector = new ClientTCPConnector("localhost", port);
 		
@@ -46,7 +47,7 @@ public class ServerShutdown {
 
 		String param = "{username:\"" + username + "\",password:\"" + passwrod + "\"}";
 
-		ReadFuture future = session.request(serviceKey, param);
+		ReadFuture future = session.request(serviceName, param);
 
 		System.out.println(future.getText());
 
