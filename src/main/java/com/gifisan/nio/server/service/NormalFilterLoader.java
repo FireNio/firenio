@@ -1,8 +1,10 @@
 package com.gifisan.nio.server.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -11,6 +13,7 @@ import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.configuration.FiltersConfiguration;
+import com.gifisan.nio.server.service.impl.AuthorityFilter;
 
 public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoader {
 
@@ -30,10 +33,17 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		List<Configuration> filters = configuration.getFilters();
+		
+		JSONObject object = new JSONObject();
+		
+		object.put("class", AuthorityFilter.class.getName());
 
-		if (filters.isEmpty()) {
+		if (filters == null || filters.isEmpty()) {
 			logger.info(" [NIOServer] 没有配置Filter");
+			filters = new ArrayList<Configuration>();
 		}
+		
+		filters.add(0,new Configuration(object));
 
 		NIOFilterWrapper rootFilter = null;
 
@@ -57,6 +67,8 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			} else {
 
 				last.setNextFilter(_filter);
+				
+				last = _filter;
 			}
 		}
 
@@ -78,6 +90,8 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 				} else {
 
 					last.setNextFilter(_filter);
+					
+					last = _filter;
 				}
 			}
 		}
@@ -109,6 +123,8 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		for (; filter != null;) {
 
 			filter.initialize(context, filter.getConfig());
+			
+			logger.info("  [NIOServer] 加载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
 
@@ -124,6 +140,8 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
+			
+			logger.info("  [NIOServer] Filter  [ {} ] 卸载完成", filter);
 
 			filter = filter.nextFilter();
 

@@ -49,5 +49,9 @@ public class JMSSessionAttachment implements Attachment {
 	public ConsumerPushHandle getConsumerPushFailedHandle() {
 		return consumerPushFailedHandle;
 	}
+	
+	public boolean containsQueueName(String queueName){
+		return queueNames.contains(queueName);
+	}
 
 }

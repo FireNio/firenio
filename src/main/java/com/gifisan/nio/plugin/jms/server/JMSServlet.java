@@ -21,6 +21,8 @@ public abstract class JMSServlet extends NIOServlet{
 			attachment = new JMSSessionAttachment(context);
 
 			session.setAttachment(context, attachment);
+			
+			session.addEventListener(new TransactionProtectListener(context));
 		}
 		
 		this.accept(session, future,attachment);

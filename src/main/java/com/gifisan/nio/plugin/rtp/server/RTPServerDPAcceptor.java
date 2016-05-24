@@ -12,17 +12,19 @@ import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramRequest;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.ReadFutureFactory;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerSession;
+import com.gifisan.security.AuthorityManager;
 
 public class RTPServerDPAcceptor implements DatagramPacketAcceptor {
 	
 	public static final String BIND_SESSION = "BIND_SESSION";
 	
 	public static final String BIND_SESSION_CALLBACK = "BIND_SESSION_CALLBACK";
+	
+	public static final String SERVICE_NAME = RTPServerDPAcceptor.class.getSimpleName();
 	
 	private Logger logger = LoggerFactory.getLogger(RTPServerDPAcceptor.class);
 
@@ -43,16 +45,24 @@ public class RTPServerDPAcceptor implements DatagramPacketAcceptor {
 			return;
 		}
 		
-		IOSession session = (IOSession) endPoint.getTCPSession();
+		ServerSession session = (ServerSession) endPoint.getTCPSession();
 		
 		if (session == null) {
 			return;
 		}
 		
-		if (!context.isLogined(session)) {
+		AuthorityManager authorityManager = session.getAuthorityManager();
+		
+		if (authorityManager == null) {
+			
 			return;
 		}
-
+		
+		if (!authorityManager.isInvokeApproved(SERVICE_NAME)) {
+			
+			return;
+		}
+		
 		RTPSessionAttachment attachment = (RTPSessionAttachment)session.getAttachment(context);
 		
 		RTPRoom room = attachment.getRtpRoom();

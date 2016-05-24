@@ -3,6 +3,8 @@ package com.gifisan.nio.component;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
 
+
+//FIXME onLogined
 public interface LoginCenter extends Initializeable {
 
 	public abstract boolean isLogined(IOSession session);

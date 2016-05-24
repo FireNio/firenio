@@ -6,13 +6,13 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.impl.RedeployServlet;
+import com.gifisan.nio.server.service.impl.SYSTEMRedeployServlet;
 
 public class TestRedeploy {
 
 	public static void main(String[] args) throws IOException {
 
-		String serviceKey = RedeployServlet.SERVICE_NAME;
+		String serviceKey = SYSTEMRedeployServlet.SERVICE_NAME;
 
 		String param = "{username:\"admin\",password:\"admin100\"}";
 

@@ -6,9 +6,9 @@ import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
-public class RedeployServlet extends NIOServlet {
+public class SYSTEMRedeployServlet extends NIOServlet {
 	
-	public static final String SERVICE_NAME = RedeployServlet.class.getSimpleName();
+	public static final String SERVICE_NAME = SYSTEMRedeployServlet.class.getSimpleName();
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		if (session.getLoginCenter().isValidate(session, future)) {

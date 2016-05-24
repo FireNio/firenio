@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -49,8 +48,6 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
-		
-		super.initialize(context, config);
 		
 		p2pProductLine.start();
 
@@ -164,7 +161,6 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		pluginServlets.put(JMSPublishServlet.SERVICE_NAME, new JMSPublishServlet());
 		pluginServlets.put(JMSTransactionServlet.SERVICE_NAME, new JMSTransactionServlet());
 		pluginServlets.put(JMSBrowserServlet.SERVICE_NAME, new JMSBrowserServlet());
-		pluginServlets.put(JMSLoginServlet.SERVICE_NAME, new JMSLoginServlet());
 		
 	}
 	
@@ -183,8 +179,6 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
-		
-		super.initialize(context, config);
 		
 		p2pProductLine.start();
 

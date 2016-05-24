@@ -7,26 +7,23 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.ActiveAuthority;
-import com.gifisan.nio.component.Authority;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
-import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.security.AuthorityManager;
 
 public class ServerSession extends AbstractSession implements IOSession {
 
-	private ServerContext		context		= null;
-	private LoginCenter			loginCenter	= null;
-	private UDPEndPoint			udpEndPoint	= null;
-	private ActiveAuthority		authority		= null;
-	private ActiveAuthority[]	authoritys	= new ActiveAuthority[4];
-	private static final Logger	logger		= LoggerFactory.getLogger(ServerSession.class);
+	private ServerContext		context			= null;
+	private LoginCenter			loginCenter		= null;
+	private UDPEndPoint			udpEndPoint		= null;
+	private AuthorityManager		authorityManager	= null;
+	private static final Logger	logger			= LoggerFactory.getLogger(ServerSession.class);
 
 	public ServerSession(TCPEndPoint endPoint) {
 		super(endPoint);
@@ -68,17 +65,11 @@ public class ServerSession extends AbstractSession implements IOSession {
 		}
 	}
 
-	public ActiveAuthority getAuthority() {
-		return authority;
-	}
 
 	public ServerContext getContext() {
 		return context;
 	}
 
-	public void setAuthority(ActiveAuthority authority) {
-		this.authority = authority;
-	}
 
 	public LoginCenter getLoginCenter() {
 		return loginCenter;
@@ -112,23 +103,13 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		this.udpEndPoint = udpEndPoint;
 	}
-
-	public Authority getAuthority(PluginContext context) {
-
-		if (context == null) {
-			throw new IllegalArgumentException("null context");
-		}
-
-		return authoritys[context.getPluginIndex()];
-	}
 	
-	public void setAuthority(PluginContext context,ActiveAuthority authority){
-		
-		if (context == null) {
-			throw new IllegalArgumentException("null context");
-		}
-		
-		authoritys[context.getPluginIndex()] = authority;
+	public AuthorityManager getAuthorityManager() {
+		return authorityManager;
+	}
+
+	public void setAuthorityManager(AuthorityManager authorityManager) {
+		this.authorityManager = authorityManager;
 	}
 
 	public UDPEndPoint getUDPEndPoint() {

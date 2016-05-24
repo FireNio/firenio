@@ -12,9 +12,9 @@ import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
-public class StopServerServlet extends NIOServlet {
+public class SYSTEMStopServerServlet extends NIOServlet {
 
-	private Logger				logger		= LoggerFactory.getLogger(StopServerServlet.class);
+	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 	
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		if (session.getLoginCenter().isValidate(session, future)) {

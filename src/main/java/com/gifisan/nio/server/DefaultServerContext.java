@@ -26,6 +26,8 @@ import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.nio.server.service.FilterService;
 import com.gifisan.nio.server.service.GenericServlet;
 import com.gifisan.nio.server.service.NIOFilter;
+import com.gifisan.security.AuthorityLoginCenter;
+import com.gifisan.security.RoleManager;
 
 public class DefaultServerContext extends AbstractNIOContext implements ServerContext {
 
@@ -34,13 +36,14 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	private ApplicationConfigurationLoader	configurationLoader	= new FileSystemACLoader();
 	private FilterService				filterService		= null;
 	private Logger						logger			= LoggerFactory.getLogger(DefaultServerContext.class);
-	private LoginCenter					loginCenter		= null;
+	private LoginCenter					loginCenter		= new AuthorityLoginCenter();
 	private List<NIOFilter>				pluginFilters		= new ArrayList<NIOFilter>();
 	private Map<String, GenericServlet>	pluginServlets		= new HashMap<String, GenericServlet>();
 	private SessionFactory				sessionFactory		= new SessionFactory();
 	private NIOServer					server			= null;
 	private ServerConfiguration			serverConfiguration	= null;
 	private ThreadPool					serviceDispatcher	= null;
+	private RoleManager					roleManager		= new RoleManager();
 
 	public DefaultServerContext(NIOServer server) {
 		this.server = server;
@@ -61,7 +64,6 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);
 		this.protocolDecoder = new ServerProtocolDecoder();
-		this.loginCenter = new ServerLoginCenter();
 		this.filterService = new FilterService(this, classLoader);
 		this.outputStreamAcceptor = new ServerOutputStreamAcceptor(this);
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
@@ -73,6 +75,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		logger.info("[NIOServer] 服务器核数：{ {} }", SERVER_CORE_SIZE);
 
 		this.filterService.start();
+		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
 		this.serviceDispatcher.start();
 
@@ -170,6 +173,10 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 			throw new IllegalArgumentException("already setted");
 		}
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
+	}
+
+	public RoleManager getRoleManager() {
+		return roleManager;
 	}
 
 }

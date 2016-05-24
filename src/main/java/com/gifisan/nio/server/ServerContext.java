@@ -6,6 +6,7 @@ import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.nio.server.service.FilterService;
+import com.gifisan.security.RoleManager;
 
 public interface ServerContext extends NIOContext{
 
@@ -26,5 +27,7 @@ public interface ServerContext extends NIOContext{
 	public abstract ServerConfiguration getServerConfiguration() ;
 	
 	public abstract SessionFactory getSessionFactory();
+	
+	public abstract RoleManager getRoleManager();
 	
 }

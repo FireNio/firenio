@@ -12,85 +12,74 @@ import com.gifisan.nio.plugin.jms.NullMessage;
 import com.gifisan.nio.server.IOSession;
 
 public class JMSBrowserServlet extends JMSServlet {
-	
-	public static final String SIZE = "0";
-	
-	public static final String BROWSER = "1";
-	
-	public static final String ONLINE = "2";
-	
-	public static final String SERVICE_NAME = JMSBrowserServlet.class.getSimpleName();
-	
-	public void accept(IOSession session,ServerReadFuture future,JMSSessionAttachment attachment) throws Exception {
+
+	public static final String	SIZE			= "0";
+
+	public static final String	BROWSER		= "1";
+
+	public static final String	ONLINE		= "2";
+
+	public static final String	SERVICE_NAME	= JMSBrowserServlet.class.getSimpleName();
+
+	public void accept(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();
 
 		String messageID = param.getParameter("messageID");
 
 		Message message = NullMessage.NULL_MESSAGE;
-		
+
 		MQContext context = getMQContext();
 
-		if (context.isLogined(session)) {
+		String cmd = param.getParameter("cmd");
+		if (StringUtil.isNullOrBlank(cmd)) {
+			message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
+		} else {
 
-			String cmd = param.getParameter("cmd");
-			if (StringUtil.isNullOrBlank(cmd)) {
-				message = ErrorMessage.CMD_NOT_FOUND_MESSAGE;
-			} else {
-				
-				
-				
-				if (SIZE.equals(cmd)) {
-					
-					future.write(String.valueOf(context.messageSize()));
-					
-				} else if (BROWSER.equals(cmd)) {
+			if (SIZE.equals(cmd)) {
 
-					if (!StringUtil.isNullOrBlank(messageID)) {
-						
-						message = context.browser(messageID);
+				future.write(String.valueOf(context.messageSize()));
 
-						if (message == null) {
+			} else if (BROWSER.equals(cmd)) {
 
-							message = NullMessage.NULL_MESSAGE;
+				if (!StringUtil.isNullOrBlank(messageID)) {
 
-							future.write(message.toString());
-						} else {
-							
-							int msgType = message.getMsgType();
+					message = context.browser(messageID);
 
-							String content = message.toString();
+					if (message == null) {
 
-							future.write(content);
-							
-							if (msgType == 3) {
-								
-								ByteMessage byteMessage = (ByteMessage) message;
+						message = NullMessage.NULL_MESSAGE;
 
-								byte[] bytes = byteMessage.getByteArray();
+						future.write(message.toString());
+					} else {
 
-								future.setInputIOEvent(new ByteArrayInputStream(bytes),null);
-							} 
+						int msgType = message.getMsgType();
+
+						String content = message.toString();
+
+						future.write(content);
+
+						if (msgType == 3) {
+
+							ByteMessage byteMessage = (ByteMessage) message;
+
+							byte[] bytes = byteMessage.getByteArray();
+
+							future.setInputIOEvent(new ByteArrayInputStream(bytes), null);
 						}
 					}
-				}else if(ONLINE.equals(cmd)){
-					
-					boolean bool = context.isOnLine(param.getParameter("queueName"));
-					
-					byte result =  ByteUtil.getByte(bool);
-					
-					future.write(result);
 				}
+			} else if (ONLINE.equals(cmd)) {
+
+				boolean bool = context.isOnLine(param.getParameter("queueName"));
+
+				byte result = ByteUtil.getByte(bool);
+
+				future.write(result);
 			}
-		} else {
-			message = ErrorMessage.UNAUTH_MESSAGE;
-			future.write(message.toString());
 		}
 
 		session.flush(future);
 	}
 
-
-	
-	
 }
