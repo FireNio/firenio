@@ -13,9 +13,9 @@ public class ClientUtil {
 
 	public static ClientTCPConnector getClientConnector() throws IOException{
 		
-		PropertiesLoader.load("log4j.properties");
+		PropertiesLoader.load();
 		
-		PropertiesLoader.load("server.properties");
+//		PropertiesLoader.storageProperties("server.properties");
 		
 		String host = "192.168.1.48";
 		

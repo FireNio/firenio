@@ -5,7 +5,7 @@ import java.net.SocketException;
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.NIOContext;
 
-public interface Session {
+public interface Session extends Attributes{
 
 	public abstract void addEventListener(SessionEventListener listener);
 

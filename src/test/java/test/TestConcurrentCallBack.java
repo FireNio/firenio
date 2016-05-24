@@ -24,7 +24,7 @@ public class TestConcurrentCallBack {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.load("log4j.properties");
+		PropertiesLoader.load();
 		
 		ThreadPool pool = new ExecutorThreadPool("TestConcurrentCallBack", thread);
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -40,7 +41,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 	public void initialize(ServerContext context, Configuration config) throws Exception {
 		
 		long dueTime = config.getLongParameter("due-time");
-
+		
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 		
 		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
