@@ -6,7 +6,6 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
-import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
 public class DisconnectExecutable extends JMSCommandExecutor {
 
@@ -14,16 +13,14 @@ public class DisconnectExecutable extends JMSCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 
-		MessageBrowser browser = getMessageBrowser(context);
-
-		if (browser == null) {
+		ClientTCPConnector connector = getClientConnector(context);
+		
+		if (connector == null) {
 			response.setResponse("请先登录！");
 			return response;
 		}
 		
-		browser.logout();
-		
-		ClientTCPConnector connector = getClientConnector(context);
+		connector.logout();
 		
 		CloseUtil.close(connector);
 		

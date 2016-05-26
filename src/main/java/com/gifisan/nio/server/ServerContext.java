@@ -2,7 +2,6 @@ package com.gifisan.nio.server;
 
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.PluginContext;
-import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.nio.server.service.FilterService;

@@ -27,7 +27,6 @@ public class MessageSizeExecutable extends JMSCommandExecutor {
 			int size = browser.size();
 			response.setResponse(String.valueOf(size));
 		} catch (Exception e) {
-			browser.logout();
 			response.setResponse(e.getMessage());
 			logger.debug(e);
 		}

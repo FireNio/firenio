@@ -15,12 +15,12 @@ public class TestTellerPower {
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
+		
+		connector.login("admin", "admin100");
 
 		ClientSession session = connector.getClientSession();
 
 		MessageProducer producer = new DefaultMessageProducer(session);
-
-		producer.login("admin", "admin100");
 
 		TextMessage message = new TextMessage("msgID", "qName", "你好！");
 
@@ -30,8 +30,6 @@ public class TestTellerPower {
 
 		}
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
-
-		producer.logout();
 
 		connector.close();
 

@@ -12,10 +12,12 @@ import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.gifisan.nio.plugin.jms.server.JMSProducerServlet;
 import com.gifisan.nio.plugin.jms.server.JMSPublishServlet;
 
-public class DefaultMessageProducer extends DefaultJMSConnecton implements MessageProducer {
+public class DefaultMessageProducer implements MessageProducer {
 
+	private ClientSession session = null;
+	
 	public DefaultMessageProducer(ClientSession session) {
-		super(session);
+		this.session = session;
 	}
 
 	public boolean offer(Message message) throws JMSException {

@@ -37,7 +37,6 @@ public class BrowserExecutable extends JMSCommandExecutor {
 				response.setResponse(message.toString());
 			}
 		} catch (Exception e) {
-			browser.logout();
 			logger.debug(e);
 		}
 

@@ -16,11 +16,10 @@ public class TestSubscribe {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		
 		for (int i = 0; i < 5; i++) {
-			
+
 			new Thread(new Runnable() {
-				
+
 				public void run() {
 					try {
 						TestSubscribe.test();
@@ -29,9 +28,9 @@ public class TestSubscribe {
 					}
 				}
 			}).start();
-			
+
 		}
-		
+
 	}
 
 	private static void test() throws Exception {
@@ -40,20 +39,18 @@ public class TestSubscribe {
 
 		connector.connect();
 
+		connector.login("admin", "admin100");
+		
 		ClientSession session = connector.getClientSession();
 
-		MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
-
-		consumer.login("admin", "admin100");
+		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
 		consumer.subscribe(new OnMessage() {
-			
+
 			public void onReceive(Message message) {
 				System.out.println(message);
 			}
 		});
-
-		consumer.logout();
 
 		connector.close();
 	}

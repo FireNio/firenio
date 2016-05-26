@@ -23,7 +23,7 @@ public class TestUDPConnector1 {
 		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle(customerID, otherCustomerID),
 				customerID);
 
-		client.login("admin", "admin100");
+		connector.login("admin", "admin100");
 
 		client.createRoom(otherCustomerID);
 

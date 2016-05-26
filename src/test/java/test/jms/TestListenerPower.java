@@ -17,11 +17,11 @@ public class TestListenerPower {
 		
 		connector.connect();
 		
+		connector.login("admin", "admin100");
+		
 		ClientSession session = connector.getClientSession();
 		
-		MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
-
-		consumer.login("admin", "admin100");
+		MessageConsumer consumer = new DefaultMessageConsumer(session);
 		long old = System.currentTimeMillis();
 		
 		OnMessage onMessage = new OnMessage() {
@@ -38,8 +38,6 @@ public class TestListenerPower {
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 
-		consumer.logout();
-		
 		connector.close();
 	}
 }

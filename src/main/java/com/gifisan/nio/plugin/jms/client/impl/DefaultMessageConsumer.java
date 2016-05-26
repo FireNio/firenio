@@ -1,48 +1,32 @@
 package com.gifisan.nio.plugin.jms.client.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.WaiterOnReadFuture;
-import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.plugin.jms.server.JMSLoginServlet;
+import com.gifisan.nio.plugin.jms.server.JMSConsumerServlet;
 import com.gifisan.nio.plugin.jms.server.JMSTransactionServlet;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 
-public class DefaultMessageConsumer extends DefaultJMSConnecton implements MessageConsumer {
+public class DefaultMessageConsumer implements MessageConsumer {
 
-	private String			parameter				= null;
-	private String			queueName				= null;
 	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
 	private boolean		sendReceiveCommand		= true;
 	private boolean		sendSubscribeCommand	= true;
+	private ClientSession	session				= null;
+	private String			SERVICE_NAME			= JMSConsumerServlet.SERVICE_NAME;
 
-	private void initParam(String queueName, long timeout) {
-		Map<String, String> param = new HashMap<String, String>();
-		param.put("queueName", queueName);
-		param.put("timeout", String.valueOf(timeout));
-		this.parameter = JSONObject.toJSONString(param);
-	}
 
-	public DefaultMessageConsumer(ClientSession session, String queueName, long timeout) {
-		super(session);
-		this.initParam(queueName, timeout);
-	}
-
-	public DefaultMessageConsumer(ClientSession session, String queueName) {
-		super(session);
-		this.queueName = queueName;
-		this.initParam(queueName, 0);
+	public DefaultMessageConsumer(ClientSession session) {
+		this.session = session;
+		this.session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
 	}
 
 	public boolean beginTransaction() throws JMSException {
@@ -101,11 +85,14 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 
 	private void sendReceiveCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendReceiveCommand) {
+			
+			checkLoginState();
+			
 			try {
 
 				session.listen("JMSConsumerServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
 
-				session.write("JMSConsumerServlet", parameter);
+				session.write("JMSConsumerServlet", null);
 
 				sendReceiveCommand = false;
 			} catch (IOException e) {
@@ -113,14 +100,24 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 			}
 		}
 	}
+	
+	private void checkLoginState() throws JMSException{
+		
+		if (session.getAuthority() == null) {
+			throw new JMSException("not login");
+		}
+	}
 
 	private void sendSubscribeCommandCallback(OnMessage onMessage) throws JMSException {
 		if (sendSubscribeCommand) {
+			
+			checkLoginState();
+			
 			try {
 
 				session.listen("JMSSubscribeServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
 
-				session.write("JMSSubscribeServlet", parameter);
+				session.write("JMSSubscribeServlet", null);
 
 				sendSubscribeCommand = false;
 			} catch (IOException e) {
@@ -129,50 +126,4 @@ public class DefaultMessageConsumer extends DefaultJMSConnecton implements Messa
 
 		}
 	}
-
-	public void login(String username, String password) throws JMSException {
-		if (logined) {
-			return;
-		}
-
-		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
-		session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());
-
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("username", username);
-		param.put("password", password);
-		param.put("consumer", true);
-		param.put("queueName", this.queueName);
-
-		String paramString = JSONObject.toJSONString(param);
-
-		try {
-			WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
-
-			session.listen(JMSLoginServlet.SERVICE_NAME, onReadFuture);
-
-			session.write(JMSLoginServlet.SERVICE_NAME, paramString);
-
-			if (!onReadFuture.await(3000)) {
-
-				
-				throw JMSException.TIME_OUT;
-				
-			}
-			
-			ReadFuture future = onReadFuture.getReadFuture();
-
-			String result = future.getText();
-
-			if (ByteUtil.isFalse(result)) {
-
-				throw new JMSException("用户名密码错误！");
-			}
-
-		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
-		}
-
-	}
-
 }

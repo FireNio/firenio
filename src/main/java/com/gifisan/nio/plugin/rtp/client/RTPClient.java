@@ -2,10 +2,7 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.ClientContext;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientUDPConnector;
@@ -24,11 +21,10 @@ import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
 import com.gifisan.nio.plugin.rtp.RTPException;
 import com.gifisan.nio.plugin.rtp.server.RTPCreateRoomServlet;
 import com.gifisan.nio.plugin.rtp.server.RTPJoinRoomServlet;
-import com.gifisan.nio.plugin.rtp.server.RTPLoginServlet;
+
 
 public class RTPClient implements Closeable {
 
-	private boolean			logined		= false;
 	private ClientSession		session		= null;
 	private String				roomID		= null;
 	private int				roomIDNo		= -1;
@@ -38,13 +34,27 @@ public class RTPClient implements Closeable {
 	private UDPReceiveHandle		receiveHandle	= null;
 	private ClientContext		context		= null;
 
+	
+	//FIXME ..
 	public RTPClient(ClientSession session, UDPReceiveHandle handle, String customerID) throws Exception {
 		this.connector = new ClientUDPConnector(session);
 		this.session = session;
 		this.receiveHandle = handle;
 		this.producer = new DefaultMessageProducer(session);
-		this.consumer = new DefaultMessageConsumer(session, customerID);
+		this.consumer = new DefaultMessageConsumer(session);
 		this.context = connector.getContext();
+		
+		
+		try {
+			this.consumer.receive(new OnMessage() {
+
+				public void onReceive(Message message) {
+					receiveHandle.onMessage(RTPClient.this, message);
+				}
+			});
+		} catch (JMSException e) {
+			throw new RTPException(e);
+		}
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) throws RTPException {
@@ -140,46 +150,8 @@ public class RTPClient implements Closeable {
 		connector.onDatagramPacketReceived(acceptor);
 	}
 
-	public void login(String username, String password) throws RTPException {
-		if (logined) {
-			return;
-		}
-
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("username", username);
-		param.put("password", password);
-		String paramString = JSONObject.toJSONString(param);
-
-		ReadFuture future;
-		try {
-			future = session.request(RTPLoginServlet.SERVICE_NAME, paramString);
-		} catch (IOException e) {
-			throw new RTPException(e.getMessage(), e);
-		}
-		String result = future.getText();
-		boolean logined = "T".equals(result);
-		if (!logined) {
-			throw new RTPException("用户名密码错误！");
-		}
-
-		try {
-			this.consumer.receive(new OnMessage() {
-
-				public void onReceive(Message message) {
-					receiveHandle.onMessage(RTPClient.this, message);
-				}
-			});
-		} catch (JMSException e) {
-			throw new RTPException(e);
-		}
-	}
-
 	public void close() throws IOException {
 		CloseUtil.close(connector);
-	}
-
-	public void logout() {
-		this.logined = false;
 	}
 
 	public int getRoomIDNo() {

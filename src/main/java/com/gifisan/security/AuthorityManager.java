@@ -8,6 +8,8 @@ import java.util.Map;
 public class AuthorityManager {
 
 	private Integer				roleID			= 0;
+	
+	private Authority				authority			= null;
 
 	private Map<String, Permission>	permissions		= new HashMap<String, Permission>();
 
@@ -47,6 +49,14 @@ public class AuthorityManager {
 		}
 
 		return manager;
+	}
+	
+	protected void setAuthority(Authority authority){
+		this.authority = authority;
+	}
+	
+	public Authority getAuthority(){
+		return authority;
 	}
 
 }

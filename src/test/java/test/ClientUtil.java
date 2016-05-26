@@ -11,27 +11,28 @@ import com.gifisan.nio.common.SharedBundle;
 
 public class ClientUtil {
 
-	public static ClientTCPConnector getClientConnector() throws IOException{
-		
+	public static ClientTCPConnector getClientConnector() throws IOException {
+
 		PropertiesLoader.load();
-		
-//		PropertiesLoader.storageProperties("server.properties");
-		
+
+		// PropertiesLoader.storageProperties("server.properties");
+
 		String host = "192.168.1.48";
-		
-//		host = "192.168.1.97";
-		
-//		host = "180.168.141.103";
-		
-		ClientTCPConnector connector = new ClientTCPConnector(host, SharedBundle.instance().getIntegerProperty("SERVER.PORT"));
-		
-//		DebugUtil.info(connector.toString());
-		
+
+		// host = "192.168.1.97";
+
+		// host = "180.168.141.103";
+
+		ClientTCPConnector connector = new ClientTCPConnector(host, SharedBundle.instance().getIntegerProperty(
+				"SERVER.PORT"), "M");
+
+		// DebugUtil.info(connector.toString());
+
 		return connector;
-//		return new ClientConnector("192.168.0.111", 8300);
+		// return new ClientConnector("192.168.0.111", 8300);
 	}
-	
-	public static String getParamString(){
+
+	public static String getParamString() {
 		Map params = new HashMap();
 		params.put("serviceName", "test");
 		params.put("username", "admin");
@@ -39,8 +40,7 @@ public class ClientUtil {
 		return JSONObject.toJSONString(params);
 	}
 
-	
-	public static Map getParamMap(){
+	public static Map getParamMap() {
 		Map params = new HashMap();
 		params.put("username", "admin");
 		params.put("password", "admin100");

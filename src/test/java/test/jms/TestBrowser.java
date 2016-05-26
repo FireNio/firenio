@@ -17,12 +17,12 @@ public class TestBrowser {
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
+		
+		connector.login("admin", "admin100");
 
 		ClientSession session = connector.getClientSession();
 
 		MessageBrowser browser = new DefaultMessageBrowser(session);
-
-		browser.login("admin", "admin100");
 
 		Message message = browser.browser(queueName);
 		
@@ -35,8 +35,6 @@ public class TestBrowser {
 		boolean isOnline = browser.isOnline(queueName);
 		
 		System.out.println("isOnline:"+isOnline);
-
-		browser.logout();
 
 		connector.close();
 

@@ -39,7 +39,7 @@ public class ServerShutdown {
 
 		String serviceName = "stop-server";
 
-		ClientTCPConnector connector = new ClientTCPConnector("localhost", port);
+		ClientTCPConnector connector = new ClientTCPConnector("localhost", port,"M");
 		
 		connector.connect();
 		

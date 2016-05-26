@@ -6,7 +6,6 @@ import java.util.Map;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.server.IOSession;
@@ -47,16 +46,20 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 
 	public void pollMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
 
-		Parameters param = future.getParameters();
+		if (attachment.getConsumer() != null) {
+			return;
+		}
 
-		String queueName = param.getParameter("queueName");
+		String queueName = session.getAuthority().getUUID();
 
+		// 来自终端类型
+		context.addReceiver(queueName+session.getMachineType());
+		
 		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
 		Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
 
-		attachment.addConsumer(consumer);
-
+		//FIXME 按位置设置
 		consumerQueue.offer(consumer);
 	}
 

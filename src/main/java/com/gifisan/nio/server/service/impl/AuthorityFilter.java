@@ -7,6 +7,7 @@ import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerSession;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
+import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
 
 public class AuthorityFilter extends AbstractNIOFilter {
@@ -15,11 +16,15 @@ public class AuthorityFilter extends AbstractNIOFilter {
 	
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		
-		AuthorityManager authorityManager = ((ServerSession)session).getAuthorityManager();
+		ServerSession _session =  ((ServerSession)session);
+		
+		AuthorityManager authorityManager = _session.getAuthorityManager();
 		
 		if (authorityManager == null) {
 			
-			authorityManager = session.getContext().getRoleManager().getAuthorityManager(-1);
+			authorityManager = session.getContext().getRoleManager().getAuthorityManager(Authority.GUEST);
+			
+			_session.setAuthorityManager(authorityManager);
 		}
 		
 		if (!authorityManager.isInvokeApproved(future.getServiceName())) {
@@ -28,7 +33,7 @@ public class AuthorityFilter extends AbstractNIOFilter {
 			
 			session.flush(future);
 			
-			logger.debug("请求IP：{}，服务名称：{}，请求内容：{}", new String[] { 
+			logger.debug("已拒绝非法请求，请求IP：{}，服务名称：{}，请求内容：{}", new String[] { 
 						session.getRemoteAddr(), 
 						future.getServiceName(),
 						future.getText() });

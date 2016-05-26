@@ -3,7 +3,7 @@ package com.gifisan.nio.plugin.jms.client;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Transaction;
 
-public interface MessageConsumer extends Transaction , JMSConnection{
+public interface MessageConsumer extends Transaction{
 	
 	public abstract void receive(OnMessage onMessage) throws JMSException ;
 	

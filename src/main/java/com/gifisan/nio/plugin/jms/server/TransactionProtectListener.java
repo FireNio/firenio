@@ -1,7 +1,5 @@
 package com.gifisan.nio.plugin.jms.server;
 
-import java.util.List;
-
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
@@ -17,7 +15,7 @@ public class TransactionProtectListener implements SessionEventListener {
 		this.context = context;
 	}
 
-	//FIXME 移除该EndPoint上所有的consumer
+	//FIXME 移除该EndPoint上的consumer
 	public void onDestroy(Session session) {
 
 		MQContext context = this.context;
@@ -31,17 +29,13 @@ public class TransactionProtectListener implements SessionEventListener {
 			section.rollback();
 		}
 		
-		List<String> queueNames = attachment.getQueueNames();
+		Consumer consumer = attachment.getConsumer();
 		
-		for(String queueName :queueNames){
-			context.removeReceiver(queueName);
-		}
-		
-		List<Consumer> consumers = attachment.getConsumers();
-		
-		if (consumers.size() > 0) {
+		if (consumer != null) {
 			
-			consumers.get(0).getConsumerQueue().remove(consumers);
+			consumer.getConsumerQueue().remove(consumer);
+			
+			context.removeReceiver(consumer.getQueueName() + session.getMachineType());
 		}
 		
 		LOGGER.debug(">>>> TransactionProtectListener execute");

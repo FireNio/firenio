@@ -5,32 +5,39 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPSelectorLoop;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.TaskExecutor;
+import com.gifisan.nio.plugin.jms.client.impl.ConsumerStreamAcceptor;
+import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.server.RESMessageDecoder;
+import com.gifisan.nio.server.service.impl.SYSTEMAuthorityServlet;
+import com.gifisan.security.Authority;
 
 public class ClientTCPConnector implements Connector {
 
-	private AtomicBoolean		connected			= new AtomicBoolean(false);
-	private ClientContext		context			= null;
-	private ClientTCPEndPoint	endPoint			= null;
-	private AtomicBoolean		keepAlive			= new AtomicBoolean(false);
-	private Logger				logger			= LoggerFactory.getLogger(ClientTCPConnector.class);
-	private Selector			selector			= null;
-	private InetSocketAddress	serverAddress		= null;
-	private TaskExecutor		taskExecutor		= null;
-	private TCPSelectorLoop		selectorLoop		= null;
-	private ClientEndPointWriter	endPointWriter		= null;
-	private ClientUDPConnector	udpConnector		= null;
+	private AtomicBoolean		connected		= new AtomicBoolean(false);
+	private ClientContext		context		= null;
+	private ClientTCPEndPoint	endPoint		= null;
+	private AtomicBoolean		keepAlive		= new AtomicBoolean(false);
+	private Selector			selector		= null;
+	private InetSocketAddress	serverAddress	= null;
+	private TaskExecutor		taskExecutor	= null;
+	private TCPSelectorLoop		selectorLoop	= null;
+	private ClientEndPointWriter	endPointWriter	= null;
+	private ClientUDPConnector	udpConnector	= null;
+	private String				machineType	= null;
 
 	protected TCPSelectorLoop getSelectorLoop() {
 		return selectorLoop;
@@ -40,8 +47,9 @@ public class ClientTCPConnector implements Connector {
 		return endPointWriter;
 	}
 
-	public ClientTCPConnector(String host, int port) {
+	public ClientTCPConnector(String host, int port,String machineType) {
 		this.context = new ClientContext(host, port);
+		this.machineType = machineType;
 	}
 
 	public void close() throws IOException {
@@ -67,19 +75,18 @@ public class ClientTCPConnector implements Connector {
 			try {
 				this.context.start();
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				throw new IOException(e.getMessage(), e);
 			}
 
 			this.connect0();
-			
 
 			try {
-				
+
 				this.endPointWriter.start();
-				
+
 				this.selectorLoop.start();
 			} catch (Exception e) {
-				logger.debug(e);
+				throw new IOException(e.getMessage(), e);
 			}
 		}
 	}
@@ -116,8 +123,7 @@ public class ClientTCPConnector implements Connector {
 			this.endPointWriter = new ClientEndPointWriter();
 			this.endPoint = new ClientTCPEndPoint(context, selectionKey, this);
 			endPointWriter.setEndPoint(this.endPoint);
-			this.selectorLoop = new ClientSelectorManagerLoop(context, selector,
-					endPointWriter);
+			this.selectorLoop = new ClientSelectorManagerLoop(context, selector, endPointWriter);
 			selectionKey.attach(endPoint);
 		}
 	}
@@ -139,33 +145,19 @@ public class ClientTCPConnector implements Connector {
 	}
 
 	/**
-	 * 暂时还不清楚为什么要发送心跳包，但是目前实现连这样的心跳包，</BR> 当客户端设置成维持长连接时（这里要说一下为什么要设置成长连接，</BR>
-	 * 我知道的有两种情况，一是因为连接创建连接太耗时，频繁的创建关闭连接太耗费资源了；</BR>
-	 * 二是服务端推送模式时，客户端不知道服务端什么时候发消息过来，</BR>
-	 * 所以要保持和服务端时刻处于连接中的状态，这两种情况中的第一种是不需要心跳包的，</BR>
-	 * 以下所说的情况均是针对于第二种情况），会产生一个task在一定间隔时间向服务器心跳包，</BR>
-	 * 服务端不用回复，为什么不用回复呢，因为这个时候客户端在等待服务端回复的业务消息，</BR>
-	 * 没有两个线程收一个消息的道理吧，其实也不需要服务端往客户端回复，</BR>
-	 * 因为如果没有业务消息需要给客户端的话，断了就断了，如果有消息需要传给客户端的话，</BR>
-	 * 服务端会发现噢原来连接断开了，现在需要做的是一定要让客户端知道自己和服务端还连接着，</BR> 这样可以确保自己能够收到服务端发来的消息。
+	 * 每分钟一个心跳包
 	 */
 	public void keepAlive() {
 
-		this.keepAlive(5 * 60 * 1000);
+		this.keepAlive(60 * 1000);
 	}
 
-	/**
-	 * 这个方法不一定按照你指定的时间间隔做心跳动作，但是它一定会努力去做的
-	 * 
-	 * @param checkInterval
-	 */
-	//FIXME 是否需要服务端反馈
 	public void keepAlive(long checkInterval) {
 		if (keepAlive.compareAndSet(false, true)) {
 			try {
 				this.startTouchDistantJob(checkInterval);
 			} catch (Exception e) {
-				e.printStackTrace();
+
 			}
 		}
 	}
@@ -180,6 +172,66 @@ public class ClientTCPConnector implements Connector {
 		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint, this.getClientSession());
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
+	}
+
+	private AtomicBoolean	logined	= new AtomicBoolean(false);
+
+	public RESMessage login4RES(String username, String password) {
+
+		if (logined.compareAndSet(false, true)) {
+
+			try {
+
+				ClientSession session = endPoint.getSession();
+
+				session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
+				session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());
+
+				Map<String, Object> param = new HashMap<String, Object>();
+				param.put("username", username);
+				param.put("password", password);
+				param.put("MACHINE_TYPE", machineType);
+
+				String paramString = JSONObject.toJSONString(param);
+
+				ReadFuture future = session.request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+
+				RESMessage message = RESMessageDecoder.decode(future.getText());
+
+				if (message.getCode() == 0) {
+
+					String text = message.getDescription();
+
+					String[] strs = text.split("|");
+
+					Authority authority = new Authority(username, strs[0]);
+
+					((ProtectedClientSession) session).setAuthority(authority);
+
+					((ProtectedClientSession) session).setSessionID(strs[1]);
+
+					((ProtectedClientSession) session).setMachineType(machineType);
+				}
+
+				return message;
+			} catch (IOException e) {
+				return new RESMessage(400, e.getMessage());
+			}
+		}
+
+		return RESMessage.R_SUCCESS;
+	}
+
+	public boolean login(String username, String password) {
+
+		RESMessage message = login4RES(username, password);
+
+		return message.getCode() == 0;
+	}
+
+	public void logout() {
+		// TODO complete logout
+
 	}
 
 	public String toString() {

@@ -26,13 +26,13 @@ public class TestListener {
 			connector = ClientUtil.getClientConnector();
 			
 			connector.connect();
+
+//			connector.login("admin", "admin100");
 			
 			session = connector.getClientSession();
 			
-			MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
+			MessageConsumer consumer = new DefaultMessageConsumer(session);
 
-			consumer.login("admin", "admin100");
-			
 			long old = System.currentTimeMillis();
 
 			consumer.receive(new OnMessage() {
@@ -45,10 +45,8 @@ public class TestListener {
 
 			System.out.println("Time:" + (System.currentTimeMillis() - old));
 
-			ThreadUtil.sleep(500);
+			ThreadUtil.sleep(3500);
 
-			consumer.logout();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (JMSException e) {

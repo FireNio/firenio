@@ -6,15 +6,16 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.LoginCenter;
-import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
 
 public class ServerSession extends AbstractSession implements IOSession {
@@ -24,6 +25,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private UDPEndPoint			udpEndPoint		= null;
 	private AuthorityManager		authorityManager	= null;
 	private static final Logger	logger			= LoggerFactory.getLogger(ServerSession.class);
+	
 
 	public ServerSession(TCPEndPoint endPoint) {
 		super(endPoint);
@@ -110,10 +112,19 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 	public void setAuthorityManager(AuthorityManager authorityManager) {
 		this.authorityManager = authorityManager;
+		if (authorityManager.getAuthority().getUserID() == Authority.GUEST.getUserID()) {
+			return;
+		}
+		this.sessionID = UUIDGenerator.random();
+		this.context.getSessionFactory().putIOSession(this);
 	}
 
 	public UDPEndPoint getUDPEndPoint() {
 		return udpEndPoint;
 	}
 
+	public Authority getAuthority() {
+		
+		return authorityManager.getAuthority();
+	}
 }

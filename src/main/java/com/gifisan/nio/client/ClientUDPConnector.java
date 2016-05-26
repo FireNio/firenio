@@ -71,7 +71,7 @@ public class ClientUDPConnector implements Connector {
 			try {
 				this.selectorLoop.start();
 			} catch (Exception e) {
-				logger.debug(e);
+				throw new IOException(e.getMessage(),e);
 			}
 		}
 	}

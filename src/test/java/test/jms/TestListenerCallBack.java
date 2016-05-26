@@ -22,12 +22,12 @@ public class TestListenerCallBack {
 		
 		connector.connect();
 		
+		connector.login("admin", "admin100");
+		
 		ClientSession session = connector.getClientSession();
 		
-		final MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
+		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
-		consumer.login("admin", "admin100");
-		
 		consumer.receive( new OnMessage() {
 			
 			public void onReceive(Message message) {
@@ -37,7 +37,6 @@ public class TestListenerCallBack {
 
 		
 		ThreadUtil.sleep(1000);
-		consumer.logout();
 		CloseUtil.close(connector);
 		
 

@@ -20,18 +20,16 @@ public class TestTransaction {
 		
 		connector.connect();
 		
+		connector.login("admin", "admin100");
+		
 		ClientSession session = connector.getClientSession();
 		
-		MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
-
-		consumer.login("admin", "admin100");
+		MessageConsumer consumer = new DefaultMessageConsumer(session);
 		
 		rollback(consumer);
 		
 //		commit(consumer);
 
-		consumer.logout();
-		
 		connector.close();
 
 	}

@@ -4,7 +4,6 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.common.MessageFormatter;
-import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 
@@ -14,6 +13,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	private Attachment[]				attachments			= new Attachment[4];
 	private long						creationTime			= System.currentTimeMillis();
 	private boolean					closed				= false;
+	private String						machineType			= null;
 	private SessionEventListenerWrapper	lastListener			= null;
 	private SessionEventListenerWrapper	listenerStub			= null;
 	protected TCPEndPoint				endPoint				= null;
@@ -134,10 +134,15 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public String getSessionID() {
-		if (sessionID == null) {
-			sessionID = UUIDGenerator.random();
-		}
 		return sessionID;
 	}
 
+	public String getMachineType() {
+		return machineType;
+	}
+
+	public void setMachineType(String machineType) {
+		this.machineType = machineType;
+	}
+	
 }

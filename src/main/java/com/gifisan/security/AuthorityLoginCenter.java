@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
 import com.gifisan.nio.component.LoginCenter;
@@ -24,14 +25,20 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		if (authority == null) {
 			return false;
 		}
+		
+		Parameters parameters = future.getParameters();
 
+		
+		String machineType = parameters.getParameter("MATCH_TYPE");
+		
+		
 		ServerContext context = session.getContext();
 		
 		RoleManager roleManager = context.getRoleManager();
 		
-		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority.getRoleID());
+		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 		
-		setAuthorityManager(session, authorityManager);
+		setAuthorityInfo((ServerSession)session, authorityManager,machineType);
 
 		return true;
 
@@ -43,12 +50,13 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	public void logout(IOSession session) {
 		
-		setAuthorityManager(session, null);
+		// 需要登出吗
 	}
 	
-	private void setAuthorityManager(IOSession session,AuthorityManager authorityManager){
+	private void setAuthorityInfo(ServerSession session,AuthorityManager authorityManager,String machineType){
 		
-		((ServerSession)session).setAuthorityManager(null);
+		session.setAuthorityManager(authorityManager);
+		session.setMachineType(machineType);
 	}
 
 	public boolean isValidate(IOSession session, ServerReadFuture future) {
@@ -78,13 +86,16 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	public void initialize(ServerContext context, Configuration config) throws Exception {
 		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");
 		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin10000");
-		Integer roleID = SharedBundle.instance().getIntegerProperty("roleID");
+		String UUID = SharedBundle.instance().getProperty("SERVER.UUID",UUIDGenerator.random());
+		Integer roleID = SharedBundle.instance().getIntegerProperty("SERVER.ROLEID");
+		
 
 		Authority authority = new Authority();
 
 		authority.setUsername(username);
 		authority.setPassword(password);
 		authority.setRoleID(roleID);
+		authority.setUUID(UUID);
 		
 		this.authorities.put(authority.getUsername(), authority);
 		

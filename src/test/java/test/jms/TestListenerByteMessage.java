@@ -7,6 +7,7 @@ import test.ClientUtil;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.ByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
@@ -21,13 +22,13 @@ public class TestListenerByteMessage {
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
+
+		connector.login("admin", "admin100");
 		
 		ClientSession session = connector.getClientSession();
 		
-		MessageConsumer consumer = new DefaultMessageConsumer(session, "qName");
+		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
-		consumer.login("admin", "admin100");
-		
 		final long old = System.currentTimeMillis();
 
 		consumer.receive(new OnMessage() {
@@ -42,9 +43,9 @@ public class TestListenerByteMessage {
 				System.out.println("Time:" + (System.currentTimeMillis() - old));
 			}
 		});
-
-		consumer.logout();
 		
+		ThreadUtil.sleep(1000);
+
 		connector.close();
 
 	}

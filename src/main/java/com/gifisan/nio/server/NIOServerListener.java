@@ -43,6 +43,12 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 	public void lifeCycleStopping(LifeCycle lifeCycle) {
 		NIOServer server = (NIOServer) lifeCycle;
 		Connector connector = server.getConnector();
+		
+		if (connector == null) {
+			logger.info("   [NIOServer] 服务启动失败，正在停止...");
+			return;
+		}
+		
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - staredTime);
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);

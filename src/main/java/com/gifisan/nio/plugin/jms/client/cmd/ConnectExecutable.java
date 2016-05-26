@@ -44,15 +44,15 @@ public class ConnectExecutable extends JMSCommandExecutor {
 		
 		try {
 			
-			connector = new ClientTCPConnector(host, Integer.valueOf(port));
+			connector = new ClientTCPConnector(host, Integer.valueOf(port),"M");
 			
 			connector.connect();
 			
 			ClientSession session = connector.getClientSession();
 			
-			MessageBrowser browser = new DefaultMessageBrowser(session);
+			connector.login(username, password);
 			
-			browser.login(username, password);
+			MessageBrowser browser = new DefaultMessageBrowser(session);
 			
 			response.setResponse("连接成功！");
 			

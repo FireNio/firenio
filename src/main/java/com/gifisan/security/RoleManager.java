@@ -140,14 +140,21 @@ public class RoleManager extends InitializeableImpl {
 		}
 	}
 
-	public AuthorityManager getAuthorityManager(Integer roleID) {
+	public AuthorityManager getAuthorityManager(Authority authority) {
+		
+		Integer roleID = authority.getRoleID();
+		
 		AuthorityManager authorityManager = authorityManagers.get(roleID);
 
 		if (authorityManager == null) {
-			return guestAuthorityManager.clone();
+			authorityManager = guestAuthorityManager;
 		}
 
-		return authorityManager.clone();
+		authorityManager = authorityManager.clone();
+		
+		authorityManager.setAuthority(authority);
+		
+		return authorityManager;
 	}
 
 	public static void main(String[] args) {

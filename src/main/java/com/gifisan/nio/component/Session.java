@@ -4,6 +4,7 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.server.NIOContext;
+import com.gifisan.security.Authority;
 
 public interface Session extends Attributes{
 
@@ -44,5 +45,9 @@ public interface Session extends Attributes{
 	public abstract void destroyImmediately();
 
 	public abstract boolean closed();
+	
+	public abstract Authority getAuthority();
+	
+	public abstract String getMachineType() ;
 
 }

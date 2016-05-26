@@ -48,7 +48,10 @@ public class ExecutorThreadPool extends AbstractLifeCycle implements ThreadPool{
 	}
 
 	protected void doStop() throws Exception {
-		poolExecutor.shutdown();
+		
+		if (poolExecutor != null) {
+			poolExecutor.shutdown();
+		}
 	}
 
 }

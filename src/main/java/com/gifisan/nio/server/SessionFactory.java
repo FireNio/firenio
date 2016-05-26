@@ -1,18 +1,15 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.gifisan.nio.server.IOSession;
-
 
 public class SessionFactory {
 
 	private Map<String, IOSession>	sessions	= new HashMap<String, IOSession>();
 	private ReentrantLock			lock		= new ReentrantLock();
 
-	public void putIOSession(IOSession session) {
+	protected void putIOSession(IOSession session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -27,7 +24,7 @@ public class SessionFactory {
 		return sessions.get(sessionID);
 	}
 
-	public void removeIOSession(IOSession session) {
+	protected void removeIOSession(IOSession session) {
 		ReentrantLock lock = this.lock;
 
 		lock.lock();

@@ -18,19 +18,16 @@ public class TestPublish {
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
-		
-		ClientSession session = connector.getClientSession();
-		
-		MessageProducer producer = new DefaultMessageProducer(session);
+		connector.login("admin", "admin100");
 
-		producer.login("admin", "admin100");
+		ClientSession session = connector.getClientSession();
+
+		MessageProducer producer = new DefaultMessageProducer(session);
 
 		TextMessage message = new TextMessage("msgID", "qName", "你好！");
 
 		producer.publish(message);
 
-		producer.logout();
-		
 		connector.close();
 
 	}
