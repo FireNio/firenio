@@ -2,11 +2,11 @@ package com.gifisan.nio.plugin.jms;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class ByteMessage extends TextMessage {
+public class TextByteMessage extends TextMessage {
 
 	private byte[]	array	= null;
 
-	public ByteMessage(String messageID, String queueName,String text, byte[] array) {
+	public TextByteMessage(String messageID, String queueName,String text, byte[] array) {
 		super(messageID, queueName,text);
 		this.array = array;
 	}
@@ -30,12 +30,12 @@ public class ByteMessage extends TextMessage {
 	}
 
 	public int getMsgType() {
-		return Message.TYPE_BYTE;
+		return Message.TYPE_TEXT_BYTE;
 	}
 	
 	public static void main(String[] args) {
 		
-		ByteMessage message = new ByteMessage("mid","qname","text",null);
+		TextByteMessage message = new TextByteMessage("mid","qname","text",null);
 		
 		System.out.println(JSONObject.toJSON(message).toString());
 		System.out.println(message.toString());

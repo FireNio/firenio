@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ReadFutureFactory;
@@ -60,8 +60,8 @@ public class Consumer {
 
 			session.flush(future);
 
-		} else {
-			ByteMessage byteMessage = (ByteMessage) message;
+		} else if(msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
+			TextByteMessage byteMessage = (TextByteMessage) message;
 
 			byte[] bytes = byteMessage.getByteArray();
 

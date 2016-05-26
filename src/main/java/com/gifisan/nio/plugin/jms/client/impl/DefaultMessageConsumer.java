@@ -10,7 +10,6 @@ import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.plugin.jms.server.JMSConsumerServlet;
 import com.gifisan.nio.plugin.jms.server.JMSTransactionServlet;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
@@ -21,12 +20,12 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	private boolean		sendReceiveCommand		= true;
 	private boolean		sendSubscribeCommand	= true;
 	private ClientSession	session				= null;
-	private String			SERVICE_NAME			= JMSConsumerServlet.SERVICE_NAME;
 
 
 	public DefaultMessageConsumer(ClientSession session) {
 		this.session = session;
-		this.session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
+		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
+		session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());
 	}
 
 	public boolean beginTransaction() throws JMSException {

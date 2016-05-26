@@ -31,7 +31,6 @@ public class DatagramPacket {
 	private byte[]			data				= null;
 //	private byte				protocolType		= TRANS;
 	private int				sequenceNo		= -1;			// 4 byte
-	private int				roomID			= -1;			// 8 byte
 	private long				timestamp			= -1;			// 8 byte
 	private ByteBuffer			source			= null;
 	private String				dataString		= null;
@@ -45,10 +44,9 @@ public class DatagramPacket {
 		this.remoteSocketAddress = remoteSocketAddress;
 	}
 
-	protected DatagramPacket(long timestamp, int sequenceNO, int roomID, byte[] data) {
+	protected DatagramPacket(long timestamp, int sequenceNO, byte[] data) {
 		this.timestamp = timestamp;
 		this.sequenceNo = sequenceNO;
-		this.roomID = roomID;
 		this.data = data;
 	}
 
@@ -89,15 +87,6 @@ public class DatagramPacket {
 		return sequenceNo;
 	}
 
-	public int getRoomID() {
-		
-		if (roomID == -1) {
-			roomID = MathUtil.byte2Int(source.array(), 12);
-		}
-		
-		return roomID;
-	}
-
 	public long getTimestamp() {
 		
 		if (timestamp == -1) {
@@ -119,7 +108,16 @@ public class DatagramPacket {
 	}
 	
 	public String toString() {
-		return MessageFormatter.format("data:{},_____seq:{},______timestamp:{}",new Object[]{ new String(getData()),sequenceNo,timestamp});
+		
+		return new StringBuilder("[data:")
+				.append(new String(getData()))
+				.append(",seq:")
+				.append(getSequenceNo())
+				.append(",timestamp:")
+				.append(getTimestamp())
+				.append("]")
+				.toString();
+		
 	}
 
 }

@@ -21,7 +21,7 @@ public class SYSTEMAuthorityServlet extends NIOServlet{
 			
 			Authority authority = session.getAuthority();
 			
-			message = new RESMessage(0, authority.getUUID()+"|"+session.getSessionID());
+			message = new RESMessage(0, authority.getUUID()+";"+session.getSessionID());
 		}
 		
 		future.write(message.toString());

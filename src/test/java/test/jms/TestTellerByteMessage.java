@@ -7,7 +7,7 @@ import test.ClientUtil;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
@@ -26,7 +26,7 @@ public class TestTellerByteMessage {
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 		
-		ByteMessage message = new ByteMessage("msgID", "UUID", "============","你好！".getBytes(Encoding.DEFAULT));
+		TextByteMessage message = new TextByteMessage("msgID", "UUID", "============","你好！".getBytes(Encoding.DEFAULT));
 
 		long old = System.currentTimeMillis();
 		

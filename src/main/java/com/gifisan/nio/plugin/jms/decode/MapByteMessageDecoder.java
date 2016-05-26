@@ -1,23 +1,24 @@
 package com.gifisan.nio.plugin.jms.decode;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.MapByteMessage;
 import com.gifisan.nio.plugin.jms.Message;
 
-public class ByteMessageDecoder implements MessageDecoder{
+public class MapByteMessageDecoder implements MessageDecoder{
 
 	public Message decode(ReadFuture future) {
 		Parameters param = future.getParameters();
 		String messageID = param.getParameter("msgID");
 		String queueName = param.getParameter("queueName");
-		String text = param.getParameter("text");
+		JSONObject map = param.getJSONObject("map");
 		
 		BufferedOutputStream outputStream = (BufferedOutputStream) future.getOutputStream();
 		
 		byte[] array = outputStream.toByteArray();
 		
-		return new ByteMessage(messageID,queueName,text,array);
+		return new MapByteMessage(messageID,queueName,map,array);
 	}
 }

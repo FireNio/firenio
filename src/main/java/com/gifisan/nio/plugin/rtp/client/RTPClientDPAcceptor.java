@@ -10,19 +10,19 @@ import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup;
 
-public class FixedClientDPAcceptor implements DatagramPacketAcceptor {
+public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 	private int				markInterval		= 0;
 	private long				lastMark			= 0;
 	private long				currentMark		= 0;
 	private DatagramPacketGroup	packetGroup		= null;
-	private UDPReceiveHandle		udpReceiveHandle	= null;
+	private RTPHandle		udpReceiveHandle	= null;
 	private RTPClient			rtpClient			= null;
 	private ClientContext		context			= null;
 	private int				groupSize			= 0;
-	private Logger				logger			= LoggerFactory.getLogger(FixedClientDPAcceptor.class);
+	private Logger				logger			= LoggerFactory.getLogger(RTPClientDPAcceptor.class);
 
-	public FixedClientDPAcceptor(int markInterval,long currentMark, int groupSize, UDPReceiveHandle udpReceiveHandle,
+	public RTPClientDPAcceptor(int markInterval,long currentMark, int groupSize, RTPHandle udpReceiveHandle,
 			RTPClient rtpClient) {
 		this.markInterval = markInterval;
 		this.udpReceiveHandle = udpReceiveHandle;

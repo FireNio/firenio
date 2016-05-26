@@ -184,9 +184,6 @@ public class ClientTCPConnector implements Connector {
 
 				ClientSession session = endPoint.getSession();
 
-				session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
-				session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());
-
 				Map<String, Object> param = new HashMap<String, Object>();
 				param.put("username", username);
 				param.put("password", password);
@@ -202,7 +199,7 @@ public class ClientTCPConnector implements Connector {
 
 					String text = message.getDescription();
 
-					String[] strs = text.split("|");
+					String[] strs = text.split(";");
 
 					Authority authority = new Authority(username, strs[0]);
 

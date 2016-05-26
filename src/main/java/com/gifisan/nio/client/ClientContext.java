@@ -37,7 +37,7 @@ public class ClientContext extends AbstractNIOContext implements NIOContext {
 	}
 
 	protected void doStart() throws Exception {
-		this.datagramPacketAcceptor = new RTPClientDPAcceptor();
+		this.datagramPacketAcceptor = new ClientDPAcceptor();
 		this.readFutureAcceptor = new ClientReadFutureAcceptor();
 		this.outputStreamAcceptor = new ClientOutputStreamAcceptor();
 		this.clientIOExceptionHandle = new ClientIOExceptionHandle();

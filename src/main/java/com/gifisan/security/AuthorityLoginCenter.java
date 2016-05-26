@@ -84,6 +84,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
+		
 		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");
 		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin10000");
 		String UUID = SharedBundle.instance().getProperty("SERVER.UUID",UUIDGenerator.random());
@@ -96,6 +97,26 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority.setPassword(password);
 		authority.setRoleID(roleID);
 		authority.setUUID(UUID);
+		
+		this.authorities.put(authority.getUsername(), authority);
+		
+		
+
+		authority = new Authority();
+
+		authority.setUsername("udp1");
+		authority.setPassword("udp1");
+		authority.setRoleID(0);
+		authority.setUUID("udp1");
+		
+		this.authorities.put(authority.getUsername(), authority);
+		
+		authority = new Authority();
+
+		authority.setUsername("udp2");
+		authority.setPassword("udp2");
+		authority.setRoleID(0);
+		authority.setUUID("udp2");
 		
 		this.authorities.put(authority.getUsername(), authority);
 		

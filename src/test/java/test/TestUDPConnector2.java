@@ -14,16 +14,11 @@ public class TestUDPConnector2 {
 
 		connector.connect();
 
-		connector.login("admin", "admin100");
+		connector.login("udp2", "udp2");
 
 		ClientSession session = connector.getClientSession();
-
-		final String customerID = "002";
-
-		final String otherCustomerID = "001";
-
-		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle(customerID, otherCustomerID),
-				customerID);
+		
+		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle());
 
 		ThreadUtil.sleep(99999500);
 		CloseUtil.close(client);

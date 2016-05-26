@@ -8,7 +8,7 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
@@ -35,8 +35,8 @@ public class TestListenerByteMessage {
 			
 			public void onReceive(Message message) {
 				System.out.println(message);
-				if (message.getMsgType() == Message.TYPE_BYTE) {
-					ByteMessage _Message = (ByteMessage) message;
+				if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
+					TextByteMessage _Message = (TextByteMessage) message;
 					System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
 				}
 				

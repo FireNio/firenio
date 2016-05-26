@@ -13,17 +13,14 @@ public class TestUDPConnector1 {
 		final ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
+		
+		connector.login("udp1", "udp1");
 
 		ClientSession session = connector.getClientSession();
+		
+		final String otherCustomerID = "udp2";
 
-		final String customerID = "001";
-
-		final String otherCustomerID = "002";
-
-		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle(customerID, otherCustomerID),
-				customerID);
-
-		connector.login("admin", "admin100");
+		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle());
 
 		client.createRoom(otherCustomerID);
 

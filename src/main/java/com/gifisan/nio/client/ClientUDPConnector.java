@@ -6,10 +6,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.DisconnectException;
@@ -42,7 +41,7 @@ public class ClientUDPConnector implements Connector {
 		return selectorLoop;
 	}
 
-	public ClientUDPConnector(ClientSession session) throws Exception {
+	public ClientUDPConnector(ClientSession session) throws IOException {
 		this.session = session;
 		this.context = session.getContext();
 		this.bindSession();
@@ -139,18 +138,16 @@ public class ClientUDPConnector implements Connector {
 				buffer, 
 				packet.getTimestamp(), 
 				packet.getSequenceNo(), 
-				packet.getRoomID(), 
 				packet.getData());
 		
 	}
 	
-	private void allocate(ByteBuffer buffer,long timestamp, int sequenceNO, int roomID,byte [] data) {
+	private void allocate(ByteBuffer buffer,long timestamp, int sequenceNO,byte [] data) {
 		
 		byte [] bytes = buffer.array();
 		
 		MathUtil.long2Byte(bytes, timestamp, 0);
 		MathUtil.int2Byte(bytes, sequenceNO, 8);
-		MathUtil.long2Byte(bytes, roomID, 12);
 		
 		allocate(buffer, data);
 	}
@@ -161,7 +158,7 @@ public class ClientUDPConnector implements Connector {
 		buffer.flip();
 	}
 	
-	private void bindSession() throws Exception{
+	private void bindSession() throws IOException{
 		
 		ClientSession session = this.session;
 		
@@ -175,11 +172,13 @@ public class ClientUDPConnector implements Connector {
 		
 		DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
 		
-		final ReentrantLock _lock = new ReentrantLock();
+//		final ReentrantLock _lock = new ReentrantLock();
 		
-		final Condition	called = _lock.newCondition();
+//		final Condition	called = _lock.newCondition();
 		
 		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
+		
+		final CountDownLatch latch = new CountDownLatch(1);
 		
 		final AtomicBoolean atoCalled = new AtomicBoolean();
 		
@@ -187,13 +186,15 @@ public class ClientUDPConnector implements Connector {
 			
 			public void onResponse(ClientSession session, ReadFuture future) {
 				
-				_lock.lock();
+//				_lock.lock();
 				
-				called.signal();
+//				called.signal();
 				
 				atoCalled.compareAndSet(false, true);
 				
-				_lock.unlock();
+//				_lock.unlock();
+				
+				latch.countDown();
 				
 				session.cancelListen(BIND_SESSION_CALLBACK);
 				
@@ -202,28 +203,21 @@ public class ClientUDPConnector implements Connector {
 		
 		this.connect();
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1000000; i++) {
 			
 			this.sendDatagramPacket(packet);
 			
-			_lock.lock();
 			
 			try {
-				
-				if (!atoCalled.get()) {
-					called.await(300, TimeUnit.MILLISECONDS);
-				}
-				
-				if (atoCalled.get()) {
+				if(latch.await(300, TimeUnit.MILLISECONDS)){
+					
 					break;
 				}
+			} catch (InterruptedException e) {
 				
-			} catch (Exception e) {
-				logger.debug(e);
-				called.signal();
-			}finally{
+				CloseUtil.close(this);
 				
-				_lock.unlock();
+				throw new IOException(e.getMessage(),e);
 			}
 		}
 		
@@ -232,6 +226,7 @@ public class ClientUDPConnector implements Connector {
 			
 			throw DisconnectException.INSTANCE;
 		}
+		
 	}
 	
 }

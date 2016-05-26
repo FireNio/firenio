@@ -12,9 +12,9 @@ public class DatagramPacketFactory {
 		this.calculagraph = new Calculagraph(markInterval);
 	}
 
-	public DatagramPacket createDatagramPacket(int roomID, byte[] data) {
+	public DatagramPacket createDatagramPacket(byte[] data) {
 
-		return new DatagramPacket(calculagraph.getTimestamp(), calculagraph.getSequenceNO(), roomID, data);
+		return new DatagramPacket(calculagraph.getTimestamp(), calculagraph.getSequenceNO(),data);
 	}
 	
 	public Calculagraph getCalculagraph(){

@@ -16,8 +16,9 @@ public class Calculagraph {
 	public Calculagraph(int markInterval, long currentMark) {
 		this.markInterval = markInterval;
 		this.currentMark = currentMark;
+		this.nextMark = currentMark + markInterval;
 		this.alphaTimestamp = currentMark;
-		logger.debug("________________lastMark______create:{}", currentMark);
+//		logger.debug("________________lastMark______create:{}", currentMark);
 	}
 
 	public Calculagraph(int markInterval) {
@@ -35,6 +36,7 @@ public class Calculagraph {
 
 		for (; current >= nextMark;) {
 
+//			logger.debug("________________current - nextMark:{}", current - nextMark);
 			nextMark = nextMark + markInterval;
 		}
 
@@ -56,7 +58,7 @@ public class Calculagraph {
 
 	public static void main(String[] args) {
 
-		Calculagraph calculagraph = new Calculagraph(1500);
+		Calculagraph calculagraph = new Calculagraph(1000);
 
 		for (;;) {
 
@@ -66,7 +68,7 @@ public class Calculagraph {
 
 			System.out.println("T:" + t + ",S:" + s);
 
-			ThreadUtil.sleep(500);
+			ThreadUtil.sleep(200);
 		}
 
 	}

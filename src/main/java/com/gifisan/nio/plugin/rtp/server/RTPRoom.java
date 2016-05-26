@@ -57,6 +57,8 @@ public class RTPRoom {
 	}
 
 	public void broadcast(UDPEndPoint endPoint, DatagramPacket packet) {
+		
+//		logger.debug("___________________broadcast,packet:{}",packet);
 
 		ReentrantLock lock = this.lock;
 
@@ -77,6 +79,8 @@ public class RTPRoom {
 			} catch (Throwable e) {
 				logger.debug(e);
 			}
+			
+//			logger.debug("___________________send to client,packet:{}",packet);
 		}
 
 		lock.unlock();

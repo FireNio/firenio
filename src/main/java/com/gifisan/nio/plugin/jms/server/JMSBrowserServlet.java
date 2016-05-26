@@ -5,7 +5,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.ErrorMessage;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.NullMessage;
@@ -61,7 +61,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 						if (msgType == 3) {
 
-							ByteMessage byteMessage = (ByteMessage) message;
+							TextByteMessage byteMessage = (TextByteMessage) message;
 
 							byte[] bytes = byteMessage.getByteArray();
 

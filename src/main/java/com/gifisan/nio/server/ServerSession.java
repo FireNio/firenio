@@ -112,7 +112,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 	public void setAuthorityManager(AuthorityManager authorityManager) {
 		this.authorityManager = authorityManager;
-		if (authorityManager.getAuthority().getUserID() == Authority.GUEST.getUserID()) {
+		if (authorityManager.getAuthority().getRoleID() == Authority.GUEST.getRoleID()) {
 			return;
 		}
 		this.sessionID = UUIDGenerator.random();

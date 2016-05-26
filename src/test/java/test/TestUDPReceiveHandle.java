@@ -4,108 +4,100 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramPacketFactory;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup.DPForeach;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.rtp.RTPException;
-import com.gifisan.nio.plugin.rtp.client.FixedClientDPAcceptor;
 import com.gifisan.nio.plugin.rtp.client.RTPClient;
-import com.gifisan.nio.plugin.rtp.client.UDPReceiveHandle;
+import com.gifisan.nio.plugin.rtp.client.RTPClientDPAcceptor;
+import com.gifisan.nio.plugin.rtp.client.RTPHandle;
 
-public class TestUDPReceiveHandle extends UDPReceiveHandle {
+public class TestUDPReceiveHandle extends RTPHandle {
 
-	private String	customerID		= null;
-
-	private String	otherCustomerID	= null;
-	
-	private static final Logger logger = LoggerFactory.getLogger(TestUDPReceiveHandle.class);
-	
-	private static int sleep = 100;
-	
-	protected TestUDPReceiveHandle(String customerID, String otherCustomerID) {
-		this.customerID = customerID;
-		this.otherCustomerID = otherCustomerID;
-	}
+	private Logger	logger			= LoggerFactory.getLogger(TestUDPReceiveHandle.class);
+	private int	sleep			= 1;
 
 	public void onReceiveUDPPacket(RTPClient client, DatagramPacketGroup group) {
 
+		
+//		logger.debug("_______________foreach___data_size:{}", group.size());
 		group.foreach(new DPForeach() {
 			public void onPacket(DatagramPacket packet) {
 				String data = new String(packet.getData(), Encoding.GBK);
-				logger.debug("_______________foreach___data:{},seq:{}", data,packet.getSequenceNo());
+				logger.debug("_______________foreach___data:{},seq:{}", data, packet.getSequenceNo());
 			}
 		});
 	}
 
-	public void onInvite(RTPClient client, MapMessage message, Parameters parameters) {
+	public void onInvite(RTPClient client, MapMessage message) {
 
-		int markInterval = 500;
+		int markInterval = 5;
+
+		String roomID = message.getParameter("roomID");
 		
-		String roomID = parameters.getParameter("roomID");
-
+		String inviteUsername = message.getParameter("inviteUsername");
+		
 		DatagramPacketFactory factory = new DatagramPacketFactory(markInterval);
-		
+
 		long currentMark = factory.getCalculagraph().getAlphaTimestamp();
-		
+
 		int groupSize = 102400;
 
 		try {
 			client.joinRoom(roomID);
 
-			client.inviteReply(otherCustomerID,markInterval,currentMark,groupSize);
+			client.inviteReply(inviteUsername, markInterval, currentMark, groupSize);
 		} catch (RTPException e) {
 			e.printStackTrace();
 		}
-		
-		FixedClientDPAcceptor acceptor = new FixedClientDPAcceptor(markInterval,currentMark, groupSize, this, client);
+
+		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
 
 		client.onDatagramPacketReceived(acceptor);
-		
-		client.setRoomID(roomID);
 
-		
+		client.setRoomID(roomID);
 
 		for (int i = 0; i < 10000000; i++) {
 
-			byte[] data = (customerID + i).getBytes();
+			byte[] data = (inviteUsername+ i).getBytes();
 
-			DatagramPacket packet = factory.createDatagramPacket(client.getRoomIDNo(), data);
+			DatagramPacket packet = factory.createDatagramPacket(data);
 
 			try {
 				client.sendDatagramPacket(packet);
 			} catch (RTPException e) {
 				e.printStackTrace();
 			}
+			
+//			logger.debug("________________________send_packet:{}",packet);
 
 			ThreadUtil.sleep(sleep);
 		}
 	}
 
-	public void onInviteReplyed(RTPClient client, MapMessage message, Parameters parameters) {
-		
-		int markInterval = parameters.getIntegerParameter(RTPClient.MARK_INTERVAL);
-		
-		long currentMark = parameters.getLongParameter(RTPClient.CURRENT_MARK);
+	public void onInviteReplyed(RTPClient client, MapMessage message) {
 
-		int groupSize = parameters.getIntegerParameter(RTPClient.GROUP_SIZE);
-		
-		logger.debug("___________onInviteReplyed:{},{},{}",new Object[]{markInterval,currentMark,groupSize});
-		
-		DatagramPacketFactory factory = new DatagramPacketFactory(markInterval,currentMark);
-		
-		FixedClientDPAcceptor acceptor = new FixedClientDPAcceptor(markInterval,currentMark,groupSize, this, client);
+		int markInterval = message.getIntegerParameter(RTPClient.MARK_INTERVAL);
+
+		long currentMark = message.getLongParameter(RTPClient.CURRENT_MARK);
+
+		int groupSize = message.getIntegerParameter(RTPClient.GROUP_SIZE);
+
+		logger.debug("___________onInviteReplyed:{},{},{}", new Object[] { markInterval, currentMark, groupSize });
+
+		DatagramPacketFactory factory = new DatagramPacketFactory(markInterval, currentMark);
+
+		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
 
 		client.onDatagramPacketReceived(acceptor);
 
 		for (int i = 0; i < 10000000; i++) {
 
-			byte[] data = (customerID + i).getBytes();
-			int roomID = client.getRoomIDNo();
+			byte[] data = (client.getInviteUsername() + i).getBytes();
 
-			DatagramPacket packet = factory.createDatagramPacket(roomID, data);
+			DatagramPacket packet = factory.createDatagramPacket(data);
 
 			try {
 				client.sendDatagramPacket(packet);
@@ -113,6 +105,8 @@ public class TestUDPReceiveHandle extends UDPReceiveHandle {
 				e.printStackTrace();
 			}
 
+//			logger.debug("________________________send_packet:{}",packet);
+			
 			ThreadUtil.sleep(sleep);
 		}
 	}

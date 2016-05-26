@@ -1,6 +1,8 @@
 package com.gifisan.nio.plugin.rtp;
 
-public class RTPException extends Exception{
+import java.io.IOException;
+
+public class RTPException extends IOException{
 	
 	public RTPException(String reason){
 		super(reason);

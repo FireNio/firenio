@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.plugin.jms.ByteMessage;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
@@ -38,9 +38,9 @@ public class DefaultMessageProducer implements MessageProducer {
 
 				future = session.request(serviceName, param);
 
-			} else if (msgType == Message.TYPE_BYTE) {
+			} else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
 				
-				ByteMessage _message = (ByteMessage) message;
+				TextByteMessage _message = (TextByteMessage) message;
 				
 				ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
 				
