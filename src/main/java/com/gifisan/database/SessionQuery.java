@@ -12,22 +12,22 @@ public class SessionQuery extends DefaultConnectionProxy {
 	
 	private QueryParamUtil queryParamUtil = null;
 
-	public SessionQuery(DataBaseContext context) throws SQLException {
+	public SessionQuery(DataBaseContext context) {
 		super(context);
 		this.dataBaseQuery = context.getDataBaseQuery();
 		this.queryParamUtil = context.getQueryParamUtil();
 	}
 
-	public List<Map> query(String sql, Object[] params) throws SQLException {
-		return (List<Map>) executeQuerySQL(sql, params, null);
+	public List<Map<String, Object>> query(String sql, Object[] params) throws SQLException {
+		return (List<Map<String, Object>>) executeQuerySQL(sql, params, null);
 	}
 
 	public List<?> query(String sql, Object[] params, Class clazz) throws SQLException {
 
-		return executeQueryCall(sql, params, clazz);
+		return executeQuerySQL(sql, params, clazz);
 	}
 
-	public List<Map> top(String sql, Object[] params,int limit) throws SQLException {
+	public List<Map<String, Object>> top(String sql, Object[] params,int limit) throws SQLException {
 		sql = dataBaseQuery.getTopSQL(sql);
 
 		params = queryParamUtil.top(limit, params);
@@ -44,7 +44,7 @@ public class SessionQuery extends DefaultConnectionProxy {
 	}
 
 	
-	public List<Map> page(String sql, Object[] params,int offset, int size) throws SQLException {
+	public List<Map<String, Object>> page(String sql, Object[] params,int offset, int size) throws SQLException {
 		sql = dataBaseQuery.getPagingSQL(sql);
 		
 		params = queryParamUtil.page(offset, size, params);

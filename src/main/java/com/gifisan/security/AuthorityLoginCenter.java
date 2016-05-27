@@ -64,7 +64,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		return getAuthority(session, future) != null;
 	}
 	
-	private Authority getAuthority(IOSession session, ServerReadFuture future) {
+	protected Authority getAuthority(IOSession session, ServerReadFuture future) {
 
 		Parameters param = future.getParameters();
 		String username = param.getParameter("username");
@@ -79,6 +79,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		if(!authority.getPassword().equals(password)){
 			return null;
 		}
+		
 		return authority;
 	}
 	
@@ -98,10 +99,10 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority.setRoleID(roleID);
 		authority.setUUID(UUID);
 		
+		/*     -------------------------------------------------------------   */
+		
 		this.authorities.put(authority.getUsername(), authority);
 		
-		
-
 		authority = new Authority();
 
 		authority.setUsername("udp1");

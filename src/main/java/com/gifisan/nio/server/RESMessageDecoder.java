@@ -11,7 +11,8 @@ public class RESMessageDecoder {
 		}
 		JSONObject object = JSONObject.parseObject(content);
 		int code = object.getIntValue("code");
+		Object data = object.get("data");
 		String description = object.getString("description");
-		return new RESMessage(code, description);
+		return new RESMessage(code,data, description);
 	}
 }

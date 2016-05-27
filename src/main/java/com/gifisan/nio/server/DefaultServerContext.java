@@ -168,14 +168,33 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	}
 
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		
+		if (datagramPacketAcceptor == null) {
+			throw new IllegalArgumentException("null");
+		}
+		
 		if (this.datagramPacketAcceptor != null) {
 			throw new IllegalArgumentException("already setted");
 		}
+		
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 
 	public RoleManager getRoleManager() {
 		return roleManager;
+	}
+	
+	public void setLoginCenter(LoginCenter loginCenter){
+		
+		if (loginCenter == null) {
+			throw new IllegalArgumentException("null");
+		}
+		
+		if (this.loginCenter.getClass() != AuthorityLoginCenter.class) {
+			throw new IllegalArgumentException("already setted");
+		}
+		
+		this.loginCenter = loginCenter;
 	}
 
 }

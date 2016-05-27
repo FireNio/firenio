@@ -4,6 +4,8 @@ public class T_CONTACT_GROUP {
 
 	private int	groupID;
 
+	private int	ownerID;
+
 	private String	groupName;
 
 	public int getGroupID() {
@@ -21,5 +23,15 @@ public class T_CONTACT_GROUP {
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
 	}
+
+	public int getOwnerID() {
+		return ownerID;
+	}
+
+	public void setOwnerID(int ownerID) {
+		this.ownerID = ownerID;
+	}
+	
+	
 
 }

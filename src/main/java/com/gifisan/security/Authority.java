@@ -14,6 +14,8 @@ public class Authority {
 		
 	private String username;
 	
+	private String UUID;
+
 	public Authority() {
 		
 	}
@@ -22,8 +24,6 @@ public class Authority {
 		this.username = username;
 		this.UUID = UUID;
 	}
-
-	private String UUID;
 	
 	protected String getPassword() {
 		return password;

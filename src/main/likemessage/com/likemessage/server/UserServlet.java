@@ -1,5 +1,9 @@
 package com.likemessage.server;
 
+import java.sql.SQLException;
+
+import com.alibaba.fastjson.JSONArray;
+import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
@@ -10,53 +14,35 @@ import com.gifisan.nio.server.ServerContext;
 public class UserServlet extends LMServlet {
 
 	public static final String	SERVICE_NAME	= UserServlet.class.getSimpleName();
-//	private Logger				logger		= LoggerFactory.getLogger(UserServlet.class);
-	private LoginService		loginService	= null;
 
-	protected AbstractService getAbstractService() {
-		return loginService;
+	public static final String	ACTION		= "action";
+
+	public static final String	ACTION_REGIST	= "regist";
+
+	protected AbstractService getAbstractService(DataBaseContext context) throws SQLException {
+		return new UserService(context);
 	}
 
-	protected void doAccept(IOSession session, ServerReadFuture future) throws Exception {
+	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService service) throws Exception {
+
+		UserService userService = (UserService) service;
 
 		Parameters parameters = future.getParameters();
 
-		String action = parameters.getParameter("action");
+		String action = parameters.getParameter(ACTION);
 
-		if ("login".equals(action)) {
-			login(session, future, parameters);
-		} else if ("logout".equals(action)) {
-			logout(session, future, parameters);
-		} else if ("reg".equals(action)) {
-			reg(session, future, parameters);
+		if (ACTION_REGIST.equals(action)) {
+			regist(session, future, parameters, userService);
 		} else {
 
 		}
 
 	}
 
-	private void login(IOSession session, ServerReadFuture future, Parameters parameters) throws Exception {
+	private void regist(IOSession session, ServerReadFuture future, Parameters parameters, UserService userService)
+			throws Exception {
 
-		boolean login = loginService.login(session, future, parameters);
-
-		future.write(login ? ByteUtil.TRUE : ByteUtil.FALSE);
-
-		session.flush(future);
-
-	}
-
-	private void logout(IOSession session, ServerReadFuture future, Parameters parameters) throws Exception {
-
-		loginService.logout(session);
-
-		future.write(ByteUtil.TRUE);
-
-		session.flush(future);
-	}
-
-	private void reg(IOSession session, ServerReadFuture future, Parameters parameters) throws Exception {
-
-		boolean login = loginService.reg(session, future, parameters);
+		boolean login = userService.regist(session, future, parameters);
 
 		future.write(login ? ByteUtil.TRUE : ByteUtil.FALSE);
 
@@ -67,11 +53,25 @@ public class UserServlet extends LMServlet {
 		super.initialize(context, config);
 
 		DataBaseUtil.initializeDataBaseContext();
+		
+		LMLoginCenter loginCenter = (LMLoginCenter) context.getLoginCenter();
 
-		loginService = new LoginService(DataBaseUtil.getDataBaseContext());
+		DataBaseContext dataBaseContext = DataBaseUtil.getDataBaseContext();
+		
+		JSONArray beans = config.getJSONArray("beans");
+		
+		for (int i = 0; i < beans.size(); i++) {
+
+			String className = beans.getString(i);
+			
+			dataBaseContext.registBean(className);
+		}
+
+		loginCenter.initialize(dataBaseContext);
 	}
 
 	public void destroy(ServerContext context, Configuration config) throws Exception {
+
 		super.destroy(context, config);
 
 		DataBaseUtil.destroyDataBaseContext();

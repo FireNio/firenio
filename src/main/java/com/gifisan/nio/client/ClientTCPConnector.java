@@ -12,14 +12,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.TaskExecutor;
-import com.gifisan.nio.plugin.jms.client.impl.ConsumerStreamAcceptor;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 import com.gifisan.nio.server.service.impl.SYSTEMAuthorityServlet;
@@ -186,7 +187,7 @@ public class ClientTCPConnector implements Connector {
 
 				Map<String, Object> param = new HashMap<String, Object>();
 				param.put("username", username);
-				param.put("password", password);
+				param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
 				param.put("MACHINE_TYPE", machineType);
 
 				String paramString = JSONObject.toJSONString(param);

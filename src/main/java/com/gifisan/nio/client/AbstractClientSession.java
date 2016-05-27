@@ -124,11 +124,11 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	}
 
 	public ReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, 3000);
+		return request(serviceName, content, 3000000);
 	}
 
 	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
-		return request(serviceName, content, inputStream, 3000);
+		return request(serviceName, content, inputStream, 3000000);
 	}
 
 	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {

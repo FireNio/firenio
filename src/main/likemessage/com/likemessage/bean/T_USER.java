@@ -1,29 +1,12 @@
 package com.likemessage.bean;
 
-public class T_USER {
+import com.gifisan.security.Authority;
 
-	private String		userID;
-	private String		username;
+public class T_USER extends Authority {
+
 	private String		nickname;
 	private String		phoneNo;
-	private String		password;
 	private boolean	deleted;
-
-	public String getUserID() {
-		return userID;
-	}
-
-	public void setUserID(String userID) {
-		this.userID = userID;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
 
 	public String getNickname() {
 		return nickname;
@@ -39,14 +22,6 @@ public class T_USER {
 
 	public void setPhoneNo(String phoneNo) {
 		this.phoneNo = phoneNo;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public boolean isDeleted() {

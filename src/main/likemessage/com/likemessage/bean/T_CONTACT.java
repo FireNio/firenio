@@ -2,32 +2,29 @@ package com.likemessage.bean;
 
 public class T_CONTACT {
 
-	private String	ownerID;
-	private String	friendID;
+	private int	ownerID;
+	private int	friendID;
 	private int	groupID;
-
-	public String getOwnerID() {
+	
+	public int getOwnerID() {
 		return ownerID;
 	}
-
-	public void setOwnerID(String ownerID) {
+	public void setOwnerID(int ownerID) {
 		this.ownerID = ownerID;
 	}
-
-	public String getFriendID() {
+	public int getFriendID() {
 		return friendID;
 	}
-
-	public void setFriendID(String friendID) {
+	public void setFriendID(int friendID) {
 		this.friendID = friendID;
 	}
-
 	public int getGroupID() {
 		return groupID;
 	}
-
 	public void setGroupID(int groupID) {
 		this.groupID = groupID;
 	}
+
+	
 
 }
