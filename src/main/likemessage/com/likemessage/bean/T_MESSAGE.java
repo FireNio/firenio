@@ -2,36 +2,36 @@ package com.likemessage.bean;
 
 public class T_MESSAGE {
 
-	private int		messageID		= 0;
-	private String		toUserID		= null;
-	private String		fromUserID	= null;
+	private Integer	messageID		= 0;
+	private Integer	toUserID		= 0;
+	private Integer	fromUserID	= 0;
 	private long		msgDate		= 0;
 	private int		msgType		= 0;
 	private String		message		= null;
 	private boolean	isSend		= false;
 	private boolean	deleted		= false;
 
-	public int getMessageID() {
+	public Integer getMessageID() {
 		return messageID;
 	}
 
-	public void setMessageID(int messageID) {
+	public void setMessageID(Integer messageID) {
 		this.messageID = messageID;
 	}
 
-	public String getToUserID() {
+	public Integer getToUserID() {
 		return toUserID;
 	}
 
-	public void setToUserID(String toUserID) {
+	public void setToUserID(Integer toUserID) {
 		this.toUserID = toUserID;
 	}
 
-	public String getFromUserID() {
+	public Integer getFromUserID() {
 		return fromUserID;
 	}
 
-	public void setFromUserID(String fromUserID) {
+	public void setFromUserID(Integer fromUserID) {
 		this.fromUserID = fromUserID;
 	}
 

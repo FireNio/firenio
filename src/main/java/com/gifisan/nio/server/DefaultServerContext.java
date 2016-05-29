@@ -1,10 +1,12 @@
 package com.gifisan.nio.server;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.InitializeUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
@@ -56,9 +58,14 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		this.serverConfiguration = configuration.getServerConfiguration();
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+		
+		Charset encoding = serverConfiguration.getSERVER_ENCODING();
+
+		Encoding.DEFAULT = encoding;
 
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
+		this.encoding = Encoding.DEFAULT;
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 		this.serviceDispatcher = new ExecutorThreadPool("Service-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor(serviceDispatcher);

@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class TextByteMessage extends TextMessage {
+public class TextByteMessage extends TextMessage implements BytedMessage{
 
 	private byte[]	array	= null;
 

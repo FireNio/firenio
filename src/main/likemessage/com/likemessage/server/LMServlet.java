@@ -9,7 +9,7 @@ import com.gifisan.nio.server.service.NIOServlet;
 
 public abstract class LMServlet extends NIOServlet {
 	
-	public static final String	ACTION		= "action";
+	public static final String	ACTION		= "ACTION";
 
 	protected abstract AbstractService getAbstractService(DataBaseContext context) throws SQLException;
 
@@ -28,7 +28,7 @@ public abstract class LMServlet extends NIOServlet {
 		}
 	}
 
-	protected abstract void doAccept(IOSession session, ServerReadFuture future, AbstractService service)
+	protected abstract void doAccept(IOSession session, ServerReadFuture future, AbstractService _service)
 			throws Exception;
 
 }

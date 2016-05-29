@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ServerReadFuture;
-import com.gifisan.nio.plugin.jms.TextByteMessage;
+import com.gifisan.nio.plugin.jms.BytedMessage;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ReadFutureFactory;
@@ -50,6 +50,8 @@ public class Consumer {
 
 		IOSession session = this.session;
 		
+		ServerReadFuture future = ReadFutureFactory.create(this.future);
+		
 		future.attach(this);
 		
 		future.write(content);
@@ -61,7 +63,8 @@ public class Consumer {
 			session.flush(future);
 
 		} else if(msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
-			TextByteMessage byteMessage = (TextByteMessage) message;
+			
+			BytedMessage byteMessage = (BytedMessage) message;
 
 			byte[] bytes = byteMessage.getByteArray();
 
@@ -71,10 +74,10 @@ public class Consumer {
 		}
 	}
 	
-	public void refresh(){
-		
-		this.future = ReadFutureFactory.create(future);
-	}
+//	public void refresh(){
+//		
+//		this.future = ReadFutureFactory.create(future);
+//	}
 	
 	public Message getMessage() {
 		return message;

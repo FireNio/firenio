@@ -105,14 +105,14 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
-	public List<?> executeQueryCall(final String sql, final Object[] params, Class<?> clazz) throws SQLException {
+	public <T> List<T> executeQueryCall(final String sql, final Object[] params, Class<T> clazz) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
 		
 		PreparedStatement preparedStatement = null;
 		CallableStatement callableStatement = null;
 		ResultSet resultSet = null;
-		List<?> list = null;
+		List<T> list = null;
 		try {
 			callableStatement = connection.prepareCall(sql);
 			registCSPram(params, callableStatement);
@@ -125,13 +125,13 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return list;
 	}
 
-	public List<?> executeQuerySQL(final String sql, final Object[] params, Class<?> clazz) throws SQLException {
+	public <T> List<T> executeQuerySQL(final String sql, final Object[] params, Class<T> clazz) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
 		PreparedStatement preparedStatement = null;
 		CallableStatement callableStatement = null;
 		ResultSet resultSet = null;
-		List<?> list = null;
+		List<T> list = null;
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			registPSPram(params, preparedStatement);
@@ -177,7 +177,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return count;
 	}
 
-	private List<?> fillData(DataBaseContext context, ResultSet resultSet, Class clazz) throws SQLException {
+	private <T> List<T> fillData(DataBaseContext context, ResultSet resultSet, Class clazz) throws SQLException {
 		if (clazz == null) {
 			return resultSetHandle.fillData(context, resultSet);
 		}

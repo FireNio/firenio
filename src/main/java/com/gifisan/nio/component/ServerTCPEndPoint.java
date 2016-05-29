@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
@@ -19,7 +18,7 @@ public class ServerTCPEndPoint extends AbstractTCPEndPoint {
 	}
 
 
-	public IOSession getSession() throws IOException {
+	public IOSession getSession() {
 		return session;
 	}
 }

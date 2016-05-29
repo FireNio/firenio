@@ -1,5 +1,7 @@
 package com.gifisan.nio.plugin.jms.server;
 
+import java.util.List;
+
 import com.gifisan.nio.plugin.jms.Message;
 
 public class SubscribeProductLine extends AbstractProductLine implements MessageQueue, Runnable {
@@ -28,24 +30,17 @@ public class SubscribeProductLine extends AbstractProductLine implements Message
 
 			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-			Consumer[] consumers = consumerQueue.snapshot();
+			List<Consumer> consumers = consumerQueue.snapshot();
 
-			if (consumers[0] == null) {
-				filterUseless(message);
+			if (consumers.size() == 0) {
+
 				continue;
 			}
 
-			for (int i = 0; i < consumers.length; i++) {
-
-				Consumer consumer = consumers[i];
-
-				if (consumer == null) {
-					break;
-				}
-
+			for(Consumer consumer:consumers){
 				consumer.push(message);
 			}
-			
+
 			context.consumerMessage(message);
 		}
 	}

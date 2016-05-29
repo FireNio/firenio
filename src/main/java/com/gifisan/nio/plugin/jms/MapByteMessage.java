@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class MapByteMessage extends MapMessage implements MappedMessage{
+public class MapByteMessage extends MapMessage implements MappedMessage ,BytedMessage{
 
 	private byte[]	array	= null;
 
@@ -22,7 +22,7 @@ public class MapByteMessage extends MapMessage implements MappedMessage{
 	
 	public String toString() {
 		return new StringBuilder(24)
-			.append("{\"msgType\":3,\"msgID\":\"")
+			.append("{\"msgType\":5,\"msgID\":\"")
 			.append(getMsgID())
 			.append("\",\"queueName\":\"")
 			.append(getQueueName())

@@ -11,9 +11,9 @@ public interface ConnectionProxy {
 
 	public abstract void commit() throws SQLException;
 
-	public abstract List<?> executeQueryCall(String sql, Object[] params, Class<?> clazz) throws SQLException;
+	public abstract <T> List<T> executeQueryCall(String sql, Object[] params, Class<T> clazz) throws SQLException;
 
-	public abstract List<?> executeQuerySQL(String sql, Object[] params, Class<?> clazz) throws SQLException;
+	public abstract <T> List<T> executeQuerySQL(String sql, Object[] params, Class<T> clazz) throws SQLException;
 	
 	public abstract int executeUpdateCall(String sql, Object[] params) throws SQLException;
 

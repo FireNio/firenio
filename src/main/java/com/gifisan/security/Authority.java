@@ -6,26 +6,34 @@ public class Authority {
 		setRoleID(-1);
 	}};
 
-	private String password;
+	private String className;
 	
-	private Integer roleID;
+	private String password;
 
-	private Integer userID;
+	private Integer roleID;
 		
+	private String sessionID;
+	
+	private Integer userID;
+	
 	private String username;
 	
 	private String UUID;
 
 	public Authority() {
-		
+		this.className = this.getClass().getName();
 	}
 
 	public Authority(String username, String UUID) {
 		this.username = username;
 		this.UUID = UUID;
 	}
-	
-	protected String getPassword() {
+
+	public String getClassName() {
+		return className;
+	}
+
+	public String getPassword() {
 		return password;
 	}
 
@@ -33,6 +41,10 @@ public class Authority {
 		return roleID;
 	}
 
+	public String getSessionID() {
+		return sessionID;
+	}
+	
 	public Integer getUserID() {
 		return userID;
 	}
@@ -45,23 +57,31 @@ public class Authority {
 		return UUID;
 	}
 
-	protected void setPassword(String password) {
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	protected void setRoleID(Integer roleID) {
+	public void setRoleID(Integer roleID) {
 		this.roleID = roleID;
 	}
 
-	protected void setUserID(Integer userID) {
+	public void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
+	}
+
+	public void setUserID(Integer userID) {
 		this.userID = userID;
 	}
 
-	protected void setUsername(String username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
 
-	protected void setUUID(String UUID) {
+	public void setUUID(String UUID) {
 		this.UUID = UUID;
 	}
 	

@@ -1,5 +1,7 @@
 package com.gifisan.nio.plugin.jms.server;
 
+import java.util.List;
+
 import com.gifisan.nio.plugin.jms.Message;
 
 public class P2PProductLine extends AbstractProductLine implements MessageQueue, Runnable {
@@ -28,16 +30,18 @@ public class P2PProductLine extends AbstractProductLine implements MessageQueue,
 
 			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-			Consumer consumer = consumerQueue.poll(16);
+			List<Consumer> consumers = consumerQueue.snapshot();
 
-			if (consumer == null) {
+			if (consumers.size() == 0) {
 
 				filterUseless(message);
 
 				continue;
 			}
 
-			consumer.push(message);
+			for(Consumer consumer:consumers){
+				consumer.push(message);
+			}
 
 			context.consumerMessage(message);
 		}

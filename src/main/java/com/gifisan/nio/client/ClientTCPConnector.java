@@ -129,7 +129,7 @@ public class ClientTCPConnector implements Connector {
 		}
 	}
 
-	public ClientSession getClientSession() throws IOException {
+	public ClientSession getClientSession() {
 		return endPoint.getSession();
 	}
 
@@ -198,21 +198,25 @@ public class ClientTCPConnector implements Connector {
 
 				if (message.getCode() == 0) {
 
-					String text = message.getDescription();
-
-					String[] strs = text.split(";");
-
-					Authority authority = new Authority(username, strs[0]);
+					JSONObject o = (JSONObject) message.getData();
+					
+					String className = o.getString("className");
+					
+					Authority authority = (Authority)JSONObject.parseObject(o.toJSONString(), Class.forName(className));
 
 					((ProtectedClientSession) session).setAuthority(authority);
 
-					((ProtectedClientSession) session).setSessionID(strs[1]);
+					((ProtectedClientSession) session).setSessionID(authority.getSessionID());
 
 					((ProtectedClientSession) session).setMachineType(machineType);
+				}else{
+					
+					logined.compareAndSet(true, false);
 				}
 
 				return message;
-			} catch (IOException e) {
+			} catch (Exception e) {
+				logined.compareAndSet(true, false);
 				return new RESMessage(400, e.getMessage());
 			}
 		}

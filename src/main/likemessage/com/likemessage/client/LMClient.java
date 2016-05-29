@@ -2,19 +2,21 @@ package com.likemessage.client;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
+import com.likemessage.bean.B_Contact;
+import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.server.ContactServlet;
 import com.likemessage.server.LMServlet;
+import com.likemessage.server.MessageServlet;
 import com.likemessage.server.UserServlet;
 
 public class LMClient {
@@ -35,12 +37,7 @@ public class LMClient {
 
 	}
 	
-	public boolean login(ClientTCPConnector connector, String username, String password) throws IOException {
-		
-		return connector.login(username, password);
-	}
-	
-	public List<Map> getContactListByUserID(ClientSession session) throws IOException{
+	public List<B_Contact> getContactListByUserID(ClientSession session) throws IOException{
 		
 		String serviceKey = ContactServlet.SERVICE_NAME;
 		
@@ -53,10 +50,30 @@ public class LMClient {
 		RESMessage message = RESMessageDecoder.decode(future.getText());
 		
 		if (message.getCode() == 0) {
-			return (List<Map>) message.getData();
+			JSONArray array = (JSONArray) message.getData();
+			
+			return JSONArray.parseArray(array.toJSONString(), B_Contact.class);
 		}
 		
 		throw new IOException(message.getDescription());
+	}
+	
+	public boolean addMessage(ClientSession session,T_MESSAGE message,String UUID) throws IOException{
+		
+		String serviceKey = MessageServlet.SERVICE_NAME;
+		
+		JSONObject o = new JSONObject();
+		
+		o.put(LMServlet.ACTION, MessageServlet.ACTION_ADD_MESSAGE);
+		o.put("UUID", UUID);
+		o.put("t_message", message);
+
+		ReadFuture future = session.request(serviceKey, o.toJSONString());
+
+		RESMessage _message = RESMessageDecoder.decode(future.getText());
+		
+		return _message.getCode() == 0;
+		
 	}
 	
 	

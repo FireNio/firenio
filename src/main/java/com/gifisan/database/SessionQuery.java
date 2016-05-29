@@ -19,10 +19,10 @@ public class SessionQuery extends DefaultConnectionProxy {
 	}
 
 	public List<Map<String, Object>> query(String sql, Object[] params) throws SQLException {
-		return (List<Map<String, Object>>) executeQuerySQL(sql, params, null);
+		return executeQuerySQL(sql, params, null);
 	}
 
-	public List<?> query(String sql, Object[] params, Class clazz) throws SQLException {
+	public <T> List<T> query(String sql, Object[] params, Class<T> clazz) throws SQLException {
 
 		return executeQuerySQL(sql, params, clazz);
 	}

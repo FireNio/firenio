@@ -15,34 +15,32 @@ public class UserServlet extends LMServlet {
 
 	public static final String	SERVICE_NAME	= UserServlet.class.getSimpleName();
 
-	public static final String	ACTION		= "action";
-
-	public static final String	ACTION_REGIST	= "regist";
+	public static final String	ACTION_REGIST	= "ACTION_REGIST";
 
 	protected AbstractService getAbstractService(DataBaseContext context) throws SQLException {
 		return new UserService(context);
 	}
 
-	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService service) throws Exception {
+	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService _service) throws Exception {
 
-		UserService userService = (UserService) service;
+		UserService service = (UserService) _service;
 
 		Parameters parameters = future.getParameters();
 
 		String action = parameters.getParameter(ACTION);
 
 		if (ACTION_REGIST.equals(action)) {
-			regist(session, future, parameters, userService);
+			regist(session, future, parameters, service);
 		} else {
 
 		}
 
 	}
 
-	private void regist(IOSession session, ServerReadFuture future, Parameters parameters, UserService userService)
+	private void regist(IOSession session, ServerReadFuture future, Parameters parameters, UserService service)
 			throws Exception {
 
-		boolean login = userService.regist(session, future, parameters);
+		boolean login = service.regist(session, future, parameters);
 
 		future.write(login ? ByteUtil.TRUE : ByteUtil.FALSE);
 

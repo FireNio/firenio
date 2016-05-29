@@ -14,7 +14,7 @@ public class DefaultMessageDecoder implements MessageDecoder {
 		decoders[Message.TYPE_TEXT] = new TextMessageDecoder();
 		decoders[Message.TYPE_TEXT_BYTE] = new TextByteMessageDecoder();
 		decoders[Message.TYPE_MAP] = new MapMessageDecoder();
-		decoders[Message.TYPE_MAP_BYTE] = new MapMessageDecoder();
+		decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
 	}
 	
 	public Message decode(ReadFuture future) throws JMSException{

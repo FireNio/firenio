@@ -16,16 +16,16 @@ public class ConsumerPushHandle implements IOEventHandle {
 
 	public void handle(Session session, Future future, IOException e) {
 		
-		Consumer consumer = (Consumer) future.attachment();
-		
-		context.offerMessage(consumer.getMessage());
+//		Consumer consumer = (Consumer) future.attachment();
+//		
+//		context.offerMessage(consumer.getMessage());
 	}
 
 	public void handle(Session session, Future future) {
-		Consumer consumer = (Consumer) future.attachment();
-		
-		consumer.refresh();
-		
-		consumer.getConsumerQueue().offer(consumer);
+//		Consumer consumer = (Consumer) future.attachment();
+//		
+//		consumer.refresh();
+//		
+//		consumer.getConsumerQueue().offer(consumer);
 	}
 }

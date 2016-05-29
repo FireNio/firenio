@@ -27,10 +27,8 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		}
 		
 		Parameters parameters = future.getParameters();
-
 		
 		String machineType = parameters.getParameter("MATCH_TYPE");
-		
 		
 		ServerContext context = session.getContext();
 		
@@ -39,6 +37,8 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 		
 		setAuthorityInfo((ServerSession)session, authorityManager,machineType);
+		
+		authority.setSessionID(session.getSessionID());
 
 		return true;
 

@@ -18,7 +18,7 @@ public class TestLogin {
 
 		String username = "wk";
 		String password = "wk";
-
+		
 		boolean b = connector.login(username, password);
 
 		System.out.println(MD5Token.getInstance().getLongToken("admin100", Encoding.DEFAULT));

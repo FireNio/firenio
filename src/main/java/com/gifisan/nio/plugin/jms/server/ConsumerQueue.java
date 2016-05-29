@@ -12,8 +12,6 @@ public interface ConsumerQueue {
 	
 	public abstract void remove(List<Consumer> consumers);
 
-	public abstract Consumer[] snapshot();
+	public abstract List<Consumer> snapshot();
 	
-	public abstract Consumer poll(long timeout) ;
-
 }
