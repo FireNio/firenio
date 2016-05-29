@@ -4,20 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 
 public class RESMessage {
 
-	public static RESMessage	R404_EMPTY	= new RESMessage(404, "empty service-name");
+	public static RESMessage	R404_EMPTY	= new RESMessage(404, "EMPTY SERVICE-NAME");
 
-	public static RESMessage	R_SUCCESS		= new RESMessage(0, "success");
+	public static RESMessage	R_SUCCESS		= new RESMessage(0, "SUCCESS");
 
-	public static RESMessage	R_FAIL		= new RESMessage(-1, "fail");
+	public static RESMessage	R_SYSTEM_ERROR	= new RESMessage(-1, "SYSTEM ERROR");
 
-	public static RESMessage	R_UNAUTH		= new RESMessage(403, "request forbidden");
+	public static RESMessage	R_UNAUTH		= new RESMessage(403, "REQUEST FORBIDDEN");
 
-	public static RESMessage	R_TIMEOUT		= new RESMessage(503, "timeout");
+	public static RESMessage	R_TIMEOUT		= new RESMessage(503, "TIMEOUT");
+
+	public static RESMessage	R_USER_EXIST	= new RESMessage(1001, "USER EXIST");
 
 	private int			code;
 	private Object			data			= null;
 	private String			description;
-	
+
 	protected RESMessage(int code) {
 		this.code = code;
 	}
@@ -26,14 +28,12 @@ public class RESMessage {
 		this.code = code;
 		this.description = description;
 	}
-	
+
 	public RESMessage(int code, Object data, String description) {
 		this.code = code;
 		this.data = data;
 		this.description = description;
 	}
-
-
 
 	public int getCode() {
 		return code;

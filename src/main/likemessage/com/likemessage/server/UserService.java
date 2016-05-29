@@ -9,6 +9,7 @@ import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.RESMessage;
 import com.gifisan.security.Authority;
 
 public class UserService extends AbstractService{
@@ -24,20 +25,25 @@ public class UserService extends AbstractService{
 		return ((Long)list.get(0).get("count")) == 1;
 	}
 
-	public boolean regist(IOSession session, ServerReadFuture future,Parameters parameters) throws SQLException {
+	public RESMessage regist(IOSession session, ServerReadFuture future,Parameters parameters) throws SQLException {
 		
 		String username = parameters.getParameter("username");
 		
 		String password = parameters.getParameter("password");
 		
 		if (existUser(username)) {
-			return false;
+			return RESMessage.R_USER_EXIST;
 		}
 		
 		int result = query.executeUpdateSQL("insert into t_user (username,nickname,password,roleID,UUID) values (?,?,?,?,?)", 
 				new Object[] { username,	username, password,4,UUIDGenerator.random() });
+		
+		if (result == 1) {
+			
+			return RESMessage.R_SUCCESS;
+		}
 
-		return result == 1;
+		return RESMessage.R_SYSTEM_ERROR;
 	}
 	
 	public boolean logined(IOSession session) {

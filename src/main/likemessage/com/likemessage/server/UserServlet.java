@@ -4,11 +4,11 @@ import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONArray;
 import com.gifisan.database.DataBaseContext;
-import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
 
 public class UserServlet extends LMServlet {
@@ -34,15 +34,14 @@ public class UserServlet extends LMServlet {
 		} else {
 
 		}
-
 	}
 
 	private void regist(IOSession session, ServerReadFuture future, Parameters parameters, UserService service)
 			throws Exception {
 
-		boolean login = service.regist(session, future, parameters);
-
-		future.write(login ? ByteUtil.TRUE : ByteUtil.FALSE);
+		RESMessage message = service.regist(session, future, parameters);
+		
+		future.write(message.toString());
 
 		session.flush(future);
 	}

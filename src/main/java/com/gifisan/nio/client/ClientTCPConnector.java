@@ -235,6 +235,10 @@ public class ClientTCPConnector implements Connector {
 		// TODO complete logout
 
 	}
+	
+	public boolean isLogined(){
+		return logined.get();
+	}
 
 	public String toString() {
 		return "TCP:Connector@" + endPoint.toString();

@@ -1,10 +1,11 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.client;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.component.AbstractUDPEndPoint;
+import com.gifisan.nio.component.Session;
 
 public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 

@@ -13,7 +13,7 @@ public class SYSTEMRedeployServlet extends NIOServlet {
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
 		if (session.getLoginCenter().isValidate(session, future)) {
 			ServerContext context = (ServerContext) session.getContext();
-			RESMessage message =  context.redeploy()  ? RESMessage.R_SUCCESS : RESMessage.R_FAIL;
+			RESMessage message =  context.redeploy()  ? RESMessage.R_SUCCESS : RESMessage.R_SYSTEM_ERROR;
 			future.write(message.toString());
 		} else {
 			future.write(RESMessage.R_UNAUTH.toString());

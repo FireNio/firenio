@@ -1,8 +1,9 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
+import com.gifisan.nio.component.OutputStreamAcceptor;
+import com.gifisan.nio.component.ServiceAcceptor;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServerServiceAcceptor;
 
 public class ServerOutputStreamAcceptor implements OutputStreamAcceptor {
 

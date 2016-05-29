@@ -6,7 +6,6 @@ import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.BytedMessage;
-import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;

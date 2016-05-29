@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
@@ -21,7 +20,7 @@ import com.likemessage.server.UserServlet;
 
 public class LMClient {
 
-	public boolean regist(ClientSession session, String username, String password) throws IOException {
+	public RESMessage regist(ClientSession session, String username, String password) throws IOException {
 		
 		String serviceKey = UserServlet.SERVICE_NAME;
 		
@@ -33,7 +32,7 @@ public class LMClient {
 
 		ReadFuture future = session.request(serviceKey, o.toJSONString());
 
-		return ByteUtil.isTrue(future.getText());
+		return RESMessageDecoder.decode(future.getText());
 
 	}
 	
@@ -58,7 +57,7 @@ public class LMClient {
 		throw new IOException(message.getDescription());
 	}
 	
-	public boolean addMessage(ClientSession session,T_MESSAGE message,String UUID) throws IOException{
+	public RESMessage addMessage(ClientSession session,T_MESSAGE message,String UUID) throws IOException{
 		
 		String serviceKey = MessageServlet.SERVICE_NAME;
 		
@@ -70,10 +69,7 @@ public class LMClient {
 
 		ReadFuture future = session.request(serviceKey, o.toJSONString());
 
-		RESMessage _message = RESMessageDecoder.decode(future.getText());
-		
-		return _message.getCode() == 0;
-		
+		return RESMessageDecoder.decode(future.getText());
 	}
 	
 	

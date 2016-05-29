@@ -1,4 +1,4 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -7,7 +7,8 @@ import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.component.UDPEndPoint;
+import com.gifisan.nio.component.UDPEndPointFactory;
 
 public class ServerUDPEndPointFactory implements UDPEndPointFactory {
 

@@ -1,11 +1,10 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.server;
 
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
-import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.ServerSession;
+import com.gifisan.nio.component.AbstractTCPEndPoint;
+import com.gifisan.nio.component.EndPointWriter;
 
 public class ServerTCPEndPoint extends AbstractTCPEndPoint {
 

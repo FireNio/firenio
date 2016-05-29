@@ -13,6 +13,8 @@ import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class SYSTEMStopServerServlet extends NIOServlet {
+	
+	public static final String SERVICE_NAME = SYSTEMStopServerServlet.class.getSimpleName();
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 	

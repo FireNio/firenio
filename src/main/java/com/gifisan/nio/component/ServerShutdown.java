@@ -7,6 +7,7 @@ import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.server.service.impl.SYSTEMStopServerServlet;
 
 public class ServerShutdown {
 
@@ -35,19 +36,19 @@ public class ServerShutdown {
 
 		String username = args[1];
 
-		String passwrod = args[2];
+		String password = args[2];
 
-		String serviceName = "stop-server";
+		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
 		ClientTCPConnector connector = new ClientTCPConnector("localhost", port,"M");
 		
 		connector.connect();
 		
+		connector.login(username, password);
+		
 		ClientSession session = connector.getClientSession();
 
-		String param = "{username:\"" + username + "\",password:\"" + passwrod + "\"}";
-
-		ReadFuture future = session.request(serviceName, param);
+		ReadFuture future = session.request(serviceName, null);
 
 		System.out.println(future.getText());
 
