@@ -64,12 +64,20 @@
 		</dependency>
 		
 		<!-- oracle驱动 -->
-		<dependency>
+<!-- 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc14</artifactId>
 			<version>10.2.0.4.0</version>
 			<scope>runtime</scope>
+		</dependency> -->
+		
+		<!-- http://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.39</version>
 		</dependency>
+				
 
 	</dependencies>
 
