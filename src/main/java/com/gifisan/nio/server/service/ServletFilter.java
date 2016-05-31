@@ -58,7 +58,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		
 		logger.info("[NIOServer] empty service name");
 		
-		future.write(RESMessage.R404_EMPTY.toString().getBytes(Encoding.DEFAULT));
+		future.write(RESMessage.EMPTY_404.toString().getBytes(Encoding.DEFAULT));
 		
 		session.flush(future);
 	}

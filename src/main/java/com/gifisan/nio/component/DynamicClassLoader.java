@@ -187,7 +187,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 			entry.loadedClass = clazz;
 
-			logger.debug("  [NIOServer] define class [ {} ]", name);
+			logger.debug(" [NIOServer] define class [ {} ]", name);
 
 			return clazz;
 		} catch (Throwable e) {

@@ -34,7 +34,7 @@ public class TestAddMessage {
 		m.setSend(true);
 		m.setToUserID(1);
 
-		RESMessage message = client.addMessage(session, m, session.getAuthority().getUUID());
+		RESMessage message = client.addMessage(session, m, session.getAuthority().getUuid());
 
 		System.out.println(message);
 

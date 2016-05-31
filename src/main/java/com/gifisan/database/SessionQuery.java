@@ -81,5 +81,19 @@ public class SessionQuery extends DefaultConnectionProxy {
 		
 	}
 	
+	/**
+	 * 
+	 * @param sql select count(1) count from table ... 
+	 * @param params
+	 * @return
+	 * @throws SQLException
+	 */
+	public long queryCount(String sql, Object[] params) throws SQLException{
+		
+		List<COUNT> counts = query(sql, params, COUNT.class);
+		
+		return counts.get(0).getCount();
+	}
+	
 
 }

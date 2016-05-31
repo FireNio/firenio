@@ -12,6 +12,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 import com.likemessage.bean.B_Contact;
+import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.server.ContactServlet;
 import com.likemessage.server.LMServlet;
@@ -20,7 +21,7 @@ import com.likemessage.server.UserServlet;
 
 public class LMClient {
 
-	public RESMessage regist(ClientSession session, String username, String password) throws IOException {
+	public RESMessage regist(ClientSession session, String username, String password,String nickname) throws IOException {
 		
 		String serviceKey = UserServlet.SERVICE_NAME;
 		
@@ -28,6 +29,7 @@ public class LMClient {
 		
 		o.put(LMServlet.ACTION, UserServlet.ACTION_REGIST);
 		o.put("username", username);
+		o.put("nickname", nickname);
 		o.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
 
 		ReadFuture future = session.request(serviceKey, o.toJSONString());
@@ -51,6 +53,10 @@ public class LMClient {
 		if (message.getCode() == 0) {
 			JSONArray array = (JSONArray) message.getData();
 			
+			if (array == null) {
+				return null;
+			}
+			
 			return JSONArray.parseArray(array.toJSONString(), B_Contact.class);
 		}
 		
@@ -72,6 +78,20 @@ public class LMClient {
 		return RESMessageDecoder.decode(future.getText());
 	}
 	
+	public RESMessage addContact(ClientSession session,T_CONTACT contact,String friendName) throws IOException{
+		
+		String serviceKey = ContactServlet.SERVICE_NAME;
+		
+		JSONObject o = new JSONObject();
+		
+		o.put(LMServlet.ACTION, ContactServlet.ACTION_ADD_CONTACT);
+		o.put("t_contact", contact);
+		o.put("friendName", friendName);
+
+		ReadFuture future = session.request(serviceKey, o.toJSONString());
+
+		return RESMessageDecoder.decode(future.getText());
+	}
 	
 
 }

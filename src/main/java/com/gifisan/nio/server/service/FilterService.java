@@ -108,11 +108,9 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		LifeCycleUtil.stop(pluginLoader);
 	}
 
-	public boolean redeploy() {
+	public boolean redeploy(DynamicClassLoader classLoader) {
 
 		logger.info("       [NIOServer] ======================================= 开始服务升级 =======================================");
-
-		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
 		

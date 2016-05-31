@@ -141,7 +141,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 				logger.error(e.getMessage(), e);
 			}
 			
-			logger.info("  [NIOServer] Filter  [ {} ] 卸载完成", filter);
+			logger.info("  [NIOServer] 卸载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
 

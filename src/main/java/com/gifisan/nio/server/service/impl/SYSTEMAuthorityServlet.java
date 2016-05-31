@@ -15,7 +15,7 @@ public class SYSTEMAuthorityServlet extends NIOServlet{
 		
 		LoginCenter loginCenter = session.getLoginCenter();
 		
-		RESMessage message = RESMessage.R_UNAUTH;
+		RESMessage message = RESMessage.UNAUTH;
 		
 		if (loginCenter.login(session, future)) {
 			

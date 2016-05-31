@@ -1,7 +1,9 @@
-package com.gifisan.database;
+package com.gifisan.nio.common;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.likemessage.bean.T_USER;
@@ -10,9 +12,11 @@ public class FieldMapping {
 
 	private Class				mappingClass	= null;
 
-	private Map<String, Field>	fields		= new HashMap<String, Field>();
+	private Map<String, Field>	fieldMapping	= new HashMap<String, Field>();
 
-	protected FieldMapping(Class clazz) {
+	private List<Field>			fieldList		= new ArrayList<Field>();
+
+	public FieldMapping(Class clazz) {
 		this.mappingClass = clazz;
 		analyse(clazz);
 	}
@@ -22,7 +26,8 @@ public class FieldMapping {
 		Field[] fields = clazz.getDeclaredFields();
 
 		for (Field f : fields) {
-			this.fields.put(f.getName(), f);
+			this.fieldMapping.put(f.getName(), f);
+			this.fieldList.add(f);
 		}
 
 		Class c = clazz.getSuperclass();
@@ -31,10 +36,14 @@ public class FieldMapping {
 			analyse(c);
 		}
 	}
+	
+	public List<Field> getFieldList(){
+		return fieldList;
+	}
 
 	public Field getField(String fieldName) {
 
-		return fields.get(fieldName);
+		return fieldMapping.get(fieldName);
 	}
 
 	public Class getMappingClass() {
@@ -45,7 +54,7 @@ public class FieldMapping {
 
 		FieldMapping mapping = new FieldMapping(T_USER.class);
 
-		System.out.println(mapping.fields);
+		System.out.println(mapping.fieldMapping);
 	}
 
 }

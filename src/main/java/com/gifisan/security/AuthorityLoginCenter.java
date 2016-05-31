@@ -97,7 +97,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority.setUsername(username);
 		authority.setPassword(password);
 		authority.setRoleID(roleID);
-		authority.setUUID(UUID);
+		authority.setUuid(UUID);
 		
 		/*     -------------------------------------------------------------   */
 		
@@ -108,7 +108,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority.setUsername("udp1");
 		authority.setPassword("udp1");
 		authority.setRoleID(0);
-		authority.setUUID("udp1");
+		authority.setUuid("udp1");
 		
 		this.authorities.put(authority.getUsername(), authority);
 		
@@ -117,7 +117,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority.setUsername("udp2");
 		authority.setPassword("udp2");
 		authority.setRoleID(0);
-		authority.setUUID("udp2");
+		authority.setUuid("udp2");
 		
 		this.authorities.put(authority.getUsername(), authority);
 		

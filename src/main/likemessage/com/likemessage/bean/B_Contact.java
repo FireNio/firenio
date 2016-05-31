@@ -9,6 +9,15 @@ public class B_Contact {
 	private String	phoneNo;
 	private int	userID;
 	private String	UUID;
+	private String	pinyin;
+
+	public String getPinyin() {
+		return pinyin;
+	}
+
+	public void setPinyin(String pinyin) {
+		this.pinyin = pinyin;
+	}
 
 	public String getBackupName() {
 		return backupName;

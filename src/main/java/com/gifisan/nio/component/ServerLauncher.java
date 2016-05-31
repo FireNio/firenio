@@ -33,7 +33,7 @@ public class ServerLauncher {
 //				
 //				bundle.loadLog4jProperties("conf/log4j.properties");
 //			}
-
+			
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 			
 			DebugUtil.setEnableDebug(debug);

@@ -43,6 +43,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	private ServerConfiguration			serverConfiguration	= null;
 	private ThreadPool					serviceDispatcher	= null;
 	private RoleManager					roleManager		= new RoleManager();
+	private DynamicClassLoader			classLoader		= new DynamicClassLoader();
 
 	public DefaultServerContext(NIOServer server) {
 		this.server = server;
@@ -56,12 +57,10 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		this.serverConfiguration = configuration.getServerConfiguration();
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-		
+
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
 
 		Encoding.DEFAULT = encoding;
-
-		DynamicClassLoader classLoader = new DynamicClassLoader();
 
 		this.encoding = Encoding.DEFAULT;
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
@@ -84,7 +83,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		this.serviceDispatcher.start();
 
 	}
-	
+
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -159,47 +158,55 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		if (serverConfiguration.getSERVER_PORT() != this.serverConfiguration.getSERVER_PORT()) {
 			return false;
 		}
+		
+		DynamicClassLoader classLoader = new DynamicClassLoader();
 
-		boolean redeployed = filterService.redeploy();
+		boolean redeployed = filterService.redeploy(classLoader);
 
 		if (redeployed) {
 
 			this.configuration = configuration;
 
 			this.serverConfiguration = serverConfiguration;
+			
+			this.classLoader = classLoader;
 		}
 
 		return redeployed;
 	}
 
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		
+
 		if (datagramPacketAcceptor == null) {
 			throw new IllegalArgumentException("null");
 		}
-		
+
 		if (this.datagramPacketAcceptor != null) {
 			throw new IllegalArgumentException("already setted");
 		}
-		
+
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 
 	public RoleManager getRoleManager() {
 		return roleManager;
 	}
-	
-	public void setLoginCenter(LoginCenter loginCenter){
-		
+
+	public void setLoginCenter(LoginCenter loginCenter) {
+
 		if (loginCenter == null) {
 			throw new IllegalArgumentException("null");
 		}
-		
+
 		if (this.loginCenter.getClass() != AuthorityLoginCenter.class) {
 			throw new IllegalArgumentException("already setted");
 		}
-		
+
 		this.loginCenter = loginCenter;
 	}
 
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+	
 }

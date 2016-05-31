@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.future.ServerReadFuture;
 import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public abstract class LMServlet extends NIOServlet {
@@ -30,5 +31,15 @@ public abstract class LMServlet extends NIOServlet {
 
 	protected abstract void doAccept(IOSession session, ServerReadFuture future, AbstractService _service)
 			throws Exception;
+	
+	
+	protected void actionNotFound(IOSession session, ServerReadFuture future, AbstractService _service){
+		
+		RESMessage message = RESMessage.EMPTY_404;
+		
+		future.write(message.toString());
+		
+		session.flush(future);
+	}
 
 }

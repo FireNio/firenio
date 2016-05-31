@@ -26,7 +26,7 @@ public class SYSTEMShowMemoryServlet extends NIOServlet{
 			future.write("服务器内存使用情况：\n");
 			future.write(builder.toString());
 		}else{
-			future.write(RESMessage.R_UNAUTH.toString());
+			future.write(RESMessage.UNAUTH.toString());
 		}
 		session.flush(future);
 		

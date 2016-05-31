@@ -18,15 +18,15 @@ public class Authority {
 	
 	private String username;
 	
-	private String UUID;
+	private String uuid;
 
 	public Authority() {
 		this.className = this.getClass().getName();
 	}
 
-	public Authority(String username, String UUID) {
+	public Authority(String username, String uuid) {
 		this.username = username;
-		this.UUID = UUID;
+		this.uuid = uuid;
 	}
 
 	public String getClassName() {
@@ -53,10 +53,6 @@ public class Authority {
 		return username;
 	}
 
-	public String getUUID() {
-		return UUID;
-	}
-
 	public void setClassName(String className) {
 		this.className = className;
 	}
@@ -81,8 +77,11 @@ public class Authority {
 		this.username = username;
 	}
 
-	public void setUUID(String UUID) {
-		this.UUID = UUID;
+	public String getUuid() {
+		return uuid;
 	}
-	
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 }

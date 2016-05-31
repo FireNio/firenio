@@ -32,7 +32,7 @@ public class UserServlet extends LMServlet {
 		if (ACTION_REGIST.equals(action)) {
 			regist(session, future, parameters, service);
 		} else {
-
+			actionNotFound(session, future, _service);
 		}
 	}
 
@@ -61,7 +61,11 @@ public class UserServlet extends LMServlet {
 
 			String className = beans.getString(i);
 			
-			dataBaseContext.registBean(className);
+//			Class clazz = ClassUtil.forName(className);
+				
+			Class clazz = context.getClassLoader().loadClass(className);
+			
+			dataBaseContext.registBean(clazz);
 		}
 
 		loginCenter.initialize(dataBaseContext);

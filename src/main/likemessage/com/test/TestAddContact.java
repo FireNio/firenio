@@ -1,15 +1,19 @@
 package com.test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.server.RESMessage;
+import com.likemessage.bean.T_CONTACT;
+import com.likemessage.bean.T_USER;
 import com.likemessage.client.LMClient;
 
-public class TestRegist {
+public class TestAddContact {
 
 	public static void main(String[] args) throws IOException {
 
@@ -17,12 +21,30 @@ public class TestRegist {
 
 		connector.connect();
 
+		connector.login("wk", "wk");
+		
 		ClientSession session = connector.getClientSession();
 
 		LMClient client = new LMClient();
+		
+		T_CONTACT contact = new T_CONTACT();
+		
+		contact.setBackupName("张飞");
+		contact.setGroupID(0);
+		contact.setOwnerID(1);
+		contact.setPinyin("zhangfei");
+		
+		String friendName = "zhangfei";
 
-		RESMessage message = client.regist(session, "zhangfei", "zhangfei","张飞");
+		RESMessage message = client.addContact(session, contact, friendName);
 
+		if (message.getCode() == 0) {
+			
+			T_USER user = (T_USER) BeanUtil.map2Object((Map)message.getData(), T_USER.class);
+			
+			System.out.println(user);
+		}
+		
 		System.out.println(message);
 
 		ThreadUtil.sleep(500);

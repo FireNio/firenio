@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.gifisan.nio.common.ClassUtil;
+import com.gifisan.nio.common.FieldMapping;
 
 public class ResultSetHandle {
 

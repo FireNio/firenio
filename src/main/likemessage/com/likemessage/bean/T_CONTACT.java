@@ -6,6 +6,15 @@ public class T_CONTACT {
 	private int	friendID;
 	private int	groupID;
 	private String	backupName;
+	private String	pinyin;
+
+	public String getPinyin() {
+		return pinyin;
+	}
+
+	public void setPinyin(String pinyin) {
+		this.pinyin = pinyin;
+	}
 
 	public String getBackupName() {
 		return backupName;

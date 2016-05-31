@@ -33,12 +33,12 @@ public class LMLoginCenter extends AuthorityLoginCenter {
 
 			String password = parameters.getParameter("password");
 
-			List list = query.query("select * from t_user where username = ? and password = ?", new Object[] {
+			List<T_USER> list = query.query("select * from t_user where username = ? and password = ?", new Object[] {
 					username, password }, T_USER.class);
 
 			if (list != null) {
 
-				return (T_USER) list.get(0);
+				return list.get(0);
 			}
 
 		} catch (SQLException e) {

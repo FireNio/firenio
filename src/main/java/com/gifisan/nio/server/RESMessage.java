@@ -4,18 +4,20 @@ import com.alibaba.fastjson.JSONObject;
 
 public class RESMessage {
 
-	public static RESMessage	R404_EMPTY	= new RESMessage(404, "EMPTY SERVICE-NAME");
+	public static RESMessage	EMPTY_404		= new RESMessage(404, "EMPTY SERVICE-NAME");
 
-	public static RESMessage	R_SUCCESS		= new RESMessage(0, "SUCCESS");
+	public static RESMessage	SUCCESS		= new RESMessage(0, "SUCCESS");
 
-	public static RESMessage	R_SYSTEM_ERROR	= new RESMessage(-1, "SYSTEM ERROR");
+	public static RESMessage	SYSTEM_ERROR	= new RESMessage(-1, "SYSTEM ERROR");
 
-	public static RESMessage	R_UNAUTH		= new RESMessage(403, "REQUEST FORBIDDEN");
+	public static RESMessage	UNAUTH		= new RESMessage(403, "REQUEST FORBIDDEN");
 
-	public static RESMessage	R_TIMEOUT		= new RESMessage(503, "TIMEOUT");
+	public static RESMessage	TIMEOUT		= new RESMessage(503, "TIMEOUT");
 
-	public static RESMessage	R_USER_EXIST	= new RESMessage(1001, "USER EXIST");
-
+	public static RESMessage	USER_EXIST	= new RESMessage(1001, "USER EXIST");
+	public static RESMessage	CONTACT_EXIST	= new RESMessage(1002, "CONTACT EXIST");
+	public static RESMessage	USER_NOT_EXIST	= new RESMessage(1003, "USER NOT EXIST");
+	
 	private int			code;
 	private Object			data			= null;
 	private String			description;
@@ -81,7 +83,7 @@ public class RESMessage {
 
 	public static void main(String[] args) {
 
-		System.out.println(R_SUCCESS);
+		System.out.println(SUCCESS);
 
 		System.out.println(new RESMessage(100, null));
 	}

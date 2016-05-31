@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.common.ClassUtil;
+import com.gifisan.nio.common.FieldMapping;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class DataBaseContext extends AbstractLifeCycle {
@@ -41,6 +43,9 @@ public class DataBaseContext extends AbstractLifeCycle {
 		} else if (ORACLE_DRIVER_CLASS.equals(driverClass)) {
 			this.dataBaseQuery = new OracleQuery();
 		}
+		
+		this.registBean(COUNT.class);
+		
 	}
 
 	private final String	ORACLE_DRIVER_CLASS	= "oracle.jdbc.driver.OracleDriver";
@@ -57,9 +62,17 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 	public void registBean(String className) throws ClassNotFoundException {
 
-		Class clazz = this.getClass().getClassLoader().loadClass(className);
-
+		Class clazz = ClassUtil.forName(className);
+		
 		this.fieldMappings.put(className, new FieldMapping(clazz));
+	}
+	
+	public void registBean(Class clazz){
+		if (clazz == null) {
+			return;
+		}
+		
+		this.fieldMappings.put(clazz.getName(), new FieldMapping(clazz));
 	}
 
 	public FieldMapping getFieldMapping(String className) {

@@ -50,7 +50,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 			return;
 		}
 
-		String queueName = session.getAuthority().getUUID();
+		String queueName = session.getAuthority().getUuid();
 
 		// 来自终端类型
 		context.addReceiver(queueName+session.getMachineType());

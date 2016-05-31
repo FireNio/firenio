@@ -8,7 +8,7 @@ import com.gifisan.nio.server.service.AbstractNIOFilter;
 public class DeployFilter extends AbstractNIOFilter {
 
 	public void accept(IOSession session,ServerReadFuture future) throws Exception {
-		future.write(RESMessage.R_SYSTEM_ERROR.toString());
+		future.write(RESMessage.SYSTEM_ERROR.toString());
 		session.flush(future);
 	}
 	

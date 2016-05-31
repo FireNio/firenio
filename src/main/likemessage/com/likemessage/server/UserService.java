@@ -31,19 +31,21 @@ public class UserService extends AbstractService{
 		
 		String password = parameters.getParameter("password");
 		
+		String nickname = parameters.getParameter("nickname");
+		
 		if (existUser(username)) {
-			return RESMessage.R_USER_EXIST;
+			return RESMessage.USER_EXIST;
 		}
 		
 		int result = query.executeUpdateSQL("insert into t_user (username,nickname,password,roleID,UUID) values (?,?,?,?,?)", 
-				new Object[] { username,	username, password,4,UUIDGenerator.random() });
+				new Object[] { username,	nickname, password,4,UUIDGenerator.random() });
 		
 		if (result == 1) {
 			
-			return RESMessage.R_SUCCESS;
+			return RESMessage.SUCCESS;
 		}
 
-		return RESMessage.R_SYSTEM_ERROR;
+		return RESMessage.SYSTEM_ERROR;
 	}
 	
 	public boolean logined(IOSession session) {

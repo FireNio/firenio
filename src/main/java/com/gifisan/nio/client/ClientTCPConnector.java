@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.BeanUtil;
+import com.gifisan.nio.common.ClassUtil;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MD5Token;
@@ -202,8 +204,10 @@ public class ClientTCPConnector implements Connector {
 					
 					String className = o.getString("className");
 					
-					Authority authority = (Authority)JSONObject.parseObject(o.toJSONString(), Class.forName(className));
-
+					Class clazz = ClassUtil.forName(className);
+					
+					Authority authority = (Authority)BeanUtil.map2Object(o, clazz);
+					
 					((ProtectedClientSession) session).setAuthority(authority);
 
 					((ProtectedClientSession) session).setSessionID(authority.getSessionID());
@@ -221,7 +225,7 @@ public class ClientTCPConnector implements Connector {
 			}
 		}
 
-		return RESMessage.R_SUCCESS;
+		return RESMessage.SUCCESS;
 	}
 
 	public boolean login(String username, String password) {

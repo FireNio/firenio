@@ -19,7 +19,7 @@ public class JMSTransactionServlet extends JMSServlet {
 			if (section == null) {
 				section = new TransactionSection(getMQContext());
 				attachment.setTransactionSection(section);
-				message = RESMessage.R_SUCCESS;
+				message = RESMessage.SUCCESS;
 			} else {
 				message = JMSRESMessage.R_TRANSACTION_BEGINED;
 			}
@@ -32,7 +32,7 @@ public class JMSTransactionServlet extends JMSServlet {
 				message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 			} else {
 				if (section.commit()) {
-					message = RESMessage.R_SUCCESS;
+					message = RESMessage.SUCCESS;
 				} else {
 					message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 				}
@@ -48,7 +48,7 @@ public class JMSTransactionServlet extends JMSServlet {
 				message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 			} else {
 				if (section.rollback()) {
-					message = RESMessage.R_SUCCESS;
+					message = RESMessage.SUCCESS;
 				} else {
 					message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
 				}

@@ -13,8 +13,17 @@ public class ClassUtil {
 		try {
 			return clazz.newInstance();
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Class forName(String className){
+		
+		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
 			return null;
 		}
+		
 	}
 }

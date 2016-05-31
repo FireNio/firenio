@@ -29,4 +29,6 @@ public interface ServerContext extends NIOContext{
 	
 	public abstract RoleManager getRoleManager();
 	
+	public abstract ClassLoader getClassLoader();
+	
 }
