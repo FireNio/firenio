@@ -35,6 +35,8 @@ public class TransactionProtectListener implements SessionEventListener {
 			
 			consumer.getConsumerQueue().remove(consumer);
 			
+			consumer.getConsumerQueue().getSnapshot();
+			
 			context.removeReceiver(consumer.getQueueName() + session.getMachineType());
 		}
 		

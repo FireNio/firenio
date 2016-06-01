@@ -22,6 +22,7 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 
 		servlets.put(RTPJoinRoomServlet.SERVICE_NAME, new RTPJoinRoomServlet());
 		servlets.put(RTPCreateRoomServlet.SERVICE_NAME, new RTPCreateRoomServlet());
+		servlets.put(RTPLeaveRoomServlet.SERVICE_NAME, new RTPLeaveRoomServlet());
 		
 	}
 

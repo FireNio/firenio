@@ -3,6 +3,7 @@ package com.gifisan.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Configuration;
@@ -106,7 +107,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority = new Authority();
 
 		authority.setUsername("udp1");
-		authority.setPassword("udp1");
+		authority.setPassword(MD5Token.getInstance().getLongToken("udp1", context.getEncoding()));
 		authority.setRoleID(0);
 		authority.setUuid("udp1");
 		
@@ -115,7 +116,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		authority = new Authority();
 
 		authority.setUsername("udp2");
-		authority.setPassword("udp2");
+		authority.setPassword(MD5Token.getInstance().getLongToken("udp2", context.getEncoding()));
 		authority.setRoleID(0);
 		authority.setUuid("udp2");
 		

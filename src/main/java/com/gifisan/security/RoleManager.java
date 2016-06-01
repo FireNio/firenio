@@ -160,12 +160,12 @@ public class RoleManager extends InitializeableImpl {
 	public static void main(String[] args) {
 
 		System.out.println("[");
-		for (int j = 0; j < 30; j++) {
+		for (int j = 0; j < 100; j++) {
 
-			System.out.println("{");
-			System.out.println("\"permissionID\": " + j + ",");
-			System.out.println("\"permissionAPI\": \"\"");
-			System.out.println("},");
+			System.out.println("\t{");
+			System.out.println("\t\t\"permissionID\": " + j + ",");
+			System.out.println("\t\t\"permissionAPI\": \"\"");
+			System.out.println("\t},");
 		}
 		System.out.println("]");
 

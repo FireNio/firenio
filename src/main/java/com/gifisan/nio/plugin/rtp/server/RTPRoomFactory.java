@@ -1,42 +1,21 @@
 package com.gifisan.nio.plugin.rtp.server;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
+import com.gifisan.nio.component.ReentrantMap;
 
 public class RTPRoomFactory {
+	
+	private ReentrantMap rooms = new ReentrantMap();
 
-	private Map<Integer, RTPRoom> rooms = new HashMap<Integer, RTPRoom>();
-	
-	private ReentrantLock lock = new ReentrantLock();
-	
-	
 	public RTPRoom getRTPRoom(Integer roomID){
-		return rooms.get(roomID);
+		return (RTPRoom) rooms.getValue(roomID);
 	}
 	
 	public void removeRTPRoom(Integer roomID){
-		
-		ReentrantLock lock = this.lock;
-		
-		lock.lock();
-		
 		rooms.remove(roomID);
-		
-		lock.unlock();
 	}
 	
 	public void putRTPRoom(RTPRoom room){
 		
-		ReentrantLock lock = this.lock;
-		
-		lock.lock();
-		
-		rooms.put(room.getRoomID(), room);
-		
-		lock.unlock();
+		rooms.add(room);
 	}
-	
-	
-	
 }

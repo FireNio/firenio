@@ -110,4 +110,11 @@ public class TestUDPReceiveHandle extends RTPHandle {
 			ThreadUtil.sleep(sleep);
 		}
 	}
+
+	public void onBreak(RTPClient client, MapMessage message) {
+		
+		logger.debug("_________________________leave,{}",message.toString());
+	}
+	
+	
 }

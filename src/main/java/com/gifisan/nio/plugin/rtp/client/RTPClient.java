@@ -62,6 +62,13 @@ public class RTPClient implements Closeable {
 			}
 		});
 		
+		this.consumer.listen("break", new OnMappedMessage() {
+			
+			public void onReceive(MapMessage message) {
+				handle.onBreak(RTPClient.this, message);
+			}
+		});
+		
 		try {
 			this.consumer.receive(null);
 		} catch (JMSException e) {
@@ -147,6 +154,17 @@ public class RTPClient implements Closeable {
 	}
 
 	public boolean joinRoom(String roomID) throws RTPException {
+		try {
+
+			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+
+			return ByteUtil.isTrue(future.getText());
+		} catch (IOException e) {
+			throw new RTPException(e.getMessage(), e);
+		}
+	}
+	
+	public boolean outRoom() throws RTPException {
 		try {
 
 			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);

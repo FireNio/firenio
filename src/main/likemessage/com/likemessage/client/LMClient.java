@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -30,7 +29,7 @@ public class LMClient {
 		o.put(LMServlet.ACTION, UserServlet.ACTION_REGIST);
 		o.put("username", username);
 		o.put("nickname", nickname);
-		o.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
+		o.put("password", MD5Token.getInstance().getLongToken(password, session.getContext().getEncoding()));
 
 		ReadFuture future = session.request(serviceKey, o.toJSONString());
 

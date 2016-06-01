@@ -1,68 +1,43 @@
 package com.gifisan.nio.plugin.rtp.server;
 
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.MapAble;
+import com.gifisan.nio.component.ReentrantList;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.plugin.jms.MapMessage;
+import com.gifisan.nio.plugin.jms.server.MQContext;
+import com.gifisan.nio.plugin.jms.server.MQContextFactory;
 import com.gifisan.nio.server.IOSession;
 
-public class RTPRoom {
+public class RTPRoom implements MapAble {
 
-	public static final int				MAX_ENDPOINT	= 1 << 6;
-	private static AtomicInteger				autoRoomID 	= new AtomicInteger();
-	
-	private ReentrantLock					lock			= new ReentrantLock();
-	private Map<InetSocketAddress, UDPEndPoint>	endPointMap	= new HashMap<InetSocketAddress, UDPEndPoint>();
-	private List<UDPEndPoint>				endPoints		= new ArrayList<UDPEndPoint>();
-	private Integer						roomID		= 0;
-	private RTPRoomFactory					roomFactory	= null;
-	private RTPContext						context		= null;
-	private static final Logger				logger		= LoggerFactory.getLogger(RTPRoom.class);
-	
-	
-	public Integer getRoomID() {
-		return roomID;
-	}
+	private static AtomicInteger		autoRoomID	= new AtomicInteger();
+	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
+	public static final int		MAX_ENDPOINT	= 1 << 6;
 
-	public RTPRoom(RTPContext context,IOSession session) {
+	private RTPContext				context		= null;
+	private ReentrantList<UDPEndPoint>	endPointList	= new ReentrantList<UDPEndPoint>();
+	private RTPRoomFactory			roomFactory	= null;
+	private Integer				roomID		= 0;
+	private boolean				closed		= false;
+
+	public RTPRoom(RTPContext context, IOSession session) {
 		this.roomID = genRoomID();
 		this.roomFactory = context.getRTPRoomFactory();
 		this.context = context;
 		this.join(session.getUDPEndPoint());
 	}
-	
-	private Integer genRoomID() {
-
-		for (;;) {
-			int id = autoRoomID.get();
-			
-			int _next = id + 1;
-
-			if (_next > MAX_ENDPOINT) {
-				_next = 0;
-			}
-
-			if (autoRoomID.compareAndSet(id, _next))
-				return _next;
-		}
-	}
 
 	public void broadcast(UDPEndPoint endPoint, DatagramPacket packet) {
-		
-//		logger.debug("___________________broadcast,packet:{}",packet);
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
+		List<UDPEndPoint> endPoints = endPointList.getSnapshot();
 
 		for (UDPEndPoint point : endPoints) {
 
@@ -79,71 +54,108 @@ public class RTPRoom {
 			} catch (Throwable e) {
 				logger.debug(e);
 			}
-			
-//			logger.debug("___________________send to client,packet:{}",packet);
 		}
+	}
 
-		lock.unlock();
+	private Integer genRoomID() {
+
+		for (;;) {
+			int id = autoRoomID.get();
+
+			int _next = id + 1;
+
+			if (_next > MAX_ENDPOINT) {
+				_next = 0;
+			}
+
+			if (autoRoomID.compareAndSet(id, _next))
+				return _next;
+		}
+	}
+
+	public Object getKey() {
+		return roomID;
+	}
+
+	public Integer getRoomID() {
+		return roomID;
 	}
 
 	public boolean join(UDPEndPoint endPoint) {
 
-		ReentrantLock lock = this.lock;
+		ReentrantLock lock = endPointList.getReentrantLock();
 
 		lock.lock();
-
-		try {
-			if (endPoints.size() < MAX_ENDPOINT) {
-
-				InetSocketAddress address = endPoint.getRemoteSocketAddress();
-
-				if (!endPointMap.containsKey(address)) {
-					
-					endPointMap.put(address, endPoint);
-					
-					endPoints.add(endPoint);
-					
-					IOSession session = (IOSession) endPoint.getTCPSession();
-					
-					RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
-					
-					attachment.setRTPRoom(this);
-					
-					return true;
-				}
-				return false;
-			}
+		
+		if (closed) {
+			
+			lock.unlock();
 			
 			return false;
-		} finally{
-			lock.unlock();
 		}
+
+		if (endPointList.size() > MAX_ENDPOINT) {
+
+			lock.unlock();
+
+			return false;
+		}
+
+		if (!endPointList.add(endPoint)) {
+
+			lock.unlock();
+			
+			return false;
+		}
+		
+		lock.unlock();
+
+		IOSession session = (IOSession) endPoint.getTCPSession();
+
+		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
+
+		attachment.setRTPRoom(this);
+
+		return true;
 	}
 
 	public void leave(UDPEndPoint endPoint) {
 
-		ReentrantLock lock = this.lock;
-
+		ReentrantLock lock = endPointList.getReentrantLock();
+		
 		lock.lock();
-
-		InetSocketAddress address = endPoint.getRemoteSocketAddress();
-
-		if (endPointMap.containsKey(address)) {
-			endPointMap.remove(address);
-			endPoints.remove(endPoint);
+		
+		endPointList.remove(endPoint);
+		
+		List<UDPEndPoint> endPoints = endPointList.getSnapshot();
+		
+		for(UDPEndPoint e : endPoints){
+			
+			if (e == endPoint) {
+				continue;
+			}
+			
+			IOSession session = (IOSession)e.getTCPSession();
+			
+			MapMessage message = new MapMessage("mmm", session.getAuthority().getUuid());
+			
+			message.setEventName("break");
+			
+			message.put("userID", session.getAuthority().getUserID());
+			
+			MQContext mqContext = MQContextFactory.getMQContext();
+			
+			mqContext.offerMessage(message);
+		}
+		
+		if (endPointList.size() == 0) {
+			
+			this.closed = true;
+			
 			roomFactory.removeRTPRoom(roomID);
 		}
-
+		
 		lock.unlock();
-	}
-
-	public static void main(String[] args) {
-		System.out.println(1 << 16);
-		System.out.println((2 << 7) - 1);
-		System.out.println(2 << 15);
-		System.out.println(255 * 255);
-		System.out.println((2 << 30) - 1);
-		System.out.println(Integer.MAX_VALUE);
 	}
 
 }

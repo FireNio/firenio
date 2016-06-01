@@ -30,7 +30,7 @@ public class SubscribeProductLine extends AbstractProductLine implements Message
 
 			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-			List<Consumer> consumers = consumerQueue.snapshot();
+			List<Consumer> consumers = consumerQueue.getSnapshot();
 
 			if (consumers.size() == 0) {
 

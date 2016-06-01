@@ -20,6 +20,8 @@ public class RTPSessionAttachment implements Attachment {
 			
 			RTPRoomFactory factory = context.getRTPRoomFactory();
 			
+			session.addEventListener(new RTPLeaveRoomListener(context));
+			
 			factory.putRTPRoom(rtpRoom);
 		}
 		return rtpRoom;

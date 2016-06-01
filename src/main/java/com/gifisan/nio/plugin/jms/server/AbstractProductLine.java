@@ -58,6 +58,8 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
 		Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
+		
+		attachment.setConsumer(consumer);
 
 		//FIXME 按位置设置
 		consumerQueue.offer(consumer);

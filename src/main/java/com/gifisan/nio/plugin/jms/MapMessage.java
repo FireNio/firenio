@@ -43,7 +43,14 @@ public class MapMessage extends BasicMessage implements MappedMessage{
 		return value;
 	}
 	
-	
+	public String getEventName() {
+		return getParameter("eventName");
+	}
+
+	public void setEventName(String eventName) {
+		this.put("eventName", eventName);
+	}
+
 	public JSONArray getJSONArray(String key) {
 		return map.getJSONArray(key);
 	}

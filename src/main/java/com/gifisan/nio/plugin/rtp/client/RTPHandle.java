@@ -11,4 +11,6 @@ public abstract class RTPHandle {
 	
 	public abstract void onInviteReplyed(RTPClient client,MapMessage message);
 	
+	public abstract void onBreak(RTPClient client,MapMessage message);
+	
 }

@@ -30,7 +30,7 @@ public class P2PProductLine extends AbstractProductLine implements MessageQueue,
 
 			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-			List<Consumer> consumers = consumerQueue.snapshot();
+			List<Consumer> consumers = consumerQueue.getSnapshot();
 
 			if (consumers.size() == 0) {
 

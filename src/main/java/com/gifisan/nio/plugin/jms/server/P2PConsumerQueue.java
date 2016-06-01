@@ -2,11 +2,11 @@ package com.gifisan.nio.plugin.jms.server;
 
 import java.util.List;
 
-import com.gifisan.nio.component.LazyList;
+import com.gifisan.nio.component.ReentrantList;
 
 public class P2PConsumerQueue implements ConsumerQueue{
 	
-	private LazyList<Consumer> consumers = new LazyList<Consumer>();
+	private ReentrantList<Consumer> consumers = new ReentrantList<Consumer>();
 	
 	public int size(){
 		return consumers.size();
@@ -24,8 +24,8 @@ public class P2PConsumerQueue implements ConsumerQueue{
 		this.consumers.removeAll(consumers);
 	}
 
-	public List<Consumer> snapshot() {
-		return consumers.getData();
+	public List<Consumer> getSnapshot() {
+		return consumers.getSnapshot();
 	}
 	
 	

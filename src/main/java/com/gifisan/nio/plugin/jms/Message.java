@@ -1,5 +1,6 @@
 package com.gifisan.nio.plugin.jms;
 
+//增加消息时效
 public interface Message {
 
 	public static final int	TYPE_ERROR		= 0;

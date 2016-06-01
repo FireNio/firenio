@@ -12,6 +12,6 @@ public interface ConsumerQueue {
 	
 	public abstract void remove(List<Consumer> consumers);
 
-	public abstract List<Consumer> snapshot();
+	public abstract List<Consumer> getSnapshot();
 	
 }
