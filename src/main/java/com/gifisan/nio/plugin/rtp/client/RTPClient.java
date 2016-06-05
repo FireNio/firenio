@@ -1,13 +1,11 @@
 package com.gifisan.nio.plugin.rtp.client;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import com.gifisan.nio.client.ClientContext;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientUDPConnector;
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
@@ -21,7 +19,7 @@ import com.gifisan.nio.plugin.rtp.RTPException;
 import com.gifisan.nio.plugin.rtp.server.RTPCreateRoomServlet;
 import com.gifisan.nio.plugin.rtp.server.RTPJoinRoomServlet;
 
-public class RTPClient implements Closeable {
+public class RTPClient {
 
 	public static final String	CURRENT_MARK	= "CURRENT_MARK";
 	public static final String	GROUP_SIZE	= "GROUP_SIZE";
@@ -34,51 +32,62 @@ public class RTPClient implements Closeable {
 	private MessageProducer		producer		= null;
 	private String				roomID		= null;
 	private ClientSession		session		= null;
-	
-	public RTPClient(ClientSession session,final RTPHandle handle) throws IOException{
-		this(session,handle,new FixedMessageConsumer(session),new DefaultMessageProducer(session));
+	private RTPHandle 			handle		= null;
+
+	public RTPClient(ClientSession session,ClientUDPConnector connector) {
+		this(session,connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
-	//FIXME listen onf break
-	public RTPClient(ClientSession session,final RTPHandle handle, FixedMessageConsumer consumer, MessageProducer producer)
-			throws IOException {
-		this.connector = new ClientUDPConnector(session);
+	// FIXME listen onf break
+	public RTPClient(ClientSession session,ClientUDPConnector connector, FixedMessageConsumer consumer, MessageProducer producer) {
+		this.connector = connector;
 		this.session = session;
 		this.producer = producer;
 		this.consumer = consumer;
 		this.context = connector.getContext();
+	}
 
+	public void setRTPHandle(final RTPHandle handle) throws RTPException {
+		
+		if (this.handle != null) {
+			return;
+		}
+		
 		this.consumer.listen("invite", new OnMappedMessage() {
-			
+
 			public void onReceive(MapMessage message) {
 				handle.onInvite(RTPClient.this, message);
 			}
 		});
-		
+
 		this.consumer.listen("invite-reply", new OnMappedMessage() {
-			
+
 			public void onReceive(MapMessage message) {
 				handle.onInviteReplyed(RTPClient.this, message);
 			}
 		});
-		
+
 		this.consumer.listen("break", new OnMappedMessage() {
-			
+
 			public void onReceive(MapMessage message) {
 				handle.onBreak(RTPClient.this, message);
 			}
 		});
 		
+		this.handle = handle;
+		
+		
+		
 		try {
+			
 			this.consumer.receive(null);
 		} catch (JMSException e) {
-			throw new RTPException(e.getMessage(),e);
+			throw new RTPException(e);
 		}
-		
 	}
-
-	public void close() throws IOException {
-		CloseUtil.close(connector);
+	
+	public RTPHandle getRTPHandle(){
+		return handle;
 	}
 
 	public boolean createRoom(String inviteUsername) throws RTPException {
@@ -163,11 +172,13 @@ public class RTPClient implements Closeable {
 			throw new RTPException(e.getMessage(), e);
 		}
 	}
-	
-	public boolean outRoom() throws RTPException {
+
+	public boolean leaveRoom() throws RTPException {
 		try {
 
 			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			
+			this.handle.onBreak(this, new MapMessage("", this.session.getAuthority().getUuid()));
 
 			return ByteUtil.isTrue(future.getText());
 		} catch (IOException e) {
@@ -190,5 +201,9 @@ public class RTPClient implements Closeable {
 
 	public void setRoomID(String roomID) {
 		this.roomID = roomID;
+	}
+	
+	public String getRoomID(){
+		return roomID;
 	}
 }

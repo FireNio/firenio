@@ -6,9 +6,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
+
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
-	private Selector	selector	= null;
+	private Selector		selector		= null;
+	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
 	public TCPSelectionAcceptor(Selector selector) {
 		this.selector = selector;
@@ -25,6 +29,7 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		// 注册到selector，等待连接
 		channel.register(selector, SelectionKey.OP_READ);
 
-	}
+		logger.debug("__________________chanel____gen____{}", channel);
 
+	}
 }

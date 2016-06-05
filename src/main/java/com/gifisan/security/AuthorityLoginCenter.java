@@ -3,6 +3,8 @@ package com.gifisan.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.common.UUIDGenerator;
@@ -16,12 +18,16 @@ import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerSession;
 
 public class AuthorityLoginCenter extends InitializeableImpl implements LoginCenter {
+	
+	private Logger logger = LoggerFactory.getLogger(AuthorityLoginCenter.class);
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
 	public boolean login(IOSession session, ServerReadFuture future) {
 
 		Authority authority = getAuthority(session, future);
+		
+		logger.debug("__________________user_login__{}",authority);
 		
 		if (authority == null) {
 			return false;

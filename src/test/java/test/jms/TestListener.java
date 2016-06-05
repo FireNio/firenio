@@ -49,9 +49,7 @@ public class TestListener {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}finally{
+		} finally{
 			CloseUtil.close(connector);
 		}
 

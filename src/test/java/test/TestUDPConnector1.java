@@ -2,6 +2,7 @@ package test;
 
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.ClientUDPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.rtp.client.RTPClient;
@@ -10,7 +11,7 @@ public class TestUDPConnector1 {
 
 	public static void main(String[] args) throws Exception {
 
-		final ClientTCPConnector connector = ClientUtil.getClientConnector();
+		ClientTCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 		
@@ -18,14 +19,21 @@ public class TestUDPConnector1 {
 
 		ClientSession session = connector.getClientSession();
 		
-		final String otherCustomerID = "udp2";
+		ClientUDPConnector udpConnector = new ClientUDPConnector(session);
+		
+		udpConnector.connect();
+		
+		String otherCustomerID = "udp2";
+		
+		udpConnector.bindSession();
 
-		final RTPClient client = new RTPClient(session, new TestUDPReceiveHandle());
+		RTPClient client = new RTPClient(session,udpConnector);
+		
+		client.setRTPHandle(new TestUDPReceiveHandle());
 
 		client.createRoom(otherCustomerID);
 
 		ThreadUtil.sleep(99999500);
-		CloseUtil.close(client);
 		CloseUtil.close(connector);
 
 	}

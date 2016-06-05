@@ -87,6 +87,8 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			ServerReadFuture future = ReadFutureFactory.create(session, BIND_SESSION_CALLBACK);
 			
+			logger.debug("___________________bind___session___{}",session);
+			
 			future.write(ByteUtil.TRUE);
 			
 			session.flush(future);

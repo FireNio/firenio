@@ -126,7 +126,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public String toString() {
-		return MessageFormatter.format("session@{}", endPoint.toString());
+		return MessageFormatter.format("session-{}@edp{}",this.getSessionID(), endPoint);
 	}
 
 	public boolean closed() {

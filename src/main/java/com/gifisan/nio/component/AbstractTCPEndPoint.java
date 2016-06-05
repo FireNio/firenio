@@ -40,7 +40,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		//FIXME 检查这行代码是否可以解决远程访问服务时卡顿问题
-		this.remote = getLocalSocketAddress();
+		this.local = getLocalSocketAddress();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}

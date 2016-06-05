@@ -1,6 +1,8 @@
 package com.gifisan.nio.plugin.jms;
 
-public class JMSException extends Exception{
+import java.io.IOException;
+
+public class JMSException extends IOException{
 	
 	public static final JMSException TIME_OUT = new JMSException("timeout");
 	
