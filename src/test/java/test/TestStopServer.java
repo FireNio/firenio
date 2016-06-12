@@ -6,23 +6,25 @@ import com.gifisan.nio.client.ClientTCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.server.service.impl.SYSTEMStopServerServlet;
 
 public class TestStopServer {
 
-	
 	public static void main(String[] args) throws IOException {
-		String serviceKey = "stop-server";
-		
+		String serviceKey = SYSTEMStopServerServlet.SERVICE_NAME;
+
 		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		
 		connector.connect();
+
+		connector.login("admin", "admin100");
+
 		ClientSession session = connector.getClientSession();
-		
-		String param = "{username:\"admin\",password:\"admin100\"}";
-		
-		ReadFuture future = session.request(serviceKey, param);
+
+		ReadFuture future = session.request(serviceKey, null);
 		System.out.println(future.getText());
-		
+
 		CloseUtil.close(connector);
-		
+
 	}
 }

@@ -15,7 +15,7 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 	private RTPRoomFactory rtpRoomFactory = new RTPRoomFactory();
 
 	public void configFilter(List<NIOFilter> pluginFilters) {
-
+		
 	}
 
 	public void configServlet(Map<String, GenericServlet> servlets) {
