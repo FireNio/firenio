@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
@@ -21,7 +20,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	private ServerContext				context		= null;
 	private DynamicClassLoader			classLoader	= null;
-	private ReentrantLock				lock			= new ReentrantLock();
 	private Logger						logger		= LoggerFactory.getLogger(NormalServletLoader.class);
 	private Map<String, GenericServlet>	servlets		= new LinkedHashMap<String, GenericServlet>();
 	private ServletsConfiguration			configuration	= null;
@@ -44,10 +42,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	protected void doStop() throws Exception {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
 		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
 
 		for (Entry<String, GenericServlet> entry : entries) {
@@ -65,8 +59,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 				logger.error(e.getMessage(), e);
 			}
 		}
-
-		lock.unlock();
 	}
 
 	public FilterAcceptor getServlet(String serviceName) {
@@ -166,10 +158,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	public void unload(ServerContext context, Configuration config) throws Exception {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
 		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
 
 		for (Entry<String, GenericServlet> entry : entries) {
@@ -190,8 +178,6 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 			}
 		}
-		lock.unlock();
-
 	}
 
 }

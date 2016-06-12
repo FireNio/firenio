@@ -2,7 +2,6 @@ package com.gifisan.nio.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -41,7 +40,6 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	private LinkedList<Runnable>			jobs			= null;
 	private int						size			= 4;
 	private String						threadPrefix	= null;
-	private ReentrantLock				lock			= new ReentrantLock();
 	private List<LifedPoolWorker>			workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
 
 	/**
@@ -72,38 +70,28 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	}
 
 	protected void doStart() throws Exception {
-		ReentrantLock lock = this.lock;
 
-		lock.lock();
-
-		try {
-
-			for (int i = 0; i < size; i++) {
-				LifedPoolWorker lifedPoolWorker = produceWorker(i);
-				workers.add(lifedPoolWorker);
+		for (int i = 0; i < size; i++) {
+			LifedPoolWorker lifedPoolWorker = produceWorker(i);
+			workers.add(lifedPoolWorker);
+		}
+		
+		for (LifedPoolWorker worker : workers) {
+			try {
+				worker.startWork();
+			} catch (Exception e) {
+				logger.debug(e);
+				workers.remove(worker);
 			}
-			for (LifedPoolWorker worker : workers) {
-				try {
-					worker.startWork();
-				} catch (Exception e) {
-					logger.debug(e);
-					workers.remove(worker);
-				}
-			}
-		} finally {
-
-			lock.unlock();
 		}
 
 	}
 
 	protected void doStop() throws Exception {
-		while (jobs.size() > 0) {
+		
+		for (;jobs.size() > 0;) {
 			Thread.sleep(64);
 		}
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
 
 		for (LifedPoolWorker worker : workers) {
 			try {
@@ -112,7 +100,6 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 				logger.debug(e);
 			}
 		}
-		lock.unlock();
 	}
 
 	private LifedPoolWorker produceWorker(int index) {

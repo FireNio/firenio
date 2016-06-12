@@ -11,12 +11,6 @@ public class BeanUtil {
 	private static Map<Class, FieldMapping>	fieldMapping	= new HashMap<Class, FieldMapping>();
 	private static ReentrantLock			lock				= new ReentrantLock();
 	
-//	public static Object map2Object(Map<String, Object> map, String className) {
-//		
-//		
-//		
-//	}
-
 	public static Object map2Object(Map<String, Object> map, Class clazz) {
 		if (map == null || clazz == null) {
 			return null;

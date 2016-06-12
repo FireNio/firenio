@@ -7,16 +7,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.MapAble;
-import com.gifisan.nio.component.ReentrantList;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.concurrent.ReentrantList;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
 import com.gifisan.nio.plugin.jms.server.MQContextFactory;
 import com.gifisan.nio.server.IOSession;
 
-public class RTPRoom implements MapAble {
+public class RTPRoom {
 
 	private static AtomicInteger		autoRoomID	= new AtomicInteger();
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
@@ -73,10 +72,6 @@ public class RTPRoom implements MapAble {
 		}
 	}
 
-	public Object getKey() {
-		return roomID;
-	}
-
 	public Integer getRoomID() {
 		return roomID;
 	}
@@ -86,11 +81,11 @@ public class RTPRoom implements MapAble {
 		ReentrantLock lock = endPointList.getReentrantLock();
 
 		lock.lock();
-		
+
 		if (closed) {
-			
+
 			lock.unlock();
-			
+
 			return false;
 		}
 
@@ -104,10 +99,10 @@ public class RTPRoom implements MapAble {
 		if (!endPointList.add(endPoint)) {
 
 			lock.unlock();
-			
+
 			return false;
 		}
-		
+
 		lock.unlock();
 
 		IOSession session = (IOSession) endPoint.getTCPSession();
@@ -122,39 +117,39 @@ public class RTPRoom implements MapAble {
 	public void leave(UDPEndPoint endPoint) {
 
 		ReentrantLock lock = endPointList.getReentrantLock();
-		
+
 		lock.lock();
-		
+
 		endPointList.remove(endPoint);
-		
+
 		List<UDPEndPoint> endPoints = endPointList.getSnapshot();
-		
-		for(UDPEndPoint e : endPoints){
-			
+
+		for (UDPEndPoint e : endPoints) {
+
 			if (e == endPoint) {
 				continue;
 			}
-			
-			IOSession session = (IOSession)e.getTCPSession();
-			
+
+			IOSession session = (IOSession) e.getTCPSession();
+
 			MapMessage message = new MapMessage("mmm", session.getAuthority().getUuid());
-			
+
 			message.setEventName("break");
-			
+
 			message.put("userID", session.getAuthority().getUserID());
-			
+
 			MQContext mqContext = MQContextFactory.getMQContext();
-			
+
 			mqContext.offerMessage(message);
 		}
-		
+
 		if (endPointList.size() == 0) {
-			
+
 			this.closed = true;
-			
+
 			roomFactory.removeRTPRoom(roomID);
 		}
-		
+
 		lock.unlock();
 	}
 

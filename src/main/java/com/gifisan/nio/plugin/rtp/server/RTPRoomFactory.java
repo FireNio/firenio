@@ -1,21 +1,21 @@
 package com.gifisan.nio.plugin.rtp.server;
 
-import com.gifisan.nio.component.ReentrantMap;
+import com.gifisan.nio.concurrent.ReentrantMap;
 
 public class RTPRoomFactory {
-	
-	private ReentrantMap rooms = new ReentrantMap();
 
-	public RTPRoom getRTPRoom(Integer roomID){
-		return (RTPRoom) rooms.getValue(roomID);
+	private ReentrantMap<Integer, RTPRoom>	rooms	= new ReentrantMap<Integer, RTPRoom>();
+
+	public RTPRoom getRTPRoom(Integer roomID) {
+		return rooms.get(roomID);
 	}
-	
-	public void removeRTPRoom(Integer roomID){
+
+	public void removeRTPRoom(Integer roomID) {
 		rooms.remove(roomID);
 	}
-	
-	public void putRTPRoom(RTPRoom room){
-		
-		rooms.add(room);
+
+	public void putRTPRoom(RTPRoom room) {
+
+		rooms.put(room.getRoomID(), room);
 	}
 }

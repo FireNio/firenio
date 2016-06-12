@@ -1,16 +1,15 @@
 package com.gifisan.nio.plugin.jms.server;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.concurrent.ReentrantMap;
+import com.gifisan.nio.concurrent.ReentrantSet;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
@@ -22,33 +21,30 @@ import com.gifisan.nio.server.service.NIOFilter;
 
 public class DefaultMQContext extends AbstractPluginContext implements MQContext {
 
-
-	private long					dueTime				= 0;
-	private HashMap<String, Message>	messageIDs			= new HashMap<String, Message>();
-	private P2PProductLine			p2pProductLine			= new P2PProductLine(this);
-	private SubscribeProductLine		subProductLine			= new SubscribeProductLine(this);
-	private HashSet<String>			receivers				= new HashSet<String>();
-	private MessageDecoder			messageDecoder			= new DefaultMessageDecoder();
-	private ReentrantLock			messageIDsLock			= new ReentrantLock();
-	private ReentrantLock			reveiversLock			= new ReentrantLock();
-	private ConsumerPushHandle		consumerPushFailedHandle	= null;
+	private long						dueTime				= 0;
+	private ReentrantMap<String, Message>	messageIDs			= new ReentrantMap<String, Message>();
+	private P2PProductLine				p2pProductLine			= new P2PProductLine(this);
+	private SubscribeProductLine			subProductLine			= new SubscribeProductLine(this);
+	private ReentrantSet<String>			receivers				= new ReentrantSet<String>();
+	private MessageDecoder				messageDecoder			= new DefaultMessageDecoder();
+	private ConsumerPushHandle			consumerPushFailedHandle	= null;
 
 	public Message browser(String messageID) {
 		return messageIDs.get(messageID);
 	}
 
 	public void initialize(ServerContext context, Configuration config) throws Exception {
-		
+
 		long dueTime = config.getLongParameter("due-time");
-		
+
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
-		
+
 		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
 
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
-		
+
 		p2pProductLine.start();
 
 		subProductLine.start();
@@ -56,7 +52,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		p2pThread.start();
 
 		subThread.start();
-		
+
 		MQContextFactory.initializeContext(this);
 	}
 
@@ -77,13 +73,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 
 	public void offerMessage(Message message) {
 
-		ReentrantLock lock = this.messageIDsLock;
-
-		lock.lock();
-
 		messageIDs.put(message.getMsgID(), message);
-
-		lock.unlock();
 
 		p2pProductLine.offerMessage(message);
 	}
@@ -94,13 +84,8 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 	}
 
 	public void consumerMessage(Message message) {
-		ReentrantLock lock = this.messageIDsLock;
-
-		lock.lock();
 
 		messageIDs.remove(message.getMsgID());
-
-		lock.unlock();
 	}
 
 	public Message parse(ReadFuture future) throws JMSException {
@@ -124,11 +109,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 	}
 
 	public void addReceiver(String queueName) {
-		ReentrantLock lock = this.reveiversLock;
-
-		lock.lock();
 		receivers.add(queueName);
-		lock.unlock();
 	}
 
 	public boolean isOnLine(String queueName) {
@@ -136,13 +117,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 	}
 
 	public void removeReceiver(String queueName) {
-		ReentrantLock lock = this.reveiversLock;
-
-		lock.lock();
-
 		receivers.remove(queueName);
-
-		lock.unlock();
 	}
 
 	public ConsumerPushHandle getConsumerPushFailedHandle() {
@@ -150,36 +125,36 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 	}
 
 	public void configFilter(List<NIOFilter> pluginFilters) {
-		
+
 	}
 
 	public void configServlet(Map<String, GenericServlet> pluginServlets) {
-		
+
 		pluginServlets.put(JMSConsumerServlet.SERVICE_NAME, new JMSConsumerServlet());
 		pluginServlets.put(JMSProducerServlet.SERVICE_NAME, new JMSProducerServlet());
 		pluginServlets.put(JMSSubscribeServlet.SERVICE_NAME, new JMSSubscribeServlet());
 		pluginServlets.put(JMSPublishServlet.SERVICE_NAME, new JMSPublishServlet());
 		pluginServlets.put(JMSTransactionServlet.SERVICE_NAME, new JMSTransactionServlet());
 		pluginServlets.put(JMSBrowserServlet.SERVICE_NAME, new JMSBrowserServlet());
-		
+
 	}
-	
+
 	public void prepare(ServerContext context, Configuration config) throws Exception {
-		
+
 		MQContext old = MQContextFactory.getMQContext();
-		
-		//FIXME 把老的Context中的数据放到这里
-		
+
+		// FIXME 把老的Context中的数据放到这里
+
 		long dueTime = config.getLongParameter("due-time");
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
-		
+
 		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
 
 		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
-		
+
 		p2pProductLine.start();
 
 		subProductLine.start();
@@ -187,9 +162,9 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		p2pThread.start();
 
 		subThread.start();
-		
+
 		MQContextFactory.setNullMQContext();
-		
+
 		MQContextFactory.initializeContext(this);
 	}
 
@@ -199,9 +174,5 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		MQContextFactory.setNullMQContext();
 		super.destroy(context, config);
 	}
-	
-	
-	
-	
-	
+
 }

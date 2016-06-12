@@ -93,84 +93,18 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 	protected void extendClose(){}
 
-//	interface Pusher {
-//
-//		void push(IOWriteFuture future) throws IOException;
-//	}
-//
-//	private Pusher	_localPusher	= new Pusher() {
-//
-//		public void push(IOWriteFuture future) {
-//			writers.add(future);
-//		}
-//	};
-//
-//	private Pusher	_remotePusher	= new Pusher() {
-//
-//		public void push(IOWriteFuture future) throws IOException {
-//			if (!context.getEndPointWriter().offer(future)) {
-//				future.catchException(WriterOverflowException.INSTANCE);
-//			}
-//		}
-//	};
-
-//	private Pusher	_currentPusher	= _localPusher;
 
 	public void flushWriters() throws IOException {
-//		this._currentPusher = _remotePusher;
 		
-//		List<IOWriteFuture> writers = this.writers;
-
-		// ReentrantLock lock = this.lock;
-		//
-		// lock.lock();
-
-//		if (this.currentWriter == null) {
-			this.flushWriters0();
-//		}else{
-//			
-//			if(this.currentWriter.write()){
-//				this.decrementWriter();
-//				this.currentWriter.onSuccess();
-//				this.currentWriter = null;
-//				this.flushWriters0();
-//			 }else{
-//				 return;
-//			 }
-//		}
-
-//		for (IOWriteFuture writer : writers) {
-//			if (!endPointWriter.offer(writer)) {
-//				writer.catchException(WriterOverflowException.INSTANCE);
-//			}
-//		}
-
-//		writers.clear();
-
-//		_currentPusher = _localPusher;
-
-		// lock.unlock();
-
-	}
-	
-	protected void flushWriters0(){
-		
-		endPointWriter.collect();
+		this.endPointWriter.collect();
 		
 		this.attempts = 0;
 		
 		this._networkWeak = false;
 		
-		selectionKey.interestOps(SelectionKey.OP_READ);
-		
-//		if (endConnect) {
-//			
-//			EndPoint endPoint = this;
-//			
-//			CloseUtil.close(endPoint);
-//		}
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
-
+	
 	public EndPointWriter getEndPointWriter() {
 		return endPointWriter;
 	}

@@ -1,7 +1,6 @@
 package com.gifisan.nio.server.service;
 
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
@@ -17,7 +16,6 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 	private ServerContext		context		= null;
 	private DynamicClassLoader	classLoader	= null;
-	private ReentrantLock		lock			= new ReentrantLock();
 	private Logger				logger		= LoggerFactory.getLogger(NormalPluginLoader.class);
 	private PluginContext[]		pluginContexts	= new PluginContext[4];
 	private PluginsConfiguration	configuration	= null;
@@ -39,10 +37,6 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 	protected void doStop() throws Exception {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
 		for (PluginContext plugin : pluginContexts) {
 
 			if (plugin == null) {
@@ -60,8 +54,6 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 				logger.error(e.getMessage(), e);
 			}
 		}
-		
-		lock.unlock();
 	}
 
 	public PluginContext[] getPluginContexts() {
@@ -141,10 +133,6 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 	public void unload(ServerContext context, Configuration config) throws Exception {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
 		for (PluginContext plugin : pluginContexts) {
 
 			if (plugin == null) {
@@ -166,7 +154,6 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 			}
 
 		}
-		lock.unlock();
 	}
 	
 	private void configPluginFilterAndServlet(DefaultServerContext serverContext){

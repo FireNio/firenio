@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.likemessage.bean.T_USER;
 
-public class FieldMapping {
+public class FieldMapping{
 
 	private Class				mappingClass	= null;
 

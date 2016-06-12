@@ -25,4 +25,7 @@ public abstract class BasicMessage implements Message {
 
 	public abstract String toString();
 
+	public Object getKey() {
+		return getMsgID();
+	}
 }

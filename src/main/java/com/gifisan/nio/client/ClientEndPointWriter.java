@@ -29,14 +29,6 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	public void collect() {
 
-		// ReentrantLock lock = this.lock;
-		//
-		// lock.lock();
-		//
-		// networkWeak.signal();
-
-		// lock.unlock();
-
 	}
 
 	public void offer(IOWriteFuture future) {
