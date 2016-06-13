@@ -12,6 +12,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.AbstractNIOContext;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.LoginCenter;

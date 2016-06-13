@@ -14,7 +14,6 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Connector;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPSelectorLoop;
-import com.gifisan.nio.component.ServerEndPointWriter;
 
 public final class TCPConnector extends AbstractLifeCycle implements Connector {
 

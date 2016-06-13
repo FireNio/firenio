@@ -7,7 +7,7 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.IOWriteFuture;
+import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class UnpreciseClientSession extends AbstractClientSession {

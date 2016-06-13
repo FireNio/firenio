@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.future.IOWriteFuture;
 
 public interface TCPEndPoint extends EndPoint {
 

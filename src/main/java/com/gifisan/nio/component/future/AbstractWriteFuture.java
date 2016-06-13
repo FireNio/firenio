@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 

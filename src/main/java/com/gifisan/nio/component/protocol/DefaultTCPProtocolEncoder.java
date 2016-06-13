@@ -7,10 +7,10 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
+import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
 

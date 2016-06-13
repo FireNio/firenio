@@ -5,8 +5,8 @@ import java.io.InputStream;
 
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.IOWriteFuture;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.future.IOWriteFuture;
 
 public interface ProtocolEncoder {
 

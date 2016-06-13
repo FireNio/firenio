@@ -1,9 +1,9 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.AbstractNIOContext;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.server.AbstractNIOContext;
 import com.gifisan.nio.server.NIOContext;
 
 public class ClientContext extends AbstractNIOContext implements NIOContext {

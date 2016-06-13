@@ -1,4 +1,4 @@
-package com.gifisan.nio.server;
+package com.gifisan.nio.component;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -7,14 +7,11 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.component.DatagramPacketAcceptor;
-import com.gifisan.nio.component.OutputStreamAcceptor;
-import com.gifisan.nio.component.ReadFutureAcceptor;
-import com.gifisan.nio.component.UDPEndPointFactory;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractNIOContext extends AbstractLifeCycle implements NIOContext {
 
