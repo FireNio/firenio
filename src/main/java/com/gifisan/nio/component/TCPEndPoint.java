@@ -24,8 +24,6 @@ public interface TCPEndPoint extends EndPoint {
 
 	public abstract void flushWriters() throws IOException;
 
-	public abstract Session getSession();
-
 	public abstract IOReadFuture getReadFuture();
 
 	public abstract void setReadFuture(IOReadFuture future);

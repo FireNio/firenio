@@ -25,7 +25,6 @@ public class ServerSession extends AbstractSession implements IOSession {
 	private UDPEndPoint			udpEndPoint		= null;
 	private AuthorityManager		authorityManager	= null;
 	private static final Logger	logger			= LoggerFactory.getLogger(ServerSession.class);
-	
 
 	public ServerSession(TCPEndPoint endPoint) {
 		super(endPoint);
@@ -50,8 +49,8 @@ public class ServerSession extends AbstractSession implements IOSession {
 		}
 
 		try {
-			IOWriteFuture writeFuture = encoder.encode(endPoint, this, _Future.getServiceName(), _Future
-					.getTextCache().toByteArray(), _Future.getInputStream(), _Future.getInputIOHandle());
+			IOWriteFuture writeFuture = encoder.encode(endPoint, 0, _Future.getServiceName(), _Future.getTextCache()
+					.toByteArray(), _Future.getInputStream(), _Future.getInputIOHandle());
 
 			_Future.flush();
 
@@ -67,11 +66,9 @@ public class ServerSession extends AbstractSession implements IOSession {
 		}
 	}
 
-
 	public ServerContext getContext() {
 		return context;
 	}
-
 
 	public LoginCenter getLoginCenter() {
 		return loginCenter;
@@ -79,7 +76,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 	public void disconnect() {
 		this.endPoint.endConnect();
-		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint, this));
+		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
 	}
 
 	public void destroyImmediately() {
@@ -105,7 +102,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		this.udpEndPoint = udpEndPoint;
 	}
-	
+
 	public AuthorityManager getAuthorityManager() {
 		return authorityManager;
 	}
@@ -124,7 +121,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 	}
 
 	public Authority getAuthority() {
-		
+
 		return authorityManager.getAuthority();
 	}
 }

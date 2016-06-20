@@ -172,7 +172,7 @@ public class ClientTCPConnector implements Connector {
 	}
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint, this.getClientSession());
+		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint);
 		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
 		this.taskExecutor.start();
 	}

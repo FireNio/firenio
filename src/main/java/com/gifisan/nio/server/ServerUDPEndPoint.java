@@ -28,11 +28,11 @@ public class ServerUDPEndPoint extends AbstractUDPEndPoint {
 		}
 	}
 
-	public IOSession getTCPSession() {
+	public IOSession getSession() {
 		return session;
 	}
 
-	public void setTCPSession(Session session) {
+	public void setSession(Session session) {
 		this.session = (IOSession) session;
 	}
 	

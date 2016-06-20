@@ -25,6 +25,8 @@ public interface EndPoint extends Closeable {
 	public abstract void attach(Attachment attachment);
 
 	public abstract Attachment attachment();
+	
+	public abstract Session getSession();
 
 	public abstract Long getEndPointID();
 

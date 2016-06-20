@@ -1,6 +1,7 @@
 package com.gifisan.nio.client;
 
 import com.gifisan.nio.component.DatagramPacketAcceptor;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.security.Authority;
 
@@ -17,4 +18,6 @@ public interface ProtectedClientSession extends ClientSession {
 	public abstract void setAuthority(Authority authority);
 	
 	public abstract void setMachineType(String machineType);
+	
+	public abstract TCPEndPoint getTCPEndPoint();
 }

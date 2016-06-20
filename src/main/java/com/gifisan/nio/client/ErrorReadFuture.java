@@ -11,7 +11,7 @@ public class ErrorReadFuture extends AbstractReadFuture implements IOReadFuture 
 
 	public ErrorReadFuture(String serviceName, String text, ProtectedClientSession session, InputStream inputStream,
 			Exception exception) {
-		super(null, session, serviceName);
+		super(session.getTCPEndPoint(), 0, serviceName);
 		this.text = text;
 		this.inputStream = inputStream;
 		this.exception = exception;

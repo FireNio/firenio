@@ -3,6 +3,8 @@ package com.gifisan.nio.component.future;
 
 public interface Future {
 
+	public abstract Integer getFutureID();
+	
 	public abstract String getServiceName() ;
 	
 	public abstract String getText();

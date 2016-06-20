@@ -3,7 +3,6 @@ package com.gifisan.nio.component.future;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -16,22 +15,19 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	private IOEventHandle		handle		= null;
 	private Session			session		= null;
 	private byte[]			textCache		= null;
-	private long				futureID		= 0;
 	protected TCPEndPoint		endPoint		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected InputStream		inputStream	= null;
-	private static AtomicLong	_autoFutureID	= new AtomicLong(0);
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWriteFuture.class);
 
-	public AbstractWriteFuture(TCPEndPoint endPoint,IOEventHandle handle, String serviceName, ByteBuffer textBuffer, byte[] textCache,
-			Session session) {
+	public AbstractWriteFuture(TCPEndPoint endPoint,IOEventHandle handle,Integer futureID, String serviceName, ByteBuffer textBuffer, byte[] textCache) {
 		this.handle = handle;
 		this.endPoint = endPoint;
-		this.session = session;
+		this.session = endPoint.getSession();
 		this.textBuffer = textBuffer;
 		this.textCache = textCache;
 		this.serviceName = serviceName;
-		this.futureID = _autoFutureID.incrementAndGet();
+		this.futureID = futureID;
 	}
 
 	protected void attackNetwork(int length) {
@@ -94,9 +90,5 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 			
 		}
 		return text;
-	}
-
-	public long getFutureID() {
-		return futureID;
 	}
 }

@@ -145,4 +145,8 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		this.machineType = machineType;
 	}
 	
+	public TCPEndPoint getTCPEndPoint(){
+		return endPoint;
+	}
+	
 }

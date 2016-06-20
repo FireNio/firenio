@@ -16,7 +16,8 @@ public class UnpreciseClientSession extends AbstractClientSession {
 		super(endPoint);
 	}
 
-	public ReadFuture request(String serviceName, String content, InputStream inputStream,long timeout) throws IOException {
+	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
+			throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
@@ -24,24 +25,24 @@ public class UnpreciseClientSession extends AbstractClientSession {
 
 		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(endPoint, this, serviceName, array, inputStream,
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, array, inputStream,
 				context.getClientIOExceptionHandle());
 
 		if (closed()) {
 			throw DisconnectException.INSTANCE;
 		}
-		
+
 		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
-		
+
 		listen(serviceName, onReadFuture);
 
 		this.endPointWriter.offer(future);
 
 		if (onReadFuture.await(timeout)) {
-			
+
 			return onReadFuture.getReadFuture();
 		}
-		
+
 		throw new TimeoutException("timeout");
 	}
 
@@ -53,7 +54,7 @@ public class UnpreciseClientSession extends AbstractClientSession {
 
 		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(endPoint, this, serviceName, array, inputStream,
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, array, inputStream,
 				context.getClientIOExceptionHandle());
 
 		if (closed()) {

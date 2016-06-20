@@ -34,7 +34,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 		
 //		logger.debug("___________________server receive,packet:{}",packet);
 		
-		ServerSession session = (ServerSession)endPoint.getTCPSession();
+		ServerSession session = (ServerSession)endPoint.getSession();
 		
 		if (session == null) {
 			logger.debug("___________________null session,packet:{}",packet);
@@ -81,7 +81,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 				return ;
 			}
 			
-			endPoint.setTCPSession(session);
+			endPoint.setSession(session);
 			
 			session.setUDPEndPoint(endPoint);
 			

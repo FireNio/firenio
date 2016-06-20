@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TCPEndPoint;
 
 //ByteArrayInputStreamResponseWriter
 public class ByteArrayWriteFuture extends AbstractWriteFuture {
 
-	public ByteArrayWriteFuture(TCPEndPoint endPoint,Session session,String serviceName, ByteBuffer textBuffer, byte []textCache ,
-			ByteArrayInputStream inputStream,IOEventHandle handle) {
-		super(endPoint,handle,serviceName, textBuffer, textCache, session);
+	public ByteArrayWriteFuture(TCPEndPoint endPoint, Integer futureID, String serviceName, ByteBuffer textBuffer,
+			byte[] textCache, ByteArrayInputStream inputStream, IOEventHandle handle) {
+		super(endPoint, handle, futureID, serviceName, textBuffer, textCache);
 		this.inputStream = inputStream;
 		this.streamBuffer = ByteBuffer.wrap(inputStream.toByteArray());
 	}

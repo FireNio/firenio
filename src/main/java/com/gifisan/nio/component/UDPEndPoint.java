@@ -11,9 +11,7 @@ public interface UDPEndPoint extends EndPoint {
 
 	public abstract void sendPacket(ByteBuffer buffer) throws IOException;
 
-	public abstract Session getTCPSession();
-
-	public abstract void setTCPSession(Session session);
+	public abstract void setSession(Session session);
 
 	public abstract InetSocketAddress getRemoteSocketAddress();
 

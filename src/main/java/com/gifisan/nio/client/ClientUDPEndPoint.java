@@ -25,11 +25,11 @@ public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 		}
 	}
 
-	public ClientSession getTCPSession() {
+	public ClientSession getSession() {
 		return session;
 	}
 
-	public void setTCPSession(Session session) {
+	public void setSession(Session session) {
 		this.session = (ClientSession) session;
 	}
 

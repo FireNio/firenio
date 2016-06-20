@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.AbstractWriteFuture;
 import com.gifisan.nio.component.future.WriteFuture;
 
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	public BeatWriteFuture(TCPEndPoint endPoint,Session session) {
-		super(endPoint,null, null,null, null, session);
+	public BeatWriteFuture(TCPEndPoint endPoint) {
+		super(endPoint, null, 0, null, null, null);
 	}
 
 	private ByteBuffer	beat	= ByteBuffer.wrap(new byte[] { 3 });

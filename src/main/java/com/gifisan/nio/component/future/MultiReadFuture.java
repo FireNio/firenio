@@ -8,7 +8,6 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.OutputStreamAcceptor;
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
 public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
@@ -18,11 +17,11 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 	private ByteBuffer			streamBuffer	= null;
 	private static final Logger	logger		= LoggerFactory.getLogger(MultiReadFuture.class);
 
-	public MultiReadFuture(TCPEndPoint endPoint, Session session) {
-		super(endPoint, session);
+	public MultiReadFuture(TCPEndPoint endPoint, ByteBuffer header) {
+		super(endPoint, header);
 	}
 
-	protected void decode(TCPEndPoint endPoint, byte[] header) throws IOException {
+	protected void decode(TCPEndPoint endPoint, byte[] header) {
 
 		this.hasStream = true;
 

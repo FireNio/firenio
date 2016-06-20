@@ -19,6 +19,4 @@ public interface IOWriteFuture extends WriteFuture{
 	
 	public abstract void onSuccess();
 	
-	public abstract long getFutureID();
-	
 }

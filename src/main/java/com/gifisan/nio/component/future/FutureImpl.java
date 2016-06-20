@@ -5,6 +5,7 @@ public class FutureImpl implements Future {
 
 	protected String	serviceName	= null;
 	protected String	text			= null;
+	protected Integer	futureID		= null;
 	private Object		attachment	= null;
 
 	public String getServiceName() {
@@ -21,6 +22,10 @@ public class FutureImpl implements Future {
 
 	public Object attachment() {
 		return attachment;
+	}
+	
+	public Integer getFutureID() {
+		return futureID;
 	}
 
 }

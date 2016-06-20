@@ -105,7 +105,7 @@ public class RTPRoom {
 
 		lock.unlock();
 
-		IOSession session = (IOSession) endPoint.getTCPSession();
+		IOSession session = (IOSession) endPoint.getSession();
 
 		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
 
@@ -130,7 +130,7 @@ public class RTPRoom {
 				continue;
 			}
 
-			IOSession session = (IOSession) e.getTCPSession();
+			IOSession session = (IOSession) e.getSession();
 
 			MapMessage message = new MapMessage("mmm", session.getAuthority().getUuid());
 

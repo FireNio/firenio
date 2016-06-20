@@ -7,33 +7,38 @@ import java.nio.charset.Charset;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
 
-	protected TCPEndPoint		endPoint		= null;
-	protected Session			session		= null;
-	protected ByteBuffer		textBuffer	= null;
-	protected boolean			hasStream		= false;
-	private boolean			flushed		= false;
-	private BufferedOutputStream	textCache		= new BufferedOutputStream();
-	private ByteBuffer			header		= ByteBuffer.allocate(ProtocolDecoder.PROTOCOL_HADER - 1);
-	private boolean			headerComplete	= false;
-	private boolean			textBufferComplete = false;
-	private int	textLength = 0;
+	protected TCPEndPoint		endPoint			= null;
+	protected Session			session			= null;
+	protected ByteBuffer		textBuffer		= null;
+	protected boolean			hasStream			= false;
+	private boolean			flushed			= false;
+	private BufferedOutputStream	textCache			= new BufferedOutputStream();
+	private ByteBuffer			header			= null;
+	private boolean			headerComplete		= false;
+	private boolean			textBufferComplete	= false;
+	private int				textLength		= 0;
 
-	public AbstractReadFuture(TCPEndPoint endPoint, Session session, String serviceName) {
+	public AbstractReadFuture(TCPEndPoint endPoint,Integer futureID, String serviceName) {
 		this.endPoint = endPoint;
-		this.session = session;
+		this.session = endPoint.getSession();
 		this.serviceName = serviceName;
+		this.futureID = futureID;
 	}
 	
-	public AbstractReadFuture(TCPEndPoint endPoint, Session session) {
+	public AbstractReadFuture(TCPEndPoint endPoint, ByteBuffer header) {
 		this.endPoint = endPoint;
-		this.session = session;
+		this.session = endPoint.getSession();
+		this.header = header;
+		if (header.position() == ProtocolDecoder.PROTOCOL_HADER) {
+			doHeaderComplete(header);
+		}
 	}
 
 	public TCPEndPoint getEndPoint() {
@@ -42,6 +47,22 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 
 	public Session getSession() {
 		return session;
+	}
+	
+	private void doHeaderComplete(ByteBuffer header) {
+		
+		headerComplete = true;
+		
+		byte [] header_array = header.array();
+		
+		int textAndServiceNameLength = gainTextLength(header_array) 
+				+ header_array[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX];
+		
+		this.futureID = gainFutureIDLength(header_array);
+		
+		this.textBuffer = ByteBuffer.allocate(textAndServiceNameLength);
+		
+		this.decode(endPoint, header.array());
 	}
 	
 	public boolean read() throws IOException {
@@ -58,15 +79,7 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 				return false;
 			}
 			
-			headerComplete = true;
-			
-			byte [] headerBytes = header.array();
-			
-			int textContentBufferLength = gainTextLength(headerBytes) + headerBytes[0];
-			
-			this.textBuffer = ByteBuffer.allocate(textContentBufferLength);
-			
-			this.decode(endPoint, header.array());
+			doHeaderComplete(header);
 		}
 		
 		if (!textBufferComplete) {
@@ -90,34 +103,49 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	
 	protected abstract boolean doRead(TCPEndPoint endPoint) throws IOException;
 	
-	protected void decode(TCPEndPoint endPoint, byte[] header) throws IOException{
+	protected void decode(TCPEndPoint endPoint, byte[] header){
 		
 	}
 	
 	protected int gainStreamLength(byte[] header) {
-		return MathUtil.byte2Int(header, 4);
+		return MathUtil.byte2Int(header, ProtocolDecoder.STREAM_BEGIN_INDEX);
 	}
 
 	protected int gainTextLength(byte[] header) {
-		int v0 = (header[1] & 0xff);
-		int v1 = (header[2] & 0xff) << 8;
-		int v2 = (header[3] & 0xff) << 16;
+		int v0 = (header[5] & 0xff);
+		int v1 = (header[6] & 0xff) << 8;
+		int v2 = (header[7] & 0xff) << 16;
 		
 		this.textLength = v0 | v1 | v2;
 		
 		return textLength;
 	}
 	
+	protected int gainFutureIDLength(byte[] header) {
+		int v0 = (header[1] & 0xff);
+		int v1 = (header[2] & 0xff) << 8;
+		int v2 = (header[3] & 0xff) << 16;
+		
+		return v0 | v1 | v2;
+	}
+	
 	protected void gainServiceName(TCPEndPoint endPoint, ByteBuffer header,ByteBuffer buffer) throws IOException {
 
 		byte[] bytes = buffer.array();
 
-		this.serviceName = new String(bytes, 0, header.array()[0]);
+		this.serviceName = new String(
+				bytes, 
+				0, 
+				header.array()[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX]);
 	}
 	
 	protected void gainText(TCPEndPoint endPoint,ByteBuffer header,  ByteBuffer buffer) throws IOException {
 
-		this.text = new String(buffer.array(), header.array()[0],textLength,endPoint.getContext().getEncoding());
+		this.text = new String(
+				buffer.array(), 
+				header.array()[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX],
+				textLength,
+				endPoint.getContext().getEncoding());
 	}
 
 	public void catchOutputException(IOException e) {

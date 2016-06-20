@@ -14,146 +14,159 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
 
-public class DefaultTCPProtocolEncoder implements ProtocolEncoder{
-	
-	private final int PROTOCOL_HADER = ProtocolDecoder.PROTOCOL_HADER;
+// >> 右移N位
+// << 左移N位
+public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
-	private void calcText(byte[] header, int textLength) {
-		header[2] = (byte) (textLength & 0xff);
-		header[3] = (byte) ((textLength >> 8) & 0xff);
-		header[4] = (byte) ((textLength >> 16) & 0xff);
+	private final int	PROTOCOL_HADER	= ProtocolDecoder.PROTOCOL_HADER;
+	private final int	STREAM_BEGIN_INDEX	= ProtocolDecoder.STREAM_BEGIN_INDEX;
+
+	private void calc_text(byte[] header, int text_length) {
+		header[5] = (byte) (text_length & 0xff);
+		header[6] = (byte) ((text_length >> 8) & 0xff);
+		header[7] = (byte) ((text_length >> 16) & 0xff);
 	}
 
-	private void calcStream(byte[] header, int streamLength) {
-		
-		MathUtil.int2Byte(header, streamLength, 5);
+	private void calc_future_id(byte[] header, int future_id) {
+		header[1] = (byte) (future_id & 0xff);
+		header[2] = (byte) ((future_id >> 8) & 0xff);
+		header[3] = (byte) ((future_id >> 16) & 0xff);
+	}
+
+	private void calc_stream(byte[] header, int stream_length) {
+
+		MathUtil.int2Byte(header, stream_length, STREAM_BEGIN_INDEX);
 	}
 
 	// data with content
-	protected ByteBuffer encodeText(byte [] serviceNameArray, byte[] textArray) {
-		
-		if (textArray == null || textArray.length == 0) {
-			
-			return encodeNone(serviceNameArray);
+	protected ByteBuffer encode_text(int future_id, byte[] service_name_array, byte[] text_array) {
+
+		if (text_array == null || text_array.length == 0) {
+			return encode_none(future_id, service_name_array);
 		}
-		
-		int textLength = textArray.length;
-		int serviceNameLength = serviceNameArray.length;
-		int allLength = textLength + serviceNameLength + PROTOCOL_HADER;
 
-		ByteBuffer buffer = ByteBuffer.allocate(allLength);
+		int text_length = text_array.length;
+		int service_name_length = service_name_array.length;
+		int all_length = text_length + service_name_length + PROTOCOL_HADER;
 
-		// >> 右移N位
-		// << 左移N位
+		ByteBuffer buffer = ByteBuffer.allocate(all_length);
+
 		byte[] header = new byte[PROTOCOL_HADER];
+
 		header[0] = ProtocolDecoder.TYPE_TEXT;
-		header[1] = (byte) serviceNameLength;
-		calcText(header, textLength);
+		header[4] = (byte) service_name_length;
+
+		calc_future_id(header, future_id);
+		calc_text(header, text_length);
 
 		buffer.put(header);
-		buffer.put(serviceNameArray);
-		buffer.put(textArray);
+		buffer.put(service_name_array);
+		buffer.put(text_array);
 		return buffer;
 	}
 
+	private ByteBuffer encode_stream(int future_id, byte[] service_name_array, int stream_length) {
 
-	private ByteBuffer encodeStream(byte [] serviceNameArray, int streamLength) {
+		int service_name_length = service_name_array.length;
 
-		int serviceNameLength = serviceNameArray.length;
-		
-		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + serviceNameLength);
+		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + service_name_length);
 
-		// >> 右移N位
-		// << 左移N位
 		byte[] header = new byte[PROTOCOL_HADER];
+
 		header[0] = ProtocolDecoder.TYPE_STREAM;
-		header[1] = (byte) serviceNameLength;
-		calcStream(header, streamLength);
+		header[4] = (byte) service_name_length;
+
+		calc_future_id(header, future_id);
+		calc_stream(header, stream_length);
 
 		buffer.put(header);
-		buffer.put(serviceNameArray);
+		buffer.put(service_name_array);
 		return buffer;
 
 	}
 
 	// data with stream
-	protected ByteBuffer encodeAll(byte [] serviceNameArray, byte[] textArray, int streamLength) {
+	protected ByteBuffer encode_all(int future_id, byte[] service_name_array, byte[] text_array, int stream_length) {
 
-		if (textArray == null || textArray.length == 0) {
-
-			return encodeStream(serviceNameArray, streamLength);
+		if (text_array == null || text_array.length == 0) {
+			return encode_stream(future_id, service_name_array, stream_length);
 		}
 
-		int textLength = textArray.length;
-		int serviceNameLength = serviceNameArray.length;
-		int allLength = textLength + serviceNameLength + PROTOCOL_HADER;
+		int textLength = text_array.length;
+		int service_name_length = service_name_array.length;
+		int all_length = textLength + service_name_length + PROTOCOL_HADER;
 
-		ByteBuffer buffer = ByteBuffer.allocate(allLength);
+		ByteBuffer buffer = ByteBuffer.allocate(all_length);
 
-		// >> 右移N位
-		// << 左移N位
 		byte[] header = new byte[PROTOCOL_HADER];
+
 		header[0] = ProtocolDecoder.TYPE_MULTI;
-		header[1] = (byte) serviceNameLength;
-		calcText(header, textLength);
-		calcStream(header, streamLength);
+		header[4] = (byte) service_name_length;
+
+		calc_future_id(header, future_id);
+		calc_text(header, textLength);
+		calc_stream(header, stream_length);
 
 		buffer.put(header);
-		buffer.put(serviceNameArray);
-		buffer.put(textArray);
+		buffer.put(service_name_array);
+		buffer.put(text_array);
 		return buffer;
 
 	}
 
-	private ByteBuffer encodeNone(byte [] serviceNameArray) {
+	private ByteBuffer encode_none(int future_id, byte[] service_name_array) {
 
-		int serviceNameLength = serviceNameArray.length;
+		int service_name_length = service_name_array.length;
 
-		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + serviceNameLength);
+		ByteBuffer buffer = ByteBuffer.allocate(PROTOCOL_HADER + service_name_length);
 
-		// >> 右移N位
-		// << 左移N位
 		byte[] header = new byte[PROTOCOL_HADER];
+
 		header[0] = ProtocolDecoder.TYPE_TEXT;
-		header[1] = (byte) serviceNameLength;
+		header[4] = (byte) service_name_length;
+
+		calc_future_id(header, future_id);
+
 		buffer.put(header);
-		buffer.put(serviceNameArray);
+		buffer.put(service_name_array);
 		return buffer;
 	}
-	
-	public IOWriteFuture encode(TCPEndPoint endPoint, Session session, String serviceName, byte[] array,
+
+	public IOWriteFuture encode(TCPEndPoint endPoint, int future_id, String service_name, byte[] text_array,
 			InputStream inputStream, IOEventHandle handle) throws IOException {
 
-		byte[] serviceNameArray = serviceName.getBytes(session.getContext().getEncoding());
-		
-		if (serviceName.length() > 127) {
-			throw new IllegalArgumentException("service name too long ,"+serviceName);
+		Session session = endPoint.getSession();
+
+		byte[] service_name_array = service_name.getBytes(session.getContext().getEncoding());
+
+		if (service_name.length() > 127) {
+			throw new IllegalArgumentException("service name too long ," + service_name);
 		}
 
 		if (inputStream != null) {
 
-			int dataLength = inputStream.available();
+			int data_length = inputStream.available();
 
-			ByteBuffer textBuffer = encodeAll(serviceNameArray, array, dataLength);
+			ByteBuffer textBuffer = encode_all(future_id, service_name_array, text_array, data_length);
 
 			textBuffer.flip();
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(endPoint, session, serviceName, textBuffer, array, inputStream, handle);
+				return new MultiWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, inputStream,
+						handle);
 			}
 
-			return new ByteArrayWriteFuture(endPoint, session, serviceName, textBuffer, array,
+			return new ByteArrayWriteFuture(endPoint, future_id, service_name, textBuffer, text_array,
 					(ByteArrayInputStream) inputStream, handle);
 
 		}
 
-		ByteBuffer textBuffer = encodeText(serviceNameArray, array);
+		ByteBuffer textBuffer = encode_text(future_id, service_name_array, text_array);
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(endPoint, session, serviceName, textBuffer, array, handle);
+		return new TextWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, handle);
 	}
 
-	
 }

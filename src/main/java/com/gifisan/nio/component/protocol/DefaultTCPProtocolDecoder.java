@@ -13,9 +13,9 @@ public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 
 	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
 
-		ByteBuffer buffer = ByteBuffer.allocate(1);
+		ByteBuffer header = ByteBuffer.allocate(PROTOCOL_HADER);
 
-		int length = endPoint.read(buffer);
+		int length = endPoint.read(header);
 
 		if (length < 1) {
 			if (length < 0) {
@@ -24,7 +24,7 @@ public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 			return null;
 		}
 
-		byte type = buffer.get(0);
+		byte type = header.get(0);
 
 		if (type < 3) {
 
@@ -32,27 +32,26 @@ public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 				return null;
 			}
 
-			return this.doDecode(endPoint, type);
+			return this.doDecode(endPoint, header, type);
 
 		} else {
 
-			return this.doDecodeExtend(endPoint, type);
+			return this.doDecodeExtend(endPoint, header, type);
 		}
 	}
-	
-	
-	private IOReadFuture doDecode(TCPEndPoint endPoint, byte type) throws IOException {
+
+	private IOReadFuture doDecode(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
 
 		if (type == TYPE_TEXT) {
-			return new TextReadFuture(endPoint, endPoint.getSession());
-		}else if(type == TYPE_MULTI){
-			return new MultiReadFuture(endPoint, endPoint.getSession());
-		}else{
-			return new StreamReadFuture(endPoint, endPoint.getSession());
+			return new TextReadFuture(endPoint, header);
+		} else if (type == TYPE_MULTI) {
+			return new MultiReadFuture(endPoint, header);
+		} else {
+			return new StreamReadFuture(endPoint, header);
 		}
 	}
-	
-	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
+
+	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
 
 		return null;
 	}
