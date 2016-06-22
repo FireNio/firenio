@@ -1,13 +1,21 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
-
-import com.gifisan.nio.component.future.Future;
+import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.WriteFuture;
 
 public interface IOEventHandle {
 
-	public abstract void handle(Session session,Future future, IOException e);
-	
-	public abstract void handle(Session session,Future future);
-	
+	public abstract void sessionOpened(Session session);
+
+	public abstract void sessionClosed(Session session);
+
+	public abstract void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause);
+
+	public abstract void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture,
+			Exception cause);
+
+	public abstract void futureReceived(Session session, ReadFuture future);
+
+	public abstract void futureSent(Session session, WriteFuture future);
+
 }

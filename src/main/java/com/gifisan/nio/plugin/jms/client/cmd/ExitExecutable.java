@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
@@ -13,7 +13,7 @@ public class ExitExecutable extends JMSCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 
-		ClientTCPConnector connector = getClientConnector(context);
+		TCPConnector connector = getClientConnector(context);
 		
 		if (connector == null) {
 			response.setResponse("请先登录！");

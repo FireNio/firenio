@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.TextMessage;
@@ -15,7 +15,7 @@ public class TestPublish {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		connector.login("admin", "admin100");

@@ -13,11 +13,12 @@ import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ThreadPool;
+import com.gifisan.nio.server.NIOContext;
 import com.gifisan.security.Authority;
 
 public abstract class AbstractClientSession extends AbstractSession implements ProtectedClientSession {
 
-	protected ClientContext					context			= null;
+	protected NIOContext					context			= null;
 	protected DatagramPacketAcceptor			dpAcceptor		= null;
 	private ThreadPool						executor			= null;
 	private Map<String, OnReadFuture>			listeners			= new HashMap<String, OnReadFuture>();
@@ -26,8 +27,8 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 
 	public AbstractClientSession(TCPEndPoint endPoint) {
 		super(endPoint);
-		this.context = (ClientContext) endPoint.getContext();
-		this.executor = context.getExecutorThreadPool();
+		this.context = endPoint.getContext();
+		this.executor = context.getThreadPool();
 	}
 
 	/**
@@ -36,15 +37,6 @@ public abstract class AbstractClientSession extends AbstractSession implements P
 	@Deprecated
 	public void cancelListen(String serviceName) {
 		this.listeners.remove(serviceName);
-	}
-
-	public void destroyImmediately() {
-
-		super.destroyImmediately();
-	}
-
-	public ClientContext getContext() {
-		return context;
 	}
 
 	public DatagramPacketAcceptor getDatagramPacketAcceptor() {

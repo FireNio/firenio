@@ -2,7 +2,7 @@ package com.gifisan.nio.server.service;
 
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerContext;
 
@@ -16,7 +16,7 @@ public class DefaultNIOFilterWrapper extends InitializeableImpl implements NIOFi
 		this.setConfig(config);
 	}
 
-	public void accept(IOSession session,ServerReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 		this.filter.accept(session,future);
 	}
 

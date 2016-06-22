@@ -5,7 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -16,7 +16,7 @@ public class TestTellerByteMessage {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		

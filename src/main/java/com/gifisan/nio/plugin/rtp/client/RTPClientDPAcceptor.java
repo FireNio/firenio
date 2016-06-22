@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientContext;
+import com.gifisan.nio.client.NIOContext;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
@@ -18,7 +18,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 	private DatagramPacketGroup	packetGroup		= null;
 	private RTPHandle		udpReceiveHandle	= null;
 	private RTPClient			rtpClient			= null;
-	private ClientContext		context			= null;
+	private NIOContext		context			= null;
 	private int				groupSize			= 0;
 	private Logger				logger			= LoggerFactory.getLogger(RTPClientDPAcceptor.class);
 

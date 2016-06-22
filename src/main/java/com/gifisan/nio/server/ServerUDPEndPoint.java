@@ -24,7 +24,7 @@ public class ServerUDPEndPoint extends AbstractUDPEndPoint {
 
 		if (session != null) {
 
-			session.destroyImmediately();
+			session.destroy();
 		}
 	}
 

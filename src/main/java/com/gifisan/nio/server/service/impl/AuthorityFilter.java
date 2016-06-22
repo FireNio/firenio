@@ -3,7 +3,7 @@ package com.gifisan.nio.server.service.impl;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerSession;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
@@ -14,7 +14,7 @@ public class AuthorityFilter extends AbstractNIOFilter {
 
 	private Logger		logger	= LoggerFactory.getLogger(AuthorityFilter.class);
 	
-	public void accept(IOSession session,ServerReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 		
 		ServerSession _session =  ((ServerSession)session);
 		

@@ -12,16 +12,15 @@ import com.gifisan.nio.component.TCPEndPoint;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
-	private IOEventHandle		handle		= null;
 	private Session			session		= null;
 	private byte[]			textCache		= null;
 	protected TCPEndPoint		endPoint		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected InputStream		inputStream	= null;
-	private static final Logger logger = LoggerFactory.getLogger(AbstractWriteFuture.class);
+	private static final Logger	logger		= LoggerFactory.getLogger(AbstractWriteFuture.class);
 
-	public AbstractWriteFuture(TCPEndPoint endPoint,IOEventHandle handle,Integer futureID, String serviceName, ByteBuffer textBuffer, byte[] textCache) {
-		this.handle = handle;
+	public AbstractWriteFuture(TCPEndPoint endPoint, Integer futureID, String serviceName, ByteBuffer textBuffer,
+			byte[] textCache) {
 		this.endPoint = endPoint;
 		this.session = endPoint.getSession();
 		this.textBuffer = textBuffer;
@@ -36,28 +35,26 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	}
 
 	public void onException(IOException e) {
-		
-//		logger.error(e.getMessage(),e);
-		
-		if (this.handle == null) {
-			return;
-		}
+
+		// logger.error(e.getMessage(),e);
+
+		IOEventHandle handle = endPoint.getContext().getIOEventHandle();
 		try {
-			this.handle.handle(session, this, e);
+			// FIXME
+			handle.exceptionCaughtOnWrite(session, null, this, e);
 		} catch (Throwable e1) {
 			logger.debug(e1);
 		}
 	}
-	
+
 	public void onSuccess() {
-		
-//		logger.debug(">>>>>>>>>>>>>>>>>>>>> writed..");
-		
-		if (this.handle == null) {
-			return;
-		}
+
+		// logger.debug(">>>>>>>>>>>>>>>>>>>>> writed..");
+
+		IOEventHandle handle = endPoint.getContext().getIOEventHandle();
+
 		try {
-			this.handle.handle(session, this);
+			handle.futureSent(session, this);
 		} catch (Throwable e) {
 			logger.debug(e);
 		}
@@ -83,11 +80,10 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		if (text == null) {
 			if (textCache == null) {
 				text = "";
-			}else{
+			} else {
 				text = new String(textCache, session.getContext().getEncoding());
 			}
-			
-			
+
 		}
 		return text;
 	}

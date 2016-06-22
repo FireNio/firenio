@@ -1,11 +1,11 @@
 package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.ReadFutureFactory;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.BytedMessage;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.ReadFutureFactory;
 
 public class Consumer {
 
@@ -13,11 +13,11 @@ public class Consumer {
 	private JMSSessionAttachment	attachment	= null;
 	private ConsumerQueue		consumerQueue	= null;
 	private IOSession			session		= null;
-	private ServerReadFuture		future		= null;
+	private ReadFuture		future		= null;
 	private Message 			message 		= null;
 
 	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, IOSession session,
-			ServerReadFuture future, String queueName) {
+			ReadFuture future, String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -50,7 +50,7 @@ public class Consumer {
 
 		IOSession session = this.session;
 		
-		ServerReadFuture future = ReadFutureFactory.create(this.future);
+		ReadFuture future = ReadFutureFactory.create(this.future);
 		
 		future.attach(this);
 		

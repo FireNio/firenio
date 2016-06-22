@@ -44,9 +44,9 @@ public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		
 		logger.error(e.getMessage(),e);
 	}
-
-	protected Thread getLooperThread() {
-
-		return new Thread(this, "UDP:Selector@" + this.selector.toString());
+	
+	public String toString() {
+		return "UDP:Selector@" + this.selector.toString();
 	}
+
 }

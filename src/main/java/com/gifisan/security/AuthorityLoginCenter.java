@@ -12,7 +12,7 @@ import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.ServerSession;
@@ -23,7 +23,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
-	public boolean login(IOSession session, ServerReadFuture future) {
+	public boolean login(IOSession session, ReadFuture future) {
 
 		Authority authority = getAuthority(session, future);
 		
@@ -66,12 +66,12 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		session.setMachineType(machineType);
 	}
 
-	public boolean isValidate(IOSession session, ServerReadFuture future) {
+	public boolean isValidate(IOSession session, ReadFuture future) {
 
 		return getAuthority(session, future) != null;
 	}
 	
-	protected Authority getAuthority(IOSession session, ServerReadFuture future) {
+	protected Authority getAuthority(IOSession session, ReadFuture future) {
 
 		Parameters param = future.getParameters();
 		String username = param.getParameter("username");

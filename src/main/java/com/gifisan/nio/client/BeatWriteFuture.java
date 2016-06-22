@@ -10,7 +10,7 @@ import com.gifisan.nio.component.future.WriteFuture;
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
 	public BeatWriteFuture(TCPEndPoint endPoint) {
-		super(endPoint, null, 0, null, null, null);
+		super(endPoint, 0, null, null, null);
 	}
 
 	private ByteBuffer	beat	= ByteBuffer.wrap(new byte[] { 3 });

@@ -26,8 +26,6 @@ public interface ClientSession extends Session {
 
 	public abstract void cancelListen(String serviceName);
 
-	public abstract ClientContext getContext();
-
 	public abstract void onStreamRead(String serviceName, ClientStreamAcceptor acceptor);
 	
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.SYSTEMStopServerServlet;
@@ -40,7 +40,7 @@ public class ServerShutdown {
 
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
-		ClientTCPConnector connector = new ClientTCPConnector("localhost", port,"M");
+		TCPConnector connector = new TCPConnector("localhost", port,"M");
 		
 		connector.connect();
 		

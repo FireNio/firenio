@@ -1,7 +1,6 @@
 package com.gifisan.nio.server.configuration;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.alibaba.fastjson.JSONArray;
 import com.gifisan.nio.common.SharedBundle;
@@ -16,32 +15,11 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 
 		configuration.setFiltersConfiguration(loadFiltersConfiguration(bundle));
 		configuration.setPluginsConfiguration(loadPluginsConfiguration(bundle));
-		configuration.setServerConfiguration(loadServerConfiguration(bundle));
 		configuration.setServletsConfiguration(loadServletsConfiguration(bundle));
 		configuration.setPermissionConfiguration(loadPermissionConfiguration(bundle));
 		
 		return configuration;
 	}
-	
-	protected ServerConfiguration loadServerConfiguration(SharedBundle bundle){
-		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_CORE_SIZE(bundle.getIntegerProperty("SERVER.CORE_SIZE",4));
-		configuration.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
-		configuration.setSERVER_PASSWORD(bundle.getProperty("SERVER.PASSWORD", "admin100"));
-		configuration.setSERVER_PORT(bundle.getIntegerProperty("SERVER.PORT"));
-		configuration.setSERVER_UDP_BOOT(bundle.getBooleanProperty("SERVER.UDP_BOOT"));
-		configuration.setSERVER_USERNAME(bundle.getProperty("SERVER.USERNAME", "admin"));
-
-		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-		Charset charset = Charset.forName(encoding);
-		
-		configuration.setSERVER_ENCODING(charset);
-
-		return configuration;
-	}
-	
 	
 	protected abstract FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException;
 	

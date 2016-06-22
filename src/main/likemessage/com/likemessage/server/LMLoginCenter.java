@@ -8,7 +8,7 @@ import com.gifisan.database.SessionQuery;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityLoginCenter;
@@ -23,7 +23,7 @@ public class LMLoginCenter extends AuthorityLoginCenter {
 		this.query = new SessionQuery(context);
 	}
 
-	protected Authority getAuthority(IOSession session, ServerReadFuture future) {
+	protected Authority getAuthority(IOSession session, ReadFuture future) {
 		try {
 			query.open();
 

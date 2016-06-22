@@ -21,7 +21,7 @@ public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 	protected void extendClose() {
 		if (session != null) {
 
-			session.destroyImmediately();
+			session.destroy();
 		}
 	}
 

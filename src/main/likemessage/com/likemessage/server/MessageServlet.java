@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
 import com.gifisan.nio.plugin.jms.server.MQContextFactory;
@@ -24,7 +24,7 @@ public class MessageServlet extends LMServlet {
 		return new MessageService(context);
 	}
 
-	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(IOSession session, ReadFuture future, AbstractService _service) throws Exception {
 
 //		if (future.hasOutputStream()) {
 //
@@ -51,7 +51,7 @@ public class MessageServlet extends LMServlet {
 
 	}
 
-	private void addMessage(IOSession session, ServerReadFuture future, Parameters parameters, MessageService service)
+	private void addMessage(IOSession session, ReadFuture future, Parameters parameters, MessageService service)
 			throws Exception {
 
 		JSONObject object = parameters.getJSONObject("t_message");

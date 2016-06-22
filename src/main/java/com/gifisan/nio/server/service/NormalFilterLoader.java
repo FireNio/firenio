@@ -9,8 +9,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.server.DefaultServerContext;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.configuration.FiltersConfiguration;
 import com.gifisan.nio.server.service.impl.AuthorityFilter;
 
@@ -18,20 +17,20 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 	private Logger				logger		= LoggerFactory.getLogger(NormalFilterLoader.class);
 	private NIOFilterWrapper		rootFilter	= null;
-	private ServerContext		context		= null;
+	private NIOContext		context		= null;
 	private DynamicClassLoader	classLoader	= null;
 	private FiltersConfiguration	configuration	= null;
 
-	public NormalFilterLoader(ServerContext context, DynamicClassLoader classLoader) {
+	public NormalFilterLoader(NIOContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
 	}
 
-	private NIOFilterWrapper loadFilters(ServerContext context, DynamicClassLoader classLoader) throws IOException,
+	private NIOFilterWrapper loadFilters(NIOContext context, DynamicClassLoader classLoader) throws IOException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException {
 
-		DefaultServerContext _context = (DefaultServerContext) context;
+		DefaultNIOContext _context = (DefaultNIOContext) context;
 		
 		List<Configuration> filterConfigurations = configuration.getFilters();
 		
@@ -150,7 +149,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		}
 	}
 
-	public void prepare(ServerContext context, Configuration config) throws Exception {
+	public void prepare(NIOContext context, Configuration config) throws Exception {
 
 		logger.info("  [NIOServer] 尝试加载新的Filter配置......");
 
@@ -163,7 +162,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.softStart();
 	}
 
-	public void unload(ServerContext context, Configuration config) throws Exception {
+	public void unload(NIOContext context, Configuration config) throws Exception {
 
 		NIOFilterWrapper filter = rootFilter;
 

@@ -12,7 +12,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 
-public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ServerReadFuture {
+public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ReadFuture {
 
 	protected TCPEndPoint		endPoint			= null;
 	protected Session			session			= null;
@@ -150,13 +150,13 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 
 	public void catchOutputException(IOException e) {
 		if (outputIOHandle != null) {
-			outputIOHandle.handle(session, this, e);
+			outputIOHandle.exceptionCaughtOnRead(session, this, e);
 		}
 	}
 
 	public void catchInputException(IOException e) {
 		if (inputIOHandle != null) {
-			inputIOHandle.handle(session, this, e);
+			outputIOHandle.exceptionCaughtOnRead(session, this, e);
 		}
 	}
 

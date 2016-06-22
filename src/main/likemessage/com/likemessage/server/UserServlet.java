@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
@@ -21,7 +21,7 @@ public class UserServlet extends LMServlet {
 		return new UserService(context);
 	}
 
-	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(IOSession session, ReadFuture future, AbstractService _service) throws Exception {
 
 		UserService service = (UserService) _service;
 
@@ -36,7 +36,7 @@ public class UserServlet extends LMServlet {
 		}
 	}
 
-	private void regist(IOSession session, ServerReadFuture future, Parameters parameters, UserService service)
+	private void regist(IOSession session, ReadFuture future, Parameters parameters, UserService service)
 			throws Exception {
 
 		RESMessage message = service.regist(session, future, parameters);

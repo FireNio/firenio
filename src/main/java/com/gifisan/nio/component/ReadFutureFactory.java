@@ -1,13 +1,15 @@
-package com.gifisan.nio.server;
+package com.gifisan.nio.component;
 
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.TextReadFuture;
+import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.ServerSession;
 
 public class ReadFutureFactory {
 
-	public static ServerReadFuture create(ReadFuture future) {
+	public static ReadFuture create(ReadFuture future) {
 
 		IOReadFuture _Future = (IOReadFuture) future;
 
@@ -18,7 +20,7 @@ public class ReadFutureFactory {
 
 	}
 	
-	public static ServerReadFuture create(IOSession session,String serviceName) {
+	public static ReadFuture create(IOSession session,String serviceName) {
 
 		ServerSession serverSession = (ServerSession) session;
 		

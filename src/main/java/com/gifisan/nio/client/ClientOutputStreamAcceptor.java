@@ -2,11 +2,10 @@ package com.gifisan.nio.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.OutputStreamAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.IOReadFuture;
 
-public class ClientOutputStreamAcceptor implements OutputStreamAcceptor {
+public class ClientOutputStreamAcceptor {
 
 	public void accept(Session session, IOReadFuture future) throws Exception {
 

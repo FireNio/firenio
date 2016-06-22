@@ -1,6 +1,6 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 
 
@@ -11,9 +11,9 @@ public interface LoginCenter extends Initializeable {
 
 	public abstract void logout(IOSession session);
 
-	public abstract boolean isValidate(IOSession session, ServerReadFuture future);
+	public abstract boolean isValidate(IOSession session, ReadFuture future);
 
-	public abstract boolean login(IOSession session, ServerReadFuture future);
+	public abstract boolean login(IOSession session, ReadFuture future);
 
 
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.likemessage.bean.B_Contact;
@@ -18,7 +18,7 @@ public class TestGetContactListByUserID {
 		String username = "wk";
 		String password = "wk";
 
-		final ClientTCPConnector connector = ClientUtil.getClientConnector();
+		final TCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		

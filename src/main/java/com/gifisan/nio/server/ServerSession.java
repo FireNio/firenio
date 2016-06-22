@@ -6,31 +6,24 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.security.Authority;
-import com.gifisan.security.AuthorityManager;
 
 public class ServerSession extends AbstractSession implements IOSession {
 
-	private ServerContext		context			= null;
-	private LoginCenter			loginCenter		= null;
+	private NIOContext			context			= null;
 	private UDPEndPoint			udpEndPoint		= null;
-	private AuthorityManager		authorityManager	= null;
 	private static final Logger	logger			= LoggerFactory.getLogger(ServerSession.class);
 
 	public ServerSession(TCPEndPoint endPoint) {
 		super(endPoint);
 
-		this.context = (ServerContext) endPoint.getContext();
-		this.loginCenter = context.getLoginCenter();
+		this.context = (NIOContext) endPoint.getContext();
 	}
 
 	public void flush(ReadFuture future) {
@@ -40,16 +33,20 @@ public class ServerSession extends AbstractSession implements IOSession {
 			throw new IllegalStateException("flushed already");
 		}
 
+		IOEventHandle handle = context.getIOEventHandle();
+
 		if (!endPoint.isOpened()) {
-			IOEventHandle handle = _Future.getInputIOHandle();
-			if (handle != null) {
-				handle.handle(this, _Future, DisconnectException.INSTANCE);
-			}
+			
+			handle.exceptionCaughtOnWrite(this, future, null, DisconnectException.INSTANCE);
+			
 			return;
 		}
+		
+		IOWriteFuture writeFuture = null;
 
 		try {
-			IOWriteFuture writeFuture = encoder.encode(endPoint, 0, _Future.getServiceName(), _Future.getTextCache()
+			
+			writeFuture = encoder.encode(endPoint, 0, _Future.getServiceName(), _Future.getTextCache()
 					.toByteArray(), _Future.getInputStream(), _Future.getInputIOHandle());
 
 			_Future.flush();
@@ -58,20 +55,11 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 			this.endPointWriter.offer(writeFuture);
 		} catch (IOException e) {
-			logger.debug(e);
-			IOEventHandle handle = _Future.getInputIOHandle();
-			if (handle != null) {
-				handle.handle(this, _Future, DisconnectException.INSTANCE);
-			}
+			
+			logger.debug(e.getMessage(),e);
+			
+			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
 		}
-	}
-
-	public ServerContext getContext() {
-		return context;
-	}
-
-	public LoginCenter getLoginCenter() {
-		return loginCenter;
 	}
 
 	public void disconnect() {
@@ -79,7 +67,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
 	}
 
-	public void destroyImmediately() {
+	public void destroy() {
 
 		SessionFactory factory = context.getSessionFactory();
 
@@ -87,11 +75,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		CloseUtil.close(udpEndPoint);
 
-		super.destroyImmediately();
-	}
-
-	protected TCPEndPoint getEndPoint() {
-		return super.getEndPoint();
+		super.destroy();
 	}
 
 	public void setUDPEndPoint(UDPEndPoint udpEndPoint) {
@@ -103,25 +87,8 @@ public class ServerSession extends AbstractSession implements IOSession {
 		this.udpEndPoint = udpEndPoint;
 	}
 
-	public AuthorityManager getAuthorityManager() {
-		return authorityManager;
-	}
-
-	public void setAuthorityManager(AuthorityManager authorityManager) {
-		this.authorityManager = authorityManager;
-		if (authorityManager.getAuthority().getRoleID() == Authority.GUEST.getRoleID()) {
-			return;
-		}
-		this.sessionID = UUIDGenerator.random();
-		this.context.getSessionFactory().putIOSession(this);
-	}
-
 	public UDPEndPoint getUDPEndPoint() {
 		return udpEndPoint;
 	}
 
-	public Authority getAuthority() {
-
-		return authorityManager.getAuthority();
-	}
 }

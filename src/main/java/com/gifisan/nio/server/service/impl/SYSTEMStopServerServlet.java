@@ -4,9 +4,9 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.NIOServer;
+import com.gifisan.nio.server.NIOAcceptor;
 import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
@@ -16,11 +16,11 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
-	public void accept(IOSession session, ServerReadFuture future) throws Exception {
+	public void accept(IOSession session, ReadFuture future) throws Exception {
 		
 		ServerContext context = (ServerContext) session.getContext();
 		
-		NIOServer server = context.getServer();
+		NIOAcceptor server = context.getServer();
 		
 		new Thread(new StopServer(server)).start();
 		
@@ -31,9 +31,9 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 
 	private class StopServer implements Runnable {
 
-		private NIOServer	server	= null;
+		private NIOAcceptor	server	= null;
 
-		public StopServer(NIOServer server) {
+		public StopServer(NIOAcceptor server) {
 			this.server = server;
 		}
 

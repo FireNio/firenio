@@ -20,7 +20,7 @@ import com.gifisan.nio.component.future.IOWriteFuture;
  */
 public interface ProtocolEncoder {
 
-	public abstract IOWriteFuture encode(TCPEndPoint endPoint, int request_id, String service_name,
-			byte[] text_array, InputStream inputStream, IOEventHandle handle) throws IOException;
+	public abstract IOWriteFuture encode(TCPEndPoint endPoint, int request_id, String service_name, byte[] text_array,
+			InputStream inputStream, IOEventHandle handle) throws IOException;
 
 }

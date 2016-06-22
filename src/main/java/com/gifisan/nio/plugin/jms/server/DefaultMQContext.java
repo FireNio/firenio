@@ -7,7 +7,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ReentrantMap;
 import com.gifisan.nio.concurrent.ReentrantSet;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -92,12 +92,12 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) {
+	public void subscribeMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}

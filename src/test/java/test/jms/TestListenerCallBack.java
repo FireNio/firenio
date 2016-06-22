@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
@@ -18,7 +18,7 @@ public class TestListenerCallBack {
 
 	public static void main(String[] args) throws IOException, JMSException {
 		
-		final ClientTCPConnector connector = ClientUtil.getClientConnector();
+		final TCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		

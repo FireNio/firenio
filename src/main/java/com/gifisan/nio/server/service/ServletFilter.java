@@ -9,7 +9,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
@@ -25,7 +25,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		this.classLoader = classLoader;
 	}
 
-	public void accept(IOSession session,ServerReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 		
 		String serviceName = future.getServiceName();
 		
@@ -40,7 +40,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	private void accept(String serviceName, IOSession session,ServerReadFuture future) throws Exception {
+	private void accept(String serviceName, IOSession session,ReadFuture future) throws Exception {
 		
 		FilterAcceptor servlet = servletLoader.getServlet(serviceName);
 		
@@ -54,7 +54,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		}
 	}
 
-	private void accept404(IOSession session,ServerReadFuture future) throws IOException {
+	private void accept404(IOSession session,ReadFuture future) throws IOException {
 		
 		logger.info("[NIOServer] empty service name");
 		
@@ -63,7 +63,7 @@ public final class ServletFilter extends AbstractNIOFilter {
 		session.flush(future);
 	}
 
-	private void accept404(IOSession session,ServerReadFuture future, String serviceName) throws IOException {
+	private void accept404(IOSession session,ReadFuture future, String serviceName) throws IOException {
 		
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
 		

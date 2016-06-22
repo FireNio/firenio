@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 
 public class ClientUtil {
 
-	public static ClientTCPConnector getClientConnector() throws IOException {
+	public static TCPConnector getClientConnector() throws IOException {
 
 		PropertiesLoader.load();
 
@@ -25,7 +25,7 @@ public class ClientUtil {
 		
 		host = "localhost";
 
-		ClientTCPConnector connector = new ClientTCPConnector(host, SharedBundle.instance().getIntegerProperty(
+		TCPConnector connector = new TCPConnector(host, SharedBundle.instance().getIntegerProperty(
 				"SERVER.PORT"), "M");
 
 		// DebugUtil.info(connector.toString());

@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -15,7 +15,7 @@ public class TestShowMemory {
 		
 		String param = "{username:\"admin\",password:\"admin100\"}";
 		
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		ClientSession session = connector.getClientSession();
 		

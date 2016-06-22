@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
@@ -17,7 +16,7 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
-public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
+public class ClientEndPointWriter implements EndPointWriter {
 
 	private Thread					owner		= null;
 	private boolean				running		= false;
@@ -70,21 +69,8 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 			try {
 
-				for (;;) {
-
-					if (writer.write()) {
-
-						endPoint.decrementWriter();
-
-						writer.onSuccess();
-
-						break;
-
-					} else {
-
-						waitWrite(writer, endPoint);
-					}
-				}
+				loopWrite(writer);
+				
 			} catch (IOException e) {
 				logger.debug(e);
 
@@ -94,6 +80,25 @@ public class ClientEndPointWriter extends AbstractLifeCycle implements EndPointW
 				logger.debug(e);
 
 				writer.onException(new IOException(e));
+			}
+		}
+	}
+	
+	private void loopWrite(IOWriteFuture writer) throws IOException{
+		
+		for (;;) {
+
+			if (writer.write()) {
+
+				endPoint.decrementWriter();
+
+				writer.onSuccess();
+
+				break;
+
+			} else {
+
+				waitWrite(writer, endPoint);
 			}
 		}
 	}

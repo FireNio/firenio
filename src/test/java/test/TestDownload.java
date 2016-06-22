@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.ClientStreamAcceptor;
 import com.gifisan.nio.common.CloseUtil;
@@ -15,7 +15,7 @@ public class TestDownload {
 	public static void main(String[] args) throws IOException {
 
 		String serviceKey = "upload-temp.zip";
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		ClientSession session = connector.getClientSession();
 		

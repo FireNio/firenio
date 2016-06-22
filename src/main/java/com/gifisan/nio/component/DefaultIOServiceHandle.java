@@ -1,4 +1,4 @@
-package com.gifisan.nio.server;
+package com.gifisan.nio.component;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -12,13 +12,14 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.SharedBundle;
-import com.gifisan.nio.component.AbstractNIOContext;
-import com.gifisan.nio.component.DatagramPacketAcceptor;
-import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.component.LoginCenter;
-import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
+import com.gifisan.nio.server.NIOAcceptor;
+import com.gifisan.nio.server.ServerOutputStreamAcceptor;
+import com.gifisan.nio.server.ServerProtocolDecoder;
+import com.gifisan.nio.server.ServerReadFutureAcceptor;
+import com.gifisan.nio.server.ServerUDPEndPointFactory;
+import com.gifisan.nio.server.SessionFactory;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.ApplicationConfigurationLoader;
 import com.gifisan.nio.server.configuration.FileSystemACLoader;
@@ -29,7 +30,7 @@ import com.gifisan.nio.server.service.NIOFilter;
 import com.gifisan.security.AuthorityLoginCenter;
 import com.gifisan.security.RoleManager;
 
-public class DefaultServerContext extends AbstractNIOContext implements ServerContext {
+public class DefaultIOServiceHandle{
 
 	private String						appLocalAddres		= null;
 	private ApplicationConfiguration		configuration		= null;
@@ -40,15 +41,10 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	private List<NIOFilter>				pluginFilters		= new ArrayList<NIOFilter>();
 	private Map<String, GenericServlet>	pluginServlets		= new HashMap<String, GenericServlet>();
 	private SessionFactory				sessionFactory		= new SessionFactory();
-	private NIOServer					server			= null;
 	private ServerConfiguration			serverConfiguration	= null;
 	private ThreadPool					serviceDispatcher	= null;
 	private RoleManager					roleManager		= new RoleManager();
 	private DynamicClassLoader			classLoader		= new DynamicClassLoader();
-
-	public DefaultServerContext(NIOServer server) {
-		this.server = server;
-	}
 
 	protected void doStart() throws Exception {
 		SharedBundle bundle = SharedBundle.instance();
@@ -136,7 +132,7 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		return pluginServlets;
 	}
 
-	public NIOServer getServer() {
+	public NIOAcceptor getServer() {
 		return server;
 	}
 
@@ -176,19 +172,6 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 		return redeployed;
 	}
 
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-
-		if (datagramPacketAcceptor == null) {
-			throw new IllegalArgumentException("null");
-		}
-
-		if (this.datagramPacketAcceptor != null) {
-			throw new IllegalArgumentException("already setted");
-		}
-
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
-
 	public RoleManager getRoleManager() {
 		return roleManager;
 	}
@@ -209,5 +192,4 @@ public class DefaultServerContext extends AbstractNIOContext implements ServerCo
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
-	
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.security.Authority;
@@ -25,7 +25,7 @@ public class UserService extends AbstractService{
 		return ((Long)list.get(0).get("count")) == 1;
 	}
 
-	public RESMessage regist(IOSession session, ServerReadFuture future,Parameters parameters) throws SQLException {
+	public RESMessage regist(IOSession session, ReadFuture future,Parameters parameters) throws SQLException {
 		
 		String username = parameters.getParameter("username");
 		

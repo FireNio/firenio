@@ -9,11 +9,11 @@ import com.gifisan.nio.server.NIOContext;
 
 public class ClientTCPEndPoint extends AbstractTCPEndPoint {
 
-	private ClientTCPConnector	connector	= null;
+	private TCPConnector	connector	= null;
 	
 	private ProtectedClientSession	session = null;
 
-	public ClientTCPEndPoint(NIOContext context, SelectionKey selectionKey, ClientTCPConnector connector)
+	public ClientTCPEndPoint(NIOContext context, SelectionKey selectionKey, TCPConnector connector)
 			throws SocketException {
 		super(context, selectionKey, connector.getEndPointWriter());
 		this.connector = connector;

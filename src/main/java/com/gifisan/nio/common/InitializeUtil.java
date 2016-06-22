@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Initializeable;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.NIOContext;
 
 public class InitializeUtil {
 
 	private static Logger	logger	= LoggerFactory.getLogger(InitializeUtil.class);
 
-	public static void destroy(Initializeable initializeable, ServerContext context, Configuration config) {
+	public static void destroy(Initializeable initializeable, NIOContext context, Configuration config) {
 
 		if (initializeable == null) {
 			return;

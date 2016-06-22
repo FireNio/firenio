@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
@@ -23,7 +23,7 @@ public class TestLoadCallBack {
 		
 		String serviceName = "TestSimpleServlet";
 		
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
 		final ClientSession session = connector.getClientSession();
 		final Logger logger = LoggerFactory.getLogger(TestLoadCallBack.class);

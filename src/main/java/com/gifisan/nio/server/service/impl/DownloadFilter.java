@@ -11,7 +11,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
@@ -24,7 +24,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 	private Map<String, String>	excludesMap	= null;
 	private static final Logger	logger		= LoggerFactory.getLogger(DownloadFilter.class);
 
-	public void accept(IOSession session,ServerReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 
 		String serviceName = future.getServiceName();
 		

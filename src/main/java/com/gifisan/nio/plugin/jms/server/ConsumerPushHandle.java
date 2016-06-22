@@ -6,7 +6,9 @@ import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.Future;
 
-public class ConsumerPushHandle implements IOEventHandle {
+
+//FIXME
+public class ConsumerPushHandle{
 
 	private MQContext	context	= null;
 

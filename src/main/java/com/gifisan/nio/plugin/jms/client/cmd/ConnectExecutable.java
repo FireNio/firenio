@@ -3,7 +3,7 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 import java.util.HashMap;
 
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
@@ -20,7 +20,7 @@ public class ConnectExecutable extends JMSCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 		
-		ClientTCPConnector connector = getClientConnector(context);
+		TCPConnector connector = getClientConnector(context);
 		
 		if (connector != null) {
 			response.setResponse("已登录。");
@@ -44,7 +44,7 @@ public class ConnectExecutable extends JMSCommandExecutor {
 		
 		try {
 			
-			connector = new ClientTCPConnector(host, Integer.valueOf(port),"M");
+			connector = new TCPConnector(host, Integer.valueOf(port),"M");
 			
 			connector.connect();
 			

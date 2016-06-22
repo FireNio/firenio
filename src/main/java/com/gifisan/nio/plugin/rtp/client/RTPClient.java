@@ -2,9 +2,9 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientContext;
+import com.gifisan.nio.client.NIOContext;
 import com.gifisan.nio.client.ClientSession;
-import com.gifisan.nio.client.ClientUDPConnector;
+import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -25,21 +25,21 @@ public class RTPClient {
 	public static final String	GROUP_SIZE	= "GROUP_SIZE";
 	public static final String	MARK_INTERVAL	= "MARK_INTERVAL";
 
-	private ClientUDPConnector	connector		= null;
+	private UDPConnector	connector		= null;
 	private FixedMessageConsumer	consumer		= null;
-	private ClientContext		context		= null;
+	private NIOContext		context		= null;
 	private String				inviteUsername	= null;
 	private MessageProducer		producer		= null;
 	private String				roomID		= null;
 	private ClientSession		session		= null;
 	private RTPHandle 			handle		= null;
 
-	public RTPClient(ClientSession session,ClientUDPConnector connector) {
+	public RTPClient(ClientSession session,UDPConnector connector) {
 		this(session,connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
 	// FIXME listen onf break
-	public RTPClient(ClientSession session,ClientUDPConnector connector, FixedMessageConsumer consumer, MessageProducer producer) {
+	public RTPClient(ClientSession session,UDPConnector connector, FixedMessageConsumer consumer, MessageProducer producer) {
 		this.connector = connector;
 		this.session = session;
 		this.producer = producer;
@@ -113,7 +113,7 @@ public class RTPClient {
 		return true;
 	}
 
-	protected ClientContext getContext() {
+	protected NIOContext getContext() {
 		return context;
 	}
 

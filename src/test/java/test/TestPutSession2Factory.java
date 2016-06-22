@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
@@ -18,7 +18,7 @@ public class TestPutSession2Factory {
 		String serviceKey = "PutSession2FactoryServlet";
 		String param = ClientUtil.getParamString();
 		
-		final ClientTCPConnector connector = ClientUtil.getClientConnector();
+		final TCPConnector connector = ClientUtil.getClientConnector();
 		
 		connector.connect();
 		

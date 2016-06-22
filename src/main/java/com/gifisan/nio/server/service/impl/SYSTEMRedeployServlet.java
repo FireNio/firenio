@@ -1,6 +1,6 @@
 package com.gifisan.nio.server.service.impl;
 
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.ServerContext;
@@ -10,7 +10,7 @@ public class SYSTEMRedeployServlet extends NIOServlet {
 	
 	public static final String SERVICE_NAME = SYSTEMRedeployServlet.class.getSimpleName();
 
-	public void accept(IOSession session,ServerReadFuture future) throws Exception {
+	public void accept(IOSession session,ReadFuture future) throws Exception {
 		if (session.getLoginCenter().isValidate(session, future)) {
 			ServerContext context = (ServerContext) session.getContext();
 			RESMessage message =  context.redeploy()  ? RESMessage.SUCCESS : RESMessage.SYSTEM_ERROR;

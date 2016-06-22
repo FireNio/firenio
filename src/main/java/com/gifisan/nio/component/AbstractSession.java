@@ -9,24 +9,23 @@ import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractSession extends AttributesImpl implements Session {
 
-	private Attachment					attachment			= null;
-	private Attachment[]				attachments			= new Attachment[4];
-	private long						creationTime			= System.currentTimeMillis();
-	private boolean					closed				= false;
-	private String						machineType			= null;
-	private SessionEventListenerWrapper	lastListener			= null;
-	private SessionEventListenerWrapper	listenerStub			= null;
-	protected TCPEndPoint				endPoint				= null;
-	protected OutputStreamAcceptor		outputStreamAcceptor	= null;
-	protected ProtocolEncoder			encoder				= null;
-	protected EndPointWriter			endPointWriter			= null;
-	protected String					sessionID				= null;
+	private Attachment					attachment	= null;
+	private Attachment[]				attachments	= new Attachment[4];
+	private long						creationTime	= System.currentTimeMillis();
+	private boolean					closed		= false;
+	private String						machineType	= null;
+	private SessionEventListenerWrapper	lastListener	= null;
+	private SessionEventListenerWrapper	listenerStub	= null;
+	protected TCPEndPoint				endPoint		= null;
+	protected ProtocolEncoder			encoder		= null;
+	protected EndPointWriter			endPointWriter	= null;
+	protected String					sessionID		= null;
+	private NIOContext					context		= null;
 
 	public AbstractSession(TCPEndPoint endPoint) {
 		NIOContext context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
-		this.outputStreamAcceptor = context.getOutputStreamAcceptor();
 		this.endPoint = endPoint;
 	}
 
@@ -37,6 +36,10 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		} else {
 			this.lastListener.setNext(new SessionEventListenerWrapper(listener));
 		}
+	}
+	
+	public NIOContext getContext() {
+		return context;
 	}
 
 	public Attachment getAttachment() {
@@ -105,7 +108,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return endPoint.isOpened();
 	}
 
-	public void destroyImmediately() {
+	public void destroy() {
 
 		this.closed = true;
 
@@ -121,12 +124,8 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return endPoint;
 	}
 
-	public OutputStreamAcceptor getOutputStreamAcceptor() {
-		return outputStreamAcceptor;
-	}
-
 	public String toString() {
-		return MessageFormatter.format("session-{}@edp{}",this.getSessionID(), endPoint);
+		return MessageFormatter.format("session-{}@edp{}", this.getSessionID(), endPoint);
 	}
 
 	public boolean closed() {
@@ -144,9 +143,9 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	public void setMachineType(String machineType) {
 		this.machineType = machineType;
 	}
-	
-	public TCPEndPoint getTCPEndPoint(){
+
+	public TCPEndPoint getTCPEndPoint() {
 		return endPoint;
 	}
-	
+
 }

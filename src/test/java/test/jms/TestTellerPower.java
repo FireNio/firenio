@@ -2,7 +2,7 @@ package test.jms;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.TextMessage;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
@@ -12,7 +12,7 @@ public class TestTellerPower {
 
 	public static void main(String[] args) throws Exception {
 
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 		

@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.Command;
 import com.gifisan.nio.common.cmd.CommandContext;
@@ -30,7 +30,7 @@ public class JMSCommand extends Command {
 
 	public void printPrefix(CommandContext context) {
 
-		ClientTCPConnector connector = (ClientTCPConnector) context.getAttribute("KEY_CONNECTOR");
+		TCPConnector connector = (TCPConnector) context.getAttribute("KEY_CONNECTOR");
 
 		if (connector == null) {
 			System.out.print("未连接> ");

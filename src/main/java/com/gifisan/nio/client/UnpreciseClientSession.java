@@ -23,10 +23,10 @@ public class UnpreciseClientSession extends AbstractClientSession {
 			throw new IOException("empty service name");
 		}
 
-		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
+		byte[] text_array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, array, inputStream,
-				context.getClientIOExceptionHandle());
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream,
+				context.getIOEventHandle());
 
 		if (closed()) {
 			throw DisconnectException.INSTANCE;
@@ -51,11 +51,11 @@ public class UnpreciseClientSession extends AbstractClientSession {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
+		
+		byte[] text_array = content == null ? null : content.getBytes(context.getEncoding());
 
-		byte[] array = content == null ? null : content.getBytes(context.getEncoding());
-
-		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, array, inputStream,
-				context.getClientIOExceptionHandle());
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream,
+				context.getIOEventHandle());
 
 		if (closed()) {
 			throw DisconnectException.INSTANCE;

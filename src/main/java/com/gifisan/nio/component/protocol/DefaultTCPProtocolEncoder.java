@@ -18,7 +18,7 @@ import com.gifisan.nio.component.future.TextWriteFuture;
 // << 左移N位
 public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
-	private final int	PROTOCOL_HADER	= ProtocolDecoder.PROTOCOL_HADER;
+	private final int	PROTOCOL_HADER		= ProtocolDecoder.PROTOCOL_HADER;
 	private final int	STREAM_BEGIN_INDEX	= ProtocolDecoder.STREAM_BEGIN_INDEX;
 
 	private void calc_text(byte[] header, int text_length) {
@@ -153,12 +153,11 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, inputStream,
-						handle);
+				return new MultiWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, inputStream);
 			}
 
 			return new ByteArrayWriteFuture(endPoint, future_id, service_name, textBuffer, text_array,
-					(ByteArrayInputStream) inputStream, handle);
+					(ByteArrayInputStream) inputStream);
 
 		}
 
@@ -166,7 +165,7 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, handle);
+		return new TextWriteFuture(endPoint, future_id, service_name, textBuffer, text_array);
 	}
 
 }

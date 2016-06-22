@@ -6,7 +6,7 @@ import java.util.List;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.likemessage.bean.B_Contact;
@@ -24,7 +24,7 @@ public class ContactServlet extends LMServlet {
 		return new ContactService(context);
 	}
 
-	protected void doAccept(IOSession session, ServerReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(IOSession session, ReadFuture future, AbstractService _service) throws Exception {
 
 		ContactService service = (ContactService) _service;
 
@@ -41,7 +41,7 @@ public class ContactServlet extends LMServlet {
 		}
 	}
 
-	private void getContactListByUserID(IOSession session, ServerReadFuture future, Parameters parameters,
+	private void getContactListByUserID(IOSession session, ReadFuture future, Parameters parameters,
 			ContactService service) throws Exception {
 
 		Integer userID = session.getAuthority().getUserID();
@@ -55,7 +55,7 @@ public class ContactServlet extends LMServlet {
 		session.flush(future);
 	}
 	
-	private void addContact(IOSession session, ServerReadFuture future, Parameters parameters,
+	private void addContact(IOSession session, ReadFuture future, Parameters parameters,
 			ContactService service) throws Exception {
 
 		T_CONTACT contact = (T_CONTACT) BeanUtil.map2Object(parameters.getJSONObject("t_contact"), T_CONTACT.class);

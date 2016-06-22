@@ -18,29 +18,43 @@ import com.gifisan.nio.common.ClassUtil;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MD5Token;
-import com.gifisan.nio.component.Connector;
+import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.EndPointWriter;
+import com.gifisan.nio.component.IOConnector;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
+import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.concurrent.TaskExecutor;
+import com.gifisan.nio.concurrent.UniqueThread;
+import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
+import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.nio.server.service.impl.SYSTEMAuthorityServlet;
 import com.gifisan.security.Authority;
 
-public class ClientTCPConnector implements Connector {
+public class TCPConnector implements IOConnector {
 
-	private AtomicBoolean		connected		= new AtomicBoolean(false);
-	private ClientContext		context		= null;
-	private ClientTCPEndPoint	endPoint		= null;
-	private AtomicBoolean		keepAlive		= new AtomicBoolean(false);
-	private Selector			selector		= null;
-	private InetSocketAddress	serverAddress	= null;
-	private TaskExecutor		taskExecutor	= null;
-	private TCPSelectorLoop		selectorLoop	= null;
-	private ClientEndPointWriter	endPointWriter	= null;
-	private ClientUDPConnector	udpConnector	= null;
-	private String				machineType	= null;
+	private AtomicBoolean		connected				= new AtomicBoolean(false);
+	private NIOContext			context				= null;
+	private ClientTCPEndPoint	endPoint				= null;
+	private AtomicBoolean		keepAlive				= new AtomicBoolean(false);
+	private Selector			selector				= null;
+	private InetSocketAddress	serverAddress			= null;
+	private TaskExecutor		taskExecutor			= null;
+	private TCPSelectorLoop		selectorLoop			= null;
+	private ClientEndPointWriter	endPointWriter			= null;
+	private UniqueThread		endPointWriterThread	= new UniqueThread();
+	private UniqueThread		selectorLoopThread		= new UniqueThread();
+	private UDPConnector		udpConnector			= null;
+	private String				machineType			= null;
+	private ProtocolDecoder		protocolDecoder		= null;
+	private ProtocolEncoder		protocolEncoder		= null;
+	private IOEventHandle		ioEventHandle			= null;
 
 	protected TCPSelectorLoop getSelectorLoop() {
 		return selectorLoop;
@@ -50,8 +64,13 @@ public class ClientTCPConnector implements Connector {
 		return endPointWriter;
 	}
 
-	public ClientTCPConnector(String host, int port,String machineType) {
-		this.context = new ClientContext(host, port);
+	public TCPConnector(IOEventHandle ioEventHandle, String machineType) {
+		this.ioEventHandle = ioEventHandle;
+		this.machineType = machineType;
+	}
+
+	public TCPConnector(ProtocolDecoder protocolDecoder, ProtocolEncoder protocolEncoder, IOEventHandle ioEventHandle,
+			String machineType) {
 		this.machineType = machineType;
 	}
 
@@ -66,8 +85,10 @@ public class ClientTCPConnector implements Connector {
 		if (connected.compareAndSet(true, false)) {
 			LifeCycleUtil.stop(context);
 			LifeCycleUtil.stop(taskExecutor);
-			LifeCycleUtil.stop(selectorLoop);
-			LifeCycleUtil.stop(endPointWriter);
+			
+			selectorLoopThread.stop();
+			endPointWriterThread.stop();
+			
 			CloseUtil.close(udpConnector);
 			CloseUtil.close(endPoint);
 		}
@@ -75,6 +96,19 @@ public class ClientTCPConnector implements Connector {
 
 	public void connect() throws IOException {
 		if (connected.compareAndSet(false, true)) {
+
+			if (protocolEncoder == null) {
+				protocolEncoder = new DefaultTCPProtocolEncoder();
+			}
+
+			if (protocolDecoder == null) {
+				protocolDecoder = new DefaultTCPProtocolDecoder();
+			}
+
+			this.context = new DefaultNIOContext(protocolDecoder, protocolEncoder, ioEventHandle);
+
+			this.context.setTCPIOService(this);
+			
 			try {
 				this.context.start();
 			} catch (Exception e) {
@@ -83,14 +117,9 @@ public class ClientTCPConnector implements Connector {
 
 			this.connect0();
 
-			try {
+			this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
-				this.endPointWriter.start();
-
-				this.selectorLoop.start();
-			} catch (Exception e) {
-				throw new IOException(e.getMessage(), e);
-			}
+			this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
 		}
 	}
 
@@ -100,33 +129,59 @@ public class ClientTCPConnector implements Connector {
 	}
 
 	private void connect0() throws IOException {
-		this.serverAddress = new InetSocketAddress(context.getServerHost(), context.getServerPort());
+
+		ServerConfiguration configuration = context.getServerConfiguration();
+
+		String SERVER_HOST = configuration.getSERVER_HOST();
+
+		int SERVER_PORT = configuration.getSERVER_PORT();
+
+		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+
 		SocketChannel channel = SocketChannel.open();
+
 		channel.configureBlocking(false);
+
 		selector = Selector.open();
+
 		channel.register(selector, SelectionKey.OP_CONNECT);
+
 		channel.connect(serverAddress);
+
 		finishConnect(selector);
 	}
 
 	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException {
+
 		for (; iterator.hasNext();) {
+
 			SelectionKey selectionKey = iterator.next();
+
 			iterator.remove();
+
 			finishConnect0(selectionKey);
 		}
 	}
 
 	private void finishConnect0(SelectionKey selectionKey) throws IOException {
+
 		SocketChannel channel = (SocketChannel) selectionKey.channel();
+
 		// does it need connection pending ?
 		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
+
 			channel.finishConnect();
+
 			channel.register(selector, SelectionKey.OP_READ);
+
 			this.endPointWriter = new ClientEndPointWriter();
+
 			this.endPoint = new ClientTCPEndPoint(context, selectionKey, this);
-			endPointWriter.setEndPoint(this.endPoint);
+
+			this.endPointWriter.setEndPoint(endPoint);
+
 			this.selectorLoop = new ClientSelectorManagerLoop(context, selector, endPointWriter);
+
 			selectionKey.attach(endPoint);
 		}
 	}
@@ -135,16 +190,8 @@ public class ClientTCPConnector implements Connector {
 		return endPoint.getSession();
 	}
 
-	protected ClientContext getContext() {
+	protected NIOContext getContext() {
 		return context;
-	}
-
-	public String getServerHost() {
-		return context.getServerHost();
-	}
-
-	public int getServerPort() {
-		return context.getServerPort();
 	}
 
 	/**
@@ -201,20 +248,20 @@ public class ClientTCPConnector implements Connector {
 				if (message.getCode() == 0) {
 
 					JSONObject o = (JSONObject) message.getData();
-					
+
 					String className = o.getString("className");
-					
+
 					Class clazz = ClassUtil.forName(className);
-					
-					Authority authority = (Authority)BeanUtil.map2Object(o, clazz);
-					
+
+					Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
+
 					((ProtectedClientSession) session).setAuthority(authority);
 
 					((ProtectedClientSession) session).setSessionID(authority.getSessionID());
 
 					((ProtectedClientSession) session).setMachineType(machineType);
-				}else{
-					
+				} else {
+
 					logined.compareAndSet(true, false);
 				}
 
@@ -239,8 +286,8 @@ public class ClientTCPConnector implements Connector {
 		// TODO complete logout
 
 	}
-	
-	public boolean isLogined(){
+
+	public boolean isLogined() {
 		return logined.get();
 	}
 

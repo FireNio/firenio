@@ -8,8 +8,6 @@ public class ApplicationConfiguration {
 
 	private PluginsConfiguration		pluginsConfiguration	= null;
 
-	private ServerConfiguration		serverConfiguration		= null;
-
 	private ServletsConfiguration		servletsConfiguration	= null;
 
 	public FiltersConfiguration getFiltersConfiguration() {
@@ -22,10 +20,6 @@ public class ApplicationConfiguration {
 
 	public PluginsConfiguration getPluginsConfiguration() {
 		return pluginsConfiguration;
-	}
-
-	public ServerConfiguration getServerConfiguration() {
-		return serverConfiguration;
 	}
 
 	public ServletsConfiguration getServletsConfiguration() {
@@ -42,10 +36,6 @@ public class ApplicationConfiguration {
 
 	protected void setPluginsConfiguration(PluginsConfiguration pluginsConfiguration) {
 		this.pluginsConfiguration = pluginsConfiguration;
-	}
-
-	protected void setServerConfiguration(ServerConfiguration serverConfiguration) {
-		this.serverConfiguration = serverConfiguration;
 	}
 
 	protected void setServletsConfiguration(ServletsConfiguration servletsConfiguration) {

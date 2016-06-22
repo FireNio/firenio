@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractSession;
-import com.gifisan.nio.component.OutputStreamAcceptor;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.TCPEndPoint;
 
 public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
@@ -37,12 +37,13 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
 
 		if (readLength == -1) {
-			AbstractSession _Session = (AbstractSession) this.session;
-
-			OutputStreamAcceptor outputStreamAcceptor = _Session.getOutputStreamAcceptor();
-
+			
+			AbstractSession _session = (AbstractSession) this.session;
+			
+			IOEventHandle eventHandle = _session.getContext().getIOEventHandle();
+			
 			try {
-				outputStreamAcceptor.accept(_Session, this);
+				eventHandle.futureReceived(_session, this);
 			} catch (Exception e) {
 				logger.debug(e);
 			}

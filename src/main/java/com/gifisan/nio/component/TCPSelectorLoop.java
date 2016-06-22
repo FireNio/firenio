@@ -41,12 +41,12 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 				logger.error("Connectable=================");
 			}
 
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			acceptException(selectionKey, e);
 		}
 	}
 	
-	protected void acceptException(SelectionKey selectionKey, IOException exception) {
+	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
 
 		SelectableChannel channel = selectionKey.channel();
 
@@ -72,10 +72,8 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		return object != null && (object.getClass() == AbstractTCPEndPoint.class || object instanceof TCPEndPoint);
 	}
 
-
-	protected Thread getLooperThread() {
-
-		return new Thread(this, "TCP:Selector@" + this.selector.toString());
+	public String toString() {
+		return "TCP:Selector@"+this.selector.toString();
 	}
 
 }

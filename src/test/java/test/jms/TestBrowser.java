@@ -2,7 +2,7 @@ package test.jms;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
@@ -14,7 +14,7 @@ public class TestBrowser {
 		
 		String queueName = "qName";
 
-		ClientTCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 		

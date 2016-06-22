@@ -7,8 +7,9 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.UDPEndPoint;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramRequest;
 import com.gifisan.security.AuthorityManager;
@@ -41,20 +42,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			return;
 		}
 		
-		AuthorityManager authorityManager = session.getAuthorityManager();
-		
-		if (authorityManager == null) {
-			logger.debug("___________________null authority,packet:{}",packet);
-			return;
-		}
-		
-		if (!authorityManager.isInvokeApproved(getSERVICE_NAME())) {
-			logger.debug("___________________null approved,packet:{}",packet);
-			return;
-		}
-		
 		doAccept(endPoint, packet,session);
-		
 	}
 	
 	protected abstract void doAccept(UDPEndPoint endPoint, DatagramPacket packet,IOSession session) throws IOException ;
@@ -71,7 +59,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			String sessionID = parameters.getParameter("sessionID");
 			
-			ServerContext context = (ServerContext) endPoint.getContext();
+			NIOContext context = endPoint.getContext();
 			
 			SessionFactory factory = context.getSessionFactory();
 			
@@ -85,7 +73,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			session.setUDPEndPoint(endPoint);
 			
-			ServerReadFuture future = ReadFutureFactory.create(session, BIND_SESSION_CALLBACK);
+			ReadFuture future = ReadFutureFactory.create(session, BIND_SESSION_CALLBACK);
 			
 			logger.debug("___________________bind___session___{}",session);
 			

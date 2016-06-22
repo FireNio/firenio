@@ -2,7 +2,7 @@ package com.gifisan.nio.component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractPluginContext extends InitializeableImpl implements PluginContext {
 
@@ -18,12 +18,12 @@ public abstract class AbstractPluginContext extends InitializeableImpl implement
 	}
 
 	// FIXME you wen ti
-	public void prepare(ServerContext context, Configuration config) throws Exception {
+	public void prepare(NIOContext context, Configuration config) throws Exception {
 		this.initialize(context, config);
 	}
 
 	// FIXME you wen ti
-	public void unload(ServerContext context, Configuration config) throws Exception {
+	public void unload(NIOContext context, Configuration config) throws Exception {
 		this.destroy(context, config);
 	}
 

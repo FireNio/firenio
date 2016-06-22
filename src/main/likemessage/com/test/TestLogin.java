@@ -3,7 +3,7 @@ package com.test;
 import java.io.IOException;
 
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.client.ClientTCPConnector;
+import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.ThreadUtil;
@@ -12,7 +12,7 @@ public class TestLogin {
 
 	public static void main(String[] args) throws IOException {
 
-		final ClientTCPConnector connector = ClientUtil.getClientConnector();
+		final TCPConnector connector = ClientUtil.getClientConnector();
 
 		connector.connect();
 

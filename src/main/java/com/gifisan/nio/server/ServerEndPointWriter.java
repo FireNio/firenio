@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
@@ -21,10 +20,8 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.concurrent.LinkedList;
 import com.gifisan.nio.concurrent.LinkedListM2O;
 
-public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointWriter {
+public class ServerEndPointWriter implements EndPointWriter {
 
-	private Thread						owner		= null;
-	private boolean					running		= false;
 	private boolean					collect		= false;
 	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
 	private Map<Long, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Long, List<IOWriteFuture>>();
@@ -91,65 +88,62 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 
 	public void run() {
 
-		for (; running;) {
+		if (collect) {
 
-			if (collect) {
+			collectEndPoints();
+		}
 
-				collectEndPoints();
-			}
+		IOWriteFuture futureFromWriters = writers.poll(16);
 
-			IOWriteFuture futureFromWriters = writers.poll(16);
+		if (futureFromWriters == null) {
 
-			if (futureFromWriters == null) {
+			return;
+		}
 
-				continue;
-			}
+		TCPEndPoint endPoint = futureFromWriters.getEndPoint();
 
-			TCPEndPoint endPoint = futureFromWriters.getEndPoint();
-
-			if (endPoint.isEndConnect()) {
-				if (endPoint.isOpened()) {
-					CloseUtil.close(endPoint);
-				}
-				endPoint.decrementWriter();
-				futureFromWriters.onException(DisconnectException.INSTANCE);
-				continue;
-			}
-
-			if (endPoint.isNetworkWeak()) {
-
-				this.lazyWriter(futureFromWriters);
-
-				continue;
-			}
-
-			try {
-
-				IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriter();
-
-				if (futureFromEndPoint != null) {
-
-					doWriteFutureFromEndPoint(futureFromEndPoint, futureFromWriters, endPoint);
-
-					continue;
-				}
-
-				doWriteFutureFromWriters(futureFromWriters, endPoint);
-
-			} catch (IOException e) {
-				logger.debug(e);
-
+		if (endPoint.isEndConnect()) {
+			if (endPoint.isOpened()) {
 				CloseUtil.close(endPoint);
-
-				futureFromWriters.onException(e);
-
-			} catch (Exception e) {
-				logger.debug(e);
-
-				CloseUtil.close(endPoint);
-
-				futureFromWriters.onException(new IOException(e));
 			}
+			endPoint.decrementWriter();
+			futureFromWriters.onException(DisconnectException.INSTANCE);
+			return;
+		}
+
+		if (endPoint.isNetworkWeak()) {
+
+			this.lazyWriter(futureFromWriters);
+
+			return;
+		}
+
+		try {
+
+			IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriter();
+
+			if (futureFromEndPoint != null) {
+
+				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromWriters, endPoint);
+
+				return;
+			}
+
+			doWriteFutureFromWriters(futureFromWriters, endPoint);
+
+		} catch (IOException e) {
+			logger.debug(e);
+
+			CloseUtil.close(endPoint);
+
+			futureFromWriters.onException(e);
+
+		} catch (Exception e) {
+			logger.debug(e);
+
+			CloseUtil.close(endPoint);
+
+			futureFromWriters.onException(new IOException(e));
 		}
 	}
 
@@ -200,19 +194,12 @@ public class ServerEndPointWriter extends AbstractLifeCycle implements EndPointW
 		} else {
 
 			endPoint.setCurrentWriter(futureFromWriters);
-			
+
 			offer(futureFromWriters);
 		}
 	}
-
-	protected void doStart() throws Exception {
-		this.running = true;
-		this.owner = new Thread(this, "Server-EndPoint-Writer");
-		this.owner.start();
-
-	}
-
-	protected void doStop() throws Exception {
-		running = false;
+	
+	public String toString() {
+		return "Server-EndPoint-Writer";
 	}
 }

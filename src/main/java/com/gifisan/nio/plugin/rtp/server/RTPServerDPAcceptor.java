@@ -8,6 +8,7 @@ import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerDPAcceptor;
+import com.gifisan.security.AuthorityManager;
 
 public class RTPServerDPAcceptor extends ServerDPAcceptor {
 	
@@ -23,6 +24,18 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 
 	public void doAccept(UDPEndPoint endPoint, DatagramPacket packet,IOSession session) throws IOException {
 
+		AuthorityManager authorityManager = session.getAuthorityManager();
+		
+		if (authorityManager == null) {
+			logger.debug("___________________null authority,packet:{}",packet);
+			return;
+		}
+		
+		if (!authorityManager.isInvokeApproved(getSERVICE_NAME())) {
+			logger.debug("___________________null approved,packet:{}",packet);
+			return;
+		}
+		
 		RTPSessionAttachment attachment = (RTPSessionAttachment)session.getAttachment(context);
 		
 		RTPRoom room = attachment.getRtpRoom();

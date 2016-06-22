@@ -4,7 +4,7 @@ import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.ServerReadFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.ErrorMessage;
 import com.gifisan.nio.plugin.jms.Message;
@@ -21,7 +21,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 	public static final String	SERVICE_NAME	= JMSBrowserServlet.class.getSimpleName();
 
-	public void accept(IOSession session, ServerReadFuture future, JMSSessionAttachment attachment) throws Exception {
+	public void accept(IOSession session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();
 

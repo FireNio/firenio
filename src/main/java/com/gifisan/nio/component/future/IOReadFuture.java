@@ -7,7 +7,7 @@ import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 
-public interface IOReadFuture extends ServerReadFuture{
+public interface IOReadFuture extends ReadFuture{
 
 	public abstract boolean read() throws IOException;
 
