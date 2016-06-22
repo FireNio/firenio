@@ -1,15 +1,15 @@
 package com.gifisan.nio.plugin.rtp.server;
 
 import com.gifisan.nio.common.ByteUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 
 public class RTPJoinRoomServlet extends RTPServlet {
 
 	public static final String	SERVICE_NAME	= RTPJoinRoomServlet.class.getSimpleName();
 
-	public void accept(IOSession session, ReadFuture future, RTPSessionAttachment attachment) throws Exception {
+	public void accept(Session session, ReadFuture future, RTPSessionAttachment attachment) throws Exception {
 
 		RTPContext context = getRTPContext();
 

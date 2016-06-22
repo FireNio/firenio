@@ -4,25 +4,26 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Parameters;
 
-public interface ReadFuture extends Future{
+public interface ReadFuture extends Future {
 
 	public abstract Parameters getParameters();
-	
+
 	public abstract OutputStream getOutputStream();
-	
+
 	public abstract InputStream getInputStream();
-	
-	public abstract void setOutputIOEvent(OutputStream outputStream,IOEventHandle handle);
-	
-	public abstract void setInputIOEvent(InputStream inputStream,IOEventHandle handle);
-	
+
+	public abstract void setOutputIOEvent(OutputStream outputStream);
+
+	public abstract void setInputIOEvent(InputStream inputStream);
+
 	public abstract boolean hasOutputStream();
-	
+
+	public abstract boolean flushed();
+
 	public abstract int getStreamLength();
-	
+
 	public abstract void write(byte b);
 
 	public abstract void write(byte[] bytes);
@@ -32,5 +33,5 @@ public interface ReadFuture extends Future{
 	public abstract void write(String content);
 
 	public abstract void write(String content, Charset encoding);
-	
+
 }

@@ -1,14 +1,14 @@
 package com.gifisan.nio.plugin.jms.server;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 
 public class JMSTransactionServlet extends JMSServlet {
 
 	public static final String	SERVICE_NAME	= JMSTransactionServlet.class.getSimpleName();
 
-	public void accept(IOSession session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
+	public void accept(Session session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
 
 		String action = future.getText();
 

@@ -1,22 +1,23 @@
 package com.gifisan.nio.server;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.concurrent.ReentrantMap;
 
 public class SessionFactory {
 
-	private ReentrantMap<String, IOSession>	sessions	= new ReentrantMap<String, IOSession>();
+	private ReentrantMap<String, Session>	sessions	= new ReentrantMap<String, Session>();
 
-	protected void putIOSession(IOSession session) {
+	protected void putSession(Session session) {
 
 		sessions.put(session.getSessionID(), session);
 	}
 
-	public IOSession getIOSession(String sessionID) {
+	public Session getSession(String sessionID) {
 
 		return sessions.get(sessionID);
 	}
 
-	protected void removeIOSession(IOSession session) {
+	protected void removeSession(Session session) {
 
 		sessions.remove(session.getSessionID());
 	}

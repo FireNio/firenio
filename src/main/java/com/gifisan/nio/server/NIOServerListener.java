@@ -50,17 +50,12 @@ public class NIOServerListener extends AbstractLifeCycleListener implements Life
 			return;
 		}
 		
-		if (context.getTCPIOService() == null) {
+		if (context.getNIOAcceptor() == null) {
 			logger.info("   [NIOServer] 服务启动失败，正在停止...");
 			return;
 		}
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
-		
-		if (configuration.isSERVER_UDP_BOOT() && context.getUDPIOService() == null) {
-			logger.info("   [NIOServer] 服务启动失败，正在停止...");
-			return;
-		}
 		
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - staredTime);
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);

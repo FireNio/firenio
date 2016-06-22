@@ -8,7 +8,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 public class ConsumerStreamAcceptor implements ClientStreamAcceptor{
 
 	public void accept(ClientSession session, ReadFuture future) throws Exception {
-		future.setOutputIOEvent(new BufferedOutputStream(future.getStreamLength()),null);
+		future.setOutputIOEvent(new BufferedOutputStream(future.getStreamLength()));
 	}
 	
 }

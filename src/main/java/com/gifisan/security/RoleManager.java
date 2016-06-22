@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.PermissionConfiguration;
 
@@ -18,7 +18,7 @@ public class RoleManager extends InitializeableImpl {
 
 	private AuthorityManager				guestAuthorityManager	= null;
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		ApplicationConfiguration configuration = context.getConfiguration();
 

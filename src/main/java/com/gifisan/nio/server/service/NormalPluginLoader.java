@@ -5,22 +5,21 @@ import java.util.List;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.PluginContext;
-import com.gifisan.nio.server.DefaultServerContext;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.configuration.PluginsConfiguration;
 
 public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoader {
 
-	private ServerContext		context		= null;
+	private ApplicationContext		context		= null;
 	private DynamicClassLoader	classLoader	= null;
 	private Logger				logger		= LoggerFactory.getLogger(NormalPluginLoader.class);
 	private PluginContext[]		pluginContexts	= new PluginContext[4];
 	private PluginsConfiguration	configuration	= null;
 
-	public NormalPluginLoader(ServerContext context, DynamicClassLoader classLoader) {
+	public NormalPluginLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getPluginsConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
@@ -32,7 +31,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 		this.initializePlugins(pluginContexts);
 
-		this.configPluginFilterAndServlet((DefaultServerContext) context);
+		this.configPluginFilterAndServlet((ApplicationContext) context);
 	}
 
 	protected void doStop() throws Exception {
@@ -74,7 +73,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		}
 	}
 
-	private void loadPlugins(ServerContext context, DynamicClassLoader classLoader, PluginsConfiguration configuration)
+	private void loadPlugins(ApplicationContext context, DynamicClassLoader classLoader, PluginsConfiguration configuration)
 			throws Exception {
 
 		List<Configuration> plugins = configuration.getPlugins();
@@ -100,7 +99,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		}
 	}
 
-	public void prepare(ServerContext context, Configuration config) throws Exception {
+	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		logger.info("  [NIOServer] 尝试加载新的Servlet配置......");
 
@@ -114,7 +113,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		
 	}
 
-	private void prepare(ServerContext context,PluginContext[] plugins) throws Exception {
+	private void prepare(ApplicationContext context,PluginContext[] plugins) throws Exception {
 
 		for (PluginContext plugin : plugins) {
 
@@ -128,10 +127,10 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 
 		}
 		
-		this.configPluginFilterAndServlet((DefaultServerContext) context);
+		this.configPluginFilterAndServlet((ApplicationContext) context);
 	}
 
-	public void unload(ServerContext context, Configuration config) throws Exception {
+	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
 		for (PluginContext plugin : pluginContexts) {
 
@@ -156,7 +155,7 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		}
 	}
 	
-	private void configPluginFilterAndServlet(DefaultServerContext serverContext){
+	private void configPluginFilterAndServlet(ApplicationContext serverContext){
 		
 		for (PluginContext context : pluginContexts) {
 

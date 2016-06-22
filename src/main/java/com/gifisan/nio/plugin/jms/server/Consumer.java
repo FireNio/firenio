@@ -2,21 +2,21 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.ReadFutureFactory;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.BytedMessage;
 import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.nio.server.IOSession;
 
 public class Consumer {
 
 	private String				queueName		= null;
 	private JMSSessionAttachment	attachment	= null;
 	private ConsumerQueue		consumerQueue	= null;
-	private IOSession			session		= null;
+	private Session			session		= null;
 	private ReadFuture		future		= null;
 	private Message 			message 		= null;
 
-	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, IOSession session,
+	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, Session session,
 			ReadFuture future, String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
@@ -48,7 +48,7 @@ public class Consumer {
 
 		String content = message.toString();
 
-		IOSession session = this.session;
+		Session session = this.session;
 		
 		ReadFuture future = ReadFutureFactory.create(this.future);
 		
@@ -58,8 +58,6 @@ public class Consumer {
 
 		if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 			
-			future.setInputIOEvent(null, attachment.getConsumerPushFailedHandle());
-
 			session.flush(future);
 
 		} else if(msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
@@ -68,7 +66,7 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			future.setInputIOEvent(new ByteArrayInputStream(bytes), attachment.getConsumerPushFailedHandle());
+			future.setInputIOEvent(new ByteArrayInputStream(bytes));
 
 			session.flush(future);
 		}

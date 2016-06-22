@@ -2,10 +2,10 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.NIOContext;
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.ByteUtil;
+import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
@@ -18,6 +18,8 @@ import com.gifisan.nio.plugin.jms.client.impl.OnMappedMessage;
 import com.gifisan.nio.plugin.rtp.RTPException;
 import com.gifisan.nio.plugin.rtp.server.RTPCreateRoomServlet;
 import com.gifisan.nio.plugin.rtp.server.RTPJoinRoomServlet;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.security.Authority;
 
 public class RTPClient {
 
@@ -25,21 +27,22 @@ public class RTPClient {
 	public static final String	GROUP_SIZE	= "GROUP_SIZE";
 	public static final String	MARK_INTERVAL	= "MARK_INTERVAL";
 
-	private UDPConnector	connector		= null;
+	private UDPConnector		connector		= null;
 	private FixedMessageConsumer	consumer		= null;
-	private NIOContext		context		= null;
+	private NIOContext			context		= null;
 	private String				inviteUsername	= null;
 	private MessageProducer		producer		= null;
 	private String				roomID		= null;
 	private ClientSession		session		= null;
-	private RTPHandle 			handle		= null;
+	private RTPHandle			handle		= null;
 
-	public RTPClient(ClientSession session,UDPConnector connector) {
-		this(session,connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
+	public RTPClient(ClientSession session, UDPConnector connector) {
+		this(session, connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
 	// FIXME listen onf break
-	public RTPClient(ClientSession session,UDPConnector connector, FixedMessageConsumer consumer, MessageProducer producer) {
+	public RTPClient(ClientSession session, UDPConnector connector, FixedMessageConsumer consumer,
+			MessageProducer producer) {
 		this.connector = connector;
 		this.session = session;
 		this.producer = producer;
@@ -48,11 +51,11 @@ public class RTPClient {
 	}
 
 	public void setRTPHandle(final RTPHandle handle) throws RTPException {
-		
+
 		if (this.handle != null) {
 			return;
 		}
-		
+
 		this.consumer.listen("invite", new OnMappedMessage() {
 
 			public void onReceive(MapMessage message) {
@@ -73,20 +76,18 @@ public class RTPClient {
 				handle.onBreak(RTPClient.this, message);
 			}
 		});
-		
+
 		this.handle = handle;
-		
-		
-		
+
 		try {
-			
+
 			this.consumer.receive(null);
 		} catch (JMSException e) {
 			throw new RTPException(e);
 		}
 	}
-	
-	public RTPHandle getRTPHandle(){
+
+	public RTPHandle getRTPHandle() {
 		return handle;
 	}
 
@@ -126,12 +127,14 @@ public class RTPClient {
 		if (roomID == null) {
 			throw new RTPException("none roomID,create room first");
 		}
+		
+		Authority authority = ApplicationContextUtil.getAuthority(session);
 
 		MapMessage message = new MapMessage("msgID", inviteUsername);
 
 		message.put("eventName", "invite");
 		message.put("roomID", roomID);
-		message.put("inviteUsername", this.session.getAuthority().getUsername());
+		message.put("inviteUsername", authority.getUsername());
 
 		try {
 			producer.offer(message);
@@ -175,10 +178,12 @@ public class RTPClient {
 
 	public boolean leaveRoom() throws RTPException {
 		try {
+			
+			Authority authority = ApplicationContextUtil.getAuthority(session);
 
 			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
-			
-			this.handle.onBreak(this, new MapMessage("", this.session.getAuthority().getUuid()));
+
+			this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
 			return ByteUtil.isTrue(future.getText());
 		} catch (IOException e) {
@@ -202,8 +207,8 @@ public class RTPClient {
 	public void setRoomID(String roomID) {
 		this.roomID = roomID;
 	}
-	
-	public String getRoomID(){
+
+	public String getRoomID() {
 		return roomID;
 	}
 }

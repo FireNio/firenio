@@ -5,10 +5,11 @@ import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.component.AbstractTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
+import com.gifisan.nio.component.Session;
 
 public class ServerTCPEndPoint extends AbstractTCPEndPoint {
 
-	private IOSession	session = null;
+	private Session	session = null;
 
 	public ServerTCPEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter)
 			throws SocketException {
@@ -17,7 +18,7 @@ public class ServerTCPEndPoint extends AbstractTCPEndPoint {
 	}
 
 
-	public IOSession getSession() {
+	public Session getSession() {
 		return session;
 	}
 }

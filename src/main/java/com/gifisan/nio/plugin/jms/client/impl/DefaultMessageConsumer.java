@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.ClientSession;
 import com.gifisan.nio.client.WaiterOnReadFuture;
+import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
@@ -101,8 +102,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	}
 	
 	private void checkLoginState() throws JMSException{
-		
-		if (session.getAuthority() == null) {
+		if (ApplicationContextUtil.getAuthority(session) == null) {
 			throw new JMSException("not login");
 		}
 	}

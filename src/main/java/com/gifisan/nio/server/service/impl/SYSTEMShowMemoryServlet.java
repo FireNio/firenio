@@ -1,7 +1,8 @@
 package com.gifisan.nio.server.service.impl;
 
+import com.gifisan.nio.component.ApplicationContext;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.NIOServlet;
 
@@ -9,8 +10,11 @@ public class SYSTEMShowMemoryServlet extends NIOServlet{
 	
 	public static final String SERVICE_NAME = SYSTEMShowMemoryServlet.class.getSimpleName();
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
-		if (session.getLoginCenter().isValidate(session, future)) {
+	public void accept(Session session,ReadFuture future) throws Exception {
+		
+		ApplicationContext context = ApplicationContext.getInstance();
+		
+		if (context.getLoginCenter().isValidate(session, future)) {
 			int M = 1024 * 1024;
 			Runtime runtime = Runtime.getRuntime();
 			StringBuilder builder = new StringBuilder();

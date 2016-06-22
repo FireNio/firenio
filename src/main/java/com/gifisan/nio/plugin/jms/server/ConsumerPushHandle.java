@@ -2,7 +2,6 @@ package com.gifisan.nio.plugin.jms.server;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.Future;
 

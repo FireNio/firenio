@@ -79,7 +79,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 			Session session = getSession();
 			
-			session.destroyImmediately();
+			session.destroy();
 
 			this.channel.close();
 			

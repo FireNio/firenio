@@ -25,8 +25,7 @@ public class UnpreciseClientSession extends AbstractClientSession {
 
 		byte[] text_array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream,
-				context.getIOEventHandle());
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream);
 
 		if (closed()) {
 			throw DisconnectException.INSTANCE;
@@ -54,8 +53,7 @@ public class UnpreciseClientSession extends AbstractClientSession {
 		
 		byte[] text_array = content == null ? null : content.getBytes(context.getEncoding());
 
-		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream,
-				context.getIOEventHandle());
+		IOWriteFuture future = encoder.encode(endPoint, 0, serviceName, text_array, inputStream);
 
 		if (closed()) {
 			throw DisconnectException.INSTANCE;

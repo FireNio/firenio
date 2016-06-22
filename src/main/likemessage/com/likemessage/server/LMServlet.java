@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.NIOServlet;
 
@@ -14,7 +14,7 @@ public abstract class LMServlet extends NIOServlet {
 
 	protected abstract AbstractService getAbstractService(DataBaseContext context) throws SQLException;
 
-	public void accept(IOSession session, ReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
 		AbstractService service = getAbstractService(DataBaseUtil.getDataBaseContext());
 
@@ -29,11 +29,11 @@ public abstract class LMServlet extends NIOServlet {
 		}
 	}
 
-	protected abstract void doAccept(IOSession session, ReadFuture future, AbstractService _service)
+	protected abstract void doAccept(Session session, ReadFuture future, AbstractService _service)
 			throws Exception;
 	
 	
-	protected void actionNotFound(IOSession session, ReadFuture future, AbstractService _service){
+	protected void actionNotFound(Session session, ReadFuture future, AbstractService _service){
 		
 		RESMessage message = RESMessage.EMPTY_404;
 		

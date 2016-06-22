@@ -10,7 +10,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
 import com.gifisan.nio.plugin.jms.server.MQContextFactory;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
 import com.likemessage.bean.T_MESSAGE;
 
@@ -24,7 +24,7 @@ public class MessageServlet extends LMServlet {
 		return new MessageService(context);
 	}
 
-	protected void doAccept(IOSession session, ReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(Session session, ReadFuture future, AbstractService _service) throws Exception {
 
 //		if (future.hasOutputStream()) {
 //
@@ -51,7 +51,7 @@ public class MessageServlet extends LMServlet {
 
 	}
 
-	private void addMessage(IOSession session, ReadFuture future, Parameters parameters, MessageService service)
+	private void addMessage(Session session, ReadFuture future, Parameters parameters, MessageService service)
 			throws Exception {
 
 		JSONObject object = parameters.getJSONObject("t_message");

@@ -30,11 +30,11 @@ import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.concurrent.TaskExecutor;
 import com.gifisan.nio.concurrent.UniqueThread;
+import com.gifisan.nio.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
-import com.gifisan.nio.server.service.impl.SYSTEMAuthorityServlet;
 import com.gifisan.security.Authority;
 
 public class TCPConnector implements IOConnector {
@@ -107,8 +107,6 @@ public class TCPConnector implements IOConnector {
 
 			this.context = new DefaultNIOContext(protocolDecoder, protocolEncoder, ioEventHandle);
 
-			this.context.setTCPIOService(this);
-			
 			try {
 				this.context.start();
 			} catch (Exception e) {

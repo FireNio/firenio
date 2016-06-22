@@ -8,13 +8,14 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractSession;
 import com.gifisan.nio.component.IOEventHandle;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class ServerSession extends AbstractSession implements IOSession {
+public class ServerSession extends AbstractSession implements Session {
 
 	private NIOContext			context			= null;
 	private UDPEndPoint			udpEndPoint		= null;
@@ -27,9 +28,10 @@ public class ServerSession extends AbstractSession implements IOSession {
 	}
 
 	public void flush(ReadFuture future) {
-		IOReadFuture _Future = (IOReadFuture) future;
+		
+		IOReadFuture _future = (IOReadFuture) future;
 
-		if (_Future.flushed()) {
+		if (_future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
 
@@ -46,12 +48,12 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		try {
 			
-			writeFuture = encoder.encode(endPoint, 0, _Future.getServiceName(), _Future.getTextCache()
-					.toByteArray(), _Future.getInputStream(), _Future.getInputIOHandle());
+			writeFuture = encoder.encode(endPoint, 0, _future.getServiceName(), _future.getTextCache()
+					.toByteArray(), _future.getInputStream());
 
-			_Future.flush();
+			_future.flush();
 
-			writeFuture.attach(_Future.attachment());
+			writeFuture.attach(_future.attachment());
 
 			this.endPointWriter.offer(writeFuture);
 		} catch (IOException e) {
@@ -71,7 +73,7 @@ public class ServerSession extends AbstractSession implements IOSession {
 
 		SessionFactory factory = context.getSessionFactory();
 
-		factory.removeIOSession(this);
+		factory.removeSession(this);
 
 		CloseUtil.close(udpEndPoint);
 

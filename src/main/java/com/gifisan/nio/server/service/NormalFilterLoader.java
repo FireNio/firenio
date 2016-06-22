@@ -7,9 +7,9 @@ import java.util.List;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.configuration.FiltersConfiguration;
 import com.gifisan.nio.server.service.impl.AuthorityFilter;
 
@@ -17,32 +17,30 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 	private Logger				logger		= LoggerFactory.getLogger(NormalFilterLoader.class);
 	private NIOFilterWrapper		rootFilter	= null;
-	private NIOContext		context		= null;
+	private ApplicationContext	context		= null;
 	private DynamicClassLoader	classLoader	= null;
 	private FiltersConfiguration	configuration	= null;
 
-	public NormalFilterLoader(NIOContext context, DynamicClassLoader classLoader) {
+	public NormalFilterLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
 	}
 
-	private NIOFilterWrapper loadFilters(NIOContext context, DynamicClassLoader classLoader) throws IOException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException {
+	private NIOFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
+			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 
-		DefaultNIOContext _context = (DefaultNIOContext) context;
-		
 		List<Configuration> filterConfigurations = configuration.getFilters();
-		
+
 		List<NIOFilter> filters = new ArrayList<NIOFilter>();
-		
+
 		filters.add(new AuthorityFilter());
 
 		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
 			logger.info(" [NIOServer] 没有配置Filter");
 			filterConfigurations = new ArrayList<Configuration>();
 		}
-		
+
 		NIOFilterWrapper rootFilter = null;
 
 		NIOFilterWrapper last = null;
@@ -54,13 +52,13 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			String clazzName = filterConfig.getParameter("class", "empty");
 
 			NIOFilter filter = (NIOFilter) classLoader.forName(clazzName).newInstance();
-			
+
 			filter.setConfig(filterConfig);
 
 			filters.add(filter);
 		}
-		
-		filters.addAll(_context.getPluginFilters());
+
+		filters.addAll(context.getPluginFilters());
 
 		for (int i = 0; i < filters.size(); i++) {
 
@@ -76,7 +74,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			} else {
 
 				last.setNextFilter(_filter);
-				
+
 				last = _filter;
 			}
 		}
@@ -108,7 +106,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		for (; filter != null;) {
 
 			filter.initialize(context, filter.getConfig());
-			
+
 			logger.info("  [NIOServer] 加载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
@@ -125,7 +123,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			
+
 			logger.info("  [NIOServer] 卸载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
@@ -149,7 +147,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		}
 	}
 
-	public void prepare(NIOContext context, Configuration config) throws Exception {
+	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		logger.info("  [NIOServer] 尝试加载新的Filter配置......");
 
@@ -162,7 +160,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.softStart();
 	}
 
-	public void unload(NIOContext context, Configuration config) throws Exception {
+	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
 		NIOFilterWrapper filter = rootFilter;
 

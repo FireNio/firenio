@@ -9,7 +9,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.Session;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityLoginCenter;
 import com.likemessage.bean.T_USER;
@@ -23,7 +23,7 @@ public class LMLoginCenter extends AuthorityLoginCenter {
 		this.query = new SessionQuery(context);
 	}
 
-	protected Authority getAuthority(IOSession session, ReadFuture future) {
+	protected Authority getAuthority(Session session, ReadFuture future) {
 		try {
 			query.open();
 

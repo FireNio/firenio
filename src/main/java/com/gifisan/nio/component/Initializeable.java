@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.server.NIOContext;
 
 public interface Initializeable {
 
@@ -8,8 +7,8 @@ public interface Initializeable {
 
 	public void setConfig(Configuration config);
 
-	public abstract void initialize(NIOContext context, Configuration config) throws Exception;
+	public abstract void initialize(ApplicationContext context, Configuration config) throws Exception;
 
-	public abstract void destroy(NIOContext context, Configuration config) throws Exception;
+	public abstract void destroy(ApplicationContext context, Configuration config) throws Exception;
 	
 }

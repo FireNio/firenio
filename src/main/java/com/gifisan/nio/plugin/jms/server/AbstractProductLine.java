@@ -6,9 +6,11 @@ import java.util.Map;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContextUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.security.Authority;
 
 public abstract class AbstractProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
@@ -44,13 +46,15 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		return context;
 	}
 
-	public void pollMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;
 		}
+		
+		Authority authority = ApplicationContextUtil.getAuthority(session);
 
-		String queueName = session.getAuthority().getUuid();
+		String queueName = authority.getUuid();
 
 		// 来自终端类型
 		context.addReceiver(queueName+session.getMachineType());

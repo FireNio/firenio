@@ -1,11 +1,10 @@
 package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.PluginContext;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.nio.server.IOSession;
 
 public interface MQContext extends PluginContext, MessageQueue {
 
@@ -31,5 +30,5 @@ public interface MQContext extends PluginContext, MessageQueue {
 	
 	public abstract ConsumerPushHandle getConsumerPushFailedHandle() ;
 
-	public abstract void subscribeMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment);
+	public abstract void subscribeMessage(Session session, ReadFuture future, JMSSessionAttachment attachment);
 }

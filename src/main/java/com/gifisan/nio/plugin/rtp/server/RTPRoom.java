@@ -7,13 +7,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContextUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.concurrent.ReentrantList;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
 import com.gifisan.nio.plugin.jms.server.MQContextFactory;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.security.Authority;
 
 public class RTPRoom {
 
@@ -27,7 +29,7 @@ public class RTPRoom {
 	private Integer				roomID		= 0;
 	private boolean				closed		= false;
 
-	public RTPRoom(RTPContext context, IOSession session) {
+	public RTPRoom(RTPContext context, Session session) {
 		this.roomID = genRoomID();
 		this.roomFactory = context.getRTPRoomFactory();
 		this.context = context;
@@ -105,7 +107,7 @@ public class RTPRoom {
 
 		lock.unlock();
 
-		IOSession session = (IOSession) endPoint.getSession();
+		Session session = (Session) endPoint.getSession();
 
 		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
 
@@ -130,13 +132,15 @@ public class RTPRoom {
 				continue;
 			}
 
-			IOSession session = (IOSession) e.getSession();
+			Session session = (Session) e.getSession();
+			
+			Authority authority = ApplicationContextUtil.getAuthority(session);
 
-			MapMessage message = new MapMessage("mmm", session.getAuthority().getUuid());
+			MapMessage message = new MapMessage("mmm", authority.getUuid());
 
 			message.setEventName("break");
 
-			message.put("userID", session.getAuthority().getUserID());
+			message.put("userID", authority.getUserID());
 
 			MQContext mqContext = MQContextFactory.getMQContext();
 

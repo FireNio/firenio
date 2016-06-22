@@ -8,14 +8,15 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.common.UUIDGenerator;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
 import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.ServerContext;
-import com.gifisan.nio.server.ServerSession;
+import com.gifisan.nio.plugin.authority.AuthorityAttachment;
+import com.gifisan.nio.plugin.authority.AuthorityPlugin;
 
 public class AuthorityLoginCenter extends InitializeableImpl implements LoginCenter {
 	
@@ -23,7 +24,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
-	public boolean login(IOSession session, ReadFuture future) {
+	public boolean login(Session session, ReadFuture future) {
 
 		Authority authority = getAuthority(session, future);
 		
@@ -37,13 +38,19 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		
 		String machineType = parameters.getParameter("MATCH_TYPE");
 		
-		ServerContext context = session.getContext();
+		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
+		
+		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		
+		ApplicationContext context = ApplicationContext.getInstance();
 		
 		RoleManager roleManager = context.getRoleManager();
 		
 		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 		
-		setAuthorityInfo((ServerSession)session, authorityManager,machineType);
+		attachment.setAuthorityManager(authorityManager);
+		
+		session.setMachineType(machineType);
 		
 		authority.setSessionID(session.getSessionID());
 
@@ -51,27 +58,25 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	}
 
-	public boolean isLogined(IOSession session) {
-		return ((ServerSession)session).getAuthorityManager() != null;
+	public boolean isLogined(Session session) {
+		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
+		
+		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		
+		return attachment.getAuthorityManager() != null;
 	}
 
-	public void logout(IOSession session) {
+	public void logout(Session session) {
 		
 		// 需要登出吗
 	}
-	
-	private void setAuthorityInfo(ServerSession session,AuthorityManager authorityManager,String machineType){
-		
-		session.setAuthorityManager(authorityManager);
-		session.setMachineType(machineType);
-	}
 
-	public boolean isValidate(IOSession session, ReadFuture future) {
+	public boolean isValidate(Session session, ReadFuture future) {
 
 		return getAuthority(session, future) != null;
 	}
 	
-	protected Authority getAuthority(IOSession session, ReadFuture future) {
+	protected Authority getAuthority(Session session, ReadFuture future) {
 
 		Parameters param = future.getParameters();
 		String username = param.getParameter("username");
@@ -91,7 +96,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	}
 	
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
 		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");
 		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin10000");

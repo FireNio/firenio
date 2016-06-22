@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.gifisan.nio.component.DefaultParameters;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Parameters;
 
 public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
@@ -12,8 +11,6 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 	private Parameters			parameters	= null;
 	protected OutputStream		outputStream	= null;
 	protected InputStream		inputStream	= null;
-	protected IOEventHandle		outputIOHandle	= null;
-	protected IOEventHandle		inputIOHandle	= null;
 
 	public Parameters getParameters() {
 		if (parameters == null) {
@@ -30,14 +27,12 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 		return inputStream;
 	}
 
-	public void setOutputIOEvent(OutputStream outputStream, IOEventHandle handle) {
+	public void setOutputIOEvent(OutputStream outputStream) {
 		this.outputStream = outputStream;
-		this.outputIOHandle = handle;
 	}
 	
-	public void setInputIOEvent(InputStream inputStream, IOEventHandle handle) {
+	public void setInputIOEvent(InputStream inputStream) {
 		this.inputStream = inputStream;
-		this.inputIOHandle = handle;
 	}
 
 	public boolean hasOutputStream() {

@@ -6,7 +6,6 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.IOEventHandle;
-import com.gifisan.nio.component.IOService;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.UDPEndPointFactory;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
@@ -22,14 +21,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract IOEventHandle getIOEventHandle();
 
-	public abstract IOService getTCPIOService();
-
-	public abstract IOService getUDPIOService();
-	
-	public abstract void setTCPIOService(IOService tcpIOService) ;
-
-	public abstract void setUDPIOService(IOService udpIOService) ;
-
 	public abstract ProtocolDecoder getProtocolDecoder();
 
 	public abstract ProtocolEncoder getProtocolEncoder();
@@ -44,8 +35,16 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
 
-	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
-
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor acceptor);
+
+	public abstract void setIOEventHandle(IOEventHandle ioEventHandle);
+
+	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder) ;
+
+	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder) ;
+	
+	public abstract void setServerConfiguration(ServerConfiguration serverConfiguration);
+	
+	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
 
 }

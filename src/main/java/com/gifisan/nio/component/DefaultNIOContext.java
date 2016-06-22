@@ -38,13 +38,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionFactory			sessionFactory			= new SessionFactory();
 	private UDPEndPointFactory		udpEndPointFactory		= null;
 	private IOEventHandle			ioEventHandle			= null;
-	private IOService				tcpIOService			= null;
-	private IOService				udpIOService			= null;
 
-	public DefaultNIOContext(ProtocolDecoder protocolDecoder, ProtocolEncoder protocolEncoder,
-			IOEventHandle ioEventHandle) {
-		this.protocolDecoder = protocolDecoder;
-		this.protocolEncoder = protocolEncoder;
+	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
+		this.serverConfiguration = serverConfiguration;
+	}
+
+	public void setIOEventHandle(IOEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
 	}
 
@@ -55,9 +54,21 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	protected void doStart() throws Exception {
 
 		SharedBundle bundle = SharedBundle.instance();
+		
+		if (ioEventHandle == null) {
+			throw new IllegalArgumentException("null ioEventHandle");
+		}
 
 		if (serverConfiguration == null) {
 			this.serverConfiguration = loadServerConfiguration(bundle);
+		}
+		
+		if (protocolEncoder == null) {
+			protocolEncoder = new DefaultTCPProtocolEncoder();
+		}
+
+		if (protocolDecoder == null) {
+			protocolDecoder = new DefaultTCPProtocolDecoder();
 		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
@@ -173,20 +184,21 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.udpEndPointFactory = udpEndPointFactory;
 	}
 
-	public IOService getTCPIOService() {
-		return tcpIOService;
+	public NIOAcceptor getNIOAcceptor() {
+		return nioAcceptor;
 	}
 
-	public void setTCPIOService(IOService tcpIOService) {
-		this.tcpIOService = tcpIOService;
+	public void setNIOAcceptor(NIOAcceptor nioAcceptor) {
+		this.nioAcceptor = nioAcceptor;
 	}
 
-	public IOService getUDPIOService() {
-		return udpIOService;
+	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+		this.protocolDecoder = protocolDecoder;
 	}
 
-	public void setUDPIOService(IOService udpIOService) {
-		this.udpIOService = udpIOService;
+	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+		this.protocolEncoder = protocolEncoder;
 	}
-
+	
+	
 }

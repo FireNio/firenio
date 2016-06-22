@@ -8,11 +8,11 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.ReadFutureFactory;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramRequest;
-import com.gifisan.security.AuthorityManager;
 
 public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 	
@@ -45,7 +45,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 		doAccept(endPoint, packet,session);
 	}
 	
-	protected abstract void doAccept(UDPEndPoint endPoint, DatagramPacket packet,IOSession session) throws IOException ;
+	protected abstract void doAccept(UDPEndPoint endPoint, DatagramPacket packet,Session session) throws IOException ;
 
 	protected abstract String getSERVICE_NAME();
 	
@@ -63,7 +63,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			SessionFactory factory = context.getSessionFactory();
 			
-			ServerSession session = (ServerSession)factory.getIOSession(sessionID);
+			ServerSession session = (ServerSession)factory.getSession(sessionID);
 			
 			if (session == null) {
 				return ;

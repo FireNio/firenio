@@ -1,8 +1,10 @@
-package com.gifisan.nio.server.service.impl;
+package com.gifisan.nio.plugin.authority;
 
+import com.gifisan.nio.component.ApplicationContext;
+import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.LoginCenter;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.service.NIOServlet;
 import com.gifisan.security.Authority;
@@ -11,15 +13,15 @@ public class SYSTEMAuthorityServlet extends NIOServlet{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(Session session,ReadFuture future) throws Exception {
 		
-		LoginCenter loginCenter = session.getLoginCenter();
+		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();
 		
 		RESMessage message = RESMessage.UNAUTH;
 		
 		if (loginCenter.login(session, future)) {
 			
-			Authority authority = session.getAuthority();
+			Authority authority = ApplicationContextUtil.getAuthority(session);
 			
 			message = new RESMessage(0, authority,null);
 		}

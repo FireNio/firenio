@@ -7,5 +7,4 @@ import com.gifisan.nio.server.FilterAcceptor;
 
 public abstract class GenericServlet extends InitializeableImpl implements Initializeable, HotDeploy, FilterAcceptor {
 
-
 }

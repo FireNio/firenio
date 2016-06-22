@@ -3,7 +3,7 @@ package com.gifisan.nio.component;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
 
-public class DefaultIOEventHandle implements IOEventHandle {
+public class IOEventHandleAdaptor implements IOEventHandle {
 
 	public void sessionOpened(Session session) {
 		

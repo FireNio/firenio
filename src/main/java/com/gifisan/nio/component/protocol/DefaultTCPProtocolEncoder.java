@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
@@ -133,7 +132,7 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 	}
 
 	public IOWriteFuture encode(TCPEndPoint endPoint, int future_id, String service_name, byte[] text_array,
-			InputStream inputStream, IOEventHandle handle) throws IOException {
+			InputStream inputStream) throws IOException {
 
 		Session session = endPoint.getSession();
 

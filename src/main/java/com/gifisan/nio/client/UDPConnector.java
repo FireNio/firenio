@@ -73,8 +73,6 @@ public class UDPConnector implements IOConnector {
 
 			this.connect0();
 			
-			this.context.setUDPIOService(this);
-
 			this.selectorLoopThread.start(selectorLoop,selectorLoop.toString());
 		}
 	}

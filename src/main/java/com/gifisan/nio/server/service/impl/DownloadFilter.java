@@ -9,13 +9,13 @@ import java.util.Map;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
 
 public class DownloadFilter extends AbstractNIOFilter {
@@ -24,7 +24,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 	private Map<String, String>	excludesMap	= null;
 	private static final Logger	logger		= LoggerFactory.getLogger(DownloadFilter.class);
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(Session session,ReadFuture future) throws Exception {
 
 		String serviceName = future.getServiceName();
 		
@@ -65,7 +65,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 					downloadLength = available - start;
 				}
 
-				future.setInputIOEvent(inputStream, null);
+				future.setInputIOEvent(inputStream);
 				
 				session.flush(future);
 
@@ -80,7 +80,7 @@ public class DownloadFilter extends AbstractNIOFilter {
 
 	}
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		String excludesContent = (String) config.getParameter("excludes");
 		if (StringUtil.isNullOrBlank(excludesContent)) {
 			return;

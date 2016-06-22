@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
@@ -146,26 +145,6 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 				header.array()[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX],
 				textLength,
 				endPoint.getContext().getEncoding());
-	}
-
-	public void catchOutputException(IOException e) {
-		if (outputIOHandle != null) {
-			outputIOHandle.exceptionCaughtOnRead(session, this, e);
-		}
-	}
-
-	public void catchInputException(IOException e) {
-		if (inputIOHandle != null) {
-			outputIOHandle.exceptionCaughtOnRead(session, this, e);
-		}
-	}
-
-	public IOEventHandle getInputIOHandle() {
-		return inputIOHandle;
-	}
-
-	public IOEventHandle getOutputIOHandle() {
-		return outputIOHandle;
 	}
 
 	public boolean hasOutputStream() {

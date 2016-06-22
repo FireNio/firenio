@@ -1,7 +1,7 @@
 package com.gifisan.nio.plugin.rtp.server;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public abstract class RTPServlet extends NIOServlet {
@@ -12,7 +12,7 @@ public abstract class RTPServlet extends NIOServlet {
 		return context;
 	}
 
-	public void accept(IOSession session, ReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
 		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
 
@@ -26,7 +26,7 @@ public abstract class RTPServlet extends NIOServlet {
 		this.accept(session, future, attachment);
 	}
 
-	public abstract void accept(IOSession session, ReadFuture future, RTPSessionAttachment attachment)
+	public abstract void accept(Session session, ReadFuture future, RTPSessionAttachment attachment)
 			throws Exception;
 
 }

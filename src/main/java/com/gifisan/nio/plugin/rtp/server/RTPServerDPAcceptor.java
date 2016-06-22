@@ -4,9 +4,10 @@ import java.io.IOException;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContextUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.ServerDPAcceptor;
 import com.gifisan.security.AuthorityManager;
 
@@ -22,9 +23,9 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 		this.context = context;
 	}
 
-	public void doAccept(UDPEndPoint endPoint, DatagramPacket packet,IOSession session) throws IOException {
+	public void doAccept(UDPEndPoint endPoint, DatagramPacket packet,Session session) throws IOException {
 
-		AuthorityManager authorityManager = session.getAuthorityManager();
+		AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(session);
 		
 		if (authorityManager == null) {
 			logger.debug("___________________null authority,packet:{}",packet);

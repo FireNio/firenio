@@ -8,7 +8,7 @@ import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
+import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.security.Authority;
 
@@ -25,7 +25,7 @@ public class UserService extends AbstractService{
 		return ((Long)list.get(0).get("count")) == 1;
 	}
 
-	public RESMessage regist(IOSession session, ReadFuture future,Parameters parameters) throws SQLException {
+	public RESMessage regist(Session session, ReadFuture future,Parameters parameters) throws SQLException {
 		
 		String username = parameters.getParameter("username");
 		
@@ -48,7 +48,7 @@ public class UserService extends AbstractService{
 		return RESMessage.SYSTEM_ERROR;
 	}
 	
-	public boolean logined(IOSession session) {
+	public boolean logined(Session session) {
 
 		return session.getAuthority().getRoleID() != Authority.GUEST.getRoleID();
 	}

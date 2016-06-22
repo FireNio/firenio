@@ -9,22 +9,21 @@ import java.util.Set;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.server.DefaultServerContext;
 import com.gifisan.nio.server.FilterAcceptor;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.configuration.ServletsConfiguration;
 
 public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
 
-	private ServerContext				context		= null;
+	private ApplicationContext				context		= null;
 	private DynamicClassLoader			classLoader	= null;
 	private Logger						logger		= LoggerFactory.getLogger(NormalServletLoader.class);
 	private Map<String, GenericServlet>	servlets		= new LinkedHashMap<String, GenericServlet>();
 	private ServletsConfiguration			configuration	= null;
 	
-	public NormalServletLoader(ServerContext context, DynamicClassLoader classLoader) {
+	public NormalServletLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getServletsConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
@@ -86,9 +85,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 		List<Configuration> servletConfigurations = configuration.getServlets();
 		
-		DefaultServerContext context2 = (DefaultServerContext)context;
-		
-		Map<String, GenericServlet> pluginServlets = context2.getPluginServlets();
+		Map<String, GenericServlet> pluginServlets = context.getPluginServlets();
 		
 		Map<String, GenericServlet> servlets = new LinkedHashMap<String, GenericServlet>();
 
@@ -127,7 +124,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		return servlets;
 	}
 
-	public void prepare(ServerContext context, Configuration config) throws Exception {
+	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		logger.info(" [NIOServer] 尝试加载新的Servlet配置......");
 
@@ -156,7 +153,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	public void unload(ServerContext context, Configuration config) throws Exception {
+	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
 		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
 

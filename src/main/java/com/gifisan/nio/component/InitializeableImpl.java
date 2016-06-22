@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.server.NIOContext;
 
 public abstract class InitializeableImpl implements Initializeable {
 
@@ -14,7 +13,7 @@ public abstract class InitializeableImpl implements Initializeable {
 		this.config = config;
 	}
 
-	public void destroy(NIOContext context, Configuration config) throws Exception {
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 	}
 
 }

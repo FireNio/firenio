@@ -2,7 +2,6 @@ package com.gifisan.nio.plugin.rtp.server;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
-import com.gifisan.nio.server.IOSession;
 
 public class RTPLeaveRoomListener implements SessionEventListener{
 	
@@ -20,7 +19,7 @@ public class RTPLeaveRoomListener implements SessionEventListener{
 		
 		if (room != null) {
 			
-			IOSession _session = (IOSession) session;
+			Session _session = (Session) session;
 			
 			room.leave(_session.getUDPEndPoint());
 		}

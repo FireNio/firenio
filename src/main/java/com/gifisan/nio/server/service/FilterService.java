@@ -8,58 +8,55 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.PluginContext;
-import com.gifisan.nio.component.ServiceAcceptor;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.service.impl.ErrorServlet;
 
-public final class FilterService extends AbstractLifeCycle implements ServiceAcceptor, LifeCycle {
+public final class FilterService extends AbstractLifeCycle implements LifeCycle,FilterAcceptor {
 
 	private Logger				logger		= LoggerFactory.getLogger(FilterService.class);
-	private ServerContext		context		= null;
+	private ApplicationContext	context		= null;
 	private NIOFilterWrapper		rootFilter	= null;
 	private FilterLoader		filterLoader	= null;
 	private DynamicClassLoader	classLoader	= null;
 	private PluginLoader		pluginLoader	= null;
 
-	public FilterService(ServerContext context,DynamicClassLoader classLoader) {
+	public FilterService(ApplicationContext context, DynamicClassLoader classLoader) {
 
 		this.classLoader = classLoader;
 
 		this.context = context;
 	}
 
-	public void accept(Session session,IOReadFuture future) throws IOException {
+	public void accept(Session session, ReadFuture future) throws IOException {
 
-		IOSession _IoSession = (IOSession) session;
-		
 		try {
-			
-			accept(rootFilter, _IoSession,future);
-			
+
+			accept(rootFilter, session, future);
+
 		} catch (FlushedException e) {
-			
+
 			logger.error(e.getMessage(), e);
-			
+
 		} catch (Throwable e) {
-			
+
 			logger.error(e.getMessage(), e);
-			
-			this.acceptException(_IoSession,future,e);
+
+			this.acceptException(session, future, e);
 		}
 	}
 
-	private void acceptException(IOSession session,IOReadFuture future,Throwable exception) throws IOException {
+	private void acceptException(Session session, ReadFuture future, Throwable exception) throws IOException {
 
 		ErrorServlet servlet = new ErrorServlet(exception);
 
 		try {
 
-			servlet.accept(session,future);
+			servlet.accept(session, future);
 
 		} catch (IOException e) {
 
@@ -71,13 +68,13 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		}
 	}
 
-	private boolean accept(NIOFilterWrapper filter,IOSession session,IOReadFuture future) throws Exception {
+	private boolean accept(NIOFilterWrapper filter, Session session, ReadFuture future) throws Exception {
 
 		for (; filter != null;) {
 
-			filter.accept(session,future);
+			filter.accept(session, future);
 
-			if (((IOReadFuture)future).flushed()) {
+			if (future.flushed()) {
 
 				return true;
 			}
@@ -90,13 +87,13 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 	protected void doStart() throws Exception {
 
 		this.classLoader.scan(context.getAppLocalAddress());
-		
-		this.pluginLoader = new NormalPluginLoader(context,classLoader);
+
+		this.pluginLoader = new NormalPluginLoader(context, classLoader);
 
 		this.filterLoader = new NormalFilterLoader(context, classLoader);
 
 		this.pluginLoader.start();
-		
+
 		this.filterLoader.start();
 
 		this.rootFilter = filterLoader.getRootFilter();
@@ -113,7 +110,7 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		logger.info("       [NIOServer] ======================================= 开始服务升级 =======================================");
 
 		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
-		
+
 		PluginLoader pluginLoader = new NormalPluginLoader(context, classLoader);
 
 		try {
@@ -130,8 +127,6 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 
 			return false;
 		}
-		
-
 
 		try {
 
@@ -162,13 +157,13 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 		this.rootFilter = filterLoader.getRootFilter();
 
 		this.unloadFilterLoader(this.filterLoader);
-		
+
 		this.unloadPluginLoader(this.pluginLoader);
 
 		this.filterLoader = filterLoader;
 
 		this.pluginLoader = pluginLoader;
-		
+
 		this.classLoader.unload();
 
 		this.classLoader = classLoader;
@@ -190,7 +185,7 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void unloadPluginLoader(PluginLoader pluginLoader) {
 
 		try {
@@ -202,8 +197,8 @@ public final class FilterService extends AbstractLifeCycle implements ServiceAcc
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	public PluginContext [] getPluginContexts(){
+
+	public PluginContext[] getPluginContexts() {
 		return pluginLoader.getPluginContexts();
 	}
 

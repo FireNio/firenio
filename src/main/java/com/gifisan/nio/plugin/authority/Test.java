@@ -24,7 +24,7 @@ public class Test {
 			return;
 		}
 		this.sessionID = UUIDGenerator.random();
-		this.context.getSessionFactory().putIOSession(this);
+		this.context.getSessionFactory().putSession(this);
 	}
 
 }

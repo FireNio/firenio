@@ -1,11 +1,12 @@
 package com.gifisan.nio.server.service.impl;
 
-
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ApplicationContext;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.ServerSession;
+import com.gifisan.nio.plugin.authority.AuthorityAttachment;
+import com.gifisan.nio.plugin.authority.AuthorityPlugin;
 import com.gifisan.nio.server.service.AbstractNIOFilter;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
@@ -14,17 +15,21 @@ public class AuthorityFilter extends AbstractNIOFilter {
 
 	private Logger		logger	= LoggerFactory.getLogger(AuthorityFilter.class);
 	
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(Session session,ReadFuture future) throws Exception {
 		
-		ServerSession _session =  ((ServerSession)session);
+		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
 		
-		AuthorityManager authorityManager = _session.getAuthorityManager();
+		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		
+		AuthorityManager authorityManager = attachment.getAuthorityManager();
 		
 		if (authorityManager == null) {
 			
-			authorityManager = session.getContext().getRoleManager().getAuthorityManager(Authority.GUEST);
+			ApplicationContext context = ApplicationContext.getInstance();
 			
-			_session.setAuthorityManager(authorityManager);
+			authorityManager = context.getRoleManager().getAuthorityManager(Authority.GUEST);
+			
+			attachment.setAuthorityManager(authorityManager);
 		}
 		
 		if (!authorityManager.isInvokeApproved(future.getServiceName())) {

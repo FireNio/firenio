@@ -5,18 +5,27 @@ import java.nio.charset.Charset;
 public class ServerConfiguration {
 
 	private String		SERVER_HOST		= null;
-	private int		SERVER_PORT		= 0;
+	private int		SERVER_TCP_PORT	= 0;
+	private int		SERVER_UDP_PORT	= 0;
 	private int		SERVER_CORE_SIZE	= 0;
 	private Charset	SERVER_ENCODING	= null;
 	private boolean	SERVER_UDP_BOOT	= false;
 	private boolean	SERVER_DEBUG		= false;
-
-	public int getSERVER_PORT() {
-		return SERVER_PORT;
+	
+	public int getSERVER_TCP_PORT() {
+		return SERVER_TCP_PORT;
 	}
 
-	public void setSERVER_PORT(int SERVER_PORT) {
-		this.SERVER_PORT = SERVER_PORT;
+	public void setSERVER_TCP_PORT(int SERVER_TCP_PORT) {
+		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+	}
+
+	public int getSERVER_UDP_PORT() {
+		return SERVER_UDP_PORT;
+	}
+
+	public void setSERVER_UDP_PORT(int SERVER_UDP_PORT) {
+		this.SERVER_UDP_PORT = SERVER_UDP_PORT;
 	}
 
 	public int getSERVER_CORE_SIZE() {
@@ -58,5 +67,5 @@ public class ServerConfiguration {
 	public void setSERVER_HOST(String SERVER_HOST) {
 		this.SERVER_HOST = SERVER_HOST;
 	}
-	
+
 }

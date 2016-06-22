@@ -1,7 +1,7 @@
 package com.gifisan.nio.plugin.jms.server;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public abstract class JMSServlet extends NIOServlet{
@@ -12,7 +12,7 @@ public abstract class JMSServlet extends NIOServlet{
 		return context;
 	}
 
-	public void accept(IOSession session,ReadFuture future) throws Exception {
+	public void accept(Session session,ReadFuture future) throws Exception {
 		
 		JMSSessionAttachment attachment = (JMSSessionAttachment) session.getAttachment(context);
 		
@@ -28,6 +28,6 @@ public abstract class JMSServlet extends NIOServlet{
 		this.accept(session, future,attachment);
 	}
 	
-	public abstract void accept(IOSession session,ReadFuture future,JMSSessionAttachment attachment) throws Exception;
+	public abstract void accept(Session session,ReadFuture future,JMSSessionAttachment attachment) throws Exception;
 	
 }

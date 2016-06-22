@@ -16,6 +16,7 @@ public class AuthorityManager {
 	private List<Permission>			permissionsList	= new ArrayList<Permission>();
 
 	protected void addPermission(Permission permission) {
+		
 		if (permissions.containsKey(permission.getPermissionAPI())) {
 			return;
 		}

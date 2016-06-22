@@ -5,8 +5,9 @@ import java.util.Map;
 
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractPluginContext;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ReentrantMap;
 import com.gifisan.nio.concurrent.ReentrantSet;
@@ -14,8 +15,6 @@ import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.server.IOSession;
-import com.gifisan.nio.server.ServerContext;
 import com.gifisan.nio.server.service.GenericServlet;
 import com.gifisan.nio.server.service.NIOFilter;
 
@@ -33,7 +32,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		return messageIDs.get(messageID);
 	}
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		long dueTime = config.getLongParameter("due-time");
 
@@ -56,7 +55,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		MQContextFactory.initializeContext(this);
 	}
 
-	public void destroy(ServerContext context, Configuration config) throws Exception {
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(p2pProductLine);
 		LifeCycleUtil.stop(subProductLine);
 		MQContextFactory.setNullMQContext();
@@ -92,12 +91,12 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(IOSession session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void subscribeMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}
@@ -139,7 +138,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 
 	}
 
-	public void prepare(ServerContext context, Configuration config) throws Exception {
+	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		MQContext old = MQContextFactory.getMQContext();
 
@@ -168,7 +167,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		MQContextFactory.initializeContext(this);
 	}
 
-	public void unload(ServerContext context, Configuration config) throws Exception {
+	public void unload(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(p2pProductLine);
 		LifeCycleUtil.stop(subProductLine);
 		MQContextFactory.setNullMQContext();

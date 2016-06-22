@@ -4,10 +4,10 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.IOSession;
 import com.gifisan.nio.server.NIOAcceptor;
-import com.gifisan.nio.server.ServerContext;
+import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.service.NIOServlet;
 
 public class SYSTEMStopServerServlet extends NIOServlet {
@@ -16,13 +16,11 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
-	public void accept(IOSession session, ReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 		
-		ServerContext context = (ServerContext) session.getContext();
+		NIOContext context = session.getContext();
 		
-		NIOAcceptor server = context.getServer();
-		
-		new Thread(new StopServer(server)).start();
+		new Thread(new StopServer(context)).start();
 		
 		future.write("服务端正在处理停止服务命令...");
 		
@@ -30,11 +28,11 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 	}
 
 	private class StopServer implements Runnable {
+		
+		private NIOContext context = null;
 
-		private NIOAcceptor	server	= null;
-
-		public StopServer(NIOAcceptor server) {
-			this.server = server;
+		public StopServer(NIOContext context) {
+			this.context = context;
 		}
 
 		public void run() {
@@ -52,9 +50,10 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 				ThreadUtil.sleep(1000);
 
 			}
-
-			LifeCycleUtil.stop(server);
+			
+			NIOAcceptor acceptor = context.getNIOAcceptor();
+			
+			LifeCycleUtil.stop(acceptor);
 		}
 	}
-
 }
