@@ -1,38 +1,22 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import java.nio.channels.Selector;
 
-public class AbstractIOService {
-	
-	private IOEventHandle ioEventHandle = null;
+import com.gifisan.nio.server.NIOContext;
 
-	private ProtocolDecoder protocolDecoder = null;
+public abstract class AbstractIOService implements IOService {
 
-	private ProtocolEncoder protocolEncoder = null;
+	protected NIOContext	context	= null;
 
-	public IOEventHandle getIoEventHandle() {
-		return ioEventHandle;
-	}
-	
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
+	public NIOContext getContext() {
+		return context;
 	}
 
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
+	public void setContext(NIOContext context) {
+		this.context = context;
 	}
 
-	public void setIoEventHandle(IOEventHandle ioEventHandle) {
-		this.ioEventHandle = ioEventHandle;
-	}
+	protected abstract void startComponent(NIOContext context, Selector selector);
 
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		this.protocolDecoder = protocolDecoder;
-	}
-
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		this.protocolEncoder = protocolEncoder;
-	}
-	
+	protected abstract void stopComponent(NIOContext context, Selector selector);
 }

@@ -6,13 +6,13 @@ import java.nio.channels.Selector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.AbstractIOService;
 import com.gifisan.nio.component.IOAcceptor;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 
-public abstract class AbstractIOAcceptor implements IOAcceptor {
+public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor{
 
 	protected Selector		selector	= null;
-	protected NIOContext	context	= null;
 	protected AtomicBoolean	binded	= new AtomicBoolean(false);
 
 	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
@@ -41,12 +41,6 @@ public abstract class AbstractIOAcceptor implements IOAcceptor {
 		}
 	}
 
-	protected abstract void startComponent(NIOContext context, Selector selector);
-
-	protected abstract void stopComponent(NIOContext context, Selector selector);
-
-	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
-
 	public void unbind() {
 		if (binded.compareAndSet(true, false)) {
 
@@ -56,15 +50,9 @@ public abstract class AbstractIOAcceptor implements IOAcceptor {
 		}
 	}
 
+	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
+
 	protected InetSocketAddress getInetSocketAddress(int port) {
 		return new InetSocketAddress(port);
-	}
-
-	public NIOContext getContext() {
-		return context;
-	}
-
-	public void setContext(NIOContext context) {
-		this.context = context;
 	}
 }

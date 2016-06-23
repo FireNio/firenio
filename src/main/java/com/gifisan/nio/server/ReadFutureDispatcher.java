@@ -6,7 +6,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.concurrent.ThreadPool;
 
-public class ServerReadFutureAcceptor implements ReadFutureAcceptor {
+public class ReadFutureDispatcher implements ReadFutureAcceptor {
 	
 	public void accept(final Session session, final ReadFuture future) {
 		

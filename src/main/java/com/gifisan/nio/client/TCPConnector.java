@@ -19,12 +19,8 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.IOConnector;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.concurrent.TaskExecutor;
 import com.gifisan.nio.concurrent.UniqueThread;
 import com.gifisan.nio.plugin.authority.SYSTEMAuthorityServlet;
@@ -34,7 +30,7 @@ import com.gifisan.nio.server.RESMessageDecoder;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 import com.gifisan.security.Authority;
 
-public class TCPConnector implements IOConnector {
+public class TCPConnector extends AbstractIOConnector {
 
 	private AtomicBoolean		connected				= new AtomicBoolean(false);
 	private NIOContext			context				= null;
@@ -59,11 +55,6 @@ public class TCPConnector implements IOConnector {
 	}
 
 	public TCPConnector(String machineType) {
-		this.machineType = machineType;
-	}
-
-	public TCPConnector(ProtocolDecoder protocolDecoder, ProtocolEncoder protocolEncoder, IOEventHandle ioEventHandle,
-			String machineType) {
 		this.machineType = machineType;
 	}
 
@@ -173,10 +164,6 @@ public class TCPConnector implements IOConnector {
 
 	public ClientSession getClientSession() {
 		return endPoint.getSession();
-	}
-
-	protected NIOContext getContext() {
-		return context;
 	}
 
 	/**

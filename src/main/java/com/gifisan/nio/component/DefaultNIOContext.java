@@ -19,7 +19,7 @@ import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.NIOContextListener;
-import com.gifisan.nio.server.ServerReadFutureAcceptor;
+import com.gifisan.nio.server.ReadFutureDispatcher;
 import com.gifisan.nio.server.ServerUDPEndPointFactory;
 import com.gifisan.nio.server.SessionFactory;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
@@ -85,7 +85,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.encoding = Encoding.DEFAULT;
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
-		this.readFutureAcceptor = new ServerReadFutureAcceptor();
+		this.readFutureAcceptor = new ReadFutureDispatcher();
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
 
 		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");

@@ -9,11 +9,11 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MessageFormatter;
+import com.gifisan.nio.component.future.EmptyReadFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.server.EmptyReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.SessionFactory;
 

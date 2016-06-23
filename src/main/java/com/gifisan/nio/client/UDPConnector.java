@@ -19,7 +19,6 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.common.Waiter;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
-import com.gifisan.nio.component.IOConnector;
 import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
@@ -28,10 +27,9 @@ import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 
-public class UDPConnector implements IOConnector {
+public class UDPConnector extends AbstractIOConnector {
 
 	private AtomicBoolean		connected			= new AtomicBoolean(false);
-	private NIOContext			context			= null;
 	private ClientUDPEndPoint	endPoint			= null;
 	private Logger				logger			= LoggerFactory.getLogger(UDPConnector.class);
 	private Selector			selector			= null;
