@@ -12,18 +12,18 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.server.FilterAcceptor;
+import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.server.configuration.ServletsConfiguration;
 
-public class NormalServletLoader extends AbstractLifeCycle implements ServletLoader {
+public class NormalFutureAcceptorLoader extends AbstractLifeCycle implements FutureAcceptorServiceLoader {
 
 	private ApplicationContext				context		= null;
 	private DynamicClassLoader			classLoader	= null;
-	private Logger						logger		= LoggerFactory.getLogger(NormalServletLoader.class);
-	private Map<String, GenericServlet>	servlets		= new LinkedHashMap<String, GenericServlet>();
+	private Logger						logger		= LoggerFactory.getLogger(NormalFutureAcceptorLoader.class);
+	private Map<String, GenericReadFutureAcceptor>	servlets		= new LinkedHashMap<String, GenericReadFutureAcceptor>();
 	private ServletsConfiguration			configuration	= null;
 	
-	public NormalServletLoader(ApplicationContext context, DynamicClassLoader classLoader) {
+	public NormalFutureAcceptorLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getServletsConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
@@ -31,7 +31,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	protected void doStart() throws Exception {
 
-		Map<String, GenericServlet> servlets = loadServlets(configuration,classLoader);
+		Map<String, GenericReadFutureAcceptor> servlets = loadServlets(configuration,classLoader);
 
 		this.initializeServlets(servlets);
 
@@ -41,11 +41,11 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	protected void doStop() throws Exception {
 
-		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
+		Set<Entry<String, GenericReadFutureAcceptor>> entries = servlets.entrySet();
 
-		for (Entry<String, GenericServlet> entry : entries) {
+		for (Entry<String, GenericReadFutureAcceptor> entry : entries) {
 
-			GenericServlet servlet = entry.getValue();
+			GenericReadFutureAcceptor servlet = entry.getValue();
 
 			try {
 
@@ -60,19 +60,18 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	public FilterAcceptor getServlet(String serviceName) {
 
+	public ReadFutureAcceptor getFutureAcceptor(String serviceName) {
 		return servlets.get(serviceName);
-
 	}
 
-	private void initializeServlets(Map<String, GenericServlet> servlets) throws Exception {
+	private void initializeServlets(Map<String, GenericReadFutureAcceptor> servlets) throws Exception {
 
-		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
+		Set<Entry<String, GenericReadFutureAcceptor>> entries = servlets.entrySet();
 
-		for (Entry<String, GenericServlet> entry : entries) {
+		for (Entry<String, GenericReadFutureAcceptor> entry : entries) {
 
-			GenericServlet servlet = entry.getValue();
+			GenericReadFutureAcceptor servlet = entry.getValue();
 
 			servlet.initialize(context, servlet.getConfig());
 
@@ -81,13 +80,13 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 		}
 	}
 
-	private Map<String, GenericServlet> loadServlets(ServletsConfiguration configuration,DynamicClassLoader classLoader) throws Exception {
+	private Map<String, GenericReadFutureAcceptor> loadServlets(ServletsConfiguration configuration,DynamicClassLoader classLoader) throws Exception {
 
 		List<Configuration> servletConfigurations = configuration.getServlets();
 		
-		Map<String, GenericServlet> pluginServlets = context.getPluginServlets();
+		Map<String, GenericReadFutureAcceptor> pluginServlets = context.getPluginServlets();
 		
-		Map<String, GenericServlet> servlets = new LinkedHashMap<String, GenericServlet>();
+		Map<String, GenericReadFutureAcceptor> servlets = new LinkedHashMap<String, GenericReadFutureAcceptor>();
 
 		servlets.putAll(pluginServlets);
 
@@ -114,7 +113,7 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");
 			}
 
-			GenericServlet servlet = (GenericServlet) clazz.newInstance();
+			GenericReadFutureAcceptor servlet = (GenericReadFutureAcceptor) clazz.newInstance();
 
 			servlets.put(serviceName, servlet);
 
@@ -138,13 +137,13 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	}
 
-	private void prepare(Map<String, GenericServlet> servlets) throws Exception {
+	private void prepare(Map<String, GenericReadFutureAcceptor> servlets) throws Exception {
 
-		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
+		Set<Entry<String, GenericReadFutureAcceptor>> entries = servlets.entrySet();
 
-		for (Entry<String, GenericServlet> entry : entries) {
+		for (Entry<String, GenericReadFutureAcceptor> entry : entries) {
 
-			GenericServlet servlet = entry.getValue();
+			GenericReadFutureAcceptor servlet = entry.getValue();
 
 			servlet.prepare(context, servlet.getConfig());
 
@@ -155,11 +154,11 @@ public class NormalServletLoader extends AbstractLifeCycle implements ServletLoa
 
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
-		Set<Entry<String, GenericServlet>> entries = servlets.entrySet();
+		Set<Entry<String, GenericReadFutureAcceptor>> entries = servlets.entrySet();
 
-		for (Entry<String, GenericServlet> entry : entries) {
+		for (Entry<String, GenericReadFutureAcceptor> entry : entries) {
 
-			GenericServlet servlet = entry.getValue();
+			GenericReadFutureAcceptor servlet = entry.getValue();
 
 			try {
 

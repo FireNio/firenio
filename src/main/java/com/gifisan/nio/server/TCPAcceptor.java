@@ -6,32 +6,23 @@ import java.net.ServerSocket;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.IOAcceptor;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.concurrent.UniqueThread;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 
-public final class TCPAcceptor implements IOAcceptor {
+public final class TCPAcceptor extends AbstractIOAcceptor {
 
 	private ServerSocketChannel	channel				= null;
 	private ServerSocket		serverSocket			= null;
 	private TCPSelectorLoop		selectorLoop			= null;
-	private Selector			selector				= null;
-	private NIOContext			context				= null;
 	private EndPointWriter		endPointWriter			= null;
-	private AtomicBoolean		connected				= new AtomicBoolean(false);
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
 
-	public TCPAcceptor(NIOContext context) {
-		this.context = context;
-	}
-
-	private void bind(InetSocketAddress socketAddress) throws IOException {
+	protected void bind(InetSocketAddress socketAddress) throws IOException {
 		// 打开服务器套接字通道
 		this.channel = ServerSocketChannel.open();
 		// 服务器配置为非阻塞
@@ -47,48 +38,41 @@ public final class TCPAcceptor implements IOAcceptor {
 
 	}
 
-	public void bind() throws IOException {
+	protected void startComponent(NIOContext context, Selector selector) {
+		
+		this.endPointWriter = new ServerEndPointWriter();
 
-		if (connected.compareAndSet(false, true)) {
-			
-			ServerConfiguration configuration = context.getServerConfiguration();
+		this.selectorLoop = new TCPSelectorLoop(context, selector, endPointWriter);
 
-			int SERVER_PORT = configuration.getSERVER_TCP_PORT();
+		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
-			if (SERVER_PORT < 1) {
-				throw new IllegalArgumentException("SERVER.TCP_PORT 参数错误");
-			}
-			
-			this.bind(getInetSocketAddress(SERVER_PORT));
-
-			this.endPointWriter = new ServerEndPointWriter();
-
-			this.selectorLoop = new TCPSelectorLoop(context, selector, endPointWriter);
-
-			this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-			this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
-		}
+		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
 	}
 
-	public void unbind() {
-		if (connected.compareAndSet(true, false)) {
-			if (channel.isOpen()) {
-				CloseUtil.close(channel);
-			}
-
-			this.selectorLoopThread.stop();
-
-			this.endPointWriterThread.stop();
+	protected void stopComponent(NIOContext context, Selector selector) {
+		
+		if (channel.isOpen()) {
+			CloseUtil.close(channel);
 		}
+
+		this.selectorLoopThread.stop();
+
+		this.endPointWriterThread.stop();
+	}
+
+	protected int getSERVER_PORT(ServerConfiguration configuration) {
+		
+		int SERVER_PORT = configuration.getSERVER_TCP_PORT();
+
+		if (SERVER_PORT < 1) {
+			throw new IllegalArgumentException("SERVER.TCP_PORT 参数错误");
+		}
+		
+		return SERVER_PORT;
 	}
 
 	protected TCPSelectorLoop getSelectorManagerLoop() {
 		return selectorLoop;
 	}
 	
-	private InetSocketAddress getInetSocketAddress(int port) {
-		return new InetSocketAddress(port);
-	}
-
 }

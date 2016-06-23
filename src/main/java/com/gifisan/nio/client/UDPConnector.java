@@ -96,7 +96,7 @@ public class UDPConnector implements IOConnector {
 
 			String SERVER_HOST = configuration.getSERVER_HOST();
 
-			int SERVER_PORT = configuration.getSERVER_PORT();
+			int SERVER_PORT = configuration.getSERVER_TCP_PORT();
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 		}

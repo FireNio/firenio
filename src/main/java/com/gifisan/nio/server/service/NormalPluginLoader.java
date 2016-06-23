@@ -155,16 +155,16 @@ public class NormalPluginLoader extends AbstractLifeCycle implements PluginLoade
 		}
 	}
 	
-	private void configPluginFilterAndServlet(ApplicationContext serverContext){
+	private void configPluginFilterAndServlet(ApplicationContext context){
 		
-		for (PluginContext context : pluginContexts) {
+		for (PluginContext pluginContext : pluginContexts) {
 
-			if (context == null) {
+			if (pluginContext == null) {
 				continue;
 			}
 
-			context.configFilter(serverContext.getPluginFilters());
-			context.configServlet(serverContext.getPluginServlets());
+			pluginContext.configFutureAcceptorFilter(context.getPluginFilters());
+			pluginContext.configFutureAcceptor(context.getPluginServlets());
 		}
 	}
 

@@ -6,9 +6,10 @@ import java.util.Map;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.UUIDGenerator;
+import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
 import com.gifisan.security.Authority;
 
@@ -49,8 +50,10 @@ public class UserService extends AbstractService{
 	}
 	
 	public boolean logined(Session session) {
+		
+		Authority authority = ApplicationContextUtil.getAuthority(session);
 
-		return session.getAuthority().getRoleID() != Authority.GUEST.getRoleID();
+		return authority.getRoleID() != Authority.GUEST.getRoleID();
 	}
 	
 }

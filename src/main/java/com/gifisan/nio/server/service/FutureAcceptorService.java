@@ -11,21 +11,21 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.PluginContext;
+import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.FilterAcceptor;
 import com.gifisan.nio.server.service.impl.ErrorServlet;
 
-public final class FilterService extends AbstractLifeCycle implements LifeCycle,FilterAcceptor {
+public final class FutureAcceptorService extends AbstractLifeCycle implements LifeCycle,ReadFutureAcceptor {
 
-	private Logger				logger		= LoggerFactory.getLogger(FilterService.class);
+	private Logger				logger		= LoggerFactory.getLogger(FutureAcceptorService.class);
 	private ApplicationContext	context		= null;
-	private NIOFilterWrapper		rootFilter	= null;
-	private FilterLoader		filterLoader	= null;
+	private ReadFutureAcceptorFilterWrapper		rootFilter	= null;
+	private FutureAcceptorFilterLoader		filterLoader	= null;
 	private DynamicClassLoader	classLoader	= null;
 	private PluginLoader		pluginLoader	= null;
 
-	public FilterService(ApplicationContext context, DynamicClassLoader classLoader) {
+	public FutureAcceptorService(ApplicationContext context, DynamicClassLoader classLoader) {
 
 		this.classLoader = classLoader;
 
@@ -68,7 +68,7 @@ public final class FilterService extends AbstractLifeCycle implements LifeCycle,
 		}
 	}
 
-	private boolean accept(NIOFilterWrapper filter, Session session, ReadFuture future) throws Exception {
+	private boolean accept(ReadFutureAcceptorFilterWrapper filter, Session session, ReadFuture future) throws Exception {
 
 		for (; filter != null;) {
 
@@ -109,7 +109,7 @@ public final class FilterService extends AbstractLifeCycle implements LifeCycle,
 
 		logger.info("       [NIOServer] ======================================= 开始服务升级 =======================================");
 
-		FilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
+		FutureAcceptorFilterLoader filterLoader = new NormalFilterLoader(context, classLoader);
 
 		PluginLoader pluginLoader = new NormalPluginLoader(context, classLoader);
 
@@ -174,7 +174,7 @@ public final class FilterService extends AbstractLifeCycle implements LifeCycle,
 
 	}
 
-	private void unloadFilterLoader(FilterLoader filterLoader) {
+	private void unloadFilterLoader(FutureAcceptorFilterLoader filterLoader) {
 
 		try {
 

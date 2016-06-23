@@ -9,7 +9,6 @@ public class ServerConfiguration {
 	private int		SERVER_UDP_PORT	= 0;
 	private int		SERVER_CORE_SIZE	= 0;
 	private Charset	SERVER_ENCODING	= null;
-	private boolean	SERVER_UDP_BOOT	= false;
 	private boolean	SERVER_DEBUG		= false;
 	
 	public int getSERVER_TCP_PORT() {
@@ -42,14 +41,6 @@ public class ServerConfiguration {
 
 	public void setSERVER_ENCODING(Charset SERVER_ENCODING) {
 		this.SERVER_ENCODING = SERVER_ENCODING;
-	}
-
-	public boolean isSERVER_UDP_BOOT() {
-		return SERVER_UDP_BOOT;
-	}
-
-	public void setSERVER_UDP_BOOT(boolean SERVER_UDP_BOOT) {
-		this.SERVER_UDP_BOOT = SERVER_UDP_BOOT;
 	}
 
 	public boolean isSERVER_DEBUG() {

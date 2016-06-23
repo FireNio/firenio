@@ -41,7 +41,7 @@ public class ServerShutdown {
 
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
-		TCPConnector connector = new TCPConnector(new ClientIOEventHandle(),"M");
+		TCPConnector connector = new TCPConnector("M");
 		
 		connector.connect();
 		

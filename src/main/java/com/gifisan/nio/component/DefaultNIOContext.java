@@ -18,7 +18,7 @@ import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.ServerProtocolDecoder;
+import com.gifisan.nio.server.NIOContextListener;
 import com.gifisan.nio.server.ServerReadFutureAcceptor;
 import com.gifisan.nio.server.ServerUDPEndPointFactory;
 import com.gifisan.nio.server.SessionFactory;
@@ -38,6 +38,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionFactory			sessionFactory			= new SessionFactory();
 	private UDPEndPointFactory		udpEndPointFactory		= null;
 	private IOEventHandle			ioEventHandle			= null;
+	private IOService				tcpService			= null;
+	private IOService				udpService			= null;
 
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
 		this.serverConfiguration = serverConfiguration;
@@ -49,6 +51,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public void clearAttributes() {
 		this.attributes.clear();
+	}
+	
+	public DefaultNIOContext() {
+		this.addLifeCycleListener(new NIOContextListener());
 	}
 
 	protected void doStart() throws Exception {
@@ -80,13 +86,15 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.encoding = Encoding.DEFAULT;
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ServerReadFutureAcceptor();
-		this.protocolDecoder = new ServerProtocolDecoder();
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
 
 		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");
-		logger.info("[NIOServer] 项目编码：  { {} }", encoding);
-		logger.info("[NIOServer] 监听端口：  { {} }", serverConfiguration.getSERVER_PORT());
-		logger.info("[NIOServer] CPU核心数：{ {} }", SERVER_CORE_SIZE);
+		logger.info("[NIOServer] 项目编码     ：  { {} }", encoding);
+		logger.info("[NIOServer] 监听端口(TCP)：  { {} }", serverConfiguration.getSERVER_TCP_PORT());
+		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
+			logger.info("[NIOServer] 监听端口(UDP)：  { {} }", serverConfiguration.getSERVER_UDP_PORT());
+		}
+		logger.info("[NIOServer] CPU核心数    ：{ {} }", SERVER_CORE_SIZE);
 
 		this.threadPool.start();
 	}
@@ -100,8 +108,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		configuration.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
 		configuration.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
 		configuration.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
-		configuration.setSERVER_PORT(bundle.getIntegerProperty("SERVER.PORT"));
-		configuration.setSERVER_UDP_BOOT(bundle.getBooleanProperty("SERVER.UDP_BOOT"));
+		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
+		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
 		configuration.setSERVER_ENCODING(Charset.forName(encoding));
 
 		return configuration;
@@ -184,14 +192,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.udpEndPointFactory = udpEndPointFactory;
 	}
 
-	public NIOAcceptor getNIOAcceptor() {
-		return nioAcceptor;
-	}
-
-	public void setNIOAcceptor(NIOAcceptor nioAcceptor) {
-		this.nioAcceptor = nioAcceptor;
-	}
-
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
 		this.protocolDecoder = protocolDecoder;
 	}
@@ -199,6 +199,21 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
 		this.protocolEncoder = protocolEncoder;
 	}
-	
+
+	public IOService getTCPService() {
+		return tcpService;
+	}
+
+	public void setTCPService(IOService tcpService) {
+		this.tcpService = tcpService;
+	}
+
+	public IOService getUDPService() {
+		return udpService;
+	}
+
+	public void setUDPService(IOService udpService) {
+		this.udpService = udpService;
+	}
 	
 }

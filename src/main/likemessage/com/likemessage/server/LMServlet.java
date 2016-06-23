@@ -3,12 +3,12 @@ package com.likemessage.server;
 import java.sql.SQLException;
 
 import com.gifisan.database.DataBaseContext;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.NIOServlet;
+import com.gifisan.nio.server.service.NIOFutureAcceptor;
 
-public abstract class LMServlet extends NIOServlet {
+public abstract class LMServlet extends NIOFutureAcceptor {
 	
 	public static final String	ACTION		= "ACTION";
 

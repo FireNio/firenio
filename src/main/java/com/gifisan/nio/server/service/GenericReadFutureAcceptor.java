@@ -3,8 +3,8 @@ package com.gifisan.nio.server.service;
 import com.gifisan.nio.component.HotDeploy;
 import com.gifisan.nio.component.Initializeable;
 import com.gifisan.nio.component.InitializeableImpl;
-import com.gifisan.nio.server.FilterAcceptor;
+import com.gifisan.nio.component.ReadFutureAcceptor;
 
-public abstract class GenericServlet extends InitializeableImpl implements Initializeable, HotDeploy, FilterAcceptor {
+public abstract class GenericReadFutureAcceptor extends InitializeableImpl implements Initializeable, HotDeploy, ReadFutureAcceptor {
 
 }

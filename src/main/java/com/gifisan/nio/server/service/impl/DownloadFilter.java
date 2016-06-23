@@ -16,9 +16,9 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.AbstractNIOFilter;
+import com.gifisan.nio.server.service.AbstractFutureAcceptor;
 
-public class DownloadFilter extends AbstractNIOFilter {
+public class DownloadFilter extends AbstractFutureAcceptor {
 
 	private boolean			exclude		= false;
 	private Map<String, String>	excludesMap	= null;

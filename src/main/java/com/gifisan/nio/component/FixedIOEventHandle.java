@@ -1,15 +1,31 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
-import com.gifisan.nio.server.service.FilterService;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
 
 public class FixedIOEventHandle implements IOEventHandle{
 	
+	private Logger logger = LoggerFactory.getLogger(FixedIOEventHandle.class);
+	
+	protected FixedIOEventHandle(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
 	private ApplicationContext applicationContext = null;
 	
-	private FilterService filterService = null;
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
+	private FutureAcceptorService filterService = null;
 
 	public void sessionOpened(Session session) {
 		
@@ -32,8 +48,12 @@ public class FixedIOEventHandle implements IOEventHandle{
 	}
 
 	public void futureReceived(Session session, ReadFuture future) {
-		filterService.accept(session, future);
-		
+		try {
+			filterService.accept(session, future);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+			exceptionCaughtOnWrite(session, future, null, e);
+		}
 	}
 
 	public void futureSent(Session session, WriteFuture future) {

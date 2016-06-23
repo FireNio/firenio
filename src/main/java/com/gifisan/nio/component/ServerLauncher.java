@@ -1,20 +1,24 @@
 package com.gifisan.nio.component;
 
-import java.lang.reflect.Method;
-
-import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.ServerProtocolDecoder;
+import com.gifisan.nio.server.TCPAcceptor;
 
 
 public class ServerLauncher {
 
 	public void launch() throws Exception {
 
-		Object instance = null;
+		ApplicationContext applicationContext = new ApplicationContext();
+		
+		NIOContext context = new DefaultNIOContext();
+		
+		TCPAcceptor acceptor = new TCPAcceptor();
 		
 		try {
 			
@@ -22,37 +26,27 @@ public class ServerLauncher {
 			
 			SharedBundle bundle = SharedBundle.instance();
 			
-//			if (bundle.storageProperties("../classes/server.properties")) {
-//				
-//				bundle.loadLog4jProperties("../classes/log4j.properties");
-//			}else{
-//				
-//				if(!bundle.storageProperties("conf/server.properties")){
-//					throw new Error("conf/server.properties unexist");
-//				}
-//				
-//				bundle.loadLog4jProperties("conf/log4j.properties");
-//			}
-			
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 			
 			DebugUtil.setEnableDebug(debug);
-
-			Class clazz = Class.forName("com.gifisan.nio.server.NIOServer");
-
-			instance = clazz.newInstance();
-
-			Method start = instance.getClass().getMethod("start");
-
-			start.invoke(instance);
-
-//			new NIOServer().start();
+			
+			applicationContext.setContext(context);
+			
+			applicationContext.start();
+			
+			context.setProtocolDecoder(new ServerProtocolDecoder());
+			
+			context.setIOEventHandle(new FixedIOEventHandle(new ApplicationContext()));
+			
+			acceptor.setContext(context);
+			
+			acceptor.bind();
 
 		} catch (Throwable e) {
+			
 			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
 			
-			LifeCycleUtil.stop((LifeCycle)instance);
-			
+			LifeCycleUtil.stop(applicationContext);
 		}
 	}
 

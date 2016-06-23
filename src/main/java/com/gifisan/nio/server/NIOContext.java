@@ -6,6 +6,7 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.Attributes;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.IOEventHandle;
+import com.gifisan.nio.component.IOService;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.UDPEndPointFactory;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
@@ -30,6 +31,14 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract ServerConfiguration getServerConfiguration();
 
 	public abstract SessionFactory getSessionFactory();
+	
+	public abstract IOService getTCPService() ;
+
+	public abstract void setTCPService(IOService tcpService) ;
+
+	public abstract IOService getUDPService() ;
+
+	public abstract void setUDPService(IOService udpService) ;
 
 	public abstract ThreadPool getThreadPool();
 

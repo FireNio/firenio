@@ -4,12 +4,12 @@ import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONArray;
 import com.gifisan.database.DataBaseContext;
+import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.ServerContext;
 
 public class UserServlet extends LMServlet {
 
@@ -46,7 +46,7 @@ public class UserServlet extends LMServlet {
 		session.flush(future);
 	}
 
-	public void initialize(ServerContext context, Configuration config) throws Exception {
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		super.initialize(context, config);
 
 		DataBaseUtil.initializeDataBaseContext();
@@ -71,7 +71,7 @@ public class UserServlet extends LMServlet {
 		loginCenter.initialize(dataBaseContext);
 	}
 
-	public void destroy(ServerContext context, Configuration config) throws Exception {
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
 		super.destroy(context, config);
 

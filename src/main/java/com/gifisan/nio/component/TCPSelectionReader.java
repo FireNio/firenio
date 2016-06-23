@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
@@ -34,7 +33,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		
 	}
 
-	public void accept(SelectionKey selectionKey) throws IOException {
+	public void accept(SelectionKey selectionKey) throws Exception {
 
 		NIOContext context = this.context;
 

@@ -45,7 +45,7 @@ public class ConnectExecutable extends JMSCommandExecutor {
 		
 		try {
 			
-			connector = new TCPConnector(new ClientIOEventHandle(),"M");
+			connector = new TCPConnector("M");
 			
 			connector.connect();
 			

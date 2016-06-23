@@ -1,16 +1,15 @@
 package com.gifisan.nio.server.service.impl;
 
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.IOAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.NIOAcceptor;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.service.NIOServlet;
+import com.gifisan.nio.server.service.NIOFutureAcceptor;
 
-public class SYSTEMStopServerServlet extends NIOServlet {
+public class SYSTEMStopServerServlet extends NIOFutureAcceptor {
 
 	public static final String	SERVICE_NAME	= SYSTEMStopServerServlet.class.getSimpleName();
 
@@ -51,9 +50,14 @@ public class SYSTEMStopServerServlet extends NIOServlet {
 
 			}
 			
-			NIOAcceptor acceptor = context.getNIOAcceptor();
+			IOAcceptor tcpAcceptor = (IOAcceptor) context.getTCPService();
+			IOAcceptor udpAcceptor = (IOAcceptor) context.getTCPService();
 			
-			LifeCycleUtil.stop(acceptor);
+			tcpAcceptor.unbind();
+			
+			if (udpAcceptor!=null) {
+				udpAcceptor.unbind();
+			}
 		}
 	}
 }

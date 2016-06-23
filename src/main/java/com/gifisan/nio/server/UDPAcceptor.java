@@ -6,29 +6,25 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.IOAcceptor;
 import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.concurrent.UniqueThread;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
 
-public final class UDPAcceptor implements IOAcceptor {
+public final class UDPAcceptor extends AbstractIOAcceptor {
 
 	private DatagramChannel	channel			= null;
 	private DatagramSocket	serverSocket		= null;
 	private UDPSelectorLoop	selectorLoop		= null;
 	private Selector		selector			= null;
-	private NIOContext		context			= null;
-	private AtomicBoolean	connected			= new AtomicBoolean(false);
 	private UniqueThread	selectorLoopThread	= new UniqueThread();
 
 	protected UDPAcceptor(NIOContext context) {
 		this.context = context;
 	}
 
-	private void bind(InetSocketAddress socketAddress) throws IOException {
+	protected void bind(InetSocketAddress socketAddress) throws IOException {
 		// 打开服务器套接字通道
 		this.channel = DatagramChannel.open();
 		// 服务器配置为非阻塞
@@ -43,38 +39,31 @@ public final class UDPAcceptor implements IOAcceptor {
 		this.channel.register(selector, SelectionKey.OP_READ);
 	}
 
-	private InetSocketAddress getInetSocketAddress(int port) {
-		return new InetSocketAddress(port);
+	protected void startComponent(NIOContext context, Selector selector) {
+
+		this.selectorLoop = new UDPSelectorLoop(context, selector);
+
+		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
 	}
 
-	public void bind() throws IOException {
-		if (connected.compareAndSet(false, true)) {
+	protected void stopComponent(NIOContext context, Selector selector) {
 
-			ServerConfiguration configuration = context.getServerConfiguration();
-
-			int SERVER_PORT = configuration.getSERVER_UDP_PORT();
-
-			if (SERVER_PORT < 1) {
-				throw new IllegalArgumentException("SERVER.UDP_PORT 参数错误");
-			}
-			
-			this.bind(getInetSocketAddress(SERVER_PORT));
-			
-			this.selectorLoop = new UDPSelectorLoop(context, selector);
-
-			this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
+		if (channel.isOpen()) {
+			CloseUtil.close(channel);
 		}
 
+		this.selectorLoopThread.stop();
 	}
 
-	public void unbind() {
-		if (connected.compareAndSet(true, false)) {
-			if (channel.isOpen()) {
-				CloseUtil.close(channel);
-			}
+	protected int getSERVER_PORT(ServerConfiguration configuration) {
 
-			this.selectorLoopThread.stop();
+		int SERVER_PORT = configuration.getSERVER_UDP_PORT();
+
+		if (SERVER_PORT < 1) {
+			throw new IllegalArgumentException("SERVER.UDP_PORT 参数错误");
 		}
+
+		return SERVER_PORT;
 	}
 
 	protected UDPSelectorLoop getSelectorLoop() {

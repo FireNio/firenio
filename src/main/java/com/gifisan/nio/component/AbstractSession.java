@@ -1,11 +1,21 @@
 package com.gifisan.nio.component;
 
+import java.io.IOException;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.DisconnectException;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MessageFormatter;
+import com.gifisan.nio.component.future.IOReadFuture;
+import com.gifisan.nio.component.future.IOWriteFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.server.EmptyReadFuture;
 import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.SessionFactory;
 
 public abstract class AbstractSession extends AttributesImpl implements Session {
 
@@ -21,12 +31,69 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	protected EndPointWriter			endPointWriter	= null;
 	protected String					sessionID		= null;
 	private NIOContext					context		= null;
+	private UDPEndPoint					udpEndPoint	= null;
+	private Logger						logger		= LoggerFactory.getLogger(AbstractSession.class);
 
 	public AbstractSession(TCPEndPoint endPoint) {
-		NIOContext context = endPoint.getContext();
+		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
+	}
+	
+	public UDPEndPoint getUDPEndPoint() {
+		return udpEndPoint;
+	}
+	
+	public void setUDPEndPoint(UDPEndPoint udpEndPoint) {
+
+		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
+			throw new IllegalArgumentException("udpEndPoint setted");
+		}
+
+		this.udpEndPoint = udpEndPoint;
+	}
+
+	public void disconnect() {
+		this.endPoint.endConnect();
+		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
+	}
+
+	public void flush(ReadFuture future) {
+
+		IOReadFuture _future = (IOReadFuture) future;
+
+		if (_future.flushed()) {
+			throw new IllegalStateException("flushed already");
+		}
+
+		IOEventHandle handle = context.getIOEventHandle();
+
+		if (!endPoint.isOpened()) {
+
+			handle.exceptionCaughtOnWrite(this, future, null, DisconnectException.INSTANCE);
+
+			return;
+		}
+
+		IOWriteFuture writeFuture = null;
+
+		try {
+
+			writeFuture = encoder.encode(endPoint, 0, _future.getServiceName(),
+					_future.getTextCache().toByteArray(), _future.getInputStream());
+
+			_future.flush();
+
+			writeFuture.attach(_future.attachment());
+
+			this.endPointWriter.offer(writeFuture);
+		} catch (IOException e) {
+
+			logger.debug(e.getMessage(), e);
+
+			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
+		}
 	}
 
 	public void addEventListener(SessionEventListener listener) {
@@ -37,7 +104,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 			this.lastListener.setNext(new SessionEventListenerWrapper(listener));
 		}
 	}
-	
+
 	public NIOContext getContext() {
 		return context;
 	}
@@ -109,6 +176,12 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 	}
 
 	public void destroy() {
+		
+		SessionFactory factory = context.getSessionFactory();
+
+		factory.removeSession(this);
+
+		CloseUtil.close(udpEndPoint);
 
 		this.closed = true;
 

@@ -50,6 +50,12 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		
 		attachment.setAuthorityManager(authorityManager);
 		
+
+		
+		
+//		session.setSessionID(UUIDGenerator.random()); FIXME ...
+		context.getSessionFactory().putSession(session);
+		
 		session.setMachineType(machineType);
 		
 		authority.setSessionID(session.getSessionID());

@@ -4,9 +4,9 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOServlet;
+import com.gifisan.nio.server.service.NIOFutureAcceptor;
 
-public class TestListenSimpleServlet extends NIOServlet{
+public class TestListenSimpleServlet extends NIOFutureAcceptor{
 	
 	public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 	

@@ -6,12 +6,12 @@ import com.gifisan.nio.component.InitializeableImpl;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class DefaultNIOFilterWrapper extends InitializeableImpl implements NIOFilterWrapper {
+public class DefaultFutureAcceptorFilterWrapper extends InitializeableImpl implements ReadFutureAcceptorFilterWrapper {
 
-	private NIOFilter		filter		= null;
-	private NIOFilterWrapper	nextFilter	= null;
+	private ReadFutureAcceptorFilter		filter		= null;
+	private ReadFutureAcceptorFilterWrapper	nextFilter	= null;
 
-	public DefaultNIOFilterWrapper(ApplicationContext context, NIOFilter filter, Configuration config) {
+	public DefaultFutureAcceptorFilterWrapper(ApplicationContext context, ReadFutureAcceptorFilter filter, Configuration config) {
 		this.filter = filter;
 		this.setConfig(config);
 	}
@@ -29,11 +29,11 @@ public class DefaultNIOFilterWrapper extends InitializeableImpl implements NIOFi
 		this.filter.initialize(context, config);
 	}
 
-	public NIOFilterWrapper nextFilter() {
+	public ReadFutureAcceptorFilterWrapper nextFilter() {
 		return nextFilter;
 	}
 
-	public void setNextFilter(NIOFilterWrapper filter) {
+	public void setNextFilter(ReadFutureAcceptorFilterWrapper filter) {
 		this.nextFilter = filter;
 	}
 

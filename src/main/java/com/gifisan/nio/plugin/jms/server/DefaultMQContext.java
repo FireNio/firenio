@@ -1,6 +1,5 @@
 package com.gifisan.nio.plugin.jms.server;
 
-import java.util.List;
 import java.util.Map;
 
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -15,8 +14,7 @@ import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.server.service.GenericServlet;
-import com.gifisan.nio.server.service.NIOFilter;
+import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
 
 public class DefaultMQContext extends AbstractPluginContext implements MQContext {
 
@@ -123,18 +121,14 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		return consumerPushFailedHandle;
 	}
 
-	public void configFilter(List<NIOFilter> pluginFilters) {
+	public void configFutureAcceptor(Map<String, GenericReadFutureAcceptor> acceptors) {
 
-	}
-
-	public void configServlet(Map<String, GenericServlet> pluginServlets) {
-
-		pluginServlets.put(JMSConsumerServlet.SERVICE_NAME, new JMSConsumerServlet());
-		pluginServlets.put(JMSProducerServlet.SERVICE_NAME, new JMSProducerServlet());
-		pluginServlets.put(JMSSubscribeServlet.SERVICE_NAME, new JMSSubscribeServlet());
-		pluginServlets.put(JMSPublishServlet.SERVICE_NAME, new JMSPublishServlet());
-		pluginServlets.put(JMSTransactionServlet.SERVICE_NAME, new JMSTransactionServlet());
-		pluginServlets.put(JMSBrowserServlet.SERVICE_NAME, new JMSBrowserServlet());
+		acceptors.put(JMSConsumerServlet.SERVICE_NAME, new JMSConsumerServlet());
+		acceptors.put(JMSProducerServlet.SERVICE_NAME, new JMSProducerServlet());
+		acceptors.put(JMSSubscribeServlet.SERVICE_NAME, new JMSSubscribeServlet());
+		acceptors.put(JMSPublishServlet.SERVICE_NAME, new JMSPublishServlet());
+		acceptors.put(JMSTransactionServlet.SERVICE_NAME, new JMSTransactionServlet());
+		acceptors.put(JMSBrowserServlet.SERVICE_NAME, new JMSBrowserServlet());
 
 	}
 

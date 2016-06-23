@@ -4,7 +4,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 
-public abstract class NIOServlet extends GenericServlet {
+public abstract class NIOFutureAcceptor extends GenericReadFutureAcceptor {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 

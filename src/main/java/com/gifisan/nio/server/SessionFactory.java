@@ -7,7 +7,7 @@ public class SessionFactory {
 
 	private ReentrantMap<String, Session>	sessions	= new ReentrantMap<String, Session>();
 
-	protected void putSession(Session session) {
+	public void putSession(Session session) {
 
 		sessions.put(session.getSessionID(), session);
 	}
@@ -17,7 +17,7 @@ public class SessionFactory {
 		return sessions.get(sessionID);
 	}
 
-	protected void removeSession(Session session) {
+	public void removeSession(Session session) {
 
 		sessions.remove(session.getSessionID());
 	}

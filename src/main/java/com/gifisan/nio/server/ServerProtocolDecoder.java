@@ -40,7 +40,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 		httpArray = http.toString().getBytes();
 	}
 
-	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, byte type) throws IOException {
+	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
 		if (type == ProtocolDecoder.TYPE_BEAT) {
 
 			logger.debug(">>read beat................. {}" , DateUtil.now());
@@ -60,6 +60,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 			return null;
 		}
 	}
+
 
 
 }

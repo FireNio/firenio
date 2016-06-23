@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.BeanUtil;
+import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Parameters;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.Session;
 import com.gifisan.nio.server.RESMessage;
+import com.gifisan.security.Authority;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 
@@ -44,7 +46,9 @@ public class ContactServlet extends LMServlet {
 	private void getContactListByUserID(Session session, ReadFuture future, Parameters parameters,
 			ContactService service) throws Exception {
 
-		Integer userID = session.getAuthority().getUserID();
+		Authority authority = ApplicationContextUtil.getAuthority(session);
+		
+		Integer userID = authority.getUserID();
 
 		List<B_Contact> contactList = service.getContactListByUserID(userID);
 
@@ -60,7 +64,9 @@ public class ContactServlet extends LMServlet {
 
 		T_CONTACT contact = (T_CONTACT) BeanUtil.map2Object(parameters.getJSONObject("t_contact"), T_CONTACT.class);
 
-		contact.setOwnerID(session.getAuthority().getUserID());
+		Authority authority = ApplicationContextUtil.getAuthority(session);
+		
+		contact.setOwnerID(authority.getUserID());
 		
 		String friendName = parameters.getParameter("friendName");
 		

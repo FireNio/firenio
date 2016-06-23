@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
@@ -18,7 +17,7 @@ public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		this._read_acceptor = new UDPSelectionReader(context);
 	}
 
-	public void accept(SelectionKey selectionKey) throws IOException {
+	public void accept(SelectionKey selectionKey)  {
 		if (!selectionKey.isValid()) {
 			return;
 		}
@@ -35,12 +34,12 @@ public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 				logger.error("Connectable=================");
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			acceptException(selectionKey, e);
 		}
 	}
 
-	private void acceptException(SelectionKey selectionKey, IOException e) {
+	private void acceptException(SelectionKey selectionKey, Exception e) {
 		
 		logger.error(e.getMessage(),e);
 	}

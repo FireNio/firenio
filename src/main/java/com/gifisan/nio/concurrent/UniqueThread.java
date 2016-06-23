@@ -8,11 +8,10 @@ import com.gifisan.nio.common.LoggerFactory;
 public class UniqueThread {
 
 	private boolean		running		= false;
-	private Runnable		runnable		= null;
 	private AtomicBoolean	initialized	= new AtomicBoolean();
 	private Logger			logger		= LoggerFactory.getLogger(UniqueThread.class);
 
-	public void start(Runnable runnable, String name) {
+	public void start(final Runnable runnable, String name) {
 
 		if (!initialized.compareAndSet(false, true)) {
 			return;
@@ -24,12 +23,12 @@ public class UniqueThread {
 
 			public void run() {
 
-				Runnable runnable = UniqueThread.this.runnable;
+				Runnable _runnable = runnable;
 
 				for (; running;) {
 
 					try {
-						runnable.run();
+						_runnable.run();
 					} catch (Throwable e) {
 						logger.error(e.getMessage(), e);
 					}

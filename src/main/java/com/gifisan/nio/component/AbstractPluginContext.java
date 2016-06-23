@@ -1,6 +1,11 @@
 package com.gifisan.nio.component;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
+import com.gifisan.nio.server.service.ReadFutureAcceptorFilter;
 
 public abstract class AbstractPluginContext extends InitializeableImpl implements PluginContext {
 
@@ -13,6 +18,14 @@ public abstract class AbstractPluginContext extends InitializeableImpl implement
 
 	public int getPluginIndex() {
 		return pluginIndex;
+	}
+	
+	public void configFutureAcceptorFilter(List<ReadFutureAcceptorFilter> filters) {
+		
+	}
+
+	public void configFutureAcceptor(Map<String, GenericReadFutureAcceptor> acceptors) {
+		
 	}
 
 	// FIXME you wen ti

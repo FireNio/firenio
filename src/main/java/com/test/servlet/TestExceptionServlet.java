@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOServlet;
+import com.gifisan.nio.server.service.NIOFutureAcceptor;
 
-public class TestExceptionServlet extends NIOServlet{
+public class TestExceptionServlet extends NIOFutureAcceptor{
 	
 	public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
 

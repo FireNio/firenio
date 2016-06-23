@@ -13,10 +13,10 @@ import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.server.configuration.FiltersConfiguration;
 import com.gifisan.nio.server.service.impl.AuthorityFilter;
 
-public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoader {
+public class NormalFilterLoader extends AbstractLifeCycle implements FutureAcceptorFilterLoader {
 
 	private Logger				logger		= LoggerFactory.getLogger(NormalFilterLoader.class);
-	private NIOFilterWrapper		rootFilter	= null;
+	private ReadFutureAcceptorFilterWrapper		rootFilter	= null;
 	private ApplicationContext	context		= null;
 	private DynamicClassLoader	classLoader	= null;
 	private FiltersConfiguration	configuration	= null;
@@ -27,12 +27,12 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.classLoader = classLoader;
 	}
 
-	private NIOFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
+	private ReadFutureAcceptorFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
 			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		List<Configuration> filterConfigurations = configuration.getFilters();
 
-		List<NIOFilter> filters = new ArrayList<NIOFilter>();
+		List<ReadFutureAcceptorFilter> filters = new ArrayList<ReadFutureAcceptorFilter>();
 
 		filters.add(new AuthorityFilter());
 
@@ -41,9 +41,9 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			filterConfigurations = new ArrayList<Configuration>();
 		}
 
-		NIOFilterWrapper rootFilter = null;
+		ReadFutureAcceptorFilterWrapper rootFilter = null;
 
-		NIOFilterWrapper last = null;
+		ReadFutureAcceptorFilterWrapper last = null;
 
 		for (int i = 0; i < filterConfigurations.size(); i++) {
 
@@ -51,7 +51,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 			String clazzName = filterConfig.getParameter("class", "empty");
 
-			NIOFilter filter = (NIOFilter) classLoader.forName(clazzName).newInstance();
+			ReadFutureAcceptorFilter filter = (ReadFutureAcceptorFilter) classLoader.forName(clazzName).newInstance();
 
 			filter.setConfig(filterConfig);
 
@@ -62,9 +62,9 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 		for (int i = 0; i < filters.size(); i++) {
 
-			NIOFilter filter = filters.get(i);
+			ReadFutureAcceptorFilter filter = filters.get(i);
 
-			DefaultNIOFilterWrapper _filter = new DefaultNIOFilterWrapper(context, filter, filter.getConfig());
+			DefaultFutureAcceptorFilterWrapper _filter = new DefaultFutureAcceptorFilterWrapper(context, filter, filter.getConfig());
 
 			if (last == null) {
 
@@ -79,7 +79,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 			}
 		}
 
-		DefaultNIOFilterWrapper filter = new DefaultNIOFilterWrapper(context, new ServletFilter(classLoader), null);
+		DefaultFutureAcceptorFilterWrapper filter = new DefaultFutureAcceptorFilterWrapper(context, new FutureAcceptorFilter(classLoader), null);
 
 		if (last == null) {
 			rootFilter = filter;
@@ -90,7 +90,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		return rootFilter;
 	}
 
-	public NIOFilterWrapper getRootFilter() {
+	public ReadFutureAcceptorFilterWrapper getRootFilter() {
 		return rootFilter;
 	}
 
@@ -101,7 +101,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.initializeFilters(rootFilter);
 	}
 
-	private void initializeFilters(NIOFilterWrapper filter) throws Exception {
+	private void initializeFilters(ReadFutureAcceptorFilterWrapper filter) throws Exception {
 
 		for (; filter != null;) {
 
@@ -114,7 +114,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		}
 	}
 
-	private void destroyFilters(NIOFilterWrapper filter) {
+	private void destroyFilters(ReadFutureAcceptorFilterWrapper filter) {
 
 		for (; filter != null;) {
 
@@ -135,7 +135,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 		this.destroyFilters(rootFilter);
 	}
 
-	private void prepare(NIOFilterWrapper filter) throws Exception {
+	private void prepare(ReadFutureAcceptorFilterWrapper filter) throws Exception {
 
 		for (; filter != null;) {
 
@@ -162,7 +162,7 @@ public class NormalFilterLoader extends AbstractLifeCycle implements FilterLoade
 
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
-		NIOFilterWrapper filter = rootFilter;
+		ReadFutureAcceptorFilterWrapper filter = rootFilter;
 
 		for (; filter != null;) {
 

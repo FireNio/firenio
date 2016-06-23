@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
@@ -55,8 +54,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			working = false;
 		}
 	}
-
-	public abstract void accept(SelectionKey selectionKey) throws IOException;
 
 	protected void doStop() throws Exception {
 

@@ -6,10 +6,10 @@ import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.NIOServlet;
+import com.gifisan.nio.server.service.NIOFutureAcceptor;
 import com.gifisan.security.Authority;
 
-public class SYSTEMAuthorityServlet extends NIOServlet{
+public class SYSTEMAuthorityServlet extends NIOFutureAcceptor{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 

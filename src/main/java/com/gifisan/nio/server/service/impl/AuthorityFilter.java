@@ -7,11 +7,11 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.authority.AuthorityAttachment;
 import com.gifisan.nio.plugin.authority.AuthorityPlugin;
-import com.gifisan.nio.server.service.AbstractNIOFilter;
+import com.gifisan.nio.server.service.AbstractFutureAcceptor;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
 
-public class AuthorityFilter extends AbstractNIOFilter {
+public class AuthorityFilter extends AbstractFutureAcceptor {
 
 	private Logger		logger	= LoggerFactory.getLogger(AuthorityFilter.class);
 	

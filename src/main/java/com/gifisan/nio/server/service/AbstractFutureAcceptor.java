@@ -4,7 +4,7 @@ import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.InitializeableImpl;
 
-public abstract class AbstractNIOFilter extends InitializeableImpl implements NIOFilter{
+public abstract class AbstractFutureAcceptor extends InitializeableImpl implements ReadFutureAcceptorFilter{
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
