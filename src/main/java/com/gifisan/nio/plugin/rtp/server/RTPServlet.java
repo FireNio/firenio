@@ -2,9 +2,9 @@ package com.gifisan.nio.plugin.rtp.server;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public abstract class RTPServlet extends NIOFutureAcceptor {
+public abstract class RTPServlet extends FutureAcceptorService {
 
 	private RTPContext	context	= RTPContextFactory.getRTPContext();
 

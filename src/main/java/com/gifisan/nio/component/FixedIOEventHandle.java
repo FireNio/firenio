@@ -4,7 +4,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
-import com.gifisan.nio.server.service.FutureAcceptorService;
+import com.gifisan.nio.server.service.FutureAcceptor;
 
 
 public class FixedIOEventHandle implements IOEventHandle{
@@ -25,7 +25,7 @@ public class FixedIOEventHandle implements IOEventHandle{
 		this.applicationContext = applicationContext;
 	}
 
-	private FutureAcceptorService filterService = null;
+	private FutureAcceptor filterService = null;
 
 	public void sessionOpened(Session session) {
 		

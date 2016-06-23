@@ -2,9 +2,9 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public abstract class JMSServlet extends NIOFutureAcceptor{
+public abstract class JMSServlet extends FutureAcceptorService{
 
 	private MQContext context = MQContextFactory.getMQContext();
 

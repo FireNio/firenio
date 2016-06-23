@@ -14,7 +14,7 @@ import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
 public class DefaultMQContext extends AbstractPluginContext implements MQContext {
 
@@ -121,7 +121,7 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		return consumerPushFailedHandle;
 	}
 
-	public void configFutureAcceptor(Map<String, GenericReadFutureAcceptor> acceptors) {
+	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
 		acceptors.put(JMSConsumerServlet.SERVICE_NAME, new JMSConsumerServlet());
 		acceptors.put(JMSProducerServlet.SERVICE_NAME, new JMSProducerServlet());

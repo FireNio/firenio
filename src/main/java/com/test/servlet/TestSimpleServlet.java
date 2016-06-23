@@ -3,9 +3,9 @@ package com.test.servlet;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public class TestSimpleServlet extends NIOFutureAcceptor{
+public class TestSimpleServlet extends FutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
 	

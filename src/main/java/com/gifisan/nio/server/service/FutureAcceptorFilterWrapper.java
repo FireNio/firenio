@@ -2,16 +2,15 @@ package com.gifisan.nio.server.service;
 
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.InitializeableImpl;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class DefaultFutureAcceptorFilterWrapper extends InitializeableImpl implements ReadFutureAcceptorFilterWrapper {
+public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 
-	private ReadFutureAcceptorFilter		filter		= null;
-	private ReadFutureAcceptorFilterWrapper	nextFilter	= null;
+	private FutureAcceptorFilter		filter		= null;
+	private FutureAcceptorFilterWrapper	nextFilter	= null;
 
-	public DefaultFutureAcceptorFilterWrapper(ApplicationContext context, ReadFutureAcceptorFilter filter, Configuration config) {
+	public FutureAcceptorFilterWrapper(ApplicationContext context, FutureAcceptorFilter filter, Configuration config) {
 		this.filter = filter;
 		this.setConfig(config);
 	}
@@ -29,11 +28,11 @@ public class DefaultFutureAcceptorFilterWrapper extends InitializeableImpl imple
 		this.filter.initialize(context, config);
 	}
 
-	public ReadFutureAcceptorFilterWrapper nextFilter() {
+	public FutureAcceptorFilterWrapper nextFilter() {
 		return nextFilter;
 	}
 
-	public void setNextFilter(ReadFutureAcceptorFilterWrapper filter) {
+	public void setNextFilter(FutureAcceptorFilterWrapper filter) {
 		this.nextFilter = filter;
 	}
 

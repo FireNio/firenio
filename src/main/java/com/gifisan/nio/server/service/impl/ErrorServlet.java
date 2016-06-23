@@ -4,9 +4,9 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public class ErrorServlet extends NIOFutureAcceptor{
+public class ErrorServlet extends FutureAcceptorService{
 	
 	public ErrorServlet(Throwable exception) {
 		this.exception = exception;

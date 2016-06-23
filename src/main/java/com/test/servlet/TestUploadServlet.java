@@ -7,9 +7,9 @@ import java.io.OutputStream;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public class TestUploadServlet extends NIOFutureAcceptor {
+public class TestUploadServlet extends FutureAcceptorService {
 	
 	public static final String SERVICE_NAME = TestUploadServlet.class.getSimpleName();
 

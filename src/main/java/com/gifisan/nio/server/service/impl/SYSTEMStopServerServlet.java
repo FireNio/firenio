@@ -7,9 +7,9 @@ import com.gifisan.nio.component.IOAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public class SYSTEMStopServerServlet extends NIOFutureAcceptor {
+public class SYSTEMStopServerServlet extends FutureAcceptorService {
 
 	public static final String	SERVICE_NAME	= SYSTEMStopServerServlet.class.getSimpleName();
 

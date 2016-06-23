@@ -18,9 +18,9 @@ import com.gifisan.nio.server.SessionFactory;
 import com.gifisan.nio.server.configuration.ApplicationConfiguration;
 import com.gifisan.nio.server.configuration.ApplicationConfigurationLoader;
 import com.gifisan.nio.server.configuration.FileSystemACLoader;
+import com.gifisan.nio.server.service.FutureAcceptor;
 import com.gifisan.nio.server.service.FutureAcceptorService;
-import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
-import com.gifisan.nio.server.service.ReadFutureAcceptorFilter;
+import com.gifisan.nio.server.service.FutureAcceptorFilter;
 import com.gifisan.security.AuthorityLoginCenter;
 import com.gifisan.security.RoleManager;
 
@@ -38,11 +38,11 @@ public class ApplicationContext extends AbstractLifeCycle{
 	private ApplicationConfigurationLoader	configurationLoader	= new FileSystemACLoader();
 	private NIOContext					context			= null;
 	private Charset					encoding			= Encoding.DEFAULT;
-	private FutureAcceptorService				filterService		= null;
+	private FutureAcceptor				filterService		= null;
 	private Logger						logger			= LoggerFactory.getLogger(ApplicationContext.class);
 	private LoginCenter					loginCenter		= new AuthorityLoginCenter();
-	private List<ReadFutureAcceptorFilter>				pluginFilters		= new ArrayList<ReadFutureAcceptorFilter>();
-	private Map<String, GenericReadFutureAcceptor>	pluginServlets		= new HashMap<String, GenericReadFutureAcceptor>();
+	private List<FutureAcceptorFilter>				pluginFilters		= new ArrayList<FutureAcceptorFilter>();
+	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
 	private RoleManager					roleManager		= new RoleManager();
 	private SessionFactory				sessionFactory		= new SessionFactory();
 
@@ -58,7 +58,7 @@ public class ApplicationContext extends AbstractLifeCycle{
 
 		this.encoding = context.getEncoding();
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
-		this.filterService = new FutureAcceptorService(this, classLoader);
+		this.filterService = new FutureAcceptor(this, classLoader);
 
 		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
 
@@ -92,7 +92,7 @@ public class ApplicationContext extends AbstractLifeCycle{
 		return encoding;
 	}
 
-	public FutureAcceptorService getFilterService() {
+	public FutureAcceptor getFilterService() {
 		return filterService;
 	}
 
@@ -117,11 +117,11 @@ public class ApplicationContext extends AbstractLifeCycle{
 		return null;
 	}
 
-	public List<ReadFutureAcceptorFilter> getPluginFilters() {
+	public List<FutureAcceptorFilter> getPluginFilters() {
 		return pluginFilters;
 	}
 
-	public Map<String, GenericReadFutureAcceptor> getPluginServlets() {
+	public Map<String, FutureAcceptorService> getPluginServlets() {
 		return pluginServlets;
 	}
 

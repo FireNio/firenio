@@ -4,9 +4,9 @@ import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.NIOFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
-public class SYSTEMShowMemoryServlet extends NIOFutureAcceptor{
+public class SYSTEMShowMemoryServlet extends FutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMShowMemoryServlet.class.getSimpleName();
 

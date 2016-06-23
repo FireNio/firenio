@@ -5,7 +5,7 @@ import java.util.Map;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
+import com.gifisan.nio.server.service.GenericFutureAcceptor;
 import com.likemessage.server.LMLoginCenter;
 
 public class AuthorityPlugin extends AbstractPluginContext {
@@ -16,7 +16,7 @@ public class AuthorityPlugin extends AbstractPluginContext {
 		return instance;
 	}
 
-	public void configFutureAcceptor(Map<String, GenericReadFutureAcceptor> acceptors) {
+	public void configFutureAcceptor(Map<String, GenericFutureAcceptor> acceptors) {
 		acceptors.put(SYSTEMAuthorityServlet.SERVICE_NAME, new SYSTEMAuthorityServlet());
 	}
 

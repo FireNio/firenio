@@ -6,13 +6,13 @@ import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorService;
 
 public class DefaultRTPContext extends AbstractPluginContext implements RTPContext {
 
 	private RTPRoomFactory	rtpRoomFactory	= new RTPRoomFactory();
 
-	public void configFutureAcceptor(Map<String, GenericReadFutureAcceptor> acceptors) {
+	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
 		acceptors.put(RTPJoinRoomServlet.SERVICE_NAME, new RTPJoinRoomServlet());
 		acceptors.put(RTPCreateRoomServlet.SERVICE_NAME, new RTPCreateRoomServlet());

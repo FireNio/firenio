@@ -6,16 +6,16 @@ import java.util.Map;
 import com.gifisan.nio.component.AbstractPluginContext;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.server.service.GenericReadFutureAcceptor;
-import com.gifisan.nio.server.service.ReadFutureAcceptorFilter;
+import com.gifisan.nio.server.service.GenericFutureAcceptor;
+import com.gifisan.nio.server.service.FutureAcceptorFilter;
 
 public class LMLoginCenterPlugin extends AbstractPluginContext {
 
-	public void configFilter(List<ReadFutureAcceptorFilter> pluginFilters) {
+	public void configFilter(List<FutureAcceptorFilter> pluginFilters) {
 
 	}
 
-	public void configServlet(Map<String, GenericReadFutureAcceptor> servlets) {
+	public void configServlet(Map<String, GenericFutureAcceptor> servlets) {
 
 	}
 
