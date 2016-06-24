@@ -4,5 +4,5 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public interface ClientStreamAcceptor {
 
-	public abstract void accept(ConnectorSession session, ReadFuture future) throws Exception;
+	public abstract void accept(FixedSession session, ReadFuture future) throws Exception;
 }

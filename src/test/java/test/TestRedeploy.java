@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.SYSTEMRedeployServlet;
@@ -18,7 +18,7 @@ public class TestRedeploy {
 
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());

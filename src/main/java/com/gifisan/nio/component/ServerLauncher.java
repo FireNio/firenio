@@ -1,5 +1,7 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.AbstractLifeCycleListener;
+import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
@@ -14,7 +16,7 @@ public class ServerLauncher {
 
 	public void launch() throws Exception {
 
-		ApplicationContext applicationContext = new ApplicationContext();
+		final ApplicationContext applicationContext = new ApplicationContext();
 		
 		NIOContext context = new DefaultNIOContext();
 		
@@ -32,13 +34,26 @@ public class ServerLauncher {
 			
 			applicationContext.setContext(context);
 			
-			applicationContext.start();
-			
 			context.setProtocolDecoder(new ServerProtocolDecoder());
 			
 			context.setIOEventHandle(new FixedIOEventHandle(applicationContext));
 			
 			context.addSessionEventListener(new DefaultSessionEventListener());
+			
+			context.addLifeCycleListener(new AbstractLifeCycleListener(){
+
+				public void lifeCycleStarting(LifeCycle lifeCycle) {
+					try {
+						applicationContext.start();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+				public void lifeCycleStopping(LifeCycle lifeCycle) {
+					LifeCycleUtil.stop(applicationContext);
+				}
+			});
 			
 			acceptor.setContext(context);
 			
@@ -49,6 +64,8 @@ public class ServerLauncher {
 			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
 			
 			LifeCycleUtil.stop(applicationContext);
+			
+			acceptor.unbind();
 		}
 	}
 

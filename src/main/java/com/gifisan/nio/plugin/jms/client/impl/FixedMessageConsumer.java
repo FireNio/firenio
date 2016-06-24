@@ -3,7 +3,7 @@ package com.gifisan.nio.plugin.jms.client.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.plugin.jms.ErrorMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.MapByteMessage;
@@ -29,7 +29,7 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 
 	private MessageConsumer				messageConsumer	= null;
 
-	public FixedMessageConsumer(ConnectorSession session) {
+	public FixedMessageConsumer(FixedSession session) {
 		this.messageConsumer = new DefaultMessageConsumer(session);
 	}
 

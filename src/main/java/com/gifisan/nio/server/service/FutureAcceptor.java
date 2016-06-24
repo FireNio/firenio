@@ -77,6 +77,8 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 				
 			} catch (Exception e) {
 				
+				logger.error(e.getMessage(),e);
+				
 				IOEventHandle eventHandle = future.getIOEventHandle();
 				
 				eventHandle.exceptionCaughtOnRead(session, future, e);
@@ -210,6 +212,10 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 	public PluginContext[] getPluginContexts() {
 		return pluginLoader.getPluginContexts();
+	}
+
+	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+		return filterLoader.getFutureAcceptorServiceLoader();
 	}
 
 }

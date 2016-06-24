@@ -5,7 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -24,7 +24,7 @@ public class TestListenerCallBack {
 		
 		connector.login("admin", "admin100");
 		
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 		
 		MessageConsumer consumer = new DefaultMessageConsumer(session);
 

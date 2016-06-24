@@ -6,7 +6,7 @@ import com.gifisan.nio.server.service.FutureAcceptorService;
 
 public abstract class RTPServlet extends FutureAcceptorService {
 
-	private RTPContext	context	= RTPContextFactory.getRTPContext();
+	private RTPContext	context	= RTPContext.getInstance();
 
 	public RTPContext getRTPContext() {
 		return context;
@@ -14,14 +14,7 @@ public abstract class RTPServlet extends FutureAcceptorService {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
-
-		if (attachment == null) {
-
-			attachment = new RTPSessionAttachment(context);
-
-			session.setAttachment(context, attachment);
-		}
+		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
 		this.accept(session, future, attachment);
 	}

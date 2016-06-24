@@ -3,7 +3,7 @@ package com.gifisan.nio.plugin.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -19,9 +19,9 @@ public class DefaultMessageBrowser implements MessageBrowser {
 
 	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
 
-	private ConnectorSession session = null;
+	private FixedSession session = null;
 	
-	public DefaultMessageBrowser(ConnectorSession session) {
+	public DefaultMessageBrowser(FixedSession session) {
 		this.session = session;
 		this.session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
 	}

@@ -14,7 +14,6 @@ import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.concurrent.ReentrantList;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
-import com.gifisan.nio.plugin.jms.server.MQContextFactory;
 import com.gifisan.security.Authority;
 
 public class RTPRoom {
@@ -142,7 +141,7 @@ public class RTPRoom {
 
 			message.put("userID", authority.getUserID());
 
-			MQContext mqContext = MQContextFactory.getMQContext();
+			MQContext mqContext = MQContext.getInstance();
 
 			mqContext.offerMessage(message);
 		}

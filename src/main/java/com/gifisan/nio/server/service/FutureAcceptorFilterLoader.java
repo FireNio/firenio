@@ -15,18 +15,24 @@ import com.gifisan.nio.component.HotDeploy;
 import com.gifisan.nio.server.configuration.FiltersConfiguration;
 import com.gifisan.nio.server.service.impl.AuthorityFilter;
 
-public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle  {
+public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
 
-	private Logger				logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
-	private FutureAcceptorFilterWrapper		rootFilter	= null;
-	private ApplicationContext	context		= null;
-	private DynamicClassLoader	classLoader	= null;
-	private FiltersConfiguration	configuration	= null;
+	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
+	private FutureAcceptorFilterWrapper	rootFilter	= null;
+	private ApplicationContext			context		= null;
+	private DynamicClassLoader			classLoader	= null;
+	private FiltersConfiguration			configuration	= null;
+	private FutureAcceptorServiceFilter	serviceFilter	= null;
 
 	public FutureAcceptorFilterLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
+		this.serviceFilter = new FutureAcceptorServiceFilter(classLoader);
+	}
+
+	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+		return serviceFilter.getFutureAcceptorServiceLoader();
 	}
 
 	private FutureAcceptorFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
@@ -66,7 +72,8 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 			FutureAcceptorFilter filter = filters.get(i);
 
-			FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter, filter.getConfig());
+			FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter,
+					filter.getConfig());
 
 			if (last == null) {
 
@@ -81,7 +88,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 			}
 		}
 
-		FutureAcceptorFilterWrapper filter = new FutureAcceptorFilterWrapper(context, new FutureAcceptorServiceFilter(classLoader), null);
+		FutureAcceptorFilterWrapper filter = new FutureAcceptorFilterWrapper(context, serviceFilter, null);
 
 		if (last == null) {
 			rootFilter = filter;

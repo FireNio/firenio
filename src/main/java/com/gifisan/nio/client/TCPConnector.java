@@ -112,6 +112,8 @@ public class TCPConnector extends AbstractIOConnector {
 		channel.connect(address);
 
 		finishConnect(selector);
+		
+		this.session = this.endPoint.getSession();
 	}
 
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {

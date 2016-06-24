@@ -15,8 +15,8 @@ import com.gifisan.nio.component.LoginCenter;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.plugin.authority.AuthorityAttachment;
-import com.gifisan.nio.plugin.authority.AuthorityPlugin;
+import com.gifisan.nio.plugin.authority.AuthoritySessionAttachment;
+import com.gifisan.nio.plugin.authority.AuthorityContext;
 
 public class AuthorityLoginCenter extends InitializeableImpl implements LoginCenter {
 	
@@ -38,9 +38,9 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		
 		String machineType = parameters.getParameter("MATCH_TYPE");
 		
-		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
+		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
 		
-		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(authorityPlugin);
 		
 		ApplicationContext context = ApplicationContext.getInstance();
 		
@@ -60,9 +60,9 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	}
 
 	public boolean isLogined(Session session) {
-		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
+		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
 		
-		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(authorityPlugin);
 		
 		return attachment.getAuthorityManager() != null;
 	}

@@ -15,7 +15,7 @@ public class WaiterOnReadFuture implements OnReadFuture {
 		return waiter.getPayload();
 	}
 
-	public void onResponse(ConnectorSession session, ReadFuture future) {
+	public void onResponse(FixedSession session, ReadFuture future) {
 		this.waiter.setPayload(future);
 	}
 }

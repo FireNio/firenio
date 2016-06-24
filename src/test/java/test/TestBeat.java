@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 
 public class TestBeat {
 	
@@ -14,7 +14,7 @@ public class TestBeat {
 		String serviceKey = "TestSimpleServlet";
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 		String param = ClientUtil.getParamString();
 		
 		connector.keepAlive(10);

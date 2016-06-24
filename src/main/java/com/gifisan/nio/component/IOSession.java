@@ -86,6 +86,8 @@ public class IOSession extends AttributesImpl implements Session {
 					_future.getTextCache().toByteArray(), _future.getInputStream());
 
 			_future.flush();
+			
+			writeFuture.setReadFuture(future);
 
 			writeFuture.attach(_future.attachment());
 

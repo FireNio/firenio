@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.PropertiesLoader;
@@ -76,11 +76,11 @@ public class TestConcurrentCallBack {
 			try {
 				
 				String serviceName = "TestSimpleServlet";
-				ConnectorSession session = connector.getClientSession();
+				FixedSession session = connector.getClientSession();
 
 				
 				session.listen(serviceName, new OnReadFuture() {
-					public void onResponse(ConnectorSession session, ReadFuture future) {
+					public void onResponse(FixedSession session, ReadFuture future) {
 //						if (future instanceof ErrorReadFuture) {
 //							System.out.println(future);
 //						}

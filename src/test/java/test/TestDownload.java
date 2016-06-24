@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.ClientStreamAcceptor;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -17,11 +17,11 @@ public class TestDownload {
 		String serviceKey = "upload-temp.zip";
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 		
 		session.onStreamRead(serviceKey, new ClientStreamAcceptor() {
 			
-			public void accept(ConnectorSession session, ReadFuture future) throws Exception {
+			public void accept(FixedSession session, ReadFuture future) throws Exception {
 				File file = new File("download.zip");
 				
 				FileOutputStream outputStream = new FileOutputStream(file);

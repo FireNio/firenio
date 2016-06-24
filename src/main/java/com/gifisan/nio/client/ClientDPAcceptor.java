@@ -13,7 +13,7 @@ public class ClientDPAcceptor implements DatagramPacketAcceptor{
 	private Logger logger = LoggerFactory.getLogger(ClientDPAcceptor.class);
 	
 	public void accept(UDPEndPoint endPoint, DatagramPacket packet) throws IOException {
-		ConnectorSession session = (ConnectorSession) endPoint.getSession();
+		FixedSession session = (FixedSession) endPoint.getSession();
 		
 		DatagramPacketAcceptor acceptor = session.getDatagramPacketAcceptor();
 		

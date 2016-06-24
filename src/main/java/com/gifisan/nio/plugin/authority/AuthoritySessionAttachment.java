@@ -4,7 +4,7 @@ import com.gifisan.nio.Attachment;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
 
-public class AuthorityAttachment implements Attachment {
+public class AuthoritySessionAttachment implements Attachment {
 
 	private AuthorityManager authorityManager = null;
 

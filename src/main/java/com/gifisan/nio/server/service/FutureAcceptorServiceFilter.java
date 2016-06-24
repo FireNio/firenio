@@ -102,4 +102,8 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		this.acceptorServiceLoader.unload(context, config);
 	}
 
+	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+		return acceptorServiceLoader;
+	}
+
 }

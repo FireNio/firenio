@@ -8,7 +8,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public class DefaultClientStreamAcceptor implements ClientStreamAcceptor {
 
-	public void accept(ConnectorSession session, ReadFuture future) throws Exception {
+	public void accept(FixedSession session, ReadFuture future) throws Exception {
 		
 		ClientStreamAcceptor acceptor = session.getStreamAcceptor(future.getServiceName());
 		

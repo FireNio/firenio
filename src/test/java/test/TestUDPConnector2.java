@@ -1,6 +1,6 @@
 package test;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.CloseUtil;
@@ -17,7 +17,7 @@ public class TestUDPConnector2 {
 
 		connector.login("udp2", "udp2");
 
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 		
 		UDPConnector udpConnector = new UDPConnector(session);
 		

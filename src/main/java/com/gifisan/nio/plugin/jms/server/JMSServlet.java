@@ -6,7 +6,7 @@ import com.gifisan.nio.server.service.FutureAcceptorService;
 
 public abstract class JMSServlet extends FutureAcceptorService{
 
-	private MQContext context = MQContextFactory.getMQContext();
+	private MQContext context = MQContext.getInstance();
 
 	public MQContext getMQContext() {
 		return context;
@@ -14,14 +14,7 @@ public abstract class JMSServlet extends FutureAcceptorService{
 
 	public void accept(Session session,ReadFuture future) throws Exception {
 		
-		JMSSessionAttachment attachment = (JMSSessionAttachment) session.getAttachment(context);
-		
-		if (attachment == null) {
-
-			attachment = new JMSSessionAttachment(context);
-
-			session.setAttachment(context, attachment);
-		}
+		JMSSessionAttachment attachment = context.getSessionAttachment(session);
 		
 		this.accept(session, future,attachment);
 	}

@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.test.ITest;
 import com.gifisan.nio.common.test.ITestHandle;
@@ -15,7 +15,7 @@ public class TestLoad {
 		
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		final ConnectorSession session = connector.getClientSession();
+		final FixedSession session = connector.getClientSession();
 		int time = 10000;
 		
 		ITestHandle.doTest(new ITest() {

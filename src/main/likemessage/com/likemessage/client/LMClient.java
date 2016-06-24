@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
@@ -20,7 +20,7 @@ import com.likemessage.server.UserServlet;
 
 public class LMClient {
 
-	public RESMessage regist(ConnectorSession session, String username, String password,String nickname) throws IOException {
+	public RESMessage regist(FixedSession session, String username, String password,String nickname) throws IOException {
 		
 		String serviceKey = UserServlet.SERVICE_NAME;
 		
@@ -37,7 +37,7 @@ public class LMClient {
 
 	}
 	
-	public List<B_Contact> getContactListByUserID(ConnectorSession session) throws IOException{
+	public List<B_Contact> getContactListByUserID(FixedSession session) throws IOException{
 		
 		String serviceKey = ContactServlet.SERVICE_NAME;
 		
@@ -62,7 +62,7 @@ public class LMClient {
 		throw new IOException(message.getDescription());
 	}
 	
-	public RESMessage addMessage(ConnectorSession session,T_MESSAGE message,String UUID) throws IOException{
+	public RESMessage addMessage(FixedSession session,T_MESSAGE message,String UUID) throws IOException{
 		
 		String serviceKey = MessageServlet.SERVICE_NAME;
 		
@@ -77,7 +77,7 @@ public class LMClient {
 		return RESMessageDecoder.decode(future.getText());
 	}
 	
-	public RESMessage addContact(ConnectorSession session,T_CONTACT contact,String friendName) throws IOException{
+	public RESMessage addContact(FixedSession session,T_CONTACT contact,String friendName) throws IOException{
 		
 		String serviceKey = ContactServlet.SERVICE_NAME;
 		

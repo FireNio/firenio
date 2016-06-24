@@ -3,6 +3,7 @@ package com.gifisan.nio.component;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import com.gifisan.nio.server.configuration.FileSystemACLoader;
 import com.gifisan.nio.server.service.FutureAcceptor;
 import com.gifisan.nio.server.service.FutureAcceptorService;
 import com.gifisan.nio.server.service.FutureAcceptorFilter;
+import com.gifisan.nio.server.service.FutureAcceptorServiceLoader;
 import com.gifisan.security.AuthorityLoginCenter;
 import com.gifisan.security.RoleManager;
 
@@ -38,7 +40,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private ApplicationConfigurationLoader		configurationLoader		= new FileSystemACLoader();
 	private NIOContext						context				= null;
 	private Charset						encoding				= Encoding.DEFAULT;
-	private FutureAcceptor					filterService			= null;
+	private FutureAcceptor					filterService			= new FutureAcceptor(this, classLoader);
 	private Logger							logger				= LoggerFactory
 																	.getLogger(ApplicationContext.class);
 	private LoginCenter						loginCenter			= new AuthorityLoginCenter();
@@ -46,7 +48,9 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Map<String, FutureAcceptorService>	pluginServlets			= new HashMap<String, FutureAcceptorService>();
 	private RoleManager						roleManager			= new RoleManager();
 	private SessionFactory					sessionFactory			= new SessionFactory();
-
+	private FutureAcceptorServiceLoader		acceptorServiceLoader 	= null;
+	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
+	
 	protected void doStart() throws Exception {
 
 		if (context == null) {
@@ -59,13 +63,17 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.encoding = context.getEncoding();
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
-		this.filterService = new FutureAcceptor(this, classLoader);
 
 		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
 
 		this.filterService.start();
 		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
+		
+		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
+		this.acceptorServiceLoader.listen(services);
+		
+		instance = this;
 	}
 	
 	public void addSessionEventListener(SessionEventListener listener) {
@@ -75,6 +83,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterService);
 		InitializeUtil.destroy(loginCenter, this, null);
+		instance = null;
 	}
 
 	public String getAppLocalAddress() {
@@ -181,10 +190,19 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 
 		if (this.loginCenter.getClass() != AuthorityLoginCenter.class) {
-			throw new IllegalArgumentException("already setted");
+			//FIXME 这里是否只能设置一次
+//			throw new IllegalArgumentException("already setted");
 		}
 
 		this.loginCenter = loginCenter;
 	}
 
+	public void listen(String serviceName,FutureAcceptorService service){
+		
+		if (isRunning()) {
+			throw new IllegalStateException("listen before start");
+		}
+		
+		this.services.put(serviceName, service);
+	}
 }

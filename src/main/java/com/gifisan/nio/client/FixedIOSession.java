@@ -33,10 +33,10 @@ import com.gifisan.nio.server.RESMessage;
 import com.gifisan.nio.server.RESMessageDecoder;
 import com.gifisan.security.Authority;
 
-public class IOConnectorSession implements ConnectorSession {
+public class FixedIOSession implements FixedSession {
 
-	protected NIOContext					context			= null;
-	protected DatagramPacketAcceptor			dpAcceptor		= null;
+	private NIOContext						context			= null;
+	private DatagramPacketAcceptor			dpAcceptor		= null;
 	private ThreadPool						executor			= null;
 	private Map<String, OnReadFuture>			listeners			= new HashMap<String, OnReadFuture>();
 	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
@@ -44,8 +44,9 @@ public class IOConnectorSession implements ConnectorSession {
 	private Session						session			= null;
 	private UDPConnector					udpConnector		= null;
 
-	public IOConnectorSession(Session session) {
+	public FixedIOSession(Session session) {
 		this.session = session;
+		this.context = session.getContext();
 		this.executor = context.getThreadPool();
 	}
 
@@ -100,7 +101,7 @@ public class IOConnectorSession implements ConnectorSession {
 	}
 
 	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
-		
+
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
@@ -121,12 +122,12 @@ public class IOConnectorSession implements ConnectorSession {
 			this.executor.dispatch(new Runnable() {
 
 				public void run() {
-					onReadFuture.onResponse(IOConnectorSession.this, future);
+					onReadFuture.onResponse(FixedIOSession.this, future);
 				}
 			});
 		}
 	}
-	
+
 	public Session getSession() {
 		return session;
 	}
@@ -164,7 +165,6 @@ public class IOConnectorSession implements ConnectorSession {
 	}
 
 	private AtomicBoolean	logined	= new AtomicBoolean(false);
-	
 
 	public UDPConnector getUdpConnector() {
 		return udpConnector;
@@ -233,7 +233,7 @@ public class IOConnectorSession implements ConnectorSession {
 	}
 
 	public void bindUDPSession() throws IOException {
-		
+
 		if (udpConnector == null) {
 			throw new IllegalArgumentException("null udp connector");
 		}
@@ -244,7 +244,7 @@ public class IOConnectorSession implements ConnectorSession {
 
 		JSONObject json = new JSONObject();
 
-		//FIXME add more info
+		// FIXME add more info
 		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
 
 		json.put("sessionID", sessionID);
@@ -254,10 +254,10 @@ public class IOConnectorSession implements ConnectorSession {
 		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
 
 		final CountDownLatch latch = new CountDownLatch(1);
-		
+
 		listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
 
-			public void onResponse(ConnectorSession session, ReadFuture future) {
+			public void onResponse(FixedSession session, ReadFuture future) {
 
 				latch.countDown();
 

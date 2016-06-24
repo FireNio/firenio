@@ -22,7 +22,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	private DynamicClassLoader				classLoader	= null;
 	private Logger							logger		= LoggerFactory
 															.getLogger(FutureAcceptorServiceLoader.class);
-	private Map<String, FutureAcceptorService>	servlets		= new LinkedHashMap<String, FutureAcceptorService>();
+	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 	private ServletsConfiguration				configuration	= null;
 
 	public FutureAcceptorServiceLoader(ApplicationContext context, DynamicClassLoader classLoader) {
@@ -37,13 +37,13 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 		this.initializeServlets(servlets);
 
-		this.servlets = servlets;
+		this.services = servlets;
 
 	}
 
 	protected void doStop() throws Exception {
 
-		Set<Entry<String, FutureAcceptorService>> entries = servlets.entrySet();
+		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();
 
 		for (Entry<String, FutureAcceptorService> entry : entries) {
 
@@ -63,7 +63,15 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	}
 
 	public FutureAcceptorService getFutureAcceptor(String serviceName) {
-		return servlets.get(serviceName);
+		return services.get(serviceName);
+	}
+	
+	public void listen(String serviceName,FutureAcceptorService service){
+		this.services.put(serviceName, service);
+	}
+	
+	public void listen(Map<String, FutureAcceptorService> services){
+		this.services.putAll(services);
 	}
 
 	private void initializeServlets(Map<String, FutureAcceptorService> servlets) throws Exception {
@@ -129,11 +137,11 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 		logger.info(" [NIOServer] 尝试加载新的Servlet配置......");
 
-		this.servlets = loadServlets(configuration, classLoader);
+		this.services = loadServlets(configuration, classLoader);
 
 		logger.info(" [NIOServer] 尝试启动新的Servlet配置......");
 
-		this.prepare(servlets);
+		this.prepare(services);
 
 		this.softStart();
 
@@ -156,7 +164,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
-		Set<Entry<String, FutureAcceptorService>> entries = servlets.entrySet();
+		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();
 
 		for (Entry<String, FutureAcceptorService> entry : entries) {
 

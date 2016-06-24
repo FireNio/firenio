@@ -5,8 +5,8 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.plugin.authority.AuthorityAttachment;
-import com.gifisan.nio.plugin.authority.AuthorityPlugin;
+import com.gifisan.nio.plugin.authority.AuthoritySessionAttachment;
+import com.gifisan.nio.plugin.authority.AuthorityContext;
 import com.gifisan.nio.server.service.FutureAcceptorFilter;
 import com.gifisan.security.Authority;
 import com.gifisan.security.AuthorityManager;
@@ -17,9 +17,9 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 	
 	public void accept(Session session,ReadFuture future) throws Exception {
 		
-		AuthorityPlugin authorityPlugin = AuthorityPlugin.getInstance();
+		AuthorityContext pluginContext = AuthorityContext.getInstance();
 		
-		AuthorityAttachment attachment = (AuthorityAttachment) session.getAttachment(authorityPlugin);
+		AuthoritySessionAttachment attachment = pluginContext.getSessionAttachment(session);
 		
 		AuthorityManager authorityManager = attachment.getAuthorityManager();
 		

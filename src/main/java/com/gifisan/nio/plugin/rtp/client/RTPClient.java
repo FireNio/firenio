@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.ApplicationContextUtil;
@@ -32,15 +32,15 @@ public class RTPClient {
 	private String				inviteUsername	= null;
 	private MessageProducer		producer		= null;
 	private String				roomID		= null;
-	private ConnectorSession		session		= null;
+	private FixedSession		session		= null;
 	private RTPHandle			handle		= null;
 
-	public RTPClient(ConnectorSession session, UDPConnector connector) {
+	public RTPClient(FixedSession session, UDPConnector connector) {
 		this(session, connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
 	// FIXME listen onf break
-	public RTPClient(ConnectorSession session, UDPConnector connector, FixedMessageConsumer consumer,
+	public RTPClient(FixedSession session, UDPConnector connector, FixedMessageConsumer consumer,
 			MessageProducer producer) {
 		this.connector = connector;
 		this.session = session;

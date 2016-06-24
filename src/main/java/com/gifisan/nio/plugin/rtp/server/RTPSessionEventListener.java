@@ -3,13 +3,13 @@ package com.gifisan.nio.plugin.rtp.server;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
-public class RTPLeaveRoomListener implements SessionEventListener{
+public class RTPSessionEventListener implements SessionEventListener{
 	
 	public void sessionOpened(Session session) {
 		
-		RTPContext context = RTPContextFactory.getRTPContext();
+		RTPContext context = RTPContext.getInstance();
 		
-		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
+		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
 		if (attachment == null) {
 
@@ -22,9 +22,9 @@ public class RTPLeaveRoomListener implements SessionEventListener{
 
 	public void sessionClosed(Session session) {
 		
-		RTPContext context = RTPContextFactory.getRTPContext();
+		RTPContext context = RTPContext.getInstance();
 		
-		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
+		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 		
 		RTPRoom room = attachment.getRtpRoom();
 		

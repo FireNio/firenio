@@ -2,7 +2,7 @@ package com.test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
@@ -17,7 +17,7 @@ public class TestRegist {
 
 		connector.connect();
 
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 
 		LMClient client = new LMClient();
 

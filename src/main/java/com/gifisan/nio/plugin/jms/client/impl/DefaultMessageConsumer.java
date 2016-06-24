@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.WaiterOnReadFuture;
 import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -20,10 +20,10 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
 	private boolean		sendReceiveCommand		= true;
 	private boolean		sendSubscribeCommand	= true;
-	private ConnectorSession	session				= null;
+	private FixedSession	session				= null;
 
 
-	public DefaultMessageConsumer(ConnectorSession session) {
+	public DefaultMessageConsumer(FixedSession session) {
 		this.session = session;
 		session.onStreamRead("JMSConsumerServlet", new ConsumerStreamAcceptor());
 		session.onStreamRead("JMSSubscribeServlet", new ConsumerStreamAcceptor());

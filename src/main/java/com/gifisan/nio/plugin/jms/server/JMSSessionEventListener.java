@@ -5,19 +5,30 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
-public class TransactionProtectListener implements SessionEventListener {
+public class JMSSessionEventListener implements SessionEventListener {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(TransactionProtectListener.class);
+	private static final Logger	LOGGER	= LoggerFactory.getLogger(JMSSessionEventListener.class);
 
 	public void sessionOpened(Session session) {
+		
+		MQContext context = MQContext.getInstance();
 
+		JMSSessionAttachment attachment = context.getSessionAttachment(session);
+
+		if (attachment == null) {
+
+			attachment = new JMSSessionAttachment(context);
+
+			session.setAttachment(context, attachment);
+		}
 	}
 
 	// FIXME 移除该EndPoint上的consumer
 	public void sessionClosed(Session session) {
-		MQContext context = MQContextFactory.getMQContext();
+		
+		MQContext context = MQContext.getInstance();
 
-		JMSSessionAttachment attachment = (JMSSessionAttachment) session.getAttachment(context);
+		JMSSessionAttachment attachment = context.getSessionAttachment(session);
 
 		TransactionSection section = attachment.getTransactionSection();
 

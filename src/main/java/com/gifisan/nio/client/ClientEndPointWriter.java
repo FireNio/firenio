@@ -18,8 +18,6 @@ import com.gifisan.nio.concurrent.LinkedListM2O;
 
 public class ClientEndPointWriter implements EndPointWriter {
 
-	private Thread					owner		= null;
-	private boolean				running		= false;
 	private ClientTCPEndPoint		endPoint		= null;
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
@@ -40,52 +38,49 @@ public class ClientEndPointWriter implements EndPointWriter {
 
 	public void run() {
 
-		for (; running;) {
+		IOWriteFuture writer = writers.poll(16);
 
-			IOWriteFuture writer = writers.poll(16);
-
-			if (writer == null) {
-
-				if (endPoint.isEndConnect()) {
-					CloseUtil.close(endPoint);
-				}
-
-				continue;
-			}
-
-			TCPEndPoint endPoint = writer.getEndPoint();
+		if (writer == null) {
 
 			if (endPoint.isEndConnect()) {
-
-				if (endPoint.isOpened()) {
-
-					CloseUtil.close(endPoint);
-				}
-
-				writer.onException(DisconnectException.INSTANCE);
-
-				continue;
+				CloseUtil.close(endPoint);
 			}
 
-			try {
+			return;
+		}
 
-				loopWrite(writer);
-				
-			} catch (IOException e) {
-				logger.debug(e);
+		TCPEndPoint endPoint = writer.getEndPoint();
 
-				writer.onException(e);
+		if (endPoint.isEndConnect()) {
 
-			} catch (Exception e) {
-				logger.debug(e);
+			if (endPoint.isOpened()) {
 
-				writer.onException(new IOException(e));
+				CloseUtil.close(endPoint);
 			}
+
+			writer.onException(DisconnectException.INSTANCE);
+
+			return;
+		}
+
+		try {
+
+			loopWrite(writer);
+
+		} catch (IOException e) {
+			logger.debug(e);
+
+			writer.onException(e);
+
+		} catch (Exception e) {
+			logger.debug(e);
+
+			writer.onException(new IOException(e));
 		}
 	}
-	
-	private void loopWrite(IOWriteFuture writer) throws IOException{
-		
+
+	private void loopWrite(IOWriteFuture writer) throws IOException {
+
 		for (;;) {
 
 			if (writer.write()) {
@@ -105,44 +100,35 @@ public class ClientEndPointWriter implements EndPointWriter {
 
 	private void waitWrite(IOWriteFuture writer, TCPEndPoint endPoint) {
 
-		if (writer.isNetworkWeak()) {
-
-			for (;;) {
-
-				ReentrantLock lock = this.lock;
-
-				lock.lock();
-
-				try {
-					networkWeak.await(1, TimeUnit.MILLISECONDS);
-				} catch (Exception e) {
-					logger.debug(e);
-					networkWeak.signal();
-				}
-
-				lock.unlock();
-
-				if (endPoint.isNetworkWeak()) {
-
-					continue;
-				}
-				break;
-			}
+		if (!writer.isNetworkWeak()) {
+			return;
 		}
-	}
 
-	public void doStart() throws Exception {
-		this.running = true;
-		this.owner = new Thread(this, "Client-EndPoint-Writer");
-		this.owner.start();
+		for (;;) {
 
+			ReentrantLock lock = this.lock;
+
+			lock.lock();
+
+			try {
+				networkWeak.await(1, TimeUnit.MILLISECONDS);
+			} catch (Exception e) {
+				logger.debug(e);
+				networkWeak.signal();
+			}
+
+			lock.unlock();
+
+			if (endPoint.isNetworkWeak()) {
+
+				continue;
+			}
+			break;
+		}
 	}
 
 	protected void setEndPoint(ClientTCPEndPoint endPoint) {
 		this.endPoint = endPoint;
 	}
 
-	public void doStop() throws Exception {
-		running = false;
-	}
 }

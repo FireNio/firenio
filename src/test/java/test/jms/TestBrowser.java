@@ -3,7 +3,7 @@ package test.jms;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
@@ -20,7 +20,7 @@ public class TestBrowser {
 		
 		connector.login("admin", "admin100");
 
-		ConnectorSession session = connector.getClientSession();
+		FixedSession session = connector.getClientSession();
 
 		MessageBrowser browser = new DefaultMessageBrowser(session);
 

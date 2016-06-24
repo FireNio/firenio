@@ -10,7 +10,6 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
-import com.gifisan.nio.plugin.jms.server.MQContextFactory;
 import com.gifisan.nio.server.RESMessage;
 import com.likemessage.bean.T_MESSAGE;
 

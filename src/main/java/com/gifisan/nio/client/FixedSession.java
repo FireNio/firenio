@@ -10,7 +10,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.security.Authority;
 
 //FIXME   request // listen + write
-public interface ConnectorSession{
+public interface FixedSession{
 
 	public abstract ReadFuture request(String serviceName, String content,long timeout) throws IOException;
 

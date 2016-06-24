@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ConnectorSession;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.BytedMessage;
@@ -14,9 +14,9 @@ import com.gifisan.nio.plugin.jms.server.JMSPublishServlet;
 
 public class DefaultMessageProducer implements MessageProducer {
 
-	private ConnectorSession session = null;
+	private FixedSession session = null;
 	
-	public DefaultMessageProducer(ConnectorSession session) {
+	public DefaultMessageProducer(FixedSession session) {
 		this.session = session;
 	}
 
