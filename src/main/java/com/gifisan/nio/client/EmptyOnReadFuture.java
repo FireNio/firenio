@@ -4,7 +4,7 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public class EmptyOnReadFuture implements OnReadFuture{
 	
-	public void onResponse(ClientSession session, ReadFuture future) {
+	public void onResponse(ConnectorSession session, ReadFuture future) {
 		
 	}
 	

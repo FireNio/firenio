@@ -3,7 +3,7 @@ package com.test;
 import java.io.IOException;
 import java.util.Map;
 
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.common.CloseUtil;
@@ -23,7 +23,7 @@ public class TestAddContact {
 
 		connector.login("wk", "wk");
 		
-		ClientSession session = connector.getClientSession();
+		ConnectorSession session = connector.getClientSession();
 
 		LMClient client = new LMClient();
 		

@@ -8,6 +8,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.concurrent.UniqueThread;
@@ -54,10 +55,9 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		if (channel.isOpen()) {
 			CloseUtil.close(channel);
 		}
-
-		this.selectorLoopThread.stop();
-
-		this.endPointWriterThread.stop();
+		
+		LifeCycleUtil.stop(selectorLoopThread);
+		LifeCycleUtil.stop(endPointWriterThread);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

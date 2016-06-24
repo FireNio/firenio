@@ -65,7 +65,7 @@ public class JMSBrowserServlet extends JMSServlet {
 
 							byte[] bytes = byteMessage.getByteArray();
 
-							future.setInputIOEvent(new ByteArrayInputStream(bytes));
+							future.setInputStream(new ByteArrayInputStream(bytes));
 						}
 					}
 				}

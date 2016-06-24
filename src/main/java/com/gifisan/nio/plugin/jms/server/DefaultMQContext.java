@@ -51,6 +51,8 @@ public class DefaultMQContext extends AbstractPluginContext implements MQContext
 		subThread.start();
 
 		MQContextFactory.initializeContext(this);
+		
+		context.addSessionEventListener(new TransactionProtectListener());
 	}
 
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {

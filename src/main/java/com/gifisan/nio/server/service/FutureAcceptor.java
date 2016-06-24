@@ -3,19 +3,20 @@ package com.gifisan.nio.server.service;
 import java.io.IOException;
 
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.FlushedException;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.DynamicClassLoader;
+import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.PluginContext;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.ErrorServlet;
 
+//FIXME exception
 public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle, ReadFutureAcceptor {
 
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptor.class);
@@ -38,10 +39,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 			accept(rootFilter, session, future);
 
-		} catch (FlushedException e) {
-
-			logger.error(e.getMessage(), e);
-
 		} catch (Throwable e) {
 
 			logger.error(e.getMessage(), e);
@@ -62,18 +59,30 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 			throw e;
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future)
-			throws Exception {
+	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future) {
 
 		for (; filter != null;) {
 
-			filter.accept(session, future);
+			try {
+				
+				future.setIOEventHandle(filter);
+				
+				filter.accept(session, future);
+				
+			} catch (Exception e) {
+				
+				IOEventHandle eventHandle = future.getIOEventHandle();
+				
+				eventHandle.exceptionCaughtOnRead(session, future, e);
+				
+				return true;
+			}
 
 			if (future.flushed()) {
 

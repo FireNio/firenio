@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gifisan.nio.LifeCycle;
+import com.gifisan.nio.Stopable;
 
 public class LifeCycleUtil {
 
@@ -44,7 +45,18 @@ public class LifeCycleUtil {
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+	
+	public static void stop(Stopable stopable){
 		
+		if (stopable == null) {
+			return;
+		}
+		try {
+			stopable.stop();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 }

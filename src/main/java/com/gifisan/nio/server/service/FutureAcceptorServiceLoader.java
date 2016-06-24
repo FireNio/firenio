@@ -14,7 +14,6 @@ import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
 import com.gifisan.nio.component.HotDeploy;
-import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.server.configuration.ServletsConfiguration;
 
 public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements LifeCycle, HotDeploy {
@@ -63,7 +62,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		}
 	}
 
-	public ReadFutureAcceptor getFutureAcceptor(String serviceName) {
+	public FutureAcceptorService getFutureAcceptor(String serviceName) {
 		return servlets.get(serviceName);
 	}
 

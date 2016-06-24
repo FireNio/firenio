@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-
 public class SessionEventListenerWrapper implements SessionEventListener{
 	
 	private SessionEventListener _listener = null;
@@ -18,12 +17,12 @@ public class SessionEventListenerWrapper implements SessionEventListener{
 	public void setNext(SessionEventListenerWrapper listener){
 		this.next = listener;
 	}
-	
-	public void onDestroy(Session session) {
-		this._listener.onDestroy(session);
-		
+
+	public void sessionOpened(Session session) {
+		this._listener.sessionOpened(session);
 	}
-	
-	
-	
+
+	public void sessionClosed(Session session) {
+		this._listener.sessionClosed(session);
+	}
 }

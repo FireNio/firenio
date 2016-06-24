@@ -2,7 +2,6 @@ package com.gifisan.nio.server.service;
 
 import java.io.IOException;
 
-import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -10,7 +9,6 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
-import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.RESMessage;
@@ -36,19 +34,20 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		} else {
 
 			this.accept(serviceName, session, future);
-
 		}
 	}
 
 	private void accept(String serviceName, Session session, ReadFuture future) throws Exception {
 
-		ReadFutureAcceptor acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
+		FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
 
 		if (acceptor == null) {
 
 			this.accept404(session, future, serviceName);
 
 		} else {
+			
+			future.setIOEventHandle(acceptor);
 
 			acceptor.accept(session, future);
 		}
@@ -58,17 +57,22 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 		logger.info("[NIOServer] empty service name");
 
-		future.write(RESMessage.EMPTY_404.toString().getBytes(Encoding.DEFAULT));
-
-		session.flush(future);
+		flush(session, future, RESMessage.EMPTY_404);
 	}
 
 	private void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
 
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
-
+		
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 
+		flush(session, future, message);
+	}
+	
+	private void flush(Session session, ReadFuture future, RESMessage message){
+		
+		future.setIOEventHandle(this);
+		
 		future.write(message.toString());
 
 		session.flush(future);

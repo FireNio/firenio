@@ -5,10 +5,12 @@ import java.io.InputStream;
 
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.security.Authority;
 
 //FIXME   request // listen + write
-public interface ClientSession extends Session {
+public interface ConnectorSession{
 
 	public abstract ReadFuture request(String serviceName, String content,long timeout) throws IOException;
 
@@ -24,10 +26,18 @@ public interface ClientSession extends Session {
 
 	public abstract void listen(String serviceName, OnReadFuture onReadFuture) throws IOException;
 
-	public abstract void cancelListen(String serviceName);
-
 	public abstract void onStreamRead(String serviceName, ClientStreamAcceptor acceptor);
 	
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
+	
+	public abstract ClientStreamAcceptor getStreamAcceptor(String serviceName);
 
+	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);
+	
+	public abstract void offerReadFuture(IOReadFuture future);
+	
+	public abstract void setAuthority(Authority authority);
+	
+	public abstract Session getSession();
+	
 }

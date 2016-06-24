@@ -19,41 +19,54 @@ import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
+	private static final Logger	logger		= LoggerFactory.getLogger(AbstractTCPEndPoint.class);
 	private AtomicBoolean		_closed		= new AtomicBoolean(false);
-	private boolean 			_networkWeak	= false;
+	private boolean			_networkWeak	= false;
 	private int				attempts		= 0;
 	private SocketChannel		channel		= null;
 	private IOWriteFuture		currentWriter	= null;
-	private EndPointWriter		endPointWriter = null;
+	private boolean			endConnect	= false;
+	private EndPointWriter		endPointWriter	= null;
 	private IOReadFuture		readFuture	= null;
 	private SelectionKey		selectionKey	= null;
+	private Session			session		= null;
 	private Socket				socket		= null;
 	private AtomicInteger		writers		= new AtomicInteger();
-	private boolean			endConnect	= false;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTCPEndPoint.class);
-	
 
-	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey,EndPointWriter endPointWriter) throws SocketException {
+	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
+			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
 		this.endPointWriter = endPointWriter;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
-		//FIXME 检查这行代码是否可以解决远程访问服务时卡顿问题
+		// FIXME 检查这行代码是否可以解决远程访问服务时卡顿问题
 		this.local = getLocalSocketAddress();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
+		
+		this.session = new IOSession(this);
+
+		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+
+		for (; listenerWrapper != null;) {
+			try {
+				listenerWrapper.sessionOpened(session);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			listenerWrapper = listenerWrapper.nextListener();
+		}
 	}
 
 	public void attackNetwork(int length) {
-		
+
 		if (length == 0) {
 			if (_networkWeak) {
 				return;
 			}
-			
+
 			if (++attempts > 255) {
 				this.interestWrite();
 				_networkWeak = true;
@@ -64,57 +77,69 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	}
 
 	public void close() throws IOException {
-		
+
 		if (writers.get() > 0) {
-			return ;
+			return;
 		}
-		
+
 		if (_closed.compareAndSet(false, true)) {
-			
+
 			this.endConnect = true;
-			
+
 			this.selectionKey.attach(null);
 
-			LOGGER.debug(">>>> rm {}",this.toString());
+			logger.debug(">>>> rm {}", this.toString());
 
 			Session session = getSession();
-			
+
 			session.destroy();
 
 			this.channel.close();
-			
+
 			this.extendClose();
-			
+
 		}
 	}
 
-	public void decrementWriter(){
+	public void decrementWriter() {
 		writers.decrementAndGet();
 	}
 
-	protected void extendClose(){}
+	public void endConnect() {
+		this.endConnect = true;
+	}
 
+	protected void extendClose() {
+	}
 
 	public void flushWriters() throws IOException {
-		
+
 		this.endPointWriter.collect();
-		
+
 		this.attempts = 0;
-		
+
 		this._networkWeak = false;
-		
+
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
-	
+
+	public IOWriteFuture getCurrentWriter() {
+		return currentWriter;
+	}
+
 	public EndPointWriter getEndPointWriter() {
 		return endPointWriter;
 	}
 
 	protected InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
-			local = (InetSocketAddress)socket.getLocalSocketAddress();
+			local = (InetSocketAddress) socket.getLocalSocketAddress();
 		}
 		return local;
+	}
+
+	protected String getMarkPrefix() {
+		return "TCP";
 	}
 
 	public int getMaxIdleTime() throws SocketException {
@@ -127,12 +152,16 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 	protected InetSocketAddress getRemoteSocketAddress() {
 		if (remote == null) {
-			remote = (InetSocketAddress)socket.getRemoteSocketAddress();
+			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
 		}
 		return remote;
 	}
 
-	public void incrementWriter(){
+	public Session getSession() {
+		return session;
+	}
+
+	public void incrementWriter() {
 		writers.incrementAndGet();
 	}
 
@@ -144,6 +173,10 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		return channel.isBlocking();
 	}
 
+	public boolean isEndConnect() {
+		return endConnect;
+	}
+
 	public boolean isNetworkWeak() {
 		return _networkWeak;
 	}
@@ -151,7 +184,11 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	public boolean isOpened() {
 		return this.channel.isOpen();
 	}
-	
+
+	public int read(ByteBuffer buffer) throws IOException {
+		return this.channel.read(buffer);
+	}
+
 	public ByteBuffer read(int limit) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(limit);
 		this.read(buffer);
@@ -161,10 +198,6 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		return buffer;
 	}
 
-	public int read(ByteBuffer buffer) throws IOException {
-		return this.channel.read(buffer);
-	}
-	
 	public void setCurrentWriter(IOWriteFuture writer) {
 		this.currentWriter = writer;
 	}
@@ -176,21 +209,5 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
-	
-	protected String getMarkPrefix() {
-		return "TCP";
-	}
-	
-	public void endConnect() {
-		this.endConnect = true;
-	}
-	
-	public boolean isEndConnect() {
-		return endConnect;
-	}
 
-	public IOWriteFuture getCurrentWriter() {
-		return currentWriter;
-	}
-	
 }

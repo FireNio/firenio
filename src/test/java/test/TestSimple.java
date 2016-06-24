@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
@@ -25,14 +25,14 @@ public class TestSimple {
 		
 		connector.login("admin", "admin100");
 		
-		ClientSession session = connector.getClientSession();
+		ConnectorSession session = connector.getClientSession();
 		
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
 		session.listen(serviceKey, new OnReadFuture() {
 			
-			public void onResponse(ClientSession session, ReadFuture future) {
+			public void onResponse(ConnectorSession session, ReadFuture future) {
 				System.out.println(future.getText());
 			}
 		});

@@ -1,5 +1,7 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.client.TCPConnector;
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
@@ -7,18 +9,17 @@ import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.ServerProtocolDecoder;
-import com.gifisan.nio.server.TCPAcceptor;
 
 
-public class ServerLauncher {
+public class ClientLauncher {
+	
+	private TCPConnector connector = new TCPConnector();
 
-	public void launch() throws Exception {
+	public TCPConnector getTCPConnector() throws Exception {
 
 		ApplicationContext applicationContext = new ApplicationContext();
 		
 		NIOContext context = new DefaultNIOContext();
-		
-		TCPAcceptor acceptor = new TCPAcceptor();
 		
 		try {
 			
@@ -40,22 +41,31 @@ public class ServerLauncher {
 			
 			context.addSessionEventListener(new DefaultSessionEventListener());
 			
-			acceptor.setContext(context);
+			connector.setContext(context);
 			
-			acceptor.bind();
+			connector.connect();
+			
+			return connector;
 
 		} catch (Throwable e) {
 			
-			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
+			LoggerFactory.getLogger(ClientLauncher.class).error(e.getMessage(), e);
 			
 			LifeCycleUtil.stop(applicationContext);
+			
+			CloseUtil.close(connector);
+			
+			return connector;
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		ServerLauncher launcher = new ServerLauncher();
+		
+		ClientLauncher launcher = new ClientLauncher();
 
-		launcher.launch();
-
+		IOConnector connector = launcher.getTCPConnector();
+		
+		CloseUtil.close(connector);
+		
 	}
 }

@@ -8,10 +8,10 @@ import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.server.ServerDPAcceptor;
+import com.gifisan.nio.server.IODPAcceptor;
 import com.gifisan.security.AuthorityManager;
 
-public class RTPServerDPAcceptor extends ServerDPAcceptor {
+public class RTPServerDPAcceptor extends IODPAcceptor {
 	
 	public static final String SERVICE_NAME = RTPServerDPAcceptor.class.getSimpleName();
 	

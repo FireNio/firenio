@@ -12,8 +12,6 @@ public class Authority {
 
 	private Integer roleID;
 		
-	private String sessionID;
-	
 	private Integer userID;
 	
 	private String username;
@@ -40,10 +38,6 @@ public class Authority {
 	public Integer getRoleID() {
 		return roleID;
 	}
-
-	public String getSessionID() {
-		return sessionID;
-	}
 	
 	public Integer getUserID() {
 		return userID;
@@ -63,10 +57,6 @@ public class Authority {
 
 	public void setRoleID(Integer roleID) {
 		this.roleID = roleID;
-	}
-
-	public void setSessionID(String sessionID) {
-		this.sessionID = sessionID;
 	}
 
 	public void setUserID(Integer userID) {

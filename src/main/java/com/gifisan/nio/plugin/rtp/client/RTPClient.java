@@ -2,11 +2,10 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.ApplicationContextUtil;
-import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -33,15 +32,15 @@ public class RTPClient {
 	private String				inviteUsername	= null;
 	private MessageProducer		producer		= null;
 	private String				roomID		= null;
-	private ClientSession		session		= null;
+	private ConnectorSession		session		= null;
 	private RTPHandle			handle		= null;
 
-	public RTPClient(ClientSession session, UDPConnector connector) {
+	public RTPClient(ConnectorSession session, UDPConnector connector) {
 		this(session, connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
 	// FIXME listen onf break
-	public RTPClient(ClientSession session, UDPConnector connector, FixedMessageConsumer consumer,
+	public RTPClient(ConnectorSession session, UDPConnector connector, FixedMessageConsumer consumer,
 			MessageProducer producer) {
 		this.connector = connector;
 		this.session = session;
@@ -189,10 +188,6 @@ public class RTPClient {
 		} catch (IOException e) {
 			throw new RTPException(e.getMessage(), e);
 		}
-	}
-
-	public void onDatagramPacketReceived(DatagramPacketAcceptor acceptor) {
-		connector.onDatagramPacketReceived(acceptor);
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) throws RTPException {

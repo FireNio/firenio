@@ -2,10 +2,11 @@ package com.gifisan.nio.concurrent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.gifisan.nio.Stopable;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class UniqueThread {
+public class UniqueThread implements Stopable{
 
 	private boolean		running		= false;
 	private AtomicBoolean	initialized	= new AtomicBoolean();

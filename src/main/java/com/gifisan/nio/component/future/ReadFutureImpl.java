@@ -27,11 +27,11 @@ public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 		return inputStream;
 	}
 
-	public void setOutputIOEvent(OutputStream outputStream) {
+	public void setOutputStream(OutputStream outputStream) {
 		this.outputStream = outputStream;
 	}
-	
-	public void setInputIOEvent(InputStream inputStream) {
+
+	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
 	}
 

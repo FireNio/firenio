@@ -38,7 +38,7 @@ public class UDPSelectionReader implements SelectionAcceptor {
 		DatagramPacket packet = new DatagramPacket(cacheBuffer, remoteSocketAddress);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
-
+		
 		if (acceptor == null) {
 			logger.debug("______________ none acceptor for context");
 			return;

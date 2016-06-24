@@ -24,7 +24,7 @@ public class TestListenSimpleServlet extends FutureAcceptorService{
 		
 		for (int i = 0; i < 5; i++) {
 			
-			future = ReadFutureFactory.create(future);
+			future = ReadFutureFactory.create(session,future);
 			
 			future.write(test);
 			future.write("$");

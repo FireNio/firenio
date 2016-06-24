@@ -7,10 +7,6 @@ public class WaiterOnReadFuture implements OnReadFuture {
 
 	private Waiter<ReadFuture>	waiter	= new Waiter<ReadFuture>();
 
-	public void onResponse(ClientSession session, ReadFuture future) {
-		this.waiter.setPayload(future);
-	}
-
 	public boolean await(long timeout) {
 		return waiter.await(timeout);
 	}
@@ -19,4 +15,7 @@ public class WaiterOnReadFuture implements OnReadFuture {
 		return waiter.getPayload();
 	}
 
+	public void onResponse(ConnectorSession session, ReadFuture future) {
+		this.waiter.setPayload(future);
+	}
 }

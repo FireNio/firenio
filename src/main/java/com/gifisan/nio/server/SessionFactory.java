@@ -5,14 +5,14 @@ import com.gifisan.nio.concurrent.ReentrantMap;
 
 public class SessionFactory {
 
-	private ReentrantMap<String, Session>	sessions	= new ReentrantMap<String, Session>();
+	private ReentrantMap<Long, Session>	sessions	= new ReentrantMap<Long, Session>();
 
 	public void putSession(Session session) {
 
 		sessions.put(session.getSessionID(), session);
 	}
 
-	public Session getSession(String sessionID) {
+	public Session getSession(Long sessionID) {
 
 		return sessions.get(sessionID);
 	}

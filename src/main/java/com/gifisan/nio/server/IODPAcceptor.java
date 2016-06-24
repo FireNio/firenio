@@ -14,13 +14,13 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramRequest;
 
-public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
+public abstract class IODPAcceptor implements DatagramPacketAcceptor {
 	
 	public static final String BIND_SESSION = "BIND_SESSION";
 	
 	public static final String BIND_SESSION_CALLBACK = "BIND_SESSION_CALLBACK";
 	
-	private Logger logger = LoggerFactory.getLogger(ServerDPAcceptor.class);
+	private Logger logger = LoggerFactory.getLogger(IODPAcceptor.class);
 
 	public void accept(UDPEndPoint endPoint, DatagramPacket packet) throws IOException {
 
@@ -35,7 +35,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 		
 //		logger.debug("___________________server receive,packet:{}",packet);
 		
-		ServerSession session = (ServerSession)endPoint.getSession();
+		Session session = endPoint.getSession();
 		
 		if (session == null) {
 			logger.debug("___________________null session,packet:{}",packet);
@@ -57,13 +57,13 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			Parameters parameters = request.getParameters();
 			
-			String sessionID = parameters.getParameter("sessionID");
+			Long sessionID = parameters.getLongParameter("sessionID");
 			
 			NIOContext context = endPoint.getContext();
 			
 			SessionFactory factory = context.getSessionFactory();
 			
-			ServerSession session = (ServerSession)factory.getSession(sessionID);
+			Session session = factory.getSession(sessionID);
 			
 			if (session == null) {
 				return ;
@@ -86,7 +86,5 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			logger.debug(">>>> {}",request.getServiceName());
 		}
 	}
-	
-	
 
 }

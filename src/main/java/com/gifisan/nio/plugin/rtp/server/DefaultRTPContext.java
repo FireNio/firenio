@@ -18,8 +18,6 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 		acceptors.put(RTPCreateRoomServlet.SERVICE_NAME, new RTPCreateRoomServlet());
 		acceptors.put(RTPLeaveRoomServlet.SERVICE_NAME, new RTPLeaveRoomServlet());
 	}
-	
-	
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
@@ -28,7 +26,8 @@ public class DefaultRTPContext extends AbstractPluginContext implements RTPConte
 		nioContext.setDatagramPacketAcceptor(new RTPServerDPAcceptor(this));
 
 		RTPContextFactory.initializeContext(this);
-
+		
+		context.addSessionEventListener(new RTPLeaveRoomListener());
 	}
 
 	public RTPRoomFactory getRTPRoomFactory() {

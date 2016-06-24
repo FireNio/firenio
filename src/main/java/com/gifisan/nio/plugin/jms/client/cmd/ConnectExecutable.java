@@ -2,8 +2,7 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.ClientIOEventHandle;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -45,11 +44,11 @@ public class ConnectExecutable extends JMSCommandExecutor {
 		
 		try {
 			
-			connector = new TCPConnector("M");
+			connector = new TCPConnector();
 			
 			connector.connect();
 			
-			ClientSession session = connector.getClientSession();
+			ConnectorSession session = connector.getClientSession();
 			
 			connector.login(username, password);
 			

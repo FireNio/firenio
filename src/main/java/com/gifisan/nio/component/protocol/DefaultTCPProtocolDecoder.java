@@ -43,11 +43,11 @@ public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 	private IOReadFuture doDecode(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
 
 		if (type == TYPE_TEXT) {
-			return new TextReadFuture(endPoint, header);
+			return new TextReadFuture(endPoint.getSession(), header);
 		} else if (type == TYPE_MULTI) {
-			return new MultiReadFuture(endPoint, header);
+			return new MultiReadFuture(endPoint.getSession(), header);
 		} else {
-			return new StreamReadFuture(endPoint, header);
+			return new StreamReadFuture(endPoint.getSession(), header);
 		}
 	}
 

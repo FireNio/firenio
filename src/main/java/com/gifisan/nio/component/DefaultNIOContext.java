@@ -26,41 +26,59 @@ import com.gifisan.nio.server.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
-	private Map<String, Object>		attributes			= new HashMap<String, Object>();
-	private DatagramPacketAcceptor	datagramPacketAcceptor	= null;
-	private Charset				encoding				= Encoding.DEFAULT;
-	private Logger					logger				= LoggerFactory.getLogger(DefaultNIOContext.class);
-	private ProtocolDecoder			protocolDecoder		= new DefaultTCPProtocolDecoder();
-	private ProtocolEncoder			protocolEncoder		= new DefaultTCPProtocolEncoder();
-	private ReadFutureAcceptor		readFutureAcceptor		= null;
-	private ServerConfiguration		serverConfiguration		= null;
-	private ThreadPool				threadPool			= null;
-	private SessionFactory			sessionFactory			= new SessionFactory();
-	private UDPEndPointFactory		udpEndPointFactory		= null;
-	private IOEventHandle			ioEventHandle			= null;
-	private IOService				tcpService			= null;
-	private IOService				udpService			= null;
+	private Map<String, Object>			attributes			= new HashMap<String, Object>();
+	private Charset					encoding				= Encoding.DEFAULT;
+	private IOEventHandle				ioEventHandle			= null;
+	private Logger						logger				= LoggerFactory
+																.getLogger(DefaultNIOContext.class);
+	private ProtocolDecoder				protocolDecoder		= new DefaultTCPProtocolDecoder();
+	private ProtocolEncoder				protocolEncoder		= new DefaultTCPProtocolEncoder();
+	private ReadFutureAcceptor			readFutureAcceptor		= null;
+	private ServerConfiguration			serverConfiguration		= null;
+	private SessionFactory				sessionFactory			= new SessionFactory();
+	private IOService					tcpService			= null;
+	private ThreadPool					threadPool			= null;
+	private UDPEndPointFactory			udpEndPointFactory		= null;
+	private IOService					udpService			= null;
+	private DatagramPacketAcceptor		datagramPacketAcceptor	= null;
+	private SessionEventListenerWrapper	lastSessionEventListener	= null;
+	private SessionEventListenerWrapper	sessionEventListenerStub	= null;
 
-	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
-		this.serverConfiguration = serverConfiguration;
+
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return datagramPacketAcceptor;
 	}
 
-	public void setIOEventHandle(IOEventHandle ioEventHandle) {
-		this.ioEventHandle = ioEventHandle;
+	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		this.datagramPacketAcceptor = datagramPacketAcceptor;
+	}
+
+	
+	public SessionEventListenerWrapper getSessionEventListenerStub() {
+		return sessionEventListenerStub;
+	}
+
+	public void addSessionEventListener(SessionEventListener listener) {
+		if (this.sessionEventListenerStub == null) {
+			this.sessionEventListenerStub = new SessionEventListenerWrapper(listener);
+			this.lastSessionEventListener = this.sessionEventListenerStub;
+		} else {
+			this.lastSessionEventListener.setNext(new SessionEventListenerWrapper(listener));
+		}
+	}
+
+	public DefaultNIOContext() {
+		this.addLifeCycleListener(new NIOContextListener());
 	}
 
 	public void clearAttributes() {
 		this.attributes.clear();
 	}
-	
-	public DefaultNIOContext() {
-		this.addLifeCycleListener(new NIOContextListener());
-	}
 
 	protected void doStart() throws Exception {
 
 		SharedBundle bundle = SharedBundle.instance();
-		
+
 		if (ioEventHandle == null) {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
@@ -68,7 +86,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		if (serverConfiguration == null) {
 			this.serverConfiguration = loadServerConfiguration(bundle);
 		}
-		
+
 		if (protocolEncoder == null) {
 			protocolEncoder = new DefaultTCPProtocolEncoder();
 		}
@@ -99,22 +117,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.threadPool.start();
 	}
 
-	private ServerConfiguration loadServerConfiguration(SharedBundle bundle) {
-
-		ServerConfiguration configuration = new ServerConfiguration();
-
-		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-
-		configuration.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
-		configuration.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
-		configuration.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
-		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
-		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
-		configuration.setSERVER_ENCODING(Charset.forName(encoding));
-
-		return configuration;
-	}
-
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(threadPool);
 	}
@@ -127,12 +129,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return this.attributes.keySet();
 	}
 
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return datagramPacketAcceptor;
-	}
-
 	public Charset getEncoding() {
 		return encoding;
+	}
+
+	public IOEventHandle getIOEventHandle() {
+		return ioEventHandle;
 	}
 
 	public ProtocolDecoder getProtocolDecoder() {
@@ -155,8 +157,36 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return sessionFactory;
 	}
 
+	public IOService getTCPService() {
+		return tcpService;
+	}
+
+	public ThreadPool getThreadPool() {
+		return threadPool;
+	}
+
 	public UDPEndPointFactory getUDPEndPointFactory() {
 		return udpEndPointFactory;
+	}
+
+	public IOService getUDPService() {
+		return udpService;
+	}
+
+	private ServerConfiguration loadServerConfiguration(SharedBundle bundle) {
+
+		ServerConfiguration configuration = new ServerConfiguration();
+
+		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
+
+		configuration.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
+		configuration.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
+		configuration.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
+		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
+		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
+		configuration.setSERVER_ENCODING(Charset.forName(encoding));
+
+		return configuration;
 	}
 
 	public Object removeAttribute(String key) {
@@ -167,29 +197,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.attributes.put(key, value);
 	}
 
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-
-		if (datagramPacketAcceptor == null) {
-			throw new IllegalArgumentException("null");
-		}
-
-		if (this.datagramPacketAcceptor != null) {
-			throw new IllegalArgumentException("already setted");
-		}
-
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
-
-	public IOEventHandle getIOEventHandle() {
-		return ioEventHandle;
-	}
-
-	public ThreadPool getThreadPool() {
-		return threadPool;
-	}
-
-	public void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory) {
-		this.udpEndPointFactory = udpEndPointFactory;
+	public void setIOEventHandle(IOEventHandle ioEventHandle) {
+		this.ioEventHandle = ioEventHandle;
 	}
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
@@ -200,20 +209,20 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.protocolEncoder = protocolEncoder;
 	}
 
-	public IOService getTCPService() {
-		return tcpService;
+	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
+		this.serverConfiguration = serverConfiguration;
 	}
 
 	public void setTCPService(IOService tcpService) {
 		this.tcpService = tcpService;
 	}
 
-	public IOService getUDPService() {
-		return udpService;
+	public void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory) {
+		this.udpEndPointFactory = udpEndPointFactory;
 	}
 
 	public void setUDPService(IOService udpService) {
 		this.udpService = udpService;
 	}
-	
+
 }

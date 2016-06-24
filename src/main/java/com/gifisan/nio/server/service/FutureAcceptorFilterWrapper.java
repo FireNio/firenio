@@ -4,6 +4,7 @@ import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.WriteFuture;
 
 public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 
@@ -18,10 +19,21 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 	public void accept(Session session,ReadFuture future) throws Exception {
 		this.filter.accept(session,future);
 	}
+	
+	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
+		filter.exceptionCaughtOnRead(session, future, cause);
+	}
+
+	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
+		filter.exceptionCaughtOnWrite(session, readFuture, writeFuture, cause);
+	}
+
+	public void futureSent(Session session, WriteFuture future) {
+		filter.futureSent(session, future);
+	}
 
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		this.filter.destroy(context, config);
-
 	}
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {

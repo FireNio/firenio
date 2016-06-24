@@ -21,7 +21,7 @@ public class JMSProducerServlet extends JMSServlet {
 			OutputStream outputStream = future.getOutputStream();
 
 			if (outputStream == null) {
-				future.setOutputIOEvent(new BufferedOutputStream(future.getStreamLength()));
+				future.setOutputStream(new BufferedOutputStream(future.getStreamLength()));
 				return;
 			}
 		}

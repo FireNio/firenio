@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.Selector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractIOService;
 import com.gifisan.nio.component.AbstractSelectorLoop;
@@ -15,11 +16,10 @@ import com.gifisan.nio.server.configuration.ServerConfiguration;
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
 
 	private AtomicBoolean		connected		= new AtomicBoolean(false);
-	private Selector			selector		= null;
-	private InetSocketAddress	serverAddress	= null;
 	private String				machineType	= "M";
+	protected InetSocketAddress	serverAddress	= null;
+	protected Selector			selector		= null;
 	protected Session			session		= null;
-	private long				beatPacket	= 0;
 
 	protected abstract AbstractSelectorLoop getSelectorLoop();
 
@@ -32,13 +32,14 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		}
 
 		if (connected.compareAndSet(true, false)) {
-			LifeCycleUtil.stop(context);
 
-			doClose();
+			stopComponent(context, selector);
+			
+			CloseUtil.close(selector);
+			
+			LifeCycleUtil.stop(context);
 		}
 	}
-
-	protected abstract void doClose();
 
 	public void connect() throws IOException {
 		if (connected.compareAndSet(false, true)) {
@@ -55,9 +56,9 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 			ServerConfiguration configuration = context.getServerConfiguration();
 
-			String SERVER_HOST = configuration.getSERVER_HOST();
+			String SERVER_HOST = getSERVER_HOST(configuration);
 
-			int SERVER_PORT = configuration.getSERVER_TCP_PORT();
+			int SERVER_PORT = getSERVER_PORT(configuration);
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 
@@ -67,22 +68,10 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		}
 	}
 
-	protected abstract void connect(InetSocketAddress address);
+	protected abstract void connect(InetSocketAddress address) throws IOException;
 
 	public Session getSession() {
 		return session;
-	}
-
-	public void setSession(Session session) {
-		this.session = session;
-	}
-	
-	public long getBeatPacket() {
-		return beatPacket;
-	}
-
-	public void setBeatPacket(long beatPacket) {
-		this.beatPacket = beatPacket;
 	}
 
 	public String getMachineType() {

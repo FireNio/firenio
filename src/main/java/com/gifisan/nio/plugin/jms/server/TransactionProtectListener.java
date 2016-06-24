@@ -6,20 +6,17 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
 public class TransactionProtectListener implements SessionEventListener {
-	
-	private MQContext context = null;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionProtectListener.class);
-	
-	protected TransactionProtectListener(MQContext context) {
-		this.context = context;
+
+	private static final Logger	LOGGER	= LoggerFactory.getLogger(TransactionProtectListener.class);
+
+	public void sessionOpened(Session session) {
+
 	}
 
-	//FIXME 移除该EndPoint上的consumer
-	public void onDestroy(Session session) {
+	// FIXME 移除该EndPoint上的consumer
+	public void sessionClosed(Session session) {
+		MQContext context = MQContextFactory.getMQContext();
 
-		MQContext context = this.context;
-		
 		JMSSessionAttachment attachment = (JMSSessionAttachment) session.getAttachment(context);
 
 		TransactionSection section = attachment.getTransactionSection();
@@ -28,18 +25,20 @@ public class TransactionProtectListener implements SessionEventListener {
 
 			section.rollback();
 		}
-		
+
 		Consumer consumer = attachment.getConsumer();
-		
+
 		if (consumer != null) {
-			
+
 			consumer.getConsumerQueue().remove(consumer);
-			
+
 			consumer.getConsumerQueue().getSnapshot();
-			
+
 			context.removeReceiver(consumer.getQueueName() + session.getMachineType());
 		}
-		
+
 		LOGGER.debug(">>>> TransactionProtectListener execute");
+
 	}
+
 }

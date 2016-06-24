@@ -21,8 +21,6 @@ public abstract class JMSServlet extends FutureAcceptorService{
 			attachment = new JMSSessionAttachment(context);
 
 			session.setAttachment(context, attachment);
-			
-			session.addEventListener(new TransactionProtectListener(context));
 		}
 		
 		this.accept(session, future,attachment);

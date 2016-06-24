@@ -178,7 +178,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
 	}
 
-	public void stop() throws Exception {
+	public void stop(){
 		
 //		if (this.starting != true && this.running != true) {
 //			throw new IllegalStateException("stopped,"+this.toString());

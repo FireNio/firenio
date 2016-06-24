@@ -6,8 +6,9 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.AbstractSession;
+import com.gifisan.nio.component.IOSession;
 import com.gifisan.nio.component.IOEventHandle;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
 public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
@@ -17,8 +18,8 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 	private ByteBuffer			streamBuffer	= null;
 	private static final Logger	logger		= LoggerFactory.getLogger(MultiReadFuture.class);
 
-	public MultiReadFuture(TCPEndPoint endPoint, ByteBuffer header) {
-		super(endPoint, header);
+	public MultiReadFuture(Session session, ByteBuffer header) {
+		super(session, header);
 	}
 
 	protected void decode(TCPEndPoint endPoint, byte[] header) {
@@ -38,12 +39,12 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 
 		if (readLength == -1) {
 			
-			AbstractSession _session = (AbstractSession) this.session;
+			IOSession _session = (IOSession) this.session;
 			
 			IOEventHandle eventHandle = _session.getContext().getIOEventHandle();
 			
 			try {
-				eventHandle.futureReceived(_session, this);
+				eventHandle.accept(_session, this);
 			} catch (Exception e) {
 				logger.debug(e);
 			}

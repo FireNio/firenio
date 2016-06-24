@@ -5,7 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -20,7 +20,7 @@ public class TestListener {
 		
 		TCPConnector connector = null;
 		
-		ClientSession session = null;
+		ConnectorSession session = null;
 		try {
 			
 			connector = ClientUtil.getClientConnector();

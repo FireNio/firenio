@@ -2,6 +2,7 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.DisconnectException;
@@ -17,28 +18,29 @@ import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.SessionFactory;
 
-public abstract class AbstractSession extends AttributesImpl implements Session {
+//FIXME attributes
+public class IOSession extends AttributesImpl implements Session {
 
 	private Attachment					attachment	= null;
 	private Attachment[]				attachments	= new Attachment[4];
 	private long						creationTime	= System.currentTimeMillis();
 	private boolean					closed		= false;
 	private String						machineType	= null;
-	private SessionEventListenerWrapper	lastListener	= null;
-	private SessionEventListenerWrapper	listenerStub	= null;
 	protected TCPEndPoint				endPoint		= null;
 	protected ProtocolEncoder			encoder		= null;
 	protected EndPointWriter			endPointWriter	= null;
-	protected String					sessionID		= null;
+	protected Long					sessionID		= null;
 	private NIOContext					context		= null;
 	private UDPEndPoint					udpEndPoint	= null;
-	private Logger						logger		= LoggerFactory.getLogger(AbstractSession.class);
+	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
+	private static final AtomicLong		autoSessionID	= new AtomicLong();
 
-	public AbstractSession(TCPEndPoint endPoint) {
+	public IOSession(TCPEndPoint endPoint) {
 		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
+		this.sessionID = autoSessionID.getAndIncrement();
 	}
 	
 	public UDPEndPoint getUDPEndPoint() {
@@ -67,7 +69,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 			throw new IllegalStateException("flushed already");
 		}
 
-		IOEventHandle handle = context.getIOEventHandle();
+		IOEventHandle handle = future.getIOEventHandle();
 
 		if (!endPoint.isOpened()) {
 
@@ -93,15 +95,6 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 			logger.debug(e.getMessage(), e);
 
 			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
-		}
-	}
-
-	public void addEventListener(SessionEventListener listener) {
-		if (this.listenerStub == null) {
-			this.listenerStub = new SessionEventListenerWrapper(listener);
-			this.lastListener = this.listenerStub;
-		} else {
-			this.lastListener.setNext(new SessionEventListenerWrapper(listener));
 		}
 	}
 
@@ -185,10 +178,14 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 
 		this.closed = true;
 
-		SessionEventListenerWrapper listenerWrapper = this.listenerStub;
+		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {
-			listenerWrapper.onDestroy(this);
+			try {
+				listenerWrapper.sessionClosed(this);
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+			}
 			listenerWrapper = listenerWrapper.nextListener();
 		}
 	}
@@ -205,7 +202,7 @@ public abstract class AbstractSession extends AttributesImpl implements Session 
 		return closed;
 	}
 
-	public String getSessionID() {
+	public Long getSessionID() {
 		return sessionID;
 	}
 

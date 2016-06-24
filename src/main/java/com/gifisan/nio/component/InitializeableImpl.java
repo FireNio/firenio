@@ -14,6 +14,6 @@ public abstract class InitializeableImpl implements Initializeable {
 	}
 
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+	
 	}
-
 }

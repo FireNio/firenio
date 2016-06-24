@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
@@ -25,7 +25,7 @@ public class TestLoadCallBack {
 		
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		final ClientSession session = connector.getClientSession();
+		final ConnectorSession session = connector.getClientSession();
 		final Logger logger = LoggerFactory.getLogger(TestLoadCallBack.class);
 		
 		System.out.println("################## Test start ####################");
@@ -33,7 +33,7 @@ public class TestLoadCallBack {
 		
 		
 		session.listen(serviceName, new OnReadFuture() {
-			public void onResponse(ClientSession session, ReadFuture future) {
+			public void onResponse(ConnectorSession session, ReadFuture future) {
 				latch.countDown();
 				long count = latch.getCount();
 				if (count % 10 == 0) {

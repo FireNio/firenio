@@ -165,17 +165,18 @@ public class ServerEndPointWriter implements EndPointWriter {
 				CloseUtil.close(endPoint);
 			}
 
-		} else {
-
-			if (!writers.offer(futureFromWriters)) {
-
-				endPoint.decrementWriter();
-
-				logger.debug("give up {}", futureFromWriters.getFutureID());
-
-				futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
-			}
+			return;
 		}
+
+		if (!writers.offer(futureFromWriters)) {
+
+			endPoint.decrementWriter();
+
+			logger.debug("give up {}", futureFromWriters.getFutureID());
+
+			futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
+		}
+
 	}
 
 	// write future from writers
@@ -198,7 +199,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 			offer(futureFromWriters);
 		}
 	}
-	
+
 	public String toString() {
 		return "Server-EndPoint-Writer";
 	}

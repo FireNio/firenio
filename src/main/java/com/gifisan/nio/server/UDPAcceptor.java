@@ -8,6 +8,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.concurrent.UniqueThread;
 import com.gifisan.nio.server.configuration.ServerConfiguration;
@@ -52,7 +53,7 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 			CloseUtil.close(channel);
 		}
 
-		this.selectorLoopThread.stop();
+		LifeCycleUtil.stop(selectorLoopThread);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

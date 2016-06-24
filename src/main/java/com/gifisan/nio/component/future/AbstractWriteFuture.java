@@ -14,6 +14,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 	private Session			session		= null;
 	private byte[]			textCache		= null;
+	private ReadFuture			readFuture	= null;
 	protected TCPEndPoint		endPoint		= null;
 	protected ByteBuffer		textBuffer	= null;
 	protected InputStream		inputStream	= null;
@@ -35,13 +36,15 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	}
 
 	public void onException(IOException e) {
-
+		
+		ReadFuture readFuture = this.getReadFuture();
+		
 		// logger.error(e.getMessage(),e);
 
-		IOEventHandle handle = endPoint.getContext().getIOEventHandle();
+		IOEventHandle handle = readFuture.getIOEventHandle();
+		
 		try {
-			// FIXME
-			handle.exceptionCaughtOnWrite(session, null, this, e);
+			handle.exceptionCaughtOnWrite(session, readFuture, this, e);
 		} catch (Throwable e1) {
 			logger.debug(e1);
 		}
@@ -51,7 +54,11 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 		// logger.debug(">>>>>>>>>>>>>>>>>>>>> writed..");
 
-		IOEventHandle handle = endPoint.getContext().getIOEventHandle();
+		ReadFuture readFuture = this.getReadFuture();
+		
+		// logger.error(e.getMessage(),e);
+
+		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		try {
 			handle.futureSent(session, this);
@@ -86,5 +93,13 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 		}
 		return text;
+	}
+
+	public ReadFuture getReadFuture() {
+		return readFuture;
+	}
+
+	public void setReadFuture(ReadFuture readFuture) {
+		this.readFuture = readFuture;
 	}
 }

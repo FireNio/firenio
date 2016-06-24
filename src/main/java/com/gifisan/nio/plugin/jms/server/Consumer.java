@@ -13,11 +13,11 @@ public class Consumer {
 	private JMSSessionAttachment	attachment	= null;
 	private ConsumerQueue		consumerQueue	= null;
 	private Session			session		= null;
-	private ReadFuture		future		= null;
-	private Message 			message 		= null;
+	private ReadFuture			future		= null;
+	private Message			message		= null;
 
-	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, Session session,
-			ReadFuture future, String queueName) {
+	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, Session session, ReadFuture future,
+			String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -33,9 +33,9 @@ public class Consumer {
 		return consumerQueue;
 	}
 
-	//FIXME push 失败时对message进行回收,并移除Consumer
+	// FIXME push 失败时对message进行回收,并移除Consumer
 	public void push(Message message) {
-		
+
 		this.message = message;
 
 		TransactionSection section = attachment.getTransactionSection();
@@ -49,39 +49,39 @@ public class Consumer {
 		String content = message.toString();
 
 		Session session = this.session;
-		
-		ReadFuture future = ReadFutureFactory.create(this.future);
-		
+
+		ReadFuture future = ReadFutureFactory.create(session, this.future);
+
 		future.attach(this);
-		
+
 		future.write(content);
 
 		if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
-			
+
 			session.flush(future);
 
-		} else if(msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
-			
+		} else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
+
 			BytedMessage byteMessage = (BytedMessage) message;
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			future.setInputIOEvent(new ByteArrayInputStream(bytes));
+			future.setInputStream(new ByteArrayInputStream(bytes));
 
 			session.flush(future);
 		}
 	}
-	
-//	public void refresh(){
-//		
-//		this.future = ReadFutureFactory.create(future);
-//	}
-	
+
+	// public void refresh(){
+	//
+	// this.future = ReadFutureFactory.create(future);
+	// }
+
 	public Message getMessage() {
 		return message;
 	}
 
-	public Consumer clone(){
-		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(future), queueName);
+	public Consumer clone() {
+		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(session, future), queueName);
 	}
 }

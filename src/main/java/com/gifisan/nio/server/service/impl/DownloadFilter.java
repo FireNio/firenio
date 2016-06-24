@@ -65,7 +65,7 @@ public class DownloadFilter extends FutureAcceptorFilter {
 					downloadLength = available - start;
 				}
 
-				future.setInputIOEvent(inputStream);
+				future.setInputStream(inputStream);
 				
 				session.flush(future);
 

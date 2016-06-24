@@ -9,19 +9,17 @@ import com.gifisan.nio.server.NIOContext;
 
 public class ClientTCPEndPoint extends AbstractTCPEndPoint {
 
-	private TCPConnector	connector	= null;
-	
-	private ProtectedClientSession	session = null;
+	private TCPConnector			connector	= null;
 
 	public ClientTCPEndPoint(NIOContext context, SelectionKey selectionKey, TCPConnector connector)
 			throws SocketException {
 		super(context, selectionKey, connector.getEndPointWriter());
 		this.connector = connector;
-		this.session = new UnpreciseClientSession(this);
 	}
 
 	protected void extendClose() {
 
+		//FIXME soft close
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -30,7 +28,4 @@ public class ClientTCPEndPoint extends AbstractTCPEndPoint {
 		}).start();
 	}
 
-	public ClientSession getSession() {
-		return session;
-	}
 }

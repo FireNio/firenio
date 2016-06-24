@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.plugin.authority.AuthorityAttachment;
 import com.gifisan.nio.plugin.authority.AuthorityPlugin;
 import com.gifisan.security.Authority;
@@ -21,6 +22,11 @@ public class ApplicationContextUtil {
 		AuthorityManager authorityManager = getAuthorityManager(session);
 		
 		return authorityManager.getAuthority();
+	}
+	
+	public static Authority getAuthority(ConnectorSession session){
+		
+		return getAuthority(session.getSession());
 	}
 	
 }

@@ -31,7 +31,7 @@ public class MessageServlet extends LMServlet {
 //			OutputStream outputStream = future.getOutputStream();
 //
 //			if (outputStream == null) {
-//				future.setOutputIOEvent(new BufferedOutputStream(future.getStreamLength()), null);
+//				future.setOutputStream(new BufferedOutputStream(future.getStreamLength()), null);
 //				return;
 //			}
 //		}

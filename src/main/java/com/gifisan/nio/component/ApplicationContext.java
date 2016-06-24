@@ -24,7 +24,7 @@ import com.gifisan.nio.server.service.FutureAcceptorFilter;
 import com.gifisan.security.AuthorityLoginCenter;
 import com.gifisan.security.RoleManager;
 
-public class ApplicationContext extends AbstractLifeCycle{
+public class ApplicationContext extends AbstractLifeCycle {
 
 	private static ApplicationContext	instance	= null;
 
@@ -32,26 +32,27 @@ public class ApplicationContext extends AbstractLifeCycle{
 		return instance;
 	}
 
-	private String						appLocalAddres		= null;
-	private DynamicClassLoader			classLoader		= new DynamicClassLoader();
-	private ApplicationConfiguration		configuration		= null;
-	private ApplicationConfigurationLoader	configurationLoader	= new FileSystemACLoader();
-	private NIOContext					context			= null;
-	private Charset					encoding			= Encoding.DEFAULT;
-	private FutureAcceptor				filterService		= null;
-	private Logger						logger			= LoggerFactory.getLogger(ApplicationContext.class);
-	private LoginCenter					loginCenter		= new AuthorityLoginCenter();
-	private List<FutureAcceptorFilter>				pluginFilters		= new ArrayList<FutureAcceptorFilter>();
-	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
-	private RoleManager					roleManager		= new RoleManager();
-	private SessionFactory				sessionFactory		= new SessionFactory();
+	private String							appLocalAddres			= null;
+	private DynamicClassLoader				classLoader			= new DynamicClassLoader();
+	private ApplicationConfiguration			configuration			= null;
+	private ApplicationConfigurationLoader		configurationLoader		= new FileSystemACLoader();
+	private NIOContext						context				= null;
+	private Charset						encoding				= Encoding.DEFAULT;
+	private FutureAcceptor					filterService			= null;
+	private Logger							logger				= LoggerFactory
+																	.getLogger(ApplicationContext.class);
+	private LoginCenter						loginCenter			= new AuthorityLoginCenter();
+	private List<FutureAcceptorFilter>			pluginFilters			= new ArrayList<FutureAcceptorFilter>();
+	private Map<String, FutureAcceptorService>	pluginServlets			= new HashMap<String, FutureAcceptorService>();
+	private RoleManager						roleManager			= new RoleManager();
+	private SessionFactory					sessionFactory			= new SessionFactory();
 
 	protected void doStart() throws Exception {
-		
+
 		if (context == null) {
 			throw new IllegalArgumentException("null nio context");
 		}
-		
+
 		SharedBundle bundle = SharedBundle.instance();
 
 		this.configuration = configurationLoader.loadConfiguration(bundle);
@@ -65,6 +66,10 @@ public class ApplicationContext extends AbstractLifeCycle{
 		this.filterService.start();
 		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
+	}
+	
+	public void addSessionEventListener(SessionEventListener listener) {
+		context.addSessionEventListener(listener);
 	}
 
 	protected void doStop() throws Exception {
@@ -86,6 +91,10 @@ public class ApplicationContext extends AbstractLifeCycle{
 
 	public NIOContext getContext() {
 		return context;
+	}
+
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return context.getDatagramPacketAcceptor();
 	}
 
 	public Charset getEncoding() {
@@ -159,6 +168,10 @@ public class ApplicationContext extends AbstractLifeCycle{
 
 	public void setContext(NIOContext context) {
 		this.context = context;
+	}
+
+	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		context.setDatagramPacketAcceptor(datagramPacketAcceptor);
 	}
 
 	public void setLoginCenter(LoginCenter loginCenter) {

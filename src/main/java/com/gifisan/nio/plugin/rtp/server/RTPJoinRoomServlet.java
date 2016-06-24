@@ -32,9 +32,8 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 		if (room.join(udpEndPoint)) {
 			
-			session.addEventListener(new RTPLeaveRoomListener(context));
-
 			future.write(ByteUtil.TRUE);
+			
 		} else {
 
 			future.write(ByteUtil.FALSE);

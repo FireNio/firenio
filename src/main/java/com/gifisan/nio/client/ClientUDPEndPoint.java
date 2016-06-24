@@ -9,11 +9,11 @@ import com.gifisan.nio.component.Session;
 
 public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 
-	private ClientSession	session	= null;
+	private Session	session	= null;
 
-	public ClientUDPEndPoint(ClientSession session, DatagramChannel channel, InetSocketAddress remote)
+	public ClientUDPEndPoint(Session session, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
-		
+
 		super(session.getContext(), channel, remote);
 		this.session = session;
 	}
@@ -25,12 +25,12 @@ public class ClientUDPEndPoint extends AbstractUDPEndPoint {
 		}
 	}
 
-	public ClientSession getSession() {
+	public Session getSession() {
 		return session;
 	}
 
 	public void setSession(Session session) {
-		this.session = (ClientSession) session;
+		this.session = (Session) session;
 	}
 
 }

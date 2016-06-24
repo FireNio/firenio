@@ -25,8 +25,7 @@ public class ClientUtil {
 		
 		host = "localhost";
 
-		TCPConnector connector = new TCPConnector(host, SharedBundle.instance().getIntegerProperty(
-				"SERVER.PORT"), "M");
+		TCPConnector connector = new TCPConnector();
 
 		// DebugUtil.info(connector.toString());
 

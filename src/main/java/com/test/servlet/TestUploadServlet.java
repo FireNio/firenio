@@ -25,7 +25,7 @@ public class TestUploadServlet extends FutureAcceptorService {
 				
 				outputStream = new FileOutputStream(new File(fileName));
 
-				future.setOutputIOEvent(outputStream);
+				future.setOutputStream(outputStream);
 			}else{
 				
 				CloseUtil.close(outputStream);

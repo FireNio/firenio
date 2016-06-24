@@ -5,13 +5,24 @@ import com.gifisan.nio.component.SessionEventListener;
 
 public class RTPLeaveRoomListener implements SessionEventListener{
 	
-	private RTPContext context = null;
+	public void sessionOpened(Session session) {
+		
+		RTPContext context = RTPContextFactory.getRTPContext();
+		
+		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
 
-	protected RTPLeaveRoomListener(RTPContext context) {
-		this.context = context;
+		if (attachment == null) {
+
+			attachment = new RTPSessionAttachment(context);
+
+			session.setAttachment(context, attachment);
+		}
+
 	}
 
-	public void onDestroy(Session session) {
+	public void sessionClosed(Session session) {
+		
+		RTPContext context = RTPContextFactory.getRTPContext();
 		
 		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context);
 		
@@ -24,4 +35,5 @@ public class RTPLeaveRoomListener implements SessionEventListener{
 			room.leave(_session.getUDPEndPoint());
 		}
 	}
+	
 }

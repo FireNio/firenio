@@ -8,8 +8,6 @@ import com.gifisan.nio.server.NIOContext;
 
 public interface Session extends Attributes{
 	
-	public abstract void addEventListener(SessionEventListener listener);
-
 	public abstract boolean closed();
 
 	public abstract void destroy();
@@ -48,7 +46,7 @@ public interface Session extends Attributes{
 
 	public abstract int getRemotePort();
 
-	public abstract String getSessionID();
+	public abstract Long getSessionID();
 	
 	public abstract UDPEndPoint getUDPEndPoint();
 	

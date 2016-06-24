@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestUpload {
@@ -17,7 +17,7 @@ public class TestUpload {
 		String param = "temp.zip";
 		TCPConnector connector = ClientUtil.getClientConnector();
 		connector.connect();
-		ClientSession session = connector.getClientSession();
+		ConnectorSession session = connector.getClientSession();
 		
 		long old = System.currentTimeMillis();
 		File file = new File("D:/GIT/NimbleIO/temp1.zip");

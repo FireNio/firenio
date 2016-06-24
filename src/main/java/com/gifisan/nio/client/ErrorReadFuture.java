@@ -3,15 +3,16 @@ package com.gifisan.nio.client;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.AbstractReadFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 
 public class ErrorReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	public ErrorReadFuture(String serviceName, String text, ProtectedClientSession session, InputStream inputStream,
+	public ErrorReadFuture(String serviceName, String text, Session session, InputStream inputStream,
 			Exception exception) {
-		super(session.getTCPEndPoint(), 0, serviceName);
+		super(session, 0, serviceName);
 		this.text = text;
 		this.inputStream = inputStream;
 		this.exception = exception;

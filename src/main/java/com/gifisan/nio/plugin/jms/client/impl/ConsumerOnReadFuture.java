@@ -1,6 +1,6 @@
 package com.gifisan.nio.plugin.jms.client.impl;
 
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -18,7 +18,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 		this.messageDecoder = messageDecoder;
 	}
 
-	public void onResponse(ClientSession session, ReadFuture future) {
+	public void onResponse(ConnectorSession session, ReadFuture future) {
 		try {
 
 			Message message = messageDecoder.decode(future);

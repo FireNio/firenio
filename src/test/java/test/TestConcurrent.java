@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.AbstractLifeCycleListener;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.concurrent.QueueThreadPool;
 
@@ -57,7 +57,7 @@ class T implements Runnable {
 			String serviceKey = "TestSimpleServlet";
 			TCPConnector connector = ClientUtil.getClientConnector();
 			connector.connect();
-			ClientSession session = connector.getClientSession();
+			ConnectorSession session = connector.getClientSession();
 
 			for (int i = 0; i < 125000; i++) {
 				session.request(serviceKey, "==================");

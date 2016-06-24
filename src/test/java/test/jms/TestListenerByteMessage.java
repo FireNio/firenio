@@ -6,7 +6,7 @@ import test.ClientUtil;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.ClientSession;
+import com.gifisan.nio.client.ConnectorSession;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
@@ -25,7 +25,7 @@ public class TestListenerByteMessage {
 
 		connector.login("admin", "admin100");
 		
-		ClientSession session = connector.getClientSession();
+		ConnectorSession session = connector.getClientSession();
 		
 		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
