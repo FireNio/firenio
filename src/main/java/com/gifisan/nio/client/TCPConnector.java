@@ -25,6 +25,7 @@ public class TCPConnector extends AbstractIOConnector {
 	private ClientEndPointWriter	endPointWriter			= null;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
+	private UniqueThread		taskExecutorThread		= null;
 	private long				beatPacket			= 0;
 
 	public long getBeatPacket() {
@@ -95,8 +96,9 @@ public class TCPConnector extends AbstractIOConnector {
 
 	private void startTouchDistantJob(long checkInterval) throws Exception {
 		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint);
-		this.taskExecutor = new TaskExecutor(job, "touch-distant-task", checkInterval);
-		this.taskExecutor.start();
+		this.taskExecutor = new TaskExecutor(job, checkInterval);
+		this.taskExecutorThread = new UniqueThread();
+		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
 	}
 
 	public String toString() {
@@ -139,7 +141,8 @@ public class TCPConnector extends AbstractIOConnector {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
-		LifeCycleUtil.stop(taskExecutor);
+		LifeCycleUtil.stop(taskExecutorThread);
+
 		CloseUtil.close(endPoint);
 	}
 

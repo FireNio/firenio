@@ -7,7 +7,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.server.NIOContext;
 
-public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor, Runnable {
+public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
 	private Logger				logger		= LoggerFactory.getLogger(UDPSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor	= null;

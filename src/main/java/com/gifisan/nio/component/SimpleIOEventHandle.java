@@ -22,16 +22,21 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 	
 	public FixedSession getFixedSession(){
 		if (fixedSession == null) {
-			fixedSession = new FixedIOSession(connector.getSession());
+			
+			Session session = connector.getSession();
+			
+			if (session == null) {
+				return null;
+			}
+			
+			fixedSession = new FixedIOSession(session);
 		}
 		return fixedSession;
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		if (fixedSession == null) {
-			fixedSession = new FixedIOSession(connector.getSession());
-		}
+		FixedSession fixedSession = getFixedSession();
 		
 		try {
 			fixedSession.accept(session, future);

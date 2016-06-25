@@ -48,7 +48,6 @@ public class LifeCycleUtil {
 	}
 	
 	public static void stop(Stopable stopable){
-		
 		if (stopable == null) {
 			return;
 		}

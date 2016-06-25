@@ -12,79 +12,82 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
 import com.test.servlet.TestSimpleServlet;
 
-
 public class ClientLauncher {
-	
-	private TCPConnector connector = new TCPConnector();
 
-	public TCPConnector getTCPConnector(IOEventHandle eventHandle) throws Exception {
+	private TCPConnector		connector		= new TCPConnector();
+
+	private SimpleIOEventHandle	eventHandle	= null;
+
+	public SimpleIOEventHandle getEventHandle() {
+		return eventHandle;
+	}
+
+	public IOConnector getTCPConnector() throws Exception {
 
 		try {
-			
+
 			PropertiesLoader.load();
-			
+
 			SharedBundle bundle = SharedBundle.instance();
-			
+
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-			
+
 			DebugUtil.setEnableDebug(debug);
-			
-			
-			
+
+			TCPConnector connector = new TCPConnector();
+
+			eventHandle = new SimpleIOEventHandle(connector);
+
+			NIOContext context = new DefaultNIOContext();
+
+			context.setIOEventHandle(eventHandle);
+
+			context.addSessionEventListener(new DefaultSessionEventListener());
+
+			connector.setContext(context);
+
+			connector.connect();
+
 			return connector;
 
 		} catch (Throwable e) {
-			
+
 			LoggerFactory.getLogger(ClientLauncher.class).error(e.getMessage(), e);
-			
+
 			CloseUtil.close(connector);
-			
-			return connector;
+
+			return null;
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		PropertiesLoader.load();
-		
-		SharedBundle bundle = SharedBundle.instance();
-		
-		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-		
-		DebugUtil.setEnableDebug(debug);
-		
-		TCPConnector connector = new TCPConnector();
-		
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle(connector);
-		
-		NIOContext context = new DefaultNIOContext();
-		
-		context.setIOEventHandle(eventHandle);
-		
-		context.addSessionEventListener(new DefaultSessionEventListener());
-		
-		connector.setContext(context);
-		
-		connector.connect();
+	public FixedSession getFixedSession() {
+		return eventHandle.getFixedSession();
+	}
 
-		FixedSession session = eventHandle.getFixedSession();
-		
+	public static void main(String[] args) throws Exception {
+
+		ClientLauncher launcher = new ClientLauncher();
+
+		IOConnector connector = launcher.getTCPConnector();
+
+		FixedSession session = launcher.getFixedSession();
+
 		session.listen(TestSimpleServlet.SERVICE_NAME, new OnReadFuture() {
-			
+
 			public void onResponse(FixedSession session, ReadFuture future) {
-				System.out.println("_________________________"+future.getText());
+				System.out.println("_________________________" + future.getText());
 			}
 		});
-		
+
 		ReadFuture future = session.request(TestSimpleServlet.SERVICE_NAME, "test");
-		
-		System.out.println("============"+future.getText());
-		
+
+		System.out.println("============" + future.getText());
+
 		session.write(TestSimpleServlet.SERVICE_NAME, "test");
 
-		Thread.sleep(500);
-		
+		Thread.sleep(1000);
+
 		CloseUtil.close(connector);
-		
+
 	}
 }

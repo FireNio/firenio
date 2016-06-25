@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
@@ -9,14 +10,15 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 
-public abstract class AbstractSelectorLoop implements SelectorLoop {
+public abstract class AbstractSelectorLoop implements SelectorLoop{
 
 	private Logger		logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean	working	= false;
 	protected Selector	selector	= null;
 	private Thread		looper	= null;
 
-	public void run() {
+	public void loop() {
+		
 		try {
 			working = true;
 
@@ -55,8 +57,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		}
 	}
 
-	protected void doStop() throws Exception {
 
+	public void stop() {
 		this.selector.wakeup();
 
 		for (; working;) {
@@ -64,7 +66,11 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			ThreadUtil.sleep(8);
 		}
 
-		this.selector.close();
+		try {
+			this.selector.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+		}
 	}
 
 	public void setLooper(Thread looper) {

@@ -86,7 +86,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 		list.add(future);
 	}
 
-	public void run() {
+	public void loop() {
 
 		if (collect) {
 
@@ -198,6 +198,10 @@ public class ServerEndPointWriter implements EndPointWriter {
 
 			offer(futureFromWriters);
 		}
+	}
+	
+	public void stop() {
+		
 	}
 
 	public String toString() {

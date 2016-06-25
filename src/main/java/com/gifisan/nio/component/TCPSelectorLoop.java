@@ -10,7 +10,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.server.NIOContext;
 
-public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor, Runnable {
+public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
 	private Logger				logger			= LoggerFactory.getLogger(TCPSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor		= null;
@@ -45,6 +45,8 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 			acceptException(selectionKey, e);
 		}
 	}
+	
+	
 	
 	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
 

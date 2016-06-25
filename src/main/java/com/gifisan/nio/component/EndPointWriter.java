@@ -1,8 +1,9 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.Looper;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
-public interface EndPointWriter extends Runnable{
+public interface EndPointWriter extends Looper{
 	
 	public abstract void collect();
 

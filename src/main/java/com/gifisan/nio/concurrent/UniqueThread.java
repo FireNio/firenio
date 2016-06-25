@@ -2,45 +2,53 @@ package com.gifisan.nio.concurrent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gifisan.nio.Stopable;
+import com.gifisan.nio.Looper;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class UniqueThread implements Stopable{
+public class UniqueThread implements Looper {
 
 	private boolean		running		= false;
 	private AtomicBoolean	initialized	= new AtomicBoolean();
 	private Logger			logger		= LoggerFactory.getLogger(UniqueThread.class);
+	private Looper			looper		= null;
 
-	public void start(final Runnable runnable, String name) {
+	public void start(Looper looper, String name) {
 
 		if (!initialized.compareAndSet(false, true)) {
 			return;
 		}
+
+		this.looper = looper;
 
 		this.running = true;
 
 		new Thread(new Runnable() {
 
 			public void run() {
-
-				Runnable _runnable = runnable;
-
-				for (; running;) {
-
-					try {
-						_runnable.run();
-					} catch (Throwable e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-
+				loop();
 			}
 		}, name).start();
 	}
+	
+	public void loop() {
+		
+		Looper _looper = looper;
 
-	public void stop() {
-		this.running = false;
+		for (; running;) {
+
+			try {
+				_looper.loop();
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
+	public void stop() {
+		
+		this.running = false;
+		
+		this.looper.stop();
+	}
 }

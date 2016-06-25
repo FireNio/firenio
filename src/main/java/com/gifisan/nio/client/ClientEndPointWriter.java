@@ -36,7 +36,7 @@ public class ClientEndPointWriter implements EndPointWriter {
 		}
 	}
 
-	public void run() {
+	public void loop() {
 
 		IOWriteFuture writer = writers.poll(16);
 
@@ -125,6 +125,10 @@ public class ClientEndPointWriter implements EndPointWriter {
 			}
 			break;
 		}
+	}
+	
+	public void stop() {
+		
 	}
 
 	protected void setEndPoint(ClientTCPEndPoint endPoint) {

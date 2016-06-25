@@ -15,12 +15,12 @@ import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.server.NIOContext;
 
-public class ClientSelectorManagerLoop extends TCPSelectorLoop implements SelectionAcceptor, Runnable {
+public class ClientSelectorManagerLoop extends TCPSelectorLoop implements SelectionAcceptor {
 
-	private Logger				logger			= LoggerFactory.getLogger(ClientSelectorManagerLoop.class);
+	private Logger	logger	= LoggerFactory.getLogger(ClientSelectorManagerLoop.class);
 
-	public ClientSelectorManagerLoop(NIOContext context, Selector selector,EndPointWriter endPointWriter) {
-		super(context, selector,endPointWriter);
+	public ClientSelectorManagerLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
+		super(context, selector, endPointWriter);
 	}
 
 	protected void acceptException(SelectionKey selectionKey, IOException exception) {
@@ -30,7 +30,7 @@ public class ClientSelectorManagerLoop extends TCPSelectorLoop implements Select
 		if (isEndPoint(attachment)) {
 
 			TCPEndPoint endPoint = (TCPEndPoint) attachment;
-			
+
 			endPoint.endConnect();
 
 			CloseUtil.close(endPoint);
