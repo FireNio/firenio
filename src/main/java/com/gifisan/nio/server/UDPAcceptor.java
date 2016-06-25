@@ -55,6 +55,10 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 	}
+	
+	protected void setIOService(NIOContext context) {
+		context.setUDPService(this);
+	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
 

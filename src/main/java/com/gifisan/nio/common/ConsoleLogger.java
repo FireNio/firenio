@@ -6,8 +6,15 @@ public class ConsoleLogger implements Logger{
 	
 	private String className = null;
 	
+	private Class loggerClass = null;
+	
 	protected ConsoleLogger(Class clazz) {
 		this.className = "["+clazz.getName()+"] ";
+		this.loggerClass = clazz;
+	}
+	
+	public Class getLoggerClass() {
+		return loggerClass;
 	}
 
 	public void info(String message) {

@@ -8,6 +8,7 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
@@ -45,7 +46,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		filters.add(new AuthorityFilter());
 
 		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
-			logger.info(" [NIOServer] 没有配置Filter");
+			LoggerUtil.prettyNIOServerLog(logger, "没有配置Filter");
 			filterConfigurations = new ArrayList<Configuration>();
 		}
 
@@ -116,7 +117,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 			filter.initialize(context, filter.getConfig());
 
-			logger.info("  [NIOServer] 加载完成 [ {} ] ", filter);
+			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
 
@@ -133,7 +134,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 				logger.error(e.getMessage(), e);
 			}
 
-			logger.info("  [NIOServer] 卸载完成 [ {} ] ", filter);
+			LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ] ", filter);
 
 			filter = filter.nextFilter();
 
@@ -150,7 +151,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 			filter.prepare(context, filter.getConfig());
 
-			logger.info("  [NIOServer] 新的Filter  [ {} ] Prepare完成", filter);
+			LoggerUtil.prettyNIOServerLog(logger, "新的Filter  [ {} ] Prepare完成", filter);
 
 			filter = filter.nextFilter();
 		}
@@ -158,11 +159,11 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
-		logger.info("  [NIOServer] 尝试加载新的Filter配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Filter配置......");
 
 		this.rootFilter = loadFilters(context, classLoader);
 
-		logger.info("  [NIOServer] 尝试启动新的Filter配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Filter配置......");
 
 		this.prepare(rootFilter);
 
@@ -178,11 +179,11 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 			try {
 				filter.unload(context, filter.getConfig());
 
-				logger.info("  [NIOServer] 旧的Filter  [ {} ] Unload完成", filter);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Filter  [ {} ] Unload完成", filter);
 
 			} catch (Throwable e) {
 				// ignore
-				logger.info("  [NIOServer] 旧的Filter  [ {} ] Unload失败", filter);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Filter  [ {} ] Unload失败", filter);
 				logger.error(e.getMessage(), e);
 			}
 

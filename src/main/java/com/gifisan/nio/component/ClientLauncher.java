@@ -1,19 +1,15 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.AbstractLifeCycleListener;
-import com.gifisan.nio.LifeCycle;
-import com.gifisan.nio.client.FixedIOSession;
+import com.gifisan.nio.client.FixedSession;
+import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.DebugUtil;
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.ServerProtocolDecoder;
-import com.gifisan.nio.server.service.FutureAcceptorService;
 import com.test.servlet.TestSimpleServlet;
 
 
@@ -21,7 +17,7 @@ public class ClientLauncher {
 	
 	private TCPConnector connector = new TCPConnector();
 
-	public TCPConnector getTCPConnector(final ApplicationContext applicationContext) throws Exception {
+	public TCPConnector getTCPConnector(IOEventHandle eventHandle) throws Exception {
 
 		try {
 			
@@ -33,34 +29,7 @@ public class ClientLauncher {
 			
 			DebugUtil.setEnableDebug(debug);
 			
-			NIOContext context = new DefaultNIOContext();
 			
-			applicationContext.setContext(context);
-			
-			context.setProtocolDecoder(new ServerProtocolDecoder());
-			
-			context.setIOEventHandle(new FixedIOEventHandle(applicationContext));
-			
-			context.addSessionEventListener(new DefaultSessionEventListener());
-			
-			context.addLifeCycleListener(new AbstractLifeCycleListener(){
-
-				public void lifeCycleStarting(LifeCycle lifeCycle) {
-					try {
-						applicationContext.start();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-
-				public void lifeCycleStopping(LifeCycle lifeCycle) {
-					LifeCycleUtil.stop(applicationContext);
-				}
-			});
-			
-			connector.setContext(context);
-			
-			connector.connect();
 			
 			return connector;
 
@@ -76,23 +45,45 @@ public class ClientLauncher {
 
 	public static void main(String[] args) throws Exception {
 		
-		ApplicationContext applicationContext = new ApplicationContext();
+		PropertiesLoader.load();
 		
-		applicationContext.listen(TestSimpleServlet.SERVICE_NAME, new FutureAcceptorService() {
+		SharedBundle bundle = SharedBundle.instance();
+		
+		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
+		
+		DebugUtil.setEnableDebug(debug);
+		
+		TCPConnector connector = new TCPConnector();
+		
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle(connector);
+		
+		NIOContext context = new DefaultNIOContext();
+		
+		context.setIOEventHandle(eventHandle);
+		
+		context.addSessionEventListener(new DefaultSessionEventListener());
+		
+		connector.setContext(context);
+		
+		connector.connect();
+
+		FixedSession session = eventHandle.getFixedSession();
+		
+		session.listen(TestSimpleServlet.SERVICE_NAME, new OnReadFuture() {
 			
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void onResponse(FixedSession session, ReadFuture future) {
 				System.out.println("_________________________"+future.getText());
 			}
 		});
 		
-		ClientLauncher launcher = new ClientLauncher();
-
-		IOConnector connector = launcher.getTCPConnector(applicationContext);
+		ReadFuture future = session.request(TestSimpleServlet.SERVICE_NAME, "test");
 		
-		FixedIOSession session = new FixedIOSession(connector.getSession());
+		System.out.println("============"+future.getText());
 		
-		session.request(TestSimpleServlet.SERVICE_NAME, "test");
+		session.write(TestSimpleServlet.SERVICE_NAME, "test");
 
+		Thread.sleep(500);
+		
 		CloseUtil.close(connector);
 		
 	}

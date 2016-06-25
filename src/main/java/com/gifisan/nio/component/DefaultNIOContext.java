@@ -10,6 +10,7 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
@@ -106,13 +107,13 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.readFutureAcceptor = new ReadFutureDispatcher();
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
 
-		logger.info("[NIOServer] ======================================= 服务开始启动 =======================================");
-		logger.info("[NIOServer] 项目编码     ：  { {} }", encoding);
-		logger.info("[NIOServer] 监听端口(TCP)：  { {} }", serverConfiguration.getSERVER_TCP_PORT());
+		LoggerUtil.prettyNIOServerLog(logger, "======================================= 服务开始启动 =======================================");
+		LoggerUtil.prettyNIOServerLog(logger, "项目编码     ：  { {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)：  { {} }", serverConfiguration.getSERVER_TCP_PORT());
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
-			logger.info("[NIOServer] 监听端口(UDP)：  { {} }", serverConfiguration.getSERVER_UDP_PORT());
+			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)：  { {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
-		logger.info("[NIOServer] CPU核心数    ：{ {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数    ：  { {} }", SERVER_CORE_SIZE);
 
 		this.threadPool.start();
 	}

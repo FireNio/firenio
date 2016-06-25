@@ -10,6 +10,7 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
@@ -53,7 +54,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 				servlet.destroy(context, servlet.getConfig());
 
-				logger.info(" [NIOServer] 卸载完成 [ {} ]", servlet);
+				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", servlet);
 
 			} catch (Throwable e) {
 
@@ -84,7 +85,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			servlet.initialize(context, servlet.getConfig());
 
-			logger.info(" [NIOServer] 加载完成 [ {} ]", servlet);
+			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", servlet);
 
 		}
 	}
@@ -135,11 +136,11 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
-		logger.info(" [NIOServer] 尝试加载新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Servlet配置......");
 
 		this.services = loadServlets(configuration, classLoader);
 
-		logger.info(" [NIOServer] 尝试启动新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Servlet配置......");
 
 		this.prepare(services);
 
@@ -157,7 +158,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			servlet.prepare(context, servlet.getConfig());
 
-			logger.info(" [NIOServer] 新的Servlet [ {} ] Prepare完成", servlet);
+			LoggerUtil.prettyNIOServerLog(logger, "新的Servlet [ {} ] Prepare完成", servlet);
 
 		}
 	}
@@ -174,11 +175,11 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 				servlet.unload(context, servlet.getConfig());
 
-				logger.info(" [NIOServer] 旧的Servlet [ {} ] Unload完成", servlet);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload完成", servlet);
 
 			} catch (Throwable e) {
 
-				logger.info(" [NIOServer] 旧的Servlet [ {} ] Unload失败", servlet);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload失败", servlet);
 
 				logger.error(e.getMessage(), e);
 

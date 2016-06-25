@@ -52,6 +52,10 @@ public class UDPConnector extends AbstractIOConnector {
 			// FIXME close connector
 		}
 	}
+	
+	protected void setIOService(NIOContext context) {
+		context.setUDPService(this);
+	}
 
 	private void allocate(ByteBuffer buffer, DatagramPacket packet) {
 

@@ -13,6 +13,7 @@ import com.gifisan.nio.common.InitializeUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.server.NIOContext;
 import com.gifisan.nio.server.SessionFactory;
@@ -49,7 +50,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private RoleManager						roleManager			= new RoleManager();
 	private SessionFactory					sessionFactory			= new SessionFactory();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader 	= null;
-	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
+	private Map<String, FutureAcceptorService>	services				= new LinkedHashMap<String, FutureAcceptorService>();
 	
 	protected void doStart() throws Exception {
 
@@ -64,7 +65,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.encoding = context.getEncoding();
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 
-		logger.info("[NIOServer] 工作目录：  { {} }", appLocalAddres);
+		LoggerUtil.prettyNIOServerLog(logger, "工作目录：  { {} }", appLocalAddres);
 
 		this.filterService.start();
 		this.roleManager.initialize(this, null);

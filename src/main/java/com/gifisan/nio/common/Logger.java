@@ -24,6 +24,6 @@ public interface Logger {
 	
 	public abstract void error(String object,Throwable throwable); 
 	
-	
+	public abstract Class getLoggerClass();
 	
 }

@@ -59,6 +59,10 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 	}
+	
+	protected void setIOService(NIOContext context) {
+		context.setTCPService(this);
+	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
 		

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 
 public abstract class AbstractLifeCycle implements LifeCycle {
 
@@ -153,7 +154,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
 			this.doStart();
 
-			logger.info("   [NIOServer] 加载完成 [ {} ]", this.toString());
+			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", this.toString());
 
 		} catch (Exception e) {
 
@@ -194,7 +195,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
 			this.doStop();
 
-			logger.info("   [NIOServer] 卸载完成 [ {} ]", this.toString());
+			LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", this.toString());
 
 		} catch (Exception e) {
 

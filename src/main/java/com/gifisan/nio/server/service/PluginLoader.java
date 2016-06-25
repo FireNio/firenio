@@ -6,6 +6,7 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.component.ApplicationContext;
 import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.DynamicClassLoader;
@@ -15,7 +16,7 @@ import com.gifisan.nio.server.configuration.PluginsConfiguration;
 
 public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
 
-	private ApplicationContext		context		= null;
+	private ApplicationContext	context		= null;
 	private DynamicClassLoader	classLoader	= null;
 	private Logger				logger		= LoggerFactory.getLogger(PluginLoader.class);
 	private PluginContext[]		pluginContexts	= new PluginContext[4];
@@ -47,8 +48,8 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 			try {
 
 				plugin.destroy(context, plugin.getConfig());
-
-				logger.info("  [NIOServer] 卸载完成 [ {} ]", plugin);
+				
+				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]",plugin);
 
 			} catch (Throwable e) {
 
@@ -71,12 +72,12 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 			plugin.initialize(context, plugin.getConfig());
 
-			logger.info("  [NIOServer] 加载完成 [ {} ]", plugin);
+			LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", plugin);
 		}
 	}
 
-	private void loadPlugins(ApplicationContext context, DynamicClassLoader classLoader, PluginsConfiguration configuration)
-			throws Exception {
+	private void loadPlugins(ApplicationContext context, DynamicClassLoader classLoader,
+			PluginsConfiguration configuration) throws Exception {
 
 		List<Configuration> plugins = configuration.getPlugins();
 
@@ -103,19 +104,19 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
-		logger.info("  [NIOServer] 尝试加载新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Servlet配置......");
 
 		loadPlugins(context, classLoader, this.configuration);
 
-		logger.info("  [NIOServer] 尝试启动新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Servlet配置......");
 
-		this.prepare(context,pluginContexts);
-		
+		this.prepare(context, pluginContexts);
+
 		this.softStart();
-		
+
 	}
 
-	private void prepare(ApplicationContext context,PluginContext[] plugins) throws Exception {
+	private void prepare(ApplicationContext context, PluginContext[] plugins) throws Exception {
 
 		for (PluginContext plugin : plugins) {
 
@@ -125,10 +126,10 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 			plugin.prepare(context, plugin.getConfig());
 
-			logger.info("  [NIOServer] 新的Servlet [ {} ] Prepare完成", plugin);
+			LoggerUtil.prettyNIOServerLog(logger, "新的Servlet [ {} ] Prepare完成", plugin);
 
 		}
-		
+
 		this.configPluginFilterAndServlet((ApplicationContext) context);
 	}
 
@@ -144,11 +145,11 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 				plugin.unload(context, plugin.getConfig());
 
-				logger.info("  [NIOServer] 旧的Servlet [ {} ] Unload完成", plugin);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload完成", plugin);
 
 			} catch (Throwable e) {
 
-				logger.info("  [NIOServer] 旧的Servlet [ {} ] Unload失败", plugin);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload失败", plugin);
 
 				logger.error(e.getMessage(), e);
 
@@ -156,9 +157,9 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 		}
 	}
-	
-	private void configPluginFilterAndServlet(ApplicationContext context){
-		
+
+	private void configPluginFilterAndServlet(ApplicationContext context) {
+
 		for (PluginContext pluginContext : pluginContexts) {
 
 			if (pluginContext == null) {

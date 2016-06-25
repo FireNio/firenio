@@ -14,7 +14,7 @@ public class LoggerFactory {
 	
 	public static Logger getLogger(Class clazz){
 		if (enableSLF4JLogger) {
-			return new SLF4JLogger(org.slf4j.LoggerFactory.getLogger(clazz));
+			return new SLF4JLogger(clazz);
 		}
 		return new ConsoleLogger(clazz);
 	}

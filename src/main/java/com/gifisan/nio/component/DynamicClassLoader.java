@@ -15,6 +15,7 @@ import java.util.jar.JarFile;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
 
 public class DynamicClassLoader extends ClassLoader {
 
@@ -84,7 +85,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 	public void scan(File file) throws IOException {
 		this.scan0(file);
-		logger.info("  [NIOServer] 预加载Class字节码到缓存[ {} ]个 ", clazzEntries.size());
+		LoggerUtil.prettyNIOServerLog(logger, "预加载 class 字节码到缓存[ {} ]个 ", clazzEntries.size());
 	}
 
 	private void scan0(File file) throws IOException {
@@ -97,20 +98,20 @@ public class DynamicClassLoader extends ClassLoader {
 			} else {
 				String fileName = file.getName();
 				if (fileName.endsWith(".class")) {
-					logger.info(" [NIOServer] {} 已经被忽略", fileName);
+					LoggerUtil.prettyNIOServerLog(logger, "{} 已经被忽略", fileName);
 				} else if (fileName.endsWith(".jar")) {
 					scanZip(new JarFile(file));
 				}
 			}
 		} else {
-			logger.info("  [NIOServer] 文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
+			LoggerUtil.prettyNIOServerLog(logger, "文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
 		}
 
 	}
 
 	private void scanZip(JarFile file) throws IOException {
 
-		logger.info("  [NIOServer] 加载文件 [ {} ]", file.getName());
+		LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
 
 		Enumeration<JarEntry> entries = (Enumeration<JarEntry>) file.entries();
 		for (; entries.hasMoreElements();) {
@@ -187,7 +188,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 			entry.loadedClass = clazz;
 
-			logger.debug(" [NIOServer] define class [ {} ]", name);
+			LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
 
 			return clazz;
 		} catch (Throwable e) {

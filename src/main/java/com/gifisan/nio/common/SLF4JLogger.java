@@ -1,11 +1,20 @@
 package com.gifisan.nio.common;
 
+import org.slf4j.LoggerFactory;
+
 public class SLF4JLogger implements Logger{
 
 	private org.slf4j.Logger logger = null;
+
+	private Class loggerClass = null;
 	
-	public SLF4JLogger(org.slf4j.Logger logger) {
-		this.logger = logger;
+	public SLF4JLogger(Class clazz) {
+		this.logger = LoggerFactory.getLogger(clazz);
+		this.loggerClass = clazz;
+	}
+	
+	public Class getLoggerClass() {
+		return loggerClass;
 	}
 
 	public void info(String message) {

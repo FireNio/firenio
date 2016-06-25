@@ -65,9 +65,12 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 			this.connect(serverAddress);
 
 			this.startComponent(context, selector);
+			
+			this.setIOService(context);
+			
 		}
 	}
-
+	
 	protected abstract void connect(InetSocketAddress address) throws IOException;
 
 	public Session getSession() {

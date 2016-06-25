@@ -82,6 +82,10 @@ public class TCPConnector extends AbstractIOConnector {
 			selectionKey.attach(endPoint);
 		}
 	}
+	
+	protected void setIOService(NIOContext context) {
+		context.setTCPService(this);
+	}
 
 	private Iterator<SelectionKey> select(long timeout) throws IOException {
 		selector.select(timeout);

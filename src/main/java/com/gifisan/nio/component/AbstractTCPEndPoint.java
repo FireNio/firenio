@@ -88,7 +88,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 			this.selectionKey.attach(null);
 
-			logger.debug(">>>> rm {}", this.toString());
+//			logger.debug(">>>> rm {}", this.toString());
 
 			Session session = getSession();
 

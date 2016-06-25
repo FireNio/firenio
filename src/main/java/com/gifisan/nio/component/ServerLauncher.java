@@ -15,6 +15,10 @@ import com.gifisan.nio.server.TCPAcceptor;
 public class ServerLauncher {
 
 	public void launch() throws Exception {
+		
+		PropertiesLoader.load();
+		
+		SharedBundle bundle = SharedBundle.instance();
 
 		final ApplicationContext applicationContext = new ApplicationContext();
 		
@@ -23,10 +27,6 @@ public class ServerLauncher {
 		TCPAcceptor acceptor = new TCPAcceptor();
 		
 		try {
-			
-			PropertiesLoader.load();
-			
-			SharedBundle bundle = SharedBundle.instance();
 			
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 			

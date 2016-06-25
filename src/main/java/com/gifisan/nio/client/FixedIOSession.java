@@ -20,12 +20,11 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.common.Waiter;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
+import com.gifisan.nio.component.OnReadFutureWrapper;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.concurrent.ThreadPool;
 import com.gifisan.nio.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.server.NIOContext;
@@ -37,17 +36,15 @@ public class FixedIOSession implements FixedSession {
 
 	private NIOContext						context			= null;
 	private DatagramPacketAcceptor			dpAcceptor		= null;
-	private ThreadPool						executor			= null;
-	private Map<String, OnReadFuture>			listeners			= new HashMap<String, OnReadFuture>();
-	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
 	private Authority						authority			= null;
 	private Session						session			= null;
 	private UDPConnector					udpConnector		= null;
+	private Map<String, OnReadFutureWrapper>	listeners			= new HashMap<String, OnReadFutureWrapper>();
+	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
 
 	public FixedIOSession(Session session) {
 		this.session = session;
 		this.context = session.getContext();
-		this.executor = context.getThreadPool();
 	}
 
 	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
@@ -67,11 +64,11 @@ public class FixedIOSession implements FixedSession {
 
 		readFuture.setInputStream(inputStream);
 
-		session.flush(readFuture);
-
 		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
 
-		listen(serviceName, onReadFuture);
+		waiterListen(serviceName, onReadFuture);
+
+		session.flush(readFuture);
 
 		if (onReadFuture.await(timeout)) {
 
@@ -109,23 +106,52 @@ public class FixedIOSession implements FixedSession {
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
 		}
+		
+		OnReadFutureWrapper wrapper = listeners.get(serviceName);
+		
+		if (wrapper == null) {
+			
+			wrapper = new OnReadFutureWrapper(session.getContext());
+			
+			listeners.put(serviceName, wrapper);
+		}
 
-		this.listeners.put(serviceName, onReadFuture);
+		wrapper.setListener(onReadFuture);
+	}
+	
+	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
 
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		if (onReadFuture == null) {
+			throw new IOException("empty onReadFuture");
+		}
+		
+		OnReadFutureWrapper wrapper = listeners.get(serviceName);
+		
+		if (wrapper == null) {
+			
+			wrapper = new OnReadFutureWrapper(session.getContext());
+			
+			listeners.put(serviceName, wrapper);
+		}
+
+		wrapper.listen(onReadFuture);
 	}
 
-	public void offerReadFuture(final IOReadFuture future) {
-		final OnReadFuture onReadFuture = listeners.get(future.getServiceName());
+	public void accept(Session session, final ReadFuture future) throws Exception {
+
+		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
 
 		if (onReadFuture != null) {
-
-			this.executor.dispatch(new Runnable() {
-
-				public void run() {
-					onReadFuture.onResponse(FixedIOSession.this, future);
-				}
-			});
+			onReadFuture.onResponse(this, future);
 		}
+	}
+
+	public void offerReadFuture(final ReadFuture future) {
+
 	}
 
 	public Session getSession() {
