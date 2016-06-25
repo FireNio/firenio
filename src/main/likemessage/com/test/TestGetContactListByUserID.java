@@ -7,6 +7,7 @@ import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.client.LMClient;
 
@@ -18,13 +19,15 @@ public class TestGetContactListByUserID {
 		String username = "wk";
 		String password = "wk";
 
-		final TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
 		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
 		
-		connector.login(username, password);
+		FixedSession session = launcher.getFixedSession();
 		
-		FixedSession session = connector.getClientSession();
+		session.login(username, password);
 		
 		LMClient client = new LMClient();
 		

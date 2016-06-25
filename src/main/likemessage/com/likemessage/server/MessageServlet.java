@@ -67,7 +67,7 @@ public class MessageServlet extends LMServlet {
 		_message.put("fromUserID", tMessage.getFromUserID());
 		_message.put("message", tMessage.getMessage());
 		
-		MQContext context = MQContextFactory.getMQContext();
+		MQContext context = MQContext.getInstance();
 		
 		context.offerMessage(_message);
 

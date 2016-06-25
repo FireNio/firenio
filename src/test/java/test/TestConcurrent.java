@@ -7,6 +7,7 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.concurrent.QueueThreadPool;
 
 public class TestConcurrent {
@@ -55,9 +56,15 @@ class T implements Runnable {
 	public void run() {
 		try {
 			String serviceKey = "TestSimpleServlet";
-			TCPConnector connector = ClientUtil.getClientConnector();
+			ClientLauncher launcher = new ClientLauncher();
+			
+			TCPConnector connector = launcher.getTCPConnector();
+
 			connector.connect();
-			FixedSession session = connector.getClientSession();
+			
+			FixedSession session = launcher.getFixedSession();
+
+			session.login("admin", "admin100");
 
 			for (int i = 0; i < 125000; i++) {
 				session.request(serviceKey, "==================");

@@ -3,12 +3,13 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 import java.util.HashMap;
 
 import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
+import com.gifisan.nio.component.ClientLauncher;
+import com.gifisan.nio.component.IOConnector;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
 
@@ -20,7 +21,7 @@ public class ConnectExecutable extends JMSCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 		
-		TCPConnector connector = getClientConnector(context);
+		IOConnector connector = getClientConnector(context);
 		
 		if (connector != null) {
 			response.setResponse("已登录。");
@@ -44,13 +45,16 @@ public class ConnectExecutable extends JMSCommandExecutor {
 		
 		try {
 			
-			connector = new TCPConnector();
+			ClientLauncher launcher = new ClientLauncher();
+			
+			connector = launcher.getTCPConnector();
 			
 			connector.connect();
 			
-			FixedSession session = connector.getClientSession();
+			FixedSession session = launcher.getFixedSession();
 			
-			connector.login(username, password);
+			//FIXME denglu cuowu 
+			session.login(username, password);
 			
 			MessageBrowser browser = new DefaultMessageBrowser(session);
 			

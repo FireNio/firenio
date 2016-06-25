@@ -3,7 +3,7 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.util.Scanner;
 
-import com.gifisan.nio.client.TCPConnector;
+import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.SYSTEMStopServerServlet;
@@ -39,14 +39,18 @@ public class ServerShutdown {
 
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
-		TCPConnector connector = new TCPConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		IOConnector connector = launcher.getTCPConnector();
+		
+		connector.getContext().getServerConfiguration().setSERVER_TCP_PORT(port);
 		
 		connector.connect();
 		
-		connector.login(username, password);
+		FixedSession session = launcher.getFixedSession();
 		
-		Session session = connector.getClientSession();
-
+		session.login(username, password);
+		
 		ReadFuture future = session.request(serviceName, null);
 
 		System.out.println(future.getText());

@@ -7,7 +7,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.ClientLauncher;
 
 public class ClientUtil {
 
@@ -25,8 +25,10 @@ public class ClientUtil {
 		
 		host = "localhost";
 
-		TCPConnector connector = new TCPConnector(host, SharedBundle.instance().getIntegerProperty(
-				"SERVER.PORT"), "M");
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
+
 
 		// DebugUtil.info(connector.toString());
 

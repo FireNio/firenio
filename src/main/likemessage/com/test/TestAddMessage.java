@@ -6,6 +6,7 @@ import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.server.RESMessage;
 import com.likemessage.bean.T_MESSAGE;
 import com.likemessage.client.LMClient;
@@ -14,13 +15,15 @@ public class TestAddMessage {
 
 	public static void main(String[] args) throws IOException {
 
-		final TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
 
 		connector.connect();
+		
+		FixedSession session = launcher.getFixedSession();
 
-		connector.login("wk", "wk");
-
-		FixedSession session = connector.getClientSession();
+		session.login("wk", "wk");
 
 		LMClient client = new LMClient();
 

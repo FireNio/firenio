@@ -7,6 +7,8 @@ import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.server.RESMessage;
 import com.gifisan.security.Authority;
 
 //FIXME   request // listen + write
@@ -37,5 +39,13 @@ public interface FixedSession extends ReadFutureAcceptor{
 	public abstract void setAuthority(Authority authority);
 	
 	public abstract Session getSession();
+	
+	public abstract RESMessage login4RES(String username, String password) ;
+	
+	public abstract boolean login(String username, String password);
+	
+	public NIOContext getContext();
+
+	public abstract Authority getAuthority();
 	
 }

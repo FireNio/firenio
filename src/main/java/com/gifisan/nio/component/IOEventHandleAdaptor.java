@@ -1,12 +1,12 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
-import com.gifisan.nio.component.protocol.DatagramPacket;
 
-public class IOEventHandleAdaptor implements IOEventHandle {
+public class IOEventHandleAdaptor extends AbstractLifeCycle implements IOEventHandle {
 	
 	private Logger logger = LoggerFactory.getLogger(IOEventHandleAdaptor.class);
 
@@ -26,7 +26,11 @@ public class IOEventHandleAdaptor implements IOEventHandle {
 		logger.info("future received,{}",future);
 	}
 
-	public void accept(UDPEndPoint endPoint, DatagramPacket packet) {
+	protected void doStart() throws Exception {
+		
+	}
+
+	protected void doStop() throws Exception {
 		
 	}
 }

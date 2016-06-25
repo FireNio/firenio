@@ -44,7 +44,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop{
 				iterator.remove();
 
 				accept(selectionKey);
-
 			}
 
 			working = false;

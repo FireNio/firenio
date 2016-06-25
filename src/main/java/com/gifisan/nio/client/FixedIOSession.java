@@ -320,4 +320,8 @@ public class FixedIOSession implements FixedSession {
 			throw DisconnectException.INSTANCE;
 		}
 	}
+
+	public NIOContext getContext() {
+		return context;
+	}
 }

@@ -3,6 +3,7 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.common.cmd.Executable;
+import com.gifisan.nio.component.IOConnector;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
 public abstract class JMSCommandExecutor implements Executable {
@@ -11,11 +12,11 @@ public abstract class JMSCommandExecutor implements Executable {
 
 	private String		KEY_BROWSER	= "KEY_BROWSER";
 
-	protected TCPConnector getClientConnector(CommandContext context) {
+	protected IOConnector getClientConnector(CommandContext context) {
 		return (TCPConnector) context.getAttribute(KEY_CONNECTOR);
 	}
 
-	protected void setClientConnector(CommandContext context, TCPConnector connector) {
+	protected void setClientConnector(CommandContext context, IOConnector connector) {
 		context.setAttribute(KEY_CONNECTOR, connector);
 	}
 

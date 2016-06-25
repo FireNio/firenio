@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.OnReadFuture;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestSessionDisconnect {
@@ -18,11 +19,15 @@ public class TestSessionDisconnect {
 		
 		TCPConnector connector = null;
 		try {
-			connector = ClientUtil.getClientConnector();
+			ClientLauncher launcher = new ClientLauncher();
 			
+			connector = launcher.getTCPConnector();
+
 			connector.connect();
 			
-			FixedSession session = connector.getClientSession();
+			FixedSession session = launcher.getFixedSession();
+
+			session.login("admin", "admin100");
 			
 			ReadFuture future = session.request(serviceName, param);
 			System.out.println(future.getText());

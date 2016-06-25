@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.server.service.impl.SYSTEMRedeployServlet;
 
@@ -16,9 +17,15 @@ public class TestRedeploy {
 
 		String param = "{username:\"admin\",password:\"admin100\"}";
 
-		TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
-		FixedSession session = connector.getClientSession();
+		
+		FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
 
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());

@@ -178,11 +178,13 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 	}
 
 	public void write(String content) {
-		byte[] bytes = content.getBytes(Encoding.DEFAULT);
-		textCache.write(bytes);
+		write(content, Encoding.DEFAULT);
 	}
 
 	public void write(String content, Charset encoding) {
+		if (content == null) {
+			return;
+		}
 		byte[] bytes = content.getBytes(encoding);
 		textCache.write(bytes);
 	}

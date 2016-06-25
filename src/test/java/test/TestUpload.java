@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.FixedSession;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestUpload {
@@ -15,9 +16,14 @@ public class TestUpload {
 
 		String serviceKey = "TestUploadServlet";
 		String param = "temp.zip";
-		TCPConnector connector = ClientUtil.getClientConnector();
+		
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
-		FixedSession session = connector.getClientSession();
+		
+		FixedSession session = launcher.getFixedSession();
 		
 		long old = System.currentTimeMillis();
 		File file = new File("D:/GIT/NimbleIO/temp1.zip");

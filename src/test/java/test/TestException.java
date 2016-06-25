@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestException {
@@ -14,10 +15,15 @@ public class TestException {
 
 		String serviceKey = "TestExceptionServlet";
 		String param = ClientUtil.getParamString();
-		TCPConnector connector = ClientUtil.getClientConnector();
-		connector.connect();
-		FixedSession session = connector.getClientSession();
 		
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
+
+		connector.connect();
+		
+		FixedSession session = launcher.getFixedSession();
+
 		ReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		

@@ -115,10 +115,14 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		}
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数    ：  { {} }", SERVER_CORE_SIZE);
 
+		this.ioEventHandle.start();
 		this.threadPool.start();
 	}
 
 	protected void doStop() throws Exception {
+
+		LifeCycleUtil.stop(ioEventHandle);
+		
 		LifeCycleUtil.stop(threadPool);
 	}
 

@@ -7,6 +7,7 @@ import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.FileUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestSimpleBigParam {
@@ -16,10 +17,14 @@ public class TestSimpleBigParam {
 
 		String serviceKey = "TestSimpleServlet";
 		
-		TCPConnector connector = ClientUtil.getClientConnector();
-		connector.connect();
-		FixedSession session = connector.getClientSession();
+		ClientLauncher launcher = new ClientLauncher();
 		
+		TCPConnector connector = launcher.getTCPConnector();
+
+		connector.connect();
+		
+		FixedSession session = launcher.getFixedSession();
+
 		String temp = "网易科技腾讯科技阿里巴巴";
 		StringBuilder builder = new StringBuilder(temp);
 		for (int i = 0; i < 600000; i++) {

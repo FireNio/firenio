@@ -7,15 +7,22 @@ import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.test.ITest;
 import com.gifisan.nio.common.test.ITestHandle;
+import com.gifisan.nio.component.ClientLauncher;
 
 public class TestLoad {
 	
 	public static void main(String[] args) throws IOException{
 		
+		ClientLauncher launcher = new ClientLauncher();
 		
-		TCPConnector connector = ClientUtil.getClientConnector();
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
-		final FixedSession session = connector.getClientSession();
+		
+		final FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
+		
 		int time = 10000;
 		
 		ITestHandle.doTest(new ITest() {

@@ -8,6 +8,7 @@ import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.test.ITest;
 import com.gifisan.nio.common.test.ITestHandle;
+import com.gifisan.nio.component.ClientLauncher;
 
 public class TestLoadUnique {
 	
@@ -15,10 +16,15 @@ public class TestLoadUnique {
 	
 	public static void main(String[] args) throws Exception {
 		
-		TCPConnector connector = ClientUtil.getClientConnector();
-		connector.connect();
-		final FixedSession session = connector.getClientSession();
+		ClientLauncher launcher = new ClientLauncher();
 		
+		TCPConnector connector = launcher.getTCPConnector();
+
+		connector.connect();
+		
+		final FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
 		
 		ITestHandle.doTest(new ITest() {
 			public void test() throws IOException {

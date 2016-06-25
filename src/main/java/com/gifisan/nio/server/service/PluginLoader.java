@@ -72,7 +72,7 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 			plugin.initialize(context, plugin.getConfig());
 
-			LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", plugin);
+			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", plugin);
 		}
 	}
 
@@ -104,11 +104,11 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
-		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Plugin配置......");
 
 		loadPlugins(context, classLoader, this.configuration);
 
-		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Servlet配置......");
+		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Plugin配置......");
 
 		this.prepare(context, pluginContexts);
 
@@ -126,7 +126,7 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 			plugin.prepare(context, plugin.getConfig());
 
-			LoggerUtil.prettyNIOServerLog(logger, "新的Servlet [ {} ] Prepare完成", plugin);
+			LoggerUtil.prettyNIOServerLog(logger, "新的Plugin [ {} ] Prepare完成", plugin);
 
 		}
 
@@ -145,11 +145,11 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 				plugin.unload(context, plugin.getConfig());
 
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload完成", plugin);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Plugin [ {} ] Unload完成", plugin);
 
 			} catch (Throwable e) {
 
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload失败", plugin);
+				LoggerUtil.prettyNIOServerLog(logger, "旧的Plugin [ {} ] Unload失败", plugin);
 
 				logger.error(e.getMessage(), e);
 

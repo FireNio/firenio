@@ -10,6 +10,7 @@ import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
 
 public class TestLoadCallBack {
@@ -23,9 +24,16 @@ public class TestLoadCallBack {
 		
 		String serviceName = "TestSimpleServlet";
 		
-		TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
-		final FixedSession session = connector.getClientSession();
+		
+		FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
+		
 		final Logger logger = LoggerFactory.getLogger(TestLoadCallBack.class);
 		
 		System.out.println("################## Test start ####################");

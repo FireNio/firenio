@@ -22,7 +22,7 @@ public class ClientLauncher {
 		return eventHandle;
 	}
 
-	public IOConnector getTCPConnector() throws Exception {
+	public TCPConnector getTCPConnector() {
 
 		try {
 
@@ -34,8 +34,6 @@ public class ClientLauncher {
 
 			DebugUtil.setEnableDebug(debug);
 
-			TCPConnector connector = new TCPConnector();
-
 			eventHandle = new SimpleIOEventHandle(connector);
 
 			NIOContext context = new DefaultNIOContext();
@@ -46,8 +44,6 @@ public class ClientLauncher {
 
 			connector.setContext(context);
 
-			connector.connect();
-
 			return connector;
 
 		} catch (Throwable e) {
@@ -56,7 +52,7 @@ public class ClientLauncher {
 
 			CloseUtil.close(connector);
 
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -69,6 +65,8 @@ public class ClientLauncher {
 		ClientLauncher launcher = new ClientLauncher();
 
 		IOConnector connector = launcher.getTCPConnector();
+
+		connector.connect();
 
 		FixedSession session = launcher.getFixedSession();
 

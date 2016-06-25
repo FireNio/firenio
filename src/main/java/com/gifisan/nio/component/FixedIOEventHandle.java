@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -14,7 +15,6 @@ public class FixedIOEventHandle extends IOEventHandleAdaptor {
 
 	public FixedIOEventHandle(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
-		this.filterService = applicationContext.getFilterService();
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
@@ -47,5 +47,22 @@ public class FixedIOEventHandle extends IOEventHandleAdaptor {
 	public ApplicationContext getApplicationContext() {
 		return applicationContext;
 	}
+
+	protected void doStart() throws Exception {
+		
+		this.applicationContext.start();
+
+		this.filterService = applicationContext.getFilterService();
+		
+		super.doStart();
+	}
+
+	protected void doStop() throws Exception {
+		LifeCycleUtil.stop(applicationContext);
+		
+		super.doStop();
+	}
+	
+	
 
 }

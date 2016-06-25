@@ -6,6 +6,7 @@ import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.server.RESMessage;
 import com.likemessage.client.LMClient;
 
@@ -13,11 +14,13 @@ public class TestRegist {
 
 	public static void main(String[] args) throws IOException {
 
-		final TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
 
 		connector.connect();
-
-		FixedSession session = connector.getClientSession();
+		
+		FixedSession session = launcher.getFixedSession();
 
 		LMClient client = new LMClient();
 

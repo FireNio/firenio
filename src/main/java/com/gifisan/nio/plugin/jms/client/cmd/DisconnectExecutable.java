@@ -2,10 +2,10 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
+import com.gifisan.nio.component.IOConnector;
 
 public class DisconnectExecutable extends JMSCommandExecutor {
 
@@ -13,14 +13,15 @@ public class DisconnectExecutable extends JMSCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 
-		TCPConnector connector = getClientConnector(context);
+		IOConnector connector = getClientConnector(context);
 		
 		if (connector == null) {
 			response.setResponse("请先登录！");
 			return response;
 		}
 		
-		connector.logout();
+		//FXIME logout
+//		connector.logout();
 		
 		CloseUtil.close(connector);
 		
