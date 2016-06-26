@@ -74,4 +74,8 @@ public class Authority {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
+	
+	public String toString() {
+		return "authority:"+username;
+	}
 }

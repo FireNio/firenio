@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
 
-public class HelpExecutable extends JMSCommandExecutor {
+public class HelpExecutable extends MQCommandExecutor {
 
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 

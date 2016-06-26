@@ -2,14 +2,14 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.Attachment;
 
-public class JMSSessionAttachment implements Attachment {
+public class MQSessionAttachment implements Attachment {
 
 	private MQContext			context				;
 	private TransactionSection	transactionSection		;
 	private ConsumerPushHandle	consumerPushFailedHandle	;
 	private Consumer			consumer				;
 
-	public JMSSessionAttachment(MQContext context) {
+	public MQSessionAttachment(MQContext context) {
 		this.context = context;
 		this.consumerPushFailedHandle = context.getConsumerPushFailedHandle();
 	}

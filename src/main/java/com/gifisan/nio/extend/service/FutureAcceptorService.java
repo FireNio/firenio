@@ -1,5 +1,8 @@
 package com.gifisan.nio.extend.service;
 
+
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
@@ -12,6 +15,8 @@ import com.gifisan.nio.extend.InitializeableImpl;
 import com.gifisan.nio.extend.configuration.Configuration;
 
 public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, HotDeploy, IOEventHandle  {
+	
+	private Logger logger = LoggerFactory.getLogger(FutureAcceptorService.class);
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
@@ -30,11 +35,11 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	}
 	
 	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
-		
+		logger.error(cause.getMessage(),cause);
 	}
 
 	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
-
+		logger.error(cause.getMessage(),cause);
 	}
 
 	public void futureSent(Session session, WriteFuture future) {

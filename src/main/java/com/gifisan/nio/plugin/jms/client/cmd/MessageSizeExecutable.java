@@ -8,7 +8,7 @@ import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
-public class MessageSizeExecutable extends JMSCommandExecutor {
+public class MessageSizeExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(MessageSizeExecutable.class);
 

@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.extend.RESMessage;
 
-public class JMSRESMessage {
+public class MQRESMessage {
 
 	public static int	CODE_TRANSACTION_BEGINED		= 901;
 	public static int	CODE_TRANSACTION_NOT_BEGIN	= 902;

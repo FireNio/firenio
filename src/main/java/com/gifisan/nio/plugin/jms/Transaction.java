@@ -10,11 +10,11 @@ public interface Transaction {
 	 * <li>连接被客户端主动关闭</li>
 	 * <li>连接调用rollback方法</li>
 	 * </ul>
-	 * @throws JMSException
+	 * @throws MQException
 	 */
-	public abstract boolean beginTransaction() throws JMSException;
+	public abstract boolean beginTransaction() throws MQException;
 	
-	public abstract boolean commit() throws JMSException;
+	public abstract boolean commit() throws MQException;
 	
-	public abstract boolean rollback() throws JMSException;
+	public abstract boolean rollback() throws MQException;
 }

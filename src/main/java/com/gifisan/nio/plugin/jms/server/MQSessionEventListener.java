@@ -5,19 +5,19 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
-public class JMSSessionEventListener implements SessionEventListener {
+public class MQSessionEventListener implements SessionEventListener {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(JMSSessionEventListener.class);
+	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
 
 	public void sessionOpened(Session session) {
 		
 		MQContext context = MQContext.getInstance();
 
-		JMSSessionAttachment attachment = context.getSessionAttachment(session);
+		MQSessionAttachment attachment = context.getSessionAttachment(session);
 
 		if (attachment == null) {
 
-			attachment = new JMSSessionAttachment(context);
+			attachment = new MQSessionAttachment(context);
 
 			session.setAttachment(context, attachment);
 		}
@@ -28,7 +28,7 @@ public class JMSSessionEventListener implements SessionEventListener {
 		
 		MQContext context = MQContext.getInstance();
 
-		JMSSessionAttachment attachment = context.getSessionAttachment(session);
+		MQSessionAttachment attachment = context.getSessionAttachment(session);
 
 		TransactionSection section = attachment.getTransactionSection();
 

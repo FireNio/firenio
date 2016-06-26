@@ -13,7 +13,7 @@ import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
 
-public class ConnectExecutable extends JMSCommandExecutor {
+public class ConnectExecutable extends MQCommandExecutor {
 
 	private Logger	logger		= LoggerFactory.getLogger(ConnectExecutable.class);
 	

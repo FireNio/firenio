@@ -8,11 +8,11 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.plugin.jms.Message;
 
-public class JMSProducerServlet extends JMSServlet {
+public class MQProducerServlet extends MQServlet {
 
-	public static final String	SERVICE_NAME	= JMSProducerServlet.class.getSimpleName();
+	public static final String	SERVICE_NAME	= MQProducerServlet.class.getSimpleName();
 
-	public void accept(Session session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
+	public void accept(Session session, ReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 

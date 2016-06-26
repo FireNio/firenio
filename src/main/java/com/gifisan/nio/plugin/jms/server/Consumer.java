@@ -10,13 +10,13 @@ import com.gifisan.nio.plugin.jms.Message;
 public class Consumer {
 
 	private String				queueName		;
-	private JMSSessionAttachment	attachment	;
+	private MQSessionAttachment	attachment	;
 	private ConsumerQueue		consumerQueue	;
 	private Session			session		;
 	private ReadFuture			future		;
 	private Message			message		;
 
-	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, Session session, ReadFuture future,
+	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, ReadFuture future,
 			String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
@@ -53,6 +53,8 @@ public class Consumer {
 		ReadFuture future = ReadFutureFactory.create(session, this.future);
 
 		future.attach(this);
+		
+		future.setIOEventHandle(this.future.getIOEventHandle());
 
 		future.write(content);
 

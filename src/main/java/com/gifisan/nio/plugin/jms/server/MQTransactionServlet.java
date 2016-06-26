@@ -4,11 +4,11 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 
-public class JMSTransactionServlet extends JMSServlet {
+public class MQTransactionServlet extends MQServlet {
 
-	public static final String	SERVICE_NAME	= JMSTransactionServlet.class.getSimpleName();
+	public static final String	SERVICE_NAME	= MQTransactionServlet.class.getSimpleName();
 
-	public void accept(Session session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
+	public void accept(Session session, ReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		String action = future.getText();
 
@@ -21,7 +21,7 @@ public class JMSTransactionServlet extends JMSServlet {
 				attachment.setTransactionSection(section);
 				message = RESMessage.SUCCESS;
 			} else {
-				message = JMSRESMessage.R_TRANSACTION_BEGINED;
+				message = MQRESMessage.R_TRANSACTION_BEGINED;
 			}
 			future.write(message.toString());
 			session.flush(future);
@@ -29,12 +29,12 @@ public class JMSTransactionServlet extends JMSServlet {
 		} else if ("commit".equals(action)) {
 			RESMessage message = null;
 			if (section == null) {
-				message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
+				message = MQRESMessage.R_TRANSACTION_NOT_BEGIN;
 			} else {
 				if (section.commit()) {
 					message = RESMessage.SUCCESS;
 				} else {
-					message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
+					message = MQRESMessage.R_TRANSACTION_NOT_BEGIN;
 				}
 				attachment.setTransactionSection(null);
 			}
@@ -45,12 +45,12 @@ public class JMSTransactionServlet extends JMSServlet {
 		} else if ("rollback".equals(action)) {
 			RESMessage message = null;
 			if (section == null) {
-				message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
+				message = MQRESMessage.R_TRANSACTION_NOT_BEGIN;
 			} else {
 				if (section.rollback()) {
 					message = RESMessage.SUCCESS;
 				} else {
-					message = JMSRESMessage.R_TRANSACTION_NOT_BEGIN;
+					message = MQRESMessage.R_TRANSACTION_NOT_BEGIN;
 				}
 				attachment.setTransactionSection(null);
 			}
@@ -65,7 +65,7 @@ public class JMSTransactionServlet extends JMSServlet {
 		//
 		// }
 		else {
-			future.write(JMSRESMessage.R_CMD_NOT_FOUND.toString());
+			future.write(MQRESMessage.R_CMD_NOT_FOUND.toString());
 			session.flush(future);
 		}
 	}

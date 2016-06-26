@@ -6,16 +6,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.plugin.jms.server.JMSBrowserServlet;
+import com.gifisan.nio.plugin.jms.server.MQBrowserServlet;
 
 public class DefaultMessageBrowser implements MessageBrowser {
 	
-	private final String SERVICE_NAME = "JMSBrowserServlet";
+	private final String SERVICE_NAME = "MQBrowserServlet";
 
 	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
 
@@ -26,44 +26,44 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		this.session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
 	}
 
-	public Message browser(String messageID) throws JMSException {
+	public Message browser(String messageID) throws MQException {
 		JSONObject param = new JSONObject();
 		param.put("messageID", messageID);
-		param.put("cmd", JMSBrowserServlet.BROWSER);
+		param.put("cmd", MQBrowserServlet.BROWSER);
 
 		ReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
+			throw new MQException(e.getMessage(), e);
 		}
 
 		return messageDecoder.decode(future);
 	}
 
-	public int size() throws JMSException {
+	public int size() throws MQException {
 		String param = "{cmd:\"0\"}";
 
 		ReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param);
 		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
+			throw new MQException(e.getMessage(), e);
 		}
 		return Integer.parseInt(future.getText());
 	}
 
-	public boolean isOnline(String queueName) throws JMSException {
+	public boolean isOnline(String queueName) throws MQException {
 
 		JSONObject param = new JSONObject();
 		param.put("queueName", queueName);
-		param.put("cmd", JMSBrowserServlet.ONLINE);
+		param.put("cmd", MQBrowserServlet.ONLINE);
 
 		ReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
-			throw new JMSException(e.getMessage(), e);
+			throw new MQException(e.getMessage(), e);
 		}
 
 		return ByteUtil.isTrue(future.getText());

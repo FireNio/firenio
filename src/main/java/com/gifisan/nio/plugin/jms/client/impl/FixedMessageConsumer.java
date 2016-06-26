@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.ErrorMessage;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.MapByteMessage;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.Message;
@@ -112,31 +112,31 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 		this.onMappedMessages.put(eventName, onMapByteMessage);
 	}
 
-	public boolean beginTransaction() throws JMSException {
+	public boolean beginTransaction() throws MQException {
 		return messageConsumer.beginTransaction();
 	}
 
-	public boolean commit() throws JMSException {
+	public boolean commit() throws MQException {
 		return messageConsumer.commit();
 	}
 
-	public boolean rollback() throws JMSException {
+	public boolean rollback() throws MQException {
 		return messageConsumer.rollback();
 	}
 
-	public void receive(OnMessage onMessage) throws JMSException {
+	public void receive(OnMessage onMessage) throws MQException {
 
 		if (onMessage != null) {
-			throw new JMSException("");
+			throw new MQException("");
 		}
 
 		messageConsumer.receive(this);
 	}
 
-	public void subscribe(OnMessage onMessage) throws JMSException {
+	public void subscribe(OnMessage onMessage) throws MQException {
 
 		if (onMessage != null) {
-			throw new JMSException("");
+			throw new MQException("");
 		}
 
 		messageConsumer.subscribe(this);

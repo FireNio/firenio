@@ -7,7 +7,7 @@ import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.connector.IOConnector;
 
-public class ExitExecutable extends JMSCommandExecutor {
+public class ExitExecutable extends MQCommandExecutor {
 
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 

@@ -11,7 +11,7 @@ import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
@@ -35,8 +35,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return messageIDs.get(messageID);
 	}
 
-	public JMSSessionAttachment getSessionAttachment(Session session) {
-		return (JMSSessionAttachment) session.getAttachment(this);
+	public MQSessionAttachment getSessionAttachment(Session session) {
+		return (MQSessionAttachment) session.getAttachment(this);
 	}
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
@@ -45,9 +45,9 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 
-		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
+		Thread p2pThread = new Thread(p2pProductLine, "MQ-P2P-ProductLine");
 
-		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
+		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
 
@@ -59,7 +59,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		subThread.start();
 
-		context.addSessionEventListener(new JMSSessionEventListener());
+		context.addSessionEventListener(new MQSessionEventListener());
 
 		instance = this;
 	}
@@ -96,16 +96,16 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		messageIDs.remove(message.getMsgID());
 	}
 
-	public Message parse(ReadFuture future) throws JMSException {
+	public Message parse(ReadFuture future) throws MQException {
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void subscribeMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}
@@ -134,12 +134,12 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
-		acceptors.put(JMSConsumerServlet.SERVICE_NAME, new JMSConsumerServlet());
-		acceptors.put(JMSProducerServlet.SERVICE_NAME, new JMSProducerServlet());
-		acceptors.put(JMSSubscribeServlet.SERVICE_NAME, new JMSSubscribeServlet());
-		acceptors.put(JMSPublishServlet.SERVICE_NAME, new JMSPublishServlet());
-		acceptors.put(JMSTransactionServlet.SERVICE_NAME, new JMSTransactionServlet());
-		acceptors.put(JMSBrowserServlet.SERVICE_NAME, new JMSBrowserServlet());
+		acceptors.put(MQConsumerServlet.SERVICE_NAME, new MQConsumerServlet());
+		acceptors.put(MQProducerServlet.SERVICE_NAME, new MQProducerServlet());
+		acceptors.put(MQSubscribeServlet.SERVICE_NAME, new MQSubscribeServlet());
+		acceptors.put(MQPublishServlet.SERVICE_NAME, new MQPublishServlet());
+		acceptors.put(MQTransactionServlet.SERVICE_NAME, new MQTransactionServlet());
+		acceptors.put(MQBrowserServlet.SERVICE_NAME, new MQBrowserServlet());
 
 	}
 
@@ -153,9 +153,9 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 
-		Thread p2pThread = new Thread(p2pProductLine, "JMS-P2P-ProductLine");
+		Thread p2pThread = new Thread(p2pProductLine, "MQ-P2P-ProductLine");
 
-		Thread subThread = new Thread(subProductLine, "JMS-SUB-ProductLine");
+		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
 
 		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
 

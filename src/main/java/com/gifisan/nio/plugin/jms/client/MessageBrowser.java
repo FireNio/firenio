@@ -1,6 +1,6 @@
 package com.gifisan.nio.plugin.jms.client;
 
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.Message;
 
 public interface MessageBrowser {
@@ -13,12 +13,12 @@ public interface MessageBrowser {
 	 * 3.本方法用于检查服务器是否依然存在此ID的消息
 	 * @param messageID
 	 * @return
-	 * @throws JMSException
+	 * @throws MQException
 	 */
-	public abstract Message browser(String messageID) throws JMSException;
+	public abstract Message browser(String messageID) throws MQException;
 	
-	public abstract int size() throws JMSException;
+	public abstract int size() throws MQException;
 	
-	public abstract boolean isOnline(String queueName) throws JMSException;
+	public abstract boolean isOnline(String queueName) throws MQException;
 	
 }

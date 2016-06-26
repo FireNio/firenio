@@ -10,7 +10,7 @@ import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
-public class BrowserExecutable extends JMSCommandExecutor {
+public class BrowserExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(BrowserExecutable.class);
 

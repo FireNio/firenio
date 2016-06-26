@@ -11,7 +11,7 @@ import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.NullMessage;
 import com.gifisan.nio.plugin.jms.TextByteMessage;
 
-public class JMSBrowserServlet extends JMSServlet {
+public class MQBrowserServlet extends MQServlet {
 
 	public static final String	SIZE			= "0";
 
@@ -19,9 +19,9 @@ public class JMSBrowserServlet extends JMSServlet {
 
 	public static final String	ONLINE		= "2";
 
-	public static final String	SERVICE_NAME	= JMSBrowserServlet.class.getSimpleName();
+	public static final String	SERVICE_NAME	= MQBrowserServlet.class.getSimpleName();
 
-	public void accept(Session session, ReadFuture future, JMSSessionAttachment attachment) throws Exception {
+	public void accept(Session session, ReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();
 

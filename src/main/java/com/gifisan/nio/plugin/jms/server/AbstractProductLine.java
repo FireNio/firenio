@@ -46,7 +46,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		return context;
 	}
 
-	public void pollMessage(Session session, ReadFuture future, JMSSessionAttachment attachment) {
+	public void pollMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;

@@ -1,7 +1,7 @@
 package com.gifisan.nio.plugin.jms.decode;
 
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.Message;
 
 public class DefaultMessageDecoder implements MessageDecoder {
@@ -17,7 +17,7 @@ public class DefaultMessageDecoder implements MessageDecoder {
 		decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
 	}
 	
-	public Message decode(ReadFuture future) throws JMSException{
+	public Message decode(ReadFuture future) throws MQException{
 		int msgType = future.getParameters().getIntegerParameter("msgType");
 		return decoders[msgType].decode(future);
 	}

@@ -4,7 +4,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
-public abstract class JMSServlet extends FutureAcceptorService{
+public abstract class MQServlet extends FutureAcceptorService{
 
 	private MQContext context = MQContext.getInstance();
 
@@ -14,11 +14,11 @@ public abstract class JMSServlet extends FutureAcceptorService{
 
 	public void accept(Session session,ReadFuture future) throws Exception {
 		
-		JMSSessionAttachment attachment = context.getSessionAttachment(session);
+		MQSessionAttachment attachment = context.getSessionAttachment(session);
 		
 		this.accept(session, future,attachment);
 	}
 	
-	public abstract void accept(Session session,ReadFuture future,JMSSessionAttachment attachment) throws Exception;
+	public abstract void accept(Session session,ReadFuture future,MQSessionAttachment attachment) throws Exception;
 	
 }

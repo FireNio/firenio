@@ -6,7 +6,7 @@ import com.gifisan.nio.connector.IOConnector;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
-public abstract class JMSCommandExecutor implements Executable {
+public abstract class MQCommandExecutor implements Executable {
 
 	private String		KEY_CONNECTOR	= "KEY_CONNECTOR";
 

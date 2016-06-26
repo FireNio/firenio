@@ -6,11 +6,11 @@ import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.BytedMessage;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
-import com.gifisan.nio.plugin.jms.server.JMSProducerServlet;
-import com.gifisan.nio.plugin.jms.server.JMSPublishServlet;
+import com.gifisan.nio.plugin.jms.server.MQProducerServlet;
+import com.gifisan.nio.plugin.jms.server.MQPublishServlet;
 
 public class DefaultMessageProducer implements MessageProducer {
 
@@ -20,11 +20,11 @@ public class DefaultMessageProducer implements MessageProducer {
 		this.session = session;
 	}
 
-	public boolean offer(Message message) throws JMSException {
-		return offer(message, JMSProducerServlet.SERVICE_NAME);
+	public boolean offer(Message message) throws MQException {
+		return offer(message, MQProducerServlet.SERVICE_NAME);
 	}
 	
-	private boolean offer(Message message,String serviceName) throws JMSException {
+	private boolean offer(Message message,String serviceName) throws MQException {
 		
 		String param = message.toString();
 
@@ -48,11 +48,11 @@ public class DefaultMessageProducer implements MessageProducer {
 				
 			} else {
 				
-				throw new JMSException("msgType:" + msgType);
+				throw new MQException("msgType:" + msgType);
 			}
 		} catch (IOException e) {
 			
-			throw new JMSException(e.getMessage(), e);
+			throw new MQException(e.getMessage(), e);
 		}
 		
 		String result = future.getText();
@@ -60,13 +60,13 @@ public class DefaultMessageProducer implements MessageProducer {
 		if (result.length() == 1) {
 			return "T".equals(result);
 		}
-		throw new JMSException(result);
+		throw new MQException(result);
 
 	}
 
-	public boolean publish(Message message) throws JMSException {
+	public boolean publish(Message message) throws MQException {
 
-		return offer(message, JMSPublishServlet.SERVICE_NAME);
+		return offer(message, MQPublishServlet.SERVICE_NAME);
 	}
 
 }

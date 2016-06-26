@@ -9,7 +9,7 @@ import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.MQException;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
@@ -81,7 +81,7 @@ public class RTPClient {
 		try {
 
 			this.consumer.receive(null);
-		} catch (JMSException e) {
+		} catch (MQException e) {
 			throw new RTPException(e);
 		}
 	}
@@ -138,7 +138,7 @@ public class RTPClient {
 		try {
 			producer.offer(message);
 
-		} catch (JMSException e) {
+		} catch (MQException e) {
 			throw new RTPException(e);
 		}
 
@@ -157,7 +157,7 @@ public class RTPClient {
 
 		try {
 			producer.offer(message);
-		} catch (JMSException e) {
+		} catch (MQException e) {
 			throw new RTPException(e);
 		}
 

@@ -7,7 +7,7 @@ import com.gifisan.nio.common.cmd.Command;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.connector.TCPConnector;
 
-public class JMSCommand extends Command {
+public class MQCommand extends Command {
 
 	private HelpExecutable	helpExecutable	= new HelpExecutable();
 
@@ -15,7 +15,7 @@ public class JMSCommand extends Command {
 
 		CommandContext context = new CommandContext();
 		
-		JMSCommand command = new JMSCommand();
+		MQCommand command = new MQCommand();
 		
 		context.registExecutable("browser", new BrowserExecutable());
 		context.registExecutable("connect", new ConnectExecutable());
