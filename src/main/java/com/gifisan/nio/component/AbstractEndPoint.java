@@ -14,7 +14,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 	private Long				endPointID	;
 	protected InetSocketAddress	local		;
 	protected InetSocketAddress	remote		;
-	
 
 	public AbstractEndPoint(NIOContext context){
 		this.context = context;
@@ -48,7 +47,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return address.getHostAddress();
 	}
 	
-	protected abstract InetSocketAddress getLocalSocketAddress() ;
+	public abstract InetSocketAddress getLocalSocketAddress() ;
 	
 	public String getRemoteAddr() {
 		
@@ -85,8 +84,6 @@ public abstract class AbstractEndPoint implements EndPoint {
 		
 		return address.getPort();
 	}
-
-	protected abstract InetSocketAddress getRemoteSocketAddress();
 
 	public NIOContext getContext() {
 		return context;

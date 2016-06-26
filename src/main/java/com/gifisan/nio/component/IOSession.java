@@ -2,7 +2,6 @@ package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.DisconnectException;
@@ -32,14 +31,13 @@ public class IOSession extends AttributesImpl implements Session {
 	private NIOContext					context		;
 	private UDPEndPoint					udpEndPoint	;
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
-	private static final AtomicLong		autoSessionID	= new AtomicLong();
 
-	public IOSession(TCPEndPoint endPoint) {
+	public IOSession(TCPEndPoint endPoint,Long sessionID) {
 		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
-		this.sessionID = autoSessionID.getAndIncrement();
+		this.sessionID = sessionID;
 	}
 	
 	public UDPEndPoint getUDPEndPoint() {

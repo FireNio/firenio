@@ -45,7 +45,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 			throw new SocketException("socket is empty");
 		}
 		
-		this.session = new IOSession(this);
+		this.session = new IOSession(this,getEndPointID());
 		
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
@@ -130,7 +130,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		return endPointWriter;
 	}
 
-	protected InetSocketAddress getLocalSocketAddress() {
+	public InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
 		}
@@ -149,7 +149,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		return readFuture;
 	}
 
-	protected InetSocketAddress getRemoteSocketAddress() {
+	public InetSocketAddress getRemoteSocketAddress() {
 		if (remote == null) {
 			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
 		}

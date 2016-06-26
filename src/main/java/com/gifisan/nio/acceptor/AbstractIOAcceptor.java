@@ -24,10 +24,12 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 				throw new IllegalArgumentException("null nio context");
 			}
 			
-			try {
-				context.start();
-			} catch (Exception e) {
-				throw new IOException(e);
+			if (context.isStopped() == true) {
+				try {
+					context.start();
+				} catch (Exception e) {
+					throw new IOException(e);
+				}
 			}
 
 			ServerConfiguration configuration = context.getServerConfiguration();

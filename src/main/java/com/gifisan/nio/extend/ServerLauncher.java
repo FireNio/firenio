@@ -2,6 +2,7 @@ package com.gifisan.nio.extend;
 
 import com.gifisan.nio.acceptor.ServerProtocolDecoder;
 import com.gifisan.nio.acceptor.TCPAcceptor;
+import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
@@ -26,6 +27,8 @@ public class ServerLauncher {
 		
 		TCPAcceptor acceptor = new TCPAcceptor();
 		
+		UDPAcceptor udpAcceptor = new UDPAcceptor();
+		
 		try {
 			
 			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
@@ -43,6 +46,10 @@ public class ServerLauncher {
 			acceptor.setContext(context);
 			
 			acceptor.bind();
+			
+			udpAcceptor.setContext(context);
+			
+			udpAcceptor.bind();
 
 		} catch (Throwable e) {
 			
@@ -51,6 +58,8 @@ public class ServerLauncher {
 			LifeCycleUtil.stop(applicationContext);
 			
 			acceptor.unbind();
+			
+			udpAcceptor.unbind();
 		}
 	}
 

@@ -37,9 +37,9 @@ public class UDPConnector extends AbstractIOConnector {
 	}
 
 	public String toString() {
-		return "UDP:Connector@" + endPoint.toString();
+		return "UDP:Selector@edp" + this.localAddress.toString();
 	}
-
+	
 	public void sendDatagramPacket(DatagramPacket packet) {
 
 		allocate(cacheBuffer, packet);
@@ -99,7 +99,7 @@ public class UDPConnector extends AbstractIOConnector {
 	}
 
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {
-		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
+		this.selectorLoopThread.start(selectorLoop, this.toString());
 	}
 
 	protected void stopComponent(NIOContext context, Selector selector) {

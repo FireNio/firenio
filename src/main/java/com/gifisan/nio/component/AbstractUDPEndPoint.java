@@ -59,7 +59,7 @@ public abstract class AbstractUDPEndPoint extends AbstractEndPoint implements UD
 		return socket.getSoTimeout();
 	}
 
-	protected InetSocketAddress getLocalSocketAddress() {
+	public InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
 		}

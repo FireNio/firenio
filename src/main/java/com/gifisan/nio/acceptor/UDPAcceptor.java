@@ -19,12 +19,7 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 	private DatagramChannel	channel			;
 	private DatagramSocket	serverSocket		;
 	private UDPSelectorLoop	selectorLoop		;
-	private Selector		selector			;
 	private UniqueThread	selectorLoopThread	= new UniqueThread();
-
-	protected UDPAcceptor(NIOContext context) {
-		this.context = context;
-	}
 
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
 		// 打开服务器套接字通道
@@ -45,12 +40,16 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 
 		this.selectorLoop = new UDPSelectorLoop(context, selector);
 
-		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
+		this.selectorLoopThread.start(selectorLoop, getSelectorDescription());
 	}
-
+	
+	private String getSelectorDescription(){
+		return "UDP:Selector@edp" + serverSocket.getLocalSocketAddress();
+	}
+	
 	protected void stopComponent(NIOContext context, Selector selector) {
 
-		if (channel.isOpen()) {
+		if (channel != null && channel.isOpen()) {
 			CloseUtil.close(channel);
 		}
 

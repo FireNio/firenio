@@ -17,6 +17,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 	private AtomicBoolean		connected		= new AtomicBoolean(false);
 	private String				machineType	= "M";
 	protected InetSocketAddress	serverAddress	;
+	protected InetSocketAddress	localAddress;
 	protected Selector			selector		;
 	protected Session			session		;
 

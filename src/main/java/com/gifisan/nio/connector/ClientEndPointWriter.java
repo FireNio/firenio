@@ -130,6 +130,10 @@ public class ClientEndPointWriter implements EndPointWriter {
 	public void stop() {
 		
 	}
+	
+	public String toString() {
+		return "Client-EndPoint-Writer";
+	}
 
 	protected void setEndPoint(ClientTCPEndPoint endPoint) {
 		this.endPoint = endPoint;

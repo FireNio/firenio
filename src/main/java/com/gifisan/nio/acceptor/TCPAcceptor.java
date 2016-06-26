@@ -48,7 +48,11 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 
 		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
-		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
+		this.selectorLoopThread.start(selectorLoop, getSelectorDescription());
+	}
+	
+	private String getSelectorDescription(){
+		return "TCP:Selector@edp" + serverSocket.getLocalSocketAddress();
 	}
 
 	protected void stopComponent(NIOContext context, Selector selector) {

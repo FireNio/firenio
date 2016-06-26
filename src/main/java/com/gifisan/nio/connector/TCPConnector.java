@@ -77,6 +77,8 @@ public class TCPConnector extends AbstractIOConnector {
 			this.endPoint = new ClientTCPEndPoint(context, selectionKey, this);
 
 			this.endPointWriter.setEndPoint(endPoint);
+			
+			this.localAddress = endPoint.getLocalSocketAddress();
 
 			this.selectorLoop = new ClientSelectorManagerLoop(context, selector, endPointWriter);
 
@@ -102,7 +104,7 @@ public class TCPConnector extends AbstractIOConnector {
 	}
 
 	public String toString() {
-		return "TCP:Connector@" + endPoint.toString();
+		return "TCP:Selector@edp" + this.localAddress.toString();
 	}
 
 	protected void connect(InetSocketAddress address) throws IOException {
@@ -134,9 +136,9 @@ public class TCPConnector extends AbstractIOConnector {
 		
 		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
-		this.selectorLoopThread.start(selectorLoop, selectorLoop.toString());
+		this.selectorLoopThread.start(selectorLoop, this.toString());
 	}
-
+	
 	protected void stopComponent(NIOContext context, Selector selector) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
