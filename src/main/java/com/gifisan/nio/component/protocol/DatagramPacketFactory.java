@@ -2,7 +2,7 @@ package com.gifisan.nio.component.protocol;
 
 public class DatagramPacketFactory {
 
-	private Calculagraph	calculagraph	= null;
+	private Calculagraph	calculagraph	;
 
 	public DatagramPacketFactory(int markInterval, long currentMark) {
 		this.calculagraph = new Calculagraph(markInterval, currentMark);

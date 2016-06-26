@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class MapByteMessage extends MapMessage implements MappedMessage ,BytedMessage{
 
-	private byte[]	array	= null;
+	private byte[]	array	;
 
 	public MapByteMessage(String messageID, String queueName,JSONObject map, byte[] array) {
 		super(messageID, queueName,map);

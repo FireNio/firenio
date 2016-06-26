@@ -4,10 +4,10 @@ import com.gifisan.nio.Attachment;
 
 public class JMSSessionAttachment implements Attachment {
 
-	private MQContext			context				= null;
-	private TransactionSection	transactionSection		= null;
-	private ConsumerPushHandle	consumerPushFailedHandle	= null;
-	private Consumer			consumer				= null;
+	private MQContext			context				;
+	private TransactionSection	transactionSection		;
+	private ConsumerPushHandle	consumerPushFailedHandle	;
+	private Consumer			consumer				;
 
 	public JMSSessionAttachment(MQContext context) {
 		this.context = context;

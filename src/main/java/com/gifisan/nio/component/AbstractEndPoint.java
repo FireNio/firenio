@@ -5,16 +5,15 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractEndPoint implements EndPoint {
 
 	private static AtomicLong	autoEndPointID = new AtomicLong(10000);
-	private Attachment			attachment	= null;
-	private NIOContext			context		= null;
-	private Long				endPointID	= null;
-	protected InetSocketAddress	local		= null;
-	protected InetSocketAddress	remote		= null;
+	private Attachment			attachment	;
+	private NIOContext			context		;
+	private Long				endPointID	;
+	protected InetSocketAddress	local		;
+	protected InetSocketAddress	remote		;
 	
 
 	public AbstractEndPoint(NIOContext context){

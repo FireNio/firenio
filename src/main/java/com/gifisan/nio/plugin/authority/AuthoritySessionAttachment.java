@@ -1,8 +1,8 @@
 package com.gifisan.nio.plugin.authority;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.security.Authority;
-import com.gifisan.security.AuthorityManager;
+import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.security.AuthorityManager;
 
 public class AuthoritySessionAttachment implements Attachment {
 

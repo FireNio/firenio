@@ -6,19 +6,19 @@ import java.util.Map;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.plugin.jms.Message;
-import com.gifisan.security.Authority;
+import com.gifisan.nio.security.Authority;
 
 public abstract class AbstractProductLine extends AbstractLifeCycle implements MessageQueue, Runnable {
 
-	protected MQContext					context		= null;
-	protected MessageStorage				storage		= null;
-	protected long						dueTime		= 0;
+	protected MQContext					context		;
+	protected MessageStorage				storage		;
+	protected long						dueTime		;
 	protected boolean						running		= false;
-	protected Map<String, ConsumerQueue>		consumerMap	= null;
+	protected Map<String, ConsumerQueue>		consumerMap	;
 	private Logger							logger		= LoggerFactory.getLogger(AbstractProductLine.class);
 
 	public AbstractProductLine(MQContext context) {

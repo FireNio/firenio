@@ -5,9 +5,9 @@ import com.gifisan.nio.component.Session;
 
 public class RTPSessionAttachment implements Attachment {
 
-	private RTPContext	context	= null;
+	private RTPContext	context	;
 
-	private RTPRoom	rtpRoom	= null;
+	private RTPRoom	rtpRoom	;
 
 	public RTPRoom getRtpRoom() {
 		return rtpRoom;

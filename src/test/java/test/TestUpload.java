@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 
 public class TestUpload {
 	

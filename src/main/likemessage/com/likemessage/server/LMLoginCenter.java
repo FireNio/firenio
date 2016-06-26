@@ -10,13 +10,13 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.security.Authority;
-import com.gifisan.security.AuthorityLoginCenter;
+import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.security.AuthorityLoginCenter;
 import com.likemessage.bean.T_USER;
 
 public class LMLoginCenter extends AuthorityLoginCenter {
 
-	private SessionQuery	query	= null;
+	private SessionQuery	query	;
 	private Logger			logger	= LoggerFactory.getLogger(LMLoginCenter.class);
 
 	protected void initialize(DataBaseContext context) {

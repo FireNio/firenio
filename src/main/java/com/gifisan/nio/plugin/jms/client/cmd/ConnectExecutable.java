@@ -2,14 +2,14 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
-import com.gifisan.nio.component.ClientLauncher;
-import com.gifisan.nio.component.IOConnector;
+import com.gifisan.nio.connector.IOConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
 

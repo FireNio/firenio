@@ -3,7 +3,7 @@ package com.gifisan.nio.plugin.jms.client.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gifisan.nio.client.FixedSession;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.ErrorMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.MapByteMessage;
@@ -19,15 +19,15 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 
 	private Map<String, OnMappedMessage>	onMappedMessages	= new HashMap<String, OnMappedMessage>();
 
-	private OnNullMessage				onNullMessage		= null;
+	private OnNullMessage				onNullMessage		;
 
-	private OnErrorMessage				onErrorMessage		= null;
+	private OnErrorMessage				onErrorMessage		;
 
-	private OnTextByteMessage			onTextByteMessage	= null;
+	private OnTextByteMessage			onTextByteMessage	;
 
-	private OnTextMessage				onTextMessage		= null;
+	private OnTextMessage				onTextMessage		;
 
-	private MessageConsumer				messageConsumer	= null;
+	private MessageConsumer				messageConsumer	;
 
 	public FixedMessageConsumer(FixedSession session) {
 		this.messageConsumer = new DefaultMessageConsumer(session);

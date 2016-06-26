@@ -15,17 +15,17 @@ import com.gifisan.nio.component.protocol.ProtocolDecoder;
 
 public abstract class AbstractReadFuture extends ReadFutureImpl implements IOReadFuture, ReadFuture {
 
-	protected TCPEndPoint		endPoint			= null;
-	protected IOSession		session			= null;
-	protected ByteBuffer		textBuffer		= null;
+	protected TCPEndPoint		endPoint			;
+	protected IOSession		session			;
+	protected ByteBuffer		textBuffer		;
 	protected boolean			hasStream			= false;
 	private boolean			flushed			= false;
 	private BufferedOutputStream	textCache			= new BufferedOutputStream();
-	private ByteBuffer			header			= null;
+	private ByteBuffer			header			;
 	private boolean			headerComplete		= false;
 	private boolean			textBufferComplete	= false;
-	private int				textLength		= 0;
-	private IOEventHandle		ioEventHandle		= null;
+	private int				textLength		;
+	private IOEventHandle		ioEventHandle		;
 
 	public IOEventHandle getIOEventHandle() {
 		return ioEventHandle;

@@ -2,10 +2,10 @@ package com.gifisan.nio.plugin.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.Command;
 import com.gifisan.nio.common.cmd.CommandContext;
+import com.gifisan.nio.connector.TCPConnector;
 
 public class JMSCommand extends Command {
 

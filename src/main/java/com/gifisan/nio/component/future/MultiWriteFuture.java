@@ -17,9 +17,9 @@ public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture
 		this.streamBuffer.position(streamBuffer.limit());
 	}
 
-	private int		writedLength	= 0;
-	private int		dataLength	= 0;
-	private ByteBuffer	streamBuffer	= null;
+	private int		writedLength	;
+	private int		dataLength	;
+	private ByteBuffer	streamBuffer	;
 
 	public boolean write() throws IOException {
 		ByteBuffer buffer = this.textBuffer;

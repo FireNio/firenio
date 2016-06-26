@@ -7,56 +7,42 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.acceptor.ServerUDPEndPointFactory;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.component.concurrent.ExecutorThreadPool;
+import com.gifisan.nio.component.concurrent.ThreadPool;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
-import com.gifisan.nio.concurrent.ThreadPool;
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.NIOContextListener;
-import com.gifisan.nio.server.ReadFutureDispatcher;
-import com.gifisan.nio.server.ServerUDPEndPointFactory;
-import com.gifisan.nio.server.SessionFactory;
-import com.gifisan.nio.server.configuration.ServerConfiguration;
+import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private Map<String, Object>			attributes			= new HashMap<String, Object>();
+	private DatagramPacketAcceptor		datagramPacketAcceptor	;
 	private Charset					encoding				= Encoding.DEFAULT;
-	private IOEventHandle				ioEventHandle			= null;
+	private IOEventHandleAdaptor			ioEventHandleAdaptor	;
+	private SessionEventListenerWrapper	lastSessionEventListener	;
 	private Logger						logger				= LoggerFactory
 																.getLogger(DefaultNIOContext.class);
 	private ProtocolDecoder				protocolDecoder		= new DefaultTCPProtocolDecoder();
 	private ProtocolEncoder				protocolEncoder		= new DefaultTCPProtocolEncoder();
-	private ReadFutureAcceptor			readFutureAcceptor		= null;
-	private ServerConfiguration			serverConfiguration		= null;
+	private ReadFutureAcceptor			readFutureAcceptor		;
+	private ServerConfiguration			serverConfiguration		;
+	private SessionEventListenerWrapper	sessionEventListenerStub	;
 	private SessionFactory				sessionFactory			= new SessionFactory();
-	private IOService					tcpService			= null;
-	private ThreadPool					threadPool			= null;
-	private UDPEndPointFactory			udpEndPointFactory		= null;
-	private IOService					udpService			= null;
-	private DatagramPacketAcceptor		datagramPacketAcceptor	= null;
-	private SessionEventListenerWrapper	lastSessionEventListener	= null;
-	private SessionEventListenerWrapper	sessionEventListenerStub	= null;
+	private IOService					tcpService			;
+	private ThreadPool					threadPool			;
+	private UDPEndPointFactory			udpEndPointFactory		;
+	private IOService					udpService			;
 
-
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return datagramPacketAcceptor;
-	}
-
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
-
-	
-	public SessionEventListenerWrapper getSessionEventListenerStub() {
-		return sessionEventListenerStub;
+	public DefaultNIOContext() {
+		this.addLifeCycleListener(new NIOContextListener());
 	}
 
 	public void addSessionEventListener(SessionEventListener listener) {
@@ -65,11 +51,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			this.lastSessionEventListener = this.sessionEventListenerStub;
 		} else {
 			this.lastSessionEventListener.setNext(new SessionEventListenerWrapper(listener));
+			this.lastSessionEventListener = this.lastSessionEventListener.nextListener();
 		}
-	}
-
-	public DefaultNIOContext() {
-		this.addLifeCycleListener(new NIOContextListener());
 	}
 
 	public void clearAttributes() {
@@ -80,7 +63,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		SharedBundle bundle = SharedBundle.instance();
 
-		if (ioEventHandle == null) {
+		if (ioEventHandleAdaptor == null) {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
 
@@ -107,7 +90,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.readFutureAcceptor = new ReadFutureDispatcher();
 		this.udpEndPointFactory = new ServerUDPEndPointFactory();
 
-		LoggerUtil.prettyNIOServerLog(logger, "======================================= 服务开始启动 =======================================");
+		LoggerUtil.prettyNIOServerLog(logger,
+				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码     ：  { {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)：  { {} }", serverConfiguration.getSERVER_TCP_PORT());
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
@@ -115,14 +99,15 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		}
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数    ：  { {} }", SERVER_CORE_SIZE);
 
-		this.ioEventHandle.start();
+		this.ioEventHandleAdaptor.start();
+		this.ioEventHandleAdaptor.setContext(this);
 		this.threadPool.start();
 	}
 
 	protected void doStop() throws Exception {
 
-		LifeCycleUtil.stop(ioEventHandle);
-		
+		LifeCycleUtil.stop(ioEventHandleAdaptor);
+
 		LifeCycleUtil.stop(threadPool);
 	}
 
@@ -134,12 +119,16 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return this.attributes.keySet();
 	}
 
+	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+		return datagramPacketAcceptor;
+	}
+
 	public Charset getEncoding() {
 		return encoding;
 	}
 
-	public IOEventHandle getIOEventHandle() {
-		return ioEventHandle;
+	public IOEventHandleAdaptor getIOEventHandleAdaptor() {
+		return ioEventHandleAdaptor;
 	}
 
 	public ProtocolDecoder getProtocolDecoder() {
@@ -156,6 +145,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public ServerConfiguration getServerConfiguration() {
 		return serverConfiguration;
+	}
+
+	public SessionEventListenerWrapper getSessionEventListenerStub() {
+		return sessionEventListenerStub;
 	}
 
 	public SessionFactory getSessionFactory() {
@@ -202,8 +195,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.attributes.put(key, value);
 	}
 
-	public void setIOEventHandle(IOEventHandle ioEventHandle) {
-		this.ioEventHandle = ioEventHandle;
+	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+		this.datagramPacketAcceptor = datagramPacketAcceptor;
+	}
+
+	public void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor) {
+		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {

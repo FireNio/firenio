@@ -8,14 +8,13 @@ import java.nio.channels.Selector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.server.NIOContext;
 
 public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
 	private Logger				logger			= LoggerFactory.getLogger(TCPSelectorLoop.class);
-	private SelectionAcceptor	_read_acceptor		= null;
-	private SelectionAcceptor	_write_acceptor	= null;
-	private SelectionAcceptor	_accept_acceptor	= null;
+	private SelectionAcceptor	_read_acceptor		;
+	private SelectionAcceptor	_write_acceptor	;
+	private SelectionAcceptor	_accept_acceptor	;
 
 	public TCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
 		this.selector = selector;

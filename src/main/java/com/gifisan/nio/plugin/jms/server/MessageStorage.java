@@ -1,7 +1,7 @@
 package com.gifisan.nio.plugin.jms.server;
 
-import com.gifisan.nio.concurrent.LinkedList;
-import com.gifisan.nio.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.concurrent.LinkedList;
+import com.gifisan.nio.component.concurrent.LinkedListM2O;
 import com.gifisan.nio.plugin.jms.Message;
 
 public class MessageStorage {

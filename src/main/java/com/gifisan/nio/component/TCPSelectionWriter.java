@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.ServerTCPEndPoint;
+import com.gifisan.nio.acceptor.ServerTCPEndPoint;
 
 public class TCPSelectionWriter implements SelectionAcceptor {
 
-	private NIOContext		context		= null;
-	private EndPointWriter	endPointWriter	= null;
+	private NIOContext		context		;
+	private EndPointWriter	endPointWriter	;
 
 	public TCPSelectionWriter(NIOContext context, EndPointWriter endPointWriter) {
 		this.context = context;

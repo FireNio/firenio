@@ -2,14 +2,14 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.service.impl.SYSTEMShowMemoryServlet;
+import com.gifisan.nio.connector.OnReadFuture;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.implementation.SYSTEMShowMemoryServlet;
 
 public class TestSimple {
 	
@@ -19,6 +19,8 @@ public class TestSimple {
 
 		String serviceKey = "TestSimpleServlet";
 		String param = ClientUtil.getParamString();
+		
+		
 		
 		ClientLauncher launcher = new ClientLauncher();
 		
@@ -44,6 +46,7 @@ public class TestSimple {
 		
 		future = session.request(SYSTEMShowMemoryServlet.SERVICE_NAME, param);
 		System.out.println(future.getText());
+		System.out.println("__________"+session.getSession().getSessionID());
 		
 //		response = session.request(serviceKey, param);
 //		System.out.println(response.getContent());

@@ -7,14 +7,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
+import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.concurrent.ReentrantList;
+import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.server.MQContext;
-import com.gifisan.security.Authority;
+import com.gifisan.nio.security.Authority;
 
 public class RTPRoom {
 
@@ -22,10 +22,10 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 	public static final int		MAX_ENDPOINT	= 1 << 6;
 
-	private RTPContext				context		= null;
+	private RTPContext				context		;
 	private ReentrantList<UDPEndPoint>	endPointList	= new ReentrantList<UDPEndPoint>();
-	private RTPRoomFactory			roomFactory	= null;
-	private Integer				roomID		= 0;
+	private RTPRoomFactory			roomFactory	;
+	private Integer				roomID		;
 	private boolean				closed		= false;
 
 	public RTPRoom(RTPContext context, Session session) {

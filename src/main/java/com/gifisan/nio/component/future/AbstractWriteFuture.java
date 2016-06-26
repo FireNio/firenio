@@ -12,12 +12,12 @@ import com.gifisan.nio.component.TCPEndPoint;
 
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
-	private Session			session		= null;
-	private byte[]			textCache		= null;
-	private ReadFuture			readFuture	= null;
-	protected TCPEndPoint		endPoint		= null;
-	protected ByteBuffer		textBuffer	= null;
-	protected InputStream		inputStream	= null;
+	private Session			session		;
+	private byte[]			textCache		;
+	private ReadFuture			readFuture	;
+	protected TCPEndPoint		endPoint		;
+	protected ByteBuffer		textBuffer	;
+	protected InputStream		inputStream	;
 	private static final Logger	logger		= LoggerFactory.getLogger(AbstractWriteFuture.class);
 
 	public AbstractWriteFuture(TCPEndPoint endPoint, Integer futureID, String serviceName, ByteBuffer textBuffer,

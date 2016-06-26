@@ -1,29 +1,32 @@
 package test;
 
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.connector.UDPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.rtp.client.RTPClient;
 
 public class TestUDPConnector2 {
 
 	public static void main(String[] args) throws Exception {
 
-		final TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
 
 		connector.connect();
-
-		connector.login("udp2", "udp2");
-
-		FixedSession session = connector.getClientSession();
 		
-		UDPConnector udpConnector = new UDPConnector(session);
+		FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
+		
+		UDPConnector udpConnector = new UDPConnector(connector.getSession());
 		
 		udpConnector.connect();
 		
-		udpConnector.bindSession();
+		session.bindUDPSession();
 		
 		RTPClient client = new RTPClient(session,udpConnector);
 		

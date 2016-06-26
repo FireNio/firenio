@@ -1,6 +1,6 @@
 package com.likemessage.bean;
 
-import com.gifisan.security.Authority;
+import com.gifisan.nio.security.Authority;
 
 public class T_USER extends Authority {
 

@@ -5,12 +5,11 @@ import java.nio.channels.Selector;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.server.NIOContext;
 
 public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
 	private Logger				logger		= LoggerFactory.getLogger(UDPSelectorLoop.class);
-	private SelectionAcceptor	_read_acceptor	= null;
+	private SelectionAcceptor	_read_acceptor	;
 
 	public UDPSelectorLoop(NIOContext context, Selector selector) {
 		this.selector = selector;

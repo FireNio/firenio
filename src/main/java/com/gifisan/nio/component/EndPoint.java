@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.server.NIOContext;
 
 public interface EndPoint extends Closeable {
 

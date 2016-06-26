@@ -1,6 +1,6 @@
 package com.gifisan.nio.plugin.rtp.server;
 
-import com.gifisan.nio.concurrent.ReentrantMap;
+import com.gifisan.nio.component.concurrent.ReentrantMap;
 
 public class RTPRoomFactory {
 

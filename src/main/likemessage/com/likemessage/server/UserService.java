@@ -6,12 +6,12 @@ import java.util.Map;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.UUIDGenerator;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
-import com.gifisan.security.Authority;
+import com.gifisan.nio.extend.ApplicationContextUtil;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.security.Authority;
 
 public class UserService extends AbstractService{
 

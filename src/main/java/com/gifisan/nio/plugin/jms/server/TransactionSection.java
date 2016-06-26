@@ -10,7 +10,7 @@ import com.gifisan.nio.plugin.jms.Transaction;
 public class TransactionSection implements Transaction {
 
 	private List<Message>	messages	= new ArrayList<Message>();
-	private MQContext		context	= null;
+	private MQContext		context	;
 	private AtomicBoolean	finish	= new AtomicBoolean(false);
 
 	public TransactionSection(MQContext context) {

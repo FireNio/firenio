@@ -1,9 +1,8 @@
 package test.jms;
 
-import test.ClientUtil;
-
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageBrowser;
@@ -14,13 +13,15 @@ public class TestBrowser {
 		
 		String queueName = "qName";
 
-		TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
+		
+		TCPConnector connector = launcher.getTCPConnector();
 
 		connector.connect();
 		
-		connector.login("admin", "admin100");
+		FixedSession session = launcher.getFixedSession();
 
-		FixedSession session = connector.getClientSession();
+		session.login("admin", "admin100");
 
 		MessageBrowser browser = new DefaultMessageBrowser(session);
 

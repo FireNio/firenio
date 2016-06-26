@@ -3,12 +3,11 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.channels.Selector;
 
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.configuration.ServerConfiguration;
+import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public abstract class AbstractIOService implements IOService {
 
-	protected NIOContext	context	= null;
+	protected NIOContext	context	;
 
 	public NIOContext getContext() {
 		return context;

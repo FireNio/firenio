@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.PropertiesLoader;
+import com.gifisan.nio.component.concurrent.ExecutorThreadPool;
+import com.gifisan.nio.component.concurrent.ThreadPool;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.concurrent.ExecutorThreadPool;
-import com.gifisan.nio.concurrent.ThreadPool;
+import com.gifisan.nio.connector.OnReadFuture;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 
 public class TestConcurrentCallBack {
 	
@@ -28,13 +28,13 @@ public class TestConcurrentCallBack {
 		
 		ThreadPool pool = new ExecutorThreadPool("TestConcurrentCallBack", thread);
 
-		TCPConnector []connectors = new TCPConnector[thread];
+		ClientLauncher []connectors = new ClientLauncher[thread];
 		
 		for (int i = 0; i < connectors.length; i++) {
 			
-			connectors[i] = ClientUtil.getClientConnector();
+			connectors[i] = new ClientLauncher();
 			
-			connectors[i].connect();
+			connectors[i].getTCPConnector().connect();
 		}
 		
 		pool.start();
@@ -57,7 +57,7 @@ public class TestConcurrentCallBack {
 		System.out.println("## Expend Time:"+spend);
 		
 		for (int i = 0; i < connectors.length; i++) {
-			connectors[i].close();
+			connectors[i].getTCPConnector().close();
 		}
 		
 		pool.stop();
@@ -66,17 +66,17 @@ public class TestConcurrentCallBack {
 	
 	static class T implements Runnable{
 		
-		private TCPConnector connector = null;
+		private ClientLauncher launcher = null;
 		
-		public T(TCPConnector connector) {
-			this.connector = connector;
+		public T(ClientLauncher launcher) {
+			this.launcher = launcher;
 		}
 
 		public void run() {
 			try {
 				
 				String serviceName = "TestSimpleServlet";
-				FixedSession session = connector.getClientSession();
+				FixedSession session = launcher.getFixedSession();
 
 				
 				session.listen(serviceName, new OnReadFuture() {

@@ -15,23 +15,22 @@ import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.nio.server.SessionFactory;
+import com.gifisan.nio.extend.PluginContext;
 
 //FIXME attributes
 public class IOSession extends AttributesImpl implements Session {
 
-	private Attachment					attachment	= null;
+	private Attachment					attachment	;
 	private Attachment[]				attachments	= new Attachment[4];
 	private long						creationTime	= System.currentTimeMillis();
 	private boolean					closed		= false;
-	private String						machineType	= null;
-	protected TCPEndPoint				endPoint		= null;
-	protected ProtocolEncoder			encoder		= null;
-	protected EndPointWriter			endPointWriter	= null;
-	protected Long					sessionID		= null;
-	private NIOContext					context		= null;
-	private UDPEndPoint					udpEndPoint	= null;
+	private String						machineType	;
+	protected TCPEndPoint				endPoint		;
+	protected ProtocolEncoder			encoder		;
+	protected EndPointWriter			endPointWriter	;
+	protected Long					sessionID		;
+	private NIOContext					context		;
+	private UDPEndPoint					udpEndPoint	;
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
 	private static final AtomicLong		autoSessionID	= new AtomicLong();
 
@@ -218,6 +217,10 @@ public class IOSession extends AttributesImpl implements Session {
 
 	public TCPEndPoint getTCPEndPoint() {
 		return endPoint;
+	}
+	
+	public void setSessionID(Long sessionID){
+		this.sessionID = sessionID;
 	}
 
 }

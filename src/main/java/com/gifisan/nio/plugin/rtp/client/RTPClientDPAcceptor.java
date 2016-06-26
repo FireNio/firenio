@@ -5,21 +5,21 @@ import java.io.IOException;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup;
-import com.gifisan.nio.server.NIOContext;
 
 public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
-	private int				markInterval		= 0;
-	private long				lastMark			= 0;
-	private long				currentMark		= 0;
-	private DatagramPacketGroup	packetGroup		= null;
-	private RTPHandle			udpReceiveHandle	= null;
-	private RTPClient			rtpClient			= null;
-	private NIOContext			context			= null;
-	private int				groupSize			= 0;
+	private int				markInterval		;
+	private long				lastMark			;
+	private long				currentMark		;
+	private DatagramPacketGroup	packetGroup		;
+	private RTPHandle			udpReceiveHandle	;
+	private RTPClient			rtpClient			;
+	private NIOContext			context			;
+	private int				groupSize			;
 	private Logger				logger			= LoggerFactory.getLogger(RTPClientDPAcceptor.class);
 
 	public RTPClientDPAcceptor(int markInterval, long currentMark, int groupSize, RTPHandle udpReceiveHandle,

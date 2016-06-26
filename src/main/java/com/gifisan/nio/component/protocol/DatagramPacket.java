@@ -23,18 +23,18 @@ public class DatagramPacket {
 	public static final int		UDP_HEADER		= 8;
 	public static final int		PACKET_MAX		= 1500 - IP_HEADER - UDP_HEADER - PACKET_HEADER;
 	
-//	public static final byte		TRANS			= 0;
+//	public static final byte		TRANS			;
 //	public static final byte		COMMAND			= 1;
 //	public static final byte		HANDLE			= 2;
 
-	private byte[]			data				= null;
+	private byte[]			data				;
 //	private byte				protocolType		= TRANS;
 	private int				sequenceNo		= -1;			// 4 byte
 	private long				timestamp			= -1;			// 8 byte
-	private ByteBuffer			source			= null;
-	private String				dataString		= null;
-	private int				sourceLength		= 0;
-	private InetSocketAddress	remoteSocketAddress	= null;
+	private ByteBuffer			source			;
+	private String				dataString		;
+	private int				sourceLength		;
+	private InetSocketAddress	remoteSocketAddress	;
 
 	public DatagramPacket(ByteBuffer buffer,InetSocketAddress remoteSocketAddress) {
 

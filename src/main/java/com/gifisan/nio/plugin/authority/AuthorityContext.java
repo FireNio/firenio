@@ -2,11 +2,11 @@ package com.gifisan.nio.plugin.authority;
 
 import java.util.Map;
 
-import com.gifisan.nio.component.AbstractPluginContext;
-import com.gifisan.nio.component.ApplicationContext;
-import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.server.service.FutureAcceptorService;
+import com.gifisan.nio.extend.AbstractPluginContext;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.configuration.Configuration;
+import com.gifisan.nio.extend.service.FutureAcceptorService;
 import com.likemessage.server.LMLoginCenter;
 
 public class AuthorityContext extends AbstractPluginContext {

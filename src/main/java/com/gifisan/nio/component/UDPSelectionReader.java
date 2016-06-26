@@ -9,11 +9,10 @@ import java.nio.channels.SelectionKey;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.server.NIOContext;
 
 public class UDPSelectionReader implements SelectionAcceptor {
 
-	private NIOContext	context		= null;
+	private NIOContext	context		;
 	private ByteBuffer	cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private Logger		logger		= LoggerFactory.getLogger(UDPSelectionReader.class);
 

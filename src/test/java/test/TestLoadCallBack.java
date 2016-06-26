@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.OnReadFuture;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.ClientLauncher;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.connector.OnReadFuture;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 
 public class TestLoadCallBack {
 	

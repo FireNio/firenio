@@ -10,7 +10,7 @@ import com.likemessage.bean.T_USER;
 
 public class FieldMapping{
 
-	private Class				mappingClass	= null;
+	private Class				mappingClass	;
 
 	private Map<String, Field>	fieldMapping	= new HashMap<String, Field>();
 

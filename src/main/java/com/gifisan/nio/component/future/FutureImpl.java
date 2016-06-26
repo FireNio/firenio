@@ -3,10 +3,10 @@ package com.gifisan.nio.component.future;
 
 public class FutureImpl implements Future {
 
-	protected String	serviceName	= null;
-	protected String	text			= null;
-	protected Integer	futureID		= null;
-	private Object		attachment	= null;
+	protected String	serviceName	;
+	protected String	text			;
+	protected Integer	futureID		;
+	private Object		attachment	;
 
 	public String getServiceName() {
 		return serviceName;

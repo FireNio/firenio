@@ -2,12 +2,13 @@ package com.gifisan.nio.plugin.rtp.client;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.UDPConnector;
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.component.ApplicationContextUtil;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.connector.UDPConnector;
+import com.gifisan.nio.extend.ApplicationContextUtil;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.MapMessage;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
@@ -17,8 +18,7 @@ import com.gifisan.nio.plugin.jms.client.impl.OnMappedMessage;
 import com.gifisan.nio.plugin.rtp.RTPException;
 import com.gifisan.nio.plugin.rtp.server.RTPCreateRoomServlet;
 import com.gifisan.nio.plugin.rtp.server.RTPJoinRoomServlet;
-import com.gifisan.nio.server.NIOContext;
-import com.gifisan.security.Authority;
+import com.gifisan.nio.security.Authority;
 
 public class RTPClient {
 
@@ -26,14 +26,14 @@ public class RTPClient {
 	public static final String	GROUP_SIZE	= "GROUP_SIZE";
 	public static final String	MARK_INTERVAL	= "MARK_INTERVAL";
 
-	private UDPConnector		connector		= null;
-	private FixedMessageConsumer	consumer		= null;
-	private NIOContext			context		= null;
-	private String				inviteUsername	= null;
-	private MessageProducer		producer		= null;
-	private String				roomID		= null;
-	private FixedSession		session		= null;
-	private RTPHandle			handle		= null;
+	private UDPConnector		connector		;
+	private FixedMessageConsumer	consumer		;
+	private NIOContext			context		;
+	private String				inviteUsername	;
+	private MessageProducer		producer		;
+	private String				roomID		;
+	private FixedSession		session		;
+	private RTPHandle			handle		;
 
 	public RTPClient(FixedSession session, UDPConnector connector) {
 		this(session, connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
@@ -205,5 +205,9 @@ public class RTPClient {
 
 	public String getRoomID() {
 		return roomID;
+	}
+
+	public void setRTPClientDPAcceptor(RTPClientDPAcceptor acceptor) {
+		context.setDatagramPacketAcceptor(acceptor);
 	}
 }

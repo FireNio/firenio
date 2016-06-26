@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 public class BufferedOutputStream extends OutputStream {
 
-	private byte		cache[]	= null;
-	private int		count	= 0;
+	private byte		cache[]	;
+	private int		count	;
 
 	public BufferedOutputStream() {
 		this(128);

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
-import com.gifisan.nio.component.IOConnector;
+import com.gifisan.nio.connector.IOConnector;
 
 public class ExitExecutable extends JMSCommandExecutor {
 

@@ -9,7 +9,7 @@ import com.gifisan.nio.component.future.Future;
 //FIXME
 public class ConsumerPushHandle{
 
-	private MQContext	context	= null;
+	private MQContext	context	;
 
 	public ConsumerPushHandle(MQContext context) {
 		this.context = context;

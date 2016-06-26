@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 public class PinyinUtil {
 	private static String		specialJSON	= "{会:'hui'}";
 	
-	private static JSONObject	special		= null;
+	private static JSONObject	special		;
 	
 	static {
 	

@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.omg.IOP.ENCODING_CDR_ENCAPS;
+
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.TCPConnector;
+import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.component.ClientLauncher;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
 
 public class ClientUtil {
 
@@ -40,7 +44,7 @@ public class ClientUtil {
 		Map params = new HashMap();
 		params.put("serviceName", "test");
 		params.put("username", "admin");
-		params.put("password", "admin100");
+		params.put("password", MD5Token.getInstance().getLongToken("admin100", Encoding.DEFAULT));
 		return JSONObject.toJSONString(params);
 	}
 

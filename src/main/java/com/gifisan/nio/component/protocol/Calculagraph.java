@@ -7,10 +7,10 @@ import com.gifisan.nio.common.ThreadUtil;
 public class Calculagraph {
 
 	private int	markInterval	= 1;
-	private long	nextMark		= 0;
-	private long	currentMark	= 0;
-	private int	sequenceNO	= 0;
-	private long	alphaTimestamp	= 0;
+	private long	nextMark		;
+	private long	currentMark	;
+	private int	sequenceNO	;
+	private long	alphaTimestamp	;
 	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
 
 	public Calculagraph(int markInterval, long currentMark) {

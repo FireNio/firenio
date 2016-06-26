@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.component.ClientLauncher;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
 
 public class ClientUtil {
 

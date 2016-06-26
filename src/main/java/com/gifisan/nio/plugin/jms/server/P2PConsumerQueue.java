@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.server;
 
 import java.util.List;
 
-import com.gifisan.nio.concurrent.ReentrantList;
+import com.gifisan.nio.component.concurrent.ReentrantList;
 
 public class P2PConsumerQueue implements ConsumerQueue{
 	

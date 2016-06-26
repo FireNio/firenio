@@ -6,9 +6,9 @@ import com.gifisan.nio.common.StringUtil;
 
 public class DefaultParameters implements Parameters {
 
-	private JSONObject	object	= null;
+	private JSONObject	object	;
 
-	private String		json		= null;
+	private String		json		;
 
 	public DefaultParameters(String json) {
 		if (!StringUtil.isNullOrBlank(json)) {

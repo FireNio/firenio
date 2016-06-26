@@ -3,8 +3,8 @@ package com.gifisan.nio.plugin.jms;
 public abstract class BasicMessage implements Message {
 
 	private long		timestamp	= System.currentTimeMillis();
-	private String		queueName	= null;
-	private String		msgID	= null;
+	private String		queueName	;
+	private String		msgID	;
 
 	public String getMsgID() {
 		return msgID;

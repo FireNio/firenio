@@ -1,9 +1,9 @@
 package com.gifisan.nio.plugin.jms.client.cmd;
 
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.common.cmd.Executable;
-import com.gifisan.nio.component.IOConnector;
+import com.gifisan.nio.connector.IOConnector;
+import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.plugin.jms.client.MessageBrowser;
 
 public abstract class JMSCommandExecutor implements Executable {

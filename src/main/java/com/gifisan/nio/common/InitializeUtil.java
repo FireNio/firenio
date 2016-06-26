@@ -3,9 +3,9 @@ package com.gifisan.nio.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gifisan.nio.component.ApplicationContext;
-import com.gifisan.nio.component.Configuration;
-import com.gifisan.nio.component.Initializeable;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.Initializeable;
+import com.gifisan.nio.extend.configuration.Configuration;
 
 public class InitializeUtil {
 

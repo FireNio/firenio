@@ -55,7 +55,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
 		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
 
-		client.onDatagramPacketReceived(acceptor);
+		client.setRTPClientDPAcceptor(acceptor);
 
 		client.setRoomID(roomID);
 
@@ -91,7 +91,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
 		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
 
-		client.onDatagramPacketReceived(acceptor);
+		client.setRTPClientDPAcceptor(acceptor);
 
 		for (int i = 0; i < 10000000; i++) {
 

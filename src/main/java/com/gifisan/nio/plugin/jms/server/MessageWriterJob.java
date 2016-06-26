@@ -8,9 +8,9 @@ import com.gifisan.nio.plugin.jms.Message;
 public class MessageWriterJob implements Runnable {
 
 	private static Logger		logger	= LoggerFactory.getLogger(MessageWriterJob.class);
-	private Consumer			consumer	= null;
-	private Message			message	= null;
-	private MQContext			context	= null;
+	private Consumer			consumer	;
+	private Message			message	;
+	private MQContext			context	;
 
 	public MessageWriterJob(MQContext context, Consumer consumer,  Message message) {
 		this.context = context;

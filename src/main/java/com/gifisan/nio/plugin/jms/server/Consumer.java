@@ -9,12 +9,12 @@ import com.gifisan.nio.plugin.jms.Message;
 
 public class Consumer {
 
-	private String				queueName		= null;
-	private JMSSessionAttachment	attachment	= null;
-	private ConsumerQueue		consumerQueue	= null;
-	private Session			session		= null;
-	private ReadFuture			future		= null;
-	private Message			message		= null;
+	private String				queueName		;
+	private JMSSessionAttachment	attachment	;
+	private ConsumerQueue		consumerQueue	;
+	private Session			session		;
+	private ReadFuture			future		;
+	private Message			message		;
 
 	public Consumer(ConsumerQueue consumerQueue, JMSSessionAttachment attachment, Session session, ReadFuture future,
 			String queueName) {

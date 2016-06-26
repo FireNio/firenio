@@ -2,12 +2,12 @@ package com.likemessage.bean;
 
 public class T_MESSAGE {
 
-	private Integer	messageID		= 0;
-	private Integer	toUserID		= 0;
-	private Integer	fromUserID	= 0;
-	private long		msgDate		= 0;
-	private int		msgType		= 0;
-	private String		message		= null;
+	private Integer	messageID		;
+	private Integer	toUserID		;
+	private Integer	fromUserID	;
+	private long		msgDate		;
+	private int		msgType		;
+	private String		message		;
 	private boolean	isSend		= false;
 	private boolean	deleted		= false;
 

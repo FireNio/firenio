@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.service.FutureAcceptorService;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public abstract class LMServlet extends FutureAcceptorService {
 	

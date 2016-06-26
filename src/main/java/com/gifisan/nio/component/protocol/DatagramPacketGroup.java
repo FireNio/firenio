@@ -5,8 +5,8 @@ import com.gifisan.nio.common.LoggerFactory;
 
 public class DatagramPacketGroup {
 
-	private DatagramPacket[]	packets	= null;
-	private int			size		= 0;
+	private DatagramPacket[]	packets	;
+	private int			size		;
 
 	private Logger logger =LoggerFactory.getLogger(DatagramPacketGroup.class);
 	

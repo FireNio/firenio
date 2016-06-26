@@ -20,7 +20,7 @@ public class SharedBundle {
 		return bundle;
 	}
 
-	private String			baseDIR		= null;
+	private String			baseDIR		;
 	private AtomicBoolean	initialized	= new AtomicBoolean(false);
 	private Properties		properties	= new Properties();
 

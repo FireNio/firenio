@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 
 public class ErrorMessage extends BasicMessage implements Message {
 
-	public static int				CODE_UNAUTH			= 0;
+	public static int				CODE_UNAUTH			;
 	public static int				CODE_CMD_NOT_FOUND		= 1;
 	public static int 				CODE_IOEXCEPTION 		= 2;
-	private int					code					= 0;
+	private int					code					;
 	public static final ErrorMessage	UNAUTH_MESSAGE		= new ErrorMessage(CODE_UNAUTH);
 	public static final ErrorMessage	CMD_NOT_FOUND_MESSAGE	= new ErrorMessage(CODE_CMD_NOT_FOUND);
 	public static final ErrorMessage	IOEXCEPTION			= new ErrorMessage(CODE_IOEXCEPTION);

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.gifisan.database.DataBaseContext;
-import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.extend.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_USER;

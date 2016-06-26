@@ -1,8 +1,8 @@
 package com.gifisan.nio.component.protocol;
 
 import com.gifisan.nio.component.DefaultParameters;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.server.NIOContext;
 
 public class DatagramRequest {
 

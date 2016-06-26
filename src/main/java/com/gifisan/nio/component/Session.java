@@ -4,7 +4,7 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.NIOContext;
+import com.gifisan.nio.extend.PluginContext;
 
 public interface Session extends Attributes{
 	
@@ -59,5 +59,7 @@ public interface Session extends Attributes{
 	public abstract void setMachineType(String machineType);
 	
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
+	
+	public abstract void setSessionID(Long sessionID);
 
 }

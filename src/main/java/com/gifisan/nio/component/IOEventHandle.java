@@ -1,10 +1,9 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
 
-public interface IOEventHandle extends ReadFutureAcceptor , LifeCycle{
+public interface IOEventHandle extends ReadFutureAcceptor {
 
 	public abstract void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause);
 

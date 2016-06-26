@@ -6,16 +6,16 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.IOSession;
 import com.gifisan.nio.component.IOEventHandle;
+import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
 public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
 
-	private int				dataLength	= 0;
+	private int				dataLength;
+	private ByteBuffer			streamBuffer;
 	private int				readLength	= -1;
-	private ByteBuffer			streamBuffer	= null;
 	private static final Logger	logger		= LoggerFactory.getLogger(MultiReadFuture.class);
 
 	public MultiReadFuture(Session session, ByteBuffer header) {
@@ -38,13 +38,11 @@ public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture 
 	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
 
 		if (readLength == -1) {
-			
-			IOSession _session = (IOSession) this.session;
-			
-			IOEventHandle eventHandle = _session.getContext().getIOEventHandle();
-			
+
+			IOEventHandleAdaptor eventHandle = session.getContext().getIOEventHandleAdaptor();
+
 			try {
-				eventHandle.accept(_session, this);
+				eventHandle.acceptAlong(session, this);
 			} catch (Exception e) {
 				logger.debug(e);
 			}

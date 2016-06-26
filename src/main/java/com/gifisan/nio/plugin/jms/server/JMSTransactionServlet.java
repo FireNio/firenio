@@ -2,7 +2,7 @@ package com.gifisan.nio.plugin.jms.server;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.extend.RESMessage;
 
 public class JMSTransactionServlet extends JMSServlet {
 

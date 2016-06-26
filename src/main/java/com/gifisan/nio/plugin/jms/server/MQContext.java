@@ -3,29 +3,29 @@ package com.gifisan.nio.plugin.jms.server;
 import java.util.Map;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.AbstractPluginContext;
-import com.gifisan.nio.component.ApplicationContext;
-import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.concurrent.ReentrantMap;
+import com.gifisan.nio.component.concurrent.ReentrantSet;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.concurrent.ReentrantMap;
-import com.gifisan.nio.concurrent.ReentrantSet;
+import com.gifisan.nio.extend.AbstractPluginContext;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.configuration.Configuration;
+import com.gifisan.nio.extend.service.FutureAcceptorService;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
-import com.gifisan.nio.server.service.FutureAcceptorService;
 
 public class MQContext extends AbstractPluginContext implements MessageQueue {
 
-	private long						dueTime				= 0;
+	private long						dueTime				;
 	private ReentrantMap<String, Message>	messageIDs			= new ReentrantMap<String, Message>();
 	private P2PProductLine				p2pProductLine			= new P2PProductLine(this);
 	private SubscribeProductLine			subProductLine			= new SubscribeProductLine(this);
 	private ReentrantSet<String>			receivers				= new ReentrantSet<String>();
 	private MessageDecoder				messageDecoder			= new DefaultMessageDecoder();
-	private ConsumerPushHandle			consumerPushFailedHandle	= null;
-	private static MQContext				instance				= null;
+	private ConsumerPushHandle			consumerPushFailedHandle	;
+	private static MQContext				instance				;
 
 	public static MQContext getInstance() {
 		return instance;

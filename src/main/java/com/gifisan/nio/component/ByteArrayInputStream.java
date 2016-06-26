@@ -9,7 +9,7 @@ public class ByteArrayInputStream extends InputStream {
 
 	private int	pos;
 
-	private int	mark	= 0;
+	private int	mark	;
 
 	private int	count;
 

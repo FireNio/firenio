@@ -15,22 +15,21 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
-import com.gifisan.nio.server.NIOContext;
 
 public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
 	private static final Logger	logger		= LoggerFactory.getLogger(AbstractTCPEndPoint.class);
 	private AtomicBoolean		_closed		= new AtomicBoolean(false);
 	private boolean			_networkWeak	= false;
-	private int				attempts		= 0;
-	private SocketChannel		channel		= null;
-	private IOWriteFuture		currentWriter	= null;
+	private int				attempts		;
+	private SocketChannel		channel		;
+	private IOWriteFuture		currentWriter	;
 	private boolean			endConnect	= false;
-	private EndPointWriter		endPointWriter	= null;
-	private IOReadFuture		readFuture	= null;
-	private SelectionKey		selectionKey	= null;
-	private Session			session		= null;
-	private Socket				socket		= null;
+	private EndPointWriter		endPointWriter	;
+	private IOReadFuture		readFuture	;
+	private SelectionKey		selectionKey	;
+	private Session			session		;
+	private Socket				socket		;
 	private AtomicInteger		writers		= new AtomicInteger();
 
 	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
@@ -47,7 +46,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		}
 		
 		this.session = new IOSession(this);
-
+		
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {

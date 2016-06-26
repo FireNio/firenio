@@ -10,11 +10,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class DataBaseContext extends AbstractLifeCycle {
 
-	private DataBaseQuery			dataBaseQuery	= null;
+	private DataBaseQuery			dataBaseQuery	;
 
-	private ComboPooledDataSource		dataSource	= null;
+	private ComboPooledDataSource		dataSource	;
 
-	private QueryParamUtil			queryParamUtil	= null;
+	private QueryParamUtil			queryParamUtil	;
 
 	private Map<String, FieldMapping>	fieldMappings	= new HashMap<String, FieldMapping>();
 

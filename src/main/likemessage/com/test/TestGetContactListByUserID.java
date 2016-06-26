@@ -3,11 +3,11 @@ package com.test;
 import java.io.IOException;
 import java.util.List;
 
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.TCPConnector;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.ClientLauncher;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.client.LMClient;
 

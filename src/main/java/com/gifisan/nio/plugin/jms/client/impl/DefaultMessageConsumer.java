@@ -2,25 +2,24 @@ package com.gifisan.nio.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.client.WaiterOnReadFuture;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.connector.WaiterOnReadFuture;
+import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.extend.RESMessageDecoder;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.plugin.jms.client.OnMessage;
 import com.gifisan.nio.plugin.jms.decode.DefaultMessageDecoder;
 import com.gifisan.nio.plugin.jms.decode.MessageDecoder;
 import com.gifisan.nio.plugin.jms.server.JMSTransactionServlet;
-import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.RESMessageDecoder;
 
 public class DefaultMessageConsumer implements MessageConsumer {
 
 	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
 	private boolean		sendReceiveCommand		= true;
 	private boolean		sendSubscribeCommand	= true;
-	private FixedSession	session				= null;
+	private FixedSession	session				;
 
 
 	public DefaultMessageConsumer(FixedSession session) {
@@ -102,7 +101,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	}
 	
 	private void checkLoginState() throws JMSException{
-		if (ApplicationContextUtil.getAuthority(session) == null) {
+		if (session.getAuthority() == null) {
 			throw new JMSException("not login");
 		}
 	}

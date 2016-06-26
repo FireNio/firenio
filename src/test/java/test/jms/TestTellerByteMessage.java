@@ -2,13 +2,12 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.ClientUtil;
-
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.plugin.jms.TextByteMessage;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.JMSException;
+import com.gifisan.nio.plugin.jms.TextByteMessage;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
 import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
 
@@ -16,13 +15,15 @@ public class TestTellerByteMessage {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
 		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
 		
-		connector.login("admin", "admin100");
+		FixedSession session = launcher.getFixedSession();
 
-		FixedSession session = connector.getClientSession();
+		session.login("admin", "admin100");
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 		

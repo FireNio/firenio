@@ -2,9 +2,9 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
-import com.gifisan.nio.component.ClientLauncher;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.test.servlet.TestSimpleServlet;
 
 public class TestBeat {
@@ -18,6 +18,8 @@ public class TestBeat {
 		ClientLauncher launcher = new ClientLauncher();
 		
 		TCPConnector connector = launcher.getTCPConnector();
+		
+		connector.setBeatPacket(10);
 
 		connector.connect();
 		
@@ -27,11 +29,12 @@ public class TestBeat {
 		
 		String param = ClientUtil.getParamString();
 		
-		connector.keepAlive(10);
-		
 		long old = System.currentTimeMillis();
+		
 		for (int i = 0; i < 10000; i++) {
+		
 			session.request(serviceKey, param);
+			
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		

@@ -14,8 +14,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop{
 
 	private Logger		logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean	working	= false;
-	protected Selector	selector	= null;
-	private Thread		looper	= null;
+	protected Selector	selector	;
+	private Thread		looper	;
 
 	public void loop() {
 		

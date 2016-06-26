@@ -2,16 +2,16 @@ package com.gifisan.nio.plugin.rtp.server;
 
 import java.io.IOException;
 
+import com.gifisan.nio.acceptor.ServerDPAcceptor;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.server.IODPAcceptor;
-import com.gifisan.security.AuthorityManager;
+import com.gifisan.nio.extend.ApplicationContextUtil;
+import com.gifisan.nio.security.AuthorityManager;
 
-public class RTPServerDPAcceptor extends IODPAcceptor {
+public class RTPServerDPAcceptor extends ServerDPAcceptor {
 	
 	public static final String SERVICE_NAME = RTPServerDPAcceptor.class.getSimpleName();
 	

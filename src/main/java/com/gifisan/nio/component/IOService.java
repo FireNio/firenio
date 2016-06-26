@@ -1,6 +1,5 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.server.NIOContext;
 
 public interface IOService{
 

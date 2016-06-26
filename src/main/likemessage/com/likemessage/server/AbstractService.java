@@ -7,7 +7,7 @@ import com.gifisan.database.SessionQuery;
 
 public abstract class AbstractService {
 
-	protected SessionQuery	query	= null;
+	protected SessionQuery	query	;
 	
 	protected AbstractService(DataBaseContext context) throws SQLException {
 		this.query = new SessionQuery(context);

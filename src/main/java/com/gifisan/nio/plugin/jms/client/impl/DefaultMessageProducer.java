@@ -2,9 +2,9 @@ package com.gifisan.nio.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.BytedMessage;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;

@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.common.BeanUtil;
-import com.gifisan.nio.component.ApplicationContextUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
-import com.gifisan.security.Authority;
+import com.gifisan.nio.extend.ApplicationContextUtil;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.security.Authority;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 

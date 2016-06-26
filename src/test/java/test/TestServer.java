@@ -1,6 +1,6 @@
 package test;
 
-import com.gifisan.nio.component.ServerLauncher;
+import com.gifisan.nio.extend.ServerLauncher;
 
 public class TestServer {
 	

@@ -4,12 +4,12 @@ import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONArray;
 import com.gifisan.database.DataBaseContext;
-import com.gifisan.nio.component.ApplicationContext;
-import com.gifisan.nio.component.Configuration;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.extend.configuration.Configuration;
 
 public class UserServlet extends LMServlet {
 

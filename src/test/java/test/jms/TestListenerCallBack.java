@@ -2,12 +2,11 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.ClientUtil;
-
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.Message;
 import com.gifisan.nio.plugin.jms.client.MessageConsumer;
@@ -18,13 +17,15 @@ public class TestListenerCallBack {
 
 	public static void main(String[] args) throws IOException, JMSException {
 		
-		final TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
 		
+		TCPConnector connector = launcher.getTCPConnector();
+
 		connector.connect();
 		
-		connector.login("admin", "admin100");
-		
-		FixedSession session = connector.getClientSession();
+		FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
 		
 		MessageConsumer consumer = new DefaultMessageConsumer(session);
 

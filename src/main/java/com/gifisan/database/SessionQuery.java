@@ -8,7 +8,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 
 public class SessionQuery extends DefaultConnectionProxy {
 
-	private DataBaseQuery	dataBaseQuery	= null;
+	private DataBaseQuery	dataBaseQuery	;
 	
 	private QueryParamUtil queryParamUtil = null;
 

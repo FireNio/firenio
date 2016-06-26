@@ -8,9 +8,9 @@ import com.gifisan.nio.component.Parameters;
 
 public abstract class ReadFutureImpl extends FutureImpl implements ReadFuture {
 
-	private Parameters			parameters	= null;
-	protected OutputStream		outputStream	= null;
-	protected InputStream		inputStream	= null;
+	private Parameters			parameters	;
+	protected OutputStream		outputStream	;
+	protected InputStream		inputStream	;
 
 	public Parameters getParameters() {
 		if (parameters == null) {

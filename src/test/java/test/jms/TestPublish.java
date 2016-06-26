@@ -2,10 +2,9 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.ClientUtil;
-
-import com.gifisan.nio.client.TCPConnector;
-import com.gifisan.nio.client.FixedSession;
+import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.plugin.jms.JMSException;
 import com.gifisan.nio.plugin.jms.TextMessage;
 import com.gifisan.nio.plugin.jms.client.MessageProducer;
@@ -15,12 +14,15 @@ public class TestPublish {
 
 	public static void main(String[] args) throws IOException, JMSException {
 
-		TCPConnector connector = ClientUtil.getClientConnector();
+		ClientLauncher launcher = new ClientLauncher();
 		
-		connector.connect();
-		connector.login("admin", "admin100");
+		TCPConnector connector = launcher.getTCPConnector();
 
-		FixedSession session = connector.getClientSession();
+		connector.connect();
+		
+		FixedSession session = launcher.getFixedSession();
+
+		session.login("admin", "admin100");
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 

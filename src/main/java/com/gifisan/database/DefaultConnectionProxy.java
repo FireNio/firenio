@@ -12,8 +12,8 @@ import org.apache.log4j.Logger;
 
 public class DefaultConnectionProxy implements ConnectionProxy {
 
-	private Connection		connection		= null;
-	private DataBaseContext	context			= null;
+	private Connection		connection		;
+	private DataBaseContext	context			;
 	private Logger			logger			= Logger.getLogger(DefaultConnectionProxy.class);
 	private ResultSetHandle	resultSetHandle	= new ResultSetHandle();
 	private AtomicBoolean	closed			= new AtomicBoolean(true);

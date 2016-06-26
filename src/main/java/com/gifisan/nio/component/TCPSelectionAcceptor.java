@@ -11,7 +11,7 @@ import com.gifisan.nio.common.LoggerFactory;
 
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
-	private Selector		selector		= null;
+	private Selector		selector		;
 	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
 	public TCPSelectionAcceptor(Selector selector) {

@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.client.FixedSession;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.server.RESMessage;
-import com.gifisan.nio.server.RESMessageDecoder;
+import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.RESMessage;
+import com.gifisan.nio.extend.RESMessageDecoder;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_MESSAGE;

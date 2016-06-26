@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class TextByteMessage extends TextMessage implements BytedMessage{
 
-	private byte[]	array	= null;
+	private byte[]	array	;
 
 	public TextByteMessage(String messageID, String queueName,String text, byte[] array) {
 		super(messageID, queueName,text);

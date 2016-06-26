@@ -16,7 +16,7 @@ public class ByteArrayWriteFuture extends AbstractWriteFuture {
 		this.streamBuffer = ByteBuffer.wrap(inputStream.toByteArray());
 	}
 
-	private ByteBuffer	streamBuffer	= null;
+	private ByteBuffer	streamBuffer	;
 
 	public boolean write() throws IOException {
 		ByteBuffer buffer = this.textBuffer;
