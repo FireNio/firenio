@@ -54,7 +54,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(serviceName);
 
 		readFuture.write(content);
 
@@ -85,7 +85,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(serviceName);
 
 		readFuture.write(content);
 

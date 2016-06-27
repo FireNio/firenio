@@ -12,7 +12,7 @@ public class MergeSessionIDListener implements SessionEventListener{
 	//FIXME 这个listener阻止了http request
 	public void sessionOpened(Session session) {
 		
-		ReadFuture future = ReadFutureFactory.create(session, MERGE_SESSION_ID_LISTENER);
+		ReadFuture future = ReadFutureFactory.create(MERGE_SESSION_ID_LISTENER);
 		
 		future.write(String.valueOf(session.getSessionID()));
 		

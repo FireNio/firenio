@@ -64,6 +64,13 @@ public class ReentrantMap<K,V> {
 			lock.unlock();
 		}
 	}
+	
+	public Map<K, V> getSnapshot() {
+		
+		takeSnapshot();
+		
+		return snapshot;
+	}
 
 	public boolean put(K key, V value) {
 

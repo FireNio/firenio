@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;

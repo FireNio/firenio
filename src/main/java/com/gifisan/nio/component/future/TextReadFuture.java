@@ -8,6 +8,10 @@ import com.gifisan.nio.component.TCPEndPoint;
 
 public class TextReadFuture extends AbstractReadFuture implements IOReadFuture {
 
+	public TextReadFuture(String serviceName) {
+		super(serviceName);
+	}
+	
 	public TextReadFuture(Session session, Integer futureID, String serviceName) {
 		super(session, futureID, serviceName);
 	}
