@@ -1,6 +1,5 @@
 package com.gifisan.nio.extend.service;
 
-
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
@@ -13,10 +12,12 @@ import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.Initializeable;
 import com.gifisan.nio.extend.InitializeableImpl;
 import com.gifisan.nio.extend.configuration.Configuration;
+import com.gifisan.nio.extend.implementation.ErrorServlet;
 
-public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, HotDeploy, IOEventHandle  {
-	
-	private Logger logger = LoggerFactory.getLogger(FutureAcceptorService.class);
+public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, HotDeploy,
+		IOEventHandle {
+
+	private Logger	logger	= LoggerFactory.getLogger(FutureAcceptorService.class);
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
@@ -25,7 +26,7 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
 	}
-	
+
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 		this.initialize(context, config);
 	}
@@ -33,39 +34,52 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 		this.destroy(context, config);
 	}
-	
+
 	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
-		logger.error(cause.getMessage(),cause);
+		this.acceptException(session, future, cause);
+	}
+
+	private void acceptException(Session session, ReadFuture future, Throwable exception) {
+
+		ErrorServlet servlet = new ErrorServlet(exception);
+
+		try {
+
+			servlet.accept(session, future);
+
+		} catch (Throwable e) {
+
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
-		logger.error(cause.getMessage(),cause);
+		logger.error(cause.getMessage(), cause);
 	}
 
 	public void futureSent(Session session, WriteFuture future) {
-		
+
 	}
 
 	public String toString() {
-		
-		
+
 		Configuration configuration = this.getConfig();
-		
+
 		String serviceName = null;
-		
+
 		if (configuration == null) {
-			
+
 			serviceName = this.getClass().getSimpleName();
-		}else{
-			
+		} else {
+
 			serviceName = configuration.getParameter("serviceName");
-			
+
 			if (StringUtil.isNullOrBlank(serviceName)) {
 				serviceName = this.getClass().getSimpleName();
 			}
 		}
-		
-		return "(service-name:"+serviceName+"@class:"+this.getClass().getName()+")";
+
+		return "(service-name:" + serviceName + "@class:" + this.getClass().getName() + ")";
 	}
-	
+
 }

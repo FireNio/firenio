@@ -24,8 +24,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 	private SubscribeProductLine			subProductLine			= new SubscribeProductLine(this);
 	private ReentrantSet<String>			receivers				= new ReentrantSet<String>();
 	private MessageDecoder				messageDecoder			= new DefaultMessageDecoder();
-	private ConsumerPushHandle			consumerPushFailedHandle	;
-	private static MQContext				instance				;
+	private static MQContext			instance				;
 
 	public static MQContext getInstance() {
 		return instance;
@@ -48,8 +47,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		Thread p2pThread = new Thread(p2pProductLine, "MQ-P2P-ProductLine");
 
 		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
-
-		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
 
 		p2pProductLine.start();
 
@@ -128,10 +125,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		receivers.remove(queueName);
 	}
 
-	public ConsumerPushHandle getConsumerPushFailedHandle() {
-		return consumerPushFailedHandle;
-	}
-
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
 		acceptors.put(MQConsumerServlet.SERVICE_NAME, new MQConsumerServlet());
@@ -156,8 +149,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		Thread p2pThread = new Thread(p2pProductLine, "MQ-P2P-ProductLine");
 
 		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
-
-		this.consumerPushFailedHandle = new ConsumerPushHandle(this);
 
 		p2pProductLine.start();
 

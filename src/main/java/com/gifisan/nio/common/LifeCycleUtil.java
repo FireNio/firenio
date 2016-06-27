@@ -15,7 +15,9 @@ public class LifeCycleUtil {
 			return;
 		}
 		try {
-			lifeCycle.stop();
+			if (lifeCycle.isRunning()) {
+				lifeCycle.stop();
+			}
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}

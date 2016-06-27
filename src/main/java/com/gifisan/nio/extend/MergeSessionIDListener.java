@@ -9,6 +9,7 @@ public class MergeSessionIDListener implements SessionEventListener{
 
 	public static final String MERGE_SESSION_ID_LISTENER = "_MERGE_SESSION_ID_LISTENER";
 	
+	//FIXME 这个listener阻止了http request
 	public void sessionOpened(Session session) {
 		
 		ReadFuture future = ReadFutureFactory.create(session, MERGE_SESSION_ID_LISTENER);

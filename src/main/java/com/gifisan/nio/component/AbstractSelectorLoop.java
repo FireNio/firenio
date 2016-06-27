@@ -58,6 +58,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop{
 
 
 	public void stop() {
+		
 		this.selector.wakeup();
 
 		for (; working;) {

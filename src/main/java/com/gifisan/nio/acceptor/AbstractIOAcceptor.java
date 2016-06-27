@@ -39,6 +39,8 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 			this.bind(getInetSocketAddress(SERVER_PORT));
 
 			this.startComponent(context, selector);
+			
+			this.setIOService(context);
 		}
 	}
 

@@ -51,7 +51,7 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 			}
 			
 			IOAcceptor tcpAcceptor = (IOAcceptor) context.getTCPService();
-			IOAcceptor udpAcceptor = (IOAcceptor) context.getTCPService();
+			IOAcceptor udpAcceptor = (IOAcceptor) context.getUDPService();
 			
 			tcpAcceptor.unbind();
 			
