@@ -6,13 +6,13 @@ import com.gifisan.nio.Attachment;
 
 public abstract interface Attributes extends Attachment{
 	  
-	  public abstract Object removeAttribute(String key);
+	  public abstract Object removeAttribute(Object key);
 	  
-	  public abstract void setAttribute(String key, Object value);
+	  public abstract void setAttribute(Object key, Object value);
 	  
-	  public abstract Object getAttribute(String key);
+	  public abstract Object getAttribute(Object key);
 	  
-	  public abstract Set<String> getAttributeNames();
+	  public abstract Set<Object> getAttributeNames();
 	  
 	  public abstract void clearAttributes();
 

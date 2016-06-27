@@ -15,5 +15,5 @@ public interface IOAcceptor extends IOService {
 
 	public abstract void broadcast(ReadFuture future);
 	
-	public abstract Map<Long, Session> getReadOnlyManagedSessions();
+	public abstract Map<Integer, Session> getReadOnlyManagedSessions();
 }

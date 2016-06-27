@@ -30,7 +30,7 @@ public interface EndPoint extends Closeable {
 	
 	public abstract Session getSession();
 
-	public abstract Long getEndPointID();
+	public abstract Integer getEndPointID();
 	
 	public abstract InetSocketAddress getRemoteSocketAddress();
 

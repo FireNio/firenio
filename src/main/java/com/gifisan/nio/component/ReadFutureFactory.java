@@ -4,15 +4,19 @@ import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.TextReadFuture;
 
 public class ReadFutureFactory {
+	
+	public static ReadFuture create(Session session, ReadFuture future) {
 
-	public static ReadFuture create(ReadFuture future) {
-
-		return create(future.getServiceName());
+		return create(session, future.getFutureID(), future.getServiceName());
 	}
 
-	public static ReadFuture create(String serviceName) {
+	public static ReadFuture create(Session session,Integer futureID, String serviceName) {
 
-		return new TextReadFuture(serviceName);
+		return new TextReadFuture(session, futureID, serviceName);
 	}
+	
+	public static ReadFuture create(Session session,String serviceName) {
 
+		return create(session, 0, serviceName);
+	}
 }

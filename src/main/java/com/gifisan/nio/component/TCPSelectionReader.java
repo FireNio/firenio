@@ -20,23 +20,11 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		this.readFutureAcceptor = context.getReadFutureAcceptor();
 	}
 	
-	private TCPEndPoint getEndPoint(SelectionKey selectionKey) throws SocketException{
-		
-		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
-		
-		if (endPoint == null) {
-			endPoint = new ServerTCPEndPoint(context, selectionKey,endPointWriter);
-			selectionKey.attach(endPoint);
-		}
-		return endPoint;
-		
-	}
-
 	public void accept(SelectionKey selectionKey) throws Exception {
 
 		NIOContext context = this.context;
 
-		TCPEndPoint endPoint = getEndPoint(selectionKey);
+		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 
 		if (endPoint.isEndConnect()) {
 			return;

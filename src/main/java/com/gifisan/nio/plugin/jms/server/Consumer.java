@@ -50,7 +50,7 @@ public class Consumer {
 
 		Session session = this.session;
 
-		ReadFuture future = ReadFutureFactory.create(this.future);
+		ReadFuture future = ReadFutureFactory.create(session,this.future);
 
 		future.attach(this);
 		
@@ -84,6 +84,6 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(future), queueName);
+		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(session,future), queueName);
 	}
 }

@@ -68,7 +68,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	}
 
 	public void broadcast(ReadFuture future) {
-		Map<Long, Session> sessions = getReadOnlyManagedSessions();
+		Map<Integer, Session> sessions = getReadOnlyManagedSessions();
 
 		Iterator<Session> ss = sessions.values().iterator();
 
@@ -76,7 +76,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 			Session s = ss.next();
 
-			ReadFuture f = ReadFutureFactory.create(future);
+			ReadFuture f = ReadFutureFactory.create(s,future);
 
 			try {
 				s.flush(f);
@@ -86,7 +86,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 		}
 	}
 
-	public Map<Long, Session> getReadOnlyManagedSessions() {
+	public Map<Integer, Session> getReadOnlyManagedSessions() {
 		return context.getSessionFactory().getReadOnlyManagedSessions();
 	}
 

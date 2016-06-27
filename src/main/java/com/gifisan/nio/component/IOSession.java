@@ -1,6 +1,7 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
@@ -27,12 +28,12 @@ public class IOSession extends AttributesImpl implements Session {
 	protected TCPEndPoint				endPoint		;
 	protected ProtocolEncoder			encoder		;
 	protected EndPointWriter			endPointWriter	;
-	protected Long					sessionID		;
+	protected Integer					sessionID		;
 	private NIOContext					context		;
 	private UDPEndPoint					udpEndPoint	;
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
 
-	public IOSession(TCPEndPoint endPoint,Long sessionID) {
+	public IOSession(TCPEndPoint endPoint,Integer sessionID) {
 		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
@@ -79,7 +80,7 @@ public class IOSession extends AttributesImpl implements Session {
 
 		try {
 
-			writeFuture = encoder.encode(endPoint, 0, _future.getServiceName(),
+			writeFuture = encoder.encode(endPoint, future.getFutureID(), _future.getServiceName(),
 					_future.getTextCache().toByteArray(), _future.getInputStream());
 
 			_future.flush();
@@ -201,7 +202,7 @@ public class IOSession extends AttributesImpl implements Session {
 		return closed;
 	}
 
-	public Long getSessionID() {
+	public Integer getSessionID() {
 		return sessionID;
 	}
 
@@ -217,8 +218,16 @@ public class IOSession extends AttributesImpl implements Session {
 		return endPoint;
 	}
 	
-	public void setSessionID(Long sessionID){
+	public InetSocketAddress getLocalSocketAddress() {
+		return endPoint.getLocalSocketAddress();
+	}
+	
+	public void setSessionID(Integer sessionID){
 		this.sessionID = sessionID;
+	}
+
+	public InetSocketAddress getRemoteSocketAddress() {
+		return endPoint.getRemoteSocketAddress();
 	}
 
 }

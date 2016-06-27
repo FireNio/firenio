@@ -59,7 +59,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			Parameters parameters = request.getParameters();
 			
-			Long sessionID = parameters.getLongParameter("sessionID");
+			Integer sessionID = parameters.getIntegerParameter("sessionID");
 			
 			NIOContext context = endPoint.getContext();
 			
@@ -75,7 +75,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			session.setUDPEndPoint(endPoint);
 			
-			ReadFuture future = ReadFutureFactory.create(BIND_SESSION_CALLBACK);
+			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK);
 			
 			logger.debug("___________________bind___session___{}",session);
 			

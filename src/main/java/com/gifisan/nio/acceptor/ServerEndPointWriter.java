@@ -24,7 +24,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 
 	private boolean					collect		= false;
 	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
-	private Map<Long, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Long, List<IOWriteFuture>>();
+	private Map<Integer, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger						logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
 
 	public void collect() {
@@ -42,12 +42,12 @@ public class ServerEndPointWriter implements EndPointWriter {
 	private void collectEndPoints() {
 		collect = false;
 
-		Set<Entry<Long, List<IOWriteFuture>>> entries = lazyEndPoints.entrySet();
+		Set<Entry<Integer, List<IOWriteFuture>>> entries = lazyEndPoints.entrySet();
 
-		Iterator<Entry<Long, List<IOWriteFuture>>> iterator = entries.iterator();
+		Iterator<Entry<Integer, List<IOWriteFuture>>> iterator = entries.iterator();
 
 		for (; iterator.hasNext();) {
-			Entry<Long, List<IOWriteFuture>> entry = iterator.next();
+			Entry<Integer, List<IOWriteFuture>> entry = iterator.next();
 
 			List<IOWriteFuture> list = entry.getValue();
 
@@ -75,7 +75,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 	}
 
 	private void lazyWriter(IOWriteFuture future) {
-		Long endPointID = future.getEndPoint().getEndPointID();
+		Integer endPointID = future.getEndPoint().getEndPointID();
 		List<IOWriteFuture> list = lazyEndPoints.get(endPointID);
 
 		if (list == null) {

@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
@@ -23,6 +24,8 @@ public interface Session extends Attributes{
 	public abstract void flush(ReadFuture future);
 
 	public abstract Attachment getAttachment();
+	
+	public abstract void setAttachment(Attachment attachment) ;
 
 	public abstract Attachment getAttachment(PluginContext context);
 
@@ -46,7 +49,7 @@ public interface Session extends Attributes{
 
 	public abstract int getRemotePort();
 
-	public abstract Long getSessionID();
+	public abstract Integer getSessionID();
 	
 	public abstract UDPEndPoint getUDPEndPoint();
 	
@@ -60,6 +63,10 @@ public interface Session extends Attributes{
 	
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
 	
-	public abstract void setSessionID(Long sessionID);
+	public abstract void setSessionID(Integer sessionID);
+	
+	public abstract InetSocketAddress getLocalSocketAddress() ;
+	
+	public abstract InetSocketAddress getRemoteSocketAddress();
 
 }

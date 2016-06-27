@@ -6,7 +6,7 @@ import com.gifisan.nio.connector.OnReadFuture;
 public class UpdateSessionIDOnReadFuture implements OnReadFuture{
 
 	public void onResponse(FixedSession session, ReadFuture future) {
-		session.getSession().setSessionID(Long.valueOf(future.getText()));
+		session.getSession().setSessionID(Integer.valueOf(future.getText()));
 	}
 	
 }

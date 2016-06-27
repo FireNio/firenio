@@ -23,7 +23,7 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
-	private Map<String, Object>			attributes			= new HashMap<String, Object>();
+	private Map<Object, Object>			attributes			= new HashMap<Object, Object>();
 	private DatagramPacketAcceptor		datagramPacketAcceptor	;
 	private Charset					encoding				= Encoding.DEFAULT;
 	private IOEventHandleAdaptor			ioEventHandleAdaptor	;
@@ -111,11 +111,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.stop(threadPool);
 	}
 
-	public Object getAttribute(String key) {
+	public Object getAttribute(Object key) {
 		return this.attributes.get(key);
 	}
 
-	public Set<String> getAttributeNames() {
+	public Set<Object> getAttributeNames() {
 		return this.attributes.keySet();
 	}
 
@@ -187,11 +187,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return configuration;
 	}
 
-	public Object removeAttribute(String key) {
+	public Object removeAttribute(Object key) {
 		return this.attributes.remove(key);
 	}
 
-	public void setAttribute(String key, Object value) {
+	public void setAttribute(Object key, Object value) {
 		this.attributes.put(key, value);
 	}
 

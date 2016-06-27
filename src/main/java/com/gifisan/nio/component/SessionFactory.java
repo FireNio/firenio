@@ -7,16 +7,16 @@ import com.gifisan.nio.component.concurrent.ReentrantMap;
 
 public class SessionFactory {
 	
-	private ReentrantMap<Long, Session>	sessions	= new ReentrantMap<Long, Session>();
+	private ReentrantMap<Integer, Session>	sessions	= new ReentrantMap<Integer, Session>();
 
-	private final Map<Long, Session> readOnlyManagedSessions = Collections.unmodifiableMap(sessions.getSnapshot());
+	private final Map<Integer, Session> readOnlyManagedSessions = Collections.unmodifiableMap(sessions.getSnapshot());
 
 	public void putSession(Session session) {
 
 		sessions.put(session.getSessionID(), session);
 	}
 
-	public Session getSession(Long sessionID) {
+	public Session getSession(Integer sessionID) {
 
 		return sessions.get(sessionID);
 	}
@@ -26,7 +26,7 @@ public class SessionFactory {
 		sessions.remove(session.getSessionID());
 	}
 
-	public Map<Long, Session> getReadOnlyManagedSessions() {
+	public Map<Integer, Session> getReadOnlyManagedSessions() {
 		return readOnlyManagedSessions;
 	}
 }

@@ -6,21 +6,21 @@ import java.util.Set;
 
 public class AttributesImpl implements Attributes{
 	
-	private Map<String, Object> attributes = new HashMap<String, Object>();
+	private Map<Object, Object> attributes = new HashMap<Object, Object>();
 
-	public Object removeAttribute(String key) {
+	public Object removeAttribute(Object key) {
 		return this.attributes.remove(key);
 	}
 
-	public void setAttribute(String key, Object value) {
+	public void setAttribute(Object key, Object value) {
 		this.attributes.put(key, value);
 	}
 
-	public Object getAttribute(String key) {
+	public Object getAttribute(Object key) {
 		return this.attributes.get(key);
 	}
 
-	public Set<String> getAttributeNames() {
+	public Set<Object> getAttributeNames() {
 		return this.attributes.keySet();
 	}
 

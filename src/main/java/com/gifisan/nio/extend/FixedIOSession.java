@@ -54,7 +54,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(session,serviceName);
 
 		readFuture.write(content);
 
@@ -85,7 +85,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(session,serviceName);
 
 		readFuture.write(content);
 
@@ -267,7 +267,7 @@ public class FixedIOSession implements FixedSession {
 
 		Session session = this.session;
 
-		Long sessionID = session.getSessionID();
+		Integer sessionID = session.getSessionID();
 
 		JSONObject json = new JSONObject();
 
@@ -321,7 +321,7 @@ public class FixedIOSession implements FixedSession {
 			throw DisconnectException.INSTANCE;
 		}
 	}
-
+	
 	public NIOContext getContext() {
 		return context;
 	}

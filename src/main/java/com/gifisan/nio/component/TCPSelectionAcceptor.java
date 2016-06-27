@@ -1,21 +1,27 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import com.gifisan.nio.acceptor.ServerTCPEndPoint;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
-	private Selector		selector		;
+	private Selector		selector;
+	private NIOContext		context		= null;
+	private EndPointWriter	endPointWriter	= null;
 	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public TCPSelectionAcceptor(Selector selector) {
+	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter, Selector selector) {
+		this.context = context;
 		this.selector = selector;
+		this.endPointWriter = endPointWriter;
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
@@ -27,9 +33,19 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
-		channel.register(selector, SelectionKey.OP_READ);
+		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
+		// 绑定EndPoint到SelectionKey
+		attachEndPoint(context, endPointWriter, sk);
 
 		logger.debug("__________________chanel____gen____{}", channel);
 
+	}
+
+	private void attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
+			throws SocketException {
+
+		ServerTCPEndPoint endPoint = new ServerTCPEndPoint(context, selectionKey, endPointWriter);
+
+		selectionKey.attach(endPoint);
 	}
 }

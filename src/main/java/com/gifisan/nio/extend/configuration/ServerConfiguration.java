@@ -2,15 +2,17 @@ package com.gifisan.nio.extend.configuration;
 
 import java.nio.charset.Charset;
 
+import com.gifisan.nio.Encoding;
+
 public class ServerConfiguration {
 
-	private String		SERVER_HOST		;
-	private int		SERVER_TCP_PORT	;
-	private int		SERVER_UDP_PORT	;
-	private int		SERVER_CORE_SIZE	;
-	private Charset	SERVER_ENCODING	;
+	private String		SERVER_HOST		= "localhost";
+	private int		SERVER_TCP_PORT;
+	private int		SERVER_UDP_PORT;
+	private int		SERVER_CORE_SIZE	= Runtime.getRuntime().availableProcessors();
+	private Charset	SERVER_ENCODING	= Encoding.DEFAULT;
 	private boolean	SERVER_DEBUG		= false;
-	
+
 	public int getSERVER_TCP_PORT() {
 		return SERVER_TCP_PORT;
 	}

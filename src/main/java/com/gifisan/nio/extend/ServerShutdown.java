@@ -6,6 +6,7 @@ import java.util.Scanner;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.IOConnector;
+import com.gifisan.nio.extend.configuration.ServerConfiguration;
 import com.gifisan.nio.extend.implementation.SYSTEMStopServerServlet;
 
 public class ServerShutdown {
@@ -43,7 +44,11 @@ public class ServerShutdown {
 		
 		IOConnector connector = launcher.getTCPConnector();
 		
-		connector.getContext().getServerConfiguration().setSERVER_TCP_PORT(port);
+		ServerConfiguration serverConfiguration = new ServerConfiguration();
+		
+		serverConfiguration.setSERVER_TCP_PORT(port);
+		
+		connector.getContext().setServerConfiguration(serverConfiguration);
 		
 		connector.connect();
 		

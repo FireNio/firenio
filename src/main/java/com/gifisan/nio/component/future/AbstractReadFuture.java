@@ -35,10 +35,6 @@ public abstract class AbstractReadFuture extends ReadFutureImpl implements IORea
 		this.ioEventHandle = ioEventHandle;
 	}
 	
-	public AbstractReadFuture(String serviceName){
-		this.serviceName = serviceName;
-	}
-
 	public AbstractReadFuture(Session session, Integer futureID, String serviceName) {
 		this.session = (IOSession) session;
 		this.endPoint = this.session.getTCPEndPoint();

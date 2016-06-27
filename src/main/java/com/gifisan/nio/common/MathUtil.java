@@ -92,6 +92,10 @@ public class MathUtil {
 		bytes[offset + 7] = (byte) ((value >> 8*7));
 
 	}
+	
+	public static int long2int(long value){
+		return (int) (value % Integer.MAX_VALUE);
+	}
 
 	public static void main(String[] args) {
 
