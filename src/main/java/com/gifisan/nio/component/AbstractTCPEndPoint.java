@@ -47,6 +47,8 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 		
 		this.session = new IOSession(this,getEndPointID());
 		
+		context.getSessionFactory().putSession(session);
+		
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {
@@ -90,6 +92,8 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 //			logger.debug(">>>> rm {}", this.toString());
 
 			Session session = getSession();
+			
+			getContext().getSessionFactory().removeSession(session);
 
 			session.destroy();
 

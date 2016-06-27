@@ -52,11 +52,14 @@ public class TestClient {
 		
 		Session session = connector.getSession();
 		
-		ReadFuture future = ReadFutureFactory.create(session,"~~~service-name~~~");
-		
-		future.write("你好！");
-		
-		session.flush(future);
+		for (int i = 0; i < 5; i++) {
+			
+			ReadFuture future = ReadFutureFactory.create(session,"~~~service-name~~~");
+			
+			future.write("你好！");
+			
+			session.flush(future);
+		}
 		
 		ThreadUtil.sleep(300);
 		

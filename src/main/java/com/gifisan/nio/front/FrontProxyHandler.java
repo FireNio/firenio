@@ -64,6 +64,8 @@ public class FrontProxyHandler extends IOEventHandleAdaptor {
 //			broadcast(future);
 			
 			facadeAcceptor.broadcast(future);
+			
+			logger.info("广播报文：{}",future);
 
 			return;
 		}

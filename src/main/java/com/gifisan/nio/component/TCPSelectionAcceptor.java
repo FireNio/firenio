@@ -8,15 +8,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import com.gifisan.nio.acceptor.ServerTCPEndPoint;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
 	private Selector		selector;
 	private NIOContext		context		= null;
 	private EndPointWriter	endPointWriter	= null;
-	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
+//	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
 	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter, Selector selector) {
 		this.context = context;
@@ -37,7 +35,7 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		// 绑定EndPoint到SelectionKey
 		attachEndPoint(context, endPointWriter, sk);
 
-		logger.debug("__________________chanel____gen____{}", channel);
+//		logger.debug("__________________chanel____gen____{}", channel);
 
 	}
 

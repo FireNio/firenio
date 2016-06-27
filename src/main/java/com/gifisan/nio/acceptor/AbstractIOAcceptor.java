@@ -68,6 +68,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	}
 
 	public void broadcast(ReadFuture future) {
+		
 		Map<Integer, Session> sessions = getReadOnlyManagedSessions();
 
 		Iterator<Session> ss = sessions.values().iterator();
@@ -77,10 +78,15 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 			Session s = ss.next();
 
 			ReadFuture f = ReadFutureFactory.create(s,future);
+			
+			f.write(future.getText());
 
 			try {
+				
 				s.flush(f);
+				
 			} catch (Exception e) {
+				
 				logger.error(e.getMessage(), e);
 			}
 		}

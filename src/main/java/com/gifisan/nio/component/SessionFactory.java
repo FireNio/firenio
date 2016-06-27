@@ -27,6 +27,9 @@ public class SessionFactory {
 	}
 
 	public Map<Integer, Session> getReadOnlyManagedSessions() {
+		
+		sessions.takeSnapshot();
+		
 		return readOnlyManagedSessions;
 	}
 }

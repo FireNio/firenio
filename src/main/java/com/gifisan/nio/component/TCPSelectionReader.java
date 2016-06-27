@@ -1,9 +1,7 @@
 package com.gifisan.nio.component;
 
-import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
-import com.gifisan.nio.acceptor.ServerTCPEndPoint;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
@@ -12,11 +10,9 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 	private ReadFutureAcceptor	readFutureAcceptor	;
 	private NIOContext			context			;
-	private EndPointWriter		endPointWriter		;
 
-	public TCPSelectionReader(NIOContext context,EndPointWriter endPointWriter) {
+	public TCPSelectionReader(NIOContext context) {
 		this.context = context;
-		this.endPointWriter = endPointWriter;
 		this.readFutureAcceptor = context.getReadFutureAcceptor();
 	}
 	

@@ -18,9 +18,9 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 
 	public TCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
 		this.selector = selector;
-		this._accept_acceptor = new TCPSelectionAcceptor(context,endPointWriter,selector);
-		this._read_acceptor = new TCPSelectionReader(context, endPointWriter);
+		this._read_acceptor = new TCPSelectionReader(context);
 		this._write_acceptor = new TCPSelectionWriter(context, endPointWriter);
+		this._accept_acceptor = new TCPSelectionAcceptor(context,endPointWriter,selector);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {

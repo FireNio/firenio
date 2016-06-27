@@ -50,8 +50,6 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		
 		attachment.setAuthorityManager(authorityManager);
 		
-		context.getSessionFactory().putSession(session);
-		
 		session.setMachineType(machineType);
 		
 		return true;
