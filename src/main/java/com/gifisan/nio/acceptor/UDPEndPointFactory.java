@@ -7,21 +7,21 @@ import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.component.DefaultUDPEndPoint;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.UDPEndPoint;
-import com.gifisan.nio.component.UDPEndPointFactory;
 
-public class ServerUDPEndPointFactory implements UDPEndPointFactory {
+public class UDPEndPointFactory {
 
-	private Map<SocketAddress, ServerUDPEndPoint>		endPoints	= new HashMap<SocketAddress, ServerUDPEndPoint>();
+	private Map<SocketAddress, DefaultUDPEndPoint>	endPoints	= new HashMap<SocketAddress, DefaultUDPEndPoint>();
 
-	public ServerUDPEndPoint getUDPEndPoint(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote)
+	public UDPEndPoint getUDPEndPoint(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote)
 			throws SocketException {
 
-		ServerUDPEndPoint endPoint = endPoints.get(remote);
+		DefaultUDPEndPoint endPoint = endPoints.get(remote);
 
 		if (endPoint == null) {
-			endPoint = new ServerUDPEndPoint(context, selectionKey, remote);
+			endPoint = new DefaultUDPEndPoint(context, selectionKey, remote);
 			selectionKey.attach(endPoint);
 			endPoints.put(remote, endPoint);
 		}

@@ -9,7 +9,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.DefaultSessionEventListener;
+import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 
 
@@ -41,7 +41,7 @@ public class ServerLauncher {
 			
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 			
-			context.addSessionEventListener(new DefaultSessionEventListener());
+			context.addSessionEventListener(new LoggerSEtListener());
 			
 			acceptor.setContext(context);
 			

@@ -6,7 +6,7 @@ import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.DefaultSessionEventListener;
+import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
@@ -42,7 +42,7 @@ public class TestLoad {
 			}
 		});
 
-		context.addSessionEventListener(new DefaultSessionEventListener());
+		context.addSessionEventListener(new LoggerSEtListener());
 		
 		ServerConfiguration configuration = new ServerConfiguration();
 		configuration.setSERVER_TCP_PORT(8800);

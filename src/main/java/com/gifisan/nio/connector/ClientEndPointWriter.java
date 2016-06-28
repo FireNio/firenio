@@ -18,7 +18,7 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class ClientEndPointWriter implements EndPointWriter {
 
-	private ClientTCPEndPoint		endPoint		;
+	private TCPEndPoint		endPoint		;
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
 	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 64);
@@ -135,7 +135,7 @@ public class ClientEndPointWriter implements EndPointWriter {
 		return "Client-EndPoint-Writer";
 	}
 
-	protected void setEndPoint(ClientTCPEndPoint endPoint) {
+	protected void setEndPoint(TCPEndPoint endPoint) {
 		this.endPoint = endPoint;
 	}
 

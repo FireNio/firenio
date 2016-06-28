@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.authority;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
-public class AuthoritySessionEventListener implements SessionEventListener{
+public class AuthoritySEListener implements SessionEventListener{
 	
 	public void sessionOpened(Session session) {
 		

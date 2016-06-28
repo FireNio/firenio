@@ -10,8 +10,10 @@ import java.util.Set;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.concurrent.TaskExecutor;
 import com.gifisan.nio.component.concurrent.UniqueThread;
@@ -19,14 +21,14 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class TCPConnector extends AbstractIOConnector {
 
-	private ClientTCPEndPoint	endPoint				;
-	private TaskExecutor		taskExecutor			;
-	private TCPSelectorLoop		selectorLoop			;
-	private ClientEndPointWriter	endPointWriter			;
+	private TCPEndPoint			endPoint;
+	private TaskExecutor		taskExecutor;
+	private TCPSelectorLoop		selectorLoop;
+	private ClientEndPointWriter	endPointWriter;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
-	private UniqueThread		taskExecutorThread		;
-	private long				beatPacket			;
+	private UniqueThread		taskExecutorThread;
+	private long				beatPacket;
 
 	public long getBeatPacket() {
 		return beatPacket;
@@ -74,10 +76,10 @@ public class TCPConnector extends AbstractIOConnector {
 
 			this.endPointWriter = new ClientEndPointWriter();
 
-			this.endPoint = new ClientTCPEndPoint(context, selectionKey, this);
+			this.endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
 
 			this.endPointWriter.setEndPoint(endPoint);
-			
+
 			this.localAddress = endPoint.getLocalSocketAddress();
 
 			this.selectorLoop = new ClientSelectorManagerLoop(context, selector, endPointWriter);
@@ -85,7 +87,7 @@ public class TCPConnector extends AbstractIOConnector {
 			selectionKey.attach(endPoint);
 		}
 	}
-	
+
 	protected void setIOService(NIOContext context) {
 		context.setTCPService(this);
 	}
@@ -120,7 +122,7 @@ public class TCPConnector extends AbstractIOConnector {
 		channel.connect(address);
 
 		finishConnect(selector);
-		
+
 		this.session = this.endPoint.getSession();
 	}
 
@@ -133,12 +135,12 @@ public class TCPConnector extends AbstractIOConnector {
 				e.printStackTrace();
 			}
 		}
-		
+
 		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
 		this.selectorLoopThread.start(selectorLoop, this.toString());
 	}
-	
+
 	protected void stopComponent(NIOContext context, Selector selector) {
 
 		LifeCycleUtil.stop(selectorLoopThread);

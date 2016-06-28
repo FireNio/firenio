@@ -6,7 +6,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.DefaultSessionEventListener;
+import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.IOConnector;
@@ -44,13 +44,13 @@ public class ClientLauncher {
 
 			context.setIOEventHandleAdaptor(eventHandle);
 
-			context.addSessionEventListener(new DefaultSessionEventListener());
+			context.addSessionEventListener(new LoggerSEtListener());
 			
-			context.addSessionEventListener(new UpdateFixedSessionListener(fixedSession));
+			context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
 			
 			connector.setContext(context);
 			
-			fixedSession.listen(MergeSessionIDListener.MERGE_SESSION_ID_LISTENER, new UpdateSessionIDOnReadFuture());
+			fixedSession.listen(MergeSessionIDSEListener.MERGE_SESSION_ID_LISTENER, new UpdateSessionIDOnReadFuture());
 
 			return connector;
 

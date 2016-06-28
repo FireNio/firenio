@@ -18,8 +18,8 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 
 	public TCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
 		this.selector = selector;
-		this._read_acceptor = new TCPSelectionReader(context);
-		this._write_acceptor = new TCPSelectionWriter(context, endPointWriter);
+		this._write_acceptor  = new TCPSelectionWriter();
+		this._read_acceptor   = new TCPSelectionReader(context);
 		this._accept_acceptor = new TCPSelectionAcceptor(context,endPointWriter,selector);
 	}
 
@@ -70,7 +70,7 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 	}
 	
 	private boolean isTCPEndPoint(Object object) {
-		return object != null && (object.getClass() == AbstractTCPEndPoint.class || object instanceof TCPEndPoint);
+		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof TCPEndPoint);
 	}
 
 	public String toString() {

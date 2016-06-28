@@ -25,7 +25,7 @@ public class AuthorityContext extends AbstractPluginContext {
 
 		context.setLoginCenter(new LMLoginCenter());
 		
-		context.addSessionEventListener(new AuthoritySessionEventListener());
+		context.addSessionEventListener(new AuthoritySEListener());
 		
 		instance = this;
 	}

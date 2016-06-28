@@ -16,9 +16,9 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
-public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
+public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
-	private static final Logger	logger		= LoggerFactory.getLogger(AbstractTCPEndPoint.class);
+	private static final Logger	logger		= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
 	private AtomicBoolean		_closed		= new AtomicBoolean(false);
 	private boolean			_networkWeak	= false;
 	private int				attempts		;
@@ -32,7 +32,7 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 	private Socket				socket		;
 	private AtomicInteger		writers		= new AtomicInteger();
 
-	public AbstractTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
+	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
 			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
@@ -98,9 +98,6 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 			session.destroy();
 
 			this.channel.close();
-
-			this.extendClose();
-
 		}
 	}
 
@@ -110,9 +107,6 @@ public abstract class AbstractTCPEndPoint extends AbstractEndPoint implements TC
 
 	public void endConnect() {
 		this.endConnect = true;
-	}
-
-	protected void extendClose() {
 	}
 
 	public void flushWriters() throws IOException {

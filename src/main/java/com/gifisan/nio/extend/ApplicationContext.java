@@ -75,7 +75,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
-		this.context.addSessionEventListener(new MergeSessionIDListener());
+		this.context.addSessionEventListener(new MergeSessionIDSEListener());
 		
 		instance = this;
 	}

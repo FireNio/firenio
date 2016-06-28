@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.acceptor.ServerUDPEndPointFactory;
+import com.gifisan.nio.acceptor.UDPEndPointFactory;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -88,7 +88,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.encoding = Encoding.DEFAULT;
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
 		this.readFutureAcceptor = new ReadFutureDispatcher();
-		this.udpEndPointFactory = new ServerUDPEndPointFactory();
+		this.udpEndPointFactory = new UDPEndPointFactory();
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");

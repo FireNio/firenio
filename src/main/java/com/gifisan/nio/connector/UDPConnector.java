@@ -7,6 +7,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.gifisan.nio.acceptor.UDPEndPointFactory;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
@@ -14,6 +15,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.DatagramPacket;
@@ -21,11 +23,11 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class UDPConnector extends AbstractIOConnector {
 
-	private ClientUDPEndPoint	endPoint			;
-	private Logger				logger			= LoggerFactory.getLogger(UDPConnector.class);
-	private UDPSelectorLoop		selectorLoop		;
-	private UniqueThread		selectorLoopThread	= new UniqueThread();
-	private ByteBuffer			cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private UDPEndPoint		endPoint;
+	private Logger			logger			= LoggerFactory.getLogger(UDPConnector.class);
+	private UDPSelectorLoop	selectorLoop;
+	private UniqueThread	selectorLoopThread	= new UniqueThread();
+	private ByteBuffer		cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
 	protected UDPSelectorLoop getSelectorLoop() {
 		return selectorLoop;
@@ -39,7 +41,7 @@ public class UDPConnector extends AbstractIOConnector {
 	public String toString() {
 		return "UDP:Selector@edp" + this.localAddress.toString();
 	}
-	
+
 	public void sendDatagramPacket(DatagramPacket packet) {
 
 		allocate(cacheBuffer, packet);
@@ -52,7 +54,7 @@ public class UDPConnector extends AbstractIOConnector {
 			// FIXME close connector
 		}
 	}
-	
+
 	protected void setIOService(NIOContext context) {
 		context.setUDPService(this);
 	}
@@ -65,7 +67,7 @@ public class UDPConnector extends AbstractIOConnector {
 			allocate(buffer, packet.getData());
 			return;
 		}
-		
+
 		allocate(buffer, packet.getTimestamp(), packet.getSequenceNo(), packet.getData());
 	}
 
@@ -89,13 +91,14 @@ public class UDPConnector extends AbstractIOConnector {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		Selector selector = Selector.open();
-		channel.register(selector, SelectionKey.OP_READ);
+		SelectionKey selectionKey = channel.register(selector, SelectionKey.OP_READ);
+		UDPEndPointFactory endPointFactory = new UDPEndPointFactory();
 		channel.connect(address);
 		this.selector = selector;
-		this.endPoint = new ClientUDPEndPoint(session, channel, address);
+		this.endPoint = endPointFactory.getUDPEndPoint(context, selectionKey, serverAddress);
 		this.selectorLoop = new UDPSelectorLoop(context, selector);
-		this.context.setUDPEndPointFactory(new ClientUDPEndPointFactory(endPoint));
-
+		this.context.setUDPEndPointFactory(endPointFactory);
+		this.endPoint.setSession(session);
 	}
 
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {
@@ -105,7 +108,7 @@ public class UDPConnector extends AbstractIOConnector {
 	protected void stopComponent(NIOContext context, Selector selector) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
-		
+
 		CloseUtil.close(endPoint);
 	}
 
