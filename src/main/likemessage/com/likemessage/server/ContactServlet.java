@@ -10,7 +10,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.extend.security.Authority;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 

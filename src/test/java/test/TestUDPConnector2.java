@@ -6,7 +6,7 @@ import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.plugin.rtp.client.RTPClient;
+import com.gifisan.nio.extend.plugin.rtp.client.RTPClient;
 
 public class TestUDPConnector2 {
 

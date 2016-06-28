@@ -5,10 +5,10 @@ import java.io.IOException;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.plugin.jms.MQException;
-import com.gifisan.nio.plugin.jms.TextMessage;
-import com.gifisan.nio.plugin.jms.client.MessageProducer;
-import com.gifisan.nio.plugin.jms.client.impl.DefaultMessageProducer;
+import com.gifisan.nio.extend.plugin.jms.MQException;
+import com.gifisan.nio.extend.plugin.jms.TextMessage;
+import com.gifisan.nio.extend.plugin.jms.client.MessageProducer;
+import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
 
 public class TestPublish {
 

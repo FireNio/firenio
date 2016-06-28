@@ -22,12 +22,12 @@ import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.extend.configuration.ApplicationConfiguration;
 import com.gifisan.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.gifisan.nio.extend.configuration.FileSystemACLoader;
+import com.gifisan.nio.extend.security.AuthorityLoginCenter;
+import com.gifisan.nio.extend.security.RoleManager;
 import com.gifisan.nio.extend.service.FutureAcceptor;
 import com.gifisan.nio.extend.service.FutureAcceptorFilter;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 import com.gifisan.nio.extend.service.FutureAcceptorServiceLoader;
-import com.gifisan.nio.security.AuthorityLoginCenter;
-import com.gifisan.nio.security.RoleManager;
 
 public class ApplicationContext extends AbstractLifeCycle {
 

@@ -11,7 +11,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.extend.security.Authority;
 
 public class UserService extends AbstractService{
 

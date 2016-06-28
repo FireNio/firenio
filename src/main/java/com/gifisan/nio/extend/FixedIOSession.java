@@ -29,9 +29,9 @@ import com.gifisan.nio.connector.ClientStreamAcceptor;
 import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.connector.WaiterOnReadFuture;
-import com.gifisan.nio.plugin.authority.SYSTEMAuthorityServlet;
-import com.gifisan.nio.plugin.rtp.server.RTPServerDPAcceptor;
-import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
+import com.gifisan.nio.extend.plugin.rtp.server.RTPServerDPAcceptor;
+import com.gifisan.nio.extend.security.Authority;
 
 public class FixedIOSession implements FixedSession {
 

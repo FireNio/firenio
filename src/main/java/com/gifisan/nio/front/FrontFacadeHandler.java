@@ -25,7 +25,7 @@ public class FrontFacadeHandler extends IOEventHandleAdaptor {
 
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {
 
-		logger.info("报文来自客户端：{}，报文：{}",session.getRemoteSocketAddress(),future);
+		logger.info("报文来自客户端：[ {} ]，报文：{}",session.getRemoteSocketAddress(),future);
 		
 		Session routerSession = frontProxyHandler.getSession(session);
 
@@ -53,7 +53,7 @@ public class FrontFacadeHandler extends IOEventHandleAdaptor {
 
 		routerSession.flush(readFuture);
 
-		logger.info("分发请求到：{}", routerSession.getRemoteSocketAddress());
+		logger.info("分发请求到：[ {} ]", routerSession.getRemoteSocketAddress());
 	}
 
 	public void dispose() {

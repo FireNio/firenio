@@ -10,7 +10,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.ClientStreamAcceptor;
 import com.gifisan.nio.connector.OnReadFuture;
-import com.gifisan.nio.security.Authority;
+import com.gifisan.nio.extend.security.Authority;
 
 //FIXME   request // listen + write
 public interface FixedSession extends ReadFutureAcceptor{

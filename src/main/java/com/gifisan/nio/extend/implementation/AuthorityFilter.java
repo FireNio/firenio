@@ -5,11 +5,11 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.plugin.authority.AuthorityContext;
+import com.gifisan.nio.extend.plugin.authority.AuthoritySessionAttachment;
+import com.gifisan.nio.extend.security.Authority;
+import com.gifisan.nio.extend.security.AuthorityManager;
 import com.gifisan.nio.extend.service.FutureAcceptorFilter;
-import com.gifisan.nio.plugin.authority.AuthoritySessionAttachment;
-import com.gifisan.nio.plugin.authority.AuthorityContext;
-import com.gifisan.nio.security.Authority;
-import com.gifisan.nio.security.AuthorityManager;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 

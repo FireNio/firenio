@@ -8,11 +8,11 @@ import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramPacketFactory;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup;
 import com.gifisan.nio.component.protocol.DatagramPacketGroup.DPForeach;
-import com.gifisan.nio.plugin.jms.MapMessage;
-import com.gifisan.nio.plugin.rtp.RTPException;
-import com.gifisan.nio.plugin.rtp.client.RTPClient;
-import com.gifisan.nio.plugin.rtp.client.RTPClientDPAcceptor;
-import com.gifisan.nio.plugin.rtp.client.RTPHandle;
+import com.gifisan.nio.extend.plugin.jms.MapMessage;
+import com.gifisan.nio.extend.plugin.rtp.RTPException;
+import com.gifisan.nio.extend.plugin.rtp.client.RTPClient;
+import com.gifisan.nio.extend.plugin.rtp.client.RTPClientDPAcceptor;
+import com.gifisan.nio.extend.plugin.rtp.client.RTPHandle;
 
 public class TestUDPReceiveHandle extends RTPHandle {
 

@@ -55,7 +55,7 @@ public class FrontProxyHandler extends IOEventHandleAdaptor {
 
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {
 		
-		logger.info("报文来自负载均衡：{}，报文：{}",session.getRemoteSocketAddress(),future);
+		logger.info("报文来自负载均衡：[ {} ]，报文：{}",session.getRemoteSocketAddress(),future);
 		
 		Integer sessionID = future.getFutureID();
 
@@ -78,7 +78,7 @@ public class FrontProxyHandler extends IOEventHandleAdaptor {
 				
 				session.removeAttribute(sessionID);
 				
-				logger.info("回复报文到客户端失败，连接已丢失：{},{} ",session, future);
+				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ",session, future);
 				
 				return;
 			}
