@@ -1,5 +1,7 @@
 package com.gifisan.nio.connector;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -30,23 +32,61 @@ public class TCPSelectionConnector implements SelectionAcceptor {
 		SocketChannel channel = (SocketChannel) selectionKey.channel();
 
 		// does it need connection pending ?
-		if (channel.isConnectionPending()) {
+		if (!channel.isConnectionPending()) {
 
+			return;
+		}
+		
+		finishConnect(selectionKey, channel);
+	}
+	
+	private TCPEndPoint attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
+			throws SocketException {
+
+		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
+		
+		if (endPoint == null) {
+			
+			endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
+			
+			selectionKey.attach(endPoint);
+		}
+		
+		return endPoint;
+	}
+	
+	private void finishConnect(SelectionKey selectionKey, SocketChannel channel){
+		
+		try {
+			
 			channel.finishConnect();
 
-			//sk == selectionkey
-			SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
+			channel.register(selector, SelectionKey.OP_READ);
 			
-			final TCPEndPoint endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-
-			sk.attach(endPoint);
+			final TCPEndPoint endPoint = attachEndPoint(context, endPointWriter, selectionKey);
 
 			context.getThreadPool().dispatch(new Runnable() {
 				
 				public void run() {
-					connector.finishConnect(endPoint);
+					connector.finishConnect(endPoint,null);
 				}
 			});
-		}
+		} catch(final IOException e) {
+			
+			context.getThreadPool().dispatch(new Runnable() {
+				
+				public void run() {
+					connector.finishConnect(null,e);
+				}
+			});
+		} catch(final Exception e) {
+			
+			context.getThreadPool().dispatch(new Runnable() {
+				
+				public void run() {
+					connector.finishConnect(null,new IOException(e.getMessage(),e));
+				}
+			});
+		} 
 	}
 }

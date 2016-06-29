@@ -49,6 +49,12 @@ public class UniqueThread implements Looper {
 		
 		this.running = false;
 		
-		this.looper.stop();
+		Looper looper = this.looper;
+		
+		if (looper == null) {
+			return;
+		}
+		
+		looper.stop();
 	}
 }

@@ -31,8 +31,9 @@ public class TCPConnector extends AbstractIOConnector {
 	private long				beatPacket;
 	private ReentrantLock		connectorLock			= new ReentrantLock();
 	private Condition			connectorWaiter		= connectorLock.newCondition();
-	private boolean			timeout				= false;
-	private boolean			connected				= false;
+	private boolean			timeout;
+	private boolean			connected;
+	private IOException			connectException;
 
 	public long getBeatPacket() {
 		return beatPacket;
@@ -96,7 +97,7 @@ public class TCPConnector extends AbstractIOConnector {
 		}
 	}
 	
-	private void doConnect() throws TimeoutException{
+	private void doConnect() throws IOException{
 		
 		try {
 			
@@ -113,7 +114,12 @@ public class TCPConnector extends AbstractIOConnector {
 			
 			CloseUtil.close(this);
 			
-			throw new TimeoutException("time out");
+			if (connectException == null) {
+				
+				throw new TimeoutException("time out");
+			}
+			
+			throw new TimeoutException(connectException.getMessage(),connectException);
 		}
 	}
 
@@ -137,7 +143,7 @@ public class TCPConnector extends AbstractIOConnector {
 		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
 	}
 
-	protected void finishConnect(TCPEndPoint endPoint) {
+	protected void finishConnect(TCPEndPoint endPoint,IOException exception) {
 
 		ReentrantLock lock = this.connectorLock;
 
@@ -150,26 +156,37 @@ public class TCPConnector extends AbstractIOConnector {
 			return;
 		}
 		
-		connected = true;
-
-		try {
-
-			connectorWaiter.signal();
-
-			this.endPoint = endPoint;
-
-			this.session = endPoint.getSession();
+		if (exception == null) {
 			
-			this.endPointWriter.setEndPoint(endPoint);
+			connected = true;
 
-			if (beatPacket > 0) {
-				this.startTouchDistantJob();
+			try {
+
+				connectorWaiter.signal();
+
+				this.endPoint = endPoint;
+
+				this.session = endPoint.getSession();
+				
+				this.endPointWriter.setEndPoint(endPoint);
+
+				if (beatPacket > 0) {
+					this.startTouchDistantJob();
+				}
+
+				this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
+
+			} finally {
+
+				lock.unlock();
 			}
-
-			this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-		} finally {
-
+			
+		}else{
+			
+			connectException = exception;
+			
+			connectorWaiter.signal();
+			
 			lock.unlock();
 		}
 	}
