@@ -39,7 +39,11 @@ public class UDPConnector extends AbstractIOConnector {
 	}
 
 	public String toString() {
-		return "UDP:Selector@edp" + this.localAddress.toString();
+		return "UDP:Selector@edp" + getLocalSocketAddress().toString();
+	}
+	
+	protected InetSocketAddress getLocalSocketAddress(){
+		return endPoint.getLocalSocketAddress();
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) {

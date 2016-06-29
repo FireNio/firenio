@@ -23,7 +23,6 @@ public class DefaultMessageBrowser implements MessageBrowser {
 	
 	public DefaultMessageBrowser(FixedSession session) {
 		this.session = session;
-		this.session.onStreamRead(SERVICE_NAME, new ConsumerStreamAcceptor());
 	}
 
 	public Message browser(String messageID) throws MQException {

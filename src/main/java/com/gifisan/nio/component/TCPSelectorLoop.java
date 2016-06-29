@@ -9,21 +9,21 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
+public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
-	private Logger				logger			= LoggerFactory.getLogger(TCPSelectorLoop.class);
-	private SelectionAcceptor	_read_acceptor		;
-	private SelectionAcceptor	_write_acceptor	;
-	private SelectionAcceptor	_accept_acceptor	;
+	private Logger				logger	= LoggerFactory.getLogger(TCPSelectorLoop.class);
+	protected SelectionAcceptor	_read_acceptor;
+	protected SelectionAcceptor	_write_acceptor;
+	protected SelectionAcceptor	_alpha_acceptor;
 
 	public TCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
 		this.selector = selector;
-		this._write_acceptor  = new TCPSelectionWriter();
-		this._read_acceptor   = new TCPSelectionReader(context);
-		this._accept_acceptor = new TCPSelectionAcceptor(context,endPointWriter,selector);
+		this._write_acceptor = new TCPSelectionWriter();
+		this._read_acceptor = new TCPSelectionReader(context);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
+		
 		if (!selectionKey.isValid()) {
 			return;
 		}
@@ -35,18 +35,16 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 			} else if (selectionKey.isWritable()) {
 				_write_acceptor.accept(selectionKey);
 			} else if (selectionKey.isAcceptable()) {
-				_accept_acceptor.accept(selectionKey);
+				_alpha_acceptor.accept(selectionKey);
 			} else if (selectionKey.isConnectable()) {
-				logger.error("Connectable=================");
+				_alpha_acceptor.accept(selectionKey);
 			}
 
 		} catch (Throwable e) {
 			acceptException(selectionKey, e);
 		}
 	}
-	
-	
-	
+
 	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
 
 		SelectableChannel channel = selectionKey.channel();
@@ -56,7 +54,7 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 		if (isTCPEndPoint(attachment)) {
 
 			TCPEndPoint endPoint = (TCPEndPoint) attachment;
-			
+
 			endPoint.endConnect();
 
 			CloseUtil.close(endPoint);
@@ -68,13 +66,13 @@ public class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 
 		logger.error(exception.getMessage(), exception);
 	}
-	
+
 	private boolean isTCPEndPoint(Object object) {
 		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof TCPEndPoint);
 	}
 
 	public String toString() {
-		return "TCP:Selector@"+this.selector.toString();
+		return "TCP:Selector@" + this.selector.toString();
 	}
 
 }

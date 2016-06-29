@@ -1,8 +1,7 @@
-package com.gifisan.nio.connector;
+package com.gifisan.nio.extend;
 
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.extend.FixedSession;
 
 public class WaiterOnReadFuture implements OnReadFuture {
 

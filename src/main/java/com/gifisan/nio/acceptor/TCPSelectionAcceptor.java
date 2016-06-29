@@ -1,4 +1,4 @@
-package com.gifisan.nio.component;
+package com.gifisan.nio.acceptor;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -6,6 +6,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
+import com.gifisan.nio.component.DefaultTCPEndPoint;
+import com.gifisan.nio.component.EndPointWriter;
+import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.SelectionAcceptor;
+import com.gifisan.nio.component.TCPEndPoint;
 
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
@@ -40,8 +46,15 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 	private void attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
 			throws SocketException {
 
-		DefaultTCPEndPoint endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-
+		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
+		
+		if (endPoint != null) {
+			
+			return;
+		}
+		
+		endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
+		
 		selectionKey.attach(endPoint);
 	}
 }

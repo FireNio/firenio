@@ -3,10 +3,10 @@ package com.gifisan.nio.extend.plugin.jms.client.impl;
 import java.io.IOException;
 
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.WaiterOnReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.RESMessageDecoder;
+import com.gifisan.nio.extend.WaiterOnReadFuture;
 import com.gifisan.nio.extend.plugin.jms.MQException;
 import com.gifisan.nio.extend.plugin.jms.client.MessageConsumer;
 import com.gifisan.nio.extend.plugin.jms.client.OnMessage;
@@ -24,8 +24,6 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 	public DefaultMessageConsumer(FixedSession session) {
 		this.session = session;
-		session.onStreamRead("MQConsumerServlet", new ConsumerStreamAcceptor());
-		session.onStreamRead("MQSubscribeServlet", new ConsumerStreamAcceptor());
 	}
 
 	public boolean beginTransaction() throws MQException {

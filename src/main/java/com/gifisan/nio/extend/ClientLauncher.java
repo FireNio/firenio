@@ -10,7 +10,6 @@ import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.IOConnector;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.test.servlet.TestSimpleServlet;
 

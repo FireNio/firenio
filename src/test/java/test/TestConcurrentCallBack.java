@@ -8,9 +8,9 @@ import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.component.concurrent.ThreadPool;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 
 public class TestConcurrentCallBack {
 	

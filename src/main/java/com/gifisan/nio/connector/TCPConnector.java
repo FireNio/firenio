@@ -5,13 +5,13 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.DefaultTCPEndPoint;
-import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
@@ -21,14 +21,18 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class TCPConnector extends AbstractIOConnector {
 
-	private TCPEndPoint			endPoint;
 	private TaskExecutor		taskExecutor;
 	private TCPSelectorLoop		selectorLoop;
 	private ClientEndPointWriter	endPointWriter;
+	private TCPEndPoint			endPoint;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
 	private UniqueThread		taskExecutorThread;
 	private long				beatPacket;
+	private ReentrantLock		connectorLock			= new ReentrantLock();
+	private Condition			connectorWaiter		= connectorLock.newCondition();
+	private boolean			timeout				= false;
+	private boolean			connected				= false;
 
 	public long getBeatPacket() {
 		return beatPacket;
@@ -42,71 +46,16 @@ public class TCPConnector extends AbstractIOConnector {
 		return selectorLoop;
 	}
 
-	protected EndPointWriter getEndPointWriter() {
-		return endPointWriter;
-	}
-
-	private void finishConnect(Selector selector) throws IOException {
-		Iterator<SelectionKey> iterator = select(0);
-		finishConnect(iterator);
-	}
-
-	private void finishConnect(Iterator<SelectionKey> iterator) throws IOException {
-
-		for (; iterator.hasNext();) {
-
-			SelectionKey selectionKey = iterator.next();
-
-			iterator.remove();
-
-			finishConnect0(selectionKey);
-		}
-	}
-
-	private void finishConnect0(SelectionKey selectionKey) throws IOException {
-
-		SocketChannel channel = (SocketChannel) selectionKey.channel();
-
-		// does it need connection pending ?
-		if (selectionKey.isConnectable() && channel.isConnectionPending()) {
-
-			channel.finishConnect();
-
-			channel.register(selector, SelectionKey.OP_READ);
-
-			this.endPointWriter = new ClientEndPointWriter();
-
-			this.endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-
-			this.endPointWriter.setEndPoint(endPoint);
-
-			this.localAddress = endPoint.getLocalSocketAddress();
-
-			this.selectorLoop = new ClientSelectorManagerLoop(context, selector, endPointWriter);
-
-			selectionKey.attach(endPoint);
-		}
-	}
-
 	protected void setIOService(NIOContext context) {
 		context.setTCPService(this);
 	}
 
-	private Iterator<SelectionKey> select(long timeout) throws IOException {
-		selector.select(timeout);
-		Set<SelectionKey> selectionKeys = selector.selectedKeys();
-		return selectionKeys.iterator();
-	}
-
-	private void startTouchDistantJob(long checkInterval) throws Exception {
-		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint);
-		this.taskExecutor = new TaskExecutor(job, checkInterval);
-		this.taskExecutorThread = new UniqueThread();
-		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
-	}
-
 	public String toString() {
-		return "TCP:Selector@edp" + this.localAddress.toString();
+		return "TCP:Selector@server:" + serverAddress.toString();
+	}
+
+	protected InetSocketAddress getLocalSocketAddress() {
+		return endPoint.getLocalSocketAddress();
 	}
 
 	protected void connect(InetSocketAddress address) throws IOException {
@@ -115,30 +64,57 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.configureBlocking(false);
 
-		selector = Selector.open();
+		this.selector = Selector.open();
 
 		channel.register(selector, SelectionKey.OP_CONNECT);
 
 		channel.connect(address);
 
-		finishConnect(selector);
+		this.endPointWriter = new ClientEndPointWriter();
 
-		this.session = this.endPoint.getSession();
+		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
 	}
 
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {
 
-		if (beatPacket > 0) {
-			try {
-				this.startTouchDistantJob(beatPacket);
-			} catch (Exception e) {
-				e.printStackTrace();
+		this.selectorLoopThread.start(selectorLoop, this.toString());
+
+		ReentrantLock lock = this.connectorLock;
+
+		lock.lock();
+
+		try {
+			
+			if (!connected) {
+				
+				doConnect();
 			}
+
+		} finally {
+
+			lock.unlock();
+		}
+	}
+	
+	private void doConnect() throws TimeoutException{
+		
+		try {
+			
+			connectorWaiter.await(1000, TimeUnit.MILLISECONDS);
+			
+		} catch (InterruptedException e) {
+			
+			connectorWaiter.signal();
 		}
 
-		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-		this.selectorLoopThread.start(selectorLoop, this.toString());
+		if (!connected) {
+			
+			timeout = true;
+			
+			CloseUtil.close(this);
+			
+			throw new TimeoutException("time out");
+		}
 	}
 
 	protected void stopComponent(NIOContext context, Selector selector) {
@@ -146,11 +122,55 @@ public class TCPConnector extends AbstractIOConnector {
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 		LifeCycleUtil.stop(taskExecutorThread);
-
+		
 		CloseUtil.close(endPoint);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
 		return configuration.getSERVER_TCP_PORT();
+	}
+
+	private void startTouchDistantJob() {
+		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint);
+		this.taskExecutor = new TaskExecutor(job, beatPacket);
+		this.taskExecutorThread = new UniqueThread();
+		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
+	}
+
+	protected void finishConnect(TCPEndPoint endPoint) {
+
+		ReentrantLock lock = this.connectorLock;
+
+		lock.lock();
+		
+		if (timeout) {
+			
+			lock.unlock();
+			
+			return;
+		}
+		
+		connected = true;
+
+		try {
+
+			connectorWaiter.signal();
+
+			this.endPoint = endPoint;
+
+			this.session = endPoint.getSession();
+			
+			this.endPointWriter.setEndPoint(endPoint);
+
+			if (beatPacket > 0) {
+				this.startTouchDistantJob();
+			}
+
+			this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
+
+		} finally {
+
+			lock.unlock();
+		}
 	}
 }

@@ -18,17 +18,13 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.connector.ClientStreamAcceptor;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.connector.UDPConnector;
-import com.gifisan.nio.connector.WaiterOnReadFuture;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.extend.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.extend.security.Authority;
@@ -36,16 +32,11 @@ import com.gifisan.nio.extend.security.Authority;
 public class FixedIOSession implements FixedSession {
 
 	private NIOContext						context			;
-	private DatagramPacketAcceptor			dpAcceptor		;
 	private Authority						authority			;
 	private Session						session			;
 	private UDPConnector					udpConnector		;
 	private Map<String, OnReadFutureWrapper>	listeners			= new HashMap<String, OnReadFutureWrapper>();
-	private Map<String, ClientStreamAcceptor>	streamAcceptors	= new HashMap<String, ClientStreamAcceptor>();
 
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return dpAcceptor;
-	}
 
 	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
 			throws IOException {
@@ -92,10 +83,6 @@ public class FixedIOSession implements FixedSession {
 		readFuture.setInputStream(inputStream);
 
 		session.flush(readFuture);
-	}
-
-	public ClientStreamAcceptor getStreamAcceptor(String serviceName) {
-		return streamAcceptors.get(serviceName);
 	}
 
 	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
@@ -159,10 +146,6 @@ public class FixedIOSession implements FixedSession {
 		return session;
 	}
 
-	public void onStreamRead(String key, ClientStreamAcceptor acceptor) {
-		streamAcceptors.put(key, acceptor);
-	}
-
 	public ReadFuture request(String serviceName, String content) throws IOException {
 		return request(serviceName, content, 3000000);
 	}
@@ -173,10 +156,6 @@ public class FixedIOSession implements FixedSession {
 
 	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {
 		return request(serviceName, content, null, timeout);
-	}
-
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		this.dpAcceptor = datagramPacketAcceptor;
 	}
 
 	public void write(String serviceName, String content) throws IOException {

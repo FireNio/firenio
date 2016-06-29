@@ -18,7 +18,7 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class ClientEndPointWriter implements EndPointWriter {
 
-	private TCPEndPoint		endPoint		;
+	private TCPEndPoint				endPoint		;
 	private ReentrantLock			lock			= new ReentrantLock();
 	private Condition				networkWeak	= lock.newCondition();
 	private LinkedList<IOWriteFuture>	writers		= new LinkedListM2O<IOWriteFuture>(1024 * 64);

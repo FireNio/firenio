@@ -10,4 +10,8 @@ public interface IOConnector extends IOService, Connectable, Closeable {
 
 	public abstract Session getSession();
 	
+	public abstract String getMachineType() ;
+
+	public abstract void setMachineType(String machineType) ;
+	
 }

@@ -44,7 +44,7 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		
 		this.endPointWriter = new ServerEndPointWriter();
 
-		this.selectorLoop = new TCPSelectorLoop(context, selector, endPointWriter);
+		this.selectorLoop = new ServerTCPSelectorLoop(context, selector, endPointWriter);
 
 		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 

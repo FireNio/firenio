@@ -22,10 +22,10 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class ServerEndPointWriter implements EndPointWriter {
 
-	private boolean					collect		= false;
-	private LinkedList<IOWriteFuture>		writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
+	private boolean						collect		= false;
+	private LinkedList<IOWriteFuture>			writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
 	private Map<Integer, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
-	private Logger						logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
+	private Logger							logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
 
 	public void collect() {
 		this.collect = true;
@@ -199,9 +199,9 @@ public class ServerEndPointWriter implements EndPointWriter {
 			offer(futureFromWriters);
 		}
 	}
-	
+
 	public void stop() {
-		
+
 	}
 
 	public String toString() {

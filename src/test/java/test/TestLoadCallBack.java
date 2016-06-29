@@ -8,10 +8,10 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 
 public class TestLoadCallBack {
 	

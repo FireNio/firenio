@@ -3,8 +3,6 @@ package com.gifisan.nio.extend;
 import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListM2O;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.OnReadFuture;
-import com.gifisan.nio.connector.WaiterOnReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture{
 	

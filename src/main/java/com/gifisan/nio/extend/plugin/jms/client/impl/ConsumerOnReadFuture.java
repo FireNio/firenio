@@ -4,8 +4,8 @@ import java.io.OutputStream;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 import com.gifisan.nio.extend.plugin.jms.MQException;
 import com.gifisan.nio.extend.plugin.jms.Message;
 import com.gifisan.nio.extend.plugin.jms.client.OnMessage;

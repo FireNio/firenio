@@ -5,10 +5,10 @@ import java.io.IOException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 import com.gifisan.nio.extend.implementation.SYSTEMShowMemoryServlet;
 
 public class TestSimple {

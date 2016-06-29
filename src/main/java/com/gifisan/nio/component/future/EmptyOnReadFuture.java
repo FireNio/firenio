@@ -1,7 +1,7 @@
 package com.gifisan.nio.component.future;
 
-import com.gifisan.nio.connector.OnReadFuture;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 
 public class EmptyOnReadFuture implements OnReadFuture{
 	
