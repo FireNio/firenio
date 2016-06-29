@@ -22,7 +22,7 @@ public interface TCPEndPoint extends EndPoint {
 
 	public abstract void attackNetwork(int length);
 
-	public abstract void flushWriters() throws IOException;
+	public abstract void wakeup() throws IOException;
 
 	public abstract IOReadFuture getReadFuture();
 

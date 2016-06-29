@@ -1,99 +1,99 @@
-package com.gifisan.nio.acceptor;
+package com.gifisan.nio.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.WriterOverflowException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.EndPointWriter;
-import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListABQ;
+import com.gifisan.nio.component.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
-public class ServerEndPointWriter implements EndPointWriter {
+public class DefaultEndPointWriter implements EndPointWriter {
 
-	private boolean						collect		= false;
-	private LinkedList<IOWriteFuture>			writers		= new LinkedListABQ<IOWriteFuture>(1024 * 128);
-	private Map<Integer, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
-	private Logger							logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
+	protected LinkedList<IOWriteFuture>			writerQueue;
+	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
+	private Logger							logger		= LoggerFactory.getLogger(DefaultEndPointWriter.class);
+	private ReentrantList<EndPointWriteEvent>	events		= new ReentrantList<DefaultEndPointWriter.EndPointWriteEvent>();
 
-	public void collect() {
-		this.collect = true;
+	
+	public DefaultEndPointWriter(int capacity) {
+		this.writerQueue = new LinkedListM2O<IOWriteFuture>(capacity);
+	}
+
+	public void fire(EndPointWriteEvent event) {
+		events.add(event);
 	}
 
 	public void offer(IOWriteFuture future) {
 
-		if (!this.writers.offer(future)) {
+		if (!this.writerQueue.offer(future)) {
 
 			future.onException(WriterOverflowException.INSTANCE);
 		}
 	}
 
-	private void collectEndPoints() {
-		collect = false;
+	public void wekeupEndPoint(TCPEndPoint endPoint) {
 
-		Set<Entry<Integer, List<IOWriteFuture>>> entries = lazyEndPoints.entrySet();
-
-		Iterator<Entry<Integer, List<IOWriteFuture>>> iterator = entries.iterator();
-
-		for (; iterator.hasNext();) {
-			Entry<Integer, List<IOWriteFuture>> entry = iterator.next();
-
-			List<IOWriteFuture> list = entry.getValue();
-
-			if (list.size() == 0) {
-				lazyEndPoints.remove(entry.getKey());
-				continue;
-			}
-
-			IOWriteFuture future = list.get(0);
-
-			TCPEndPoint endPoint = future.getEndPoint();
-
-			if (endPoint.isNetworkWeak()) {
-				continue;
-			}
-
-			for (IOWriteFuture _Future : list) {
-
-				offer(_Future);
-			}
-
-			iterator.remove();
-
-		}
-	}
-
-	private void lazyWriter(IOWriteFuture future) {
-		Integer endPointID = future.getEndPoint().getEndPointID();
-		List<IOWriteFuture> list = lazyEndPoints.get(endPointID);
+		Integer endPointID = endPoint.getEndPointID();
+		
+		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
 
 		if (list == null) {
+			return;
+		}
+
+		for(IOWriteFuture f :list){
+			
+			this.offer(f);
+		}
+		
+		sleepEndPoints.remove(endPointID);
+	}
+
+	private void sleepWriter(TCPEndPoint endPoint, IOWriteFuture future) {
+		
+		Integer endPointID = endPoint.getEndPointID();
+		
+		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
+
+		if (list == null) {
+			
 			list = new ArrayList<IOWriteFuture>();
-			lazyEndPoints.put(endPointID, list);
+			
+			sleepEndPoints.put(endPointID, list);
 		}
 
 		list.add(future);
 	}
+	
+	private void fireEvents(List<EndPointWriteEvent> events){
+		
+		for(EndPointWriteEvent e : events){
+			
+			e.handle(this);
+		}
+		
+		events.clear();
+	}
 
 	public void loop() {
 
-		if (collect) {
+		List<EndPointWriteEvent> events = this.events.getSnapshot();
+		
+		if (!events.isEmpty()) {
 
-			collectEndPoints();
+			fireEvents(events);
 		}
 
-		IOWriteFuture futureFromWriters = writers.poll(16);
+		IOWriteFuture futureFromWriters = writerQueue.poll(16);
 
 		if (futureFromWriters == null) {
 
@@ -103,17 +103,22 @@ public class ServerEndPointWriter implements EndPointWriter {
 		TCPEndPoint endPoint = futureFromWriters.getEndPoint();
 
 		if (endPoint.isEndConnect()) {
+			
 			if (endPoint.isOpened()) {
+			
 				CloseUtil.close(endPoint);
 			}
+			
 			endPoint.decrementWriter();
+			
 			futureFromWriters.onException(DisconnectException.INSTANCE);
+			
 			return;
 		}
 
 		if (endPoint.isNetworkWeak()) {
 
-			this.lazyWriter(futureFromWriters);
+			this.sleepWriter(endPoint,futureFromWriters);
 
 			return;
 		}
@@ -168,7 +173,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 			return;
 		}
 
-		if (!writers.offer(futureFromWriters)) {
+		if (!writerQueue.offer(futureFromWriters)) {
 
 			endPoint.decrementWriter();
 
@@ -183,7 +188,7 @@ public class ServerEndPointWriter implements EndPointWriter {
 	private void doWriteFutureFromWriters(IOWriteFuture futureFromWriters, TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromWriters.write()) {
-
+			
 			endPoint.decrementWriter();
 
 			futureFromWriters.onSuccess();
@@ -206,5 +211,10 @@ public class ServerEndPointWriter implements EndPointWriter {
 
 	public String toString() {
 		return "Server-EndPoint-Writer";
+	}
+
+	public interface EndPointWriteEvent {
+
+		void handle(EndPointWriter endPointWriter);
 	}
 }

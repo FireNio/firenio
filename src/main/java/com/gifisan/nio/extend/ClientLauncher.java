@@ -15,11 +15,11 @@ import com.test.servlet.TestSimpleServlet;
 
 public class ClientLauncher {
 
-	private TCPConnector		connector		= new TCPConnector();
+	private TCPConnector		connector;
 
-	private SimpleIOEventHandle	eventHandle	;
-	
-	private FixedSession fixedSession = new FixedIOSession();
+	private SimpleIOEventHandle	eventHandle;
+
+	private FixedSession		fixedSession	= new FixedIOSession();
 
 	public SimpleIOEventHandle getEventHandle() {
 		return eventHandle;
@@ -27,40 +27,46 @@ public class ClientLauncher {
 
 	public TCPConnector getTCPConnector() {
 
-		try {
+		if (connector == null) {
 
-			PropertiesLoader.load();
+			try {
 
-			SharedBundle bundle = SharedBundle.instance();
+				PropertiesLoader.load();
 
-			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
+				this.connector = new TCPConnector();
 
-			DebugUtil.setEnableDebug(debug);
-			
-			NIOContext context = new DefaultNIOContext();
+				SharedBundle bundle = SharedBundle.instance();
 
-			eventHandle = new SimpleIOEventHandle(fixedSession);
+				boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
 
-			context.setIOEventHandleAdaptor(eventHandle);
+				DebugUtil.setEnableDebug(debug);
 
-			context.addSessionEventListener(new LoggerSEtListener());
-			
-			context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
-			
-			connector.setContext(context);
-			
-			fixedSession.listen(MergeSessionIDSEListener.MERGE_SESSION_ID_LISTENER, new UpdateSessionIDOnReadFuture());
+				NIOContext context = new DefaultNIOContext();
 
-			return connector;
+				eventHandle = new SimpleIOEventHandle(fixedSession);
 
-		} catch (Throwable e) {
+				context.setIOEventHandleAdaptor(eventHandle);
 
-			LoggerFactory.getLogger(ClientLauncher.class).error(e.getMessage(), e);
+				context.addSessionEventListener(new LoggerSEtListener());
 
-			CloseUtil.close(connector);
+				context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
 
-			throw new RuntimeException(e);
+				connector.setContext(context);
+
+				fixedSession.listen(MergeSessionIDSEListener.MERGE_SESSION_ID_LISTENER,
+						new UpdateSessionIDOnReadFuture());
+
+			} catch (Throwable e) {
+
+				LoggerFactory.getLogger(ClientLauncher.class).error(e.getMessage(), e);
+
+				CloseUtil.close(connector);
+
+				throw new RuntimeException(e);
+			}
 		}
+
+		return connector;
 	}
 
 	public FixedSession getFixedSession() {

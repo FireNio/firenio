@@ -9,6 +9,7 @@ import java.nio.channels.ServerSocketChannel;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPSelectorLoop;
@@ -42,7 +43,7 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 
 	protected void startComponent(NIOContext context, Selector selector) {
 		
-		this.endPointWriter = new ServerEndPointWriter();
+		this.endPointWriter = new DefaultEndPointWriter(1024 * 512);
 
 		this.selectorLoop = new ServerTCPSelectorLoop(context, selector, endPointWriter);
 

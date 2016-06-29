@@ -86,9 +86,9 @@ public class TestConcurrentCallBack {
 //						}
 						latch.countDown();
 						long count = latch.getCount();
-						if (count % 1000 == 0) {
-							System.out.println("************************================"+count);
-						}
+//						if (count % 1000 == 0) {
+//							System.out.println("************************================"+count);
+//						}
 					}
 				});
 				

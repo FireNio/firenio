@@ -13,8 +13,7 @@ public class TCPSelectionWriter implements SelectionAcceptor {
 			return;
 		}
 
-		endPoint.flushWriters();
-
+		endPoint.wakeup();
 	}
 
 }

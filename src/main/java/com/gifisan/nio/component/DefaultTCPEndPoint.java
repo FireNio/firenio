@@ -10,29 +10,29 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gifisan.nio.NetworkException;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
-	private static final Logger	logger		= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
-	private AtomicBoolean		_closed		= new AtomicBoolean(false);
-	private boolean			_networkWeak	= false;
-	private int				attempts		;
-	private SocketChannel		channel		;
-	private IOWriteFuture		currentWriter	;
-	private boolean			endConnect	;
-	private EndPointWriter		endPointWriter	;
-	private IOReadFuture		readFuture	;
-	private SelectionKey		selectionKey	;
-	private Session			session		;
-	private Socket				socket		;
-	private AtomicInteger		writers		= new AtomicInteger();
+	private static final Logger	logger			= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
+	private AtomicBoolean		_closed			= new AtomicBoolean(false);
+	private boolean			_networkWeak;
+	private SocketChannel		channel;
+	private IOWriteFuture		currentWriter;
+	private boolean			endConnect;
+	private EndPointWriter		endPointWriter;
+	private IOReadFuture		readFuture;
+	private SelectionKey		selectionKey;
+	private Session			session;
+	private Socket				socket;
+	private AtomicInteger		writers			= new AtomicInteger();
+	private long				next_network_weak	= Long.MAX_VALUE;
 
-	//FIXME network weak check
+	// FIXME network weak check
 	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
 			throws SocketException {
 		super(context);
@@ -45,11 +45,11 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-		
-		this.session = new IOSession(this,getEndPointID());
-		
+
+		this.session = new IOSession(this, getEndPointID());
+
 		context.getSessionFactory().putSession(session);
-		
+
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {
@@ -62,20 +62,34 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		}
 	}
 
+	//FIXME synch it ? 
 	public void attackNetwork(int length) {
 
 		if (length == 0) {
-			if (_networkWeak) {
-				return;
-			}
+			if (next_network_weak < Long.MAX_VALUE) {
+				
+				if (System.currentTimeMillis() > next_network_weak) {
+					
+					if (!_networkWeak) {
 
-			if (++attempts > 255) {
-				this.interestWrite();
-				_networkWeak = true;
+						_networkWeak = true;
+						
+						interestWrite();
+					}
+				}
+			}else{
+				
+				next_network_weak = System.currentTimeMillis() + 64;
 			}
-			return;
+		}else{
+			
+			if (next_network_weak != Long.MAX_VALUE) {
+				
+				next_network_weak = Long.MAX_VALUE;
+				
+				_networkWeak = false;
+			}
 		}
-		attempts = 0;
 	}
 
 	public void close() throws IOException {
@@ -90,10 +104,8 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 			this.selectionKey.attach(null);
 
-//			logger.debug(">>>> rm {}", this.toString());
-
 			Session session = getSession();
-			
+
 			getContext().getSessionFactory().removeSession(session);
 
 			session.destroy();
@@ -110,13 +122,21 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		this.endConnect = true;
 	}
 
-	public void flushWriters() throws IOException {
+	public void wakeup() throws IOException {
 
-		this.endPointWriter.collect();
-
-		this.attempts = 0;
-
-		this._networkWeak = false;
+		this.endPointWriter.fire(new EndPointWriteEvent() {
+			
+			public void handle(EndPointWriter endPointWriter) {
+				
+				DefaultTCPEndPoint endPoint = DefaultTCPEndPoint.this;
+				
+				endPoint.attackNetwork(1);
+				
+				endPointWriter.wekeupEndPoint(endPoint);
+				
+//				logger.debug("EndPoint wakeup:{}",endPoint);
+			}
+		});
 
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
@@ -185,15 +205,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 	public int read(ByteBuffer buffer) throws IOException {
 		return this.channel.read(buffer);
-	}
-
-	public ByteBuffer read(int limit) throws IOException {
-		ByteBuffer buffer = ByteBuffer.allocate(limit);
-		this.read(buffer);
-		if (buffer.position() < limit) {
-			throw new NetworkException("poor network ");
-		}
-		return buffer;
 	}
 
 	public void setCurrentWriter(IOWriteFuture writer) {

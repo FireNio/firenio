@@ -40,7 +40,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		
 		ReadFuture readFuture = this.getReadFuture();
 		
-		// logger.error(e.getMessage(),e);
+		logger.error(e.getMessage(),e);
 
 		IOEventHandle handle = readFuture.getIOEventHandle();
 		

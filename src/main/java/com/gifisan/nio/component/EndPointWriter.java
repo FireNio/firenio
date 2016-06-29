@@ -1,12 +1,15 @@
 package com.gifisan.nio.component;
 
 import com.gifisan.nio.Looper;
+import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
 public interface EndPointWriter extends Looper{
 	
-	public abstract void collect();
+	public abstract void fire(EndPointWriteEvent event);
 
 	public abstract void offer(IOWriteFuture future);
+	
+	public abstract void wekeupEndPoint(TCPEndPoint endPoint);
 
 }

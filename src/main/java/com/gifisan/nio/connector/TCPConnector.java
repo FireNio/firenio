@@ -10,9 +10,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.TimeoutException;
-import com.gifisan.nio.acceptor.ServerEndPointWriter;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
@@ -24,7 +24,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 	private TaskExecutor		taskExecutor;
 	private TCPSelectorLoop		selectorLoop;
-	private ServerEndPointWriter	endPointWriter;
+	private DefaultEndPointWriter	endPointWriter;
 	private TCPEndPoint			endPoint;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
@@ -72,7 +72,8 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.connect(address);
 
-		this.endPointWriter = new ServerEndPointWriter();
+		//FIXME capacity should not be so big
+		this.endPointWriter = new DefaultEndPointWriter(1024 * 512);
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
 	}
