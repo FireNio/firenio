@@ -12,9 +12,10 @@ public class MessageStorage {
 		return messages.poll(timeout);
 	}
 
-	public void offer(Message message) {
+	//FIXME offer failed
+	public boolean offer(Message message) {
 
-		messages.forceOffer(message);
+		return messages.offer(message);
 	}
 	
 	public int size(){

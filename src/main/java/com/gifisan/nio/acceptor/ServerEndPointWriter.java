@@ -17,13 +17,13 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class ServerEndPointWriter implements EndPointWriter {
 
 	private boolean						collect		= false;
-	private LinkedList<IOWriteFuture>			writers		= new LinkedListM2O<IOWriteFuture>(1024 * 512);
+	private LinkedList<IOWriteFuture>			writers		= new LinkedListABQ<IOWriteFuture>(1024 * 128);
 	private Map<Integer, List<IOWriteFuture>>	lazyEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger							logger		= LoggerFactory.getLogger(ServerEndPointWriter.class);
 

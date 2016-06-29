@@ -10,6 +10,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.TimeoutException;
+import com.gifisan.nio.acceptor.ServerEndPointWriter;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.NIOContext;
@@ -23,7 +24,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 	private TaskExecutor		taskExecutor;
 	private TCPSelectorLoop		selectorLoop;
-	private ClientEndPointWriter	endPointWriter;
+	private ServerEndPointWriter	endPointWriter;
 	private TCPEndPoint			endPoint;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
@@ -71,7 +72,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.connect(address);
 
-		this.endPointWriter = new ClientEndPointWriter();
+		this.endPointWriter = new ServerEndPointWriter();
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
 	}
@@ -168,7 +169,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 				this.session = endPoint.getSession();
 				
-				this.endPointWriter.setEndPoint(endPoint);
+//				this.endPointWriter.setEndPoint(endPoint);
 
 				if (beatPacket > 0) {
 					this.startTouchDistantJob();

@@ -24,7 +24,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private int				attempts		;
 	private SocketChannel		channel		;
 	private IOWriteFuture		currentWriter	;
-	private boolean			endConnect	= false;
+	private boolean			endConnect	;
 	private EndPointWriter		endPointWriter	;
 	private IOReadFuture		readFuture	;
 	private SelectionKey		selectionKey	;
@@ -32,6 +32,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private Socket				socket		;
 	private AtomicInteger		writers		= new AtomicInteger();
 
+	//FIXME network weak check
 	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
 			throws SocketException {
 		super(context);

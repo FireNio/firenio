@@ -8,7 +8,7 @@ import com.gifisan.nio.common.LoggerFactory;
 
 public class LinkedListABQ<T> implements LinkedList<T> {
 
-	private ArrayBlockingQueue<T>	queue	;
+	private ArrayBlockingQueue<T>	queue;
 	private Logger				logger	= LoggerFactory.getLogger(LinkedListABQ.class);
 
 	public LinkedListABQ(int capacity) {
@@ -17,12 +17,6 @@ public class LinkedListABQ<T> implements LinkedList<T> {
 
 	public boolean offer(T object) {
 		return queue.offer(object);
-	}
-
-	public void forceOffer(T object) {
-		for (; !queue.offer(object);) {
-
-		}
 	}
 
 	public T poll() {

@@ -15,12 +15,9 @@ import com.gifisan.nio.extend.OnReadFuture;
 
 public class TestLoadCallBack {
 	
-	public static int time = 20000;
+	public static int time = 200000;
 	public static final CountDownLatch latch = new CountDownLatch(time);
 	public static void main(String[] args) throws IOException{
-		
-		
-		
 		
 		String serviceName = "TestSimpleServlet";
 		
@@ -44,9 +41,11 @@ public class TestLoadCallBack {
 			public void onResponse(FixedSession session, ReadFuture future) {
 				latch.countDown();
 				long count = latch.getCount();
-				if (count % 10 == 0) {
+//				if (count % 10 == 0) {
+				if (count < 200) {
 					logger.info("************************================"+count);
 				}
+//				}
 			}
 		});
 		

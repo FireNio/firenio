@@ -53,27 +53,6 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		return true;
 	}
 
-	private void forceIncrementSize() {
-
-		for (;;) {
-			int __size = _size.get();
-			
-			int _next = __size + 1;
-
-			if (_next > _capability) {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				continue;
-			}
-
-			if (_size.compareAndSet(__size, _next))
-				return;
-		}
-	}
-	
 	private boolean tryIncrementSize() {
 
 		for (;;) {
@@ -90,32 +69,6 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		}
 	}
 	
-	
-
-	public void forceOffer(T object) {
-
-		forceIncrementSize();
-
-		int _c = getAndincrementEnd();
-
-		_array[_c] = object;
-
-		_real_size.incrementAndGet();
-
-		if (_locked) {
-
-			final ReentrantLock _lock = this._lock;
-
-			_lock.lock();
-
-			_notEmpty.signal();
-
-			_locked = false;
-
-			_lock.unlock();
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public T poll() {
 

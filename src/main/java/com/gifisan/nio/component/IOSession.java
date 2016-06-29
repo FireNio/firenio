@@ -58,6 +58,8 @@ public class IOSession extends AttributesImpl implements Session {
 		this.endPoint.endConnect();
 		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
 	}
+	
+//	private AtomicInteger offered = new AtomicInteger();
 
 	public void flush(ReadFuture future) {
 
@@ -89,6 +91,8 @@ public class IOSession extends AttributesImpl implements Session {
 
 			writeFuture.attach(_future.attachment());
 
+//			logger.info("offered ,{}",offered.incrementAndGet());
+			
 			this.endPointWriter.offer(writeFuture);
 		} catch (IOException e) {
 
