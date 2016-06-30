@@ -5,18 +5,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
+import com.gifisan.nio.extend.implementation.SYSTEMDownloadServlet;
 
 public class TestDownload {
 	
 	public static void main(String[] args) throws IOException {
 
-		String serviceName = "upload-temp.zip";
+		String serviceName = SYSTEMDownloadServlet.SERVICE_NAME;
+		
+		String fileName = "upload-temp.zip";
+		
+		JSONObject j = new JSONObject();
+		j.put("fileName", fileName);
 		
 		ClientLauncher launcher = new ClientLauncher();
 		
@@ -25,6 +33,8 @@ public class TestDownload {
 		connector.connect();
 		
 		FixedSession session = launcher.getFixedSession();
+		
+		final Waiter w = new Waiter();
 		
 		session.listen(serviceName, new OnReadFuture() {
 			
@@ -40,9 +50,14 @@ public class TestDownload {
 							FileOutputStream outputStream = new FileOutputStream(file);
 							
 							future.setOutputStream(outputStream);
+							
+							return;
 						}
 					}
+					
 					System.out.println("_________"+future.getText());
+					
+					w.setPayload(null);
 					
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -52,14 +67,9 @@ public class TestDownload {
 
 		long old = System.currentTimeMillis();
 		
-		ReadFuture future = session.request(serviceName, null);
+		session.write(serviceName, j.toJSONString());
 		
-		if (!future.hasOutputStream()) {
-			System.out.println(future.getText());
-		}else{
-			
-			System.out.println("下载成功！");
-		}
+		w.await(999999);
 		
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
