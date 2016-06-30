@@ -56,6 +56,7 @@ public class FixedIOSession implements FixedSession {
 
 		session.flush(readFuture);
 
+		//FIXME 连接丢失时叫醒我
 		if (onReadFuture.await(timeout)) {
 
 			return onReadFuture.getReadFuture();
@@ -297,7 +298,7 @@ public class FixedIOSession implements FixedSession {
 		if (!waiter.await(3000)) {
 			CloseUtil.close(udpConnector);
 
-			throw DisconnectException.INSTANCE;
+			throw new DisconnectException("disconnected");
 		}
 	}
 

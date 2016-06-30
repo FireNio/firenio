@@ -51,6 +51,8 @@ public class ClientLauncher {
 
 				context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
 
+				context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+				
 				connector.setContext(context);
 
 				fixedSession.listen(MergeSIDSEListener.MERGE_SESSION_ID_LISTENER,

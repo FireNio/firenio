@@ -44,8 +44,8 @@ public class TCPConnector extends AbstractIOConnector {
 		this.beatPacket = beatPacket;
 	}
 
-	protected TCPSelectorLoop getSelectorLoop() {
-		return selectorLoop;
+	protected UniqueThread getSelectorLoopThread() {
+		return selectorLoopThread;
 	}
 
 	protected void setIOService(NIOContext context) {

@@ -29,8 +29,8 @@ public class UDPConnector extends AbstractIOConnector {
 	private UniqueThread	selectorLoopThread	= new UniqueThread();
 	private ByteBuffer		cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
-	protected UDPSelectorLoop getSelectorLoop() {
-		return selectorLoop;
+	protected UniqueThread getSelectorLoopThread() {
+		return selectorLoopThread;
 	}
 
 	public UDPConnector(Session session) {

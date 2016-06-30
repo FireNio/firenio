@@ -102,7 +102,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 			this.endConnect = true;
 
-			this.selectionKey.attach(null);
+//			this.selectionKey.attach(null);
 
 			Session session = getSession();
 

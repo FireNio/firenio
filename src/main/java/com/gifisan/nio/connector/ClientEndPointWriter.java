@@ -47,7 +47,7 @@ public class ClientEndPointWriter extends DefaultEndPointWriter {
 				CloseUtil.close(endPoint);
 			}
 
-			writer.onException(DisconnectException.INSTANCE);
+			writer.onException(new DisconnectException("disconnected"));
 
 			return;
 		}

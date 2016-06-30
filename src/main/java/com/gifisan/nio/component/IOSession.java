@@ -67,12 +67,14 @@ public class IOSession extends AttributesImpl implements Session {
 			throw new IllegalStateException("flushed already");
 		}
 
-		IOEventHandle handle = future.getIOEventHandle();
-
 		if (!endPoint.isOpened()) {
 
-			handle.exceptionCaughtOnWrite(this, future, null, DisconnectException.INSTANCE);
-
+			IOEventHandle handle = future.getIOEventHandle();
+			
+			if (handle != null) {
+				
+				handle.exceptionCaughtOnWrite(this, future, null, new DisconnectException("disconnected"));
+			}
 			return;
 		}
 
@@ -94,6 +96,8 @@ public class IOSession extends AttributesImpl implements Session {
 		} catch (IOException e) {
 
 			logger.debug(e.getMessage(), e);
+			
+			IOEventHandle handle = future.getIOEventHandle();
 
 			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
 		}

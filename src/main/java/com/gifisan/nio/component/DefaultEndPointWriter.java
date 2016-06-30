@@ -18,7 +18,7 @@ import com.gifisan.nio.component.future.IOWriteFuture;
 
 public class DefaultEndPointWriter implements EndPointWriter {
 
-	protected LinkedList<IOWriteFuture>			writerQueue;
+	protected LinkedList<IOWriteFuture>		writerQueue;
 	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger							logger		= LoggerFactory.getLogger(DefaultEndPointWriter.class);
 	private ReentrantList<EndPointWriteEvent>	events		= new ReentrantList<DefaultEndPointWriter.EndPointWriteEvent>();
@@ -111,7 +111,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			
 			endPoint.decrementWriter();
 			
-			futureFromWriters.onException(DisconnectException.INSTANCE);
+			futureFromWriters.onException(new DisconnectException("disconnected"));
 			
 			return;
 		}

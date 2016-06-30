@@ -11,7 +11,8 @@ public class UniqueThread implements Looper {
 	private boolean		running		= false;
 	private AtomicBoolean	initialized	= new AtomicBoolean();
 	private Logger			logger		= LoggerFactory.getLogger(UniqueThread.class);
-	private Looper			looper		;
+	private Looper			looper;
+	private Thread			monitor;
 
 	public void start(Looper looper, String name) {
 
@@ -23,16 +24,18 @@ public class UniqueThread implements Looper {
 
 		this.running = true;
 
-		new Thread(new Runnable() {
+		monitor = new Thread(new Runnable() {
 
 			public void run() {
 				loop();
 			}
-		}, name).start();
+		}, name);
+
+		monitor.start();
 	}
-	
+
 	public void loop() {
-		
+
 		Looper _looper = looper;
 
 		for (; running;) {
@@ -46,15 +49,19 @@ public class UniqueThread implements Looper {
 	}
 
 	public void stop() {
-		
+
 		this.running = false;
-		
+
 		Looper looper = this.looper;
-		
+
 		if (looper == null) {
 			return;
 		}
-		
+
 		looper.stop();
+	}
+
+	public boolean isMonitor(Thread thread) {
+		return monitor == thread;
 	}
 }

@@ -4,8 +4,6 @@ import java.io.IOException;
 
 public class DisconnectException extends IOException {
 	
-	public static DisconnectException INSTANCE = new DisconnectException("disconnected");
-
 	public DisconnectException(String message, Exception cause) {
 		super(message, cause);
 	}

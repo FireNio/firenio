@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractIOService;
-import com.gifisan.nio.component.AbstractSelectorLoop;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
@@ -20,13 +20,13 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 	protected Selector			selector		;
 	protected Session			session		;
 
-	protected abstract AbstractSelectorLoop getSelectorLoop();
+	protected abstract UniqueThread getSelectorLoopThread();
 
 	public void close() throws IOException {
 
 		Thread thread = Thread.currentThread();
 
-		if (getSelectorLoop().isMonitor(thread)) {
+		if (getSelectorLoopThread().isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");
 		}
 

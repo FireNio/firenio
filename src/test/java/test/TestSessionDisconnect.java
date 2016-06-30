@@ -38,7 +38,6 @@ public class TestSessionDisconnect {
 				}
 			});
 			
-			
 			session.write(serviceName, param);
 		} catch (Exception e) {
 			e.printStackTrace();
