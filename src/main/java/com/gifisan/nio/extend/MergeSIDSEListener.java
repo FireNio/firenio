@@ -5,7 +5,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class MergeSessionIDSEListener implements SessionEventListener{
+public class MergeSIDSEListener implements SessionEventListener{
 
 	public static final String MERGE_SESSION_ID_LISTENER = "_MERGE_SESSION_ID_LISTENER";
 	

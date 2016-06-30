@@ -14,7 +14,7 @@ public class SYSTEMRedeployServlet extends FutureAcceptorService {
 		
 		ApplicationContext context = ApplicationContext.getInstance();
 		
-		if (context.getLoginCenter().isValidate(session, future)) {
+		if (context.getLoginCenter().isValidate(future.getParameters())) {
 			RESMessage message =  context.redeploy()  ? RESMessage.SUCCESS : RESMessage.SYSTEM_ERROR;
 			future.write(message.toString());
 		} else {

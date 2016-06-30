@@ -53,7 +53,7 @@ public class ClientLauncher {
 
 				connector.setContext(context);
 
-				fixedSession.listen(MergeSessionIDSEListener.MERGE_SESSION_ID_LISTENER,
+				fixedSession.listen(MergeSIDSEListener.MERGE_SESSION_ID_LISTENER,
 						new UpdateSessionIDOnReadFuture());
 
 			} catch (Throwable e) {

@@ -243,6 +243,10 @@ public class FixedIOSession implements FixedSession {
 		if (udpConnector == null) {
 			throw new IllegalArgumentException("null udp connector");
 		}
+		
+		if(authority == null){
+			throw new IllegalArgumentException("not login");
+		}
 
 		Session session = this.session;
 
@@ -253,7 +257,8 @@ public class FixedIOSession implements FixedSession {
 		// FIXME add more info
 		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
 
-		json.put("sessionID", sessionID);
+		json.put("username", authority.getUsername());
+		json.put("password", authority.getPassword());
 
 		final DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
 

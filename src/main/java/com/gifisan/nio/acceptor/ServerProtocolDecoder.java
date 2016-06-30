@@ -53,7 +53,7 @@ public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements 
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
 			endPoint.write(buffer);
 //			endPoint.endConnect();
-			logger.info("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
+			logger.debug("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
 			return null;
 		}else{
 			endPoint.endConnect();

@@ -35,7 +35,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private ReadFutureAcceptor			readFutureAcceptor		;
 	private ServerConfiguration			serverConfiguration		;
 	private SessionEventListenerWrapper	sessionEventListenerStub	;
-	private SessionFactory				sessionFactory			= new SessionFactory();
+	private SessionFactory				sessionFactory			;
 	private IOService					tcpService			;
 	private ThreadPool					threadPool			;
 	private UDPEndPointFactory			udpEndPointFactory		;
@@ -71,14 +71,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			this.serverConfiguration = loadServerConfiguration(bundle);
 		}
 
-		if (protocolEncoder == null) {
-			protocolEncoder = new DefaultTCPProtocolEncoder();
-		}
-
-		if (protocolDecoder == null) {
-			protocolDecoder = new DefaultTCPProtocolDecoder();
-		}
-
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
@@ -92,15 +84,28 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "项目编码     ：  { {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)：  { {} }", serverConfiguration.getSERVER_TCP_PORT());
+		LoggerUtil.prettyNIOServerLog(logger, "项目编码        ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)   ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
-			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)：  { {} }", serverConfiguration.getSERVER_UDP_PORT());
+			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)   ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
-		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数    ：  { {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数       ：{ {} }", SERVER_CORE_SIZE);
 
-		this.ioEventHandleAdaptor.start();
 		this.ioEventHandleAdaptor.setContext(this);
+		this.ioEventHandleAdaptor.start();
+		
+		if (protocolEncoder == null) {
+			protocolEncoder = new DefaultTCPProtocolEncoder();
+		}
+
+		if (protocolDecoder == null) {
+			protocolDecoder = new DefaultTCPProtocolDecoder();
+		}
+		
+		if (sessionFactory == null) {
+			sessionFactory = new SessionFactory();
+		}
+		
 		this.threadPool.start();
 	}
 
@@ -153,6 +158,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
 	public IOService getTCPService() {

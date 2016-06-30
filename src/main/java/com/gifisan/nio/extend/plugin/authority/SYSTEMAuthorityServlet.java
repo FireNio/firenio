@@ -19,7 +19,7 @@ public class SYSTEMAuthorityServlet extends FutureAcceptorService{
 		
 		RESMessage message = RESMessage.UNAUTH;
 		
-		if (loginCenter.login(session, future)) {
+		if (loginCenter.login(session, future.getParameters())) {
 			
 			Authority authority = ApplicationContextUtil.getAuthority(session);
 			

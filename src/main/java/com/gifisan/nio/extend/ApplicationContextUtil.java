@@ -21,6 +21,10 @@ public class ApplicationContextUtil {
 		
 		AuthorityManager authorityManager = getAuthorityManager(session);
 		
+		if (authorityManager == null) {
+			return null;
+		}
+		
 		return authorityManager.getAuthority();
 	}
 	

@@ -10,8 +10,8 @@ import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.FixedSessionFactory;
 import com.gifisan.nio.extend.InitializeableImpl;
 import com.gifisan.nio.extend.LoginCenter;
 import com.gifisan.nio.extend.configuration.Configuration;
@@ -24,17 +24,15 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
-	public boolean login(Session session, ReadFuture future) {
+	public boolean login(Session session, Parameters parameters) {
 
-		Authority authority = getAuthority(session, future);
+		Authority authority = getAuthority(parameters);
 		
 		logger.debug("__________________user_login__{}",authority);
 		
 		if (authority == null) {
 			return false;
 		}
-		
-		Parameters parameters = future.getParameters();
 		
 		String machineType = parameters.getParameter("MATCH_TYPE");
 		
@@ -52,11 +50,16 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		
 		session.setMachineType(machineType);
 		
+		FixedSessionFactory sessionFactory = context.getSessionFactory();
+		
+		sessionFactory.putSession(authority.getUsername(), session);
+		
 		return true;
 
 	}
 
 	public boolean isLogined(Session session) {
+		
 		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
 		
 		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(authorityPlugin);
@@ -69,16 +72,15 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		// 需要登出吗
 	}
 
-	public boolean isValidate(Session session, ReadFuture future) {
+	public boolean isValidate(Parameters parameters) {
 
-		return getAuthority(session, future) != null;
+		return getAuthority(parameters) != null;
 	}
 	
-	protected Authority getAuthority(Session session, ReadFuture future) {
+	protected Authority getAuthority(Parameters parameters) {
 
-		Parameters param = future.getParameters();
-		String username = param.getParameter("username");
-		String password = param.getParameter("password");
+		String username = parameters.getParameter("username");
+		String password = parameters.getParameter("password");
 		
 		Authority authority = authorities.get(username);
 		

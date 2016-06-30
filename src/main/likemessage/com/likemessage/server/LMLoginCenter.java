@@ -8,8 +8,6 @@ import com.gifisan.database.SessionQuery;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.security.Authority;
 import com.gifisan.nio.extend.security.AuthorityLoginCenter;
 import com.likemessage.bean.T_USER;
@@ -23,11 +21,9 @@ public class LMLoginCenter extends AuthorityLoginCenter {
 		this.query = new SessionQuery(context);
 	}
 
-	protected Authority getAuthority(Session session, ReadFuture future) {
+	protected Authority getAuthority(Parameters parameters) {
 		try {
 			query.open();
-
-			Parameters parameters = future.getParameters();
 
 			String username = parameters.getParameter("username");
 
@@ -49,7 +45,7 @@ public class LMLoginCenter extends AuthorityLoginCenter {
 			query.close();
 		}
 
-		return super.getAuthority(session, future);
+		return super.getAuthority(parameters);
 	}
 	
 

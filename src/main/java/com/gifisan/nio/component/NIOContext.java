@@ -48,6 +48,8 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
 
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
+	
+	public abstract void setSessionFactory(SessionFactory sessionFactory);
 
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);
 

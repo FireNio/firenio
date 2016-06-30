@@ -14,7 +14,7 @@ public class SYSTEMShowMemoryServlet extends FutureAcceptorService{
 		
 		ApplicationContext context = ApplicationContext.getInstance();
 		
-		if (context.getLoginCenter().isValidate(session, future)) {
+		if (context.getLoginCenter().isValidate(future.getParameters())) {
 			int M = 1024 * 1024;
 			Runtime runtime = Runtime.getRuntime();
 			StringBuilder builder = new StringBuilder();

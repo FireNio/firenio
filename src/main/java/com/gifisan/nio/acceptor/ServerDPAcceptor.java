@@ -10,11 +10,13 @@ import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.component.protocol.DatagramRequest;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.FixedSessionFactory;
+import com.gifisan.nio.extend.LoginCenter;
 
 public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 	
@@ -59,13 +61,19 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 			
 			Parameters parameters = request.getParameters();
 			
-			Integer sessionID = parameters.getIntegerParameter("sessionID");
+			ApplicationContext context = ApplicationContext.getInstance();
 			
-			NIOContext context = endPoint.getContext();
+			LoginCenter loginCenter = context.getLoginCenter();
 			
-			SessionFactory factory = context.getSessionFactory();
+			if (!loginCenter.isValidate(parameters)) {
+				return;
+			}
 			
-			Session session = factory.getSession(sessionID);
+			FixedSessionFactory factory = context.getSessionFactory();
+			
+			String username = parameters.getParameter("username");
+			
+			Session session = factory.getSession(username);
 			
 			if (session == null) {
 				return ;

@@ -18,7 +18,6 @@ import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.SessionEventListener;
-import com.gifisan.nio.component.SessionFactory;
 import com.gifisan.nio.extend.configuration.ApplicationConfiguration;
 import com.gifisan.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.gifisan.nio.extend.configuration.FileSystemACLoader;
@@ -31,29 +30,29 @@ import com.gifisan.nio.extend.service.FutureAcceptorServiceLoader;
 
 public class ApplicationContext extends AbstractLifeCycle {
 
-	private static ApplicationContext	instance	;
+	private static ApplicationContext	instance;
 
 	public static ApplicationContext getInstance() {
 		return instance;
 	}
 
-	private String							appLocalAddres			;
-	private DynamicClassLoader				classLoader			= new DynamicClassLoader();
-	private ApplicationConfiguration			configuration			;
-	private ApplicationConfigurationLoader		configurationLoader		= new FileSystemACLoader();
-	private NIOContext						context				;
-	private Charset						encoding				= Encoding.DEFAULT;
-	private FutureAcceptor					filterService			= new FutureAcceptor(this, classLoader);
-	private Logger							logger				= LoggerFactory
-																	.getLogger(ApplicationContext.class);
-	private LoginCenter						loginCenter			= new AuthorityLoginCenter();
-	private List<FutureAcceptorFilter>			pluginFilters			= new ArrayList<FutureAcceptorFilter>();
-	private Map<String, FutureAcceptorService>	pluginServlets			= new HashMap<String, FutureAcceptorService>();
-	private RoleManager						roleManager			= new RoleManager();
-	private SessionFactory					sessionFactory			= new SessionFactory();
-	private FutureAcceptorServiceLoader		acceptorServiceLoader 	;
-	private Map<String, FutureAcceptorService>	services				= new LinkedHashMap<String, FutureAcceptorService>();
-	
+	private String							appLocalAddres;
+	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
+	private ApplicationConfiguration			configuration;
+	private ApplicationConfigurationLoader		configurationLoader	= new FileSystemACLoader();
+	private NIOContext						context;
+	private Charset						encoding			= Encoding.DEFAULT;
+	private FutureAcceptor					filterService		= new FutureAcceptor(this, classLoader);
+	private Logger							logger			= LoggerFactory
+																.getLogger(ApplicationContext.class);
+	private LoginCenter						loginCenter		= new AuthorityLoginCenter();
+	private List<FutureAcceptorFilter>			pluginFilters		= new ArrayList<FutureAcceptorFilter>();
+	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
+	private RoleManager						roleManager		= new RoleManager();
+	private FixedSessionFactory				sessionFactory		= new FixedSessionFactory();
+	private FutureAcceptorServiceLoader		acceptorServiceLoader;
+	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
+
 	protected void doStart() throws Exception {
 
 		if (context == null) {
@@ -67,19 +66,21 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.encoding = context.getEncoding();
 		this.appLocalAddres = bundle.getBaseDIR() + "app/";
 
-		LoggerUtil.prettyNIOServerLog(logger, "工作目录：  { {} }", appLocalAddres);
+		LoggerUtil.prettyNIOServerLog(logger, "工作目录        ：{ {} }", appLocalAddres);
 
 		this.filterService.start();
 		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
-		
+
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
-		this.context.addSessionEventListener(new MergeSessionIDSEListener());
-		
+		this.context.setSessionFactory(sessionFactory);
+		this.context.addSessionEventListener(new CleanSFactorySEListener());
+		// this.context.addSessionEventListener(new MergeSessionIDSEListener());
+
 		instance = this;
 	}
-	
+
 	public void addSessionEventListener(SessionEventListener listener) {
 		context.addSessionEventListener(listener);
 	}
@@ -151,7 +152,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return roleManager;
 	}
 
-	public SessionFactory getSessionFactory() {
+	public FixedSessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
 
@@ -194,19 +195,19 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 
 		if (this.loginCenter.getClass() != AuthorityLoginCenter.class) {
-			//FIXME 这里是否只能设置一次
-//			throw new IllegalArgumentException("already setted");
+			// FIXME 这里是否只能设置一次
+			// throw new IllegalArgumentException("already setted");
 		}
 
 		this.loginCenter = loginCenter;
 	}
 
-	public void listen(String serviceName,FutureAcceptorService service){
-		
+	public void listen(String serviceName, FutureAcceptorService service) {
+
 		if (isRunning()) {
 			throw new IllegalStateException("listen before start");
 		}
-		
+
 		this.services.put(serviceName, service);
 	}
 }
