@@ -19,18 +19,49 @@ import com.gifisan.nio.extend.implementation.ErrorServlet;
 //FIXME exception
 public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle, ReadFutureAcceptor {
 
-	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptor.class);
-	private ApplicationContext			context		;
-	private FutureAcceptorFilterWrapper	rootFilter	;
-	private FutureAcceptorFilterLoader		filterLoader	;
 	private DynamicClassLoader			classLoader	;
+	private ApplicationContext			context		;
+	private FutureAcceptorFilterLoader		filterLoader	;
+	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptor.class);
 	private PluginLoader				pluginLoader	;
-
+	private FutureAcceptorFilterWrapper	rootFilter	;
+	
 	public FutureAcceptor(ApplicationContext context, DynamicClassLoader classLoader) {
 
 		this.classLoader = classLoader;
 
 		this.context = context;
+	}
+
+	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future) {
+
+		for (; filter != null;) {
+
+			try {
+				
+				future.setIOEventHandle(filter);
+				
+				filter.accept(session, future);
+				
+			} catch (Exception e) {
+				
+				logger.error(e.getMessage(),e);
+				
+				IOEventHandle eventHandle = future.getIOEventHandle();
+				
+				eventHandle.exceptionCaughtOnRead(session, future, e);
+				
+				return true;
+			}
+
+			if (future.flushed()) {
+
+				return true;
+			}
+
+			filter = filter.nextFilter();
+		}
+		return true;
 	}
 
 	public void accept(Session session, ReadFuture future) throws IOException {
@@ -65,37 +96,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		}
 	}
 
-	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future) {
-
-		for (; filter != null;) {
-
-			try {
-				
-				future.setIOEventHandle(filter);
-				
-				filter.accept(session, future);
-				
-			} catch (Exception e) {
-				
-				logger.error(e.getMessage(),e);
-				
-				IOEventHandle eventHandle = future.getIOEventHandle();
-				
-				eventHandle.exceptionCaughtOnRead(session, future, e);
-				
-				return true;
-			}
-
-			if (future.flushed()) {
-
-				return true;
-			}
-
-			filter = filter.nextFilter();
-		}
-		return true;
-	}
-
 	protected void doStart() throws Exception {
 
 		this.classLoader.scan(context.getAppLocalAddress());
@@ -115,6 +115,14 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterLoader);
 		LifeCycleUtil.stop(pluginLoader);
+	}
+
+	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+		return filterLoader.getFutureAcceptorServiceLoader();
+	}
+
+	public PluginContext[] getPluginContexts() {
+		return pluginLoader.getPluginContexts();
 	}
 
 	public boolean redeploy(DynamicClassLoader classLoader) {
@@ -208,14 +216,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 			logger.error(e.getMessage(), e);
 		}
-	}
-
-	public PluginContext[] getPluginContexts() {
-		return pluginLoader.getPluginContexts();
-	}
-
-	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
-		return filterLoader.getFutureAcceptorServiceLoader();
 	}
 
 }

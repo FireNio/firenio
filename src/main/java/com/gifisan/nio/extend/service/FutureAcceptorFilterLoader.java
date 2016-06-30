@@ -2,6 +2,8 @@ package com.gifisan.nio.extend.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.gifisan.nio.AbstractLifeCycle;
@@ -14,7 +16,6 @@ import com.gifisan.nio.extend.DynamicClassLoader;
 import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.configuration.FiltersConfiguration;
-import com.gifisan.nio.extend.implementation.AuthorityFilter;
 
 public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
 
@@ -29,7 +30,6 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
-		this.serviceFilter = new FutureAcceptorServiceFilter(classLoader);
 	}
 
 	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
@@ -42,8 +42,10 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		List<Configuration> filterConfigurations = configuration.getFilters();
 
 		List<FutureAcceptorFilter> filters = new ArrayList<FutureAcceptorFilter>();
-
-		filters.add(new AuthorityFilter());
+		
+		this.serviceFilter = new FutureAcceptorServiceFilter(classLoader);
+		
+		filters.add(serviceFilter);
 
 		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
 			LoggerUtil.prettyNIOServerLog(logger, "没有配置Filter");
@@ -63,11 +65,30 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 			FutureAcceptorFilter filter = (FutureAcceptorFilter) classLoader.forName(clazzName).newInstance();
 
 			filter.setConfig(filterConfig);
+			
+			int sortIndex = filterConfig.getIntegerParameter("sortIndex",999);
+			
+			filter.setSortIndex(sortIndex);
 
 			filters.add(filter);
 		}
 
 		filters.addAll(context.getPluginFilters());
+		
+		Collections.sort(filters,new Comparator<FutureAcceptorFilter>() {
+
+			public int compare(FutureAcceptorFilter o1, FutureAcceptorFilter o2) {
+				
+				int i1 = o1.getSortIndex();
+				int i2 = o2.getSortIndex();
+				
+				if (i1 == i2) {
+					return 0;
+				}
+				
+				return i1 > i2 ? 1 : -1;
+			}
+		});
 
 		for (int i = 0; i < filters.size(); i++) {
 
@@ -87,14 +108,6 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 				last = _filter;
 			}
-		}
-
-		FutureAcceptorFilterWrapper filter = new FutureAcceptorFilterWrapper(context, serviceFilter, null);
-
-		if (last == null) {
-			rootFilter = filter;
-		} else {
-			last.setNextFilter(filter);
 		}
 
 		return rootFilter;

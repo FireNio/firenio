@@ -12,30 +12,30 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 
 	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("filters.config", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent("filters.cfg", Encoding.UTF8);
 
 		return loadFiltersConfiguration(json);
 	}
 
 	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("plugins.config", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent("plugins.cfg", Encoding.UTF8);
 
 		return loadPluginsConfiguration(json);
 	}
 
 	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("servlets.config", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent("services.cfg", Encoding.UTF8);
 
 		return loadServletsConfiguration(json);
 	}
 
 	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle) throws IOException {
 
-		String roles = PropertiesLoader.loadContent("permission/roles.config", Encoding.UTF8);
+		String roles = PropertiesLoader.loadContent("permission/roles.cfg", Encoding.UTF8);
 
-		String permissions = PropertiesLoader.loadContent("permission/permissions.config", Encoding.UTF8);
+		String permissions = PropertiesLoader.loadContent("permission/permissions.cfg", Encoding.UTF8);
 
 		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
 			return null;

@@ -31,12 +31,11 @@ import com.gifisan.nio.extend.security.Authority;
 
 public class FixedIOSession implements FixedSession {
 
-	private NIOContext						context			;
-	private Authority						authority			;
-	private Session						session			;
-	private UDPConnector					udpConnector		;
-	private Map<String, OnReadFutureWrapper>	listeners			= new HashMap<String, OnReadFutureWrapper>();
-
+	private NIOContext						context;
+	private Authority						authority;
+	private Session						session;
+	private UDPConnector					udpConnector;
+	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 
 	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
 			throws IOException {
@@ -45,7 +44,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session,serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
 
 		readFuture.write(content);
 
@@ -64,8 +63,8 @@ public class FixedIOSession implements FixedSession {
 
 		throw new TimeoutException("timeout");
 	}
-	
-	public void update(Session session){
+
+	public void update(Session session) {
 		this.session = session;
 		this.context = session.getContext();
 	}
@@ -76,7 +75,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session,serviceName);
+		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
 
 		readFuture.write(content);
 
@@ -94,19 +93,19 @@ public class FixedIOSession implements FixedSession {
 		if (onReadFuture == null) {
 			onReadFuture = OnReadFuture.EMPTY_ON_READ_FUTURE;
 		}
-		
+
 		OnReadFutureWrapper wrapper = listeners.get(serviceName);
-		
+
 		if (wrapper == null) {
-			
+
 			wrapper = new OnReadFutureWrapper();
-			
+
 			listeners.put(serviceName, wrapper);
 		}
 
 		wrapper.setListener(onReadFuture);
 	}
-	
+
 	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
@@ -116,13 +115,13 @@ public class FixedIOSession implements FixedSession {
 		if (onReadFuture == null) {
 			throw new IOException("empty onReadFuture");
 		}
-		
+
 		OnReadFutureWrapper wrapper = listeners.get(serviceName);
-		
+
 		if (wrapper == null) {
-			
+
 			wrapper = new OnReadFutureWrapper();
-			
+
 			listeners.put(serviceName, wrapper);
 		}
 
@@ -182,45 +181,45 @@ public class FixedIOSession implements FixedSession {
 
 	public RESMessage login4RES(String username, String password) {
 
-		if (logined.compareAndSet(false, true)) {
+		if (!logined.compareAndSet(false, true)) {
 
-			try {
-
-				Map<String, Object> param = new HashMap<String, Object>();
-				param.put("username", username);
-				param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
-				param.put("MACHINE_TYPE", session.getMachineType());
-
-				String paramString = JSONObject.toJSONString(param);
-
-				ReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
-
-				RESMessage message = RESMessageDecoder.decode(future.getText());
-
-				if (message.getCode() == 0) {
-
-					JSONObject o = (JSONObject) message.getData();
-
-					String className = o.getString("className");
-
-					Class clazz = ClassUtil.forName(className);
-
-					Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
-
-					setAuthority(authority);
-
-				} else {
-					logined.compareAndSet(true, false);
-				}
-
-				return message;
-			} catch (Exception e) {
-				logined.compareAndSet(true, false);
-				return new RESMessage(400, e.getMessage());
-			}
+			return RESMessage.SUCCESS;
 		}
 
-		return RESMessage.SUCCESS;
+		try {
+
+			Map<String, Object> param = new HashMap<String, Object>();
+			param.put("username", username);
+			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
+			param.put("MACHINE_TYPE", session.getMachineType());
+
+			String paramString = JSONObject.toJSONString(param);
+
+			ReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+
+			RESMessage message = RESMessageDecoder.decode(future.getText());
+
+			if (message.getCode() == 0) {
+
+				JSONObject o = (JSONObject) message.getData();
+
+				String className = o.getString("className");
+
+				Class clazz = ClassUtil.forName(className);
+
+				Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
+
+				setAuthority(authority);
+
+			} else {
+				logined.compareAndSet(true, false);
+			}
+
+			return message;
+		} catch (Exception e) {
+			logined.compareAndSet(true, false);
+			return new RESMessage(400, e.getMessage());
+		}
 	}
 
 	public boolean login(String username, String password) {
@@ -243,14 +242,10 @@ public class FixedIOSession implements FixedSession {
 		if (udpConnector == null) {
 			throw new IllegalArgumentException("null udp connector");
 		}
-		
-		if(authority == null){
+
+		if (authority == null) {
 			throw new IllegalArgumentException("not login");
 		}
-
-		Session session = this.session;
-
-		Integer sessionID = session.getSessionID();
 
 		JSONObject json = new JSONObject();
 
@@ -305,7 +300,7 @@ public class FixedIOSession implements FixedSession {
 			throw DisconnectException.INSTANCE;
 		}
 	}
-	
+
 	public NIOContext getContext() {
 		return context;
 	}

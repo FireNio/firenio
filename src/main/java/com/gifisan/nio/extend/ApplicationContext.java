@@ -52,7 +52,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private FixedSessionFactory				sessionFactory		= new FixedSessionFactory();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
-
+	
 	protected void doStart() throws Exception {
 
 		if (context == null) {

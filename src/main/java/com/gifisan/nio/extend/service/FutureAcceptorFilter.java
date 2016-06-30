@@ -12,6 +12,8 @@ import com.gifisan.nio.extend.configuration.Configuration;
 
 public abstract class FutureAcceptorFilter extends InitializeableImpl implements Initializeable, HotDeploy, IOEventHandle {
 	
+	private int sortIndex;
+	
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
 	}
@@ -36,5 +38,14 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 	}
 
 	public void futureSent(Session session, WriteFuture future) {
+	
+	}
+
+	public int getSortIndex() {
+		return sortIndex;
+	}
+
+	public void setSortIndex(int sortIndex) {
+		this.sortIndex = sortIndex;
 	}
 }

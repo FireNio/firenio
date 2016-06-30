@@ -21,6 +21,7 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	public FutureAcceptorServiceFilter(DynamicClassLoader classLoader) {
 		this.classLoader = classLoader;
+		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
