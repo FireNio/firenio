@@ -23,25 +23,16 @@ public class LifeCycleUtil {
 		}
 	}
 
-	public static void forceStop(LifeCycle lifeCycle) {
-		if (lifeCycle == null) {
-			return;
-		}
-
-		if (lifeCycle.isRunning()) {
-			try {
-				lifeCycle.stop();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
 	public static void start(LifeCycle lifeCycle){
 		
 		if (lifeCycle == null) {
 			return;
 		}
+		
+		if (!lifeCycle.isStopped()) {
+			return;
+		}
+		
 		try {
 			lifeCycle.start();
 		} catch (Throwable e) {

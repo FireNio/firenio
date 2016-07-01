@@ -68,7 +68,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录        ：{ {} }", appLocalAddres);
 
-		this.filterService.start();
+		LifeCycleUtil.start(filterService);
+		
 		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
 

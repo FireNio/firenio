@@ -65,7 +65,7 @@ public class SessionQuery extends DefaultConnectionProxy {
 		
 		DataBaseContext context = new DataBaseContext();
 		
-		context.start();
+		LifeCycleUtil.start(context);
 		
 		SessionQuery query = new SessionQuery(context);
 		

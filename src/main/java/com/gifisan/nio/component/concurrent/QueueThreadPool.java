@@ -26,9 +26,8 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 		}
 
 		public void startWork() throws Exception {
-			this.worker.start();
+			LifeCycleUtil.start(worker);
 			this.start();
-
 		}
 
 		public void stopWork() {

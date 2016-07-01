@@ -88,7 +88,7 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 		this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context, classLoader);
 
-		this.acceptorServiceLoader.start();
+		LifeCycleUtil.start(acceptorServiceLoader);
 	}
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {

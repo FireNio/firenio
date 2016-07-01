@@ -30,9 +30,7 @@ public class RTPSessionEventListener implements SessionEventListener{
 		
 		if (room != null) {
 			
-			Session _session = (Session) session;
-			
-			room.leave(_session.getUDPEndPoint());
+			room.leave(session.getUDPEndPoint());
 		}
 	}
 	

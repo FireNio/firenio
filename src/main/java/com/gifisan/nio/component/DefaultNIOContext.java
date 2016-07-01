@@ -92,7 +92,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数       ：{ {} }", SERVER_CORE_SIZE);
 
 		this.ioEventHandleAdaptor.setContext(this);
-		this.ioEventHandleAdaptor.start();
+		
+		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
 		if (protocolEncoder == null) {
 			protocolEncoder = new DefaultTCPProtocolEncoder();
@@ -106,7 +107,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			sessionFactory = new SessionFactory();
 		}
 		
-		this.threadPool.start();
+		LifeCycleUtil.start(threadPool);
 	}
 
 	protected void doStop() throws Exception {

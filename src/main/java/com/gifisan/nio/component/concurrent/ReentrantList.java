@@ -1,21 +1,16 @@
 package com.gifisan.nio.component.concurrent;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-//FIXME 做重复判断
+//FIXME 是否需要做重复判断
 public class ReentrantList<T> {
 
 	private List<T>		snapshot		= new ArrayList<T>();
-	private List<T>		addList		= new ArrayList<T>();
-	private List<T>		removeList	= new ArrayList<T>();
+	private List<Event>		modifList		= new ArrayList<Event>();
 	private ReentrantLock	loack		= new ReentrantLock();
-	private Set<Object>		dataSet		= new HashSet<Object>();
-	private boolean		addFlag		= false;
-	private boolean		removeFlag	= false;
+	private boolean		modifid		= false;
 	private int			size			;
 
 	public List<T> getSnapshot() {
@@ -26,71 +21,28 @@ public class ReentrantList<T> {
 	}
 
 	private void takeSnapshot() {
-		if (addFlag) {
+		if (modifid) {
 			ReentrantLock lock = this.loack;
 
 			lock.lock();
 
-			List<T> addList = this.addList;
+			List<Event> modifList = this.modifList;
 
-			for (T t : addList) {
-				snapshot.add(t);
+			for (Event e : modifList) {
+				
+				if (e.isAdd) {
+					snapshot.add(e.value);
+				}else{
+					snapshot.remove(e.value);
+				}
 			}
+			
+			modifList.clear();
 
-			addList.clear();
-
-			this.addFlag = false;
+			this.modifid = false;
 
 			lock.unlock();
 		}
-
-		if (removeFlag) {
-
-			ReentrantLock lock = this.loack;
-
-			lock.lock();
-
-			List<T> removeList = this.removeList;
-
-			for (T t : removeList) {
-				snapshot.remove(t);
-				dataSet.remove(t);
-			}
-
-			removeList.clear();
-
-			this.removeFlag = false;
-
-			lock.unlock();
-		}
-	}
-
-	public void addAll(List<T> ts) {
-
-		ReentrantLock lock = this.loack;
-
-		lock.lock();
-
-		for (T t : ts) {
-			if (!dataSet.contains(t)) {
-
-				add0(t);
-			}
-		}
-
-		lock.unlock();
-
-	}
-
-	private void add0(T t) {
-
-		this.dataSet.add(t);
-
-		this.addList.add(t);
-
-		this.addFlag = true;
-
-		this.size++;
 	}
 
 	public boolean add(T t) {
@@ -99,14 +51,15 @@ public class ReentrantList<T> {
 
 		lock.lock();
 
-		if (dataSet.contains(t)) {
+		Event e = new Event();
+		e.isAdd = true;
+		e.value = t;
 
-			lock.unlock();
+		this.modifList.add(e);
 
-			return false;
-		}
+		this.modifid = true;
 
-		this.add0(t);
+		this.size++;
 
 		lock.unlock();
 
@@ -119,49 +72,30 @@ public class ReentrantList<T> {
 
 		lock.lock();
 
-		if (!dataSet.contains(t)) {
+		Event e = new Event();
+		e.isAdd = false;
+		e.value = t;
 
-			lock.unlock();
+		this.modifList.add(e);
 
-			return;
-		}
-
-		this.remove0(t);
-
-		lock.unlock();
-	}
-
-	private void remove0(T t) {
-
-		this.removeList.add(t);
-
-		this.removeFlag = true;
+		this.modifid = true;
 
 		this.size--;
-	}
-
-	public void removeAll(List<T> ts) {
-
-		ReentrantLock lock = this.loack;
-
-		lock.lock();
-
-		for (T t : ts) {
-			if (dataSet.contains(t)) {
-
-				this.remove0(t);
-			}
-		}
 
 		lock.unlock();
 	}
-	
+
 	public ReentrantLock getReentrantLock(){
 		return loack;
 	}
 
 	public int size() {
 		return size;
+	}
+	
+	class Event {
+		T		value;
+		boolean	isAdd;
 	}
 
 }

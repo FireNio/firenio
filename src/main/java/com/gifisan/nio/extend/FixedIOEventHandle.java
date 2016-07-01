@@ -38,7 +38,7 @@ public class FixedIOEventHandle extends IOEventHandleAdaptor {
 
 	protected void doStart() throws Exception {
 
-		this.applicationContext.start();
+		LifeCycleUtil.start(applicationContext);
 
 		this.filterService = applicationContext.getFilterService();
 

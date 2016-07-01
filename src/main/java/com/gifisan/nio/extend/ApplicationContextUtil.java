@@ -28,9 +28,4 @@ public class ApplicationContextUtil {
 		return authorityManager.getAuthority();
 	}
 	
-	public static Authority getAuthority(FixedSession session){
-		
-		return getAuthority(session.getSession());
-	}
-	
 }

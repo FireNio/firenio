@@ -2,13 +2,18 @@ package com.gifisan.nio.extend.plugin.rtp.client;
 
 import java.io.IOException;
 
+import com.alibaba.fastjson.JSONObject;
+import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.ByteUtil;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.connector.UDPConnector;
-import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.OnReadFuture;
 import com.gifisan.nio.extend.plugin.jms.MQException;
 import com.gifisan.nio.extend.plugin.jms.MapMessage;
 import com.gifisan.nio.extend.plugin.jms.client.MessageProducer;
@@ -18,6 +23,7 @@ import com.gifisan.nio.extend.plugin.jms.client.impl.OnMappedMessage;
 import com.gifisan.nio.extend.plugin.rtp.RTPException;
 import com.gifisan.nio.extend.plugin.rtp.server.RTPCreateRoomServlet;
 import com.gifisan.nio.extend.plugin.rtp.server.RTPJoinRoomServlet;
+import com.gifisan.nio.extend.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.extend.security.Authority;
 
 public class RTPClient {
@@ -127,7 +133,11 @@ public class RTPClient {
 			throw new RTPException("none roomID,create room first");
 		}
 		
-		Authority authority = ApplicationContextUtil.getAuthority(session);
+		Authority authority = session.getAuthority();
+		
+		if (authority == null) {
+			throw new RTPException("not login");
+		}
 
 		MapMessage message = new MapMessage("msgID", inviteUsername);
 
@@ -178,7 +188,11 @@ public class RTPClient {
 	public boolean leaveRoom() throws RTPException {
 		try {
 			
-			Authority authority = ApplicationContextUtil.getAuthority(session);
+			Authority authority = session.getAuthority();
+			
+			if (authority == null) {
+				throw new RTPException("not login");
+			}
 
 			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
@@ -209,5 +223,62 @@ public class RTPClient {
 
 	public void setRTPClientDPAcceptor(RTPClientDPAcceptor acceptor) {
 		context.setDatagramPacketAcceptor(acceptor);
+	}
+	
+	public void bindTCPSession() throws IOException {
+
+		if (connector == null) {
+			throw new IllegalArgumentException("null udp connector");
+		}
+		
+		Authority authority = session.getAuthority();
+
+		if (authority == null) {
+			throw new IllegalArgumentException("not login");
+		}
+
+		JSONObject json = new JSONObject();
+
+		// FIXME add more info
+		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
+
+		json.put("username", authority.getUsername());
+		json.put("password", authority.getPassword());
+
+		final DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
+
+		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
+
+		final Waiter<Integer> waiter = new Waiter<Integer>();
+
+		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
+
+			public void onResponse(FixedSession session, ReadFuture future) {
+
+				waiter.setPayload(0);
+			}
+		});
+
+		ThreadUtil.execute(new Runnable() {
+
+			public void run() {
+				
+				for (int i = 0; i < 10; i++) {
+
+					connector.sendDatagramPacket(packet);
+
+					if (waiter.lightWait(300)) {
+
+						break;
+					}
+				}
+			}
+		});
+
+		if (!waiter.await(3000)) {
+			CloseUtil.close(connector);
+
+			throw new DisconnectException("disconnected");
+		}
 	}
 }

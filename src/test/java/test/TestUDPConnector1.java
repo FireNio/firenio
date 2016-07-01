@@ -20,7 +20,7 @@ public class TestUDPConnector1 {
 		
 		FixedSession session = launcher.getFixedSession();
 
-		session.login("admin", "admin100");
+		session.login("udp1", "udp1");
 		
 		UDPConnector udpConnector = new UDPConnector(connector.getSession());
 		
@@ -28,11 +28,9 @@ public class TestUDPConnector1 {
 		
 		String otherCustomerID = "udp2";
 		
-		session.bindUDPSession();
-
 		RTPClient client = new RTPClient(session,udpConnector);
 		
-		
+		client.bindTCPSession();
 		
 		client.setRTPHandle(new TestUDPReceiveHandle());
 

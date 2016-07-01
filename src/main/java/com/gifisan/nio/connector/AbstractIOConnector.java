@@ -49,12 +49,8 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 				throw new IllegalArgumentException("null nio context");
 			}
 
-			try {
-				context.start();
-			} catch (Exception e) {
-				throw new IOException(e);
-			}
-
+			LifeCycleUtil.start(context);
+			
 			ServerConfiguration configuration = context.getServerConfiguration();
 
 			String SERVER_HOST = getSERVER_HOST(configuration);

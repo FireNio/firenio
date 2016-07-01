@@ -20,15 +20,15 @@ public class TestUDPConnector2 {
 		
 		FixedSession session = launcher.getFixedSession();
 
-		session.login("admin", "admin100");
+		session.login("udp2", "udp2");
 		
 		UDPConnector udpConnector = new UDPConnector(connector.getSession());
 		
 		udpConnector.connect();
 		
-		session.bindUDPSession();
-		
 		RTPClient client = new RTPClient(session,udpConnector);
+		
+		client.bindTCPSession();
 		
 		client.setRTPHandle(new TestUDPReceiveHandle());
 

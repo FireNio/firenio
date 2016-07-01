@@ -38,8 +38,6 @@ public interface FixedSession extends ReadFutureAcceptor{
 	
 	public abstract NIOContext getContext();
 	
-	public abstract void bindUDPSession() throws IOException;
-
 	public abstract Authority getAuthority();
 	
 }

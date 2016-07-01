@@ -6,17 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.gifisan.nio.component.EntryList;
+public class ReentrantMap<K, V> {
 
-public class ReentrantMap<K,V> {
-
-	private Map<K, V>		snapshot		= new HashMap<K, V>();
-	private EntryList<K, V>	addList		= new EntryList<K, V>();
-	private List<K>		removeList	= new ArrayList<K>();
-	private ReentrantLock	loack		= new ReentrantLock();
-	private boolean		addFlag		= false;
-	private boolean		removeFlag	= false;
-	private int			size			;
+	private Map<K, V>		snapshot	= new HashMap<K, V>();
+	private List<Event>		modifList	= new ArrayList<Event>();
+	private ReentrantLock	loack	= new ReentrantLock();
+	private boolean		modifid	= false;
+	private int			size;
 
 	public V get(K key) {
 
@@ -26,49 +22,34 @@ public class ReentrantMap<K,V> {
 	}
 
 	public void takeSnapshot() {
-		if (addFlag) {
+		if (modifid) {
 			ReentrantLock lock = this.loack;
 
 			lock.lock();
 
-			EntryList<K, V> addList = this.addList;
+			List<Event> modifList = this.modifList;
 
-			for (int i = 0, size = addList.size(); i < size; i++) {
+			for (Event e : modifList) {
 
-				snapshot.put(addList.getKey(i), addList.getValue(i));
+				if (e.isAdd) {
+					snapshot.put(e.key, e.value);
+				} else {
+					snapshot.remove(e.key);
+				}
 			}
 
-			addList.clear();
+			modifList.clear();
 
-			this.addFlag = false;
-
-			lock.unlock();
-		}
-
-		if (removeFlag) {
-
-			ReentrantLock lock = this.loack;
-
-			lock.lock();
-
-			List<K> removeList = this.removeList;
-
-			for (K key : removeList) {
-				snapshot.remove(key);
-			}
-
-			removeList.clear();
-
-			this.removeFlag = false;
+			this.modifid = false;
 
 			lock.unlock();
 		}
 	}
-	
+
 	public Map<K, V> getSnapshot() {
-		
+
 		takeSnapshot();
-		
+
 		return snapshot;
 	}
 
@@ -78,11 +59,17 @@ public class ReentrantMap<K,V> {
 
 		lock.lock();
 
-		this.addList.add(key, value);
+		Event event = new Event();
+
+		event.key = key;
+		event.value = value;
+		event.isAdd = true;
+
+		this.modifList.add(event);
 
 		this.size++;
 
-		this.addFlag = true;
+		this.modifid = true;
 
 		lock.unlock();
 
@@ -95,11 +82,16 @@ public class ReentrantMap<K,V> {
 
 		lock.lock();
 
-		this.removeList.add(key);
+		Event event = new Event();
+
+		event.key = key;
+		event.isAdd = false;
+
+		this.modifList.add(event);
 
 		this.size--;
 
-		this.removeFlag = true;
+		this.modifid = true;
 
 		lock.unlock();
 	}
@@ -108,8 +100,15 @@ public class ReentrantMap<K,V> {
 		return loack;
 	}
 
+	//FIXME you wen ti
 	public int size() {
 		return size;
+	}
+
+	class Event {
+		K		key;
+		V		value;
+		boolean	isAdd;
 	}
 
 }

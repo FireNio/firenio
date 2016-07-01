@@ -17,7 +17,7 @@ public class DataBaseUtil {
 			
 			dataBaseContext = new DataBaseContext();
 			
-			dataBaseContext.start();
+			LifeCycleUtil.start(dataBaseContext);
 		}
 	}
 	

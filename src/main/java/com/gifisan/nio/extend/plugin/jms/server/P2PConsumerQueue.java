@@ -20,10 +20,6 @@ public class P2PConsumerQueue implements ConsumerQueue{
 		consumers.remove(consumer);
 	}
 
-	public void remove(List<Consumer> consumers) {
-		this.consumers.removeAll(consumers);
-	}
-
 	public List<Consumer> getSnapshot() {
 		return consumers.getSnapshot();
 	}

@@ -46,11 +46,6 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 
 			factory.removeUDPEndPoint(this);
 			
-			if (session != null) {
-				
-				session.destroy();
-			}
-
 			LOGGER.debug(">>>> rm {}", this.toString());
 		}
 	}

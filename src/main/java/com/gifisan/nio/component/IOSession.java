@@ -179,6 +179,7 @@ public class IOSession extends AttributesImpl implements Session {
 
 		factory.removeSession(this);
 
+		//FIXME 
 		CloseUtil.close(udpEndPoint);
 
 		this.closed = true;

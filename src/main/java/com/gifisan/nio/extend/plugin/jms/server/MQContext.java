@@ -48,9 +48,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
 
-		p2pProductLine.start();
-
-		subProductLine.start();
+		LifeCycleUtil.start(p2pProductLine);
+		LifeCycleUtil.start(subProductLine);
 
 		p2pThread.start();
 
@@ -149,10 +148,9 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		Thread p2pThread = new Thread(p2pProductLine, "MQ-P2P-ProductLine");
 
 		Thread subThread = new Thread(subProductLine, "MQ-SUB-ProductLine");
-
-		p2pProductLine.start();
-
-		subProductLine.start();
+		
+		LifeCycleUtil.start(p2pProductLine);
+		LifeCycleUtil.start(subProductLine);
 
 		p2pThread.start();
 

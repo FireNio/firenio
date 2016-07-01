@@ -104,9 +104,9 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 		this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader);
 
-		this.pluginLoader.start();
-
-		this.filterLoader.start();
+		LifeCycleUtil.start(pluginLoader);
+		
+		LifeCycleUtil.start(filterLoader);
 
 		this.rootFilter = filterLoader.getRootFilter();
 

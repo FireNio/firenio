@@ -5,9 +5,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.CloseUtil;
@@ -18,6 +15,7 @@ import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
 import com.gifisan.nio.component.concurrent.TaskExecutor;
 import com.gifisan.nio.component.concurrent.UniqueThread;
+import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class TCPConnector extends AbstractIOConnector {
@@ -30,10 +28,6 @@ public class TCPConnector extends AbstractIOConnector {
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
 	private UniqueThread		taskExecutorThread;
 	private long				beatPacket;
-	private ReentrantLock		connectorLock			= new ReentrantLock();
-	private Condition			connectorWaiter		= connectorLock.newCondition();
-	private boolean			timeout;
-	private boolean			connected;
 	private IOException			connectException;
 
 	public long getBeatPacket() {
@@ -72,56 +66,28 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.connect(address);
 
-		//FIXME capacity should not be so big
+		// FIXME capacity should not be so big
 		this.endPointWriter = new DefaultEndPointWriter(1024 * 512);
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
 	}
 
+	private Waiter	waiter	= new Waiter();
+
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {
 
 		this.selectorLoopThread.start(selectorLoop, this.toString());
 
-		ReentrantLock lock = this.connectorLock;
+		if (!waiter.await(3000)) {
 
-		lock.lock();
-
-		try {
-			
-			if (!connected) {
-				
-				doConnect();
-			}
-
-		} finally {
-
-			lock.unlock();
-		}
-	}
-	
-	private void doConnect() throws IOException{
-		
-		try {
-			
-			connectorWaiter.await(1000, TimeUnit.MILLISECONDS);
-			
-		} catch (InterruptedException e) {
-			
-			connectorWaiter.signal();
-		}
-
-		if (!connected) {
-			
-			timeout = true;
-			
 			CloseUtil.close(this);
-			
+
 			if (connectException == null) {
-				
+
 				throw new TimeoutException("time out");
 			}
-			
-			throw new TimeoutException(connectException.getMessage(),connectException);
+
+			throw new TimeoutException(connectException.getMessage(), connectException);
 		}
 	}
 
@@ -130,7 +96,7 @@ public class TCPConnector extends AbstractIOConnector {
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 		LifeCycleUtil.stop(taskExecutorThread);
-		
+
 		CloseUtil.close(endPoint);
 	}
 
@@ -145,51 +111,30 @@ public class TCPConnector extends AbstractIOConnector {
 		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
 	}
 
-	protected void finishConnect(TCPEndPoint endPoint,IOException exception) {
+	protected void finishConnect(TCPEndPoint endPoint, IOException exception) {
 
-		ReentrantLock lock = this.connectorLock;
-
-		lock.lock();
-		
-		if (timeout) {
-			
-			lock.unlock();
-			
-			return;
-		}
-		
 		if (exception == null) {
-			
-			connected = true;
 
-			try {
+			this.endPoint = endPoint;
 
-				connectorWaiter.signal();
+			this.session = endPoint.getSession();
 
-				this.endPoint = endPoint;
+			this.waiter.setPayload(null);
 
-				this.session = endPoint.getSession();
-				
-//				this.endPointWriter.setEndPoint(endPoint);
+			if (waiter.isSuccess()) {
+
+				this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
 
 				if (beatPacket > 0) {
 					this.startTouchDistantJob();
 				}
-
-				this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-			} finally {
-
-				lock.unlock();
 			}
 			
-		}else{
-			
-			connectException = exception;
-			
-			connectorWaiter.signal();
-			
-			lock.unlock();
+		} else {
+
+			this.connectException = exception;
+
+			this.waiter.setPayload(null);
 		}
 	}
 }
