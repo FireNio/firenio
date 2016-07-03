@@ -9,16 +9,15 @@ import com.gifisan.nio.common.MathUtil;
 /**
  * 
  * <pre>
- * [0       ~              19]
+ * [0       ~              11]
  *  0  ~  7   = timestamp
  *  8  ~  11  = sequenceNo
- *  12 ~  13  = roomID
  * </pre>
  * 
  */
 public class DatagramPacket {
 
-	public static final int		PACKET_HEADER		= 8 + 4 + 2;
+	public static final int		PACKET_HEADER		= 8 + 4;
 	public static final int		IP_HEADER		= 20;
 	public static final int		UDP_HEADER		= 8;
 	public static final int		PACKET_MAX		= 1500 - IP_HEADER - UDP_HEADER - PACKET_HEADER;
@@ -37,7 +36,6 @@ public class DatagramPacket {
 	private InetSocketAddress	remoteSocketAddress	;
 
 	public DatagramPacket(ByteBuffer buffer,InetSocketAddress remoteSocketAddress) {
-
 		this.source = buffer;
 		this.sourceLength = buffer.position();
 		this.remoteSocketAddress = remoteSocketAddress;

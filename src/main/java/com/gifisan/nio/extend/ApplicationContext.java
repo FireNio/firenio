@@ -37,6 +37,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	}
 
 	private String							appLocalAddres;
+	private Sequence						sequence			= new Sequence();
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
 	private ApplicationConfigurationLoader		configurationLoader	= new FileSystemACLoader();
@@ -58,6 +59,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		if (context == null) {
 			throw new IllegalArgumentException("null nio context");
 		}
+		
+		instance = this;
 
 		SharedBundle bundle = SharedBundle.instance();
 
@@ -78,8 +81,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.context.setSessionFactory(sessionFactory);
 		this.context.addSessionEventListener(new CleanSFactorySEListener());
 		// this.context.addSessionEventListener(new MergeSessionIDSEListener());
-
-		instance = this;
 	}
 
 	public void addSessionEventListener(SessionEventListener listener) {
@@ -210,5 +211,9 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 
 		this.services.put(serviceName, service);
+	}
+
+	public Sequence getSequence() {
+		return sequence;
 	}
 }

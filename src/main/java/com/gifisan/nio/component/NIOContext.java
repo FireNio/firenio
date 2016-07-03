@@ -35,6 +35,8 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract ThreadPool getThreadPool();
 
+	public abstract Sequence getSequence();
+
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
 
 	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);
@@ -48,7 +50,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
 
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
-	
+
 	public abstract void setSessionFactory(SessionFactory sessionFactory);
 
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);

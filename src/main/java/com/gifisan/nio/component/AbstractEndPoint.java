@@ -4,11 +4,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.gifisan.nio.Attachment;
-import com.gifisan.nio.component.concurrent.FixedAtomicInteger;
 
 public abstract class AbstractEndPoint implements EndPoint {
 
-	private static FixedAtomicInteger	autoEndPointID	= new FixedAtomicInteger(10000, Integer.MAX_VALUE);
 	private Attachment				attachment;
 	private NIOContext				context;
 	private Integer				endPointID;
@@ -17,7 +15,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 
 	public AbstractEndPoint(NIOContext context) {
 		this.context = context;
-		this.endPointID = autoEndPointID.getAndIncrement();
+		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
 	}
 
 	public void attach(Attachment attachment) {

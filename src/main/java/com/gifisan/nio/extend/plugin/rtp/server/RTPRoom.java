@@ -2,7 +2,6 @@ package com.gifisan.nio.extend.plugin.rtp.server;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.Logger;
@@ -11,16 +10,17 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
 import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.ApplicationContextUtil;
+import com.gifisan.nio.extend.Sequence;
 import com.gifisan.nio.extend.plugin.jms.MapMessage;
 import com.gifisan.nio.extend.plugin.jms.server.MQContext;
 import com.gifisan.nio.extend.security.Authority;
 
+//FIXME 是不是要限制最多room数
 public class RTPRoom {
 
-	private static AtomicInteger		autoRoomID	= new AtomicInteger();
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
-	public static final int		MAX_ENDPOINT	= 1 << 6;
 
 	private RTPContext				context		;
 	private ReentrantList<UDPEndPoint>	endPointList	= new ReentrantList<UDPEndPoint>();
@@ -59,18 +59,9 @@ public class RTPRoom {
 
 	private Integer genRoomID() {
 
-		for (;;) {
-			int id = autoRoomID.get();
-
-			int _next = id + 1;
-
-			if (_next > MAX_ENDPOINT) {
-				_next = 0;
-			}
-
-			if (autoRoomID.compareAndSet(id, _next))
-				return _next;
-		}
+		Sequence sequence = ApplicationContext.getInstance().getSequence();
+		
+		return sequence.AUTO_ROOM_ID.getAndIncrement();
 	}
 
 	public Integer getRoomID() {
@@ -84,13 +75,6 @@ public class RTPRoom {
 		lock.lock();
 
 		if (closed) {
-
-			lock.unlock();
-
-			return false;
-		}
-
-		if (endPointList.size() > MAX_ENDPOINT) {
 
 			lock.unlock();
 

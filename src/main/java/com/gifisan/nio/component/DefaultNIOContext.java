@@ -24,6 +24,7 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private Map<Object, Object>			attributes			= new HashMap<Object, Object>();
+	private Sequence					sequence				= new Sequence();
 	private DatagramPacketAcceptor		datagramPacketAcceptor	;
 	private Charset					encoding				= Encoding.DEFAULT;
 	private IOEventHandleAdaptor			ioEventHandleAdaptor	;
@@ -237,4 +238,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.udpService = udpService;
 	}
 
+	public Sequence getSequence() {
+		return sequence;
+	}
 }

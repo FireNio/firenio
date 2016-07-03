@@ -78,7 +78,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 		this.selectorLoopThread.start(selectorLoop, this.toString());
 
-		if (!waiter.await(3000)) {
+		if (!waiter.await(300000)) {
 
 			CloseUtil.close(this);
 
