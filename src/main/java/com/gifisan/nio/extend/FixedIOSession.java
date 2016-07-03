@@ -4,85 +4,53 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.common.ClassUtil;
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
-import com.gifisan.nio.extend.plugin.rtp.server.RTPServerDPAcceptor;
 import com.gifisan.nio.extend.security.Authority;
 
 public class FixedIOSession implements FixedSession {
 
-	private NIOContext						context;
 	private Authority						authority;
-	private Session						session;
-	private UDPConnector					udpConnector;
+	private NIOContext						context;
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
+	private AtomicBoolean					logined	= new AtomicBoolean(false);
+	private Session						session;
 
-	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
-			throws IOException {
+	public void accept(Session session, final ReadFuture future) throws Exception {
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
+		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
+
+		if (onReadFuture != null) {
+			onReadFuture.onResponse(this, future);
 		}
-
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
-
-		readFuture.write(content);
-
-		readFuture.setInputStream(inputStream);
-
-		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
-
-		waiterListen(serviceName, onReadFuture);
-
-		session.flush(readFuture);
-
-		//FIXME 连接丢失时叫醒我
-		if (onReadFuture.await(timeout)) {
-
-			return onReadFuture.getReadFuture();
-		}
-
-		throw new TimeoutException("timeout");
 	}
 
-	public void update(Session session) {
-		this.session = session;
-		this.context = session.getContext();
+	public Authority getAuthority() {
+		return authority;
 	}
 
-	public void write(String serviceName, String content, InputStream inputStream) throws IOException {
+	public NIOContext getContext() {
+		return context;
+	}
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
+	public Session getSession() {
+		return session;
+	}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
-
-		readFuture.write(content);
-
-		readFuture.setInputStream(inputStream);
-
-		session.flush(readFuture);
+	public boolean isLogined() {
+		return logined.get();
 	}
 
 	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
@@ -107,77 +75,11 @@ public class FixedIOSession implements FixedSession {
 		wrapper.setListener(onReadFuture);
 	}
 
-	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
+	public boolean login(String username, String password) {
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
+		RESMessage message = login4RES(username, password);
 
-		if (onReadFuture == null) {
-			throw new IOException("empty onReadFuture");
-		}
-
-		OnReadFutureWrapper wrapper = listeners.get(serviceName);
-
-		if (wrapper == null) {
-
-			wrapper = new OnReadFutureWrapper();
-
-			listeners.put(serviceName, wrapper);
-		}
-
-		wrapper.listen(onReadFuture);
-	}
-
-	public void accept(Session session, final ReadFuture future) throws Exception {
-
-		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
-
-		if (onReadFuture != null) {
-			onReadFuture.onResponse(this, future);
-		}
-	}
-
-	public void offerReadFuture(final ReadFuture future) {
-
-	}
-
-	public Session getSession() {
-		return session;
-	}
-
-	public ReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, 3000000);
-	}
-
-	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
-		return request(serviceName, content, inputStream, 3000000);
-	}
-
-	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {
-		return request(serviceName, content, null, timeout);
-	}
-
-	public void write(String serviceName, String content) throws IOException {
-		write(serviceName, content, null);
-	}
-
-	public Authority getAuthority() {
-		return authority;
-	}
-
-	public void setAuthority(Authority authority) {
-		this.authority = authority;
-	}
-
-	private AtomicBoolean	logined	= new AtomicBoolean(false);
-
-	public UDPConnector getUdpConnector() {
-		return udpConnector;
-	}
-
-	public void setUdpConnector(UDPConnector udpConnector) {
-		this.udpConnector = udpConnector;
+		return message.getCode() == 0;
 	}
 
 	public RESMessage login4RES(String username, String password) {
@@ -223,86 +125,97 @@ public class FixedIOSession implements FixedSession {
 		}
 	}
 
-	public boolean login(String username, String password) {
-
-		RESMessage message = login4RES(username, password);
-
-		return message.getCode() == 0;
-	}
-
 	public void logout() {
 		// TODO complete logout
 	}
 
-	public boolean isLogined() {
-		return logined.get();
+	public ReadFuture request(String serviceName, String content) throws IOException {
+		return request(serviceName, content, 3000000);
 	}
 
-	public void bindUDPSession() throws IOException {
-
-		if (udpConnector == null) {
-			throw new IllegalArgumentException("null udp connector");
-		}
-
-		if (authority == null) {
-			throw new IllegalArgumentException("not login");
-		}
-
-		JSONObject json = new JSONObject();
-
-		// FIXME add more info
-		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
-
-		json.put("username", authority.getUsername());
-		json.put("password", authority.getPassword());
-
-		final DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
-
-		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
-
-		final CountDownLatch latch = new CountDownLatch(1);
-
-		listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
-
-			public void onResponse(FixedSession session, ReadFuture future) {
-
-				latch.countDown();
-
-			}
-		});
-
-		final Waiter<Integer> waiter = new Waiter<Integer>();
-
-		ThreadUtil.execute(new Runnable() {
-
-			public void run() {
-				for (int i = 0; i < 10; i++) {
-
-					udpConnector.sendDatagramPacket(packet);
-
-					try {
-						if (latch.await(300, TimeUnit.MILLISECONDS)) {
-
-							waiter.setPayload(0);
-
-							break;
-						}
-					} catch (InterruptedException e) {
-
-						CloseUtil.close(udpConnector);
-					}
-				}
-			}
-		});
-
-		if (!waiter.await(3000)) {
-			CloseUtil.close(udpConnector);
-
-			throw new DisconnectException("disconnected");
-		}
+	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
+		return request(serviceName, content, inputStream, 3000000);
 	}
 
-	public NIOContext getContext() {
-		return context;
+	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
+			throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+
+		readFuture.write(content);
+
+		readFuture.setInputStream(inputStream);
+
+		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+
+		waiterListen(serviceName, onReadFuture);
+
+		session.flush(readFuture);
+
+		// FIXME 连接丢失时叫醒我
+		if (onReadFuture.await(timeout)) {
+
+			return onReadFuture.getReadFuture();
+		}
+
+		throw new TimeoutException("timeout");
+	}
+
+	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {
+		return request(serviceName, content, null, timeout);
+	}
+
+	public void setAuthority(Authority authority) {
+		this.authority = authority;
+	}
+
+	public void update(Session session) {
+		this.session = session;
+		this.context = session.getContext();
+	}
+
+	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		if (onReadFuture == null) {
+			throw new IOException("empty onReadFuture");
+		}
+
+		OnReadFutureWrapper wrapper = listeners.get(serviceName);
+
+		if (wrapper == null) {
+
+			wrapper = new OnReadFutureWrapper();
+
+			listeners.put(serviceName, wrapper);
+		}
+
+		wrapper.listen(onReadFuture);
+	}
+
+	public void write(String serviceName, String content) throws IOException {
+		write(serviceName, content, null);
+	}
+
+	public void write(String serviceName, String content, InputStream inputStream) throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+
+		readFuture.write(content);
+
+		readFuture.setInputStream(inputStream);
+
+		session.flush(readFuture);
 	}
 }

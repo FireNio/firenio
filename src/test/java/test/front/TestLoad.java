@@ -13,6 +13,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
+import com.gifisan.nio.front.FrontContext;
 
 public class TestLoad {
 
@@ -34,11 +35,16 @@ public class TestLoad {
 		context.setIOEventHandleAdaptor(new IOEventHandleAdaptor() {
 			
 			public void acceptAlong(Session session, ReadFuture future) throws Exception {
-				System.out.println("~~~~~~收到报文："+future.getText());
-				String res = "(***"+future.getText()+"***)";
-				System.out.println("~~~~~~处理报文："+res);
-				future.write(res);
-				session.flush(future);
+				
+				if (FrontContext.FRONT_CHANNEL_LOST.equals(future.getServiceName())) {
+					System.out.println("客户端已下线："+future.getText());
+				}else{
+					System.out.println("~~~~~~收到报文："+future.toString());
+					String res = "(***"+future.getText()+"***)";
+					System.out.println("~~~~~~处理报文："+res);
+					future.write(res);
+					session.flush(future);
+				}
 			}
 		});
 

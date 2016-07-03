@@ -31,6 +31,8 @@ public class PropertiesLoader {
 
 	public static void load() throws IOException {
 		storageProperties("server.properties");
+		
+		DebugUtil.setEnableDebug(bundle.getBooleanProperty("SERVER.DEBUG"));
 	}
 
 	public static void storageProperties(String file) throws IOException {

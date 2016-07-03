@@ -52,7 +52,7 @@ public class TestClient {
 		
 		Session session = connector.getSession();
 		
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 2; i++) {
 			
 			ReadFuture future = ReadFutureFactory.create(session,"~~~service-name~~~");
 			

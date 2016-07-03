@@ -55,9 +55,6 @@ public class ClientLauncher {
 				
 				connector.setContext(context);
 
-				fixedSession.listen(MergeSIDSEListener.MERGE_SESSION_ID_LISTENER,
-						new UpdateSessionIDOnReadFuture());
-
 			} catch (Throwable e) {
 
 				LoggerFactory.getLogger(ClientLauncher.class).error(e.getMessage(), e);

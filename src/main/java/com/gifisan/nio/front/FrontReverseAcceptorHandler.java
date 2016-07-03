@@ -12,23 +12,24 @@ import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 
-public class FrontProxyHandler extends IOEventHandleAdaptor {
+public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
-	public static final String	RECEIVE_BROADCAST	= "RECEIVE_BROADCAST";
+	private Logger				logger			= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
+	private FrontContext		frontContext;
+	private FrontRouterMapping	frontRouterMapping;
 
-	private IOAcceptor			facadeAcceptor		= null;
-
-	private Logger				logger			= LoggerFactory.getLogger(FrontProxyHandler.class);
-
-	private RouterProxy			routerProxy		= new RouterProxy();
-
-	public FrontProxyHandler(IOAcceptor facadeAcceptor) {
-		this.facadeAcceptor = facadeAcceptor;
+	public FrontReverseAcceptorHandler(FrontContext frontContext) {
+		this.frontContext = frontContext;
+		this.frontRouterMapping = frontContext.getFrontRouterMapping();
 	}
-	
-	public void broadcast(ReadFuture future){
-		
-		Map<Integer, Session> sessions = facadeAcceptor.getReadOnlyManagedSessions();
+
+	private void broadcast(ReadFuture future) {
+
+		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
+
+		IOAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
+
+		Map<Integer, Session> sessions = acceptor.getReadOnlyManagedSessions();
 
 		if (sessions == null || sessions.size() == 0) {
 			return;
@@ -42,10 +43,10 @@ public class FrontProxyHandler extends IOEventHandleAdaptor {
 
 			Session s = entry.getValue();
 
-			if (s.getAttribute(RECEIVE_BROADCAST) != null) {
-				
+			if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
+
 				ReadFuture readFuture = ReadFutureFactory.create(s, future);
-				
+
 				readFuture.write(future.getText());
 
 				s.flush(readFuture);
@@ -54,60 +55,53 @@ public class FrontProxyHandler extends IOEventHandleAdaptor {
 	}
 
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {
-		
-		logger.info("报文来自负载均衡：[ {} ]，报文：{}",session.getRemoteSocketAddress(),future);
-		
+
+		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
+
 		Integer sessionID = future.getFutureID();
 
 		if (0 == sessionID.intValue()) {
 
-//			broadcast(future);
-			
-			facadeAcceptor.broadcast(future);
-			
-			logger.info("广播报文：{}",future);
+			broadcast(future);
+
+			logger.info("广播报文：{}", future);
 
 			return;
 		}
 
 		Session response = (Session) session.getAttribute(sessionID);
-		
+
 		if (response != null) {
-			
+
 			if (response.closed()) {
-				
+
 				session.removeAttribute(sessionID);
-				
-				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ",session, future);
-				
+
+				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, future);
+
 				return;
 			}
-			
+
 			ReadFuture readFuture = ReadFutureFactory.create(response, future);
-			
+
 			readFuture.write(future.getText());
-		
+
 			response.flush(readFuture);
-			
+
 			logger.info("回复报文到客户端：{} ", future);
-			
+
 			return;
 		}
 
 		logger.info("没有该SessionID:{}", sessionID);
 	}
 
-
-	public RouterProxy getRouterProxy() {
-		return routerProxy;
+	public FrontRouterMapping getRouterProxy() {
+		return frontRouterMapping;
 	}
 
 	public Session getSession(Session session) {
-		return routerProxy.getSession(session);
-	}
-
-	public void setFacadeAcceptor(IOAcceptor facadeAcceptor) {
-		this.facadeAcceptor = facadeAcceptor;
+		return frontRouterMapping.getSession(session);
 	}
 
 }

@@ -24,7 +24,6 @@ public class AuthoritySEListener implements SessionEventListener{
 		
 		AuthorityContext context = AuthorityContext.getInstance();
 		
-		
 	}
 	
 }

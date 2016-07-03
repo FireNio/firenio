@@ -8,9 +8,9 @@ public class KMPUtil {
 
 	private char[]	match_array;
 
-	private int[]	match_table;
+	private int[]		match_table;
 
-	private String	match_value;
+	private String		match_value;
 
 	public KMPUtil(String value) {
 		this.initialize(value);

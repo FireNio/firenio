@@ -14,7 +14,6 @@ import com.gifisan.nio.acceptor.UDPEndPointFactory;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-//FIXME 不可以根据selection key 来
 public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint {
 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(DefaultUDPEndPoint.class);

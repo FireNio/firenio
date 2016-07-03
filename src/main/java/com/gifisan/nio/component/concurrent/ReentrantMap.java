@@ -12,7 +12,6 @@ public class ReentrantMap<K, V> {
 	private List<Event>		modifList	= new ArrayList<Event>();
 	private ReentrantLock	loack	= new ReentrantLock();
 	private boolean		modifid	= false;
-	private int			size;
 
 	public V get(K key) {
 
@@ -67,8 +66,6 @@ public class ReentrantMap<K, V> {
 
 		this.modifList.add(event);
 
-		this.size++;
-
 		this.modifid = true;
 
 		lock.unlock();
@@ -89,8 +86,6 @@ public class ReentrantMap<K, V> {
 
 		this.modifList.add(event);
 
-		this.size--;
-
 		this.modifid = true;
 
 		lock.unlock();
@@ -100,9 +95,16 @@ public class ReentrantMap<K, V> {
 		return loack;
 	}
 
-	//FIXME you wen ti
 	public int size() {
-		return size;
+		
+		takeSnapshot();
+		
+		return snapshot.size();
+		
+	}
+	
+	public boolean isEmpty(){
+		return size() == 0;
 	}
 
 	class Event {

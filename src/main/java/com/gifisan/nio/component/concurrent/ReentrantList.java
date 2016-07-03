@@ -11,13 +11,17 @@ public class ReentrantList<T> {
 	private List<Event>		modifList		= new ArrayList<Event>();
 	private ReentrantLock	loack		= new ReentrantLock();
 	private boolean		modifid		= false;
-	private int			size			;
 
 	public List<T> getSnapshot() {
 
 		takeSnapshot();
 		
 		return snapshot;
+	}
+	
+	public T get(int index){
+		
+		return getSnapshot().get(index);
 	}
 
 	private void takeSnapshot() {
@@ -59,8 +63,6 @@ public class ReentrantList<T> {
 
 		this.modifid = true;
 
-		this.size++;
-
 		lock.unlock();
 
 		return true;
@@ -80,8 +82,6 @@ public class ReentrantList<T> {
 
 		this.modifid = true;
 
-		this.size--;
-
 		lock.unlock();
 	}
 
@@ -90,7 +90,15 @@ public class ReentrantList<T> {
 	}
 
 	public int size() {
-		return size;
+		
+		takeSnapshot();
+		
+		return snapshot.size();
+		
+	}
+	
+	public boolean isEmpty(){
+		return size() == 0;
 	}
 	
 	class Event {

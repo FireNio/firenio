@@ -5,23 +5,23 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionEventListener;
 
-public class FrontProxySEListener implements SessionEventListener{
+public class FrontReverseAcceptorSEListener implements SessionEventListener {
 
-	private Logger logger = LoggerFactory.getLogger(FrontProxySEListener.class);
-	
-	private RouterProxy		routerProxy;
+	private Logger				logger	= LoggerFactory.getLogger(FrontReverseAcceptorSEListener.class);
 
-	public FrontProxySEListener(RouterProxy routerProxy) {
-		this.routerProxy = routerProxy;
+	private FrontRouterMapping	frontRouterMapping;
+
+	public FrontReverseAcceptorSEListener(FrontRouterMapping routerProxy) {
+		this.frontRouterMapping = routerProxy;
 	}
 
 	public void sessionOpened(Session session) {
 		logger.info("负载服务器来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
-		routerProxy.addSession(session);
+		frontRouterMapping.addSession(session);
 	}
 
 	public void sessionClosed(Session session) {
 		logger.info("负载服务器来自 [ " + session.getRemoteSocketAddress() + " ] 已断开连接.");
-		routerProxy.remove(session);
+		frontRouterMapping.remove(session);
 	}
 }

@@ -239,7 +239,6 @@ public class RTPClient {
 
 		JSONObject json = new JSONObject();
 
-		// FIXME add more info
 		json.put("serviceName", RTPServerDPAcceptor.BIND_SESSION);
 
 		json.put("username", authority.getUsername());
