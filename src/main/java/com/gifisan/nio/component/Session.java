@@ -4,11 +4,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
+import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
 
-public interface Session extends Attributes{
-	
+public interface Session {
+
 	public abstract boolean closed();
 
 	public abstract void destroy();
@@ -24,8 +25,8 @@ public interface Session extends Attributes{
 	public abstract void flush(ReadFuture future);
 
 	public abstract Attachment getAttachment();
-	
-	public abstract void setAttachment(Attachment attachment) ;
+
+	public abstract void setAttachment(Attachment attachment);
 
 	public abstract Attachment getAttachment(PluginContext context);
 
@@ -39,7 +40,7 @@ public interface Session extends Attributes{
 
 	public abstract int getLocalPort();
 
-	public abstract String getMachineType() ;
+	public abstract String getMachineType();
 
 	public abstract int getMaxIdleTime() throws SocketException;
 
@@ -50,23 +51,33 @@ public interface Session extends Attributes{
 	public abstract int getRemotePort();
 
 	public abstract Integer getSessionID();
-	
+
 	public abstract UDPEndPoint getUDPEndPoint();
-	
+
 	public abstract boolean isBlocking();
-	
+
 	public abstract boolean isOpened();
-	
+
 	public abstract void setAttachment(PluginContext context, Attachment attachment);
 
 	public abstract void setMachineType(String machineType);
-	
+
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
-	
+
 	public abstract void setSessionID(Integer sessionID);
-	
-	public abstract InetSocketAddress getLocalSocketAddress() ;
-	
+
+	public abstract InetSocketAddress getLocalSocketAddress();
+
 	public abstract InetSocketAddress getRemoteSocketAddress();
+	
+	public abstract void removeAttribute(Object key) ;
+
+	public abstract void setAttribute(Object key, Object value) ;
+
+	public abstract Object getAttribute(Object key) ;
+
+	public abstract ReentrantMap<Object, Object> getAttributes() ;
+
+	public abstract void clearAttributes() ;
 
 }

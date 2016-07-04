@@ -10,6 +10,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MessageFormatter;
+import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.future.EmptyReadFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
@@ -18,47 +19,67 @@ import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.extend.PluginContext;
 
 //FIXME attributes
-public class IOSession extends AttributesImpl implements Session {
+public class IOSession implements Session {
 
-	private Attachment					attachment	;
-	private Attachment[]				attachments	= new Attachment[4];
-	private long						creationTime	= System.currentTimeMillis();
-	private boolean					closed		= false;
-	private String						machineType	;
-	protected TCPEndPoint				endPoint		;
-	protected ProtocolEncoder			encoder		;
-	protected EndPointWriter			endPointWriter	;
-	protected Integer					sessionID		;
-	private NIOContext					context		;
-	private UDPEndPoint					udpEndPoint	;
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
+	
+	private Attachment					attachment;
+	private Attachment[]				attachments	= new Attachment[4];
+	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
+	private long						creationTime	= System.currentTimeMillis();
+	private boolean					closed;
+	private NIOContext					context;
+	private ProtocolEncoder				encoder;
+	private TCPEndPoint					endPoint;
+	private EndPointWriter				endPointWriter;
+	private String						machineType;
+	private Integer					sessionID;
+	private UDPEndPoint					udpEndPoint;
 
-	public IOSession(TCPEndPoint endPoint,Integer sessionID) {
+	public IOSession(TCPEndPoint endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
 		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
 	}
-	
-	public UDPEndPoint getUDPEndPoint() {
-		return udpEndPoint;
+
+	public void clearAttributes() {
+		attributes.clear();
 	}
-	
-	public void setUDPEndPoint(UDPEndPoint udpEndPoint) {
 
-		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
-			throw new IllegalArgumentException("udpEndPoint setted");
+	public boolean closed() {
+		return closed;
+	}
+
+	public void destroy() {
+
+		SessionFactory factory = context.getSessionFactory();
+
+		factory.removeSession(this);
+
+		// FIXME
+		CloseUtil.close(udpEndPoint);
+
+		this.closed = true;
+
+		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+
+		for (; listenerWrapper != null;) {
+			try {
+				listenerWrapper.sessionClosed(this);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			listenerWrapper = listenerWrapper.nextListener();
 		}
-
-		this.udpEndPoint = udpEndPoint;
 	}
 
 	public void disconnect() {
 		this.endPoint.endConnect();
 		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
 	}
-	
+
 	public void flush(ReadFuture future) {
 
 		IOReadFuture _future = (IOReadFuture) future;
@@ -70,9 +91,9 @@ public class IOSession extends AttributesImpl implements Session {
 		if (!endPoint.isOpened()) {
 
 			IOEventHandle handle = future.getIOEventHandle();
-			
+
 			if (handle != null) {
-				
+
 				handle.exceptionCaughtOnWrite(this, future, null, new DisconnectException("disconnected"));
 			}
 			return;
@@ -82,37 +103,29 @@ public class IOSession extends AttributesImpl implements Session {
 
 		try {
 
-			writeFuture = encoder.encode(endPoint, future.getFutureID(), _future.getServiceName(),
-					_future.getTextCache().toByteArray(), _future.getInputStream());
+			writeFuture = encoder.encode(endPoint, future.getFutureID(), _future.getServiceName(), _future
+					.getTextCache().toByteArray(), _future.getInputStream());
 
 			_future.flush();
-			
+
 			writeFuture.setReadFuture(future);
 
 			writeFuture.attach(_future.attachment());
 
 			this.endPointWriter.offer(writeFuture);
-			
+
 		} catch (IOException e) {
 
 			logger.debug(e.getMessage(), e);
-			
+
 			IOEventHandle handle = future.getIOEventHandle();
 
 			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
 		}
 	}
 
-	public NIOContext getContext() {
-		return context;
-	}
-
 	public Attachment getAttachment() {
 		return attachment;
-	}
-
-	public void setAttachment(Attachment attachment) {
-		this.attachment = attachment;
 	}
 
 	public Attachment getAttachment(PluginContext context) {
@@ -124,13 +137,16 @@ public class IOSession extends AttributesImpl implements Session {
 		return attachments[context.getPluginIndex()];
 	}
 
-	public void setAttachment(PluginContext context, Attachment attachment) {
+	public Object getAttribute(Object key) {
+		return attributes.get(key);
+	}
 
-		if (context == null) {
-			throw new IllegalArgumentException("null context");
-		}
+	public ReentrantMap<Object, Object> getAttributes() {
+		return attributes;
+	}
 
-		this.attachments[context.getPluginIndex()] = attachment;
+	public NIOContext getContext() {
+		return context;
 	}
 
 	public long getCreationTime() {
@@ -149,6 +165,14 @@ public class IOSession extends AttributesImpl implements Session {
 		return endPoint.getLocalPort();
 	}
 
+	public InetSocketAddress getLocalSocketAddress() {
+		return endPoint.getLocalSocketAddress();
+	}
+
+	public String getMachineType() {
+		return machineType;
+	}
+
 	public int getMaxIdleTime() throws SocketException {
 		return endPoint.getMaxIdleTime();
 	}
@@ -165,6 +189,22 @@ public class IOSession extends AttributesImpl implements Session {
 		return endPoint.getRemotePort();
 	}
 
+	public InetSocketAddress getRemoteSocketAddress() {
+		return endPoint.getRemoteSocketAddress();
+	}
+
+	public Integer getSessionID() {
+		return sessionID;
+	}
+
+	public TCPEndPoint getTCPEndPoint() {
+		return endPoint;
+	}
+
+	public UDPEndPoint getUDPEndPoint() {
+		return udpEndPoint;
+	}
+
 	public boolean isBlocking() {
 		return endPoint.isBlocking();
 	}
@@ -173,67 +213,45 @@ public class IOSession extends AttributesImpl implements Session {
 		return endPoint.isOpened();
 	}
 
-	public void destroy() {
-		
-		SessionFactory factory = context.getSessionFactory();
+	public void removeAttribute(Object key) {
+		attributes.remove(key);
+	}
 
-		factory.removeSession(this);
+	public void setAttachment(Attachment attachment) {
+		this.attachment = attachment;
+	}
 
-		//FIXME 
-		CloseUtil.close(udpEndPoint);
+	public void setAttachment(PluginContext context, Attachment attachment) {
 
-		this.closed = true;
-
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
-
-		for (; listenerWrapper != null;) {
-			try {
-				listenerWrapper.sessionClosed(this);
-			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
-			}
-			listenerWrapper = listenerWrapper.nextListener();
+		if (context == null) {
+			throw new IllegalArgumentException("null context");
 		}
+
+		this.attachments[context.getPluginIndex()] = attachment;
 	}
 
-	protected TCPEndPoint getEndPoint() {
-		return endPoint;
-	}
-
-	public String toString() {
-		return MessageFormatter.format("session-{}@edp{}", this.getSessionID(), endPoint);
-	}
-
-	public boolean closed() {
-		return closed;
-	}
-
-	public Integer getSessionID() {
-		return sessionID;
-	}
-
-	public String getMachineType() {
-		return machineType;
+	public void setAttribute(Object key, Object value) {
+		attributes.put(key, value);
 	}
 
 	public void setMachineType(String machineType) {
 		this.machineType = machineType;
 	}
 
-	public TCPEndPoint getTCPEndPoint() {
-		return endPoint;
-	}
-	
-	public InetSocketAddress getLocalSocketAddress() {
-		return endPoint.getLocalSocketAddress();
-	}
-	
-	public void setSessionID(Integer sessionID){
+	public void setSessionID(Integer sessionID) {
 		this.sessionID = sessionID;
 	}
 
-	public InetSocketAddress getRemoteSocketAddress() {
-		return endPoint.getRemoteSocketAddress();
+	public void setUDPEndPoint(UDPEndPoint udpEndPoint) {
+
+		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
+			throw new IllegalArgumentException("udpEndPoint setted");
+		}
+
+		this.udpEndPoint = udpEndPoint;
 	}
 
+	public String toString() {
+		return MessageFormatter.format("session-{}@edp{}", this.getSessionID(), endPoint);
+	}
 }

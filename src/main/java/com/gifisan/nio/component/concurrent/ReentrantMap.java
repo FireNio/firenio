@@ -100,7 +100,21 @@ public class ReentrantMap<K, V> {
 		takeSnapshot();
 		
 		return snapshot.size();
+	}
+	
+	public void clear(){
 		
+		ReentrantLock lock = this.loack;
+
+		lock.lock();
+
+		this.modifList.clear();
+
+		this.modifid = false;
+		
+		this.snapshot.clear();
+
+		lock.unlock();
 	}
 	
 	public boolean isEmpty(){

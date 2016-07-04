@@ -84,6 +84,21 @@ public class ReentrantList<T> {
 
 		lock.unlock();
 	}
+	
+	public void clear(){
+		
+		ReentrantLock lock = this.loack;
+
+		lock.lock();
+
+		this.modifList.clear();
+
+		this.modifid = false;
+		
+		this.snapshot.clear();
+
+		lock.unlock();
+	}
 
 	public ReentrantLock getReentrantLock(){
 		return loack;
