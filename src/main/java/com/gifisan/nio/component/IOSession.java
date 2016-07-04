@@ -11,7 +11,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
-import com.gifisan.nio.component.future.EmptyReadFuture;
+import com.gifisan.nio.component.future.EmptyWriteFuture;
 import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.ReadFuture;
@@ -77,7 +77,7 @@ public class IOSession implements Session {
 
 	public void disconnect() {
 		this.endPoint.endConnect();
-		this.endPoint.getEndPointWriter().offer(new EmptyReadFuture(endPoint));
+		this.endPoint.getEndPointWriter().offer(new EmptyWriteFuture(endPoint));
 	}
 
 	public void flush(ReadFuture future) {

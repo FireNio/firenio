@@ -35,20 +35,14 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		endPoint.attackNetwork(length);
 	}
 
-	//FIXME handle
 	public void onException(IOException e) {
 		
 		ReadFuture readFuture = this.getReadFuture();
 		
-		if (readFuture == null) {
-			return;
-		}
-		
-		logger.error(e.getMessage(),e);
-
 		IOEventHandle handle = readFuture.getIOEventHandle();
 		
 		if (handle == null) {
+			logger.error(e.getMessage(),e);
 			return;
 		}
 		
@@ -59,15 +53,10 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		}
 	}
 
-	//FIXME handle
 	public void onSuccess() {
-
-		// logger.debug(">>>>>>>>>>>>>>>>>>>>> writed..");
 
 		ReadFuture readFuture = this.getReadFuture();
 		
-		// logger.error(e.getMessage(),e);
-
 		IOEventHandle handle = readFuture.getIOEventHandle();
 		
 		if (handle == null) {

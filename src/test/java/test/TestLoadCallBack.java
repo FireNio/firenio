@@ -15,7 +15,7 @@ import com.gifisan.nio.extend.OnReadFuture;
 
 public class TestLoadCallBack {
 	
-	public static int time = 300000;
+	public static int time = 200000;
 	public static final CountDownLatch latch = new CountDownLatch(time);
 	public static void main(String[] args) throws IOException{
 		

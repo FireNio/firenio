@@ -23,7 +23,7 @@ public class ErrorReadFuture extends AbstractReadFuture implements IOReadFuture 
 	}
 
 	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
-		return false;
+		return true;
 	}
 
 }

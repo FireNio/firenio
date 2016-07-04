@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
@@ -33,7 +34,8 @@ public class TestBeat {
 		
 		for (int i = 0; i < 10000; i++) {
 		
-			session.request(serviceKey, param);
+			ReadFuture future = session.request(serviceKey, param);
+//			System.out.println(future.getText());
 			
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));

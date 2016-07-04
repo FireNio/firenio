@@ -1,26 +1,21 @@
 package com.gifisan.nio.component.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 
-public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
-
-	private Logger logger = LoggerFactory.getLogger(BeatWriteFuture.class);
+public class EmptyWriteFuture extends AbstractWriteFuture implements IOWriteFuture {
 	
-	public BeatWriteFuture(TCPEndPoint endPoint) {
+	private static final Logger logger = LoggerFactory.getLogger(EmptyWriteFuture.class);
+
+	public EmptyWriteFuture(TCPEndPoint endPoint) {
 		super(endPoint, 0, null, null, null);
 	}
 
-	private ByteBuffer	beat	= ByteBuffer.wrap(new byte[] { 3 });
-
 	public boolean write() throws IOException {
-		beat.position(0);
-		attackNetwork(endPoint.write(beat));
-		return !beat.hasRemaining();
+		return true;
 	}
 	
 	public void onException(IOException e) {
