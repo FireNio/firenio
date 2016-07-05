@@ -16,7 +16,7 @@ public class TextWriteFuture extends AbstractWriteFuture implements WriteFuture 
 
 		ByteBuffer buffer = this.textBuffer;
 		// if (buffer.hasRemaining()) {
-		attackNetwork(endPoint.write(buffer));
+		updateNetworkState(endPoint.write(buffer));
 
 		return !buffer.hasRemaining();
 		// }

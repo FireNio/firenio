@@ -63,7 +63,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	//FIXME synch it ? 
-	public void attackNetwork(int length) {
+	public void updateNetworkState(int length) {
 
 		if (length == 0) {
 			if (next_network_weak < Long.MAX_VALUE) {
@@ -130,7 +130,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 				
 				DefaultTCPEndPoint endPoint = DefaultTCPEndPoint.this;
 				
-				endPoint.attackNetwork(1);
+				endPoint.updateNetworkState(1);
 				
 				endPointWriter.wekeupEndPoint(endPoint);
 				

@@ -20,7 +20,7 @@ public interface TCPEndPoint extends EndPoint {
 
 	public abstract boolean isNetworkWeak();
 
-	public abstract void attackNetwork(int length);
+	public abstract void updateNetworkState(int length);
 
 	public abstract void wakeup() throws IOException;
 

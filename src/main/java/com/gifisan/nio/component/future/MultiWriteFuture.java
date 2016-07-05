@@ -25,19 +25,26 @@ public class MultiWriteFuture extends AbstractWriteFuture implements WriteFuture
 		ByteBuffer buffer = this.textBuffer;
 
 		if (buffer.hasRemaining()) {
-			attackNetwork(endPoint.write(buffer));
+			
+			updateNetworkState(endPoint.write(buffer));
+			
 			if (buffer.hasRemaining()) {
 				return false;
 			}
 		}
 
 		if (writedLength < dataLength) {
+			
 			buffer = streamBuffer;
+			
 			if (!buffer.hasRemaining()) {
 				fill(inputStream, buffer);
 			}
+			
 			int length = endPoint.write(buffer);
-			attackNetwork(length);
+			
+			updateNetworkState(length);
+			
 			writedLength += length;
 		}
 

@@ -22,7 +22,9 @@ public class ByteArrayWriteFuture extends AbstractWriteFuture {
 		ByteBuffer buffer = this.textBuffer;
 
 		if (buffer.hasRemaining()) {
-			attackNetwork(endPoint.write(buffer));
+			
+			updateNetworkState(endPoint.write(buffer));
+			
 			if (buffer.hasRemaining()) {
 				return false;
 			}
@@ -31,7 +33,8 @@ public class ByteArrayWriteFuture extends AbstractWriteFuture {
 		buffer = streamBuffer;
 
 		if (buffer.hasRemaining()) {
-			attackNetwork(endPoint.write(buffer));
+			
+			updateNetworkState(endPoint.write(buffer));
 
 			return !buffer.hasRemaining();
 		}
