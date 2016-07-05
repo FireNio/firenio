@@ -39,9 +39,7 @@ public class Waiter<T> {
 			callback.signal();
 		}
 
-		success = callbacked;
-		
-		timeouted = !success;
+		timeouted = !callbacked;
 
 		lock.unlock();
 
@@ -71,15 +69,19 @@ public class Waiter<T> {
 
 		return callbacked;
 	}
-
+	
 	public void setPayload(T t) {
+		setPayload(t, true);
+	}
+
+	public void setPayload(T t,boolean success) {
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
 
 		if (!timeouted) {
 			
-			this.success = true;
+			this.success = success;
 		}
 
 		this.callbacked = true;
@@ -92,7 +94,7 @@ public class Waiter<T> {
 
 		lock.unlock();
 	}
-
+	
 	public T getPayload() {
 		return t;
 	}
@@ -100,5 +102,4 @@ public class Waiter<T> {
 	public boolean isSuccess() {
 		return success;
 	}
-
 }

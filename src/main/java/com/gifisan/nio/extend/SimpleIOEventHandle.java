@@ -6,6 +6,7 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.WriteFuture;
 
 public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
@@ -37,7 +38,15 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 		super.setContext(context);
 	}
 
+	public void futureSent(Session session, WriteFuture future) {
+		
+	}
 	
+//	private AtomicInteger sent = new AtomicInteger(1);
+//	
+//	public void futureSent(Session session, WriteFuture future) {
+//		logger.info("sent:{}",sent.getAndIncrement());
+//	}
 	
 	
 

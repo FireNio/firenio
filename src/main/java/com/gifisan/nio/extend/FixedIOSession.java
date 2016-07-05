@@ -215,6 +215,8 @@ public class FixedIOSession implements FixedSession {
 		readFuture.write(content);
 
 		readFuture.setInputStream(inputStream);
+		
+		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
 
 		session.flush(readFuture);
 	}

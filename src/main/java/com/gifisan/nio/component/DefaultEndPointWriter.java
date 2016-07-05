@@ -16,6 +16,7 @@ import com.gifisan.nio.component.concurrent.LinkedListM2O;
 import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.future.IOWriteFuture;
 
+//FIXME 问题好像出在这里
 public class DefaultEndPointWriter implements EndPointWriter {
 
 	protected LinkedList<IOWriteFuture>		writerQueue;

@@ -16,10 +16,11 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 	private AtomicInteger	_real_size	= new AtomicInteger();
 	private Condition		_notEmpty		= _lock.newCondition();
 	private boolean		_locked		= false;
+	private int			_start		;
 
-	public AbstractLinkedList(int _capability) {
-		this._capability = _capability;
-		this._array = new Object[_capability];
+	public AbstractLinkedList(int capability) {
+		this._capability = capability;
+		this._array = new Object[capability];
 	}
 
 	public AbstractLinkedList() {
@@ -31,7 +32,7 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 			return false;
 		}
 
-		int _c = getAndincrementEnd();
+		int _c = getAndIncrementEnd();
 
 		_array[_c] = object;
 
@@ -107,6 +108,8 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 				_notEmpty.signal();
 
 			}
+			
+			_locked = false;
 
 			_lock.unlock();
 
@@ -128,9 +131,14 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 		return _size.get();
 	}
 	
-	protected abstract int getAndincrementStart();
-
-	protected abstract int getAndincrementEnd();
+	protected int getAndincrementStart() {
+		if (_start == _capability) {
+			_start = 0;
+		}
+		return _start++;
+	}
+	
+	protected abstract int getAndIncrementEnd();
 	
 	public String toString() {
 		return MessageFormatter.format("capability {} , size {}", _capability,_real_size.get());

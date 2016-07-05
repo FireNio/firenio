@@ -29,8 +29,6 @@ public class TestLoadCallBack {
 		
 		FixedSession session = launcher.getFixedSession();
 
-		session.login("admin", "admin100");
-		
 		final Logger logger = LoggerFactory.getLogger(TestLoadCallBack.class);
 		
 		System.out.println("################## Test start ####################");

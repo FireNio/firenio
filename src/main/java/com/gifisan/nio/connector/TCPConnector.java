@@ -89,6 +89,12 @@ public class TCPConnector extends AbstractIOConnector {
 
 			throw new TimeoutException(connectException.getMessage(), connectException);
 		}
+		
+		if (waiter.isSuccess()) {
+			return ;
+		}
+		
+		throw new TimeoutException(connectException.getMessage(), connectException);
 	}
 
 	protected void stopComponent(NIOContext context, Selector selector) {
@@ -134,7 +140,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 			this.connectException = exception;
 
-			this.waiter.setPayload(null);
+			this.waiter.setPayload(null,false);
 		}
 	}
 }

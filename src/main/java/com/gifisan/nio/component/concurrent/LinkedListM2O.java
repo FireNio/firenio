@@ -1,41 +1,21 @@
 package com.gifisan.nio.component.concurrent;
 
-import java.util.concurrent.atomic.AtomicInteger;
+public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedList<T> {
 
-public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedList<T>{
+	private FixedAtomicInteger	_end;
 
-	private AtomicInteger	_end			= new AtomicInteger(0);
-	private int			_start		;
-
-	public LinkedListM2O(int _capability) {
-		super(_capability);
+	public LinkedListM2O(int capability) {
+		super(capability);
+		_end = new FixedAtomicInteger(capability - 1);
 	}
-	
+
 	public LinkedListM2O() {
 		super();
+		_end = new FixedAtomicInteger(_capability - 1);
 	}
 
-	public final int getAndincrementStart() {
-		if (_start == _capability) {
-			_start = 0;
-		}
-		return _start++;
+	public final int getAndIncrementEnd() {
+		return _end.getAndIncrement();
 	}
 
-	public final int getAndincrementEnd() {
-		for (;;) {
-			int current = _end.get();
-
-			int next = current + 1;
-
-			if (next == _capability) {
-				next = 0;
-			}
-
-			if (_end.compareAndSet(current, next))
-				return current;
-		}
-	}
-
-	
 }
