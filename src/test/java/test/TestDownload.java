@@ -10,9 +10,9 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
+import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.gifisan.nio.extend.implementation.SYSTEMDownloadServlet;
 
 public class TestDownload {
@@ -26,13 +26,13 @@ public class TestDownload {
 		JSONObject j = new JSONObject();
 		j.put("fileName", fileName);
 		
-		ClientLauncher launcher = new ClientLauncher();
-		
-		TCPConnector connector = launcher.getTCPConnector();
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+
+		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+
+		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
-		
-		FixedSession session = launcher.getFixedSession();
 		
 		final Waiter w = new Waiter();
 		

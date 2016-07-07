@@ -1,43 +1,65 @@
 package test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.omg.IOP.ENCODING_CDR_ENCAPS;
-
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.PropertiesLoader;
+import com.gifisan.nio.component.DefaultNIOContext;
+import com.gifisan.nio.component.IOEventHandleAdaptor;
+import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.ClientLauncher;
+import com.gifisan.nio.extend.ConnectorCloseSEListener;
+import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class ClientUtil {
 
-	public static TCPConnector getClientConnector() throws IOException {
+	private static TCPConnector	connector;
 
-		PropertiesLoader.load();
+	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) {
+		return getTCPConnector(ioEventHandleAdaptor, null);
 
-		// PropertiesLoader.storageProperties("server.properties");
+	}
 
-		String host = "192.168.1.48";
+	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
+			ServerConfiguration configuration) {
 
-		// host = "192.168.1.97";
+		if (connector == null) {
 
-		// host = "180.168.141.103";
-		
-		host = "localhost";
+			try {
 
-		ClientLauncher launcher = new ClientLauncher();
-		
-		TCPConnector connector = launcher.getTCPConnector();
+				PropertiesLoader.load();
 
+				connector = new TCPConnector();
 
-		// DebugUtil.info(connector.toString());
+				NIOContext context = new DefaultNIOContext();
+
+				context.setServerConfiguration(configuration);
+
+				context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
+
+				context.addSessionEventListener(new LoggerSEtListener());
+
+				context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+
+				connector.setContext(context);
+
+			} catch (Throwable e) {
+
+				LoggerFactory.getLogger(ClientUtil.class).error(e.getMessage(), e);
+
+				CloseUtil.close(connector);
+
+				throw new RuntimeException(e);
+			}
+		}
 
 		return connector;
-		// return new ClientConnector("192.168.0.111", 8300);
 	}
 
 	public static String getParamString() {

@@ -6,9 +6,9 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
+import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.gifisan.nio.extend.implementation.SYSTEMShowMemoryServlet;
 
 public class TestSimple {
@@ -18,17 +18,16 @@ public class TestSimple {
 
 
 		String serviceKey = "TestSimpleServlet";
+		
 		String param = ClientUtil.getParamString();
 		
-		
-		
-		ClientLauncher launcher = new ClientLauncher();
-		
-		TCPConnector connector = launcher.getTCPConnector();
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+
+		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+
+		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
-		
-		FixedSession session = launcher.getFixedSession();
 
 		session.login("admin", "admin100");
 		
@@ -52,7 +51,7 @@ public class TestSimple {
 //		System.out.println(response.getContent());
 		
 		ThreadUtil.sleep(500);
-		CloseUtil.close(connector);
 		
+		CloseUtil.close(connector);
 	}
 }

@@ -2,13 +2,15 @@ package com.test;
 
 import java.io.IOException;
 
+import test.ClientUtil;
+
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.SimpleIOEventHandle;
 
 public class TestLogin {
 
@@ -17,13 +19,13 @@ public class TestLogin {
 		String username = "wk";
 		String password = "wk";
 
-		ClientLauncher launcher = new ClientLauncher();
-		
-		TCPConnector connector = launcher.getTCPConnector();
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+
+		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+
+		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
-		
-		FixedSession session = launcher.getFixedSession();
 		
 		boolean b = session.login(username, password);
 

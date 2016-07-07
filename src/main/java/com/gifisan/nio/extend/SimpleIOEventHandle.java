@@ -11,43 +11,41 @@ import com.gifisan.nio.component.future.WriteFuture;
 public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
 	private Logger			logger		= LoggerFactory.getLogger(SimpleIOEventHandle.class);
-	private FixedSession	fixedSession	;
-	
-	protected SimpleIOEventHandle(FixedSession fixedSession) {
-		this.fixedSession = fixedSession;
-	}
-	
-	public void acceptAlong(Session session, ReadFuture future){
-		
+	private FixedSession	fixedSession	= new FixedIOSession();
+
+	public void acceptAlong(Session session, ReadFuture future) {
+
 		FixedSession fixedSession = this.fixedSession;
-		
+
 		try {
-			
+
 			fixedSession.accept(session, future);
-			
+
 		} catch (Exception e) {
-			
+
 			logger.error(e.getMessage(), e);
-			
+
 			exceptionCaughtOnWrite(session, future, null, e);
 		}
 	}
-	
+
 	public void setContext(NIOContext context) {
-		this.threadPool = context.getThreadPool();
+		context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
 		super.setContext(context);
 	}
 
 	public void futureSent(Session session, WriteFuture future) {
-		
+
 	}
-	
-//	private AtomicInteger sent = new AtomicInteger(1);
-//	
-//	public void futureSent(Session session, WriteFuture future) {
-//		logger.info("sent:{}",sent.getAndIncrement());
-//	}
-	
-	
+
+	public FixedSession getFixedSession() {
+		return fixedSession;
+	}
+
+	// private AtomicInteger sent = new AtomicInteger(1);
+	//
+	// public void futureSent(Session session, WriteFuture future) {
+	// logger.info("sent:{}",sent.getAndIncrement());
+	// }
 
 }

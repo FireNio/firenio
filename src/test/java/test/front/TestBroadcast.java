@@ -2,13 +2,11 @@ package test.front;
 
 import java.io.IOException;
 
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
+import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
@@ -24,12 +22,6 @@ public class TestBroadcast {
 		PropertiesLoader.load();
 
 		TCPConnector connector = new TCPConnector();
-
-		SharedBundle bundle = SharedBundle.instance();
-
-		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-
-		DebugUtil.setEnableDebug(debug);
 
 		NIOContext context = new DefaultNIOContext();
 

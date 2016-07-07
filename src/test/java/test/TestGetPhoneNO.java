@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.ClientLauncher;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.test.servlet.TestGetPhoneNOServlet;
 
 public class TestGetPhoneNO {
@@ -16,13 +16,13 @@ public class TestGetPhoneNO {
 
 		String serviceKey = TestGetPhoneNOServlet.SERVICE_NAME;
 		
-		ClientLauncher launcher = new ClientLauncher();
-		
-		TCPConnector connector = launcher.getTCPConnector();
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+
+		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+
+		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
-		
-		FixedSession session = launcher.getFixedSession();
 
 		session.login("admin", "admin100");
 		

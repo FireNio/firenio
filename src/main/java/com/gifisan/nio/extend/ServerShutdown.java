@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.DefaultNIOContext;
+import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.connector.IOConnector;
+import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 import com.gifisan.nio.extend.implementation.SYSTEMStopServerServlet;
 
@@ -37,22 +40,32 @@ public class ServerShutdown {
 		String username = args[1];
 
 		String password = args[2];
-
-		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
-
-		ClientLauncher launcher = new ClientLauncher();
-		
-		IOConnector connector = launcher.getTCPConnector();
 		
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 		
 		serverConfiguration.setSERVER_TCP_PORT(port);
+
+		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
+
+		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+
+		TCPConnector connector = new TCPConnector();
+
+		NIOContext context = new DefaultNIOContext();
 		
-		connector.getContext().setServerConfiguration(serverConfiguration);
-		
+		context.setServerConfiguration(serverConfiguration);
+
+		context.setIOEventHandleAdaptor(eventHandle);
+
+		context.addSessionEventListener(new LoggerSEtListener());
+
+		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+
+		connector.setContext(context);
+
+		FixedSession session = eventHandle.getFixedSession();
+
 		connector.connect();
-		
-		FixedSession session = launcher.getFixedSession();
 		
 		session.login(username, password);
 		

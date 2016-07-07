@@ -3,11 +3,9 @@ package com.gifisan.nio.extend;
 import com.gifisan.nio.acceptor.ServerProtocolDecoder;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
-import com.gifisan.nio.common.DebugUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
@@ -19,8 +17,6 @@ public class ServerLauncher {
 		
 		PropertiesLoader.load();
 		
-		SharedBundle bundle = SharedBundle.instance();
-
 		ApplicationContext applicationContext = new ApplicationContext();
 		
 		NIOContext context = new DefaultNIOContext();
@@ -30,10 +26,6 @@ public class ServerLauncher {
 		UDPAcceptor udpAcceptor = new UDPAcceptor();
 		
 		try {
-			
-			boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-			
-			DebugUtil.setEnableDebug(debug);
 			
 			applicationContext.setContext(context);
 			

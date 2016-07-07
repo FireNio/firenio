@@ -1,4 +1,4 @@
-package test;
+package test.udp;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.Logger;

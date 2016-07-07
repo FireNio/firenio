@@ -1,9 +1,15 @@
 package com.gifisan.nio.common;
 
+import java.io.IOException;
+
 public class LoggerFactory {
 	
 	static{
-		SharedBundle.instance();
+		try {
+			PropertiesLoader.load();
+		} catch (IOException e) {
+			throw new Error(e);
+		}
 	}
 	
 	private static boolean enableSLF4JLogger;

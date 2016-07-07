@@ -12,7 +12,7 @@ public abstract class MQCommandExecutor implements Executable {
 
 	private String		KEY_BROWSER	= "KEY_BROWSER";
 
-	protected IOConnector getClientConnector(CommandContext context) {
+	protected TCPConnector getClientConnector(CommandContext context) {
 		return (TCPConnector) context.getAttribute(KEY_CONNECTOR);
 	}
 

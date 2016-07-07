@@ -24,12 +24,6 @@ public class TestLoad {
 		
 		TCPConnector connector = new TCPConnector();
 
-		SharedBundle bundle = SharedBundle.instance();
-
-		boolean debug = bundle.getBooleanProperty("SERVER.DEBUG");
-
-		DebugUtil.setEnableDebug(debug);
-
 		NIOContext context = new DefaultNIOContext();
 
 		context.setIOEventHandleAdaptor(new IOEventHandleAdaptor() {
