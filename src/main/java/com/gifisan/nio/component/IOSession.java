@@ -82,9 +82,7 @@ public class IOSession implements Session {
 
 	public void flush(ReadFuture future) {
 
-		IOReadFuture _future = (IOReadFuture) future;
-
-		if (_future.flushed()) {
+		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
 
@@ -103,14 +101,11 @@ public class IOSession implements Session {
 
 		try {
 
-			writeFuture = encoder.encode(endPoint, future.getFutureID(), _future.getServiceName(), _future
-					.getTextCache().toByteArray(), _future.getInputStream());
+			writeFuture = encoder.encode(endPoint, future);
 
-			_future.flush();
+			((IOReadFuture) future).flush();
 
-			writeFuture.setReadFuture(future);
-
-			writeFuture.attach(_future.attachment());
+			writeFuture.attach(future.attachment());
 
 			this.endPointWriter.offer(writeFuture);
 

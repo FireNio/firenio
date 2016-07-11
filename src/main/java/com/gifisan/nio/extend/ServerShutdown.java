@@ -7,7 +7,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 import com.gifisan.nio.extend.implementation.SYSTEMStopServerServlet;
@@ -69,7 +69,7 @@ public class ServerShutdown {
 		
 		session.login(username, password);
 		
-		ReadFuture future = session.request(serviceName, null);
+		NIOReadFuture future = session.request(serviceName, null);
 
 		System.out.println(future.getText());
 

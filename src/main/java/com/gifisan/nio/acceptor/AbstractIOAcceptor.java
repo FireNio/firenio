@@ -14,6 +14,7 @@ import com.gifisan.nio.component.AbstractIOService;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor {
@@ -63,6 +64,8 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 	public void broadcast(ReadFuture future) {
 		
+		NIOReadFuture nioReadFuture = (NIOReadFuture) future;
+		
 		Map<Integer, Session> sessions = getReadOnlyManagedSessions();
 
 		Iterator<Session> ss = sessions.values().iterator();
@@ -71,9 +74,9 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 			Session s = ss.next();
 
-			ReadFuture f = ReadFutureFactory.create(s,future);
+			NIOReadFuture f = ReadFutureFactory.create(s,nioReadFuture);
 			
-			f.write(future.getText());
+			f.write(nioReadFuture.getText());
 
 			try {
 				

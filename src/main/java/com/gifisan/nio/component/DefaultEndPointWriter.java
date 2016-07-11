@@ -178,7 +178,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 			endPoint.decrementWriter();
 
-			logger.debug("give up {}", futureFromWriters.getFutureID());
+			logger.debug("give up {}", futureFromWriters);
 
 			futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
 		}

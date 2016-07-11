@@ -2,7 +2,7 @@ package com.test.servlet;
 
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public class TestSessionDisconnectServlet extends FutureAcceptorService{
@@ -13,7 +13,7 @@ public class TestSessionDisconnectServlet extends FutureAcceptorService{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	public void accept(Session session,ReadFuture future) throws Exception {
+	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
 
 		String test = future.getText();
 

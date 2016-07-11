@@ -90,7 +90,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			session.setUDPEndPoint(endPoint);
 			
-			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK);
+			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK,session.getContext().getIOEventHandleAdaptor());
 			
 			logger.debug("___________________bind___session___{}",session);
 			

@@ -7,7 +7,7 @@ import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.plugin.jms.Message;
 import com.gifisan.nio.extend.security.Authority;
@@ -46,7 +46,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		return context;
 	}
 
-	public void pollMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;

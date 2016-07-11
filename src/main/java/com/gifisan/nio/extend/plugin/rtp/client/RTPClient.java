@@ -9,7 +9,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.concurrent.Waiter;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -98,7 +98,7 @@ public class RTPClient {
 
 	public boolean createRoom(String inviteUsername) throws RTPException {
 
-		ReadFuture future;
+		NIOReadFuture future;
 
 		try {
 			future = session.request(RTPCreateRoomServlet.SERVICE_NAME, null);
@@ -177,7 +177,7 @@ public class RTPClient {
 	public boolean joinRoom(String roomID) throws RTPException {
 		try {
 
-			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			NIOReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			return ByteUtil.isTrue(future.getText());
 		} catch (IOException e) {
@@ -194,7 +194,7 @@ public class RTPClient {
 				throw new RTPException("not login");
 			}
 
-			ReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			NIOReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
@@ -252,7 +252,7 @@ public class RTPClient {
 
 		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
 
-			public void onResponse(FixedSession session, ReadFuture future) {
+			public void onResponse(FixedSession session, NIOReadFuture future) {
 
 				waiter.setPayload(0);
 			}

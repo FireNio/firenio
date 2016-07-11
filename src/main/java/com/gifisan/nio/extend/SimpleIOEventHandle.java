@@ -7,6 +7,7 @@ import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 
 public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
@@ -19,7 +20,7 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
 		try {
 
-			fixedSession.accept(session, future);
+			fixedSession.accept(session, (NIOReadFuture) future);
 
 		} catch (Exception e) {
 

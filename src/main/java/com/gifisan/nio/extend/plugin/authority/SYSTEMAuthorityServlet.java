@@ -1,7 +1,7 @@
 package com.gifisan.nio.extend.plugin.authority;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.LoginCenter;
@@ -13,7 +13,7 @@ public class SYSTEMAuthorityServlet extends FutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 
-	public void accept(Session session,ReadFuture future) throws Exception {
+	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
 		
 		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();
 		

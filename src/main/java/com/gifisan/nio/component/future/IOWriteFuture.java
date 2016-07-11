@@ -2,7 +2,6 @@ package com.gifisan.nio.component.future;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
 public interface IOWriteFuture extends WriteFuture {
@@ -11,16 +10,7 @@ public interface IOWriteFuture extends WriteFuture {
 
 	public abstract TCPEndPoint getEndPoint();
 
-	public abstract Session getSession();
-
-	public abstract boolean isNetworkWeak();
-
 	public abstract void onException(IOException e);
 
 	public abstract void onSuccess();
-
-	public abstract ReadFuture getReadFuture();
-
-	public abstract void setReadFuture(ReadFuture readFuture);
-
 }

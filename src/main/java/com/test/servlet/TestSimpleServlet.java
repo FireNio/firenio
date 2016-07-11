@@ -1,13 +1,10 @@
 package com.test.servlet;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.WriteFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public class TestSimpleServlet extends FutureAcceptorService{
@@ -20,7 +17,7 @@ public class TestSimpleServlet extends FutureAcceptorService{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	public void accept(Session session,ReadFuture future) throws Exception {
+	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
 
 //		accept.getAndIncrement();
 		

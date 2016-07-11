@@ -1,14 +1,14 @@
 package com.gifisan.nio.extend.plugin.jms.server;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 
 public class MQTransactionServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQTransactionServlet.class.getSimpleName();
 
-	public void accept(Session session, ReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void accept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		String action = future.getText();
 

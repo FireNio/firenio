@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.future;
+package com.gifisan.nio.component.future.nio;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,8 +9,9 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.future.IOReadFuture;
 
-public class MultiReadFuture extends AbstractReadFuture implements IOReadFuture {
+public class MultiReadFuture extends AbstractNIOReadFuture implements IOReadFuture {
 
 	private int				dataLength;
 	private ByteBuffer			streamBuffer;

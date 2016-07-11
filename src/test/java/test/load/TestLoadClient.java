@@ -13,6 +13,7 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.WriteFuture;
 import com.gifisan.nio.connector.TCPConnector;
 
 public class TestLoadClient {
@@ -34,6 +35,10 @@ public class TestLoadClient {
 				}
 				// }
 			}
+
+			public void futureSent(Session session, WriteFuture future) {
+				
+			}
 		};
 
 		TCPConnector connector = ClientUtil.getTCPConnector(eventHandleAdaptor);
@@ -47,12 +52,11 @@ public class TestLoadClient {
 		long old = System.currentTimeMillis();
 
 		for (int i = 0; i < time; i++) {
-			ReadFuture future = ReadFutureFactory.create(session, "test");
+			ReadFuture future = ReadFutureFactory.create(session, "test",session.getContext().getIOEventHandleAdaptor());
 
 			future.write("hello server !");
 
 			session.flush(future);
-
 		}
 
 		try {

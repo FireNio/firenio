@@ -8,6 +8,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.DynamicClassLoader;
 import com.gifisan.nio.extend.RESMessage;
@@ -24,7 +25,7 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	protected void doAccept(Session session,NIOReadFuture future) throws Exception {
 
 		String serviceName = future.getServiceName();
 

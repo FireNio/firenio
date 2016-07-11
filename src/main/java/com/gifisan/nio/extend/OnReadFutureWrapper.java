@@ -2,7 +2,7 @@ package com.gifisan.nio.extend;
 
 import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListM2O;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture{
 	
@@ -10,7 +10,7 @@ public class OnReadFutureWrapper implements OnReadFuture{
 	
 	private LinkedList<WaiterOnReadFuture> waiters = new LinkedListM2O<WaiterOnReadFuture>();
 	
-	public void onResponse(final FixedSession session, final ReadFuture future) {
+	public void onResponse(final FixedSession session, final NIOReadFuture future) {
 		
 		WaiterOnReadFuture waiter = waiters.poll();
 		

@@ -11,7 +11,9 @@ import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.ByteArrayWriteFuture;
 import com.gifisan.nio.component.future.IOWriteFuture;
 import com.gifisan.nio.component.future.MultiWriteFuture;
+import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.TextWriteFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 
 // >> 右移N位
 // << 左移N位
@@ -130,11 +132,17 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 		buffer.put(service_name_array);
 		return buffer;
 	}
-
-	public IOWriteFuture encode(TCPEndPoint endPoint, int future_id, String service_name, byte[] text_array,
-			InputStream inputStream) throws IOException {
-
+	
+	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
+		
 		Session session = endPoint.getSession();
+		NIOReadFuture ioReadFuture = (NIOReadFuture) readFuture;
+		
+		
+		Integer future_id = ioReadFuture.getFutureID();
+		String service_name = ioReadFuture.getServiceName();
+		byte [] text_array = ioReadFuture.getWriteBuffer().toByteArray();
+		InputStream inputStream = ioReadFuture.getInputStream();
 
 		byte[] service_name_array = service_name.getBytes(session.getContext().getEncoding());
 
@@ -152,11 +160,10 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
 			if (inputStream.getClass() != ByteArrayInputStream.class) {
 
-				return new MultiWriteFuture(endPoint, future_id, service_name, textBuffer, text_array, inputStream);
+				return new MultiWriteFuture(endPoint, readFuture, textBuffer, inputStream);
 			}
 
-			return new ByteArrayWriteFuture(endPoint, future_id, service_name, textBuffer, text_array,
-					(ByteArrayInputStream) inputStream);
+			return new ByteArrayWriteFuture(endPoint, readFuture, textBuffer, (ByteArrayInputStream) inputStream);
 
 		}
 
@@ -164,7 +171,7 @@ public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
 
 		textBuffer.flip();
 
-		return new TextWriteFuture(endPoint, future_id, service_name, textBuffer, text_array);
+		return new TextWriteFuture(endPoint, readFuture, textBuffer);
 	}
 
 }

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.FileUtil;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
@@ -31,7 +31,7 @@ public class TestSimpleBigParam {
 			builder.append("\n");
 			builder.append(temp);
 		}
-		ReadFuture future = session.request(serviceKey, builder.toString());
+		NIOReadFuture future = session.request(serviceKey, builder.toString());
 		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getText());
 		System.out.println("处理完成");
 		

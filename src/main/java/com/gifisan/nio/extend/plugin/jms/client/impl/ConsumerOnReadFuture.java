@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.jms.client.impl;
 import java.io.OutputStream;
 
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
 import com.gifisan.nio.extend.plugin.jms.MQException;
@@ -21,7 +21,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 		this.messageDecoder = messageDecoder;
 	}
 
-	public void onResponse(FixedSession session, ReadFuture future) {
+	public void onResponse(FixedSession session, NIOReadFuture future) {
 		try {
 			
 			if (future.hasOutputStream()) {

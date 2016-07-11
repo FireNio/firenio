@@ -13,28 +13,24 @@ import com.gifisan.nio.component.TCPEndPoint;
 public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteFuture {
 
 	private Session			session		;
-	private byte[]			textCache		;
 	private ReadFuture			readFuture	;
 	protected TCPEndPoint		endPoint		;
 	protected ByteBuffer		textBuffer	;
 	protected InputStream		inputStream	;
 	private static final Logger	logger		= LoggerFactory.getLogger(AbstractWriteFuture.class);
 
-	public AbstractWriteFuture(TCPEndPoint endPoint, Integer futureID, String serviceName, ByteBuffer textBuffer,
-			byte[] textCache) {
+	public AbstractWriteFuture(TCPEndPoint endPoint, ReadFuture readFuture, ByteBuffer textBuffer) {
 		this.endPoint = endPoint;
+		this.readFuture = readFuture;
 		this.session = endPoint.getSession();
 		this.textBuffer = textBuffer;
-		this.textCache = textCache;
-		this.serviceName = serviceName;
-		this.futureID = futureID;
 	}
 
 	protected void updateNetworkState(int length) {
 
-		endPoint.updateNetworkState(length);
+		
 	}
-
+	
 	public void onException(IOException e) {
 		
 		ReadFuture readFuture = this.getReadFuture();
@@ -72,30 +68,6 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 	public TCPEndPoint getEndPoint() {
 		return endPoint;
-	}
-
-	public boolean isNetworkWeak() {
-		return endPoint.isNetworkWeak();
-	}
-
-	public Session getSession() {
-		return session;
-	}
-
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public String getText() {
-		if (text == null) {
-			if (textCache == null) {
-				text = "";
-			} else {
-				text = new String(textCache, session.getContext().getEncoding());
-			}
-
-		}
-		return text;
 	}
 
 	public ReadFuture getReadFuture() {

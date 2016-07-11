@@ -6,7 +6,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public class SYSTEMStopServerServlet extends FutureAcceptorService {
@@ -15,7 +15,7 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future) throws Exception {
 		
 		NIOContext context = session.getContext();
 		

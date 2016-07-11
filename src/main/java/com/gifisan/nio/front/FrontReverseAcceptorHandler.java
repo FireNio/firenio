@@ -11,6 +11,7 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
@@ -23,7 +24,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		this.frontRouterMapping = frontContext.getFrontRouterMapping();
 	}
 
-	private void broadcast(ReadFuture future) {
+	private void broadcast(NIOReadFuture future) {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
@@ -57,14 +58,16 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {
 
 		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
+		
+		NIOReadFuture f = (NIOReadFuture) future;
 
-		Integer sessionID = future.getFutureID();
+		Integer sessionID = f.getFutureID();
 
 		if (0 == sessionID.intValue()) {
 
-			broadcast(future);
+			broadcast(f);
 
-			logger.info("广播报文：{}", future);
+			logger.info("广播报文：{}", f);
 
 			return;
 		}
@@ -77,18 +80,18 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				session.removeAttribute(sessionID);
 
-				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, future);
+				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, f);
 
 				return;
 			}
 
-			ReadFuture readFuture = ReadFutureFactory.create(response, future);
+			ReadFuture readFuture = ReadFutureFactory.create(response, f);
 
-			readFuture.write(future.getText());
+			readFuture.write(f.getText());
 
 			response.flush(readFuture);
 
-			logger.info("回复报文到客户端：{} ", future);
+			logger.info("回复报文到客户端：{} ", f);
 
 			return;
 		}

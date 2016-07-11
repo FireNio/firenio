@@ -6,7 +6,7 @@ import java.util.List;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.MD5Token;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.RESMessageDecoder;
@@ -31,7 +31,7 @@ public class LMClient {
 		o.put("nickname", nickname);
 		o.put("password", MD5Token.getInstance().getLongToken(password, session.getContext().getEncoding()));
 
-		ReadFuture future = session.request(serviceKey, o.toJSONString());
+		NIOReadFuture future = session.request(serviceKey, o.toJSONString());
 
 		return RESMessageDecoder.decode(future.getText());
 
@@ -45,7 +45,7 @@ public class LMClient {
 		
 		o.put(LMServlet.ACTION, ContactServlet.ACTION_GETCONTACTLISTBYUSERID);
 
-		ReadFuture future = session.request(serviceKey, o.toJSONString());
+		NIOReadFuture future = session.request(serviceKey, o.toJSONString());
 
 		RESMessage message = RESMessageDecoder.decode(future.getText());
 		
@@ -72,7 +72,7 @@ public class LMClient {
 		o.put("UUID", UUID);
 		o.put("t_message", message);
 
-		ReadFuture future = session.request(serviceKey, o.toJSONString());
+		NIOReadFuture future = session.request(serviceKey, o.toJSONString());
 
 		return RESMessageDecoder.decode(future.getText());
 	}
@@ -87,7 +87,7 @@ public class LMClient {
 		o.put("t_contact", contact);
 		o.put("friendName", friendName);
 
-		ReadFuture future = session.request(serviceKey, o.toJSONString());
+		NIOReadFuture future = session.request(serviceKey, o.toJSONString());
 
 		return RESMessageDecoder.decode(future.getText());
 	}

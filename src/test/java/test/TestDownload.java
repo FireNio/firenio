@@ -8,7 +8,7 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.concurrent.Waiter;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
@@ -38,7 +38,7 @@ public class TestDownload {
 		
 		session.listen(serviceName, new OnReadFuture() {
 			
-			public void onResponse(FixedSession session, ReadFuture future) {
+			public void onResponse(FixedSession session, NIOReadFuture future) {
 				
 				try {
 					if (future.hasOutputStream()) {

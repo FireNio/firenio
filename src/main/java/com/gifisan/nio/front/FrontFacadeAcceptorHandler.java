@@ -6,6 +6,7 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 
 public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
@@ -18,6 +19,8 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 	}
 
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {
+		
+		NIOReadFuture f = (NIOReadFuture) future;
 
 		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
@@ -31,15 +34,15 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 		Integer sessionID = session.getSessionID();
 
-		String transCode = future.getServiceName();
+		String transCode = f.getServiceName();
 
 		if ("E001".equals(transCode)) {
 			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(routerSession, sessionID, future.getServiceName());
+		ReadFuture readFuture = ReadFutureFactory.create(routerSession, sessionID, f.getServiceName());
 
-		readFuture.write(future.getText());
+		readFuture.write(f.getText());
 
 		routerSession.flush(readFuture);
 

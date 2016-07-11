@@ -8,6 +8,7 @@ import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.security.Authority;
@@ -26,7 +27,7 @@ public class ContactServlet extends LMServlet {
 		return new ContactService(context);
 	}
 
-	protected void doAccept(Session session, ReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception {
 
 		ContactService service = (ContactService) _service;
 

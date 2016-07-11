@@ -2,7 +2,7 @@ package com.gifisan.nio.connector;
 
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.BeatWriteFuture;
+import com.gifisan.nio.component.future.nio.BeatWriteFuture;
 
 public class TouchDistantJob implements Runnable {
 

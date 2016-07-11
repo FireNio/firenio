@@ -3,7 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
@@ -24,7 +24,7 @@ public class TestException {
 
 		connector.connect();
 
-		ReadFuture future = session.request(serviceKey, param);
+		NIOReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
 		CloseUtil.close(connector);

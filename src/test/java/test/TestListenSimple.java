@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.OnReadFuture;
@@ -27,12 +27,12 @@ public class TestListenSimple {
 
 		connector.connect();
 
-		ReadFuture future = session.request(serviceKey, param);
+		NIOReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
 		session.listen(serviceKey,new OnReadFuture() {
 			
-			public void onResponse(FixedSession session, ReadFuture future) {
+			public void onResponse(FixedSession session, NIOReadFuture future) {
 				System.out.println(future.getText());
 			}
 		});

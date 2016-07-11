@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.plugin.jms.MQException;
 import com.gifisan.nio.extend.plugin.jms.Message;
@@ -30,7 +30,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("messageID", messageID);
 		param.put("cmd", MQBrowserServlet.BROWSER);
 
-		ReadFuture future;
+		NIOReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
@@ -43,7 +43,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 	public int size() throws MQException {
 		String param = "{cmd:\"0\"}";
 
-		ReadFuture future;
+		NIOReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param);
 		} catch (IOException e) {
@@ -58,7 +58,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("queueName", queueName);
 		param.put("cmd", MQBrowserServlet.ONLINE);
 
-		ReadFuture future;
+		NIOReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {

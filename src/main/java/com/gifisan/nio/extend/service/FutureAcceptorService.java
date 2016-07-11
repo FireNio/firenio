@@ -7,6 +7,7 @@ import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
 import com.gifisan.nio.component.future.WriteFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.Initializeable;
@@ -60,6 +61,12 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	public void futureSent(Session session, WriteFuture future) {
 
 	}
+	
+	public void accept(Session session, ReadFuture future) throws Exception {
+		this.doAccept(session, (NIOReadFuture) future);
+	}
+	
+	protected abstract void doAccept(Session session,NIOReadFuture future) throws Exception;
 
 	public String toString() {
 

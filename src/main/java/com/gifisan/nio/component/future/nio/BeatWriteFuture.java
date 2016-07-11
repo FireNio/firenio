@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.future;
+package com.gifisan.nio.component.future.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,14 +6,16 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.future.AbstractWriteFuture;
+import com.gifisan.nio.component.future.WriteFuture;
 
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 
-	private static final Logger	logger	= LoggerFactory.getLogger(BeatWriteFuture.class);
-
 	public BeatWriteFuture(TCPEndPoint endPoint) {
-		super(endPoint, 0, null, null, null);
+		super(endPoint, null, null);
 	}
+
+	private static final Logger	logger	= LoggerFactory.getLogger(BeatWriteFuture.class);
 
 	public void onException(IOException e) {
 		logger.error(e.getMessage(), e);

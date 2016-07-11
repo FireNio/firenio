@@ -9,9 +9,9 @@ import com.gifisan.nio.component.future.ReadFuture;
 
 public class FrontFacadeAcceptorSEListener implements SessionEventListener {
 
-	private Logger		logger	= LoggerFactory.getLogger(FrontFacadeAcceptorSEListener.class);
+	private Logger				logger	= LoggerFactory.getLogger(FrontFacadeAcceptorSEListener.class);
 
-	private FrontRouterMapping		routerProxy;
+	private FrontRouterMapping	routerProxy;
 
 	public FrontFacadeAcceptorSEListener(FrontRouterMapping routerProxy) {
 		this.routerProxy = routerProxy;
@@ -33,10 +33,11 @@ public class FrontFacadeAcceptorSEListener implements SessionEventListener {
 
 			return;
 		}
-		
+
 		routerProxy.removeMapping(sessionID);
 
-		ReadFuture future = ReadFutureFactory.create(session, sessionID, FrontContext.FRONT_CHANNEL_LOST);
+		ReadFuture future = ReadFutureFactory.create(session, sessionID, FrontContext.FRONT_CHANNEL_LOST, session
+				.getContext().getIOEventHandleAdaptor());
 
 		future.write(sessionID.toString());
 

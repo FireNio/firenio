@@ -16,7 +16,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.extend.security.Authority;
 
@@ -28,7 +28,7 @@ public class FixedIOSession implements FixedSession {
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
 
-	public void accept(Session session, final ReadFuture future) throws Exception {
+	public void accept(Session session, final NIOReadFuture future) throws Exception {
 
 		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
 
@@ -98,7 +98,7 @@ public class FixedIOSession implements FixedSession {
 
 			String paramString = JSONObject.toJSONString(param);
 
-			ReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+			NIOReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getText());
 
@@ -129,22 +129,22 @@ public class FixedIOSession implements FixedSession {
 		// TODO complete logout
 	}
 
-	public ReadFuture request(String serviceName, String content) throws IOException {
+	public NIOReadFuture request(String serviceName, String content) throws IOException {
 		return request(serviceName, content, 3000);
 	}
 
-	public ReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
+	public NIOReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
 		return request(serviceName, content, inputStream, 3000);
 	}
 
-	public ReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
+	public NIOReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
 			throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName,context.getIOEventHandleAdaptor());
 
 		readFuture.write(content);
 
@@ -165,7 +165,7 @@ public class FixedIOSession implements FixedSession {
 		throw new TimeoutException("timeout");
 	}
 
-	public ReadFuture request(String serviceName, String content, long timeout) throws IOException {
+	public NIOReadFuture request(String serviceName, String content, long timeout) throws IOException {
 		return request(serviceName, content, null, timeout);
 	}
 
@@ -210,14 +210,12 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ReadFuture readFuture = ReadFutureFactory.create(session, serviceName);
+		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName,context.getIOEventHandleAdaptor());
 
 		readFuture.write(content);
 
 		readFuture.setInputStream(inputStream);
 		
-		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
-
 		session.flush(readFuture);
 	}
 }

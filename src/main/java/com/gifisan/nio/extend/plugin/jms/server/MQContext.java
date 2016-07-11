@@ -6,7 +6,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.concurrent.ReentrantSet;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
@@ -92,16 +92,16 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		messageIDs.remove(message.getMsgID());
 	}
 
-	public Message parse(ReadFuture future) throws MQException {
+	public Message parse(NIOReadFuture future) throws MQException {
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(Session session, ReadFuture future, MQSessionAttachment attachment) {
+	public void subscribeMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}

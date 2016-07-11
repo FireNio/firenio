@@ -5,7 +5,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.jms.ErrorMessage;
 import com.gifisan.nio.extend.plugin.jms.Message;
 import com.gifisan.nio.extend.plugin.jms.NullMessage;
@@ -21,7 +21,7 @@ public class MQBrowserServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQBrowserServlet.class.getSimpleName();
 
-	public void accept(Session session, ReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void accept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();
 

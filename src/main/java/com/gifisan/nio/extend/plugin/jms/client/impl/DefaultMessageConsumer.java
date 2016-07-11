@@ -2,7 +2,7 @@ package com.gifisan.nio.extend.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.RESMessageDecoder;
@@ -41,7 +41,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			if (onReadFuture.await(3000)) {
 
-				ReadFuture future = onReadFuture.getReadFuture();
+				NIOReadFuture future = onReadFuture.getReadFuture();
 
 				RESMessage message = RESMessageDecoder.decode(future.getText());
 

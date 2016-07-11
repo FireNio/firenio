@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.jms.server;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.jms.BytedMessage;
 import com.gifisan.nio.extend.plugin.jms.Message;
 
@@ -13,10 +13,10 @@ public class Consumer {
 	private MQSessionAttachment	attachment	;
 	private ConsumerQueue		consumerQueue	;
 	private Session			session		;
-	private ReadFuture			future		;
+	private NIOReadFuture			future		;
 	private Message			message		;
 
-	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, ReadFuture future,
+	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, NIOReadFuture future,
 			String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
@@ -50,7 +50,7 @@ public class Consumer {
 
 		Session session = this.session;
 
-		ReadFuture future = ReadFutureFactory.create(session,this.future);
+		NIOReadFuture future = ReadFutureFactory.create(session,this.future);
 
 		future.attach(this);
 		

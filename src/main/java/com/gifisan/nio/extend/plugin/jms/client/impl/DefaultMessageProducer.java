@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.jms.client.impl;
 import java.io.IOException;
 
 import com.gifisan.nio.component.ByteArrayInputStream;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.plugin.jms.BytedMessage;
 import com.gifisan.nio.extend.plugin.jms.MQException;
@@ -28,7 +28,7 @@ public class DefaultMessageProducer implements MessageProducer {
 		
 		String param = message.toString();
 
-		ReadFuture future = null;
+		NIOReadFuture future = null;
 
 		int msgType = message.getMsgType();
 

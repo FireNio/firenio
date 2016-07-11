@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.future.nio.NIOReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
@@ -14,8 +15,7 @@ public abstract class LMServlet extends FutureAcceptorService {
 
 	protected abstract AbstractService getAbstractService(DataBaseContext context) throws SQLException;
 
-	public void accept(Session session, ReadFuture future) throws Exception {
-
+	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
 		AbstractService service = getAbstractService(DataBaseUtil.getDataBaseContext());
 
 		try {
@@ -27,9 +27,10 @@ public abstract class LMServlet extends FutureAcceptorService {
 		} finally {
 			service.close();
 		}
+		
 	}
 
-	protected abstract void doAccept(Session session, ReadFuture future, AbstractService _service)
+	protected abstract void doAccept(Session session, NIOReadFuture future, AbstractService _service)
 			throws Exception;
 	
 	

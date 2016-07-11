@@ -89,7 +89,7 @@ public class ClientEndPointWriter extends DefaultEndPointWriter {
 
 	private void waitWrite(IOWriteFuture writer, TCPEndPoint endPoint) {
 
-		if (!writer.isNetworkWeak()) {
+		if (!endPoint.isNetworkWeak()) {
 			return;
 		}
 

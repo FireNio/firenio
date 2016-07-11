@@ -5,9 +5,9 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.future.MultiReadFuture;
-import com.gifisan.nio.component.future.StreamReadFuture;
-import com.gifisan.nio.component.future.TextReadFuture;
+import com.gifisan.nio.component.future.nio.MultiReadFuture;
+import com.gifisan.nio.component.future.nio.StreamReadFuture;
+import com.gifisan.nio.component.future.nio.TextReadFuture;
 
 public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
 
