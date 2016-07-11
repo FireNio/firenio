@@ -2,7 +2,6 @@ package test;
 
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.LoggerSEtListener;
@@ -24,8 +23,6 @@ public class ServerUtil {
 		if (acceptor == null) {
 
 			try {
-
-				PropertiesLoader.load();
 
 				acceptor = new TCPAcceptor();
 

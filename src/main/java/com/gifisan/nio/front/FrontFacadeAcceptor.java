@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.LoggerUtil;
-import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
@@ -27,8 +26,6 @@ public class FrontFacadeAcceptor {
 		if (!started.compareAndSet(false, true)) {
 			return;
 		}
-
-		PropertiesLoader.load();
 
 		this.frontContext = new FrontContext(configuration);
 

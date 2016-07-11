@@ -5,7 +5,6 @@ import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
@@ -14,8 +13,6 @@ import com.gifisan.nio.component.NIOContext;
 public class ServerLauncher {
 
 	public void launch() throws Exception {
-		
-		PropertiesLoader.load();
 		
 		ApplicationContext applicationContext = new ApplicationContext();
 		

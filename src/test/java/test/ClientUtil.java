@@ -8,7 +8,6 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MD5Token;
-import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.LoggerSEtListener;
@@ -32,8 +31,6 @@ public class ClientUtil {
 		if (connector == null) {
 
 			try {
-
-				PropertiesLoader.load();
 
 				connector = new TCPConnector();
 

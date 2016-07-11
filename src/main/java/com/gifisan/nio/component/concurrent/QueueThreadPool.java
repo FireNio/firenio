@@ -1,109 +1,59 @@
 package com.gifisan.nio.component.concurrent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.gifisan.nio.AbstractLifeCycle;
-import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
 public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
-	
-	private Logger	logger		= LoggerFactory.getLogger(QueueThreadPool.class);
 
-	private class LifedPoolWorker extends Thread {
+	private Logger				logger	= LoggerFactory.getLogger(QueueThreadPool.class);
+	private int				core_size;
+	private String				threadPrefix;
+	private UniqueThread[]		poolWorkerThreads;
+	private PoolWorker[]		poolWorks;
+	private FixedAtomicInteger	indexer;
+	private LinkedList<Runnable> jobs;
 
-		private PoolWorker	worker	;
-
-		public LifedPoolWorker(PoolWorker worker, String name) {
-			super(QueueThreadPool.this.threadPrefix + "@PoolWorker-" + name);
-			this.worker = worker;
-		}
-
-		public void run() {
-			this.worker.run();
-		}
-
-		public void startWork() throws Exception {
-			LifeCycleUtil.start(worker);
-			this.start();
-		}
-
-		public void stopWork() {
-			LifeCycleUtil.stop(worker);
-		}
-
-	}
-
-	private LinkedList<Runnable>			jobs			;
-	private int						size			= 4;
-	private String						threadPrefix	;
-	private List<LifedPoolWorker>			workers		= new ArrayList<QueueThreadPool.LifedPoolWorker>(size);
-
-	/**
-	 * default size 4
-	 * 
-	 * @param threadPrefix
-	 */
-	public QueueThreadPool(String threadPrefix) {
-		this(threadPrefix, 4);
-	}
-
-	public QueueThreadPool(String threadPrefix, int size) {
-		this.size = size;
+	public QueueThreadPool(String threadPrefix, int core_size) {
+		this.core_size = core_size;
 		this.threadPrefix = threadPrefix;
-		this.jobs = new LinkedListABQ<Runnable>(1024 * 8);
+		this.poolWorks = new PoolWorker[core_size];
+		this.poolWorkerThreads = new UniqueThread[core_size];
+		this.indexer = new FixedAtomicInteger(core_size - 1);
+		this.jobs = new LinkedListABQ<Runnable>(1024 * 10240);
 	}
 
 	public void dispatch(Runnable runnable) {
 		if (!isStarted()) {
-			// free time, ignore job
-			return;
+			throw new IllegalStateException("stopped");
 		}
 
-		for (; !jobs.offer(runnable);) {
-
-		}
-
+		poolWorks[indexer.getAndIncrement()].dispatch(runnable);
 	}
 
 	protected void doStart() throws Exception {
 
-		for (int i = 0; i < size; i++) {
-			LifedPoolWorker lifedPoolWorker = produceWorker(i);
-			workers.add(lifedPoolWorker);
-		}
-		
-		for (LifedPoolWorker worker : workers) {
-			try {
-				worker.startWork();
-			} catch (Exception e) {
-				logger.debug(e);
-				workers.remove(worker);
-			}
-		}
+		for (int i = 0; i < core_size; i++) {
 
+			UniqueThread poolWorkerThrad = new UniqueThread();
+			
+			PoolWorker poolWorker = new PoolWorker(jobs);
+
+			poolWorkerThreads[i] = poolWorkerThrad;
+			poolWorks[i] = poolWorker;
+			
+			poolWorkerThrad.start(poolWorker, threadPrefix + "-" + i);
+		}
 	}
 
 	protected void doStop() throws Exception {
-		
-		for (;jobs.size() > 0;) {
-			Thread.sleep(64);
-		}
 
-		for (LifedPoolWorker worker : workers) {
+		for (UniqueThread worker : poolWorkerThreads) {
 			try {
-				worker.stopWork();
+				worker.stop();
 			} catch (Exception e) {
 				logger.debug(e);
 			}
 		}
-	}
-
-	private LifedPoolWorker produceWorker(int index) {
-		PoolWorker worker = new PoolWorker(this.jobs);
-		LifedPoolWorker lifedPoolWorker = new LifedPoolWorker(worker, String.valueOf(index));
-		return lifedPoolWorker;
 	}
 }

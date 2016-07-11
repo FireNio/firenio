@@ -1,41 +1,32 @@
 package com.gifisan.nio.component.concurrent;
 
-import com.gifisan.nio.AbstractLifeCycle;
+import com.gifisan.nio.Looper;
 
-public class PoolWorker extends AbstractLifeCycle implements Runnable {
+public class PoolWorker implements Looper {
 
-	private boolean			working	= false;
 	private LinkedList<Runnable>	jobs		;
 
-	public PoolWorker(LinkedList<Runnable> jobs) {
+	public PoolWorker(LinkedList<Runnable>	jobs) {
 		this.jobs = jobs;
 	}
 
-	public void run() {
-		for (; isRunning();) {
-			
-			working = true;
-			
-			Runnable job = null;
-			
-			job = jobs.poll(16);
+	//FIXME left jobs
+	public void stop() {
+		
+	}
 
-			if (job != null) {
-				job.run();
-			}
-			
-			working = false;
+	public void loop() {
+		
+		Runnable job = null;
+		
+		job = jobs.poll(16);
+
+		if (job != null) {
+			job.run();
 		}
 	}
-
-	protected void doStart() throws Exception {
-
+	
+	public void dispatch(Runnable job){
+		this.jobs.offer(job);
 	}
-
-	protected void doStop() throws Exception {
-		for (; working;) {
-			Thread.sleep(8);
-		}
-	}
-
 }
