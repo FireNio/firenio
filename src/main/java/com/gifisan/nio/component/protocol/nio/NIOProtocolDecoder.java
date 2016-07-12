@@ -19,7 +19,7 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 		int length = endPoint.read(header);
 
 		if (length < 1) {
-			if (length < 0) {
+			if (length == -1) {
 				endPoint.endConnect();
 			}
 			return null;

@@ -13,6 +13,4 @@ public class HTTPProtocolFactory implements ProtocolFactory{
 	public ProtocolEncoder getProtocolEncoder() {
 		return new HTTPProtocolEncoder();
 	}
-
-	
 }

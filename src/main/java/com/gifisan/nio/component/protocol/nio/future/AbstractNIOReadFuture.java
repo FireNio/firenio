@@ -12,9 +12,8 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.AbstractReadFuture;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
-public abstract class AbstractNIOReadFuture extends AbstractReadFuture implements IOReadFuture ,NIOReadFuture{
+public abstract class AbstractNIOReadFuture extends AbstractReadFuture implements NIOReadFuture{
 
 	protected ByteBuffer		textBuffer		;
 	protected boolean			hasStream			;

@@ -28,7 +28,7 @@ public class MultiReadFuture extends AbstractNIOReadFuture implements IOReadFutu
 
 		this.dataLength = gainStreamLength(header);
 
-		int bufferLength = 1024 * 1000;
+		int bufferLength = 1024 * 256;
 
 		bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
 
@@ -47,7 +47,7 @@ public class MultiReadFuture extends AbstractNIOReadFuture implements IOReadFutu
 				logger.debug(e);
 			}
 
-			if (!this.hasOutputStream()) {
+			if (this.outputStream == null) {
 				throw new IOException("none outputstream");
 			}
 			readLength = 0;

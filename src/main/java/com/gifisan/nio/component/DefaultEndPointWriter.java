@@ -211,7 +211,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	}
 
 	public String toString() {
-		return "Server-EndPoint-Writer";
+		return "Future-Writer";
 	}
 
 	public interface EndPointWriteEvent {
