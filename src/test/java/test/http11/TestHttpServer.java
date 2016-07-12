@@ -34,7 +34,7 @@ public class TestHttpServer {
 
 					BufferedOutputStream outputStream = (BufferedOutputStream) f.getOutputStream();
 
-					res = "yes server already accept your message :) </BR>" + outputStream.toString();
+					res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>" + outputStream.toString()+"</PRE>";
 				} else {
 					res = "yes server already accept your message :) " + f.getParamString();
 				}
@@ -42,8 +42,6 @@ public class TestHttpServer {
 				f.write(res);
 				session.flush(f);
 			}
-			
-			
 		};
 
 		TCPAcceptor acceptor = ServerUtil.getTCPAcceptor(eventHandleAdaptor);

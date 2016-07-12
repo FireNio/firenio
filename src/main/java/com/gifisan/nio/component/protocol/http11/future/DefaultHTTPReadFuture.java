@@ -190,6 +190,8 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 				
 				return true;
 			}
+			
+			return false;
 		}
 		
 		return true;
@@ -478,13 +480,13 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 
 	public static void main(String[] args) throws IOException {
 		
-		DefaultHTTPReadFuture defaultHTTPReadFuture = new DefaultHTTPReadFuture();
-
-		String content = FileUtil.readContentByCls("test.f", Encoding.UTF8);
-
-		defaultHTTPReadFuture.test(content);
-
-		System.out.println(JSON.toJSONString(defaultHTTPReadFuture.headers, true));
+		KMPByteUtil kmpUtil = new KMPByteUtil("\r\n\r\n".getBytes());
+		
+		byte [] source_array = new byte[4096];
+		
+		int pos = kmpUtil.match(source_array, 0, source_array.length);
+	
+		System.out.println(pos);
 	}
 
 }

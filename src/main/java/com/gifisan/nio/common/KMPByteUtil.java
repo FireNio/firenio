@@ -58,7 +58,7 @@ public class KMPByteUtil {
 
 	public int match(byte[] source_array, int begin,int end) {
 
-		if (source_array == null || begin < 0) {
+		if (source_array == null || begin < 0 || end > source_array.length) {
 			return -1;
 		}
 
