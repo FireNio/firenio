@@ -11,7 +11,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 public class ClientEndPointWriter extends DefaultEndPointWriter {
 

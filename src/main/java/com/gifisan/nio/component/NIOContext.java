@@ -7,6 +7,7 @@ import com.gifisan.nio.acceptor.UDPEndPointFactory;
 import com.gifisan.nio.component.concurrent.ThreadPool;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolFactory;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public interface NIOContext extends Attributes, LifeCycle {
@@ -41,9 +42,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);
 
-	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
-
-	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
 	public abstract void setServerConfiguration(ServerConfiguration serverConfiguration);
 

@@ -1,6 +1,6 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public interface ReadFutureAcceptor {
 

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public class TestUploadServlet extends FutureAcceptorService {

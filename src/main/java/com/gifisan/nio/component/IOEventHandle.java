@@ -1,7 +1,7 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.WriteFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.WriteFuture;
 
 public interface IOEventHandle extends ReadFutureAcceptor {
 

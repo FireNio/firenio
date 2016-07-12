@@ -3,8 +3,8 @@ package com.gifisan.nio.component;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
 public class TCPSelectionReader implements SelectionAcceptor {
 

@@ -2,7 +2,7 @@ package com.gifisan.nio.extend.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.RESMessageDecoder;

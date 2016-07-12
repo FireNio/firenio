@@ -5,7 +5,7 @@ import java.net.SocketException;
 
 import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
 
 public interface Session {

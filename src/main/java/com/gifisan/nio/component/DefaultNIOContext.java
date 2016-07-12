@@ -15,10 +15,10 @@ import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.component.concurrent.ThreadPool;
-import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
-import com.gifisan.nio.component.protocol.DefaultTCPProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.ProtocolFactory;
+import com.gifisan.nio.component.protocol.nio.NIOProtocolFactory;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
@@ -31,8 +31,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionEventListenerWrapper	lastSessionEventListener	;
 	private Logger						logger				= LoggerFactory
 																.getLogger(DefaultNIOContext.class);
-	private ProtocolDecoder				protocolDecoder		= new DefaultTCPProtocolDecoder();
-	private ProtocolEncoder				protocolEncoder		= new DefaultTCPProtocolEncoder();
+	private ProtocolDecoder				protocolDecoder		;
+	private ProtocolEncoder				protocolEncoder		;
 	private ReadFutureAcceptor			readFutureAcceptor		;
 	private ServerConfiguration			serverConfiguration		;
 	private SessionEventListenerWrapper	sessionEventListenerStub	;
@@ -41,6 +41,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private ThreadPool					threadPool			;
 	private UDPEndPointFactory			udpEndPointFactory		;
 	private IOService					udpService			;
+	private ProtocolFactory				protocolFactory		;
 
 	public DefaultNIOContext() {
 		this.addLifeCycleListener(new NIOContextListener());
@@ -96,17 +97,16 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
-		if (protocolEncoder == null) {
-			protocolEncoder = new DefaultTCPProtocolEncoder();
-		}
-
-		if (protocolDecoder == null) {
-			protocolDecoder = new DefaultTCPProtocolDecoder();
-		}
-		
 		if (sessionFactory == null) {
 			sessionFactory = new SessionFactory();
 		}
+		
+		if (protocolFactory == null) {
+			protocolFactory = new NIOProtocolFactory();
+		}
+		
+		this.protocolDecoder = protocolFactory.getProtocolDecoder();
+		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		
 		LifeCycleUtil.start(threadPool);
 	}
@@ -214,14 +214,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		this.protocolDecoder = protocolDecoder;
-	}
-
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		this.protocolEncoder = protocolEncoder;
-	}
-
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
 		this.serverConfiguration = serverConfiguration;
 	}
@@ -240,5 +232,9 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public Sequence getSequence() {
 		return sequence;
+	}
+
+	public void setProtocolFactory(ProtocolFactory protocolFactory) {
+		this.protocolFactory = protocolFactory;
 	}
 }

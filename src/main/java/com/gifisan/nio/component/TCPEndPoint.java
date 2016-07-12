@@ -3,8 +3,8 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 public interface TCPEndPoint extends EndPoint {
 

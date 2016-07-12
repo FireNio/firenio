@@ -1,6 +1,5 @@
 package com.gifisan.nio.extend;
 
-import com.gifisan.nio.acceptor.ServerProtocolDecoder;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -8,6 +7,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.protocol.http11.HTTPProtocolFactory;
 
 
 public class ServerLauncher {
@@ -26,11 +26,11 @@ public class ServerLauncher {
 			
 			applicationContext.setContext(context);
 			
-			context.setProtocolDecoder(new ServerProtocolDecoder());
-			
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 			
 			context.addSessionEventListener(new LoggerSEtListener());
+			
+			context.setProtocolFactory(new HTTPProtocolFactory());
 			
 			acceptor.setContext(context);
 			

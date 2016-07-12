@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.jms.decode;
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.jms.MapByteMessage;
 import com.gifisan.nio.extend.plugin.jms.Message;
 

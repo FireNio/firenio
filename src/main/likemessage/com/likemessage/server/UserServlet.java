@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.configuration.Configuration;

@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.future;
+package com.gifisan.nio.component.protocol.future;
 
 
 public interface Future {

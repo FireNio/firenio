@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.protocol;
+package com.gifisan.nio.component.protocol.nio;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,16 +8,18 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.ByteArrayWriteFuture;
-import com.gifisan.nio.component.future.IOWriteFuture;
-import com.gifisan.nio.component.future.MultiWriteFuture;
-import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.TextWriteFuture;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
+import com.gifisan.nio.component.protocol.future.ByteArrayWriteFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.MultiWriteFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 // >> 右移N位
 // << 左移N位
-public class DefaultTCPProtocolEncoder implements ProtocolEncoder {
+public class NIOProtocolEncoder implements ProtocolEncoder {
 
 	private final int	PROTOCOL_HADER		= ProtocolDecoder.PROTOCOL_HADER;
 	private final int	STREAM_BEGIN_INDEX	= ProtocolDecoder.STREAM_BEGIN_INDEX;

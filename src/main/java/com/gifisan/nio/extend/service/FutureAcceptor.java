@@ -10,7 +10,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.DynamicClassLoader;
 import com.gifisan.nio.extend.PluginContext;

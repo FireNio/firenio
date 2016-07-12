@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.rtp.server;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class RTPJoinRoomServlet extends RTPServlet {
 

@@ -1,15 +1,16 @@
-package com.gifisan.nio.component.protocol;
+package com.gifisan.nio.component.protocol.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.future.nio.MultiReadFuture;
-import com.gifisan.nio.component.future.nio.StreamReadFuture;
-import com.gifisan.nio.component.future.nio.TextReadFuture;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.MultiReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.StreamReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.TextReadFuture;
 
-public class DefaultTCPProtocolDecoder implements ProtocolDecoder {
+public class NIOProtocolDecoder implements ProtocolDecoder {
 
 	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
 

@@ -1,7 +1,7 @@
 package com.gifisan.nio.extend.plugin.authority;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.LoginCenter;

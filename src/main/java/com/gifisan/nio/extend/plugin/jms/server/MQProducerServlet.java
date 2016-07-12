@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.jms.Message;
 
 public class MQProducerServlet extends MQServlet {

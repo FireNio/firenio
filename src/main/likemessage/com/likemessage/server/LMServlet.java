@@ -4,8 +4,8 @@ import java.sql.SQLException;
 
 import com.gifisan.database.DataBaseContext;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 

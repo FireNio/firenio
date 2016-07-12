@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.plugin.jms.server;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.jms.BytedMessage;
 import com.gifisan.nio.extend.plugin.jms.Message;
 

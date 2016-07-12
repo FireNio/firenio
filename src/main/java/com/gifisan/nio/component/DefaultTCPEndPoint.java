@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
-import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 

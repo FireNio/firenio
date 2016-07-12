@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.security.Authority;
 
 public interface FixedSession extends NIOReadFutureAcceptor{

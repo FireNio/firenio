@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.future.nio;
+package com.gifisan.nio.component.protocol.nio.future;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +10,9 @@ import com.gifisan.nio.component.DefaultParameters;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.AbstractReadFuture;
-import com.gifisan.nio.component.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.future.AbstractReadFuture;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
 public abstract class AbstractNIOReadFuture extends AbstractReadFuture implements IOReadFuture ,NIOReadFuture{
 
@@ -96,12 +96,12 @@ public abstract class AbstractNIOReadFuture extends AbstractReadFuture implement
 
 		byte[] header_array = header.array();
 
-		int textAndServiceNameLength = gainTextLength(header_array)
+		int text_and_service_name_length = gainTextLength(header_array)
 				+ header_array[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX];
 
 		this.futureID = gainFutureIDLength(header_array);
 
-		this.textBuffer = ByteBuffer.allocate(textAndServiceNameLength);
+		this.textBuffer = ByteBuffer.allocate(text_and_service_name_length);
 
 		this.decode(endPoint, header.array());
 	}

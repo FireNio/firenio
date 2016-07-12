@@ -6,7 +6,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.concurrent.ReentrantSet;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;

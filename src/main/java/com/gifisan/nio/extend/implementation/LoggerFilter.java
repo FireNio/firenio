@@ -4,7 +4,7 @@ package com.gifisan.nio.extend.implementation;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorFilter;
 
 public class LoggerFilter extends FutureAcceptorFilter {

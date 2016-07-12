@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.future.nio;
+package com.gifisan.nio.component.protocol.nio.future;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.AbstractWriteFuture;
-import com.gifisan.nio.component.future.WriteFuture;
+import com.gifisan.nio.component.protocol.future.AbstractWriteFuture;
+import com.gifisan.nio.component.protocol.future.WriteFuture;
 
 public class BeatWriteFuture extends AbstractWriteFuture implements WriteFuture {
 

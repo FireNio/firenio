@@ -5,7 +5,7 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptor;
 
 public class FixedIOEventHandle extends IOEventHandleAdaptor {

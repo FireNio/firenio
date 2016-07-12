@@ -7,11 +7,11 @@ import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.DefaultTCPProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.nio.NIOProtocolDecoder;
 
-public class ServerProtocolDecoder extends DefaultTCPProtocolDecoder implements ProtocolDecoder {
+public class ServerProtocolDecoder extends NIOProtocolDecoder implements ProtocolDecoder {
 
 	private Logger			logger	= LoggerFactory.getLogger(ServerProtocolDecoder.class);
 	private StringBuilder	http		= new StringBuilder();

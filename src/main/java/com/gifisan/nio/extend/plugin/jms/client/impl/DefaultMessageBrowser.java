@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.ByteUtil;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.plugin.jms.MQException;
 import com.gifisan.nio.extend.plugin.jms.Message;

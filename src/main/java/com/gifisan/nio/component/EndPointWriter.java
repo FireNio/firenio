@@ -2,7 +2,7 @@ package com.gifisan.nio.component;
 
 import com.gifisan.nio.Looper;
 import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
-import com.gifisan.nio.component.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 public interface EndPointWriter extends Looper{
 	

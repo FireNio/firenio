@@ -16,7 +16,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.extend.security.Authority;
 

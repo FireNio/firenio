@@ -3,8 +3,8 @@ package com.gifisan.nio.component.protocol;
 import java.io.IOException;
 
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.future.IOWriteFuture;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 /**
  * <pre>

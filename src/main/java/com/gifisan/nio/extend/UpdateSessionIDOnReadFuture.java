@@ -1,6 +1,6 @@
 package com.gifisan.nio.extend;
 
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class UpdateSessionIDOnReadFuture implements OnReadFuture{
 

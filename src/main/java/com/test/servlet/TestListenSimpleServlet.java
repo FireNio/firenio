@@ -3,7 +3,7 @@ package com.test.servlet;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
 
 public class TestListenSimpleServlet extends FutureAcceptorService{

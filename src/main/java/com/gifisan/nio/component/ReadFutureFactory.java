@@ -1,7 +1,7 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.future.nio.NIOReadFuture;
-import com.gifisan.nio.component.future.nio.TextReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.TextReadFuture;
 
 public class ReadFutureFactory {
 

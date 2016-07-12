@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.gifisan.nio.component.IOService;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public interface IOAcceptor extends IOService {
 
