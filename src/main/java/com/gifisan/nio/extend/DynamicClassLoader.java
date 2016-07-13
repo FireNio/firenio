@@ -111,21 +111,25 @@ public class DynamicClassLoader extends ClassLoader {
 
 	private void scanZip(JarFile file) throws IOException {
 
-		LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
+		try {
+			LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
 
-		Enumeration<JarEntry> entries = (Enumeration<JarEntry>) file.entries();
-		for (; entries.hasMoreElements();) {
-			JarEntry entry = entries.nextElement();
-			if (!entry.isDirectory()) {
-				String name = entry.getName();
-				if (name.endsWith(".class") && !matchSystem(name)) {
+			Enumeration<JarEntry> entries = (Enumeration<JarEntry>) file.entries();
+			for (; entries.hasMoreElements();) {
+				JarEntry entry = entries.nextElement();
+				if (!entry.isDirectory()) {
+					String name = entry.getName();
+					if (name.endsWith(".class") && !matchSystem(name)) {
 
-					storeClass(file, name, entry);
+						storeClass(file, name, entry);
 
+					}
 				}
 			}
+		} finally {
+			
+			file.close();
 		}
-
 	}
 
 	public boolean matchSystem(String name) {

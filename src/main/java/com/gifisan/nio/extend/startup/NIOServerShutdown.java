@@ -1,4 +1,4 @@
-package com.gifisan.nio.extend;
+package com.gifisan.nio.extend.startup;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -9,14 +9,17 @@ import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
+import com.gifisan.nio.extend.ConnectorCloseSEListener;
+import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 import com.gifisan.nio.extend.implementation.SYSTEMStopServerServlet;
 
-public class ServerShutdown {
+public class NIOServerShutdown {
 
 	public static void main(String[] args) throws IOException {
 
-		ServerShutdown shutdown = new ServerShutdown();
+		NIOServerShutdown shutdown = new NIOServerShutdown();
 		
 		shutdown.shutdown(args);
 		
