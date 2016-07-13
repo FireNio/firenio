@@ -18,12 +18,19 @@ public class PropertiesLoader {
 
 			releaseModel = bundle.loadLog4jProperties("conf/log4j.properties");
 
-			if (!releaseModel && !bundle.loadLog4jProperties("log4j.properties")
-					&& !bundle.loadLog4jProperties("../classes/log4j.properties")) {
+			if (!releaseModel) {
+				if (!bundle.loadLog4jProperties("log4j.properties")
+						&& !bundle.loadLog4jProperties("../classes/log4j.properties")) {
 
-				throw new Error("config error");
+					throw new Error("config error");
+				}
+
+				String baseDIR = bundle.getBaseDIR();
+
+				File root = new File(baseDIR + "/../classes/");
+
+				bundle.setBaseDIR(root.getCanonicalPath()+"/");
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -31,7 +38,7 @@ public class PropertiesLoader {
 
 	public static void load() throws IOException {
 		storageProperties("server.properties");
-		
+
 		DebugUtil.setEnableDebug(bundle.getBooleanProperty("SERVER.DEBUG"));
 	}
 

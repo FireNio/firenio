@@ -25,12 +25,15 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptor.class);
 	private PluginLoader				pluginLoader	;
 	private FutureAcceptorFilterWrapper	rootFilter	;
+	private FutureAcceptorServiceFilter	serviceFilter	;
 	
-	public FutureAcceptor(ApplicationContext context, DynamicClassLoader classLoader) {
+	public FutureAcceptor(ApplicationContext context, DynamicClassLoader classLoader,FutureAcceptorServiceFilter	serviceFilter) {
 
 		this.classLoader = classLoader;
 
 		this.context = context;
+		
+		this.serviceFilter = serviceFilter;
 	}
 
 	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future) {
@@ -102,7 +105,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 		this.pluginLoader = new PluginLoader(context, classLoader);
 
-		this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader);
+		this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader,serviceFilter);
 
 		LifeCycleUtil.start(pluginLoader);
 		
@@ -129,7 +132,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 		logger.info("       [NIOServer] ======================================= 开始服务升级 =======================================");
 
-		FutureAcceptorFilterLoader filterLoader = new FutureAcceptorFilterLoader(context, classLoader);
+		FutureAcceptorFilterLoader filterLoader = new FutureAcceptorFilterLoader(context, classLoader,serviceFilter);
 
 		PluginLoader pluginLoader = new PluginLoader(context, classLoader);
 

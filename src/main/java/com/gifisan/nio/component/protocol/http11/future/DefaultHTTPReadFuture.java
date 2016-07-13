@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.FileUtil;
 import com.gifisan.nio.common.KMPByteUtil;
 import com.gifisan.nio.common.KMPUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.StringLexer;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
@@ -45,7 +46,10 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 	private boolean					body_complete;
 	private int						read_length		= 0;
 	private int						status 			= 200;
-	private Map<String, String>			headers			= new HashMap<String, String>();
+	private List<Cookie>				cookieList		= null;
+	private List<HttpHeader>				headerList		= null;
+	private Map<String, String>			cookies			= new HashMap<String, String>();
+	private Map<String, String>			request_headers	= new HashMap<String, String>();
 	private Map<String, String>			requestParams 		= new HashMap<String, String>();
 	private BufferedOutputStream			header_buffer		= new BufferedOutputStream(1024 * 2);
 	
@@ -121,6 +125,8 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 							paramString = requestURI.substring(index+1, requestURI.length());
 							
 							parseParamString(paramString);
+							
+							requestURI = requestURI.substring(0,index);
 						}
 						
 						body_complete = true;
@@ -152,6 +158,9 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 					}
 					
 					if (this.outputStream == null) {
+						
+						buffer.clear();
+						
 						throw new IOException("none outputstream");
 					}
 					
@@ -245,26 +254,13 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 		HTTP_HEADER_PARSER.parseHeader(header_string, this);
 	}
 
-	private void test(String content) {
-
-		HTTP_HEADER_PARSER.parseHeader(content, this);
-	}
-
 	private static class HttpHeaderParser {
 
 		private static final byte	R	= '\r';
 
 		private static final byte	N	= '\n';
 
-		private static final byte	C	= ':';
-
-		private static final byte	S	= ' ';
-
-		private String createUnexpectExceptionMessage(char token, int index) {
-			return new StringBuilder("unexpect token ").append(token).append(",at index ").append(index).toString();
-		}
-
-		private void parseFirstLine(Lexer lexer, DefaultHTTPReadFuture future) {
+		private void parseFirstLine(StringLexer lexer, DefaultHTTPReadFuture future) {
 
 			int index = 0;
 			String[] array = new String[3];
@@ -277,7 +273,7 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 					lexer.next();
 					lexer.next();
 					break;
-				} else if (S == c) {
+				} else if (' ' == c) {
 					array[index++] = builder.toString();
 					builder = new StringBuilder();
 					lexer.next();
@@ -296,60 +292,57 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 			future.version = array[2];
 		}
 
-		private String parseMapValue(Lexer lexer) {
-			StringBuilder builder = new StringBuilder();
-			do {
-				char ch = lexer.current();
-				if (ch == R || ch == N) {
-					lexer.previous();
-					break;
-				} else {
-					builder.append(ch);
-				}
-			} while (lexer.next());
-			return builder.toString();
-		}
-
-		public void parseHeader(String content, DefaultHTTPReadFuture future) {
-			Map<String, String> headers = future.headers;
-			Lexer lexer = new Lexer(0, content.toCharArray());
+		private void parseHeader(String content,DefaultHTTPReadFuture future) {
+			Map<String, String> headers = future.request_headers;
+			StringLexer lexer = new StringLexer(0, content.toCharArray());
 			parseFirstLine(lexer, future);
-			String key = findMapKey(lexer);
-			String value = null;
-			boolean findKey = false;
-			while (lexer.next()) {
-				char ch = lexer.current();
-				switch (ch) {
-				case C:
-					if (findKey) {
-						throw new IllegalArgumentException(createUnexpectExceptionMessage(ch,
-								lexer.currentIndex()));
-					} else {
-						lexer.next();
-						lexer.next();
-						value = parseMapValue(lexer);
-						findKey = true;
-						headers.put(key, value);
+			StringBuilder value = new StringBuilder();
+			String k = null;
+			for (;;) {
+				char c = lexer.current();
+				switch (c) {
+				case ':':
+					k = value.toString();
+					value = new StringBuilder();
+					lexer.next();
+					if (' ' != lexer.current()) {
+						lexer.previous();
 					}
-					break;
-				case R:
-					if (!findKey) {
-						throw new RuntimeException(createUnexpectExceptionMessage(ch, lexer.currentIndex()));
-					} else {
-						lexer.next();
-						if (!lexer.next()) {
-							break;
-						}
-						key = findMapKey(lexer);
-						findKey = false;
-
-					}
+					headers.put(k, findHeaderValue(lexer));
 					break;
 				default:
-					throw new RuntimeException(createUnexpectExceptionMessage(ch, lexer.currentIndex()));
+					value.append(c);
+					break;
+				}
+				if (!lexer.next()) {
+					break;
 				}
 			}
+			
+			doAfterParseHeader(future);
+		}
+		
+		private String findHeaderValue(StringLexer lexer){
+			StringBuilder value = new StringBuilder();
+			for (;lexer.next();) {
+				char c = lexer.current();
+				switch (c) {
+				case R:
+					break;
+				case N:
+					return value.toString();
+				default:
+					value.append(c);
+					break;
+				}
+			}
+			return value.toString();
+		}
 
+		private void doAfterParseHeader(DefaultHTTPReadFuture future){
+			
+			Map<String,String> headers = future.request_headers;
+			
 			future.host = headers.get("Host");
 			
 			String _contentLength = headers.get("Content-Length");
@@ -362,9 +355,12 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 			
 			if (!StringUtil.isNullOrBlank(contentType)) {
 				
-				if ("application/x-www-form-urlencoded".equals(contentType)) {
+				if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+					
 					future.contentType = CONTENT_TYPE_URLENCODED;
+				
 				}else if(contentType.startsWith("multipart/form-data;")){
+					
 					int index = KMP_BOUNDARY.match(contentType);
 					
 					if (index != -1) {
@@ -378,56 +374,57 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 			}else{
 				future.contentType = CONTENT_TYPE_URLENCODED;
 			}
+			
+			String cookie = headers.get("Cookie");
+			
+			if (!StringUtil.isNullOrBlank(cookie)) {
+				parseLine(cookie, future.cookies);
+			}
 		}
-
-		private String findMapKey(Lexer lexer) {
-			StringBuilder builder = new StringBuilder();
-			do {
-				char ch = lexer.current();
-				if (ch == C) {
-					lexer.previous();
-					return builder.toString();
-				} else {
-					builder.append(ch);
+		
+		private void parseLine(String line,Map<String,String> map){
+			StringLexer l = new StringLexer(0, line.toCharArray());
+			StringBuilder value = new StringBuilder();
+			String k = null;
+			String v = null;
+			boolean findKey = true;
+			for(;;){
+				char c = l.current();
+				switch (c) {
+				case ' ':
+					break;
+				case '=':
+					if (!findKey) {
+						throw new IllegalArgumentException();
+					}
+					k = value.toString();
+					value = new StringBuilder();
+					findKey = false;
+					break;
+				case ';':
+					if (findKey) {
+						throw new IllegalArgumentException();
+					}
+					findKey = true;
+					v = value.toString();
+					value = new StringBuilder();
+					map.put(k, v);
+					break;
+				default:
+					value.append(c);
+					break;
 				}
-			} while (lexer.next());
-			return builder.toString();
-		}
-
-		private class Lexer {
-
-			private int	index	= 0;
-			private char[]	codes	= null;
-
-			public Lexer(int index, char[] codes) {
-				this.index = index;
-				this.codes = codes;
+				if(!l.next()){
+					break;
+				}
 			}
-
-			public void previous() {
-				index--;
-			}
-
-			public boolean next() {
-				return ++index < codes.length;
-			}
-
-			public char current() {
-				return codes[index];
-			}
-
-			public int currentIndex() {
-				return index;
-			}
-
-			public String toString() {
-				return new String("current:" + this.index + "," + this.current());
-			}
+			
+			map.put(k, value.toString());
 		}
 	}
 
-	public Map<String, String> getHeaders() {
-		return headers;
+	public List<HttpHeader> getHeaderList() {
+		return headerList;
 	}
 
 	public String getHost() {
@@ -477,16 +474,56 @@ public class DefaultHTTPReadFuture extends AbstractReadFuture implements HTTPRea
 	public void setOutputStream(OutputStream outputStream) {
 		this.outputStream = outputStream;
 	}
+	
+	public String getServiceName() {
+		return requestURI;
+	}
+	
+	public void addCookie(Cookie cookie){
+		
+		if (cookieList == null) {
+			cookieList = new ArrayList<Cookie>();
+		}
+		
+		cookieList.add(cookie);
+	}
+	
+	public List<Cookie> getCookieList() {
+		return cookieList;
+	}
+	
+	public String getCookie(String name) {
+		return cookies.get(name);
+	}
+	
+	public String getHeader(String name) {
+		return request_headers.get(name);
+	}
+
+	public void addHeader(String name, String value) {
+		
+		if (headerList == null) {
+			headerList = new ArrayList<HttpHeader>();
+		}
+		
+		headerList.add(new HttpHeader(name, value));
+	}
 
 	public static void main(String[] args) throws IOException {
 		
-		KMPByteUtil kmpUtil = new KMPByteUtil("\r\n\r\n".getBytes());
+		String line = "POST /test/test.htm HTTP/1.1\r\n"+
+					"Cookie: test222=222222; JSESSIONID=A9EF49BF15EE32B8A120F4D743D42EE3\r\n"+
+					"Content-Length: 1325";
 		
-		byte [] source_array = new byte[4096];
+		line = "Cookie: test222=222222; JSESSIONID=A9EF49BF15EE32B8A120F4D743D42EE3\r\n"+
+				"Content-Length: 1325";
 		
-		int pos = kmpUtil.match(source_array, 0, source_array.length);
-	
-		System.out.println(pos);
+		DefaultHTTPReadFuture future = new DefaultHTTPReadFuture();
+		
+		HTTP_HEADER_PARSER.parseHeader(line, future);
+		
+		System.out.println(JSON.toJSONString(future, true));
 	}
+	
 
 }

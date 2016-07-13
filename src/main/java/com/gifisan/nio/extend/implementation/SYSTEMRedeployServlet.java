@@ -4,9 +4,9 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public class SYSTEMRedeployServlet extends FutureAcceptorService {
+public class SYSTEMRedeployServlet extends NIOFutureAcceptorService {
 	
 	public static final String SERVICE_NAME = SYSTEMRedeployServlet.class.getSimpleName();
 

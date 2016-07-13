@@ -26,10 +26,11 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 	private FiltersConfiguration			configuration	;
 	private FutureAcceptorServiceFilter	serviceFilter	;
 
-	public FutureAcceptorFilterLoader(ApplicationContext context, DynamicClassLoader classLoader) {
+	public FutureAcceptorFilterLoader(ApplicationContext context, DynamicClassLoader classLoader,FutureAcceptorServiceFilter	serviceFilter) {
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
 		this.classLoader = classLoader;
+		this.serviceFilter = serviceFilter;
 	}
 
 	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
@@ -43,10 +44,8 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 		List<FutureAcceptorFilter> filters = new ArrayList<FutureAcceptorFilter>();
 		
-		this.serviceFilter = new FutureAcceptorServiceFilter(classLoader);
-		
 		filters.add(serviceFilter);
-
+		
 		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
 			LoggerUtil.prettyNIOServerLog(logger, "没有配置Filter");
 			filterConfigurations = new ArrayList<Configuration>();

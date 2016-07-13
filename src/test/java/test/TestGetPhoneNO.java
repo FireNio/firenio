@@ -7,7 +7,7 @@ import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.test.servlet.TestGetPhoneNOServlet;
+import com.test.servlet.nio.TestGetPhoneNOServlet;
 
 public class TestGetPhoneNO {
 	

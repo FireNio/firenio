@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gifisan.nio.common.StringLexer;
+
 public class JSON {
 
 	private static String createUnexpectExceptionMessage(char token, int index) {
@@ -13,7 +15,7 @@ public class JSON {
 				.toString();
 	}
 	
-	private static String findMapKey(JSONLexer lexer) throws JSONSyntaxException {
+	private static String findMapKey(StringLexer lexer) throws JSONSyntaxException {
 		lexer.next();
 		boolean isQotesStart = skipWhitespace(lexer) == JSONToken.DOUBLE_QUOTES;
 		if (isQotesStart) {
@@ -45,7 +47,7 @@ public class JSON {
 		throw new JSONSyntaxException("EOF");
 	}
 	
-	private static Object parseNullValue(JSONLexer lexer) throws JSONSyntaxException {
+	private static Object parseNullValue(StringLexer lexer) throws JSONSyntaxException {
 		if (lexer.next(3)) {
 			int index = lexer.currentIndex();
 			if (lexer.charAt(index) == JSONToken.L && lexer.charAt(index - 1) == JSONToken.L
@@ -59,7 +61,7 @@ public class JSON {
 		}
 	}
 
-	private static Boolean parseTrueValue(JSONLexer lexer) throws JSONSyntaxException {
+	private static Boolean parseTrueValue(StringLexer lexer) throws JSONSyntaxException {
 		if (lexer.next(3)) {
 			int index = lexer.currentIndex();
 			if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.U
@@ -73,7 +75,7 @@ public class JSON {
 		}
 	}
 
-	private static Boolean parseFalseValue(JSONLexer lexer) throws JSONSyntaxException {
+	private static Boolean parseFalseValue(StringLexer lexer) throws JSONSyntaxException {
 		if (lexer.next(4)) {
 			int index = lexer.currentIndex();
 			if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.S
@@ -88,7 +90,7 @@ public class JSON {
 		}
 	}
 
-	private static char skipWhitespace(JSONLexer lexer){
+	private static char skipWhitespace(StringLexer lexer){
 		char ch = lexer.current();
 		while (isWhitespace(ch)) {
 			lexer.next();
@@ -98,7 +100,7 @@ public class JSON {
 		
 	}
 	
-	private static Object findMapValue(JSONLexer lexer) throws JSONSyntaxException {
+	private static Object findMapValue(StringLexer lexer) throws JSONSyntaxException {
 		lexer.next();
 		char ch = skipWhitespace(lexer);
 		switch (ch) {
@@ -131,7 +133,7 @@ public class JSON {
 		return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
 	}
 
-	private static List<?> parseArray(JSONLexer lexer) throws JSONSyntaxException {
+	private static List<?> parseArray(StringLexer lexer) throws JSONSyntaxException {
 		List<Object> list = new ArrayList<Object>();
 		do {
 			
@@ -153,7 +155,7 @@ public class JSON {
 		throw new JSONSyntaxException("EOF");
 	}
 
-	private static Map<?, ?> parseMap(JSONLexer lexer) throws JSONSyntaxException {
+	private static Map<?, ?> parseMap(StringLexer lexer) throws JSONSyntaxException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		String key = findMapKey(lexer);
 		Object value = null;
@@ -191,7 +193,7 @@ public class JSON {
 		return map;
 	}
 
-	private static Number parseNumberValue(JSONLexer lexer) throws JSONSyntaxException {
+	private static Number parseNumberValue(StringLexer lexer) throws JSONSyntaxException {
 		StringBuilder builder = new StringBuilder();
 		builder.append(lexer.current());
 		boolean end = false;
@@ -221,7 +223,7 @@ public class JSON {
 		throw new JSONSyntaxException("EOF");
 	}
 
-	private static String parseQuotesValue(JSONLexer lexer, char startQuotes)
+	private static String parseQuotesValue(StringLexer lexer, char startQuotes)
 			throws JSONSyntaxException {
 		StringBuilder builder = new StringBuilder();
 		while (lexer.next()) {
@@ -239,7 +241,7 @@ public class JSON {
 		if (content == null || content.length() == 0) {
 			return null;
 		}
-		JSONLexer lexer = new JSONLexer(0, content.toCharArray());
+		StringLexer lexer = new StringLexer(0, content.toCharArray());
 		if (lexer.current() != JSONToken.ARRAY_START) {
 			throw new JSONSyntaxException("except token [ at index 0");
 		}
@@ -256,7 +258,7 @@ public class JSON {
 		if (content == null || content.length() == 0) {
 			return null;
 		}
-		JSONLexer lexer = new JSONLexer(0, content.toCharArray());
+		StringLexer lexer = new StringLexer(0, content.toCharArray());
 		if (lexer.current() != JSONToken.OBJECT_START) {
 			throw new JSONSyntaxException("except token { at index 0");
 		}

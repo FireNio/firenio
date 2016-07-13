@@ -1,4 +1,4 @@
-package com.gifisan.nio.extend;
+package test.http11;
 
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
@@ -8,9 +8,13 @@ import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.http11.HTTPProtocolFactory;
+import com.gifisan.nio.extend.ApplicationContext;
+import com.gifisan.nio.extend.FixedIOEventHandle;
+import com.gifisan.nio.extend.configuration.FileSystemACLoader;
+import com.gifisan.nio.extend.service.FutureAcceptorFileFilter;
 
 
-public class ServerLauncher {
+public class TestHTTPServer {
 
 	public void launch() throws Exception {
 		
@@ -24,6 +28,12 @@ public class ServerLauncher {
 		
 		try {
 			
+			FileSystemACLoader fileSystemACLoader = new FileSystemACLoader();
+			
+			fileSystemACLoader.setBasePath("http");
+			
+			applicationContext.setLastServiceFilter(new FutureAcceptorFileFilter(applicationContext.getClassLoader()));
+			applicationContext.setConfigurationLoader(fileSystemACLoader);
 			applicationContext.setContext(context);
 			
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
@@ -42,7 +52,7 @@ public class ServerLauncher {
 
 		} catch (Throwable e) {
 			
-			LoggerFactory.getLogger(ServerLauncher.class).error(e.getMessage(), e);
+			LoggerFactory.getLogger(TestHTTPServer.class).error(e.getMessage(), e);
 			
 			LifeCycleUtil.stop(applicationContext);
 			
@@ -53,9 +63,8 @@ public class ServerLauncher {
 	}
 
 	public static void main(String[] args) throws Exception {
-		ServerLauncher launcher = new ServerLauncher();
+		TestHTTPServer launcher = new TestHTTPServer();
 
 		launcher.launch();
-
 	}
 }

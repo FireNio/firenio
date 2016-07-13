@@ -8,7 +8,7 @@ public class MQTransactionServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQTransactionServlet.class.getSimpleName();
 
-	public void accept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		String action = future.getText();
 

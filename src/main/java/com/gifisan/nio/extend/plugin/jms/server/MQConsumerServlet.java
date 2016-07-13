@@ -7,7 +7,7 @@ public class MQConsumerServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQConsumerServlet.class.getSimpleName();
 
-	public void accept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
 		
 		getMQContext().pollMessage(session, future, attachment);
 	}

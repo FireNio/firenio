@@ -1,13 +1,13 @@
-package com.test.servlet;
+package com.test.servlet.nio;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public class TestSimpleServlet extends FutureAcceptorService{
+public class TestSimpleServlet extends NIOFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
 	

@@ -10,32 +10,42 @@ import com.gifisan.nio.common.StringUtil;
 
 public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
 
+	private String basePath = "";
+	
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
+	}
+
 	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("filters.cfg", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent(basePath+"/filters.cfg", Encoding.UTF8);
 
 		return loadFiltersConfiguration(json);
 	}
 
 	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("plugins.cfg", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent(basePath+"/plugins.cfg", Encoding.UTF8);
 
 		return loadPluginsConfiguration(json);
 	}
 
 	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle) throws IOException {
 
-		String json = PropertiesLoader.loadContent("services.cfg", Encoding.UTF8);
+		String json = PropertiesLoader.loadContent(basePath+"/services.cfg", Encoding.UTF8);
 
 		return loadServletsConfiguration(json);
 	}
 
 	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle) throws IOException {
 
-		String roles = PropertiesLoader.loadContent("permission/roles.cfg", Encoding.UTF8);
+		String roles = PropertiesLoader.loadContent(basePath+"/roles.cfg", Encoding.UTF8);
 
-		String permissions = PropertiesLoader.loadContent("permission/permissions.cfg", Encoding.UTF8);
+		String permissions = PropertiesLoader.loadContent(basePath+"/permissions.cfg", Encoding.UTF8);
 
 		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
 			return null;

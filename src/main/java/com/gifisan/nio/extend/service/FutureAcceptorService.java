@@ -7,7 +7,6 @@ import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.WriteFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.Initializeable;
@@ -62,12 +61,6 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 
 	}
 	
-	public void accept(Session session, ReadFuture future) throws Exception {
-		this.doAccept(session, (NIOReadFuture) future);
-	}
-	
-	protected abstract void doAccept(Session session,NIOReadFuture future) throws Exception;
-
 	public String toString() {
 
 		Configuration configuration = this.getConfig();
@@ -79,7 +72,7 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 			serviceName = this.getClass().getSimpleName();
 		} else {
 
-			serviceName = configuration.getParameter("serviceName");
+			serviceName = configuration.getParameter("service-name");
 
 			if (StringUtil.isNullOrBlank(serviceName)) {
 				serviceName = this.getClass().getSimpleName();

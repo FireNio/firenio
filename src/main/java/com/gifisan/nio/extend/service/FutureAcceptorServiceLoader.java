@@ -118,7 +118,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			Class<?> clazz = classLoader.forName(className);
 
-			String serviceName = config.getParameter("serviceName", clazz.getSimpleName());
+			String serviceName = config.getParameter("service-name", clazz.getSimpleName());
 
 			if (servlets.containsKey(serviceName)) {
 				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");

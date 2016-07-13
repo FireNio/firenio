@@ -28,7 +28,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 
 	protected void updateNetworkState(int length) {
 
-		
+		endPoint.updateNetworkState(length);
 	}
 	
 	public void onException(IOException e) {

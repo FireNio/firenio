@@ -36,7 +36,7 @@ public class UUIDGenerator {
 			public void test() {
 				random();
 			}
-		}, 1000000,"uuid");
+		}, 2000000,"uuid");
 		
 		System.out.println(random());
 		

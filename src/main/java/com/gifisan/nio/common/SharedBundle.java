@@ -113,9 +113,9 @@ public class SharedBundle {
 			return;
 		}
 		File root = new File(url.getFile());
-		String path = root.getAbsolutePath();
+		String path = root.getCanonicalPath();
 		path = URLDecoder.decode(path, "UTF-8");
-		baseDIR = path + "/";
+		setBaseDIR(path + "/");
 		File[] files = root.listFiles();
 		for (File file : files) {
 			if (file.isFile() && file.getName().endsWith(".properties")) {
@@ -184,5 +184,9 @@ public class SharedBundle {
 		} finally {
 			CloseUtil.close(inputStream);
 		}
+	}
+
+	public void setBaseDIR(String baseDIR) {
+		this.baseDIR = baseDIR.replace("\\", "/");
 	}
 }

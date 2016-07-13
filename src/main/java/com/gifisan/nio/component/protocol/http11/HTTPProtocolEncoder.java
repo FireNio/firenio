@@ -2,6 +2,7 @@ package com.gifisan.nio.component.protocol.http11;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -9,13 +10,15 @@ import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.TextWriteFuture;
-import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.Cookie;
+import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpHeader;
 
 public class HTTPProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
 		
-		HTTPReadFuture future = (HTTPReadFuture) readFuture;
+		DefaultHTTPReadFuture future = (DefaultHTTPReadFuture) readFuture;
 
 		BufferedOutputStream o = readFuture.getWriteBuffer();
 
@@ -30,6 +33,29 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 		h.append("Connection:close\n");
 		h.append("Content-Length:");
 		h.append(o.size());
+		
+		
+		List<Cookie> cookieList = future.getCookieList();
+		
+		if (cookieList != null) {
+			for(Cookie c : cookieList){
+				h.append("\n");
+				h.append("Set-Cookie:");
+				h.append(c.toString());
+			}
+		}
+		
+		List<HttpHeader> headerList = future.getHeaderList();
+		
+		if (headerList != null) {
+			for(HttpHeader header : headerList){
+				h.append("\n");
+				h.append(header.getName());
+				h.append(":");
+				h.append(header.getValue());
+			}
+		}
+		
 		h.append("\n\n");
 		
 		ByteBuffer buffer = ByteBuffer.allocate(h.length() + o.size());

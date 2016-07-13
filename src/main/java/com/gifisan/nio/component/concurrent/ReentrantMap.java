@@ -1,94 +1,52 @@
 package com.gifisan.nio.component.concurrent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ReentrantMap<K, V> {
 
 	private Map<K, V>		snapshot	= new HashMap<K, V>();
-	private List<Event>		modifList	= new ArrayList<Event>();
 	private ReentrantLock	loack	= new ReentrantLock();
-	private boolean		modifid	= false;
 
 	public V get(K key) {
-
-		takeSnapshot();
 
 		return snapshot.get(key);
 	}
 
-	public void takeSnapshot() {
-		if (modifid) {
-			ReentrantLock lock = this.loack;
-
-			lock.lock();
-
-			List<Event> modifList = this.modifList;
-
-			for (Event e : modifList) {
-
-				if (e.isAdd) {
-					snapshot.put(e.key, e.value);
-				} else {
-					snapshot.remove(e.key);
-				}
-			}
-
-			modifList.clear();
-
-			this.modifid = false;
-
-			lock.unlock();
-		}
-	}
-
 	public Map<K, V> getSnapshot() {
-
-		takeSnapshot();
 
 		return snapshot;
 	}
 
-	public boolean put(K key, V value) {
+	public V put(K key, V value) {
 
 		ReentrantLock lock = this.loack;
 
 		lock.lock();
 
-		Event event = new Event();
-
-		event.key = key;
-		event.value = value;
-		event.isAdd = true;
-
-		this.modifList.add(event);
-
-		this.modifid = true;
-
-		lock.unlock();
-
-		return true;
+		try {
+			
+			return snapshot.put(key, value);
+			
+		} finally {
+			lock.unlock();
+		}
 	}
 
-	public void remove(K key) {
+	public V remove(K key) {
 
 		ReentrantLock lock = this.loack;
 
 		lock.lock();
 
-		Event event = new Event();
-
-		event.key = key;
-		event.isAdd = false;
-
-		this.modifList.add(event);
-
-		this.modifid = true;
-
-		lock.unlock();
+		try {
+			
+			return snapshot.remove(key);
+			
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public ReentrantLock getReentrantLock() {
@@ -96,8 +54,6 @@ public class ReentrantMap<K, V> {
 	}
 
 	public int size() {
-		
-		takeSnapshot();
 		
 		return snapshot.size();
 	}
@@ -108,23 +64,12 @@ public class ReentrantMap<K, V> {
 
 		lock.lock();
 
-		this.modifList.clear();
-
-		this.modifid = false;
-		
 		this.snapshot.clear();
 
 		lock.unlock();
 	}
 	
 	public boolean isEmpty(){
-		return size() == 0;
+		return snapshot.isEmpty();
 	}
-
-	class Event {
-		K		key;
-		V		value;
-		boolean	isAdd;
-	}
-
 }

@@ -2,9 +2,9 @@ package com.gifisan.nio.extend.plugin.rtp.server;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public abstract class RTPServlet extends FutureAcceptorService {
+public abstract class RTPServlet extends NIOFutureAcceptorService {
 
 	private RTPContext	context	= RTPContext.getInstance();
 
@@ -16,10 +16,10 @@ public abstract class RTPServlet extends FutureAcceptorService {
 
 		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
-		this.accept(session, future, attachment);
+		this.doAccept(session, future, attachment);
 	}
 
-	public abstract void accept(Session session, NIOReadFuture future, RTPSessionAttachment attachment)
+	public abstract void doAccept(Session session, NIOReadFuture future, RTPSessionAttachment attachment)
 			throws Exception;
 
 }

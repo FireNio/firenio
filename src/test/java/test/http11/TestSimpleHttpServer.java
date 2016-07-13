@@ -10,7 +10,7 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.HTTPProtocolFactory;
 import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
 
-public class TestHttpServer {
+public class TestSimpleHttpServer {
 
 	public static void main(String[] args) throws Exception {
 

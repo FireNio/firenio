@@ -8,30 +8,29 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.DynamicClassLoader;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.configuration.Configuration;
 
-public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
+public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
-	private DynamicClassLoader			classLoader			;
-	private Logger						logger				= LoggerFactory.getLogger(FutureAcceptorServiceFilter.class);
-	private FutureAcceptorServiceLoader	acceptorServiceLoader	;
+	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptorServiceFilter.class);
+	private DynamicClassLoader			classLoader;
+	private FutureAcceptorServiceLoader	acceptorServiceLoader;
 
 	public FutureAcceptorServiceFilter(DynamicClassLoader classLoader) {
 		this.classLoader = classLoader;
 		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
-	protected void doAccept(Session session,NIOReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
 		String serviceName = future.getServiceName();
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 
-			this.accept404(session, future);
+			this.accept404(session, future, serviceName);
 
 		} else {
 
@@ -48,33 +47,26 @@ public final class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 			this.accept404(session, future, serviceName);
 
 		} else {
-			
+
 			future.setIOEventHandle(acceptor);
 
 			acceptor.accept(session, future);
 		}
 	}
 
-	private void accept404(Session session, ReadFuture future) throws IOException {
-
-		logger.info("[NIOServer] empty service name");
-
-		flush(session, future, RESMessage.EMPTY_404);
-	}
-
-	private void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
+	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
 
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
-		
+
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 
 		flush(session, future, message);
 	}
-	
-	private void flush(Session session, ReadFuture future, RESMessage message){
-		
+
+	private void flush(Session session, ReadFuture future, RESMessage message) {
+
 		future.setIOEventHandle(this);
-		
+
 		future.write(message.toString());
 
 		session.flush(future);

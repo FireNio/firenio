@@ -53,11 +53,6 @@ public class IOSession implements Session {
 	}
 
 	public void destroy() {
-
-		SessionFactory factory = context.getSessionFactory();
-
-		factory.removeSession(this);
-
 		// FIXME
 		CloseUtil.close(udpEndPoint);
 

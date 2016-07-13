@@ -12,7 +12,7 @@ public class MQPublishServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQPublishServlet.class.getSimpleName();
 
-	public void accept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 

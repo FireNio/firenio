@@ -7,7 +7,7 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public abstract interface HTTPReadFuture extends ReadFuture {
 
-	public abstract Map<String, String> getHeaders();
+	public abstract String getHeader(String name);
 
 	public abstract String getHost();
 
@@ -33,9 +33,11 @@ public abstract interface HTTPReadFuture extends ReadFuture {
 
 	public abstract void setStatus(int status);
 
-	public abstract boolean hasOutputStream();
-	
-	public abstract OutputStream getOutputStream() ;
-
 	public abstract void setOutputStream(OutputStream outputStream);
+	
+	public abstract String getCookie(String name);
+	
+	public abstract void addCookie(Cookie cookie);
+	
+	public abstract void addHeader(String name,String value);
 }

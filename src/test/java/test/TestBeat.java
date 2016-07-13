@@ -6,7 +6,7 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.test.servlet.TestSimpleServlet;
+import com.test.servlet.nio.TestSimpleServlet;
 
 public class TestBeat {
 	

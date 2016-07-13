@@ -2,6 +2,7 @@ package com.gifisan.nio.component.concurrent;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+//适用于单线程读
 public class ReentrantSet<K> {
 
 	private static final byte[]		V	= {};
@@ -19,8 +20,6 @@ public class ReentrantSet<K> {
 	}
 
 	public boolean contains(K key) {
-
-		keys.takeSnapshot();
 
 		return keys.get(key) != null;
 	}

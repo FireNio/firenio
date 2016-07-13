@@ -1,11 +1,16 @@
 package com.gifisan.nio.component.protocol.future;
 
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandle;
 
 public interface ReadFuture extends Future {
+	
+	public abstract String getServiceName();
+	
+	public abstract boolean hasOutputStream();
 
 	public abstract boolean flushed();
 
@@ -25,4 +30,5 @@ public interface ReadFuture extends Future {
 
 	public abstract void setIOEventHandle(IOEventHandle ioEventHandle) ;
 
+	public abstract OutputStream getOutputStream();
 }

@@ -1,124 +1,124 @@
 package com.gifisan.nio.component.concurrent;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
-//FIXME 是否需要做重复判断
 public class ReentrantList<T> {
 
-	private List<T>		snapshot		= new ArrayList<T>();
-	private List<Event>		modifList		= new ArrayList<Event>();
-	private ReentrantLock	loack		= new ReentrantLock();
-	private boolean		modifid		= false;
+	private ArrayList<T>	snapshot	= new ArrayList<T>();
 
-	public List<T> getSnapshot() {
+	private ReentrantLock	lock		= new ReentrantLock();
 
-		takeSnapshot();
-		
-		return snapshot;
-	}
-	
-	public T get(int index){
-		
-		return getSnapshot().get(index);
+	public int size() {
+
+		return snapshot.size();
 	}
 
-	private void takeSnapshot() {
-		if (modifid) {
-			ReentrantLock lock = this.loack;
+	public boolean isEmpty() {
 
-			lock.lock();
+		return snapshot.isEmpty();
+	}
 
-			List<Event> modifList = this.modifList;
+	public boolean contains(Object o) {
 
-			for (Event e : modifList) {
-				
-				if (e.isAdd) {
-					snapshot.add(e.value);
-				}else{
-					snapshot.remove(e.value);
-				}
-			}
-			
-			modifList.clear();
+		return snapshot.contains(o);
+	}
 
-			this.modifid = false;
+	public T get(int index) {
 
+		return snapshot.get(index);
+	}
+
+	public boolean add(T e) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			return snapshot.add(e);
+		} finally {
 			lock.unlock();
 		}
 	}
 
-	public boolean add(T t) {
-
-		ReentrantLock lock = this.loack;
-
-		lock.lock();
-
-		Event e = new Event();
-		e.isAdd = true;
-		e.value = t;
-
-		this.modifList.add(e);
-
-		this.modifid = true;
-
-		lock.unlock();
-
-		return true;
-	}
-
-	public void remove(T t) {
-
-		ReentrantLock lock = this.loack;
+	public T remove(int index) {
+		ReentrantLock lock = this.lock;
 
 		lock.lock();
 
-		Event e = new Event();
-		e.isAdd = false;
-		e.value = t;
+		try {
 
-		this.modifList.add(e);
-
-		this.modifid = true;
-
-		lock.unlock();
+			return snapshot.remove(index);
+		} finally {
+			lock.unlock();
+		}
 	}
-	
-	public void clear(){
-		
-		ReentrantLock lock = this.loack;
+
+	public boolean remove(Object o) {
+
+		ReentrantLock lock = this.lock;
 
 		lock.lock();
 
-		this.modifList.clear();
+		try {
 
-		this.modifid = false;
-		
-		this.snapshot.clear();
-
-		lock.unlock();
+			return snapshot.remove(o);
+		} finally {
+			lock.unlock();
+		}
 	}
 
-	public ReentrantLock getReentrantLock(){
-		return loack;
+	public void clear() {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			snapshot.clear();
+		} finally {
+			lock.unlock();
+		}
 	}
 
-	public int size() {
-		
-		takeSnapshot();
-		
-		return snapshot.size();
-		
+	public boolean addAll(Collection<? extends T> c) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			return snapshot.addAll(c);
+		} finally {
+			lock.unlock();
+		}
 	}
-	
-	public boolean isEmpty(){
-		return size() == 0;
+
+	public boolean removeAll(Collection<?> c) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			return snapshot.removeAll(c);
+		} finally {
+			lock.unlock();
+		}
 	}
-	
-	class Event {
-		T		value;
-		boolean	isAdd;
+
+	public ArrayList<T> getSnapshot() {
+		return snapshot;
+	}
+
+	public ReentrantLock getReentrantLock() {
+		return lock;
 	}
 
 }

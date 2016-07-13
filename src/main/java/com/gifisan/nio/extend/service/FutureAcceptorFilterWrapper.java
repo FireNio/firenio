@@ -3,7 +3,6 @@ package com.gifisan.nio.extend.service;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.WriteFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 
@@ -17,7 +16,7 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 		this.setConfig(config);
 	}
 
-	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 		this.filter.accept(session,future);
 	}
 	

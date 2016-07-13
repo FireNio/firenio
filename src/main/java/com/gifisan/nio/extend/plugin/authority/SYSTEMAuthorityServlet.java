@@ -7,9 +7,9 @@ import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.LoginCenter;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.security.Authority;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public class SYSTEMAuthorityServlet extends FutureAcceptorService{
+public class SYSTEMAuthorityServlet extends NIOFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 

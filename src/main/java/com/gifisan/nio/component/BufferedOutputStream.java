@@ -40,6 +40,9 @@ public class BufferedOutputStream extends OutputStream {
 	}
 
 	public String toString() {
+		if (count == 0) {
+			return null;
+		}
 		return new String(cache, 0, count);
 	}
 

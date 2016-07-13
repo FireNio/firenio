@@ -1,12 +1,12 @@
-package com.test.servlet;
+package com.test.servlet.nio;
 
 import java.io.IOException;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public class TestExceptionServlet extends FutureAcceptorService{
+public class TestExceptionServlet extends NIOFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
 

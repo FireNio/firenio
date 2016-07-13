@@ -48,8 +48,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 		this.session = new IOSession(this, getEndPointID());
 
-		context.getSessionFactory().putSession(session);
-
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {

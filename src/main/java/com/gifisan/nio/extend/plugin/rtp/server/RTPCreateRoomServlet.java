@@ -7,7 +7,7 @@ public class RTPCreateRoomServlet extends RTPServlet {
 
 	public static final String	SERVICE_NAME	= RTPCreateRoomServlet.class.getSimpleName();
 
-	public void accept(Session session, NIOReadFuture future, RTPSessionAttachment attachment) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future, RTPSessionAttachment attachment) throws Exception {
 
 		RTPRoom room = attachment.createRTPRoom(session);
 

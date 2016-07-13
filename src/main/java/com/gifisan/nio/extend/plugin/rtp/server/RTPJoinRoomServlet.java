@@ -9,7 +9,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 	public static final String	SERVICE_NAME	= RTPJoinRoomServlet.class.getSimpleName();
 
-	public void accept(Session session, NIOReadFuture future, RTPSessionAttachment attachment) throws Exception {
+	public void doAccept(Session session, NIOReadFuture future, RTPSessionAttachment attachment) throws Exception {
 
 		RTPContext context = getRTPContext();
 

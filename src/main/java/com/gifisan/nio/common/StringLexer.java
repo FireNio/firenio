@@ -1,13 +1,13 @@
-package com.gifisan.nio.common.json;
+package com.gifisan.nio.common;
 
-public class JSONLexer {
+public class StringLexer {
 
 	private int index;
 	
 	private char [] codes;
 	
 	
-	public JSONLexer(int index, char[] codes) {
+	public StringLexer(int index, char[] codes) {
 		this.index = index;
 		this.codes = codes;
 	}

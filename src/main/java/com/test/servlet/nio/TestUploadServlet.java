@@ -1,4 +1,4 @@
-package com.test.servlet;
+package com.test.servlet.nio;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,9 +7,9 @@ import java.io.OutputStream;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.service.FutureAcceptorService;
+import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
 
-public class TestUploadServlet extends FutureAcceptorService {
+public class TestUploadServlet extends NIOFutureAcceptorService {
 	
 	public static final String SERVICE_NAME = TestUploadServlet.class.getSimpleName();
 
