@@ -66,8 +66,9 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.connect(address);
 
-		// FIXME capacity should not be so big
-		this.endPointWriter = new DefaultEndPointWriter(1024 * 512);
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
 	}

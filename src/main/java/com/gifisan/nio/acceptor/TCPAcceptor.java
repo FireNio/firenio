@@ -43,7 +43,9 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 
 	protected void startComponent(NIOContext context, Selector selector) {
 		
-		this.endPointWriter = new DefaultEndPointWriter(1024 * 512);
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 
 		this.selectorLoop = new ServerTCPSelectorLoop(context, selector, endPointWriter);
 
