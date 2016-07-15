@@ -15,12 +15,13 @@ import com.gifisan.nio.PropertiesException;
 public class SharedBundle {
 
 	private static SharedBundle	bundle	= new SharedBundle();
-
+	
+	private  String classPath;
+	
 	public static SharedBundle instance() {
 		return bundle;
 	}
 
-	private String			baseDIR		;
 	private AtomicBoolean	initialized	= new AtomicBoolean(false);
 	private Properties		properties	= new Properties();
 
@@ -34,8 +35,8 @@ public class SharedBundle {
 		}
 	}
 
-	public String getBaseDIR() {
-		return baseDIR;
+	public String getClassPath() {
+		return classPath;
 	}
 
 	public boolean getBooleanProperty(String key) {
@@ -115,7 +116,7 @@ public class SharedBundle {
 		File root = new File(url.getFile());
 		String path = root.getCanonicalPath();
 		path = URLDecoder.decode(path, "UTF-8");
-		setBaseDIR(path + "/");
+		setClassPath(path + "/");
 		File[] files = root.listFiles();
 		for (File file : files) {
 			if (file.isFile() && file.getName().endsWith(".properties")) {
@@ -164,7 +165,7 @@ public class SharedBundle {
 	}
 
 	public File loadFile(String file) {
-		return new File(baseDIR + file);
+		return new File(classPath + file);
 	}
 
 	public boolean storageProperties(String file) throws IOException {
@@ -185,8 +186,11 @@ public class SharedBundle {
 			CloseUtil.close(inputStream);
 		}
 	}
+	
+	
 
-	public void setBaseDIR(String baseDIR) {
-		this.baseDIR = baseDIR.replace("\\", "/");
+	protected  void setClassPath(String classPath) {
+		this.classPath = classPath.replace("\\", "/");
 	}
+
 }

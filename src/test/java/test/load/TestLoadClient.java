@@ -18,7 +18,7 @@ import com.gifisan.nio.connector.TCPConnector;
 
 public class TestLoadClient {
 
-	final static int	time		= 500000;
+	final static int	time		= 1000000;
 	final static Logger	logger	= LoggerFactory.getLogger(TestLoadClient.class);
 
 	public static void main(String[] args) throws IOException {

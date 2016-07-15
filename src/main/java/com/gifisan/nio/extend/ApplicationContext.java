@@ -79,7 +79,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.configuration = configurationLoader.loadConfiguration(bundle);
 
 		this.encoding = context.getEncoding();
-		this.appLocalAddres = bundle.getBaseDIR() + "app/";
+		this.appLocalAddres = bundle.getClassPath() + "app/";
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录        ：{ {} }", appLocalAddres);
 

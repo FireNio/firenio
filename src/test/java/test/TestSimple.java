@@ -26,9 +26,7 @@ public class TestSimple {
 		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
-
 		connector.connect();
-
 		session.login("admin", "admin100");
 		
 		NIOReadFuture future = session.request(serviceKey, param);

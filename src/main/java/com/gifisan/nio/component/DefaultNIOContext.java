@@ -185,6 +185,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private ServerConfiguration loadServerConfiguration(SharedBundle bundle) {
 
 		ServerConfiguration configuration = new ServerConfiguration();
+		
+		int WRITE_QUEUE_SIZE = configuration.getSERVER_WRITE_QUEUE_SIZE();
 
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 
@@ -194,6 +196,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
 		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
 		configuration.setSERVER_ENCODING(Charset.forName(encoding));
+		configuration.setSERVER_WRITE_QUEUE_SIZE(bundle.getIntegerProperty("SERVER.WRITE_QUEUE_SIZE",WRITE_QUEUE_SIZE));
 
 		return configuration;
 	}

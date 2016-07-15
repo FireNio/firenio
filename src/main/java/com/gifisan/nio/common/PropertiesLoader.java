@@ -8,29 +8,20 @@ import java.util.Properties;
 
 public class PropertiesLoader {
 
-	private static SharedBundle	bundle		= SharedBundle.instance();
-
-	private static boolean		releaseModel	= false;
+	private static SharedBundle	bundle			= SharedBundle.instance();
 
 	static {
 
 		try {
 
-			releaseModel = bundle.loadLog4jProperties("conf/log4j.properties");
+			String classPath = bundle.getClassPath();
 
-			if (!releaseModel) {
-				if (!bundle.loadLog4jProperties("log4j.properties")
-						&& !bundle.loadLog4jProperties("../classes/log4j.properties")) {
-
-					throw new Error("config error");
-				}
-
-				String baseDIR = bundle.getBaseDIR();
-
-				File root = new File(baseDIR + "/../classes/");
-
-				bundle.setBaseDIR(root.getCanonicalPath()+"/");
+			if (classPath.endsWith("test-classes/")) {
+				bundle.setClassPath(new File(classPath + "../classes").getCanonicalPath() + "/");
 			}
+
+			bundle.loadLog4jProperties("conf/log4j.properties");
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -58,26 +49,15 @@ public class PropertiesLoader {
 	}
 
 	public static File loadFile(String file) throws FileNotFoundException {
+		
 		SharedBundle bundle = SharedBundle.instance();
+		
+		File _file = new File(bundle.getClassPath()+ "conf/" + file);
 
-		if (releaseModel) {
-			return bundle.loadFile("conf/" + file);
-		} else {
-
-			File _file = bundle.loadFile(file);
-
-			if (_file.exists()) {
-				return _file;
-			}
-
-			_file = bundle.loadFile("../classes/" + file);
-
-			if (_file.exists()) {
-				return _file;
-			}
-
-			throw new FileNotFoundException("file not exist : " + file);
+		if (_file.exists()) {
+			return _file;
 		}
+		throw new FileNotFoundException("file not exist : " + _file.getAbsolutePath());
 	}
 
 }

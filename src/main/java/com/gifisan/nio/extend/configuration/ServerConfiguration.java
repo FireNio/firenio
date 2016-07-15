@@ -6,12 +6,21 @@ import com.gifisan.nio.Encoding;
 
 public class ServerConfiguration {
 
-	private String		SERVER_HOST		= "localhost";
 	private int		SERVER_TCP_PORT;
 	private int		SERVER_UDP_PORT;
-	private int		SERVER_CORE_SIZE	= Runtime.getRuntime().availableProcessors();
-	private Charset	SERVER_ENCODING	= Encoding.DEFAULT;
-	private boolean	SERVER_DEBUG		= false;
+	private String		SERVER_HOST			= "localhost";
+	private int		SERVER_CORE_SIZE		= Runtime.getRuntime().availableProcessors();
+	private Charset	SERVER_ENCODING		= Encoding.DEFAULT;
+	private boolean	SERVER_DEBUG			= false;
+	private int		SERVER_WRITE_QUEUE_SIZE	= 1024 * 512;
+
+	public int getSERVER_WRITE_QUEUE_SIZE() {
+		return SERVER_WRITE_QUEUE_SIZE;
+	}
+
+	public void setSERVER_WRITE_QUEUE_SIZE(int sERVER_WRITE_QUEUE_SIZE) {
+		SERVER_WRITE_QUEUE_SIZE = sERVER_WRITE_QUEUE_SIZE;
+	}
 
 	public int getSERVER_TCP_PORT() {
 		return SERVER_TCP_PORT;
