@@ -22,7 +22,7 @@ public class TestUploadServlet extends HTTPFutureAcceptorService {
 
 			res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>" + outputStream.toString()+"</PRE>";
 		} else {
-			res = "yes server already accept your message :) " + future.getRequestURI();
+			res = "yes server already accept your message :) " + future.getParamString();
 		}
 
 		future.write(res);

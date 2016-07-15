@@ -23,6 +23,7 @@ public class FutureAcceptorFileFilter extends FutureAcceptorServiceFilter {
 
 	private Logger				logger		= LoggerFactory.getLogger(FutureAcceptorFileFilter.class);
 
+	//FIXME 添加content-type
 	private Map<String, byte[]>	html_cache	= new HashMap<String, byte[]>();
 
 	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
@@ -56,8 +57,8 @@ public class FutureAcceptorFileFilter extends FutureAcceptorServiceFilter {
 			if (file.isFile()) {
 				byte[] bytes = FileUtil.readFileToByteArray(file);
 				String fileName = file.getCanonicalPath();
+				fileName = fileName.replace("\\", "/");
 				String staticName = fileName.substring(root.length() - 1, fileName.length());
-				staticName = staticName.replace("\\", "/");
 				html_cache.put(staticName, bytes);
 				LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}",staticName,fileName);
 			} else if (file.isDirectory()) {

@@ -6,7 +6,6 @@ public class StringLexer {
 	
 	private char [] codes;
 	
-	
 	public StringLexer(int index, char[] codes) {
 		this.index = index;
 		this.codes = codes;
@@ -54,5 +53,9 @@ public class StringLexer {
 	
 	public boolean complate(){
 		return index + 1 == codes.length;
+	}
+	
+	public String toString() {
+		return new String(codes);
 	}
 }

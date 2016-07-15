@@ -27,10 +27,10 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 
 		h.append("HTTP/1.1 ");
 		h.append(future.getStatus());
-		h.append(" OK\n");
-		h.append("Server: nimbleio/0.0.1\n");
-		h.append("Content-Type:text/html;charset=UTF-8\n");
-		h.append("Connection:close\n");
+		h.append(" OK\r\n");
+		h.append("Server: nimbleio/0.0.1\r\n");
+		h.append("Content-Type:text/html;charset=UTF-8\r\n");
+		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:");
 		h.append(o.size());
 		
@@ -39,7 +39,7 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 		
 		if (cookieList != null) {
 			for(Cookie c : cookieList){
-				h.append("\n");
+				h.append("\r\n");
 				h.append("Set-Cookie:");
 				h.append(c.toString());
 			}
@@ -49,14 +49,14 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 		
 		if (headerList != null) {
 			for(HttpHeader header : headerList){
-				h.append("\n");
+				h.append("\r\n");
 				h.append(header.getName());
 				h.append(":");
 				h.append(header.getValue());
 			}
 		}
 		
-		h.append("\n\n");
+		h.append("\r\n\r\n");
 		
 		ByteBuffer buffer = ByteBuffer.allocate(h.length() + o.size());
 
