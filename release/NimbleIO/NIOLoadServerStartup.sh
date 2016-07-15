@@ -1,1 +1,1 @@
-java -Xms128m -Xmx512m -cp .;./lib/*; com.gifisan.nio.extend.startup.NIOLoadServerStartup %CD%
+java -Xms512m -Xmx2048m -cp .:./lib/*: com.gifisan.nio.extend.startup.NIOLoadServerStartup %CD%
