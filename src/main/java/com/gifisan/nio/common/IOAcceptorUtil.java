@@ -1,4 +1,4 @@
-package test;
+package com.gifisan.nio.common;
 
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.LoggerFactory;
@@ -9,7 +9,9 @@ import com.gifisan.nio.component.ManagerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
-public class ServerUtil {
+public class IOAcceptorUtil {
+
+	private static Logger		logger	= LoggerFactory.getLogger(IOAcceptorUtil.class);
 
 	private static TCPAcceptor	acceptor;
 
@@ -34,14 +36,14 @@ public class ServerUtil {
 				context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
 				context.addSessionEventListener(new LoggerSEtListener());
-				
+
 				context.addSessionEventListener(new ManagerSEListener());
 
 				acceptor.setContext(context);
 
 			} catch (Throwable e) {
 
-				LoggerFactory.getLogger(ClientUtil.class).error(e.getMessage(), e);
+				logger.error(e.getMessage(), e);
 
 				acceptor.unbind();
 

@@ -1,8 +1,7 @@
 package test.http11;
 
-import test.ServerUtil;
-
 import com.gifisan.nio.acceptor.TCPAcceptor;
+import com.gifisan.nio.common.IOAcceptorUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
@@ -44,7 +43,7 @@ public class TestSimpleHttpServer {
 			}
 		};
 
-		TCPAcceptor acceptor = ServerUtil.getTCPAcceptor(eventHandleAdaptor);
+		TCPAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 
 		acceptor.getContext().setProtocolFactory(new HTTPProtocolFactory());
 
