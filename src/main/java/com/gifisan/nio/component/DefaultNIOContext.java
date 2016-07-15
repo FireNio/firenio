@@ -86,12 +86,13 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "项目编码        ：{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)   ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
+		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
+		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} }", serverConfiguration.getSERVER_WRITE_QUEUE_SIZE());
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
-			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)   ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
+			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
-		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数       ：{ {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ {} }", SERVER_CORE_SIZE);
 
 		this.ioEventHandleAdaptor.setContext(this);
 		
