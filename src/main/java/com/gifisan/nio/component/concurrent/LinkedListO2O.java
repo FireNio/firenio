@@ -4,11 +4,11 @@ public class LinkedListO2O<T> extends AbstractLinkedList<T> implements LinkedLis
 
 	private int			_end			;
 
-	public LinkedListO2O(int _capability) {
+	protected LinkedListO2O(int _capability) {
 		super(_capability);
 	}
 	
-	public LinkedListO2O(){
+	protected LinkedListO2O(){
 		super();
 	}
 	

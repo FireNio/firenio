@@ -4,12 +4,12 @@ public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedLis
 
 	private FixedAtomicInteger	_end;
 
-	public LinkedListM2O(int capability) {
+	protected LinkedListM2O(int capability) {
 		super(capability);
 		_end = new FixedAtomicInteger(capability - 1);
 	}
 
-	public LinkedListM2O() {
+	protected LinkedListM2O() {
 		super();
 		_end = new FixedAtomicInteger(_capability - 1);
 	}

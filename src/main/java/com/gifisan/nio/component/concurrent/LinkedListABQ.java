@@ -14,7 +14,7 @@ public class LinkedListABQ<T> implements LinkedList<T> {
 	public LinkedListABQ(int capacity) {
 		this.queue = new ArrayBlockingQueue<T>(capacity);
 	}
-
+	
 	public boolean offer(T object) {
 		return queue.offer(object);
 	}

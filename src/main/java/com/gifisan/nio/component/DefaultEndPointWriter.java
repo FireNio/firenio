@@ -12,7 +12,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
@@ -26,7 +26,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 	
 	public DefaultEndPointWriter(int capacity) {
-		this.writerQueue = new LinkedListM2O<IOWriteFuture>(capacity);
+		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
 	}
 
 	public void fire(EndPointWriteEvent event) {

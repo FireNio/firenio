@@ -18,12 +18,12 @@ public abstract class AbstractLinkedList<T> implements LinkedList<T> {
 	private boolean		_locked		= false;
 	private int			_start		;
 
-	public AbstractLinkedList(int capability) {
+	protected AbstractLinkedList(int capability) {
 		this._capability = capability;
 		this._array = new Object[capability];
 	}
 
-	public AbstractLinkedList() {
+	protected AbstractLinkedList() {
 		this(1024 * 8);
 	}
 

@@ -1,14 +1,14 @@
 package com.gifisan.nio.extend;
 
 import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListM2O;
+import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture{
 	
 	private OnReadFuture listener = null;
 	
-	private LinkedList<WaiterOnReadFuture> waiters = new LinkedListM2O<WaiterOnReadFuture>();
+	private LinkedList<WaiterOnReadFuture> waiters = new LinkedListABQ<WaiterOnReadFuture>(1024 * 8);
 	
 	public void onResponse(final FixedSession session, final NIOReadFuture future) {
 		
