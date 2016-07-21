@@ -6,7 +6,7 @@ import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.http11.HTTPProtocolFactory;
+import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
 import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
 
 public class TestSimpleHttpServer {
@@ -45,7 +45,7 @@ public class TestSimpleHttpServer {
 
 		TCPAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 
-		acceptor.getContext().setProtocolFactory(new HTTPProtocolFactory());
+		acceptor.getContext().setProtocolFactory(new ServerHTTPProtocolFactory());
 
 		acceptor.bind();
 	}

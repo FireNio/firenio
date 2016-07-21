@@ -4,13 +4,13 @@ import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolFactory;
 
-public class HTTPProtocolFactory implements ProtocolFactory{
+public class ServerHTTPProtocolFactory implements ProtocolFactory{
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return new HTTPProtocolDecoder();
+		return new ServerHTTPProtocolDecoder();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
-		return new HTTPProtocolEncoder();
+		return new ServerHTTPProtocolEncoder();
 	}
 }

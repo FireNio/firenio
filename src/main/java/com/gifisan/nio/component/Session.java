@@ -3,7 +3,6 @@ package com.gifisan.nio.component;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
@@ -24,11 +23,11 @@ public interface Session {
 
 	public abstract void flush(ReadFuture future);
 
-	public abstract Attachment getAttachment();
+	public abstract Object getAttachment();
 
-	public abstract void setAttachment(Attachment attachment);
+	public abstract void setAttachment(Object attachment);
 
-	public abstract Attachment getAttachment(PluginContext context);
+	public abstract Object getAttachment(PluginContext context);
 
 	public abstract NIOContext getContext();
 
@@ -58,7 +57,7 @@ public interface Session {
 
 	public abstract boolean isOpened();
 
-	public abstract void setAttachment(PluginContext context, Attachment attachment);
+	public abstract void setAttachment(PluginContext context, Object attachment);
 
 	public abstract void setMachineType(String machineType);
 

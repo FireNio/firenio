@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+//FIXME 用到这里的检查是否需要实例化
 public class BufferedOutputStream extends OutputStream {
 
 	private byte		cache[]	;

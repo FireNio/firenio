@@ -14,7 +14,7 @@ import com.gifisan.nio.component.protocol.http11.future.Cookie;
 import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpHeader;
 
-public class HTTPProtocolEncoder implements ProtocolEncoder {
+public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
 		
@@ -33,15 +33,16 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:");
 		h.append(o.size());
+		h.append("\r\n");
 		
 		
 		List<Cookie> cookieList = future.getCookieList();
 		
 		if (cookieList != null) {
 			for(Cookie c : cookieList){
-				h.append("\r\n");
 				h.append("Set-Cookie:");
 				h.append(c.toString());
+				h.append("\r\n");
 			}
 		}
 		
@@ -49,14 +50,14 @@ public class HTTPProtocolEncoder implements ProtocolEncoder {
 		
 		if (headerList != null) {
 			for(HttpHeader header : headerList){
-				h.append("\r\n");
 				h.append(header.getName());
 				h.append(":");
 				h.append(header.getValue());
+				h.append("\r\n");
 			}
 		}
 		
-		h.append("\r\n\r\n");
+		h.append("\r\n");
 		
 		ByteBuffer buffer = ByteBuffer.allocate(h.length() + o.size());
 

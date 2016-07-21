@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import com.gifisan.nio.Attachment;
-
 public interface EndPoint extends Closeable {
 
 	public abstract String getLocalAddr();
@@ -22,9 +20,9 @@ public interface EndPoint extends Closeable {
 
 	public abstract NIOContext getContext();
 	
-	public abstract void attach(Attachment attachment);
+	public abstract void setAttachment(Object attachment);
 
-	public abstract Attachment attachment();
+	public abstract Object getAttachment();
 	
 	public abstract InetSocketAddress getLocalSocketAddress() ;
 	

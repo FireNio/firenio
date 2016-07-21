@@ -1,10 +1,9 @@
 package com.gifisan.nio.extend.plugin.authority;
 
-import com.gifisan.nio.Attachment;
 import com.gifisan.nio.extend.security.Authority;
 import com.gifisan.nio.extend.security.AuthorityManager;
 
-public class AuthoritySessionAttachment implements Attachment {
+public class AuthoritySessionAttachment {
 
 	private AuthorityManager authorityManager = null;
 

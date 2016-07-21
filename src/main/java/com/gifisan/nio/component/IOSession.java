@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import com.gifisan.nio.Attachment;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
@@ -23,8 +22,8 @@ public class IOSession implements Session {
 
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
 	
-	private Attachment					attachment;
-	private Attachment[]				attachments	= new Attachment[4];
+	private Object						attachment;
+	private Object[]					attachments	= new Object[4];
 	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
 	private long						creationTime	= System.currentTimeMillis();
 	private boolean					closed;
@@ -71,6 +70,7 @@ public class IOSession implements Session {
 	}
 
 	public void disconnect() {
+		//FIXME 可否X秒之后关闭
 		this.endPoint.endConnect();
 		this.endPoint.getEndPointWriter().offer(new EmptyWriteFuture(endPoint));
 	}
@@ -114,11 +114,11 @@ public class IOSession implements Session {
 		}
 	}
 
-	public Attachment getAttachment() {
+	public Object getAttachment() {
 		return attachment;
 	}
 
-	public Attachment getAttachment(PluginContext context) {
+	public Object getAttachment(PluginContext context) {
 
 		if (context == null) {
 			throw new IllegalArgumentException("null context");
@@ -207,11 +207,11 @@ public class IOSession implements Session {
 		attributes.remove(key);
 	}
 
-	public void setAttachment(Attachment attachment) {
+	public void setAttachment(Object attachment) {
 		this.attachment = attachment;
 	}
 
-	public void setAttachment(PluginContext context, Attachment attachment) {
+	public void setAttachment(PluginContext context, Object attachment) {
 
 		if (context == null) {
 			throw new IllegalArgumentException("null context");

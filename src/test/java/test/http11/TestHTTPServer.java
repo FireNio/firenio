@@ -7,7 +7,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEtListener;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.protocol.http11.HTTPProtocolFactory;
+import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.FixedIOEventHandle;
 import com.gifisan.nio.extend.configuration.FileSystemACLoader;
@@ -40,7 +40,7 @@ public class TestHTTPServer {
 			
 			context.addSessionEventListener(new LoggerSEtListener());
 			
-			context.setProtocolFactory(new HTTPProtocolFactory());
+			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			
 			acceptor.setContext(context);
 			

@@ -92,7 +92,7 @@ public class JSON {
 
 	private static char skipWhitespace(StringLexer lexer){
 		char ch = lexer.current();
-		while (isWhitespace(ch)) {
+		for (;isWhitespace(ch);) {
 			lexer.next();
 			ch = lexer.current();
 		}
@@ -136,14 +136,22 @@ public class JSON {
 	private static List<?> parseArray(StringLexer lexer) throws JSONSyntaxException {
 		List<Object> list = new ArrayList<Object>();
 		do {
-			
+			Object v;
 			char ch = skipWhitespace(lexer);
 			switch (ch) {
 			case JSONToken.ARRAY_START:
-				list.add(findMapValue(lexer));
+				v = findMapValue(lexer);
+				if (v == null) {
+					break;
+				}
+				list.add(v);
 				break;
 			case JSONToken.COMMA:
-				list.add(findMapValue(lexer));
+				v = findMapValue(lexer);
+				if (v == null) {
+					break;
+				}
+				list.add(v);
 				break;
 			case JSONToken.ARRAY_END:
 				return list;
@@ -250,8 +258,6 @@ public class JSON {
 			throw new JSONSyntaxException("EOF");
 		}
 		return list;
-		
-		
 	}
 
 	public static Map<?, ?> stringToMap(String content) throws JSONSyntaxException {

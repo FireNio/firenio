@@ -1,8 +1,7 @@
 package com.gifisan.nio.extend.plugin.jms.server;
 
-import com.gifisan.nio.Attachment;
 
-public class MQSessionAttachment implements Attachment {
+public class MQSessionAttachment{
 
 	private MQContext			context				;
 	private TransactionSection	transactionSection		;

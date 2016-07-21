@@ -1,9 +1,8 @@
 package com.gifisan.nio.extend.plugin.rtp.server;
 
-import com.gifisan.nio.Attachment;
 import com.gifisan.nio.component.Session;
 
-public class RTPSessionAttachment implements Attachment {
+public class RTPSessionAttachment {
 
 	private RTPContext	context	;
 

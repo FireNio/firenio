@@ -19,7 +19,7 @@ public class JSONParse {
 		text = "[null,\"a\",-1.6,true,false,[1,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":-3.6,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[1,true,{\"a\":\"aa\"}]}}]]]";
 		text = "[   null    ,   {  a   :   \"a\"   ,   b   :   1.   }   ,   1   ]";
 		System.out.println(JSON.stringToArray(text));
-		testMyJson();
+//		testMyJson();
 		testFastJson();
 		System.out.println("1\f11");
 

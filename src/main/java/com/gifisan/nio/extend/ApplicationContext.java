@@ -81,7 +81,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.encoding = context.getEncoding();
 		this.appLocalAddres = bundle.getClassPath() + "app/";
 
-		LoggerUtil.prettyNIOServerLog(logger, "工作目录        ：{ {} }", appLocalAddres);
+		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
 		LifeCycleUtil.start(filterService);
 

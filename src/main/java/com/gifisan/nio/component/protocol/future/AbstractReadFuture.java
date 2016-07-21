@@ -25,14 +25,12 @@ public abstract class AbstractReadFuture extends FutureImpl implements IOReadFut
 		this.ioEventHandle = ioEventHandle;
 	}
 	
-	//FIXME 4test
-	protected AbstractReadFuture() {
-		new Exception("4 test").printStackTrace();
-	}
-
 	public AbstractReadFuture(Session session) {
 		this.session = (IOSession) session;
 		this.endPoint = this.session.getTCPEndPoint();
+	}
+	
+	protected AbstractReadFuture() {
 	}
 
 	public boolean flushed() {

@@ -3,26 +3,24 @@ package com.gifisan.nio.component;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import com.gifisan.nio.Attachment;
-
 public abstract class AbstractEndPoint implements EndPoint {
 
-	private Attachment				attachment;
-	private NIOContext				context;
-	private Integer				endPointID;
-	protected InetSocketAddress		local;
-	protected InetSocketAddress		remote;
+	private Object				attachment;
+	private NIOContext			context;
+	private Integer			endPointID;
+	protected InetSocketAddress	local;
+	protected InetSocketAddress	remote;
 
 	public AbstractEndPoint(NIOContext context) {
 		this.context = context;
 		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
 	}
 
-	public void attach(Attachment attachment) {
+	public void setAttachment(Object attachment) {
 		this.attachment = attachment;
 	}
 
-	public Attachment attachment() {
+	public Object getAttachment() {
 		return attachment;
 	}
 
