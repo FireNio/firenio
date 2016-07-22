@@ -2,11 +2,16 @@ package com.gifisan.nio.common.test;
 
 import java.math.BigDecimal;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
+
 public class ITestHandle {
+	
+	private static Logger logger = LoggerFactory.getLogger(ITestThreadHandle.class);
 
 	public static void doTest(ITest test,long time,String testName) {
-		System.out.println("################## Test start ####################");
-		System.out.println("## Test Name:"+testName);
+		logger.info("################## Test start ####################");
+		logger.info("## Test Name:"+testName);
 		long old = System.currentTimeMillis();
 		for (long i = 0; i < time; i++) {
 			try {
@@ -17,8 +22,8 @@ public class ITestHandle {
 		}
 		long now = System.currentTimeMillis();
 		long spend = (now-old);
-		System.out.println("## Execute Time:"+time);
-		System.out.println("## OP(W)/S:"+ new BigDecimal(time).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP).doubleValue() / 10);
-		System.out.println("## Expend Time:"+spend);
+		logger.info("## Execute Time:"+time);
+		logger.info("## OP(W)/S:"+ new BigDecimal(time).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP).doubleValue() / 10);
+		logger.info("## Expend Time:"+spend);
 	}
 }

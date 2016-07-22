@@ -57,6 +57,11 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return address.getAddress().getHostAddress();
 	}
 
+	/**
+	 * 请勿使用,可能出现阻塞
+	 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
+	 */
+	@Deprecated
 	public String getRemoteHost() {
 
 		InetSocketAddress address = getRemoteSocketAddress();
@@ -86,9 +91,15 @@ public abstract class AbstractEndPoint implements EndPoint {
 	}
 
 	public String toString() {
-		return new StringBuilder("[").append(getMarkPrefix()).append("(id:").append(endPointID).append(") remote /")
-				.append(this.getRemoteHost()).append("(").append(this.getRemoteAddr()).append("):")
-				.append(this.getRemotePort()).append("]").toString();
+		return new StringBuilder("[")
+			.append(getMarkPrefix())
+			.append("(id:")
+			.append(endPointID)
+			.append(") remote /")
+			.append(this.getRemoteAddr())
+			.append(":")
+			.append(this.getRemotePort())
+			.append("]").toString();
 	}
 
 	protected abstract String getMarkPrefix();

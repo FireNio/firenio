@@ -242,6 +242,6 @@ public class IOSession implements Session {
 	}
 
 	public String toString() {
-		return MessageFormatter.format("session-{}@edp{}", this.getSessionID(), endPoint);
+		return MessageFormatter.format("[Session-{}@edp{}]", this.getSessionID(), endPoint);
 	}
 }

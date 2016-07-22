@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
+//foreach 有问题 
 public class ReentrantList<T> {
 
 	private ArrayList<T>	snapshot	= new ArrayList<T>();
@@ -25,6 +26,7 @@ public class ReentrantList<T> {
 		return snapshot.contains(o);
 	}
 
+	//有问题
 	public T get(int index) {
 
 		return snapshot.get(index);

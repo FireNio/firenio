@@ -18,8 +18,6 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class ClientUtil {
 
-	private static TCPConnector	connector;
-
 	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) {
 		return getTCPConnector(ioEventHandleAdaptor, null);
 
@@ -28,35 +26,35 @@ public class ClientUtil {
 	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
 			ServerConfiguration configuration) {
 
-		if (connector == null) {
+		TCPConnector connector = null;
 
-			try {
+		try {
 
-				connector = new TCPConnector();
+			connector = new TCPConnector();
 
-				NIOContext context = new DefaultNIOContext();
+			NIOContext context = new DefaultNIOContext();
 
-				context.setServerConfiguration(configuration);
+			context.setServerConfiguration(configuration);
 
-				context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
+			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
-				context.addSessionEventListener(new LoggerSEtListener());
+			context.addSessionEventListener(new LoggerSEtListener());
 
-				context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+			context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
-				connector.setContext(context);
+			connector.setContext(context);
 
-			} catch (Throwable e) {
+			return connector;
 
-				LoggerFactory.getLogger(ClientUtil.class).error(e.getMessage(), e);
+		} catch (Throwable e) {
 
-				CloseUtil.close(connector);
+			LoggerFactory.getLogger(ClientUtil.class).error(e.getMessage(), e);
 
-				throw new RuntimeException(e);
-			}
+			CloseUtil.close(connector);
+
+			throw new RuntimeException(e);
 		}
 
-		return connector;
 	}
 
 	public static String getParamString() {
