@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringLexer;
+import com.gifisan.nio.common.StringUtil;
 
 public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 	
@@ -20,7 +21,32 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 		}
 	}
 	
-	protected void parseFirstLine(StringLexer lexer, DefaultHTTPReadFuture future) {
+	protected void parseContentType(AbstractHttpReadFuture future,String contentType) {
+		
+		if (!StringUtil.isNullOrBlank(contentType)) {
+
+			if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+
+				future.contentType = CONTENT_TYPE_URLENCODED;
+
+			} else if (contentType.startsWith("multipart/form-data;")) {
+
+				int index = KMP_BOUNDARY.match(contentType);
+
+				if (index != -1) {
+					future.boundary = contentType.substring(index + 9);
+				}
+
+				future.contentType = CONTENT_TYPE_MULTIPART;
+			} else {
+				//FIXME other content-type
+			}
+		} else {
+			future.contentType = CONTENT_TYPE_URLENCODED;
+		}
+	}
+
+	protected void parseFirstLine(StringLexer lexer, AbstractHttpReadFuture future) {
 		skipRN(lexer);
 		int index = 0;
 		String[] array = new String[5];

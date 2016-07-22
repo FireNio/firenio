@@ -1,13 +1,13 @@
 package com.test.servlet.http;
 
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.extend.http11.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestUploadServlet extends HTTPFutureAcceptorService {
 
-	protected void doAccept(HttpSession session, HTTPReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
 		String res;
 
@@ -22,7 +22,7 @@ public class TestUploadServlet extends HTTPFutureAcceptorService {
 
 			res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>" + outputStream.toString()+"</PRE>";
 		} else {
-			res = "yes server already accept your message :) " + future.getParamString();
+			res = "yes server already accept your message :) " + future.getRequestParams();
 		}
 
 		future.write(res);

@@ -9,7 +9,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
-import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.extend.plugin.http.HttpContext;
 
 public class HttpSessionFactory implements Runnable{
@@ -26,7 +26,7 @@ public class HttpSessionFactory implements Runnable{
 		sessions.remove(sessionID);
 	}
 	
-	public HttpSession getHttpSession(HttpContext context,Session ioSession, HTTPReadFuture future){
+	public HttpSession getHttpSession(HttpContext context,Session ioSession, HttpReadFuture future){
 		
 		String sessionID = future.getCookie(COOKIE_NAME_SESSIONID);
 		

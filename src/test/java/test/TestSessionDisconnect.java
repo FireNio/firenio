@@ -2,6 +2,8 @@ package test;
 
 import java.io.IOException;
 
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -30,8 +32,10 @@ public class TestSessionDisconnect {
 		System.out.println(future.getText());
 
 		session.listen(serviceName, new OnReadFuture() {
-			public void onResponse(FixedSession session, NIOReadFuture future) {
-				System.out.println(future.getText());
+			public void onResponse(Session session, ReadFuture future) {
+				
+				NIOReadFuture f = (NIOReadFuture) future;
+				System.out.println(f.getText());
 			}
 		});
 

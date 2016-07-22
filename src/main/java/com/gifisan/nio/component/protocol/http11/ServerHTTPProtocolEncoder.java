@@ -3,6 +3,9 @@ package com.gifisan.nio.component.protocol.http11;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -11,14 +14,13 @@ import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.TextWriteFuture;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
-import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.HttpHeader;
+import com.gifisan.nio.component.protocol.http11.future.ServerHttpReadFuture;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
 		
-		DefaultHTTPReadFuture future = (DefaultHTTPReadFuture) readFuture;
+		ServerHttpReadFuture future = (ServerHttpReadFuture) readFuture;
 
 		BufferedOutputStream o = readFuture.getWriteBuffer();
 
@@ -29,13 +31,25 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		h.append(future.getStatus());
 		h.append(" OK\r\n");
 		h.append("Server: nimbleio/0.0.1\r\n");
-		h.append("Content-Type:text/html;charset=UTF-8\r\n");
 		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:");
 		h.append(o.size());
 		h.append("\r\n");
 		
+		Map<String,String> headers = future.getHeaders();
 		
+		if (headers != null) {
+			Set<Entry<String, String>> hs = headers.entrySet();
+			for(Entry<String,String> header : hs){
+				h.append(header.getKey());
+				h.append(":");
+				h.append(header.getValue());
+				h.append("\r\n");
+			}
+		}else{
+			h.append("Content-Type:text/html;charset=UTF-8\r\n");
+		}
+
 		List<Cookie> cookieList = future.getCookieList();
 		
 		if (cookieList != null) {
@@ -46,16 +60,6 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 			}
 		}
 		
-		List<HttpHeader> headerList = future.getHeaderList();
-		
-		if (headerList != null) {
-			for(HttpHeader header : headerList){
-				h.append(header.getName());
-				h.append(":");
-				h.append(header.getValue());
-				h.append("\r\n");
-			}
-		}
 		
 		h.append("\r\n");
 		

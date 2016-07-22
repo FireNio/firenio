@@ -7,7 +7,9 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.Waiter;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -38,24 +40,26 @@ public class TestDownload {
 		
 		session.listen(serviceName, new OnReadFuture() {
 			
-			public void onResponse(FixedSession session, NIOReadFuture future) {
+			public void onResponse(Session session, ReadFuture future) {
+				
+				NIOReadFuture f = (NIOReadFuture) future;
 				
 				try {
-					if (future.hasOutputStream()) {
+					if (f.hasOutputStream()) {
 						
-						if (future.getOutputStream() == null) {
+						if (f.getOutputStream() == null) {
 							
 							File file = new File("download.zip");
 							
 							FileOutputStream outputStream = new FileOutputStream(file);
 							
-							future.setOutputStream(outputStream);
+							f.setOutputStream(outputStream);
 							
 							return;
 						}
 					}
 					
-					System.out.println("_________"+future.getText());
+					System.out.println("_________"+f.getText());
 					
 					w.setPayload(null);
 					

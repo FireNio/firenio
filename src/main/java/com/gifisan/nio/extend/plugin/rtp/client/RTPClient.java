@@ -8,8 +8,10 @@ import com.gifisan.nio.common.ByteUtil;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.protocol.DatagramPacket;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -252,7 +254,7 @@ public class RTPClient {
 
 		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
 
-			public void onResponse(FixedSession session, NIOReadFuture future) {
+			public void onResponse(Session session, ReadFuture future) {
 
 				waiter.setPayload(0);
 			}

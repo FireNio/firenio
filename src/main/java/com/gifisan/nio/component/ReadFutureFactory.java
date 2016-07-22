@@ -1,7 +1,7 @@
 package com.gifisan.nio.component;
 
-import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.DefaultHttpRequestFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.TextReadFuture;
 
@@ -32,8 +32,8 @@ public class ReadFutureFactory {
 		return create(session, 0, serviceName, ioEventHandle);
 	}
 	
-	public static HTTPReadFuture createHttpReadFuture(Session session,String url){
-		return new DefaultHTTPReadFuture(session, url,"GET");
+	public static HttpRequestFuture createHttpReadFuture(Session session,String url){
+		return new DefaultHttpRequestFuture(session, url, "GET");
 	}
 	
 	public static NIOReadFuture create(Session session, String serviceName) {

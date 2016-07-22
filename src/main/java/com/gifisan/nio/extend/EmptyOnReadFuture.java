@@ -1,10 +1,11 @@
 package com.gifisan.nio.extend;
 
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
+import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public class EmptyOnReadFuture implements OnReadFuture{
 	
-	public void onResponse(FixedSession session, NIOReadFuture future) {
+	public void onResponse(Session session, ReadFuture future) {
 		
 	}
 	

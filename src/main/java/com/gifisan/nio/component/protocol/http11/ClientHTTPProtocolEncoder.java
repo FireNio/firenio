@@ -2,39 +2,55 @@ package com.gifisan.nio.component.protocol.http11;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.TextWriteFuture;
-import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.HttpHeader;
+import com.gifisan.nio.component.protocol.http11.future.HttpRequestFuture;
 
+//FIXME jinji
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
 		
-		DefaultHTTPReadFuture future = (DefaultHTTPReadFuture) readFuture;
+		HttpRequestFuture future = (HttpRequestFuture) readFuture;
 
 		StringBuilder h = new StringBuilder();
 
 		h.append(future.getMethod());
 		h.append(" ");
-		h.append(future.getRequestURI());
+		h.append(getUrl(future));
 		h.append(" HTTP/1.1\r\n");
-		h.append("Content-Type:text/html;charset=UTF-8\r\n");
 		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:0\r\n");
 		
-		List<HttpHeader> headerList = future.getHeaderList();
+		Map<String,String> headers = future.getHeaders();
 		
-		if (headerList != null) {
-			for(HttpHeader header : headerList){
-				h.append(header.getName());
+		if (headers != null) {
+			Set<Entry<String, String>> hs = headers.entrySet();
+			for(Entry<String,String> header : hs){
+				h.append(header.getKey());
 				h.append(":");
 				h.append(header.getValue());
+				h.append("\r\n");
+			}
+		}else{
+			h.append("Content-Type:text/html;charset=UTF-8\r\n");
+		}
+		
+		Map<String,String> cookies = future.getCookies();
+		
+		if (cookies != null) {
+			Set<Entry<String, String>> cs = cookies.entrySet();
+			for(Entry<String,String> c : cs){
+				h.append(c.getKey());
+				h.append(":");
+				h.append(c.getValue());
 				h.append("\r\n");
 			}
 		}
@@ -51,5 +67,35 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 		return textWriteFuture;
 	}
-
+	
+	private String getUrl(HttpRequestFuture future){
+		Map<String, String> params = future.getParams();
+		if (params == null) {
+			return future.getUrl();
+		}
+		
+		String url = future.getUrl();
+		
+		StringBuilder u = new StringBuilder(url);
+		
+		int index = url.indexOf("?"); 
+		
+		if (index < 0) {
+			future.setRequestURI(url);
+			u.append("?");
+		}else{
+			future.setRequestURI(url.substring(0,index));
+			// /test?aa=b&b=c
+		}
+		
+		Set<Entry<String, String>> ps = params.entrySet();
+		for(Entry<String,String> p : ps){
+			u.append(p.getKey());
+			u.append("=");
+			u.append(p.getValue());
+			u.append("&");
+		}
+		
+		return u.toString();
+	}
 }

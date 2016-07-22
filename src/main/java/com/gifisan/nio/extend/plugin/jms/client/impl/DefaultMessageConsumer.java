@@ -41,7 +41,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			if (onReadFuture.await(3000)) {
 
-				NIOReadFuture future = onReadFuture.getReadFuture();
+				NIOReadFuture future = (NIOReadFuture) onReadFuture.getReadFuture();
 
 				RESMessage message = RESMessageDecoder.decode(future.getText());
 

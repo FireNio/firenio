@@ -1,8 +1,9 @@
 package com.gifisan.nio.extend;
 
+import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListABQ;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture{
 	
@@ -10,7 +11,7 @@ public class OnReadFutureWrapper implements OnReadFuture{
 	
 	private LinkedList<WaiterOnReadFuture> waiters = new LinkedListABQ<WaiterOnReadFuture>(1024 * 8);
 	
-	public void onResponse(final FixedSession session, final NIOReadFuture future) {
+	public void onResponse(final Session session, final ReadFuture future) {
 		
 		WaiterOnReadFuture waiter = waiters.poll();
 		

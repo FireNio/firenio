@@ -3,13 +3,13 @@ package com.test.servlet.http;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
-import com.gifisan.nio.component.protocol.http11.future.HTTPReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.extend.http11.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {
 	
-	protected void doAccept(HttpSession session, HTTPReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
 		System.out.println();
 
@@ -26,7 +26,7 @@ public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {
 			value = UUIDGenerator.random();
 		}
 		
-		String res = "yes server already accept your message :) " + future.getParamString();
+		String res = "yes server already accept your message :) " + future.getRequestParams();
 
 		Cookie c = new Cookie(name, value);
 		
@@ -34,7 +34,7 @@ public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {
 		c.setMaxAge(999999);
 		
 		future.addCookie(c);
-		future.addHeader(name, value);
+		future.setHeader(name, value);
 		
 		future.write(res);
 		

@@ -3,8 +3,6 @@ package com.gifisan.nio.component.protocol.http11.future;
 import java.util.Map;
 
 import com.gifisan.nio.common.KMPUtil;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringLexer;
 import com.gifisan.nio.common.StringUtil;
 
@@ -12,15 +10,15 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 
 	public static final String	CONTENT_TYPE_URLENCODED	= "application/x-www-form-urlencoded";
 	public static final String	CONTENT_TYPE_MULTIPART		= "multipart/form-data";
+	public static final String	CONTENT_TYPE_TEXTPLAIN		= "text/plain";
 
 	protected final byte		R					= '\r';
 	protected final byte		N					= '\n';
-	private KMPUtil			KMP_BOUNDARY			= new KMPUtil("boundary=");
-	private Logger				logger				= LoggerFactory.getLogger(AbstractHttpHeaderParser.class);
+	protected KMPUtil			KMP_BOUNDARY			= new KMPUtil("boundary=");
 
-	protected abstract void parseFirstLine(StringLexer lexer, DefaultHTTPReadFuture future) ;
+	protected abstract void parseFirstLine(StringLexer lexer, AbstractHttpReadFuture future) ;
 
-	public void parseHeader(String content, DefaultHTTPReadFuture future) {
+	public void parseHeader(String content, AbstractHttpReadFuture future) {
 		Map<String, String> headers = future.request_headers;
 		StringLexer lexer = new StringLexer(0, content.toCharArray());
 		parseFirstLine(lexer, future);
@@ -67,7 +65,7 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 		return value.toString();
 	}
 
-	private void doAfterParseHeader(DefaultHTTPReadFuture future) {
+	private void doAfterParseHeader(AbstractHttpReadFuture future) {
 
 		Map<String, String> headers = future.request_headers;
 
@@ -80,28 +78,8 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 		}
 
 		String contentType = headers.get("Content-Type");
-
-		if (!StringUtil.isNullOrBlank(contentType)) {
-
-			if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
-
-				future.contentType = CONTENT_TYPE_URLENCODED;
-
-			} else if (contentType.startsWith("multipart/form-data;")) {
-
-				int index = KMP_BOUNDARY.match(contentType);
-
-				if (index != -1) {
-					future.boundary = contentType.substring(index + 9);
-				}
-
-				future.contentType = CONTENT_TYPE_MULTIPART;
-			} else {
-				logger.error("unsupport content type:" + contentType);
-			}
-		} else {
-			future.contentType = CONTENT_TYPE_URLENCODED;
-		}
+		
+		parseContentType(future,contentType);
 
 		String cookie = headers.get("Cookie");
 
@@ -109,6 +87,8 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 			parseLine(cookie, future.cookies);
 		}
 	}
+	
+	protected abstract void parseContentType(AbstractHttpReadFuture future,String contentType);
 
 	private void parseLine(String line, Map<String, String> map) {
 		StringLexer l = new StringLexer(0, line.toCharArray());

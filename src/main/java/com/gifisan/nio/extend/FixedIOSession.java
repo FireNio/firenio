@@ -33,7 +33,7 @@ public class FixedIOSession implements FixedSession {
 		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
 
 		if (onReadFuture != null) {
-			onReadFuture.onResponse(this, future);
+			onReadFuture.onResponse(this.getSession(), future);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class FixedIOSession implements FixedSession {
 		// FIXME 连接丢失时叫醒我
 		if (onReadFuture.await(timeout)) {
 
-			return onReadFuture.getReadFuture();
+			return (NIOReadFuture) onReadFuture.getReadFuture();
 		}
 
 		throw new TimeoutException("timeout");

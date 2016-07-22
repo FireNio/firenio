@@ -1,5 +1,7 @@
 package com.gifisan.nio.component.protocol.future;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import com.gifisan.nio.Encoding;
@@ -9,13 +11,16 @@ import com.gifisan.nio.component.IOSession;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
-public abstract class AbstractReadFuture extends FutureImpl implements IOReadFuture {
+public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
-	protected TCPEndPoint		endPoint			;
-	protected IOSession		session			;
-	private boolean			flushed			;
 	private BufferedOutputStream	writeBuffer		= new BufferedOutputStream();
 	private IOEventHandle		ioEventHandle		;
+	protected boolean 		hasOutputStream	;
+	protected boolean			flushed			;
+	protected InputStream		inputStream;
+	protected OutputStream		outputStream;
+	protected TCPEndPoint		endPoint			;
+	protected IOSession		session			;
 	
 	public IOEventHandle getIOEventHandle() {
 		return ioEventHandle;
@@ -30,16 +35,8 @@ public abstract class AbstractReadFuture extends FutureImpl implements IOReadFut
 		this.endPoint = this.session.getTCPEndPoint();
 	}
 	
-	protected AbstractReadFuture() {
-	}
-
 	public boolean flushed() {
 		return flushed;
-	}
-
-	public void flush() {
-		endPoint.incrementWriter();
-		flushed = true;
 	}
 
 	public void write(byte b) {
@@ -70,4 +67,19 @@ public abstract class AbstractReadFuture extends FutureImpl implements IOReadFut
 		return writeBuffer;
 	}
 
+	public OutputStream getOutputStream() {
+		return outputStream;
+	}
+
+	public boolean hasOutputStream() {
+		return hasOutputStream;
+	}
+
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+
+	public void setOutputStream(OutputStream outputStream) {
+		this.outputStream = outputStream;
+	}
 }

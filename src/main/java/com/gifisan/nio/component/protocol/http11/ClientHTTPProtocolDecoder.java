@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.ClientHttpReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.ClientHttpHeaderParser;
-import com.gifisan.nio.component.protocol.http11.future.DefaultHTTPReadFuture;
 
 public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 
@@ -28,7 +28,7 @@ public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 			return null;
 		}
 
-		DefaultHTTPReadFuture future = new DefaultHTTPReadFuture(parser, endPoint.getSession(), buffer);
+		ClientHttpReadFuture future = new ClientHttpReadFuture(endPoint.getSession(), parser, buffer);
 
 		future.decode(endPoint, buffer);
 

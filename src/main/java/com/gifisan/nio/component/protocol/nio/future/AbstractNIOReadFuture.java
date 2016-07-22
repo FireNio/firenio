@@ -1,8 +1,6 @@
 package com.gifisan.nio.component.protocol.nio.future;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.MathUtil;
@@ -11,23 +9,21 @@ import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.future.AbstractReadFuture;
+import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
 
-public abstract class AbstractNIOReadFuture extends AbstractReadFuture implements NIOReadFuture{
+public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture implements NIOReadFuture {
 
-	protected ByteBuffer		textBuffer		;
-	protected boolean			hasStream			;
-	private ByteBuffer			header			;
-	private boolean			headerComplete		;
-	private boolean			textBufferComplete	;
-	private int				textLength		;
-	private Parameters			parameters	;
-	protected OutputStream		outputStream	;
-	protected InputStream		inputStream	;
-	protected String	serviceName	;
-	protected String	text			;
-	protected Integer	futureID		;
-	
+	private int			textLength;
+	private boolean		headerComplete;
+	private boolean		textBufferComplete;
+	private ByteBuffer		header;
+	private Parameters		parameters;
+	protected boolean		hasStream;
+	protected String		serviceName;
+	protected ByteBuffer	textBuffer;
+	protected String		text;
+	protected Integer		futureID;
+
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -35,7 +31,7 @@ public abstract class AbstractNIOReadFuture extends AbstractReadFuture implement
 	public String getText() {
 		return text;
 	}
-	
+
 	public Integer getFutureID() {
 		return futureID;
 	}
@@ -45,22 +41,6 @@ public abstract class AbstractNIOReadFuture extends AbstractReadFuture implement
 			parameters = new DefaultParameters(getText());
 		}
 		return parameters;
-	}
-
-	public OutputStream getOutputStream() {
-		return outputStream;
-	}
-
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
-
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
 	}
 
 	public int getStreamLength() {
