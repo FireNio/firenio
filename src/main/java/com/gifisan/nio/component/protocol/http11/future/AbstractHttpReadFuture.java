@@ -101,13 +101,13 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 				if (read_length < contentLength) {
 
-					buffer = body_buffer;
+					ByteBuffer body_buffer = this.body_buffer;
 
-					buffer.clear();
+					body_buffer.clear();
 
-					endPoint.read(buffer);
+					endPoint.read(body_buffer);
 
-					fill(outputStream, buffer);
+					fill(outputStream, body_buffer);
 				}
 
 				if (read_length == contentLength) {
