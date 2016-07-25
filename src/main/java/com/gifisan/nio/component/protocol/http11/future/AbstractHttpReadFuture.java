@@ -15,6 +15,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
 
+//FIXME 解析BODY中的内容
 /**
  * 
  * Content-Type: application/x-www-form-urlencoded</BR> Content-Type:

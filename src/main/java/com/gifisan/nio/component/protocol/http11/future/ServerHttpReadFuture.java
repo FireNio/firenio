@@ -32,7 +32,21 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture implements Http
 
 			body_complete = true;
 
-		} else if (contentLength > 1 << 21) {
+		} else if (contentLength < 1 << 21) {
+			
+			this.setHasOutputStream(true);
+			
+			int buffer_size = contentLength > 1024 * 256 ? 1024 * 256 : contentLength;
+			
+			this.body_buffer = ByteBuffer.allocate(buffer_size);
+
+			this.outputStream = new BufferedOutputStream(contentLength);
+
+			this.read_length = length - pos;
+
+			this.outputStream.write(source_array, pos, read_length);
+
+		} else {
 			
 			this.setHasOutputStream(true);
 
@@ -54,17 +68,10 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture implements Http
 			read_length = length - pos;
 
 			outputStream.write(source_array, pos, read_length);
-
-		} else {
-
-			outputStream = new BufferedOutputStream(contentLength);
-
-			read_length = length - pos;
-
-			outputStream.write(source_array, pos, read_length);
 		}
 	}
 
+	//FIXME 解析BODY中的内容
 	protected void decodeBody() {
 
 		BufferedOutputStream o = (BufferedOutputStream) outputStream;
