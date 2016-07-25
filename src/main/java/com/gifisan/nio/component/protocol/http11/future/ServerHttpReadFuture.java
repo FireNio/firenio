@@ -13,6 +13,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture implements Http
 
 	public ServerHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
+		params = new HashMap<String, String>();
 	}
 
 	protected void decodeHeader(byte[] source_array, int length, int pos) throws IOException {
