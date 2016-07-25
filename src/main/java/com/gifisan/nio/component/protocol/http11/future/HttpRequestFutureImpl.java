@@ -7,7 +7,7 @@ import java.util.Map;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
 
-public class DefaultHttpRequestFuture extends AbstractIOReadFuture implements HttpRequestFuture {
+public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpRequestFuture {
 
 	private String				url;
 
@@ -21,7 +21,7 @@ public class DefaultHttpRequestFuture extends AbstractIOReadFuture implements Ht
 
 	private Map<String, String>	params;
 
-	public DefaultHttpRequestFuture(Session session, String url, String method) {
+	public HttpRequestFutureImpl(Session session, String url, String method) {
 		super(session);
 		this.url = url;
 		this.method = method;

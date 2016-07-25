@@ -23,17 +23,19 @@ public class IOSession implements Session {
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
 	
 	private Object						attachment;
-	private Object[]					attachments	= new Object[4];
-	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
-	private long						creationTime	= System.currentTimeMillis();
 	private boolean					closed;
 	private NIOContext					context;
 	private ProtocolEncoder				encoder;
 	private TCPEndPoint					endPoint;
 	private EndPointWriter				endPointWriter;
 	private String						machineType;
+	private String 					session_description;
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
+	private Object[]					attachments	= new Object[4];
+	private long						creationTime	= System.currentTimeMillis();
+	//FIXME 这里使用ReentrantMap有问题
+	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
 
 	public IOSession(TCPEndPoint endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
@@ -240,8 +242,13 @@ public class IOSession implements Session {
 
 		this.udpEndPoint = udpEndPoint;
 	}
-
+	
 	public String toString() {
-		return MessageFormatter.format("[Session-{}@edp{}]", this.getSessionID(), endPoint);
+		
+		if (session_description == null) {
+			session_description = MessageFormatter.format("[Session@edp{}]", endPoint);
+		}
+		
+		return session_description;
 	}
 }

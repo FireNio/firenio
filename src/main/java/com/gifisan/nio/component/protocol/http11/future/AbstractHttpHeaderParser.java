@@ -8,10 +8,6 @@ import com.gifisan.nio.common.StringUtil;
 
 public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 
-	public static final String	CONTENT_TYPE_URLENCODED	= "application/x-www-form-urlencoded";
-	public static final String	CONTENT_TYPE_MULTIPART		= "multipart/form-data";
-	public static final String	CONTENT_TYPE_TEXTPLAIN		= "text/plain";
-
 	protected final byte		R					= '\r';
 	protected final byte		N					= '\n';
 	protected KMPUtil			KMP_BOUNDARY			= new KMPUtil("boundary=");

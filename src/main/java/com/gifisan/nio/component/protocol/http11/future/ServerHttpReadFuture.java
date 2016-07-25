@@ -75,16 +75,15 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture implements Http
 	protected void decodeBody() {
 
 		BufferedOutputStream o = (BufferedOutputStream) outputStream;
-
-		if (!hasOutputStream() && o.size() > 0) {
-
+		
+		if (HttpHeaderParser.CONTENT_TYPE_URLENCODED.equals(contentType)) {
+			//FIXME encoding
 			String paramString = new String(o.toByteArray(), session.getContext().getEncoding());
 
 			parseParamString(paramString);
 		}
-
+		
 		body_complete = true;
-
 	}
 
 	private void parseParamString(String paramString) {

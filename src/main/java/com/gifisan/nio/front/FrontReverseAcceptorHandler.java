@@ -11,6 +11,7 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.future.WriteFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
@@ -96,7 +97,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		logger.info("没有该SessionID:{}", sessionID);
+		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", session, f);
 	}
 
 	public FrontRouterMapping getRouterProxy() {
@@ -105,6 +106,9 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 	public Session getSession(Session session) {
 		return frontRouterMapping.getSession(session);
+	}
+
+	public void futureSent(Session session, WriteFuture future) {
 	}
 
 }

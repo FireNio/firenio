@@ -4,7 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-//foreach 有问题 
+/**
+ * 仅适用于：</BR>
+ * M => PUT </BR>
+ * M => REMOVE </BR>
+ * M => GET </BR>
+ * O => FOREACH
+ *
+ * @param <T>
+ */
 public class ReentrantList<T> {
 
 	private List<T>		snapshot		= new ArrayList<T>();

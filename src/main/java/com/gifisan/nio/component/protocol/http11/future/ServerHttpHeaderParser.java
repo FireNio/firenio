@@ -29,6 +29,10 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 
 				future.contentType = CONTENT_TYPE_URLENCODED;
 
+			}else if(CONTENT_TYPE_TEXTPLAIN.equals(contentType)){
+				
+				future.contentType = CONTENT_TYPE_TEXTPLAIN;
+				
 			} else if (contentType.startsWith("multipart/form-data;")) {
 
 				int index = KMP_BOUNDARY.match(contentType);

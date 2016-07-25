@@ -2,7 +2,15 @@ package com.gifisan.nio.component.concurrent;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-//适用于单线程读
+/**
+ * 仅适用于：</BR>
+ * M => PUT </BR>
+ * M => REMOVE </BR>
+ * O => GET </BR>
+ * O => FOREACH
+ *
+ * @param <K>
+ */
 public class ReentrantSet<K> {
 
 	private static final byte[]		V	= {};

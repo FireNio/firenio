@@ -7,6 +7,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 
 	private Object				attachment;
 	private NIOContext			context;
+	private String 			edp_description;
 	private Integer			endPointID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
@@ -16,20 +17,16 @@ public abstract class AbstractEndPoint implements EndPoint {
 		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
 	}
 
-	public void setAttachment(Object attachment) {
-		this.attachment = attachment;
-	}
-
 	public Object getAttachment() {
 		return attachment;
 	}
 
-	public String getLocalHost() {
-		return local.getHostName();
+	public NIOContext getContext() {
+		return context;
 	}
 
-	public int getLocalPort() {
-		return local.getPort();
+	public Integer getEndPointID() {
+		return endPointID;
 	}
 
 	public String getLocalAddr() {
@@ -43,7 +40,17 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return address.getHostAddress();
 	}
 
+	public String getLocalHost() {
+		return local.getHostName();
+	}
+
+	public int getLocalPort() {
+		return local.getPort();
+	}
+
 	public abstract InetSocketAddress getLocalSocketAddress();
+
+	protected abstract String getMarkPrefix();
 
 	public String getRemoteAddr() {
 
@@ -56,7 +63,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 
 		return address.getAddress().getHostAddress();
 	}
-
+	
 	/**
 	 * 请勿使用,可能出现阻塞
 	 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
@@ -86,12 +93,14 @@ public abstract class AbstractEndPoint implements EndPoint {
 		return address.getPort();
 	}
 
-	public NIOContext getContext() {
-		return context;
+	public void setAttachment(Object attachment) {
+		this.attachment = attachment;
 	}
 
 	public String toString() {
-		return new StringBuilder("[")
+		
+		if (edp_description == null) {
+			edp_description = new StringBuilder("[")
 			.append(getMarkPrefix())
 			.append("(id:")
 			.append(endPointID)
@@ -100,11 +109,8 @@ public abstract class AbstractEndPoint implements EndPoint {
 			.append(":")
 			.append(this.getRemotePort())
 			.append("]").toString();
-	}
-
-	protected abstract String getMarkPrefix();
-
-	public Integer getEndPointID() {
-		return endPointID;
+		}
+		
+		return edp_description;
 	}
 }

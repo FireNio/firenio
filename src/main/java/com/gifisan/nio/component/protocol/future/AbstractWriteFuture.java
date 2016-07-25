@@ -77,4 +77,8 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 	public void setReadFuture(ReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
+	
+	public String toString() {
+		return this.textBuffer.toString();
+	}
 }

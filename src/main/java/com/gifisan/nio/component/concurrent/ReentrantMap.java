@@ -6,6 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * 仅适用于：</BR>
+ * M => PUT </BR>
+ * M => REMOVE </BR>
+ * O => GET </BR>
+ * O => FOREACH
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class ReentrantMap<K, V> {
 
 	private Map<K, V>		snapshot	= new HashMap<K, V>();

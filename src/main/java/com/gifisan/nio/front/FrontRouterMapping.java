@@ -12,6 +12,7 @@ public class FrontRouterMapping {
 	private int						index		= 0;
 	private List<Session>				routerList	= new ArrayList<Session>();
 	private ReentrantLock				lock			= new ReentrantLock();
+	//FIXME 这里不可以使用ReentrantMap
 	private ReentrantMap<Integer, Session>	routerMapping	= new ReentrantMap<Integer, Session>();
 
 	private Session getNextRouterSession() {
