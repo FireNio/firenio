@@ -2,7 +2,7 @@ package com.test.servlet.http;
 
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.http11.HttpSession;
+import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestUploadServlet extends HTTPFutureAcceptorService {

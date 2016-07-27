@@ -16,6 +16,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.extend.security.Authority;
@@ -28,7 +29,7 @@ public class FixedIOSession implements FixedSession {
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
 
-	public void accept(Session session, final NIOReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
 		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
 

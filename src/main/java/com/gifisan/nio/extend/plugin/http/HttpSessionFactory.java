@@ -1,4 +1,4 @@
-package com.gifisan.nio.extend.http11;
+package com.gifisan.nio.extend.plugin.http;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,7 +10,6 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.plugin.http.HttpContext;
 
 public class HttpSessionFactory implements Runnable{
 	

@@ -6,7 +6,6 @@ import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
-import com.gifisan.nio.extend.http11.HttpSessionFactory;
 
 public class HttpContext extends AbstractPluginContext {
 

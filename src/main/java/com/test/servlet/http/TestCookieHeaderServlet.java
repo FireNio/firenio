@@ -4,7 +4,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.http11.HttpSession;
+import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {

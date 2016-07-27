@@ -3,9 +3,9 @@ package com.gifisan.nio.extend.service;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.http11.HttpSession;
-import com.gifisan.nio.extend.http11.HttpSessionFactory;
 import com.gifisan.nio.extend.plugin.http.HttpContext;
+import com.gifisan.nio.extend.plugin.http.HttpSession;
+import com.gifisan.nio.extend.plugin.http.HttpSessionFactory;
 
 public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 
