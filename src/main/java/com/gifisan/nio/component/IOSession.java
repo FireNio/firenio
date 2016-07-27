@@ -29,7 +29,6 @@ public class IOSession implements Session {
 	private TCPEndPoint					endPoint;
 	private EndPointWriter				endPointWriter;
 	private String						machineType;
-	private String 					session_description;
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
 	private Object[]					attachments	= new Object[4];
@@ -244,11 +243,6 @@ public class IOSession implements Session {
 	}
 	
 	public String toString() {
-		
-		if (session_description == null) {
-			session_description = MessageFormatter.format("[Session@edp{}]", endPoint);
-		}
-		
-		return session_description;
+		return endPoint.toString();
 	}
 }

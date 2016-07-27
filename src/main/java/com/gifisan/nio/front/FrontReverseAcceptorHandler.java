@@ -104,10 +104,6 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		return frontRouterMapping;
 	}
 
-	public Session getSession(Session session) {
-		return frontRouterMapping.getSession(session);
-	}
-
 	public void futureSent(Session session, WriteFuture future) {
 	}
 

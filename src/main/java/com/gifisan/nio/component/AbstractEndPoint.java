@@ -3,6 +3,8 @@ package com.gifisan.nio.component;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import com.gifisan.nio.common.StringUtil;
+
 public abstract class AbstractEndPoint implements EndPoint {
 
 	private Object				attachment;
@@ -103,7 +105,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 			edp_description = new StringBuilder("[")
 			.append(getMarkPrefix())
 			.append("(id:")
-			.append(endPointID)
+			.append(getIdHexString(endPointID))
 			.append(") remote /")
 			.append(this.getRemoteAddr())
 			.append(":")
@@ -112,5 +114,12 @@ public abstract class AbstractEndPoint implements EndPoint {
 		}
 		
 		return edp_description;
+	}
+	
+	private String getIdHexString(Integer endPointID) {
+		
+		String id = Long.toHexString(endPointID);
+
+		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
 	}
 }

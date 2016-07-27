@@ -23,7 +23,7 @@ public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements 
 	}
 
 	public void futureSent(Session session, WriteFuture future) {
-		logger.info("future sent,{}", future);
+		
 	}
 
 	public void accept(final Session session, final ReadFuture future) throws Exception {

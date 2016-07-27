@@ -8,12 +8,12 @@ public class FixedAtomicInteger {
 
 	private int			max_value;
 
-	private int			init_value;
+	private int			min_value;
 
-	public FixedAtomicInteger(int init, int max) {
-		this.init_value = init;
+	public FixedAtomicInteger(int min, int max) {
+		this.min_value = min;
 		this.max_value = max;
-		this.atomiticInteger = new AtomicInteger(init);
+		this.atomiticInteger = new AtomicInteger(min);
 	}
 
 	public FixedAtomicInteger(int max) {
@@ -33,7 +33,7 @@ public class FixedAtomicInteger {
 			int next;
 			
 			if (current == max_value) {
-				next = init_value;
+				next = min_value;
 			}else{
 				next = current + 1;
 			}
@@ -51,7 +51,7 @@ public class FixedAtomicInteger {
 			
 			int next;
 			
-			if (current == init_value) {
+			if (current == min_value) {
 				next = max_value;
 			}else{
 				next = current - 1;
@@ -70,7 +70,7 @@ public class FixedAtomicInteger {
 			int next;
 			
 			if (current == max_value) {
-				next = init_value;
+				next = min_value;
 			}else{
 				next = current + 1;
 			}
@@ -88,7 +88,7 @@ public class FixedAtomicInteger {
 			
 			int next;
 			
-			if (current == init_value) {
+			if (current == min_value) {
 				next = max_value;
 			}else{
 				next = current - 1;

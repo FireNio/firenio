@@ -5,21 +5,15 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.ReentrantMap;
 
 public class FrontRouterMapping {
 
-	private int						index		= 0;
-	private List<Session>				routerList	= new ArrayList<Session>();
-	private ReentrantLock				lock			= new ReentrantLock();
-	//FIXME 这里不可以使用ReentrantMap
-	private ReentrantMap<Integer, Session>	routerMapping	= new ReentrantMap<Integer, Session>();
+	private int			index			= 0;
+	private List<Session>	routerList		= new ArrayList<Session>();
+	private ReentrantLock	lock				= new ReentrantLock();
+	private String			SESSION_ID_ROUTER	= "_SESSION_ID_ROUTER";
 
 	private Session getNextRouterSession() {
-
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
 
 		List<Session> list = this.routerList;
 
@@ -38,8 +32,6 @@ public class FrontRouterMapping {
 
 			session = list.get(0);
 		}
-
-		lock.unlock();
 
 		return session;
 	}
@@ -66,50 +58,58 @@ public class FrontRouterMapping {
 		lock.unlock();
 	}
 
-	public Session getSession(Session session) {
+	// FIXME 从SESSION获取router
+	public Session getRouterSession(Session session) {
 
-		Integer sessionID = session.getSessionID();
-
-		Session _session = routerMapping.get(sessionID);
-
-		if (_session == null) {
-
-			return getRouterSession(session);
-		}
-
-		if (!_session.isOpened()) {
-
-			routerMapping.remove(sessionID);
-
-			return getRouterSession(session);
-		}
-
-		return _session;
-	}
-
-	private Session getRouterSession(Session session) {
-
-		Integer sessionID = session.getSessionID();
-
-		Session router_session = getNextRouterSession();
+		Session router_session = (Session) session.getAttribute(SESSION_ID_ROUTER);
 
 		if (router_session == null) {
-			return null;
+
+			return getRouterSessionFresh(session);
 		}
 
-		router_session.setAttribute(sessionID, session);
+		if (!router_session.isOpened()) {
 
-		routerMapping.put(sessionID, router_session);
+			return getRouterSessionFresh(session);
+		}
 
 		return router_session;
 	}
 
-	public Session getMapping(Integer sessionID) {
-		return routerMapping.get(sessionID);
-	}
+	private Session getRouterSessionFresh(Session session) {
+		
+		ReentrantLock lock = this.lock;
 
-	public void removeMapping(Integer sessionID) {
-		routerMapping.remove(sessionID);
-	}
+		lock.lock();
 
+		try {
+			
+			Session router_session = (Session) session.getAttribute(SESSION_ID_ROUTER);
+			
+			if (router_session != null) {
+				return router_session;
+			}
+			
+			router_session = getNextRouterSession();
+
+			if (router_session == null) {
+				return null;
+			}
+
+			Integer sessionID = session.getSessionID();
+			
+			router_session.setAttribute(sessionID, session);
+
+			session.setAttribute(SESSION_ID_ROUTER, router_session);
+
+			router_session.setAttribute(sessionID, session);
+
+			return router_session;
+			
+		} finally {
+			
+			lock.unlock();
+			
+		}
+	}
 }

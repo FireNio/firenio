@@ -47,10 +47,9 @@ public class TestClient {
 			session.flush(future);
 		}
 
-		ThreadUtil.sleep(300);
+		ThreadUtil.sleep(200);
 
 		CloseUtil.close(connector);
-
 	}
 
 }

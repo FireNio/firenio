@@ -16,12 +16,12 @@ public class FrontReverseAcceptorSEListener implements SessionEventListener {
 	}
 
 	public void sessionOpened(Session session) {
-		logger.info("负载服务器来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
+		logger.info("负载服务器来自 " + session + " 已建立连接.");
 		frontRouterMapping.addSession(session);
 	}
 
 	public void sessionClosed(Session session) {
-		logger.info("负载服务器来自 [ " + session.getRemoteSocketAddress() + " ] 已断开连接.");
+		logger.info("负载服务器来自 " + session + " 已断开连接.");
 		frontRouterMapping.remove(session);
 	}
 }

@@ -24,7 +24,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
-		Session routerSession = frontRouterMapping.getSession(session);
+		Session routerSession = frontRouterMapping.getRouterSession(session);
 
 		if (routerSession == null) {
 

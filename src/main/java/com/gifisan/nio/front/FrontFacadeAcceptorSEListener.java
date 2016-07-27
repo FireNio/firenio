@@ -27,19 +27,17 @@ public class FrontFacadeAcceptorSEListener implements SessionEventListener {
 
 		Integer sessionID = session.getSessionID();
 
-		Session router = routerProxy.getMapping(sessionID);
+		Session router = routerProxy.getRouterSession(session);
 
 		if (router == null) {
 
 			return;
 		}
 
-		routerProxy.removeMapping(sessionID);
-
 		ReadFuture future = ReadFutureFactory.create(session, sessionID, FrontContext.FRONT_CHANNEL_LOST, session
 				.getContext().getIOEventHandleAdaptor());
 
-		future.write(sessionID.toString());
+		future.write(session.toString());
 
 		router.flush(future);
 	}
