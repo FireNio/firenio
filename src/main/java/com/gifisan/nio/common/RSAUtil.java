@@ -1,5 +1,7 @@
 package com.gifisan.nio.common;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -9,6 +11,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 
@@ -229,7 +233,7 @@ public class RSAUtil {
 		return arrays;
 	}
 
-	static class RSAKeys {
+	public static class RSAKeys {
 
 		private RSAPublicKey	publicKey;
 		private RSAPrivateKey	privateKey;
@@ -241,6 +245,79 @@ public class RSAUtil {
 		public RSAPrivateKey getPrivateKey() {
 			return privateKey;
 		}
+
+		public void setPublicKey(RSAPublicKey publicKey) {
+			this.publicKey = publicKey;
+		}
+
+		public void setPrivateKey(RSAPrivateKey privateKey) {
+			this.privateKey = privateKey;
+		}
+	}
+	
+	public static void generateKeys(String file,int length) throws NoSuchAlgorithmException, IOException{
+		RSAKeys keys = RSAUtil.getKeys(1024);
+		// 生成公钥和私钥
+		RSAPublicKey publicKey = keys.getPublicKey();
+		RSAPrivateKey privateKey = keys.getPrivateKey();
+		
+		File publicKeyFile = new File(file + "/public.rsa");
+		String publicKeyString = publicKey.toString();
+		
+		File privateKeyFile = new File(file + "/private.rsa");
+		String privateKeyString = privateKey.toString();
+		
+		FileUtil.write(publicKeyFile, publicKeyString);
+		FileUtil.write(privateKeyFile,privateKeyString);
+		
+		System.out.println("Public RSA File:"+publicKeyFile.getCanonicalPath());
+		System.out.println(publicKeyString);
+		System.out.println();
+		System.out.println("Private RSA File:"+privateKeyFile.getCanonicalPath());
+		System.out.println(privateKeyString);
+	}
+	
+	private static Map<String,String> parseRSAFromContent(String content){
+		String [] lines = content.split("\n");
+		Map<String,String> map = new HashMap<String, String>();
+		for (int i = 1; i < lines.length; i++) {
+			String [] array = lines[i].split(":");
+			if (array.length != 2) {
+				continue;
+			}
+			String name = array[0].trim().replace("\r", "");
+			String value = array[1].trim().replace("\r", "");
+			map.put(name, value);
+		}
+		return map;
+	}
+	
+	public static RSAPublicKey getRsaPublicKey(String content){
+		
+		if (StringUtil.isNullOrBlank(content)) {
+			throw new IllegalArgumentException("null content");
+		}
+		
+		Map<String,String> map = parseRSAFromContent(content);
+		
+		String modulus = map.get("modulus");
+		String exponent = map.get("public exponent");
+		
+		return getPublicKey(modulus, exponent);
+	}
+	
+	public static RSAPrivateKey getRsaPrivateKey(String content){
+		
+		if (StringUtil.isNullOrBlank(content)) {
+			throw new IllegalArgumentException("null content");
+		}
+		
+		Map<String,String> map = parseRSAFromContent(content);
+		
+		String modulus = map.get("modulus");
+		String exponent = map.get("private exponent");
+		
+		return getPrivateKey(modulus, exponent);
 	}
 
 	public static void main(String[] args) throws Exception {

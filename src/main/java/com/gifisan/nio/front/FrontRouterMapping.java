@@ -36,7 +36,7 @@ public class FrontRouterMapping {
 		return session;
 	}
 
-	public void addSession(Session session) {
+	public void addRouterSession(Session session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -47,7 +47,7 @@ public class FrontRouterMapping {
 		lock.unlock();
 	}
 
-	public void remove(Session session) {
+	public void removeRouterSession(Session session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -101,8 +101,6 @@ public class FrontRouterMapping {
 			router_session.setAttribute(sessionID, session);
 
 			session.setAttribute(SESSION_ID_ROUTER, router_session);
-
-			router_session.setAttribute(sessionID, session);
 
 			return router_session;
 			

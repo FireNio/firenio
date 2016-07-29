@@ -33,6 +33,8 @@ public class FrontFacadeAcceptorSEListener implements SessionEventListener {
 
 			return;
 		}
+		
+		router.removeAttribute(session.getSessionID());
 
 		ReadFuture future = ReadFutureFactory.create(session, sessionID, FrontContext.FRONT_CHANNEL_LOST, session
 				.getContext().getIOEventHandleAdaptor());

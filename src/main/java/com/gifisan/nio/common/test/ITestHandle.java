@@ -7,7 +7,7 @@ import com.gifisan.nio.common.LoggerFactory;
 
 public class ITestHandle {
 	
-	private static Logger logger = LoggerFactory.getLogger(ITestThreadHandle.class);
+	private static Logger logger = LoggerFactory.getLogger(ITestHandle.class);
 
 	public static void doTest(ITest test,long time,String testName) {
 		logger.info("################## Test start ####################");

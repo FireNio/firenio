@@ -63,7 +63,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 		cookieList.add(cookie);
 	}
-
+	
 	public boolean decode(TCPEndPoint endPoint, ByteBuffer buffer) throws IOException {
 
 		try {
@@ -77,7 +77,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 				int length = buffer.position();
 
 				byte[] source_array = buffer.array();
-
+				
 				int pos = KMP_HEADER.match(source_array, 0, length);
 
 				if (pos == -1) {

@@ -15,28 +15,45 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 	protected abstract void parseFirstLine(StringLexer lexer, AbstractHttpReadFuture future) ;
 
 	public void parseHeader(String content, AbstractHttpReadFuture future) {
+		
 		Map<String, String> headers = future.request_headers;
+		
 		StringLexer lexer = new StringLexer(0, content.toCharArray());
+		
 		parseFirstLine(lexer, future);
+		
 		StringBuilder value = new StringBuilder();
+		
 		String k = null;
+		
 		for (;;) {
+			
 			char c = lexer.current();
-			switch (c) {
-			case ':':
+			
+			if (':' == c) {
+				
 				k = value.toString();
+				
 				value = new StringBuilder();
+				
 				lexer.next();
+				
 				if (' ' != lexer.current()) {
+					
 					lexer.previous();
+					
 				}
+				
 				headers.put(k, findHeaderValue(lexer));
-				break;
-			default:
+				
+			}else{
+				
 				value.append(c);
-				break;
+				
 			}
+			
 			if (!lexer.next()) {
+				
 				break;
 			}
 		}
@@ -45,17 +62,19 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 	}
 
 	private String findHeaderValue(StringLexer lexer) {
+		
 		StringBuilder value = new StringBuilder();
+		
 		for (; lexer.next();) {
+			
 			char c = lexer.current();
-			switch (c) {
-			case R:
-				break;
-			case N:
+			
+			if (R == c) {
+				continue;
+			}else if(N == c){
 				return value.toString();
-			default:
+			}else{
 				value.append(c);
-				break;
 			}
 		}
 		return value.toString();
@@ -80,13 +99,13 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 		String cookie = headers.get("Cookie");
 
 		if (!StringUtil.isNullOrBlank(cookie)) {
-			parseLine(cookie, future.cookies);
+			parse_cookies(cookie, future.cookies);
 		}
 	}
 	
 	protected abstract void parseContentType(AbstractHttpReadFuture future,String contentType);
 
-	private void parseLine(String line, Map<String, String> map) {
+	private void parse_cookies(String line, Map<String, String> cookies) {
 		StringLexer l = new StringLexer(0, line.toCharArray());
 		StringBuilder value = new StringBuilder();
 		String k = null;
@@ -112,7 +131,7 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 				findKey = true;
 				v = value.toString();
 				value = new StringBuilder();
-				map.put(k, v);
+				cookies.put(k, v);
 				break;
 			default:
 				value.append(c);
@@ -123,7 +142,6 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 			}
 		}
 
-		map.put(k, value.toString());
+		cookies.put(k, value.toString());
 	}
-
 }

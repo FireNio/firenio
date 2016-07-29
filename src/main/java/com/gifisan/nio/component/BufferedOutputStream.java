@@ -36,8 +36,12 @@ public class BufferedOutputStream extends OutputStream {
 		return count;
 	}
 
-	public byte toByteArray()[] {
+	public byte [] toByteArray() {
 		return count > 0 ? Arrays.copyOf(cache, count) : null;
+	}
+	
+	public byte [] array(){
+		return cache;
 	}
 
 	public String toString() {
