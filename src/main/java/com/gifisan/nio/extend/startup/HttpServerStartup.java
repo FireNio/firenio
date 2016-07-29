@@ -12,7 +12,7 @@ import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.FixedIOEventHandle;
 import com.gifisan.nio.extend.configuration.FileSystemACLoader;
-import com.gifisan.nio.extend.service.FutureAcceptorFileFilter;
+import com.gifisan.nio.extend.service.FutureAcceptorHttpFilter;
 
 public class HttpServerStartup {
 	
@@ -35,7 +35,7 @@ public class HttpServerStartup {
 			fileSystemACLoader.setBasePath("http");
 
 			applicationContext
-					.setLastServiceFilter(new FutureAcceptorFileFilter(applicationContext.getClassLoader()));
+					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
 			applicationContext.setConfigurationLoader(fileSystemACLoader);
 			applicationContext.setContext(context);
 

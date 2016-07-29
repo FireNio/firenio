@@ -8,7 +8,6 @@ import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.EmptyWriteFuture;

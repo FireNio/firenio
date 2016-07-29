@@ -9,9 +9,9 @@ public class ClientHttpHeaderParser extends AbstractHttpHeaderParser{
 		
 		if (!StringUtil.isNullOrBlank(contentType)) {
 
-			if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+			if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 
-				future.contentType = CONTENT_TYPE_URLENCODED;
+				future.contentType = CONTENT_APPLICATION_URLENCODED;
 
 			} else if (contentType.startsWith("multipart/form-data;")) {
 
@@ -26,7 +26,7 @@ public class ClientHttpHeaderParser extends AbstractHttpHeaderParser{
 				//FIXME other content-type
 			}
 		} else {
-			future.contentType = CONTENT_TYPE_URLENCODED;
+			future.contentType = CONTENT_APPLICATION_URLENCODED;
 		}
 		
 	}

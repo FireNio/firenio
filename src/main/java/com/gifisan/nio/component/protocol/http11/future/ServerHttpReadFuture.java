@@ -76,7 +76,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture implements Http
 
 		BufferedOutputStream o = (BufferedOutputStream) outputStream;
 		
-		if (HttpHeaderParser.CONTENT_TYPE_URLENCODED.equals(contentType)) {
+		if (HttpHeaderParser.CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 			//FIXME encoding
 			String paramString = new String(o.toByteArray(), session.getContext().getEncoding());
 

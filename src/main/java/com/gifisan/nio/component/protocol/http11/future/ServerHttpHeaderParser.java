@@ -25,13 +25,13 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 		
 		if (!StringUtil.isNullOrBlank(contentType)) {
 
-			if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+			if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 
-				future.contentType = CONTENT_TYPE_URLENCODED;
+				future.contentType = CONTENT_APPLICATION_URLENCODED;
 
-			}else if(CONTENT_TYPE_TEXTPLAIN.equals(contentType)){
+			}else if(CONTENT_TYPE_TEXT_PLAIN.equals(contentType)){
 				
-				future.contentType = CONTENT_TYPE_TEXTPLAIN;
+				future.contentType = CONTENT_TYPE_TEXT_PLAIN;
 				
 			} else if (contentType.startsWith("multipart/form-data;")) {
 
@@ -46,7 +46,7 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 				//FIXME other content-type
 			}
 		} else {
-			future.contentType = CONTENT_TYPE_URLENCODED;
+			future.contentType = CONTENT_APPLICATION_URLENCODED;
 		}
 	}
 
