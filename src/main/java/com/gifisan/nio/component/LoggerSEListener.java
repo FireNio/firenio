@@ -3,9 +3,9 @@ package com.gifisan.nio.component;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class LoggerSEtListener implements SessionEventListener{
+public class LoggerSEListener implements SessionEventListener{
 
-	private Logger logger = LoggerFactory.getLogger(LoggerSEtListener.class);
+	private Logger logger = LoggerFactory.getLogger(LoggerSEListener.class);
 	
 	public void sessionOpened(Session session) {
 		logger.debug("session opened:{}",session);

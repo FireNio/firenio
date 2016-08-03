@@ -10,7 +10,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ConnectorCloseSEListener;
@@ -38,7 +38,7 @@ public class ClientUtil {
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
-			context.addSessionEventListener(new LoggerSEtListener());
+			context.addSessionEventListener(new LoggerSEListener());
 
 			context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 

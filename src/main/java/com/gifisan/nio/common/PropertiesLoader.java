@@ -10,24 +10,10 @@ public class PropertiesLoader {
 
 	private static SharedBundle	bundle			= SharedBundle.instance();
 
-	static {
-
-		try {
-
-			String classPath = bundle.getClassPath();
-
-			if (classPath.endsWith("test-classes/")) {
-				bundle.setClassPath(new File(classPath + "../classes").getCanonicalPath() + "/");
-			}
-
-			bundle.loadLog4jProperties("conf/log4j.properties");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static void load() throws IOException {
+		
+		bundle.loadLog4jProperties("conf/log4j.properties");
+		
 		storageProperties("server.properties");
 
 		DebugUtil.setEnableDebug(bundle.getBooleanProperty("SERVER.DEBUG"));

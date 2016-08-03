@@ -8,7 +8,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.common.cmd.CmdResponse;
 import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.connector.IOConnector;
 import com.gifisan.nio.connector.TCPConnector;
@@ -66,7 +66,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			nioContext.setIOEventHandleAdaptor(eventHandle);
 
-			nioContext.addSessionEventListener(new LoggerSEtListener());
+			nioContext.addSessionEventListener(new LoggerSEListener());
 
 			nioContext.addSessionEventListener(new ConnectorCloseSEListener(connector));
 

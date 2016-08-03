@@ -1,12 +1,15 @@
 package com.gifisan.nio.extend.startup;
 
+import java.io.File;
+
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.ManagerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.nio.NIOProtocolFactory;
@@ -19,7 +22,7 @@ public class NIOServerStartup {
 	private Logger		logger	= LoggerFactory.getLogger(NIOServerStartup.class);
 
 	public void launch() throws Exception {
-
+		
 		ApplicationContext applicationContext = new ApplicationContext();
 
 		NIOContext context = new DefaultNIOContext();
@@ -32,14 +35,12 @@ public class NIOServerStartup {
 
 			FileSystemACLoader fileSystemACLoader = new FileSystemACLoader();
 
-			fileSystemACLoader.setBasePath("nio");
-
 			applicationContext.setConfigurationLoader(fileSystemACLoader);
 			applicationContext.setContext(context);
 
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 
-			context.addSessionEventListener(new LoggerSEtListener());
+			context.addSessionEventListener(new LoggerSEListener());
 
 			context.addSessionEventListener(new ManagerSEListener());
 
@@ -66,7 +67,16 @@ public class NIOServerStartup {
 	}
 
 	public static void main(String[] args) throws Exception {
-		NIOServerStartup launcher = new NIOServerStartup();
+		
+		String classPath = SharedBundle.instance().getClassPath() + "nio/";
+		
+		File f = new File(classPath);
+		
+		if (f.exists()) {
+			SharedBundle.instance().setClassPath(classPath);
+		}
+		
+		HttpServerStartup launcher = new HttpServerStartup();
 
 		launcher.launch();
 	}

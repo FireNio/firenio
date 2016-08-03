@@ -214,11 +214,17 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 
 	public void close() {
 		if (this.closed.compareAndSet(false, true)) {
+			
+			if (connection == null) {
+				return;
+			}
+			
 			try {
 				this.connection.close();
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 			}
+			
 			this.connection = null;
 		}
 	}

@@ -5,7 +5,7 @@ import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
 import com.gifisan.nio.extend.ApplicationContext;
@@ -30,15 +30,13 @@ public class TestHTTPServer {
 			
 			FileSystemACLoader fileSystemACLoader = new FileSystemACLoader();
 			
-			fileSystemACLoader.setBasePath("http");
-			
 			applicationContext.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
 			applicationContext.setConfigurationLoader(fileSystemACLoader);
 			applicationContext.setContext(context);
 			
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 			
-			context.addSessionEventListener(new LoggerSEtListener());
+			context.addSessionEventListener(new LoggerSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			

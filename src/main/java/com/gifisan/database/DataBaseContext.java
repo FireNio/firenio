@@ -2,19 +2,27 @@ package com.gifisan.database;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.gifisan.nio.AbstractLifeCycle;
 import com.gifisan.nio.common.ClassUtil;
 import com.gifisan.nio.common.FieldMapping;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.LoggerUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 
 public class DataBaseContext extends AbstractLifeCycle {
 
 	private DataBaseQuery			dataBaseQuery	;
 
-	private ComboPooledDataSource		dataSource	;
+	private DruidDataSource			dataSource	;
 
 	private QueryParamUtil			queryParamUtil	;
+	
+	private Logger					logger 		= LoggerFactory.getLogger(DataBaseContext.class);
 
 	private Map<String, FieldMapping>	fieldMappings	= new HashMap<String, FieldMapping>();
 
@@ -22,20 +30,26 @@ public class DataBaseContext extends AbstractLifeCycle {
 		return dataBaseQuery;
 	}
 
-	public ComboPooledDataSource getDataSource() {
+	public DruidDataSource getDataSource() {
 		return dataSource;
 	}
 
 	protected void doStart() throws Exception {
 
 		if (dataSource == null) {
-
-			ComboPooledDataSource dataSource = new ComboPooledDataSource();
-
+			
+			Properties p = PropertiesLoader.loadProperties("data.source.properties");
+			
+			DruidDataSource dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(p);
+			
+			dataSource.init();
+			
+			LoggerUtil.prettyNIOServerLog(logger, "database context start successful");
+			
 			this.dataSource = dataSource;
 		}
 
-		String driverClass = dataSource.getDriverClass();
+		String driverClass = dataSource.getDriverClassName();
 
 		if (ORACLE_DRIVER_CLASS.equals(driverClass)) {
 			this.dataBaseQuery = new OracleQuery();

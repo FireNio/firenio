@@ -56,11 +56,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		
-		<!--C3P0 -->
+		<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
 		<dependency>
-			<groupId>com.mchange</groupId>
-			<artifactId>c3p0</artifactId>
-			<version>0.9.2.1</version>
+		    <groupId>com.alibaba</groupId>
+		    <artifactId>druid</artifactId>
+		    <version>1.0.23</version>
 		</dependency>
 		
 		<!-- oracle驱动 -->

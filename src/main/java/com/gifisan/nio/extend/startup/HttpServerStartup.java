@@ -1,12 +1,14 @@
 package com.gifisan.nio.extend.startup;
 
+import java.io.File;
+
 import com.gifisan.nio.acceptor.TCPAcceptor;
-import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
 import com.gifisan.nio.extend.ApplicationContext;
@@ -26,13 +28,9 @@ public class HttpServerStartup {
 
 		TCPAcceptor acceptor = new TCPAcceptor();
 
-		UDPAcceptor udpAcceptor = new UDPAcceptor();
-
 		try {
 
 			FileSystemACLoader fileSystemACLoader = new FileSystemACLoader();
-
-			fileSystemACLoader.setBasePath("http");
 
 			applicationContext
 					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
@@ -41,17 +39,13 @@ public class HttpServerStartup {
 
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 
-			context.addSessionEventListener(new LoggerSEtListener());
+			context.addSessionEventListener(new LoggerSEListener());
 
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 
 			acceptor.setContext(context);
 
 			acceptor.bind();
-
-			udpAcceptor.setContext(context);
-
-			udpAcceptor.bind();
 
 		} catch (Throwable e) {
 
@@ -60,12 +54,19 @@ public class HttpServerStartup {
 			LifeCycleUtil.stop(applicationContext);
 
 			acceptor.unbind();
-
-			udpAcceptor.unbind();
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		String classPath = SharedBundle.instance().getClassPath()  + "http/";
+		
+		File f = new File(classPath);
+		
+		if (f.exists()) {
+			SharedBundle.instance().setClassPath(classPath);
+		}
+		
 		HttpServerStartup launcher = new HttpServerStartup();
 
 		launcher.launch();

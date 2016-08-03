@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.DefaultNIOContext;
-import com.gifisan.nio.component.LoggerSEtListener;
+import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
@@ -60,7 +60,7 @@ public class NIOServerShutdown {
 
 		context.setIOEventHandleAdaptor(eventHandle);
 
-		context.addSessionEventListener(new LoggerSEtListener());
+		context.addSessionEventListener(new LoggerSEListener());
 
 		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 

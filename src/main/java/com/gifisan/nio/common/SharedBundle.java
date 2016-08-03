@@ -117,6 +117,11 @@ public class SharedBundle {
 		String path = root.getCanonicalPath();
 		path = URLDecoder.decode(path, "UTF-8");
 		setClassPath(path + "/");
+		
+		if (path.endsWith("test-classes/")) {
+			bundle.setClassPath(new File(path + "../classes").getCanonicalPath() + "/");
+		}
+		
 		File[] files = root.listFiles();
 		for (File file : files) {
 			if (file.isFile() && file.getName().endsWith(".properties")) {
@@ -186,10 +191,8 @@ public class SharedBundle {
 			CloseUtil.close(inputStream);
 		}
 	}
-	
-	
 
-	protected  void setClassPath(String classPath) {
+	public void setClassPath(String classPath) {
 		this.classPath = classPath.replace("\\", "/");
 	}
 
