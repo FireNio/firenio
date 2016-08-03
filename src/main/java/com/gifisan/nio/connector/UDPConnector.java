@@ -105,6 +105,7 @@ public class UDPConnector extends AbstractIOConnector {
 		this.endPoint.setSession(session);
 	}
 
+	//FIXME connect failed
 	protected void startComponent(NIOContext context, Selector selector) throws IOException {
 		this.selectorLoopThread.start(selectorLoop, this.toString());
 	}

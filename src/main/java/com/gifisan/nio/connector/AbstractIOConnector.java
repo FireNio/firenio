@@ -14,7 +14,7 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
 
-	private AtomicBoolean		connected		= new AtomicBoolean(false);
+	protected AtomicBoolean		connected		= new AtomicBoolean(false);
 	protected InetSocketAddress	serverAddress	;
 	protected Selector			selector		;
 	protected Session			session		;
@@ -71,4 +71,9 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 	public Session getSession() {
 		return session;
 	}
+
+	public boolean isConnected() {
+		return session != null && session.isOpened();
+	}
+	
 }

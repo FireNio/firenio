@@ -96,6 +96,8 @@ public class TCPConnector extends AbstractIOConnector {
 			return ;
 		}
 		
+		this.connected.compareAndSet(true, false);
+		
 		throw new TimeoutException(connectException.getMessage(), connectException);
 	}
 
