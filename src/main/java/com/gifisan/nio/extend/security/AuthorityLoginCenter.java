@@ -34,8 +34,6 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 			return false;
 		}
 		
-		String machineType = parameters.getParameter("MATCH_TYPE");
-		
 		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
 		
 		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(authorityPlugin);
@@ -47,8 +45,6 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 		
 		attachment.setAuthorityManager(authorityManager);
-		
-		session.setMachineType(machineType);
 		
 		FixedSessionFactory sessionFactory = context.getSessionFactory();
 		

@@ -39,8 +39,6 @@ public interface Session {
 
 	public abstract int getLocalPort();
 
-	public abstract String getMachineType();
-
 	public abstract int getMaxIdleTime() throws SocketException;
 
 	public abstract String getRemoteAddr();
@@ -58,8 +56,6 @@ public interface Session {
 	public abstract boolean isOpened();
 
 	public abstract void setAttachment(PluginContext context, Object attachment);
-
-	public abstract void setMachineType(String machineType);
 
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
 

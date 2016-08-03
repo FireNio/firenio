@@ -8,12 +8,12 @@ import java.util.Properties;
 
 public class PropertiesLoader {
 
-	private static SharedBundle	bundle			= SharedBundle.instance();
+	private static SharedBundle	bundle	= SharedBundle.instance();
 
 	public static void load() throws IOException {
-		
+
 		bundle.loadLog4jProperties("conf/log4j.properties");
-		
+
 		storageProperties("server.properties");
 
 		DebugUtil.setEnableDebug(bundle.getBooleanProperty("SERVER.DEBUG"));
@@ -35,15 +35,20 @@ public class PropertiesLoader {
 	}
 
 	public static File loadFile(String file) throws FileNotFoundException {
-		
+
 		SharedBundle bundle = SharedBundle.instance();
-		
-		File _file = new File(bundle.getClassPath()+ "conf/" + file);
+
+		File _file = new File(bundle.getClassPath() + "conf/" + file);
 
 		if (_file.exists()) {
 			return _file;
 		}
 		throw new FileNotFoundException("file not exist : " + _file.getAbsolutePath());
+	}
+
+	public static void setBasepath(String path) {
+		String classPath = SharedBundle.instance().getClassPath();
+		SharedBundle.instance().setClassPath(classPath + path + "/");
 	}
 
 }

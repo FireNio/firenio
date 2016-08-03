@@ -3,6 +3,7 @@ package test.jms;
 import test.ClientUtil;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -15,6 +16,8 @@ import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageConsumer;
 public class TestListener {
 
 	public static void main(String[] args) throws Exception {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

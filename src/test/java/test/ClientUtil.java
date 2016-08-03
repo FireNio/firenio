@@ -25,7 +25,7 @@ public class ClientUtil {
 
 	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
 			ServerConfiguration configuration) {
-
+		
 		TCPConnector connector = null;
 
 		try {

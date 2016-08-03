@@ -15,7 +15,6 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
 
 	private AtomicBoolean		connected		= new AtomicBoolean(false);
-	private String				machineType	= "M";
 	protected InetSocketAddress	serverAddress	;
 	protected Selector			selector		;
 	protected Session			session		;
@@ -71,13 +70,5 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 	public Session getSession() {
 		return session;
-	}
-
-	public String getMachineType() {
-		return machineType;
-	}
-
-	public void setMachineType(String machineType) {
-		this.machineType = machineType;
 	}
 }

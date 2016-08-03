@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -88,7 +89,7 @@ public class TCPConnector extends AbstractIOConnector {
 				throw new TimeoutException("time out");
 			}
 
-			throw new TimeoutException(connectException.getMessage(), connectException);
+			throw new TimeoutException(MessageFormatter.format("connect faild,connector:{},nested exception is {}", this, connectException.getMessage())  , connectException);
 		}
 		
 		if (waiter.isSuccess()) {

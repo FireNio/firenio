@@ -45,7 +45,7 @@ public class MQSessionEventListener implements SessionEventListener {
 
 			consumer.getConsumerQueue().getSnapshot();
 
-			context.removeReceiver(consumer.getQueueName() + session.getMachineType());
+			context.removeReceiver(consumer.getQueueName());
 		}
 
 		LOGGER.debug(">>>> TransactionProtectListener execute");

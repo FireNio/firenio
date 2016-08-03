@@ -57,7 +57,7 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 		String queueName = authority.getUuid();
 
 		// 来自终端类型
-		context.addReceiver(queueName+session.getMachineType());
+		context.addReceiver(queueName);
 		
 		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 

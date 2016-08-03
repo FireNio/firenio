@@ -95,7 +95,6 @@ public class FixedIOSession implements FixedSession {
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put("username", username);
 			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
-			param.put("MACHINE_TYPE", session.getMachineType());
 
 			String paramString = JSONObject.toJSONString(param);
 

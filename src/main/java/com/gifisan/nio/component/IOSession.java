@@ -27,7 +27,6 @@ public class IOSession implements Session {
 	private ProtocolEncoder				encoder;
 	private TCPEndPoint					endPoint;
 	private EndPointWriter				endPointWriter;
-	private String						machineType;
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
 	private Object[]					attachments	= new Object[4];
@@ -159,10 +158,6 @@ public class IOSession implements Session {
 		return endPoint.getLocalSocketAddress();
 	}
 
-	public String getMachineType() {
-		return machineType;
-	}
-
 	public int getMaxIdleTime() throws SocketException {
 		return endPoint.getMaxIdleTime();
 	}
@@ -222,10 +217,6 @@ public class IOSession implements Session {
 
 	public void setAttribute(Object key, Object value) {
 		attributes.put(key, value);
-	}
-
-	public void setMachineType(String machineType) {
-		this.machineType = machineType;
 	}
 
 	public void setSessionID(Integer sessionID) {

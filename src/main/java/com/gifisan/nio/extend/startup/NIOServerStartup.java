@@ -76,7 +76,7 @@ public class NIOServerStartup {
 			SharedBundle.instance().setClassPath(classPath);
 		}
 		
-		HttpServerStartup launcher = new HttpServerStartup();
+		NIOServerStartup launcher = new NIOServerStartup();
 
 		launcher.launch();
 	}

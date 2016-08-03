@@ -116,11 +116,12 @@ public class SharedBundle {
 		File root = new File(url.getFile());
 		String path = root.getCanonicalPath();
 		path = URLDecoder.decode(path, "UTF-8");
-		setClassPath(path + "/");
 		
-		if (path.endsWith("test-classes/")) {
-			bundle.setClassPath(new File(path + "../classes").getCanonicalPath() + "/");
+		if (path.endsWith("test-classes") || path.endsWith("test-classes/")) {
+			path += "/../classes";
 		}
+		
+		setClassPath(new File(path).getCanonicalPath() + "/");
 		
 		File[] files = root.listFiles();
 		for (File file : files) {

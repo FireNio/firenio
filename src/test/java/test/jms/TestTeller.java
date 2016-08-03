@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
@@ -16,11 +17,13 @@ import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
 public class TestTeller {
 
 	public static void main(String[] args) throws IOException, MQException {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
-
+		
 		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
