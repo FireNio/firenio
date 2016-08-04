@@ -1,8 +1,5 @@
 package com.gifisan.nio.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.Stopable;
 

@@ -78,12 +78,16 @@ public class DebugUtil {
 	}
 
 	protected static void error(String className, String message, Throwable throwable) {
-		System.err.println(message);
+		if (message != null) {
+			System.err.println(message);
+		}
 		throwable.printStackTrace();
 	}
 
-	protected static void error(String messsage) {
-		System.err.println(messsage);
+	protected static void error(String message) {
+		if (message != null) {
+			System.err.println(message);
+		}
 	}
 
 }

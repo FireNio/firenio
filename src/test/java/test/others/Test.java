@@ -1,5 +1,8 @@
 package test.others;
 
+import com.gifisan.nio.Encoding;
+import com.gifisan.nio.common.MD5Token;
+
 
 public class Test {
 
@@ -16,6 +19,8 @@ public class Test {
 		}
 		
 		System.out.println(b);
+		
+		System.out.println(MD5Token.getInstance().getLongToken("wk", Encoding.UTF8));
 
 	}
 }

@@ -28,13 +28,15 @@ public class TestTeller {
 
 		connector.connect();
 
-		session.login("admin", "admin100");
+		boolean b = session.login("wk", "wk");
+		
+		System.out.println(b);
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 
-		TextMessage message = new TextMessage("msgID", "UUID", "你好！");
+		TextMessage message = new TextMessage("msgID", "ea36e428892a4e5b9e5f7c0ba40226ac", "你好！");
 		
-		MapMessage mapMessage = new MapMessage("msgID", "UUID");
+		MapMessage mapMessage = new MapMessage("msgID", "ea36e428892a4e5b9e5f7c0ba40226ac");
 		
 		mapMessage.put("test","test111111111111111111111");
 

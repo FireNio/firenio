@@ -27,7 +27,7 @@ public class TestListener {
 
 		connector.connect();
 
-		session.login("admin", "admin100");
+		session.login("wk", "wk");
 
 		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
@@ -42,7 +42,7 @@ public class TestListener {
 
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 
-		ThreadUtil.sleep(500);
+		ThreadUtil.sleep(1500000);
 		
 		CloseUtil.close(connector);
 

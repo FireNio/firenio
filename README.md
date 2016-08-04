@@ -28,6 +28,7 @@
 
 ### 详见 {src\test\java\test}，各种用法
 
+### 免费的消息推送：http://www.generallycloud.com/
 
 ## 案例
 案例地址：https://github.com/NimbleIO/android-chat-starter

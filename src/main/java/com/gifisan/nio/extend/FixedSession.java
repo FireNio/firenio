@@ -39,4 +39,5 @@ public interface FixedSession extends ReadFutureAcceptor{
 	
 	public abstract Authority getAuthority();
 	
+	public abstract boolean isLogined();
 }

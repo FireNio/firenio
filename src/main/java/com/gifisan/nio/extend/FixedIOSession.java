@@ -130,11 +130,11 @@ public class FixedIOSession implements FixedSession {
 	}
 
 	public NIOReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, 3000);
+		return request(serviceName, content, 6000);
 	}
 
 	public NIOReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
-		return request(serviceName, content, inputStream, 3000);
+		return request(serviceName, content, inputStream, 6000);
 	}
 
 	public NIOReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
