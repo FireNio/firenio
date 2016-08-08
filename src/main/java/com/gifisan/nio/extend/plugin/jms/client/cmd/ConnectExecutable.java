@@ -10,16 +10,15 @@ import com.gifisan.nio.common.cmd.CommandContext;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.connector.IOConnector;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ConnectorCloseSEListener;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
-import com.gifisan.nio.extend.implementation.SYSTEMStopServerServlet;
 import com.gifisan.nio.extend.plugin.jms.client.MessageBrowser;
 import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageBrowser;
 
+//TODO complete
 public class ConnectExecutable extends MQCommandExecutor {
 
 	private Logger	logger		= LoggerFactory.getLogger(ConnectExecutable.class);
@@ -55,8 +54,10 @@ public class ConnectExecutable extends MQCommandExecutor {
 			ServerConfiguration serverConfiguration = new ServerConfiguration();
 			
 			serverConfiguration.setSERVER_TCP_PORT(Integer.parseInt(port));
+			
+			connector = new TCPConnector();
 
-			String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
+//			String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

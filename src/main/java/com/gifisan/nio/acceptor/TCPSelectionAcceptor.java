@@ -20,9 +20,8 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 	private EndPointWriter	endPointWriter	= null;
 //	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter, Selector selector) {
+	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter) {
 		this.context = context;
-		this.selector = selector;
 		this.endPointWriter = endPointWriter;
 	}
 
@@ -32,6 +31,10 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
 		// 此方法返回的套接字通道（如果有）将处于阻塞模式。
 		SocketChannel channel = server.accept();
+		// 已经被其他人select
+		if (channel == null) {
+			return;
+		}
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
@@ -57,4 +60,9 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		
 		selectionKey.attach(endPoint);
 	}
+
+	protected void setSelector(Selector selector) {
+		this.selector = selector;
+	}
+	
 }

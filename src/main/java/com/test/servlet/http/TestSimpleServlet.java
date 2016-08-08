@@ -1,7 +1,5 @@
 package com.test.servlet.http;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;

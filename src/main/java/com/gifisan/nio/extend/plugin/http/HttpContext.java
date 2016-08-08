@@ -8,11 +8,11 @@ import com.gifisan.nio.extend.configuration.Configuration;
 
 public class HttpContext extends AbstractPluginContext {
 
-	private static HttpContext	instance			= null;
+	private static HttpContext	instance			;
 
 	private HttpSessionFactory	httpSessionFactory	= new HttpSessionFactory();
 
-	private UniqueThread		taskExecutorThread	= new UniqueThread();
+	private UniqueThread		taskExecutorThread	;
 
 	public static HttpContext getInstance() {
 		return instance;
@@ -20,7 +20,9 @@ public class HttpContext extends AbstractPluginContext {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		this.taskExecutorThread.start(httpSessionFactory, "HTTPSession-Manager");
+		this.taskExecutorThread = new UniqueThread(httpSessionFactory, "HTTPSession-Manager");
+		
+		this.taskExecutorThread.start();
 
 		instance = this;
 	}

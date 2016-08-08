@@ -1,7 +1,5 @@
 package com.gifisan.nio.component.protocol;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 
 public class Calculagraph {
@@ -11,7 +9,7 @@ public class Calculagraph {
 	private long	currentMark	;
 	private int	sequenceNO	;
 	private long	alphaTimestamp	;
-	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
+//	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
 
 	public Calculagraph(int markInterval, long currentMark) {
 		this.markInterval = markInterval;

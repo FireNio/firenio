@@ -25,7 +25,7 @@ public class JSONParse {
 
 	}
 
-	private static void testFastJson() {
+	static void testFastJson() {
 		ITestHandle.doTest(new ITest() {
 
 			public void test() {
@@ -36,7 +36,7 @@ public class JSONParse {
 		}, 500000, "Fast Json");
 	}
 
-	private static void testMyJson() {
+	static void testMyJson() {
 		ITestHandle.doTest(new ITest() {
 			public void test() {
 				try {

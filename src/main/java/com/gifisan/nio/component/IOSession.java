@@ -41,6 +41,7 @@ public class IOSession implements Session {
 		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
+		this.lastAccess = this.creationTime;
 	}
 
 	public void clearAttributes() {

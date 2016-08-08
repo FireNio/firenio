@@ -1,5 +1,8 @@
 package com.gifisan.nio.acceptor;
 
+import java.io.IOException;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.gifisan.nio.component.EndPointWriter;
@@ -8,11 +11,22 @@ import com.gifisan.nio.component.TCPSelectorLoop;
 
 public class ServerTCPSelectorLoop extends TCPSelectorLoop {
 
-	public ServerTCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
-		
-		super(context, selector, endPointWriter);
-		
-		this._alpha_acceptor = new TCPSelectionAcceptor(context, endPointWriter, selector);
+	public ServerTCPSelectorLoop(NIOContext context, EndPointWriter endPointWriter) {
+
+		super(context, endPointWriter);
+
+		this._alpha_acceptor = new TCPSelectionAcceptor(context, endPointWriter);
 	}
 
+	public void register(NIOContext context, SelectableChannel channel) throws IOException {
+		// 打开selector
+		this.selector = Selector.open();
+		
+		TCPSelectionAcceptor selectionAcceptor = (TCPSelectionAcceptor) this._alpha_acceptor;
+		
+		selectionAcceptor.setSelector(selector);
+		
+		// 注册监听事件到该selector
+		channel.register(selector, SelectionKey.OP_ACCEPT);
+	}
 }

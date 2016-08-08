@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
-import com.gifisan.nio.acceptor.UDPEndPointFactory;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
@@ -16,18 +13,18 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.UDPEndPoint;
-import com.gifisan.nio.component.UDPSelectorLoop;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.DatagramPacket;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class UDPConnector extends AbstractIOConnector {
 
-	private UDPEndPoint		endPoint;
-	private Logger			logger			= LoggerFactory.getLogger(UDPConnector.class);
-	private UDPSelectorLoop	selectorLoop;
-	private UniqueThread	selectorLoopThread	= new UniqueThread();
-	private ByteBuffer		cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private UDPEndPoint			endPoint;
+	private Logger				logger		= LoggerFactory.getLogger(UDPConnector.class);
+	private ClientUDPSelectorLoop	selectorLoop;
+	private UniqueThread		selectorLoopThread;
+	private DatagramChannel channel;
+	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
 	protected UniqueThread getSelectorLoopThread() {
 		return selectorLoopThread;
@@ -41,8 +38,8 @@ public class UDPConnector extends AbstractIOConnector {
 	public String toString() {
 		return "UDP:Selector@edp" + getLocalSocketAddress().toString();
 	}
-	
-	protected InetSocketAddress getLocalSocketAddress(){
+
+	protected InetSocketAddress getLocalSocketAddress() {
 		return endPoint.getLocalSocketAddress();
 	}
 
@@ -91,26 +88,34 @@ public class UDPConnector extends AbstractIOConnector {
 		buffer.flip();
 	}
 
-	protected void connect(InetSocketAddress address) throws IOException {
-		DatagramChannel channel = DatagramChannel.open();
-		channel.configureBlocking(false);
-		Selector selector = Selector.open();
-		SelectionKey selectionKey = channel.register(selector, SelectionKey.OP_READ);
-		UDPEndPointFactory endPointFactory = new UDPEndPointFactory();
-		channel.connect(address);
-		this.selector = selector;
-		this.endPoint = endPointFactory.getUDPEndPoint(context, selectionKey, serverAddress);
-		this.selectorLoop = new UDPSelectorLoop(context, selector);
-		this.context.setUDPEndPointFactory(endPointFactory);
+	protected void connect(InetSocketAddress socketAddress) throws IOException {
+		
+		this.channel = DatagramChannel.open();
+		
+		this.selectorLoop = new ClientUDPSelectorLoop(context);
+		
+		this.selectorLoop.register(context, channel);
+		
+		this.channel.connect(socketAddress);
+		
+		this.endPoint = selectorLoop.getEndPoint();
+		
 		this.endPoint.setSession(session);
 	}
 
-	//FIXME connect failed
-	protected void startComponent(NIOContext context, Selector selector) throws IOException {
-		this.selectorLoopThread.start(selectorLoop, this.toString());
+	// FIXME connect failed
+	protected void startComponent(NIOContext context) throws IOException {
+
+		this.selectorLoopThread = new UniqueThread(selectorLoop, toString());
+
+		this.selectorLoopThread.start();
 	}
 
-	protected void stopComponent(NIOContext context, Selector selector) {
+	protected void stopComponent(NIOContext context) {
+		
+		if (channel != null && channel.isConnected()) {
+			CloseUtil.close(channel);
+		}
 
 		LifeCycleUtil.stop(selectorLoopThread);
 

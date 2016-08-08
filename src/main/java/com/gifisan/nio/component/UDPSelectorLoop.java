@@ -1,22 +1,20 @@
 package com.gifisan.nio.component;
 
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
+public abstract class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
-	private Logger				logger		= LoggerFactory.getLogger(UDPSelectorLoop.class);
-	private SelectionAcceptor	_read_acceptor	;
+	private Logger				logger	= LoggerFactory.getLogger(UDPSelectorLoop.class);
+	private SelectionAcceptor	_read_acceptor;
 
-	public UDPSelectorLoop(NIOContext context, Selector selector) {
-		this.selector = selector;
+	public UDPSelectorLoop(NIOContext context) {
 		this._read_acceptor = new UDPSelectionReader(context);
 	}
 
-	public void accept(SelectionKey selectionKey)  {
+	public void accept(SelectionKey selectionKey) {
 		if (!selectionKey.isValid()) {
 			return;
 		}
@@ -39,10 +37,10 @@ public class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAc
 	}
 
 	private void acceptException(SelectionKey selectionKey, Exception e) {
-		
-		logger.error(e.getMessage(),e);
+
+		logger.error(e.getMessage(), e);
 	}
-	
+
 	public String toString() {
 		return "UDP:Selector@" + this.selector.toString();
 	}

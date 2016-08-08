@@ -53,8 +53,8 @@ public class FixedIOSession implements FixedSession {
 		}
 
 		TouchDistantLooper looper = new TouchDistantLooper(this,time);
-		this.taskExecutorThread = new UniqueThread();
-		this.taskExecutorThread.start(looper, "touch-distant-looper");
+		this.taskExecutorThread = new UniqueThread(looper, "touch-distant-looper");
+		this.taskExecutorThread.start();
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {

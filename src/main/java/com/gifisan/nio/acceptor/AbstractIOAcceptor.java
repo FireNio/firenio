@@ -2,7 +2,6 @@ package com.gifisan.nio.acceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,7 +20,6 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor {
 
 	private Logger			logger	= LoggerFactory.getLogger(AbstractIOAcceptor.class);
-	protected Selector		selector;
 	protected AtomicBoolean	binded	= new AtomicBoolean(false);
 
 	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
@@ -42,7 +40,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 			this.bind(getInetSocketAddress(SERVER_PORT));
 
-			this.startComponent(context, selector);
+			this.startComponent(context);
 
 			this.setIOService(context);
 		}
@@ -51,7 +49,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	public void unbind() {
 		if (binded.compareAndSet(true, false)) {
 
-			stopComponent(context, selector);
+			stopComponent(context);
 
 			LifeCycleUtil.stop(context);
 		}

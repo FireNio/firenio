@@ -19,10 +19,8 @@ public class TCPSelectionConnector implements SelectionAcceptor {
 	private TCPConnector	connector;
 	private NIOContext		context;
 
-	public TCPSelectionConnector(NIOContext context, Selector selector, TCPConnector connector,
-			EndPointWriter endPointWriter) {
+	public TCPSelectionConnector(NIOContext context, TCPConnector connector, EndPointWriter endPointWriter) {
 		this.endPointWriter = endPointWriter;
-		this.selector = selector;
 		this.connector = connector;
 		this.context = context;
 	}
@@ -36,57 +34,61 @@ public class TCPSelectionConnector implements SelectionAcceptor {
 
 			return;
 		}
-		
+
 		finishConnect(selectionKey, channel);
 	}
-	
+
 	private TCPEndPoint attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
 			throws SocketException {
 
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
-		
+
 		if (endPoint == null) {
-			
+
 			endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-			
+
 			selectionKey.attach(endPoint);
 		}
-		
+
 		return endPoint;
 	}
-	
-	private void finishConnect(SelectionKey selectionKey, SocketChannel channel){
-		
+
+	private void finishConnect(SelectionKey selectionKey, SocketChannel channel) {
+
 		try {
-			
+
 			channel.finishConnect();
 
 			channel.register(selector, SelectionKey.OP_READ);
-			
+
 			final TCPEndPoint endPoint = attachEndPoint(context, endPointWriter, selectionKey);
 
 			context.getThreadPool().dispatch(new Runnable() {
-				
+
 				public void run() {
-					connector.finishConnect(endPoint,null);
+					connector.finishConnect(endPoint, null);
 				}
 			});
-		} catch(final IOException e) {
-			
+		} catch (final IOException e) {
+
 			context.getThreadPool().dispatch(new Runnable() {
-				
+
 				public void run() {
-					connector.finishConnect(null,e);
+					connector.finishConnect(null, e);
 				}
 			});
-		} catch(final Exception e) {
-			
+		} catch (final Exception e) {
+
 			context.getThreadPool().dispatch(new Runnable() {
-				
+
 				public void run() {
-					connector.finishConnect(null,new IOException(e.getMessage(),e));
+					connector.finishConnect(null, new IOException(e.getMessage(), e));
 				}
 			});
-		} 
+		}
+	}
+
+	protected void setSelector(Selector selector) {
+		this.selector = selector;
 	}
 }

@@ -137,7 +137,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
-		MQContext old = getInstance();
+//		MQContext old = getInstance();
 
 		// FIXME 把老的Context中的数据放到这里
 

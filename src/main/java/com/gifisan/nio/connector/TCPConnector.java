@@ -2,8 +2,6 @@ package com.gifisan.nio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 import com.gifisan.nio.TimeoutException;
@@ -11,6 +9,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MessageFormatter;
 import com.gifisan.nio.component.DefaultEndPointWriter;
+import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
@@ -20,12 +19,13 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class TCPConnector extends AbstractIOConnector {
 
-	private TCPSelectorLoop		selectorLoop;
-	private DefaultEndPointWriter	endPointWriter;
-	private TCPEndPoint			endPoint;
-	private UniqueThread		endPointWriterThread	= new UniqueThread();
-	private UniqueThread		selectorLoopThread		= new UniqueThread();
-	private IOException			connectException;
+	private TCPSelectorLoop	selectorLoop;
+	private EndPointWriter	endPointWriter;
+	private TCPEndPoint		endPoint;
+	private UniqueThread	endPointWriterThread;
+	private UniqueThread	selectorLoopThread;
+	private IOException		connectException;
+	private SocketChannel	channel;
 
 	protected UniqueThread getSelectorLoopThread() {
 		return selectorLoopThread;
@@ -43,30 +43,30 @@ public class TCPConnector extends AbstractIOConnector {
 		return endPoint.getLocalSocketAddress();
 	}
 
-	protected void connect(InetSocketAddress address) throws IOException {
+	protected void connect(InetSocketAddress socketAddress) throws IOException {
+		
+		this.channel = SocketChannel.open();
 
-		SocketChannel channel = SocketChannel.open();
-
-		channel.configureBlocking(false);
-
-		this.selector = Selector.open();
-
-		channel.register(selector, SelectionKey.OP_CONNECT);
-
-		channel.connect(address);
+		this.channel.configureBlocking(false);
 
 		ServerConfiguration configuration = context.getServerConfiguration();
 
 		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 
-		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
+		this.selectorLoop = new ClientTCPSelectorLoop(context, this, endPointWriter);
+		
+		this.selectorLoop.register(context, channel);
+		
+		this.channel.connect(socketAddress);
 	}
 
 	private Waiter	waiter	= new Waiter();
 
-	protected void startComponent(NIOContext context, Selector selector) throws IOException {
+	protected void startComponent(NIOContext context) throws IOException {
 
-		this.selectorLoopThread.start(selectorLoop, this.toString());
+		this.selectorLoopThread = new UniqueThread(selectorLoop, this.toString());
+		
+		this.selectorLoopThread.start();
 
 		if (!waiter.await(30000)) {
 
@@ -90,7 +90,7 @@ public class TCPConnector extends AbstractIOConnector {
 		throw new TimeoutException(connectException.getMessage(), connectException);
 	}
 
-	protected void stopComponent(NIOContext context, Selector selector) {
+	protected void stopComponent(NIOContext context) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
@@ -113,8 +113,10 @@ public class TCPConnector extends AbstractIOConnector {
 			this.waiter.setPayload(null);
 
 			if (waiter.isSuccess()) {
+				
+				this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
 
-				this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
+				this.endPointWriterThread.start();
 			}
 		} else {
 
@@ -123,4 +125,5 @@ public class TCPConnector extends AbstractIOConnector {
 			this.waiter.setPayload(null, false);
 		}
 	}
+
 }

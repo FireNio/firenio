@@ -42,6 +42,9 @@ public class SessionFactory extends AbstractLooper{
 		Map<Integer, Session> map = this.sessions.getSnapshot();
 		
 		if (map.size() == 0) {
+			
+			sleep(60 * 60 * 1000);
+			
 			return;
 		}
 		

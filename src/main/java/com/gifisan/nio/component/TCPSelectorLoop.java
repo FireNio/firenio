@@ -3,7 +3,6 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
@@ -16,12 +15,11 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 	protected SelectionAcceptor	_write_acceptor;
 	protected SelectionAcceptor	_alpha_acceptor;
 
-	public TCPSelectorLoop(NIOContext context, Selector selector, EndPointWriter endPointWriter) {
-		this.selector = selector;
+	public TCPSelectorLoop(NIOContext context, EndPointWriter endPointWriter) {
 		this._write_acceptor = new TCPSelectionWriter();
 		this._read_acceptor = new TCPSelectionReader(context);
 	}
-
+	
 	public void accept(SelectionKey selectionKey) throws IOException {
 		
 		if (!selectionKey.isValid()) {
@@ -29,7 +27,6 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 		}
 
 		try {
-
 			if (selectionKey.isReadable()) {
 				_read_acceptor.accept(selectionKey);
 			} else if (selectionKey.isWritable()) {

@@ -108,11 +108,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			protocolFactory = new NIOProtocolFactory();
 		}
 		
-		this.sessionFactoryThread = new UniqueThread();
+		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		
-		this.sessionFactoryThread.start(sessionFactory, "session-manager");
+		this.sessionFactoryThread.start();
 		
 		LifeCycleUtil.start(threadPool);
 	}

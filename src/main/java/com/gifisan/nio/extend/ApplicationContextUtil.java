@@ -14,6 +14,10 @@ public class ApplicationContextUtil {
 		
 		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(plugin);
 		
+		if (attachment == null) {
+			return null;
+		}
+		
 		return attachment.getAuthorityManager();
 	}
 	

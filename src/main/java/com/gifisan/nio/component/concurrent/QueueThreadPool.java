@@ -34,15 +34,17 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	protected void doStart() throws Exception {
 
 		for (int i = 0; i < core_size; i++) {
-
-			UniqueThread poolWorkerThrad = new UniqueThread();
 			
 			PoolWorker poolWorker = new PoolWorker(jobs);
+
+			String threadName = threadPrefix + "-" + i;
+			
+			UniqueThread poolWorkerThrad = new UniqueThread(poolWorker, threadName);
 
 			poolWorkerThreads[i] = poolWorkerThrad;
 			poolWorks[i] = poolWorker;
 			
-			poolWorkerThrad.start(poolWorker, threadPrefix + "-" + i);
+			poolWorkerThrad.start();
 		}
 	}
 

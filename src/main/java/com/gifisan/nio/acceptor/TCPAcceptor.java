@@ -3,29 +3,28 @@ package com.gifisan.nio.acceptor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.TCPSelectorLoop;
+import com.gifisan.nio.component.SelectorLoop;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public final class TCPAcceptor extends AbstractIOAcceptor {
 
+	private EndPointWriter		endPointWriter			;
+	private UniqueThread		endPointWriterThread	;
+	private SelectorLoop []		selectorLoops			;
+	private UniqueThread []		selectorLoopThreads		;
 	private ServerSocketChannel	channel				;
 	private ServerSocket		serverSocket			;
-	private TCPSelectorLoop		selectorLoop			;
-	private EndPointWriter		endPointWriter			;
-	private UniqueThread		endPointWriterThread	= new UniqueThread();
-	private UniqueThread		selectorLoopThread		= new UniqueThread();
+	
 
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
+		
 		// 打开服务器套接字通道
 		this.channel = ServerSocketChannel.open();
 		// 服务器配置为非阻塞
@@ -34,37 +33,62 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		this.serverSocket = channel.socket();
 		// 进行服务的绑定
 		this.serverSocket.bind(socketAddress, 50);
-		// 打开selector
-		this.selector = Selector.open();
-		// 注册监听事件到该selector
-		this.channel.register(selector, SelectionKey.OP_ACCEPT);
-
-	}
-
-	protected void startComponent(NIOContext context, Selector selector) {
+		
+		NIOContext context = this.context;
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		
+		int core_size = configuration.getSERVER_CORE_SIZE();
+		
 		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
+		
+		this.selectorLoops = new SelectorLoop[core_size];
+		
+		for (int i = 0; i < core_size; i++) {
+			
+			selectorLoops[i] = new ServerTCPSelectorLoop(context, endPointWriter);
+			
+			selectorLoops[i].register(context, channel);
+		}
+	}
 
-		this.selectorLoop = new ServerTCPSelectorLoop(context, selector, endPointWriter);
+	protected void startComponent(NIOContext context) {
+		
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
+		
+		this.endPointWriterThread.start();
 
-		this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-		this.selectorLoopThread.start(selectorLoop, getSelectorDescription());
+		int core_size = configuration.getSERVER_CORE_SIZE();
+		
+		selectorLoopThreads = new UniqueThread[core_size];
+		
+		for (int i = 0; i < core_size; i++) {
+			
+			SelectorLoop selectorLoop = selectorLoops[i];
+			
+			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getSelectorDescription());
+			
+			selectorLoopThreads[i].start();
+		}
 	}
 	
 	private String getSelectorDescription(){
 		return "TCP:Selector@edp" + serverSocket.getLocalSocketAddress();
 	}
 
-	protected void stopComponent(NIOContext context, Selector selector) {
+	protected void stopComponent(NIOContext context) {
 		
-		if (channel.isOpen()) {
-			CloseUtil.close(channel);
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		int core_size = configuration.getSERVER_CORE_SIZE();
+		
+		for (int i = 0; i < core_size; i++) {
+			
+			LifeCycleUtil.stop(selectorLoopThreads[i]);
 		}
 		
-		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 	}
 	
@@ -83,8 +107,4 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		return SERVER_PORT;
 	}
 
-	protected TCPSelectorLoop getSelectorManagerLoop() {
-		return selectorLoop;
-	}
-	
 }

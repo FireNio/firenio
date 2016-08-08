@@ -2,10 +2,8 @@ package com.gifisan.nio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.Selector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractIOService;
 import com.gifisan.nio.component.Session;
@@ -16,7 +14,6 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 	protected AtomicBoolean		connected		= new AtomicBoolean(false);
 	protected InetSocketAddress	serverAddress	;
-	protected Selector			selector		;
 	protected Session			session		;
 
 	protected abstract UniqueThread getSelectorLoopThread();
@@ -31,9 +28,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 		if (connected.compareAndSet(true, false)) {
 
-			stopComponent(context, selector);
-			
-			CloseUtil.close(selector);
+			stopComponent(context);
 			
 			LifeCycleUtil.stop(context);
 		}
@@ -60,13 +55,13 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 			this.connect(serverAddress);
 
-			this.startComponent(context, selector);
+			this.startComponent(context);
 			
 			this.setIOService(context);
 		}
 	}
 	
-	protected abstract void connect(InetSocketAddress address) throws IOException;
+	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
 	public Session getSession() {
 		return session;

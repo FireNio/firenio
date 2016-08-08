@@ -1,14 +1,11 @@
 package com.gifisan.nio.component.protocol;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-
 public class DatagramPacketGroup {
 
 	private DatagramPacket[]	packets	;
 	private int			size		;
 
-	private Logger logger =LoggerFactory.getLogger(DatagramPacketGroup.class);
+//	private Logger logger =LoggerFactory.getLogger(DatagramPacketGroup.class);
 	
 	public DatagramPacketGroup(int max) {
 		this.packets = new DatagramPacket[max];

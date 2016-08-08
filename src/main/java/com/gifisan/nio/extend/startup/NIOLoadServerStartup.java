@@ -10,7 +10,7 @@ import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 public class NIOLoadServerStartup {
 
 	public static void main(String[] args) throws Exception {
-
+		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {

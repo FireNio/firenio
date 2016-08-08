@@ -29,6 +29,10 @@ public class MQSessionEventListener implements SessionEventListener {
 		MQContext context = MQContext.getInstance();
 
 		MQSessionAttachment attachment = context.getSessionAttachment(session);
+		
+		if (attachment == null) {
+			return;
+		}
 
 		TransactionSection section = attachment.getTransactionSection();
 

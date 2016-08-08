@@ -2,6 +2,7 @@ package com.gifisan.database;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import com.gifisan.nio.common.ClassUtil;
 import com.gifisan.nio.common.FieldMapping;
 
@@ -91,10 +93,6 @@ public class ResultSetHandle {
 			return Boolean.valueOf(src.toString());
 		}
 		
-		return src;
-		
-		/*
-
 		String val = src.toString();
 
 		if (t == java.lang.String.class) {
@@ -134,7 +132,7 @@ public class ResultSetHandle {
 				throw new IllegalArgumentException("未指定泛型，" + src);
 			}
 
-			Class clazz = type.getRawType();
+			Class clazz = (Class) type.getRawType();
 
 			Class actualType = (Class) type.getActualTypeArguments()[0];
 
@@ -146,7 +144,7 @@ public class ResultSetHandle {
 		}
 		return null;
 		// TODO 完善其他类型
-		 */
+		 
 	}
 
 	private List string2list(Class actualType, List<Map> src) throws IllegalArgumentException, IllegalAccessException,

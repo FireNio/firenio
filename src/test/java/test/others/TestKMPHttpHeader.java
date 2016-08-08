@@ -1,7 +1,6 @@
 package test.others;
 
 import java.io.File;
-import java.io.IOException;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.FileUtil;

@@ -91,7 +91,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	public void close() throws IOException {
-
+		//FIXME writes 
 		if (writers.get() > 0) {
 			return;
 		}

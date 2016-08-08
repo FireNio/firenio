@@ -2,8 +2,6 @@ package com.gifisan.nio.common;
 
 public class ClassUtil {
 
-	private static Logger	logger	= LoggerFactory.getLogger(ClassUtil.class);
-
 	public static Object newInstance(Class clazz) {
 
 		if (clazz == null) {

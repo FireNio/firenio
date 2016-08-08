@@ -23,6 +23,9 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 
 		if (endPoint.isEndConnect()) {
+			if (endPoint.isOpened()) {
+				CloseUtil.close(endPoint);
+			}
 			return;
 		}
 

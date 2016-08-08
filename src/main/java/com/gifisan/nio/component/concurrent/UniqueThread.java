@@ -13,14 +13,18 @@ public class UniqueThread implements Looper {
 	private Logger			logger		= LoggerFactory.getLogger(UniqueThread.class);
 	private Looper			looper;
 	private Thread			monitor;
+	private String			threadName;
+	
+	public UniqueThread(Looper looper, String threadName) {
+		this.looper = looper;
+		this.threadName = threadName;
+	}
 
-	public void start(Looper looper, String name) {
+	public void start() {
 
 		if (!initialized.compareAndSet(false, true)) {
 			return;
 		}
-
-		this.looper = looper;
 
 		this.running = true;
 
@@ -29,7 +33,7 @@ public class UniqueThread implements Looper {
 			public void run() {
 				loop();
 			}
-		}, name);
+		}, threadName);
 
 		monitor.start();
 	}

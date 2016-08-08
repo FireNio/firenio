@@ -6,8 +6,8 @@ import java.util.concurrent.CountDownLatch;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 
-public class ITestThreadHandle {
-
+public class ITestThreadHandle{
+	
 	private static Logger logger = LoggerFactory.getLogger(ITestThreadHandle.class);
 	
 	public static void doTest(Class<? extends ITestThread> clazz,int threads,int time){

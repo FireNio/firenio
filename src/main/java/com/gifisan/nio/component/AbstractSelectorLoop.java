@@ -10,14 +10,14 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.ThreadUtil;
 
-public abstract class AbstractSelectorLoop implements SelectorLoop{
+public abstract class AbstractSelectorLoop implements SelectorLoop {
 
-	private Logger		logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
-	private boolean	working	= false;
-	protected Selector	selector	;
+	private Logger				logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
+	private boolean			working	= false;
+	protected Selector			selector;
 
 	public void loop() {
-		
+
 		try {
 			working = true;
 
@@ -55,9 +55,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop{
 		}
 	}
 
-
 	public void stop() {
-		
+
 		this.selector.wakeup();
 
 		for (; working;) {
@@ -68,7 +67,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop{
 		try {
 			this.selector.close();
 		} catch (IOException e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 }

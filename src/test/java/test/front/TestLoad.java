@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
@@ -15,6 +16,8 @@ import com.gifisan.nio.front.FrontContext;
 public class TestLoad {
 
 	public static void main(String[] args) throws IOException {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 

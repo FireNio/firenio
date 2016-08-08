@@ -9,6 +9,7 @@ import test.ClientUtil;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
@@ -18,21 +19,25 @@ import com.gifisan.nio.connector.TCPConnector;
 
 public class TestLoadClient {
 
-	final static int	time		= 500000;
-	final static Logger	logger	= LoggerFactory.getLogger(TestLoadClient.class);
-
+	final static int	time		= 640000;
+	
 	public static void main(String[] args) throws IOException {
+		
+		PropertiesLoader.setBasepath("nio");
+		
+		final Logger	logger	= LoggerFactory.getLogger(TestLoadClient.class);
+		
 		final CountDownLatch latch = new CountDownLatch(time);
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				latch.countDown();
-				long count = latch.getCount();
+//				long count = latch.getCount();
 				// if (count % 10 == 0) {
-				if (count < 50) {
-					logger.info("************************================" + count);
-				}
+//				if (count < 50) {
+//					logger.info("************************================" + count);
+//				}
 				// }
 			}
 
