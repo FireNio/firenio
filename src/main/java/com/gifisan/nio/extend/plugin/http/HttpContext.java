@@ -1,7 +1,6 @@
 package com.gifisan.nio.extend.plugin.http;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.concurrent.TaskExecutor;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
@@ -13,8 +12,6 @@ public class HttpContext extends AbstractPluginContext {
 
 	private HttpSessionFactory	httpSessionFactory	= new HttpSessionFactory();
 
-	private TaskExecutor		taskExecutor		= new TaskExecutor(httpSessionFactory, 1000 * 60 * 60);
-
 	private UniqueThread		taskExecutorThread	= new UniqueThread();
 
 	public static HttpContext getInstance() {
@@ -23,7 +20,7 @@ public class HttpContext extends AbstractPluginContext {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		this.taskExecutorThread.start(taskExecutor, "HTTPSession-Manager");
+		this.taskExecutorThread.start(httpSessionFactory, "HTTPSession-Manager");
 
 		instance = this;
 	}

@@ -14,30 +14,18 @@ import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
-import com.gifisan.nio.component.concurrent.TaskExecutor;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class TCPConnector extends AbstractIOConnector {
 
-	private TaskExecutor		taskExecutor;
 	private TCPSelectorLoop		selectorLoop;
 	private DefaultEndPointWriter	endPointWriter;
 	private TCPEndPoint			endPoint;
 	private UniqueThread		endPointWriterThread	= new UniqueThread();
 	private UniqueThread		selectorLoopThread		= new UniqueThread();
-	private UniqueThread		taskExecutorThread;
-	private long				beatPacket;
 	private IOException			connectException;
-
-	public long getBeatPacket() {
-		return beatPacket;
-	}
-
-	public void setBeatPacket(long beatPacket) {
-		this.beatPacket = beatPacket;
-	}
 
 	protected UniqueThread getSelectorLoopThread() {
 		return selectorLoopThread;
@@ -68,7 +56,7 @@ public class TCPConnector extends AbstractIOConnector {
 		channel.connect(address);
 
 		ServerConfiguration configuration = context.getServerConfiguration();
-		
+
 		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, selector, this, endPointWriter);
@@ -89,15 +77,16 @@ public class TCPConnector extends AbstractIOConnector {
 				throw new TimeoutException("time out");
 			}
 
-			throw new TimeoutException(MessageFormatter.format("connect faild,connector:{},nested exception is {}", this, connectException.getMessage())  , connectException);
+			throw new TimeoutException(MessageFormatter.format("connect faild,connector:{},nested exception is {}",
+					this, connectException.getMessage()), connectException);
 		}
-		
+
 		if (waiter.isSuccess()) {
-			return ;
+			return;
 		}
-		
+
 		this.connected.compareAndSet(true, false);
-		
+
 		throw new TimeoutException(connectException.getMessage(), connectException);
 	}
 
@@ -105,20 +94,12 @@ public class TCPConnector extends AbstractIOConnector {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
-		LifeCycleUtil.stop(taskExecutorThread);
 
 		CloseUtil.close(endPoint);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
 		return configuration.getSERVER_TCP_PORT();
-	}
-
-	private void startTouchDistantJob() {
-		TouchDistantJob job = new TouchDistantJob(endPointWriter, endPoint);
-		this.taskExecutor = new TaskExecutor(job, beatPacket);
-		this.taskExecutorThread = new UniqueThread();
-		this.taskExecutorThread.start(taskExecutor, "touch-distant-task");
 	}
 
 	protected void finishConnect(TCPEndPoint endPoint, IOException exception) {
@@ -134,17 +115,12 @@ public class TCPConnector extends AbstractIOConnector {
 			if (waiter.isSuccess()) {
 
 				this.endPointWriterThread.start(endPointWriter, endPointWriter.toString());
-
-				if (beatPacket > 0) {
-					this.startTouchDistantJob();
-				}
 			}
-			
 		} else {
 
 			this.connectException = exception;
 
-			this.waiter.setPayload(null,false);
+			this.waiter.setPayload(null, false);
 		}
 	}
 }

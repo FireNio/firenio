@@ -2,6 +2,9 @@ package test;
 
 import java.io.IOException;
 
+import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.PropertiesLoader;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -13,6 +16,7 @@ public class TestBeat {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 
+		PropertiesLoader.setBasepath("nio");
 
 		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		
@@ -22,9 +26,9 @@ public class TestBeat {
 
 		FixedSession session = eventHandle.getFixedSession();
 
-		connector.setBeatPacket(10);
-
 		connector.connect();
+		
+		session.keepAlive(1200);
 
 		session.login("admin", "admin100");
 		
@@ -32,13 +36,16 @@ public class TestBeat {
 		
 		long old = System.currentTimeMillis();
 		
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 5; i++) {
 		
 			ReadFuture future = session.request(serviceKey, param);
-//			System.out.println(future.getText());
+			System.out.println(future);
+			ThreadUtil.sleep(1000);
 			
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
+		
+		CloseUtil.close(session);
 		
 		connector.close();
 		

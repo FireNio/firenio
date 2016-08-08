@@ -31,6 +31,7 @@ public class IOSession implements Session {
 	private UDPEndPoint					udpEndPoint;
 	private Object[]					attachments	= new Object[4];
 	private long						creationTime	= System.currentTimeMillis();
+	private long						lastAccess;
 	//FIXME 这里使用ReentrantMap有问题
 	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
 
@@ -50,6 +51,7 @@ public class IOSession implements Session {
 		return closed;
 	}
 
+	//FIXME 是否应该为线程安全
 	public void destroy() {
 		// FIXME
 		CloseUtil.close(udpEndPoint);
@@ -232,6 +234,14 @@ public class IOSession implements Session {
 		this.udpEndPoint = udpEndPoint;
 	}
 	
+	public void active() {
+		this.lastAccess = System.currentTimeMillis();
+	}
+
+	public long getLastAccessTime() {
+		return lastAccess;
+	}
+
 	public String toString() {
 		return endPoint.toString();
 	}

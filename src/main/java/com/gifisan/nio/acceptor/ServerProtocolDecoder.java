@@ -3,7 +3,6 @@ package com.gifisan.nio.acceptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -41,12 +40,6 @@ public class ServerProtocolDecoder extends NIOProtocolDecoder implements Protoco
 	}
 
 	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
-		if (type == ProtocolDecoder.TYPE_BEAT) {
-
-			logger.debug(">>read beat................. {}" , DateUtil.now());
-
-			return null;
-		}
 
 		// HTTP REQUEST ?
 		if (type == ProtocolDecoder.TYPE_HTTP) {

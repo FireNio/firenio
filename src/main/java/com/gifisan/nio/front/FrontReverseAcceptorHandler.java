@@ -10,6 +10,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.SessionMEvent;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.future.WriteFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
@@ -25,35 +26,39 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		this.frontRouterMapping = frontContext.getFrontRouterMapping();
 	}
 
-	private void broadcast(NIOReadFuture future) {
+	private void broadcast(final NIOReadFuture future) {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
 		IOAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
+		
+		acceptor.offerSessionMEvent(new SessionMEvent() {
+			
+			public void handle(Map<Integer, Session> sessions) {
+				
+				if (sessions == null || sessions.size() == 0) {
+					return;
+				}
 
-		Map<Integer, Session> sessions = acceptor.getReadOnlyManagedSessions();
+				logger.info("广播报文：{} ", future);
 
-		if (sessions == null || sessions.size() == 0) {
-			return;
-		}
+				Set<Entry<Integer, Session>> entries = sessions.entrySet();
 
-		logger.info("广播报文：{} ", future);
+				for (Entry<Integer, Session> entry : entries) {
 
-		Set<Entry<Integer, Session>> entries = sessions.entrySet();
+					Session s = entry.getValue();
 
-		for (Entry<Integer, Session> entry : entries) {
+					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
 
-			Session s = entry.getValue();
+						ReadFuture readFuture = ReadFutureFactory.create(s, future);
 
-			if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
+						readFuture.write(future.getText());
 
-				ReadFuture readFuture = ReadFutureFactory.create(s, future);
-
-				readFuture.write(future.getText());
-
-				s.flush(readFuture);
+						s.flush(readFuture);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	public void acceptAlong(Session session, ReadFuture future) throws Exception {

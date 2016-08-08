@@ -47,8 +47,12 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		if (future.read()) {
 
 			endPoint.setReadFuture(null);
+			
+			Session session = endPoint.getSession();
+			
+			session.active();
 
-			readFutureAcceptor.accept(endPoint.getSession(), future);
+			readFutureAcceptor.accept(session, future);
 		}
 	}
 

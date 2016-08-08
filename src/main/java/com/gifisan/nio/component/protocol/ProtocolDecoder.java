@@ -8,7 +8,7 @@ import com.gifisan.nio.component.protocol.future.IOReadFuture;
 /**
  * <pre>
  * [0       ~              11]
- *  0         = 类型 [3=心跳，0=TEXT，1=STREAM，2=MULTI]
+ *  0         = 类型 [0=TEXT，1=STREAM，2=MULTI]
  *  1,2,3     = request id的长度
  *  4,        = service name的长度
  *  5,6,7     = text content的长度
@@ -19,7 +19,6 @@ import com.gifisan.nio.component.protocol.future.IOReadFuture;
 public interface ProtocolDecoder {
 
 	public static final byte	TYPE_HTTP					= 71;
-	public static final byte	TYPE_BEAT					= 3;
 	public static final byte	TYPE_MULTI					= 2;
 	public static final byte	TYPE_STREAM					= 1;
 	public static final byte	TYPE_TEXT					= 0;

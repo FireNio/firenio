@@ -26,12 +26,17 @@ public class RTPSessionEventListener implements SessionEventListener{
 		
 		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 		
+		if (attachment == null) {
+			return;
+		}
+		
 		RTPRoom room = attachment.getRtpRoom();
 		
-		if (room != null) {
-			
-			room.leave(session.getUDPEndPoint());
+		if (room == null) {
+			return;
 		}
+
+		room.leave(session.getUDPEndPoint());
 	}
 	
 }

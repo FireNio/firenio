@@ -38,6 +38,8 @@ public class ReentrantList<T> {
 
 			lock.lock();
 
+			List<T> snapshot = this.snapshot;
+			
 			List<Event> modifList = this.modifList;
 
 			for (Event e : modifList) {

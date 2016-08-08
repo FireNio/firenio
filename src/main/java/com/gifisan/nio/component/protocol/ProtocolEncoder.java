@@ -9,7 +9,7 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 /**
  * <pre>
  * [0       ~              11]
- *  0         = 类型 [3=心跳，0=TEXT，1=STREAM，2=MULTI]
+ *  0         = 类型 [0=TEXT，1=STREAM，2=MULTI]
  *  1,2,3     = request id的长度
  *  4,        = service name的长度
  *  5,6,7     = text content的长度

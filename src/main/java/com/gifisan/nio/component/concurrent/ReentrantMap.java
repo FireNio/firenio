@@ -36,6 +36,8 @@ public class ReentrantMap<K, V> {
 
 			lock.lock();
 
+			Map<K, V> snapshot = this.snapshot;
+			
 			List<Event> modifList = this.modifList;
 
 			for (Event e : modifList) {

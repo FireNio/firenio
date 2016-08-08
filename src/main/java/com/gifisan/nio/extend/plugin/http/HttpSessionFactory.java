@@ -6,12 +6,14 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.StringUtil;
+import com.gifisan.nio.component.AbstractLooper;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.http11.future.Cookie;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 
-public class HttpSessionFactory implements Runnable{
+//FIXME 改为EventLoop
+public class HttpSessionFactory extends AbstractLooper{
 	
 	private static final String COOKIE_NAME_SESSIONID = "NSESSIONID";
 
@@ -58,7 +60,7 @@ public class HttpSessionFactory implements Runnable{
 		return session;
 	}
 	
-	public void run(){
+	public void loop(){
 		
 		ReentrantLock lock = sessions.getReentrantLock();
 		
@@ -82,5 +84,7 @@ public class HttpSessionFactory implements Runnable{
 			
 			lock.unlock();
 		}
+		
+		sleep(30 * 60 * 1000);
 	}
 }

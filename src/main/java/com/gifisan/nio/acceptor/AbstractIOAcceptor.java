@@ -13,6 +13,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractIOService;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.SessionMEvent;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
@@ -64,33 +65,37 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 	public void broadcast(ReadFuture future) {
 		
-		NIOReadFuture nioReadFuture = (NIOReadFuture) future;
+		final NIOReadFuture nioReadFuture = (NIOReadFuture) future;
 		
-		Map<Integer, Session> sessions = getReadOnlyManagedSessions();
-
-		Iterator<Session> ss = sessions.values().iterator();
-
-		for (; ss.hasNext();) {
-
-			Session s = ss.next();
-
-			NIOReadFuture f = ReadFutureFactory.create(s,nioReadFuture);
+		offerSessionMEvent(new SessionMEvent() {
 			
-			f.write(nioReadFuture.getText());
+			public void handle(Map<Integer, Session> sessions) {
+				
+				Iterator<Session> ss = sessions.values().iterator();
 
-			try {
-				
-				s.flush(f);
-				
-			} catch (Exception e) {
-				
-				logger.error(e.getMessage(), e);
+				for (; ss.hasNext();) {
+
+					Session s = ss.next();
+
+					NIOReadFuture f = ReadFutureFactory.create(s,nioReadFuture);
+					
+					f.write(nioReadFuture.getText());
+
+					try {
+						
+						s.flush(f);
+						
+					} catch (Exception e) {
+						
+						logger.error(e.getMessage(), e);
+					}
+				}
 			}
-		}
+		});
 	}
-
-	public Map<Integer, Session> getReadOnlyManagedSessions() {
-		return context.getSessionFactory().getReadOnlyManagedSessions();
+	
+	public void offerSessionMEvent(SessionMEvent event){
+		context.getSessionFactory().offerSessionMEvent(event);
 	}
 
 }

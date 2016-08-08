@@ -47,8 +47,18 @@ public class PropertiesLoader {
 	}
 
 	public static void setBasepath(String path) {
+		
+		if (StringUtil.isNullOrBlank(path)) {
+			throw new IllegalArgumentException("path:"+path);
+		}
+		
 		String classPath = SharedBundle.instance().getClassPath();
-		SharedBundle.instance().setClassPath(classPath + path + "/");
+		
+		if (!path.endsWith("/")) {
+			path += "/";
+		}
+		
+		SharedBundle.instance().setClassPath(classPath + path);
 	}
 
 }

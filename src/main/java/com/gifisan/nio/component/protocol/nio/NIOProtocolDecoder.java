@@ -26,19 +26,8 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 		}
 
 		byte type = header.get(0);
-
-		if (type < 3) {
-
-			if (type < 0) {
-				return null;
-			}
-
-			return this.doDecode(endPoint, header, type);
-
-		} else {
-
-			return this.doDecodeExtend(endPoint, header, type);
-		}
+		
+		return doDecode(endPoint, header, type);
 	}
 
 	private IOReadFuture doDecode(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
@@ -47,13 +36,14 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 			return new TextReadFuture(endPoint.getSession(), header);
 		} else if (type == TYPE_MULTI) {
 			return new MultiReadFuture(endPoint.getSession(), header);
-		} else {
+		} else if(type == TYPE_STREAM){
 			return new StreamReadFuture(endPoint.getSession(), header);
+		}else {
+			return this.doDecodeExtend(endPoint, header, type);
 		}
 	}
 
 	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
-
 		return null;
 	}
 

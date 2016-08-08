@@ -11,13 +11,16 @@ import com.gifisan.nio.Encoding;
 import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.common.ClassUtil;
+import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MD5Token;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
+import com.gifisan.nio.connector.TouchDistantLooper;
 import com.gifisan.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.gifisan.nio.extend.security.Authority;
 
@@ -28,6 +31,31 @@ public class FixedIOSession implements FixedSession {
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
+	private long							timeout	= 5000;
+	private UniqueThread					taskExecutorThread;
+
+	public void setTimeout(long timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("illegal argument timeout: " + timeout);
+		}
+
+		this.timeout = timeout;
+	}
+
+	public long getTimeout() {
+		return timeout;
+	}
+
+	//FIXME 判断是否已执行过keep alive
+	public void keepAlive(long time) {
+		if (time < 0) {
+			throw new IllegalArgumentException("illegal argument time: " + time);
+		}
+
+		TouchDistantLooper looper = new TouchDistantLooper(this,time);
+		this.taskExecutorThread = new UniqueThread();
+		this.taskExecutorThread.start(looper, "touch-distant-looper");
+	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
@@ -130,21 +158,16 @@ public class FixedIOSession implements FixedSession {
 	}
 
 	public NIOReadFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, 6000);
+		return request(serviceName, content, null);
 	}
 
 	public NIOReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
-		return request(serviceName, content, inputStream, 6000);
-	}
-
-	public NIOReadFuture request(String serviceName, String content, InputStream inputStream, long timeout)
-			throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName,context.getIOEventHandleAdaptor());
+		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, context.getIOEventHandleAdaptor());
 
 		readFuture.write(content);
 
@@ -162,11 +185,9 @@ public class FixedIOSession implements FixedSession {
 			return (NIOReadFuture) onReadFuture.getReadFuture();
 		}
 
-		throw new TimeoutException("timeout");
-	}
+		session.destroy();
 
-	public NIOReadFuture request(String serviceName, String content, long timeout) throws IOException {
-		return request(serviceName, content, null, timeout);
+		throw new TimeoutException("timeout");
 	}
 
 	public void setAuthority(Authority authority) {
@@ -210,12 +231,17 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName,context.getIOEventHandleAdaptor());
+		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, context.getIOEventHandleAdaptor());
 
 		readFuture.write(content);
 
 		readFuture.setInputStream(inputStream);
-		
+
 		session.flush(readFuture);
 	}
+
+	public void close() throws IOException {
+		LifeCycleUtil.stop(taskExecutorThread);
+	}
+
 }

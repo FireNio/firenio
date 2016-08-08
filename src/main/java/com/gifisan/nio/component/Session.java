@@ -9,8 +9,15 @@ import com.gifisan.nio.extend.PluginContext;
 
 public interface Session {
 
+	public abstract void active();
+	
+	public abstract void clearAttributes() ;
+
 	public abstract boolean closed();
 
+	/**
+	 * 该方法为非线程安全，Connector端使用时应注意
+	 */
 	public abstract void destroy();
 
 	/**
@@ -25,19 +32,25 @@ public interface Session {
 
 	public abstract Object getAttachment();
 
-	public abstract void setAttachment(Object attachment);
-
 	public abstract Object getAttachment(PluginContext context);
+
+	public abstract Object getAttribute(Object key) ;
+	
+	public abstract ReentrantMap<Object, Object> getAttributes() ;
 
 	public abstract NIOContext getContext();
 
 	public abstract long getCreationTime();
+
+	public abstract long getLastAccessTime();
 
 	public abstract String getLocalAddr();
 
 	public abstract String getLocalHost();
 
 	public abstract int getLocalPort();
+
+	public abstract InetSocketAddress getLocalSocketAddress();
 
 	public abstract int getMaxIdleTime() throws SocketException;
 
@@ -47,6 +60,8 @@ public interface Session {
 
 	public abstract int getRemotePort();
 
+	public abstract InetSocketAddress getRemoteSocketAddress();
+
 	public abstract Integer getSessionID();
 
 	public abstract UDPEndPoint getUDPEndPoint();
@@ -55,24 +70,16 @@ public interface Session {
 
 	public abstract boolean isOpened();
 
-	public abstract void setAttachment(PluginContext context, Object attachment);
-
-	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
-
-	public abstract void setSessionID(Integer sessionID);
-
-	public abstract InetSocketAddress getLocalSocketAddress();
-
-	public abstract InetSocketAddress getRemoteSocketAddress();
-	
 	public abstract void removeAttribute(Object key) ;
+	
+	public abstract void setAttachment(Object attachment);
+
+	public abstract void setAttachment(PluginContext context, Object attachment);
 
 	public abstract void setAttribute(Object key, Object value) ;
 
-	public abstract Object getAttribute(Object key) ;
+	public abstract void setSessionID(Integer sessionID);
 
-	public abstract ReentrantMap<Object, Object> getAttributes() ;
-
-	public abstract void clearAttributes() ;
+	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
 
 }

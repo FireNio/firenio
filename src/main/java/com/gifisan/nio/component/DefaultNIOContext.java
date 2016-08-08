@@ -15,6 +15,7 @@ import com.gifisan.nio.common.LoggerUtil;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.concurrent.ExecutorThreadPool;
 import com.gifisan.nio.component.concurrent.ThreadPool;
+import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.ProtocolFactory;
@@ -42,6 +43,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private UDPEndPointFactory			udpEndPointFactory		;
 	private IOService					udpService			;
 	private ProtocolFactory				protocolFactory		;
+	private UniqueThread				sessionFactoryThread	;
 
 	public DefaultNIOContext() {
 		this.addLifeCycleListener(new NIOContextListener());
@@ -106,8 +108,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			protocolFactory = new NIOProtocolFactory();
 		}
 		
+		this.sessionFactoryThread = new UniqueThread();
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
+		
+		this.sessionFactoryThread.start(sessionFactory, "session-manager");
 		
 		LifeCycleUtil.start(threadPool);
 	}
@@ -117,6 +122,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
 		LifeCycleUtil.stop(threadPool);
+		
+		LifeCycleUtil.stop(sessionFactoryThread);
 	}
 
 	public Object getAttribute(Object key) {
