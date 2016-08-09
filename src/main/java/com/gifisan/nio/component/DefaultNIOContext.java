@@ -32,7 +32,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionEventListenerWrapper	lastSessionEventListener	;
 	private Logger						logger				= LoggerFactory
 																.getLogger(DefaultNIOContext.class);
-	private ProtocolDecoder				protocolDecoder		;
 	private ProtocolEncoder				protocolEncoder		;
 	private ReadFutureAcceptor			readFutureAcceptor		;
 	private ServerConfiguration			serverConfiguration		;
@@ -108,9 +107,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			protocolFactory = new NIOProtocolFactory();
 		}
 		
-		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
-		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
+		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
 		
 		this.sessionFactoryThread.start();
 		
@@ -147,7 +145,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	}
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
+		return protocolFactory.getProtocolDecoder();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {

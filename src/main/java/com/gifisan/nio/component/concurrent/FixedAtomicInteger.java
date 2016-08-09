@@ -2,7 +2,7 @@ package com.gifisan.nio.component.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FixedAtomicInteger {
+public class FixedAtomicInteger{
 
 	private AtomicInteger	atomiticInteger;
 
@@ -98,5 +98,16 @@ public class FixedAtomicInteger {
 				return next;
 		}
 	}
-
+	
+	public boolean compareAndSet(int expect,int update){
+		return atomiticInteger.compareAndSet(expect, update);
+	}
+	
+	public int getMaxValue(){
+		return max_value;
+	}
+	
+	public int getMinValue(){
+		return min_value;
+	}
 }

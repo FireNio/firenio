@@ -55,12 +55,14 @@ public class TestLoadClient1 extends ITestThread{
 		CloseUtil.close(connector);
 	}
 
-	final static int	time		= 1000000;
-	
 	public static void main(String[] args) throws IOException {
 		
 		PropertiesLoader.setBasepath("nio");
 		
-		ITestThreadHandle.doTest(TestLoadClient1.class, 8, time / 8);
+		int	time		= 2560000;
+		
+		int core_size = 32;
+		
+		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}
 }

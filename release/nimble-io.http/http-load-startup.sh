@@ -1,0 +1,1 @@
+java -Xms512m -Xmx2048m -cp .:./lib/*: com.gifisan.nio.extend.startup.HttpServerLoadStartup %CD%

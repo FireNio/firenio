@@ -69,7 +69,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 	}
 
 	public String toString() {
-		return "TCP:Selector@" + this.selector.toString();
+		return "TCP:Selector@" + String.valueOf(selector.toString());
 	}
 
 }

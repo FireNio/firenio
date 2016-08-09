@@ -6,10 +6,12 @@ import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 
 import com.gifisan.nio.common.LifeCycleUtil;
+import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.SelectorLoop;
+import com.gifisan.nio.component.concurrent.FixedAtomicInteger;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
@@ -40,14 +42,17 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		
 		int core_size = configuration.getSERVER_CORE_SIZE();
 		
+		CoreProcessors processors = new CoreProcessors(core_size);
+		
 		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 		
 		this.selectorLoops = new SelectorLoop[core_size];
 		
 		for (int i = 0; i < core_size; i++) {
-			
-			selectorLoops[i] = new ServerTCPSelectorLoop(context, endPointWriter);
-			
+			selectorLoops[i] = new ServerTCPSelectorLoop(context, endPointWriter,processors);
+		}
+		
+		for (int i = 0; i < core_size; i++) {
 			selectorLoops[i].register(context, channel);
 		}
 	}

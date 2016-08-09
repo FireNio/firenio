@@ -7,7 +7,7 @@ import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
-public class NIOLoadServerStartup {
+public class NIOServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
 		

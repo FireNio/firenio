@@ -56,7 +56,7 @@ public class ITestThreadHandle{
 		
 		logger.info("## Execute Time:" + allTime);
 		logger.info("## OP/S:"
-				+ new BigDecimal(allTime * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
+				+ new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
 		logger.info("## Expend Time:" + spend);
 		
 		for (int i = 0; i < ts.length; i++) {

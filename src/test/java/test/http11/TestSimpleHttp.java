@@ -5,6 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.http11.ClientHTTPProtocolFactory;
@@ -17,6 +18,8 @@ import com.gifisan.nio.extend.plugin.http.client.HttpIOEventHandle;
 public class TestSimpleHttp {
 
 	public static void main(String[] args) throws IOException {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import test.ClientUtil;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.test.ITestThread;
 import com.gifisan.nio.common.test.ITestThreadHandle;
 import com.gifisan.nio.component.ReadFutureFactory;
@@ -34,7 +35,7 @@ public class TestHttpLoadThread extends ITestThread {
 			HttpRequestFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 
 			try {
-				client.request(session, future, 3000);
+				client.request(session, future, 10000);
 				
 				getLatch().countDown();
 				
@@ -63,8 +64,13 @@ public class TestHttpLoadThread extends ITestThread {
 	
 	public static void main(String[] args) {
 		
-		ITestThreadHandle.doTest(TestHttpLoadThread.class, 64, 10000);
+		PropertiesLoader.setBasepath("nio");
 		
+		int	time		= 10240000;
+		
+		int core_size = 256;
+		
+		ITestThreadHandle.doTest(TestHttpLoadThread.class, core_size, time / core_size);
 	}
 
 }

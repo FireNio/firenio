@@ -4,6 +4,7 @@ import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.ManagerSEListener;
@@ -17,6 +18,8 @@ import com.gifisan.nio.extend.configuration.FileSystemACLoader;
 public class TestNIOServer {
 
 	public void launch() throws Exception {
+		
+		PropertiesLoader.setBasepath("nio");
 		
 		ApplicationContext applicationContext = new ApplicationContext();
 		

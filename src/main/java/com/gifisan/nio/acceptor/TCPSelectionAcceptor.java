@@ -6,6 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
@@ -15,26 +16,80 @@ import com.gifisan.nio.component.TCPEndPoint;
 
 public class TCPSelectionAcceptor implements SelectionAcceptor {
 
-	private Selector		selector;
-	private NIOContext		context		= null;
-	private EndPointWriter	endPointWriter	= null;
-//	private Logger			logger		= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
+	private Selector				selector;
+	private NIOContext				context			;
+	private EndPointWriter			endPointWriter		;
+	private int					this_core_index	;
+	private int					next_core_index	;
+	private CoreProcessors			processors		;
+//	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter) {
+
+	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter,CoreProcessors processors) {
 		this.context = context;
 		this.endPointWriter = endPointWriter;
+		this.processors = processors;
+		
+		ReentrantLock lock = processors.getReentrantLock();
+		
+		lock.lock();
+		
+		try{
+			
+			this.this_core_index = processors.getCurrentCoreIndex();
+			
+			this.next_core_index = this_core_index + 1;
+			
+			if (next_core_index == processors.getCoreSize()) {
+				next_core_index = 0;
+			}
+			
+			processors.setCurrentCoreIndex(next_core_index);
+		}finally{
+			
+			lock.unlock();
+		}
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		// 返回为之创建此键的通道。
-		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
-		// 此方法返回的套接字通道（如果有）将处于阻塞模式。
-		SocketChannel channel = server.accept();
-		// 已经被其他人select
-		if (channel == null) {
-			return;
+		SocketChannel channel;
+		
+		CoreProcessors processors = this.processors;
+		
+		ReentrantLock lock = processors.getReentrantLock();
+		
+		lock.lock();
+		
+		try{
+			
+			int core_index = processors.getCurrentCoreIndex();
+			
+			if (this_core_index != core_index) {
+				return;
+			}
+
+			// 返回为之创建此键的通道。
+			ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
+			// 此方法返回的套接字通道（如果有）将处于阻塞模式。
+			channel = server.accept();
+			// 前面已经有人获取到channel，而且把core_index+1，
+			//这里虽然匹配到core，但是是拿不到channel的，有待改进
+			if (channel == null) {
+//				System.out.println(core_index);
+//				System.out.println(this_core_index);
+//				Exception e = new Exception("core_index error");
+//				logger.error(e.getMessage(), e);
+				return;
+			}
+			
+			processors.setCurrentCoreIndex(next_core_index);
+			
+		}finally{
+			
+			lock.unlock();
 		}
+		
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
@@ -42,7 +97,7 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 		// 绑定EndPoint到SelectionKey
 		attachEndPoint(context, endPointWriter, sk);
 
-//		logger.debug("__________________chanel____gen____{}", channel);
+		// logger.debug("__________________chanel____gen____{}", channel);
 
 	}
 
@@ -50,19 +105,19 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 			throws SocketException {
 
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
-		
+
 		if (endPoint != null) {
-			
+
 			return;
 		}
-		
+
 		endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-		
+
 		selectionKey.attach(endPoint);
 	}
 
 	protected void setSelector(Selector selector) {
 		this.selector = selector;
 	}
-	
+
 }

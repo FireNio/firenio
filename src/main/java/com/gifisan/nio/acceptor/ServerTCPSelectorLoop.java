@@ -11,11 +11,11 @@ import com.gifisan.nio.component.TCPSelectorLoop;
 
 public class ServerTCPSelectorLoop extends TCPSelectorLoop {
 
-	public ServerTCPSelectorLoop(NIOContext context, EndPointWriter endPointWriter) {
+	public ServerTCPSelectorLoop(NIOContext context, EndPointWriter endPointWriter,CoreProcessors processors) {
 
 		super(context, endPointWriter);
 
-		this._alpha_acceptor = new TCPSelectionAcceptor(context, endPointWriter);
+		this._alpha_acceptor = new TCPSelectionAcceptor(context, endPointWriter,processors);
 	}
 
 	public void register(NIOContext context, SelectableChannel channel) throws IOException {
