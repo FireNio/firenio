@@ -15,7 +15,7 @@ import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
-public class TestClient {
+public class TestFrontClient {
 
 	public static void main(String[] args) throws IOException {
 		
@@ -41,7 +41,7 @@ public class TestClient {
 
 		Session session = connector.getSession();
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 
 			ReadFuture future = ReadFutureFactory.create(session, "~~~service-name~~~");
 

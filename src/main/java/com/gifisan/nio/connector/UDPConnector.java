@@ -88,7 +88,7 @@ public class UDPConnector extends AbstractIOConnector {
 		buffer.flip();
 	}
 
-	protected void connect(InetSocketAddress socketAddress) throws IOException {
+	protected void connect(NIOContext context,InetSocketAddress socketAddress) throws IOException {
 		
 		this.channel = DatagramChannel.open();
 		
@@ -101,17 +101,13 @@ public class UDPConnector extends AbstractIOConnector {
 		this.endPoint = selectorLoop.getEndPoint();
 		
 		this.endPoint.setSession(session);
-	}
-
-	// FIXME connect failed
-	protected void startComponent(NIOContext context) throws IOException {
-
+		
 		this.selectorLoopThread = new UniqueThread(selectorLoop, toString());
 
 		this.selectorLoopThread.start();
 	}
 
-	protected void stopComponent(NIOContext context) {
+	protected void close(NIOContext context) {
 		
 		if (channel != null && channel.isConnected()) {
 			CloseUtil.close(channel);

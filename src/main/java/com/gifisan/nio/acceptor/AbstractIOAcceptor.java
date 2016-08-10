@@ -10,6 +10,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.AbstractIOService;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionMEvent;
@@ -22,7 +23,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	private Logger			logger	= LoggerFactory.getLogger(AbstractIOAcceptor.class);
 	protected AtomicBoolean	binded	= new AtomicBoolean(false);
 
-	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
+	protected abstract void bind(NIOContext context,InetSocketAddress socketAddress) throws IOException;
 
 	public void bind() throws IOException {
 
@@ -38,9 +39,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 			int SERVER_PORT = getSERVER_PORT(configuration);
 
-			this.bind(getInetSocketAddress(SERVER_PORT));
-
-			this.startComponent(context);
+			this.bind(context,getInetSocketAddress(SERVER_PORT));
 
 			this.setIOService(context);
 		}
@@ -49,11 +48,14 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	public void unbind() {
 		if (binded.compareAndSet(true, false)) {
 
-			stopComponent(context);
+			//FIXME try ?
+			unbind(context);
 
 			LifeCycleUtil.stop(context);
 		}
 	}
+	
+	protected abstract void unbind(NIOContext context);
 
 	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
 

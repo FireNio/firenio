@@ -6,12 +6,10 @@ import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.DefaultEndPointWriter;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.SelectorLoop;
-import com.gifisan.nio.component.concurrent.FixedAtomicInteger;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
@@ -25,7 +23,7 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 	private ServerSocket		serverSocket			;
 	
 
-	protected void bind(InetSocketAddress socketAddress) throws IOException {
+	protected void bind(NIOContext context,InetSocketAddress socketAddress) throws IOException {
 		
 		// 打开服务器套接字通道
 		this.channel = ServerSocketChannel.open();
@@ -35,8 +33,6 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		this.serverSocket = channel.socket();
 		// 进行服务的绑定
 		this.serverSocket.bind(socketAddress, 50);
-		
-		NIOContext context = this.context;
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		
@@ -55,18 +51,11 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		for (int i = 0; i < core_size; i++) {
 			selectorLoops[i].register(context, channel);
 		}
-	}
-
-	protected void startComponent(NIOContext context) {
-		
-		ServerConfiguration configuration = context.getServerConfiguration();
 		
 		this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
 		
 		this.endPointWriterThread.start();
 
-		int core_size = configuration.getSERVER_CORE_SIZE();
-		
 		selectorLoopThreads = new UniqueThread[core_size];
 		
 		for (int i = 0; i < core_size; i++) {
@@ -78,12 +67,12 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 			selectorLoopThreads[i].start();
 		}
 	}
-	
+
 	private String getSelectorDescription(){
 		return "TCP:Selector@edp" + serverSocket.getLocalSocketAddress();
 	}
 
-	protected void stopComponent(NIOContext context) {
+	protected void unbind(NIOContext context) {
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		

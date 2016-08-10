@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractIOService;
+import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
@@ -28,11 +29,13 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 		if (connected.compareAndSet(true, false)) {
 
-			stopComponent(context);
+			close(context);
 			
 			LifeCycleUtil.stop(context);
 		}
 	}
+	
+	protected abstract void close(NIOContext context);
 	
 	protected abstract InetSocketAddress getLocalSocketAddress();
 
@@ -53,15 +56,13 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 
-			this.connect(serverAddress);
+			this.connect(context,serverAddress);
 
-			this.startComponent(context);
-			
 			this.setIOService(context);
 		}
 	}
 	
-	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
+	protected abstract void connect(NIOContext context,InetSocketAddress socketAddress) throws IOException;
 
 	public Session getSession() {
 		return session;

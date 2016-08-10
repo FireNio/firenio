@@ -4,9 +4,8 @@ import java.io.IOException;
 
 import test.ClientUtil;
 
-import com.gifisan.nio.common.ThreadUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
-import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
@@ -14,21 +13,23 @@ import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 import com.gifisan.nio.front.FrontContext;
 
-public class TestBroadcast {
+public class TestFrontLoad {
 
 	public static void main(String[] args) throws IOException {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void acceptAlong(Session session, ReadFuture future) throws Exception {
-
-				NIOReadFuture f = (NIOReadFuture) future;
 				
-				if (FrontContext.FRONT_CHANNEL_LOST.equals(f.getServiceName())) {
-					System.out.println("客户端已下线：" + f.getText());
+				NIOReadFuture readFuture = (NIOReadFuture)future;
+				
+				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getServiceName())) {
+					System.out.println("客户端已下线：" + readFuture.getText());
 				} else {
 					System.out.println("~~~~~~收到报文：" + future.toString());
-					String res = "(***" + f.getText() + "***)";
+					String res = "(***" + readFuture.getText() + "***)";
 					System.out.println("~~~~~~处理报文：" + res);
 					future.write(res);
 					session.flush(future);
@@ -43,19 +44,6 @@ public class TestBroadcast {
 		TCPConnector connector = ClientUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
 		connector.connect();
-
-		Session session = connector.getSession();
-
-		for (;;) {
-
-			ReadFuture future = ReadFutureFactory.create(session, "broadcast");
-
-			future.write("broadcast msg");
-
-			session.flush(future);
-
-			ThreadUtil.sleep(2000);
-		}
 	}
 
 }
