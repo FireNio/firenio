@@ -1,8 +1,9 @@
 package test.others;
 
+//一共有7*3=21个格子，要随机选取其中16个格子，一共有多少种可能，用程序表示出来
 public class Test1 {
 
-static int size;
+	static int size;
 	
 	public static void main(String[] args) {
 
@@ -38,7 +39,7 @@ static int size;
 			
 			int len = b2.length();
 			
-			int j = (i % 2 + 1) % 2;
+			int j = (i + 1) % 2;
 			
 			for (; j < len; j++) {
 				
