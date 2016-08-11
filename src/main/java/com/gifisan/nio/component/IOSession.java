@@ -52,22 +52,31 @@ public class IOSession implements Session {
 		return closed;
 	}
 
-	//FIXME 是否应该为线程安全
-	public void destroy() {
-		// FIXME
-		CloseUtil.close(udpEndPoint);
-
-		this.closed = true;
-
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
-
-		for (; listenerWrapper != null;) {
-			try {
-				listenerWrapper.sessionClosed(this);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+	public void close() {
+		
+		synchronized (this) {
+			
+			if (closed) {
+				return;
 			}
-			listenerWrapper = listenerWrapper.nextListener();
+			
+			//FIXME
+			CloseUtil.close(udpEndPoint);
+			
+			CloseUtil.close(endPoint);
+			
+			this.closed = true;
+			
+			SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+			
+			for (; listenerWrapper != null;) {
+				try {
+					listenerWrapper.sessionClosed(this);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+				listenerWrapper = listenerWrapper.nextListener();
+			}
 		}
 	}
 

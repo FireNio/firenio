@@ -51,7 +51,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private List<FutureAcceptorFilter>			pluginFilters		= new ArrayList<FutureAcceptorFilter>();
 	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
 	private RoleManager						roleManager		= new RoleManager();
-	private FixedSessionFactory				sessionFactory		= new FixedSessionFactory();
+	private FixedSessionFactory				sessionFactory		;
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
 	private FutureAcceptorServiceFilter		lastServiceFilter	= null;
@@ -90,6 +90,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
+		this.sessionFactory = new FixedSessionFactory(context);
 		this.context.setSessionFactory(sessionFactory);
 	}
 

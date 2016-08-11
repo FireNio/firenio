@@ -22,17 +22,17 @@ public class TestBeat {
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
-
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setSessionIdleTime(1200);
+		
 		FixedSession session = eventHandle.getFixedSession();
-
+		
 		connector.connect();
 		
-		session.keepAlive(1200);
-
 		session.login("admin", "admin100");
 		
-		String param = ClientUtil.getParamString();
+		String param = "tttt";
 		
 		long old = System.currentTimeMillis();
 		

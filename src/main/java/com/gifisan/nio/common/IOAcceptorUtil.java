@@ -1,12 +1,11 @@
 package com.gifisan.nio.common;
 
 import com.gifisan.nio.acceptor.TCPAcceptor;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.LoggerSEListener;
-import com.gifisan.nio.component.ManagerSEListener;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.component.SessionAliveSEListener;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class IOAcceptorUtil {
@@ -37,7 +36,7 @@ public class IOAcceptorUtil {
 
 				context.addSessionEventListener(new LoggerSEListener());
 
-				context.addSessionEventListener(new ManagerSEListener());
+				context.addSessionEventListener(new SessionAliveSEListener());
 
 				acceptor.setContext(context);
 

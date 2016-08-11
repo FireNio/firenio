@@ -2,7 +2,7 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -18,7 +18,7 @@ public class TestPublish {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

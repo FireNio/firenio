@@ -14,4 +14,8 @@ public class LoggerSEListener implements SessionEventListener{
 	public void sessionClosed(Session session) {
 		logger.debug("session closed:{}",session);
 	}
+
+	public void sessionIdled(Session session,long lastIdleTime, long currentTime) {
+		logger.debug("session Idled:{}",session);
+	}
 }

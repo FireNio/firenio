@@ -3,7 +3,7 @@ package test.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.PropertiesLoader;
@@ -45,7 +45,7 @@ public class TestLoadClient1 extends ITestThread{
 			}
 		};
 		
-		connector = ClientUtil.getTCPConnector(eventHandleAdaptor);
+		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
 		connector.connect();
 		session = connector.getSession();

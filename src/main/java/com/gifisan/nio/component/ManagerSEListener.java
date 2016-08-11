@@ -1,7 +1,7 @@
 package com.gifisan.nio.component;
 
 
-public class ManagerSEListener implements SessionEventListener{
+public class ManagerSEListener extends SEListenerAdapter{
 	
 	public void sessionOpened(Session session) {
 

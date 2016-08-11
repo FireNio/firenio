@@ -1,7 +1,6 @@
 package com.gifisan.nio.component;
 
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
 import com.gifisan.nio.common.CloseUtil;
@@ -44,8 +43,6 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 
 	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
 
-		SelectableChannel channel = selectionKey.channel();
-
 		Object attachment = selectionKey.attachment();
 
 		if (isTCPEndPoint(attachment)) {
@@ -54,10 +51,8 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 
 			endPoint.endConnect();
 
-			CloseUtil.close(endPoint);
+			CloseUtil.close(endPoint.getSession());
 		}
-
-		CloseUtil.close(channel);
 
 		selectionKey.cancel();
 

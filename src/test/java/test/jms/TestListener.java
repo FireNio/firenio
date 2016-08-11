@@ -1,6 +1,6 @@
 package test.jms;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.PropertiesLoader;
@@ -21,7 +21,7 @@ public class TestListener {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

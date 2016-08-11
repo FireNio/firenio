@@ -2,7 +2,7 @@ package test.http11;
 
 import java.io.IOException;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.PropertiesLoader;
@@ -23,7 +23,7 @@ public class TestSimpleHttp {
 
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandleAdaptor);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
 		eventHandleAdaptor.setTCPConnector(connector);
 

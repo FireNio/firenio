@@ -107,7 +107,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			
 			if (endPoint.isOpened()) {
 			
-				CloseUtil.close(endPoint);
+				CloseUtil.close(endPoint.getSession());
 			}
 			
 			endPoint.decrementWriter();
@@ -140,14 +140,14 @@ public class DefaultEndPointWriter implements EndPointWriter {
 		} catch (IOException e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint);
+			CloseUtil.close(endPoint.getSession());
 
 			futureFromWriters.onException(e);
 
 		} catch (Exception e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint);
+			CloseUtil.close(endPoint.getSession());
 
 			futureFromWriters.onException(new IOException(e));
 		}
@@ -168,7 +168,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			doWriteFutureFromWriters(futureFromWriters, endPoint);
 
 			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint);
+				CloseUtil.close(endPoint.getSession());
 			}
 
 			return;
@@ -195,7 +195,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			futureFromWriters.onSuccess();
 
 			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint);
+				CloseUtil.close(endPoint.getSession());
 			}
 
 		} else {

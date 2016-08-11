@@ -1,13 +1,13 @@
 package com.gifisan.nio.extend.plugin.authority;
 
+import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionEventListener;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.ApplicationContextUtil;
 import com.gifisan.nio.extend.FixedSessionFactory;
 import com.gifisan.nio.extend.security.Authority;
 
-public class AuthoritySEListener implements SessionEventListener{
+public class AuthoritySEListener extends SEListenerAdapter {
 	
 	public void sessionOpened(Session session) {
 		

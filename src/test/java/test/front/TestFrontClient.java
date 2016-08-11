@@ -2,7 +2,7 @@ package test.front;
 
 import java.io.IOException;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.PropertiesLoader;
@@ -35,7 +35,7 @@ public class TestFrontClient {
 
 		configuration.setSERVER_TCP_PORT(8600);
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandleAdaptor, configuration);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
 		connector.connect();
 

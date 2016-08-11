@@ -22,7 +22,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 		if (endPoint.isEndConnect()) {
 			if (endPoint.isOpened()) {
-				CloseUtil.close(endPoint);
+				CloseUtil.close(endPoint.getSession());
 			}
 			return;
 		}
@@ -35,7 +35,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 			if (future == null) {
 				if (endPoint.isEndConnect()) {
-					CloseUtil.close(endPoint);
+					CloseUtil.close(endPoint.getSession());
 				}
 				return;
 			}

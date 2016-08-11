@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
@@ -46,7 +46,7 @@ public class TestLoadClient {
 			}
 		};
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandleAdaptor);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		connector.connect();
 

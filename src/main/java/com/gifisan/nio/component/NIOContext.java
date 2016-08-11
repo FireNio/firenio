@@ -38,6 +38,10 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract Sequence getSequence();
 
+	public long getSessionIdleTime();
+
+	public void setSessionIdleTime(long sessionIdleTime);
+
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
 
 	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);

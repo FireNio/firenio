@@ -43,6 +43,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private IOService					udpService			;
 	private ProtocolFactory				protocolFactory		;
 	private UniqueThread				sessionFactoryThread	;
+	private long						sessionIdleTime		= 30 * 60 * 1000;
 
 	public DefaultNIOContext() {
 		this.addLifeCycleListener(new NIOContextListener());
@@ -85,6 +86,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.readFutureAcceptor = new ReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
+		this.addSessionEventListener(new ManagerSEListener());
+		
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
@@ -100,7 +103,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
 		if (sessionFactory == null) {
-			sessionFactory = new SessionFactory();
+			sessionFactory = new SessionFactory(this);
 		}
 		
 		if (protocolFactory == null) {
@@ -246,4 +249,18 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
 	}
+
+	public long getSessionIdleTime() {
+		return sessionIdleTime;
+	}
+
+	public void setSessionIdleTime(long sessionIdleTime) {
+		
+		if (sessionIdleTime < 1) {
+			throw new IllegalArgumentException("illegal sessionIdleTime:"+sessionIdleTime);
+		}
+		
+		this.sessionIdleTime = sessionIdleTime;
+	}
+	
 }

@@ -23,7 +23,7 @@ public class UDPConnector extends AbstractIOConnector {
 	private Logger				logger		= LoggerFactory.getLogger(UDPConnector.class);
 	private ClientUDPSelectorLoop	selectorLoop;
 	private UniqueThread		selectorLoopThread;
-	private DatagramChannel channel;
+	private DatagramChannel		channel;
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
 	protected UniqueThread getSelectorLoopThread() {
@@ -88,34 +88,34 @@ public class UDPConnector extends AbstractIOConnector {
 		buffer.flip();
 	}
 
-	protected void connect(NIOContext context,InetSocketAddress socketAddress) throws IOException {
-		
+	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
+
 		this.channel = DatagramChannel.open();
-		
+
 		this.selectorLoop = new ClientUDPSelectorLoop(context);
-		
+
 		this.selectorLoop.register(context, channel);
-		
+
 		this.channel.connect(socketAddress);
-		
+
 		this.endPoint = selectorLoop.getEndPoint();
-		
+
 		this.endPoint.setSession(session);
-		
+
 		this.selectorLoopThread = new UniqueThread(selectorLoop, toString());
 
 		this.selectorLoopThread.start();
 	}
 
 	protected void close(NIOContext context) {
-		
+
 		if (channel != null && channel.isConnected()) {
 			CloseUtil.close(channel);
 		}
 
 		LifeCycleUtil.stop(selectorLoopThread);
 
-		CloseUtil.close(endPoint);
+		CloseUtil.close(endPoint.getSession());
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

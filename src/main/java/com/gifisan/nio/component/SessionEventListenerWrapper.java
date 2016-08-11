@@ -25,4 +25,8 @@ public class SessionEventListenerWrapper implements SessionEventListener{
 	public void sessionClosed(Session session) {
 		this._listener.sessionClosed(session);
 	}
+
+	public void sessionIdled(Session session, long lastIdleTime,long currentTime) {
+		this._listener.sessionIdled(session, lastIdleTime,currentTime);
+	}
 }

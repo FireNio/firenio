@@ -3,7 +3,7 @@ package com.test;
 import java.io.IOException;
 import java.util.List;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.ThreadUtil;
@@ -23,7 +23,7 @@ public class TestGetContactListByUserID {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

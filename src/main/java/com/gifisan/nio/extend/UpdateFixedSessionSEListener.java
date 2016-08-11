@@ -1,9 +1,9 @@
 package com.gifisan.nio.extend;
 
+import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionEventListener;
 
-public class UpdateFixedSessionSEListener implements SessionEventListener{
+public class UpdateFixedSessionSEListener extends SEListenerAdapter {
 
 	private FixedSession fixedSession = null;
 	

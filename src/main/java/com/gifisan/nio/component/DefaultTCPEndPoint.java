@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gifisan.nio.common.Logger;
@@ -19,7 +18,6 @@ import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
 	private static final Logger	logger			= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
-	private AtomicBoolean		_closed			= new AtomicBoolean(false);
 	private boolean			_networkWeak;
 	private SocketChannel		channel;
 	private IOWriteFuture		currentWriter;
@@ -95,21 +93,12 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		if (writers.get() > 0) {
 			return;
 		}
+		
+		this.endConnect = true;
 
-		if (_closed.compareAndSet(false, true)) {
+//		this.selectionKey.attach(null);
 
-			this.endConnect = true;
-
-//			this.selectionKey.attach(null);
-
-			Session session = getSession();
-
-			getContext().getSessionFactory().removeSession(session);
-
-			session.destroy();
-
-			this.channel.close();
-		}
+		this.channel.close();
 	}
 
 	public void decrementWriter() {

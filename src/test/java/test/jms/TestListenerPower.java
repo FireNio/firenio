@@ -1,6 +1,6 @@
 package test.jms;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
@@ -16,7 +16,7 @@ public class TestListenerPower {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

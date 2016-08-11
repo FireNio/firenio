@@ -7,4 +7,6 @@ public interface SessionEventListener {
 
 	public abstract void sessionClosed(Session session);
 	
+	public abstract void sessionIdled(Session session,long lastIdleTime,long currentTime);
+	
 }

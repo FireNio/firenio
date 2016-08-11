@@ -2,10 +2,10 @@ package com.gifisan.nio.extend.plugin.jms.server;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionEventListener;
 
-public class MQSessionEventListener implements SessionEventListener {
+public class MQSessionEventListener extends SEListenerAdapter {
 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
 

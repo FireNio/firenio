@@ -115,7 +115,7 @@ public class TCPConnector extends AbstractIOConnector {
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 
-		CloseUtil.close(endPoint);
+		CloseUtil.close(endPoint.getSession());
 	}
 
 	public String toString() {

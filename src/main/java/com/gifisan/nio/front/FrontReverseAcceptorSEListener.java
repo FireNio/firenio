@@ -2,10 +2,10 @@ package com.gifisan.nio.front;
 
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionEventListener;
 
-public class FrontReverseAcceptorSEListener implements SessionEventListener {
+public class FrontReverseAcceptorSEListener extends SEListenerAdapter {
 
 	private Logger				logger	= LoggerFactory.getLogger(FrontReverseAcceptorSEListener.class);
 

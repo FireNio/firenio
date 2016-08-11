@@ -12,8 +12,6 @@ import com.gifisan.nio.extend.security.Authority;
 
 public interface FixedSession extends ReadFutureAcceptor, Closeable {
 
-	public abstract void keepAlive(long time);
-
 	public abstract void logout();
 
 	public abstract NIOReadFuture request(String serviceName, String content) throws IOException;

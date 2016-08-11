@@ -1,9 +1,9 @@
 package com.gifisan.nio.extend.plugin.rtp.server;
 
+import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.SessionEventListener;
 
-public class RTPSessionEventListener implements SessionEventListener{
+public class RTPSessionEventListener extends SEListenerAdapter {
 	
 	public void sessionOpened(Session session) {
 		

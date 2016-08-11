@@ -2,7 +2,7 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.ThreadUtil;
@@ -22,7 +22,7 @@ public class TestListenerByteMessage {
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

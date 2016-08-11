@@ -3,7 +3,7 @@ package com.test;
 import java.io.IOException;
 import java.util.Map;
 
-import test.ClientUtil;
+import test.IOConnectorUtil;
 
 import com.gifisan.nio.common.BeanUtil;
 import com.gifisan.nio.common.CloseUtil;
@@ -22,7 +22,7 @@ public class TestAddContact {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = ClientUtil.getTCPConnector(eventHandle);
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

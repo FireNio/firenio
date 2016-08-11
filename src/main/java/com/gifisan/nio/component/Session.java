@@ -1,5 +1,6 @@
 package com.gifisan.nio.component;
 
+import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -7,7 +8,7 @@ import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
 
-public interface Session {
+public interface Session extends Closeable{
 
 	public abstract void active();
 	
@@ -18,7 +19,7 @@ public interface Session {
 	/**
 	 * 该方法为非线程安全，Connector端使用时应注意
 	 */
-	public abstract void destroy();
+	public abstract void close();
 
 	/**
 	 * 该方法能主动关闭EndPoint，但是可能会因为线程同步导致MainSelector抛出
