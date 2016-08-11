@@ -47,11 +47,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 
 		if (isTCPEndPoint(attachment)) {
 
-			TCPEndPoint endPoint = (TCPEndPoint) attachment;
-
-			endPoint.endConnect();
-
-			CloseUtil.close(endPoint.getSession());
+			CloseUtil.close(((TCPEndPoint) attachment));
 		}
 
 		selectionKey.cancel();

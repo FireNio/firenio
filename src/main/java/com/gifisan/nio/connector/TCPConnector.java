@@ -28,8 +28,8 @@ public class TCPConnector extends AbstractIOConnector {
 	private UniqueThread	selectorLoopThread;
 	private Waiter			waiter	= new Waiter();
 
-	protected void connect(NIOContext context,InetSocketAddress socketAddress) throws IOException {
-		
+	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
+
 		this.channel = SocketChannel.open();
 
 		this.channel.configureBlocking(false);
@@ -39,13 +39,13 @@ public class TCPConnector extends AbstractIOConnector {
 		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
 
 		this.selectorLoop = new ClientTCPSelectorLoop(context, this, endPointWriter);
-		
+
 		this.selectorLoop.register(context, channel);
-		
+
 		this.channel.connect(socketAddress);
-		
+
 		this.selectorLoopThread = new UniqueThread(selectorLoop, this.toString());
-		
+
 		this.selectorLoopThread.start();
 
 		if (!waiter.await(30000)) {
@@ -81,7 +81,7 @@ public class TCPConnector extends AbstractIOConnector {
 			this.waiter.setPayload(null);
 
 			if (waiter.isSuccess()) {
-				
+
 				this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
 
 				this.endPointWriterThread.start();
@@ -115,7 +115,7 @@ public class TCPConnector extends AbstractIOConnector {
 		LifeCycleUtil.stop(selectorLoopThread);
 		LifeCycleUtil.stop(endPointWriterThread);
 
-		CloseUtil.close(endPoint.getSession());
+		CloseUtil.close(endPoint);
 	}
 
 	public String toString() {

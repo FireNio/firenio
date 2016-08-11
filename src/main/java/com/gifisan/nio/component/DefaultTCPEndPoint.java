@@ -9,6 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
@@ -21,7 +22,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private boolean			_networkWeak;
 	private SocketChannel		channel;
 	private IOWriteFuture		currentWriter;
-	private boolean			endConnect;
+	private boolean			opened			= true;
 	private EndPointWriter		endPointWriter;
 	private IOReadFuture		readFuture;
 	private SelectionKey		selectionKey;
@@ -89,16 +90,20 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	public void close() throws IOException {
-		//FIXME writes 
+		CloseUtil.close(session);
+	}
+	
+	public void physicalClose() throws IOException {
 		if (writers.get() > 0) {
-			return;
+			//FIXME writes
 		}
 		
-		this.endConnect = true;
+		this.opened = false;
 
 //		this.selectionKey.attach(null);
 
 		this.channel.close();
+		
 	}
 
 	public void decrementWriter() {
@@ -106,7 +111,8 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	public void endConnect() {
-		this.endConnect = true;
+//		this.endConnect = true;
+		CloseUtil.close(session);
 	}
 
 	public void wakeup() throws IOException {
@@ -120,8 +126,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 				endPoint.updateNetworkState(1);
 				
 				endPointWriter.wekeupEndPoint(endPoint);
-				
-//				logger.debug("EndPoint wakeup:{}",endPoint);
 			}
 		});
 
@@ -178,16 +182,12 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return channel.isBlocking();
 	}
 
-	public boolean isEndConnect() {
-		return endConnect;
-	}
-
 	public boolean isNetworkWeak() {
 		return _networkWeak;
 	}
 
 	public boolean isOpened() {
-		return this.channel.isOpen();
+		return opened;
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {

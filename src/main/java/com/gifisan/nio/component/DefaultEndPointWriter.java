@@ -24,7 +24,6 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	private Logger							logger		= LoggerFactory.getLogger(DefaultEndPointWriter.class);
 	private ReentrantList<EndPointWriteEvent>	events		= new ReentrantList<EndPointWriteEvent>();
 
-	
 	public DefaultEndPointWriter(int capacity) {
 		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
 	}
@@ -44,51 +43,51 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	public void wekeupEndPoint(TCPEndPoint endPoint) {
 
 		Integer endPointID = endPoint.getEndPointID();
-		
+
 		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
 
 		if (list == null) {
 			return;
 		}
 
-		for(IOWriteFuture f :list){
-			
+		for (IOWriteFuture f : list) {
+
 			this.offer(f);
 		}
-		
+
 		sleepEndPoints.remove(endPointID);
 	}
 
 	private void sleepWriter(TCPEndPoint endPoint, IOWriteFuture future) {
-		
+
 		Integer endPointID = endPoint.getEndPointID();
-		
+
 		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
 
 		if (list == null) {
-			
+
 			list = new ArrayList<IOWriteFuture>();
-			
+
 			sleepEndPoints.put(endPointID, list);
 		}
 
 		list.add(future);
 	}
-	
-	private void fireEvents(List<EndPointWriteEvent> events){
-		
-		for(EndPointWriteEvent e : events){
-			
+
+	private void fireEvents(List<EndPointWriteEvent> events) {
+
+		for (EndPointWriteEvent e : events) {
+
 			e.handle(this);
 		}
-		
+
 		events.clear();
 	}
 
 	public void loop() {
 
 		List<EndPointWriteEvent> events = this.events.getSnapshot();
-		
+
 		if (!events.isEmpty()) {
 
 			fireEvents(events);
@@ -103,23 +102,18 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 		TCPEndPoint endPoint = futureFromWriters.getEndPoint();
 
-		if (endPoint.isEndConnect()) {
-			
-			if (endPoint.isOpened()) {
-			
-				CloseUtil.close(endPoint.getSession());
-			}
-			
+		if (!endPoint.isOpened()) {
+
 			endPoint.decrementWriter();
-			
+
 			futureFromWriters.onException(new DisconnectException("disconnected"));
-			
+
 			return;
 		}
 
 		if (endPoint.isNetworkWeak()) {
 
-			this.sleepWriter(endPoint,futureFromWriters);
+			this.sleepWriter(endPoint, futureFromWriters);
 
 			return;
 		}
@@ -140,19 +134,19 @@ public class DefaultEndPointWriter implements EndPointWriter {
 		} catch (IOException e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint.getSession());
+			CloseUtil.close(endPoint);
 
 			futureFromWriters.onException(e);
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint.getSession());
+			CloseUtil.close(endPoint);
 
 			futureFromWriters.onException(new IOException(e));
 		}
 	}
-
+	
 	// write future from endPoint
 	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromWriters,
 			TCPEndPoint endPoint) throws IOException {
@@ -166,10 +160,6 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			futureFromEndPoint.onSuccess();
 
 			doWriteFutureFromWriters(futureFromWriters, endPoint);
-
-			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint.getSession());
-			}
 
 			return;
 		}
@@ -189,14 +179,10 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	private void doWriteFutureFromWriters(IOWriteFuture futureFromWriters, TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromWriters.write()) {
-			
+
 			endPoint.decrementWriter();
 
 			futureFromWriters.onSuccess();
-
-			if (endPoint.isEndConnect()) {
-				CloseUtil.close(endPoint.getSession());
-			}
 
 		} else {
 

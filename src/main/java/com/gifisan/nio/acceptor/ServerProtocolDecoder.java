@@ -3,6 +3,7 @@ package com.gifisan.nio.acceptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
@@ -49,7 +50,7 @@ public class ServerProtocolDecoder extends NIOProtocolDecoder implements Protoco
 			logger.debug("来自[ {}:{} ]的HTTP请求", endPoint.getRemoteAddr(),endPoint.getRemotePort());
 			return null;
 		}else{
-			endPoint.endConnect();
+			CloseUtil.close(endPoint);
 			return null;
 		}
 	}

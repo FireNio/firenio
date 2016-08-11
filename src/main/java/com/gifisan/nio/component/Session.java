@@ -21,14 +21,6 @@ public interface Session extends Closeable{
 	 */
 	public abstract void close();
 
-	/**
-	 * 该方法能主动关闭EndPoint，但是可能会因为线程同步导致MainSelector抛出
-	 * </BR>java.nio.channels.ClosedChannelException
-	 * 
-	 * @see java.nio.channels.ClosedChannelException
-	 */
-	public abstract void disconnect();
-
 	public abstract void flush(ReadFuture future);
 
 	public abstract Object getAttachment();

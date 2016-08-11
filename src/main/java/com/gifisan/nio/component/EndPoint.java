@@ -1,6 +1,7 @@
 package com.gifisan.nio.component;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -17,6 +18,8 @@ public interface EndPoint extends Closeable{
 	public abstract String getRemoteHost();
 
 	public abstract int getRemotePort();
+	
+	public abstract void physicalClose() throws IOException;
 
 	public abstract NIOContext getContext();
 	

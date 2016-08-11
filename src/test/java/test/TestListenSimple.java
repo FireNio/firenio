@@ -3,6 +3,7 @@ package test;
 import java.io.IOException;
 
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
@@ -17,7 +18,7 @@ public class TestListenSimple {
 	
 	public static void main(String[] args) throws IOException {
 
-
+		PropertiesLoader.setBasepath("nio");
 		String serviceKey = "TestListenSimpleServlet";
 		String param = "ttt";
 		

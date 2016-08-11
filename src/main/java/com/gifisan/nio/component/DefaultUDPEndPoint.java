@@ -38,7 +38,11 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 	}
 
 	public void close() throws IOException {
+		throw new UnsupportedOperationException("physicalClose close instead");
+	}
 
+	public void physicalClose() throws IOException {
+		
 		if (_closed.compareAndSet(false, true)) {
 
 			UDPEndPointFactory factory = getContext().getUDPEndPointFactory();
@@ -47,6 +51,7 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 			
 			LOGGER.debug(">>>> rm {}", this.toString());
 		}
+		
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {

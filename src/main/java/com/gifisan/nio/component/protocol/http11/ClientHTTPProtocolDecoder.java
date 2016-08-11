@@ -3,6 +3,7 @@ package com.gifisan.nio.component.protocol.http11;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
@@ -23,7 +24,7 @@ public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 
 		if (length < 1) {
 			if (length == -1) {
-				endPoint.endConnect();
+				CloseUtil.close(endPoint);
 			}
 			return null;
 		}

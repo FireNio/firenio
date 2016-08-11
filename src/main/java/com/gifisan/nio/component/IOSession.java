@@ -5,12 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import com.gifisan.nio.DisconnectException;
-import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.EmptyWriteFuture;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
@@ -59,13 +57,13 @@ public class IOSession implements Session {
 			if (closed) {
 				return;
 			}
+
+			this.closed = true;
 			
 			//FIXME
-			CloseUtil.close(udpEndPoint);
+			physicalClose(udpEndPoint);
 			
-			CloseUtil.close(endPoint);
-			
-			this.closed = true;
+			physicalClose(endPoint);
 			
 			SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 			
@@ -79,11 +77,18 @@ public class IOSession implements Session {
 			}
 		}
 	}
-
-	public void disconnect() {
-		//FIXME 可否X秒之后关闭
-		this.endPoint.endConnect();
-		this.endPoint.getEndPointWriter().offer(new EmptyWriteFuture(endPoint));
+	
+	private void physicalClose(EndPoint endPoint) {
+		
+		if (endPoint == null) {
+			return;
+		}
+		
+		try {
+			endPoint.physicalClose();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
+		}
 	}
 
 	public void flush(ReadFuture future) {

@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
@@ -13,6 +14,8 @@ import com.gifisan.nio.extend.SimpleIOEventHandle;
 public class TestSessionDisconnect {
 
 	public static void main(String[] args) throws IOException {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		String serviceName = "TestSessionDisconnectServlet";
 		

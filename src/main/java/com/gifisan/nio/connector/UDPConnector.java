@@ -115,7 +115,7 @@ public class UDPConnector extends AbstractIOConnector {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 
-		CloseUtil.close(endPoint.getSession());
+		CloseUtil.close(endPoint);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

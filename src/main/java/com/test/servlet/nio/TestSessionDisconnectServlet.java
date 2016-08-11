@@ -25,7 +25,7 @@ public class TestSessionDisconnectServlet extends NIOFutureAcceptorService{
 		future.write("$");
 		session.flush(future);
 		
-		session.disconnect();
+		session.close();
 		
 	}
 

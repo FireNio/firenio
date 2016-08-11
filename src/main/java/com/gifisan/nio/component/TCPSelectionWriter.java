@@ -9,7 +9,7 @@ public class TCPSelectionWriter implements SelectionAcceptor {
 
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
 
-		if (endPoint.isEndConnect()) {
+		if (!endPoint.isOpened()) {
 			return;
 		}
 

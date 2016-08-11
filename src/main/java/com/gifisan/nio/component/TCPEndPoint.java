@@ -14,10 +14,6 @@ import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 //下次循环时检测是否收到心跳
 public interface TCPEndPoint extends EndPoint {
 
-	public abstract void endConnect();
-
-	public abstract boolean isEndConnect();
-
 	public abstract void setCurrentWriter(IOWriteFuture writer);
 
 	public abstract IOWriteFuture getCurrentWriter();
