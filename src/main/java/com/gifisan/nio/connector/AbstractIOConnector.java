@@ -37,8 +37,6 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 	
 	protected abstract void close(NIOContext context);
 	
-	protected abstract InetSocketAddress getLocalSocketAddress();
-
 	public void connect() throws IOException {
 		if (connected.compareAndSet(false, true)) {
 
@@ -55,10 +53,10 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 			int SERVER_PORT = getSERVER_PORT(configuration);
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+			
+			this.setIOService(context);
 
 			this.connect(context,serverAddress);
-
-			this.setIOService(context);
 		}
 	}
 	

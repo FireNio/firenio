@@ -13,10 +13,10 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public final class UDPAcceptor extends AbstractIOAcceptor {
 	
-	private UDPSelectorLoop	selectorLoop		;
-	private UniqueThread	selectorLoopThread	;
-	private DatagramChannel		channel		;
-	private DatagramSocket		serverSocket	;
+	private UDPSelectorLoop		selectorLoop		;
+	private UniqueThread		selectorLoopThread	;
+	private DatagramChannel		channel			;
+	private DatagramSocket		serverSocket		;
 
 	protected void bind(NIOContext context,InetSocketAddress socketAddress) throws IOException {
 		
@@ -33,15 +33,19 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 		
 		this.selectorLoop.register(context, channel);
 		
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getSelectorDescription());
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription()+"(Selector)");
 
 		this.selectorLoopThread.start();
 	}
-
-	private String getSelectorDescription(){
-		return "UDP:Selector@edp" + serverSocket.getLocalSocketAddress();
-	}
 	
+	public String getServiceDescription() {
+		return "UDP:" + getServerSocketAddress();
+	}
+
+	public InetSocketAddress getServerSocketAddress() {
+		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
+	}
+
 	protected void unbind(NIOContext context) {
 
 		LifeCycleUtil.stop(selectorLoopThread);

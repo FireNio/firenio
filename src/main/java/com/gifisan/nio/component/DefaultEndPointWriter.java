@@ -15,6 +15,7 @@ import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.concurrent.ReentrantList;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
+import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 //FIXME 问题好像出在这里
 public class DefaultEndPointWriter implements EndPointWriter {
@@ -23,8 +24,16 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger							logger		= LoggerFactory.getLogger(DefaultEndPointWriter.class);
 	private ReentrantList<EndPointWriteEvent>	events		= new ReentrantList<EndPointWriteEvent>();
+	private NIOContext						context		= null;
 
-	public DefaultEndPointWriter(int capacity) {
+	public DefaultEndPointWriter(NIOContext context) {
+		
+		this.context = context;
+		
+		ServerConfiguration configuration = context.getServerConfiguration();
+
+		int capacity = configuration.getSERVER_WRITE_QUEUE_SIZE();
+
 		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
 	}
 
@@ -146,7 +155,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			futureFromWriters.onException(new IOException(e));
 		}
 	}
-	
+
 	// write future from endPoint
 	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromWriters,
 			TCPEndPoint endPoint) throws IOException {
@@ -197,7 +206,10 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	}
 
 	public String toString() {
-		return "Future-Writer";
+		
+		IOService service = context.getTCPService();
+		
+		return service.getServiceDescription() + "(Writer)";
 	}
 
 	public interface EndPointWriteEvent {

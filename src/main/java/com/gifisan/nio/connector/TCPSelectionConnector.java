@@ -6,21 +6,19 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
+import com.gifisan.nio.component.AbstractTCPSelectionAlpha;
 import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.TCPEndPoint;
 
-public class TCPSelectionConnector implements SelectionAcceptor {
+public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
-	private EndPointWriter	endPointWriter;
 	private Selector		selector;
 	private TCPConnector	connector;
 	private NIOContext		context;
 
-	public TCPSelectionConnector(NIOContext context, TCPConnector connector, EndPointWriter endPointWriter) {
-		this.endPointWriter = endPointWriter;
+	public TCPSelectionConnector(NIOContext context, TCPConnector connector) {
 		this.connector = connector;
 		this.context = context;
 	}
@@ -91,4 +89,8 @@ public class TCPSelectionConnector implements SelectionAcceptor {
 	protected void setSelector(Selector selector) {
 		this.selector = selector;
 	}
+	
+	
+	
+	
 }

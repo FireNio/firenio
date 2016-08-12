@@ -6,8 +6,6 @@ import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.component.DefaultEndPointWriter;
-import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.SelectorLoop;
 import com.gifisan.nio.component.concurrent.UniqueThread;
@@ -15,8 +13,6 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public final class TCPAcceptor extends AbstractIOAcceptor {
 
-	private EndPointWriter		endPointWriter			;
-	private UniqueThread		endPointWriterThread	;
 	private SelectorLoop []		selectorLoops			;
 	private UniqueThread []		selectorLoopThreads		;
 	private ServerSocketChannel	channel				;
@@ -40,36 +36,34 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 		
 		CoreProcessors processors = new CoreProcessors(core_size);
 		
-		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
-		
 		this.selectorLoops = new SelectorLoop[core_size];
 		
 		for (int i = 0; i < core_size; i++) {
-			selectorLoops[i] = new ServerTCPSelectorLoop(context, endPointWriter,processors);
+			selectorLoops[i] = new ServerTCPSelectorLoop(context,processors);
 		}
 		
 		for (int i = 0; i < core_size; i++) {
 			selectorLoops[i].register(context, channel);
 		}
 		
-		this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
-		
-		this.endPointWriterThread.start();
-
 		selectorLoopThreads = new UniqueThread[core_size];
 		
 		for (int i = 0; i < core_size; i++) {
 			
 			SelectorLoop selectorLoop = selectorLoops[i];
 			
-			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getSelectorDescription());
+			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
 			
 			selectorLoopThreads[i].start();
 		}
 	}
 
-	private String getSelectorDescription(){
-		return "TCP:Selector@edp" + serverSocket.getLocalSocketAddress();
+	public String getServiceDescription(){
+		return "TCP:" + getServerSocketAddress();
+	}
+	
+	public InetSocketAddress getServerSocketAddress(){
+		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
 	}
 
 	protected void unbind(NIOContext context) {
@@ -82,8 +76,6 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 			
 			LifeCycleUtil.stop(selectorLoopThreads[i]);
 		}
-		
-		LifeCycleUtil.stop(endPointWriterThread);
 	}
 	
 	protected void setIOService(NIOContext context) {

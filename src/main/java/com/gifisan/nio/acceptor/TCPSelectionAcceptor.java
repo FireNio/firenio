@@ -8,13 +8,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.gifisan.nio.component.AbstractTCPSelectionAlpha;
 import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.SelectionAcceptor;
 import com.gifisan.nio.component.TCPEndPoint;
 
-public class TCPSelectionAcceptor implements SelectionAcceptor {
+public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	private Selector				selector;
 	private NIOContext				context			;
@@ -24,10 +24,8 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 	private CoreProcessors			processors		;
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-
-	public TCPSelectionAcceptor(NIOContext context, EndPointWriter endPointWriter,CoreProcessors processors) {
+	public TCPSelectionAcceptor(NIOContext context,CoreProcessors processors) {
 		this.context = context;
-		this.endPointWriter = endPointWriter;
 		this.processors = processors;
 		
 		ReentrantLock lock = processors.getReentrantLock();
@@ -99,6 +97,14 @@ public class TCPSelectionAcceptor implements SelectionAcceptor {
 
 		// logger.debug("__________________chanel____gen____{}", channel);
 
+	}
+	
+	public EndPointWriter getEndPointWriter() {
+		return endPointWriter;
+	}
+
+	public void setEndPointWriter(EndPointWriter endPointWriter) {
+		this.endPointWriter = endPointWriter;
 	}
 
 	private void attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)

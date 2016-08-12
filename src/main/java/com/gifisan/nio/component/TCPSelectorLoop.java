@@ -12,9 +12,9 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 	private Logger				logger	= LoggerFactory.getLogger(TCPSelectorLoop.class);
 	protected SelectionAcceptor	_read_acceptor;
 	protected SelectionAcceptor	_write_acceptor;
-	protected SelectionAcceptor	_alpha_acceptor;
+	protected TCPSelectionAlpha	_alpha_acceptor;
 
-	public TCPSelectorLoop(NIOContext context, EndPointWriter endPointWriter) {
+	public TCPSelectorLoop(NIOContext context) {
 		this._write_acceptor = new TCPSelectionWriter();
 		this._read_acceptor = new TCPSelectionReader(context);
 	}

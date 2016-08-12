@@ -35,11 +35,11 @@ public class UDPConnector extends AbstractIOConnector {
 		this.context = session.getContext();
 	}
 
-	public String toString() {
-		return "UDP:Selector@edp" + getLocalSocketAddress().toString();
+	public String getServiceDescription() {
+		return "UDP:" + getServerSocketAddress();
 	}
 
-	protected InetSocketAddress getLocalSocketAddress() {
+	public InetSocketAddress getServerSocketAddress() {
 		return endPoint.getLocalSocketAddress();
 	}
 
@@ -102,7 +102,7 @@ public class UDPConnector extends AbstractIOConnector {
 
 		this.endPoint.setSession(session);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, toString());
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
 
 		this.selectorLoopThread.start();
 	}

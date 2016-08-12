@@ -8,8 +8,6 @@ import com.gifisan.nio.TimeoutException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.MessageFormatter;
-import com.gifisan.nio.component.DefaultEndPointWriter;
-import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.TCPSelectorLoop;
@@ -22,8 +20,6 @@ public class TCPConnector extends AbstractIOConnector {
 	private SocketChannel	channel;
 	private IOException		connectException;
 	private TCPEndPoint		endPoint;
-	private EndPointWriter	endPointWriter;
-	private UniqueThread	endPointWriterThread;
 	private TCPSelectorLoop	selectorLoop;
 	private UniqueThread	selectorLoopThread;
 	private Waiter			waiter	= new Waiter();
@@ -34,17 +30,13 @@ public class TCPConnector extends AbstractIOConnector {
 
 		this.channel.configureBlocking(false);
 
-		ServerConfiguration configuration = context.getServerConfiguration();
-
-		this.endPointWriter = new DefaultEndPointWriter(configuration.getSERVER_WRITE_QUEUE_SIZE());
-
-		this.selectorLoop = new ClientTCPSelectorLoop(context, this, endPointWriter);
+		this.selectorLoop = new ClientTCPSelectorLoop(context, this);
 
 		this.selectorLoop.register(context, channel);
 
 		this.channel.connect(socketAddress);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, this.toString());
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
 
 		this.selectorLoopThread.start();
 
@@ -81,10 +73,7 @@ public class TCPConnector extends AbstractIOConnector {
 			this.waiter.setPayload(null);
 
 			if (waiter.isSuccess()) {
-
-				this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
-
-				this.endPointWriterThread.start();
+				//do something
 			}
 		} else {
 
@@ -94,8 +83,8 @@ public class TCPConnector extends AbstractIOConnector {
 		}
 	}
 
-	protected InetSocketAddress getLocalSocketAddress() {
-		return endPoint.getLocalSocketAddress();
+	public InetSocketAddress getServerSocketAddress() {
+		return this.serverAddress;
 	}
 
 	protected UniqueThread getSelectorLoopThread() {
@@ -113,13 +102,12 @@ public class TCPConnector extends AbstractIOConnector {
 	protected void close(NIOContext context) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
-		LifeCycleUtil.stop(endPointWriterThread);
 
 		CloseUtil.close(endPoint);
 	}
 
-	public String toString() {
-		return "TCP:Selector@server:" + serverAddress.toString();
+	public String getServiceDescription() {
+		return "TCP:" + serverAddress.toString();
 	}
 
 }

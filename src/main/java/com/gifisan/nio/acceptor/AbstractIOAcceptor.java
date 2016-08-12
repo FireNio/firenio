@@ -38,10 +38,10 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 			ServerConfiguration configuration = context.getServerConfiguration();
 
 			int SERVER_PORT = getSERVER_PORT(configuration);
+			
+			this.setIOService(context);
 
 			this.bind(context,getInetSocketAddress(SERVER_PORT));
-
-			this.setIOService(context);
 		}
 	}
 
