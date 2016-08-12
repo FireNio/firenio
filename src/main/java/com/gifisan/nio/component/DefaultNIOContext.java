@@ -24,26 +24,25 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
-	private Map<Object, Object>			attributes			= new HashMap<Object, Object>();
-	private Sequence					sequence				= new Sequence();
-	private DatagramPacketAcceptor		datagramPacketAcceptor	;
-	private Charset					encoding				= Encoding.DEFAULT;
-	private IOEventHandleAdaptor			ioEventHandleAdaptor	;
-	private SessionEventListenerWrapper	lastSessionEventListener	;
-	private Logger						logger				= LoggerFactory
-																.getLogger(DefaultNIOContext.class);
-	private ProtocolEncoder				protocolEncoder		;
-	private ReadFutureAcceptor			readFutureAcceptor		;
-	private ServerConfiguration			serverConfiguration		;
-	private SessionEventListenerWrapper	sessionEventListenerStub	;
-	private SessionFactory				sessionFactory			;
-	private IOService					tcpService			;
-	private ThreadPool					threadPool			;
-	private UDPEndPointFactory			udpEndPointFactory		;
-	private IOService					udpService			;
-	private ProtocolFactory				protocolFactory		;
-	private UniqueThread				sessionFactoryThread	;
-	private long						sessionIdleTime		= 30 * 60 * 1000;
+	private Map<Object, Object>			attributes		= new HashMap<Object, Object>();
+	private Sequence					sequence			= new Sequence();
+	private DatagramPacketAcceptor		datagramPacketAcceptor;
+	private Charset					encoding			= Encoding.DEFAULT;
+	private IOEventHandleAdaptor			ioEventHandleAdaptor;
+	private SessionEventListenerWrapper	lastSessionEventListener;
+	private Logger						logger			= LoggerFactory.getLogger(DefaultNIOContext.class);
+	private ProtocolEncoder				protocolEncoder;
+	private ReadFutureAcceptor			readFutureAcceptor;
+	private ServerConfiguration			serverConfiguration;
+	private SessionEventListenerWrapper	sessionEventListenerStub;
+	private SessionFactory				sessionFactory;
+	private IOService					tcpService;
+	private ThreadPool					threadPool;
+	private UDPEndPointFactory			udpEndPointFactory;
+	private IOService					udpService;
+	private ProtocolFactory				protocolFactory;
+	private UniqueThread				sessionFactoryThread;
+	private long						sessionIdleTime	= 30 * 60 * 1000;
 
 	public DefaultNIOContext() {
 		this.addLifeCycleListener(new NIOContextListener());
@@ -77,6 +76,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
+		int SERVER_WRITE_QUEUE_SIZE = serverConfiguration.getSERVER_WRITE_QUEUE_SIZE();
+
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
 
 		Encoding.DEFAULT = encoding;
@@ -87,34 +88,34 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
 		this.addSessionEventListener(new ManagerSEListener());
-		
+
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} }", serverConfiguration.getSERVER_WRITE_QUEUE_SIZE());
+		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} * {} }", SERVER_WRITE_QUEUE_SIZE, SERVER_CORE_SIZE);
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
 			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ {} }", SERVER_CORE_SIZE);
 
 		this.ioEventHandleAdaptor.setContext(this);
-		
+
 		LifeCycleUtil.start(ioEventHandleAdaptor);
-		
+
 		if (sessionFactory == null) {
 			sessionFactory = new SessionFactory(this);
 		}
-		
+
 		if (protocolFactory == null) {
 			protocolFactory = new NIOProtocolFactory();
 		}
-		
+
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
-		
+
 		this.sessionFactoryThread.start();
-		
+
 		LifeCycleUtil.start(threadPool);
 	}
 
@@ -123,7 +124,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
 		LifeCycleUtil.stop(threadPool);
-		
+
 		LifeCycleUtil.stop(sessionFactoryThread);
 	}
 
@@ -194,7 +195,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private ServerConfiguration loadServerConfiguration(SharedBundle bundle) {
 
 		ServerConfiguration configuration = new ServerConfiguration();
-		
+
 		int WRITE_QUEUE_SIZE = configuration.getSERVER_WRITE_QUEUE_SIZE();
 
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
@@ -205,7 +206,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
 		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
 		configuration.setSERVER_ENCODING(Charset.forName(encoding));
-		configuration.setSERVER_WRITE_QUEUE_SIZE(bundle.getIntegerProperty("SERVER.WRITE_QUEUE_SIZE",WRITE_QUEUE_SIZE));
+		configuration.setSERVER_WRITE_QUEUE_SIZE(bundle.getIntegerProperty("SERVER.WRITE_QUEUE_SIZE",
+				WRITE_QUEUE_SIZE));
 
 		return configuration;
 	}
@@ -255,12 +257,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	}
 
 	public void setSessionIdleTime(long sessionIdleTime) {
-		
+
 		if (sessionIdleTime < 1) {
-			throw new IllegalArgumentException("illegal sessionIdleTime:"+sessionIdleTime);
+			throw new IllegalArgumentException("illegal sessionIdleTime:" + sessionIdleTime);
 		}
-		
+
 		this.sessionIdleTime = sessionIdleTime;
 	}
-	
+
 }
