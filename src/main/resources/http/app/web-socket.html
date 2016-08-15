@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+		<title>nimbleio</title>
+		<script language="javascript" type="text/javascript">
+			var output;
+			var wsUri = "ws://generallycloud.com/test-web-socket?token=WebSocket";
+			function init(wsUri) {
+				output = document.getElementById("output"); 
+				testWebSocket(wsUri); 
+			}
+			function testWebSocket(wsUri) {
+				websocket = new WebSocket(wsUri);
+				websocket.onopen = function (evt) { onOpen(evt) };
+				websocket.onclose = function (evt) { onClose(evt) };
+				websocket.onmessage = function (evt) { onMessage(evt) };
+				websocket.onerror = function (evt) { onError(evt) };
+			} 
+			function onOpen(evt) {
+				writeToScreen("CONNECTED");
+			}
+			function onClose(evt) { 
+				writeToScreen("DISCONNECTED"); 
+			}
+			function onMessage(evt) {
+				var value = document.getElementById('result').value + "\n";
+				document.getElementById('result').value = value + evt.data;
+			}
+			function onError(evt) { 
+				writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data); 
+			}
+			function doSend() {
+				var message = document.getElementById("message").value;
+				websocket.send(message); 
+			}
+			function writeToScreen(message) {
+				var pre = document.createElement("p"); 
+				pre.style.wordWrap = "break-word"; 
+				pre.innerHTML = message; 
+				output.insertBefore(pre,output.childNodes[0]);
+			}
+		 
+			function OnConnect() {
+				init(wsUri);
+			}
+		</script>
+		
+	</head>
+	<body style="font-family:Georgia;font-size:22px;">
+		<fieldset>
+			<legend>WebSocket hello wold</legend>
+			<p>
+				<input type="button" value="连接到服务器" onclick="OnConnect()" />
+				<input id="message" type="text" style="width:400px;" value="hello"/>
+				<input type="button" value="发送消息" onclick="doSend()" /></p>
+			<p>
+				<span>聊天室:</span>
+				<textarea id="result" style="width: 100%;height: 300px;"></textarea>
+			</p>
+		</fieldset>
+		<div id="output">
+			<div></div>
+		</div>
+	</body>
+</html>
+
+
+
