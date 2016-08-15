@@ -24,7 +24,7 @@ import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
-	private Logger			logger		= LoggerFactory.getLogger(TestSimpleServlet.class);
+	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketServlet.class);
 
 	private MsgAdapter		msgAdapter	= new MsgAdapter();
 
@@ -55,7 +55,10 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 		// CLOSE
 		if (f.getType() == 8) {
+
 			msgAdapter.removeClient(session);
+			
+			logger.info("客户端主动关闭连接：{}",session);
 		} else {
 
 			StringBuilder b = new StringBuilder();
@@ -119,13 +122,19 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 		public void addClient(Session session) {
 			synchronized (clients) {
+				
 				clients.add(session);
+				
+				logger.info("当前客户端数量：{}",clients.size());
 			}
 		}
 
 		public void removeClient(Session session) {
 			synchronized (clients) {
+				
 				clients.remove(session);
+				
+				logger.info("当前客户端数量：{}",clients.size());
 			}
 		}
 
