@@ -12,7 +12,6 @@ import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.Initializeable;
 import com.gifisan.nio.extend.InitializeableImpl;
 import com.gifisan.nio.extend.configuration.Configuration;
-import com.gifisan.nio.extend.implementation.ErrorServlet;
 
 public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, HotDeploy,
 		IOEventHandle {
@@ -35,24 +34,6 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 		this.destroy(context, config);
 	}
 
-	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
-		this.acceptException(session, future, cause);
-	}
-
-	private void acceptException(Session session, ReadFuture future, Throwable exception) {
-
-		ErrorServlet servlet = new ErrorServlet(exception);
-
-		try {
-
-			servlet.accept(session, future);
-
-		} catch (Throwable e) {
-
-			logger.error(e.getMessage(), e);
-		}
-	}
-
 	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
 		logger.error(cause.getMessage(), cause);
 	}
@@ -60,7 +41,7 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	public void futureSent(Session session, WriteFuture future) {
 
 	}
-	
+
 	public String toString() {
 
 		Configuration configuration = this.getConfig();

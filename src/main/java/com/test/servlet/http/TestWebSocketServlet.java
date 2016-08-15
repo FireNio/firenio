@@ -120,22 +120,18 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 		}
 
-		public void addClient(Session session) {
-			synchronized (clients) {
+		public synchronized void addClient(Session session) {
 				
-				clients.add(session);
-				
-				logger.info("当前客户端数量：{}",clients.size());
-			}
+			clients.add(session);
+			
+			logger.info("当前客户端数量：{}",clients.size());
 		}
 
-		public void removeClient(Session session) {
-			synchronized (clients) {
+		public synchronized void removeClient(Session session) {
 				
-				clients.remove(session);
-				
-				logger.info("当前客户端数量：{}",clients.size());
-			}
+			clients.remove(session);
+			
+			logger.info("当前客户端数量：{}",clients.size());
 		}
 
 		public void sendMsg(String msg) {
@@ -152,7 +148,7 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 			
 			logger.info("WebSocketMsg:{}",msg);
 
-			synchronized (clients) {
+			synchronized (this) {
 
 				for (Session s : clients) {
 					
@@ -170,5 +166,4 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 			}
 		}
 	}
-
 }

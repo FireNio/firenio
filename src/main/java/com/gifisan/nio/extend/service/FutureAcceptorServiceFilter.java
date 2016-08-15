@@ -53,6 +53,8 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 			acceptor.accept(session, future);
 		}
 	}
+	
+	
 
 	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
 
