@@ -41,15 +41,12 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 				if (' ' != lexer.current()) {
 					
 					lexer.previous();
-					
 				}
 				
 				headers.put(k, findHeaderValue(lexer));
-				
 			}else{
 				
 				value.append(c);
-				
 			}
 			
 			if (!lexer.next()) {

@@ -41,6 +41,10 @@ public abstract interface HttpReadFuture extends ReadFuture {
 	public abstract String getBoundary();
 
 	public abstract String getContentType();
+	
+	public abstract String getStatusDescription() ;
+
+	public abstract void setStatusDescription(String statusDescription) ;
 
 	public abstract Map<String, String> getRequestParams();
 	
@@ -63,4 +67,6 @@ public abstract interface HttpReadFuture extends ReadFuture {
 	public abstract void addCookie(Cookie cookie);
 	
 	public abstract void setHeader(String name,String value);
+	
+	public abstract void updateWebSocketProtocol();
 }

@@ -5,9 +5,8 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
-public class TextReadFuture extends AbstractNIOReadFuture implements IOReadFuture {
+public class TextReadFuture extends AbstractNIOReadFuture {
 
 	public TextReadFuture(Session session, Integer futureID, String serviceName) {
 		super(session, futureID, serviceName);

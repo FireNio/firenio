@@ -55,6 +55,6 @@ public class ClientHttpHeaderParser extends AbstractHttpHeaderParser{
 
 		future.version = array[0];
 		future.status = Integer.parseInt(array[1]);
-//		future.xxx = array[2];
+		future.statusDescription = array[2];
 	}
 }

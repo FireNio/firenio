@@ -9,11 +9,12 @@ import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 
-public class ServerHttpReadFuture extends AbstractHttpReadFuture implements HttpReadFuture {
+public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
 	public ServerHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
-		params = new HashMap<String, String>();
+		this.params = new HashMap<String, String>();
+		this.statusDescription = "OK";
 	}
 
 	protected void decodeHeader(byte[] source_array, int length, int pos) throws IOException {

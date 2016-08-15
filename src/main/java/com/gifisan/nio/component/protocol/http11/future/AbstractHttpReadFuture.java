@@ -9,11 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gifisan.nio.common.BASE64Util;
 import com.gifisan.nio.common.KMPByteUtil;
+import com.gifisan.nio.common.SHA1Util;
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.http11.WebSocketProtocolFactory;
 
 //FIXME 解析BODY中的内容
 //FIXME 改进header parser
@@ -26,6 +30,8 @@ import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
 public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implements HttpReadFuture {
 
 	protected static final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
+	
+	protected String				statusDescription;
 	protected ByteBuffer			body_buffer;
 	protected boolean				body_complete;
 	protected String				boundary;
@@ -184,6 +190,14 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public Map<String, String> getHeaders() {
 		return response_headers;
 	}
+	
+	public String getStatusDescription() {
+		return statusDescription;
+	}
+
+	public void setStatusDescription(String statusDescription) {
+		this.statusDescription = statusDescription;
+	}
 
 	public String getHost() {
 		return host;
@@ -249,5 +263,47 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+	public void flush() {
+		
+		if (updateWebSocketProtocol) {
+			endPoint.setProtocolDecoder(PROTOCOL_FACTORY.getProtocolDecoder());
+			endPoint.setProtocolEncoder(PROTOCOL_FACTORY.getProtocolEncoder());
+			
+			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getServiceName());
+		}
+		
+		super.flush();
+	}
+	
+	private static final WebSocketProtocolFactory PROTOCOL_FACTORY = new WebSocketProtocolFactory();
+
+	private boolean updateWebSocketProtocol;
+	
+	public void updateWebSocketProtocol() {
+		
+		String Sec_WebSocket_Key = getHeader("Sec-WebSocket-Key");
+
+		if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
+			
+			//258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
+			
+			String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+			
+			byte[] key_array = SHA1Util.SHA1(Sec_WebSocket_Key_Magic);
+
+			String acceptKey = BASE64Util.byteArrayToBase64(key_array);
+
+			setStatus(101);
+			setStatusDescription("Switching Protocols");
+			setHeader("Connection", "Upgrade");
+			setHeader("Upgrade", "WebSocket");
+			setHeader("Sec-WebSocket-Accept", acceptKey);
+			
+			updateWebSocketProtocol = true;
+			return;
+		}
+		throw new IllegalArgumentException("illegal http header : empty Sec-WebSocket-Key");
 	}
 }

@@ -3,6 +3,8 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
@@ -41,5 +43,12 @@ public interface TCPEndPoint extends EndPoint {
 	public abstract EndPointWriter getEndPointWriter();
 
 	public abstract boolean isBlocking();
+	
+	public abstract ProtocolEncoder getProtocolEncoder() ;
 
+	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder) ;
+
+	public abstract ProtocolDecoder getProtocolDecoder() ;
+
+	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder) ;
 }

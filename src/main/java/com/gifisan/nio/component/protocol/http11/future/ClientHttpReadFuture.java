@@ -8,7 +8,7 @@ import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 
-public class ClientHttpReadFuture extends AbstractHttpReadFuture implements HttpReadFuture {
+public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
 	public ClientHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);

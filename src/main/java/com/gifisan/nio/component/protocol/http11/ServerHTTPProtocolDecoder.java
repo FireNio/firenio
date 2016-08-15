@@ -7,14 +7,14 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.ServerHttpReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.ServerHttpHeaderParser;
+import com.gifisan.nio.component.protocol.http11.future.ServerHttpReadFuture;
 
 public class ServerHTTPProtocolDecoder implements ProtocolDecoder {
 
-	private ByteBuffer				buffer	= ByteBuffer.allocate(1024 * 4);
+	private ByteBuffer				buffer			= ByteBuffer.allocate(1024 * 4);
 
-	private ServerHttpHeaderParser	parser	= new ServerHttpHeaderParser();
+	private ServerHttpHeaderParser	parser			= new ServerHttpHeaderParser();
 
 	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
 

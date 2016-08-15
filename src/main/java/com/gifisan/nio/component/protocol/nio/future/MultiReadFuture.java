@@ -9,9 +9,8 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
-public class MultiReadFuture extends AbstractNIOReadFuture implements IOReadFuture {
+public class MultiReadFuture extends AbstractNIOReadFuture {
 
 	private int				dataLength;
 	private ByteBuffer			streamBuffer;

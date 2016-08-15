@@ -22,7 +22,6 @@ public class IOSession implements Session {
 	private Object						attachment;
 	private boolean					closed;
 	private NIOContext					context;
-	private ProtocolEncoder				encoder;
 	private TCPEndPoint					endPoint;
 	private EndPointWriter				endPointWriter;
 	private Integer					sessionID;
@@ -36,7 +35,6 @@ public class IOSession implements Session {
 	public IOSession(TCPEndPoint endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
 		this.endPointWriter = endPoint.getEndPointWriter();
-		this.encoder = context.getProtocolEncoder();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
 		this.lastAccess = this.creationTime;
@@ -96,6 +94,8 @@ public class IOSession implements Session {
 		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
+		
+		TCPEndPoint endPoint = this.endPoint;
 
 		if (!endPoint.isOpened()) {
 
@@ -111,6 +111,8 @@ public class IOSession implements Session {
 		IOWriteFuture writeFuture = null;
 
 		try {
+			
+			ProtocolEncoder encoder = endPoint.getProtocolEncoder();
 
 			writeFuture = encoder.encode(endPoint, future);
 

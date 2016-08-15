@@ -13,6 +13,8 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
@@ -30,6 +32,8 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private Socket				socket;
 	private AtomicInteger		writers			= new AtomicInteger();
 	private long				next_network_weak	= Long.MAX_VALUE;
+	private ProtocolEncoder		protocolEncoder;
+	private ProtocolDecoder		protocolDecoder;
 
 	// FIXME network weak check
 	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
@@ -44,7 +48,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-
+		
 		this.session = new IOSession(this, getEndPointID());
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
@@ -57,6 +61,22 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 			}
 			listenerWrapper = listenerWrapper.nextListener();
 		}
+	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return protocolEncoder;
+	}
+
+	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+		this.protocolEncoder = protocolEncoder;
+	}
+
+	public ProtocolDecoder getProtocolDecoder() {
+		return protocolDecoder;
+	}
+
+	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+		this.protocolDecoder = protocolDecoder;
 	}
 
 	//FIXME synch it ? 

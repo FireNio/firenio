@@ -18,6 +18,7 @@ import com.gifisan.nio.component.protocol.future.IOReadFuture;
  */
 public interface ProtocolDecoder {
 
+	//FIXME 不应该放在这里
 	public static final byte	TYPE_HTTP					= 71;
 	public static final byte	TYPE_MULTI					= 2;
 	public static final byte	TYPE_STREAM					= 1;

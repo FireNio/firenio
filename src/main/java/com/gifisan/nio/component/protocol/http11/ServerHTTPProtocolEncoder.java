@@ -24,12 +24,13 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
 		BufferedOutputStream o = readFuture.getWriteBuffer();
 
-		future.getStatus();
 		StringBuilder h = new StringBuilder();
 
 		h.append("HTTP/1.1 ");
 		h.append(future.getStatus());
-		h.append(" OK\r\n");
+		h.append(" ");
+		h.append(future.getStatusDescription());
+		h.append(" \r\n");
 		h.append("Server: nimbleio/0.0.1\r\n");
 		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:");
@@ -63,10 +64,15 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuffer buffer = ByteBuffer.allocate(h.length() + o.size());
-
+		int size = o.size();
+		
+		ByteBuffer buffer = ByteBuffer.allocate(h.length() + size);
+		
 		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
-		buffer.put(o.toByteArray(), 0, o.size());
+		
+		if (size != 0) {
+			buffer.put(o.toByteArray(), 0, o.size());
+		}
 		
 		buffer.flip();
 

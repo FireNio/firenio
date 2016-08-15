@@ -1,7 +1,6 @@
 package com.gifisan.nio.acceptor;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -9,10 +8,8 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.component.AbstractTCPSelectionAlpha;
-import com.gifisan.nio.component.DefaultTCPEndPoint;
 import com.gifisan.nio.component.EndPointWriter;
 import com.gifisan.nio.component.NIOContext;
-import com.gifisan.nio.component.TCPEndPoint;
 
 public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
@@ -25,7 +22,10 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
 	public TCPSelectionAcceptor(NIOContext context,CoreProcessors processors) {
+		super(context);
+		
 		this.context = context;
+		
 		this.processors = processors;
 		
 		ReentrantLock lock = processors.getReentrantLock();
@@ -105,21 +105,6 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	public void setEndPointWriter(EndPointWriter endPointWriter) {
 		this.endPointWriter = endPointWriter;
-	}
-
-	private void attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
-			throws SocketException {
-
-		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
-
-		if (endPoint != null) {
-
-			return;
-		}
-
-		endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
-
-		selectionKey.attach(endPoint);
 	}
 
 	protected void setSelector(Selector selector) {

@@ -24,10 +24,10 @@ public class UUIDGenerator {
 			.toString();
 	}
 	
-	    private static String digits(long val, int digits) {
-			long hi = 1L << (digits * 4);
-			return Long.toHexString(hi | (val & (hi - 1))).substring(1);
-		    }
+	private static String digits(long val, int digits) {
+		long hi = 1L << (digits * 4);
+		return Long.toHexString(hi | (val & (hi - 1))).substring(1);
+	}
 	
 	public static void main(String[] args) {
 		
@@ -39,6 +39,7 @@ public class UUIDGenerator {
 		}, 2000000,"uuid");
 		
 		System.out.println(random());
+		System.out.println(UUID.randomUUID());
 		
 	}
 	

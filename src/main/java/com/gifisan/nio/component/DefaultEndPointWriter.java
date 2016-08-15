@@ -161,6 +161,8 @@ public class DefaultEndPointWriter implements EndPointWriter {
 			TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromEndPoint.write()) {
+			
+			endPoint.getSession().active();
 
 			endPoint.decrementWriter();
 
@@ -188,6 +190,8 @@ public class DefaultEndPointWriter implements EndPointWriter {
 	private void doWriteFutureFromWriters(IOWriteFuture futureFromWriters, TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromWriters.write()) {
+			
+			endPoint.getSession().active();
 
 			endPoint.decrementWriter();
 
