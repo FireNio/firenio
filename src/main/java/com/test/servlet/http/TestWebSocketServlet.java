@@ -3,6 +3,7 @@ package com.test.servlet.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.Looper;
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -71,7 +72,7 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 			b.append("]:");
 			
-			b.append(f.getData().toString());
+			b.append(f.getData().toString(Encoding.UTF8));
 
 			msgAdapter.sendMsg(b.toString());
 		}
