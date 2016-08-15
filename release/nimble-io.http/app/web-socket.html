@@ -33,6 +33,9 @@
 			}
 			function doSend() {
 				var message = document.getElementById("message").value;
+				if(websocket == null){
+					alert("请先连接到服务器！");
+				}
 				websocket.send(message); 
 			}
 			function writeToScreen(message) {
