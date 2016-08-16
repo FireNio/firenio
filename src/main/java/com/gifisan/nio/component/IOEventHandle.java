@@ -1,14 +1,14 @@
 package com.gifisan.nio.component;
 
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
 
 public interface IOEventHandle extends ReadFutureAcceptor {
 
-	public abstract void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause);
+	enum IOEventState {
+		READ, HANDLE, WRITE
+	}
 
-	public abstract void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture,
-			Exception cause);
+	public abstract void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state);
 
-	public abstract void futureSent(Session session, WriteFuture future);
+	public abstract void futureSent(Session session, ReadFuture future);
 }

@@ -7,11 +7,10 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
 import com.gifisan.nio.component.protocol.nio.NIOProtocolDecoder;
 
-public class ServerProtocolDecoder extends NIOProtocolDecoder implements ProtocolDecoder {
+public class ServerProtocolDecoder extends NIOProtocolDecoder {
 
 	private Logger			logger	= LoggerFactory.getLogger(ServerProtocolDecoder.class);
 	private StringBuilder	http		= new StringBuilder();
@@ -43,7 +42,7 @@ public class ServerProtocolDecoder extends NIOProtocolDecoder implements Protoco
 	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, byte type) throws IOException {
 
 		// HTTP REQUEST ?
-		if (type == ProtocolDecoder.TYPE_HTTP) {
+		if (type == TYPE_HTTP) {
 			ByteBuffer buffer = ByteBuffer.wrap(httpArray);
 			endPoint.write(buffer);
 //			endPoint.endConnect();

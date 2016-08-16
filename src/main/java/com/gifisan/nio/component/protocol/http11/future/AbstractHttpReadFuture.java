@@ -31,7 +31,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	protected static final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
 	
-	protected String				statusDescription;
 	protected ByteBuffer			body_buffer;
 	protected boolean				body_complete;
 	protected String				boundary;
@@ -52,7 +51,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected String				requestURI;
 	protected Map<String, String>	response_headers;
 
-	protected int					status			= 200;
+	protected HttpStatus			status			= HttpStatus.C200;
 	protected String				version;
 
 	public AbstractHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser,ByteBuffer readBuffer) {
@@ -191,14 +190,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		return response_headers;
 	}
 	
-	public String getStatusDescription() {
-		return statusDescription;
-	}
-
-	public void setStatusDescription(String statusDescription) {
-		this.statusDescription = statusDescription;
-	}
-
 	public String getHost() {
 		return host;
 	}
@@ -227,7 +218,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		return requestURI;
 	}
 
-	public int getStatus() {
+	public HttpStatus getStatus() {
 		return status;
 	}
 
@@ -261,7 +252,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		this.params.put(key, value);
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(HttpStatus status) {
 		this.status = status;
 	}
 	
@@ -295,8 +286,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 			String acceptKey = BASE64Util.byteArrayToBase64(key_array);
 
-			setStatus(101);
-			setStatusDescription("Switching Protocols");
+			setStatus(HttpStatus.C101);
 			setHeader("Connection", "Upgrade");
 			setHeader("Upgrade", "WebSocket");
 			setHeader("Sec-WebSocket-Accept", acceptKey);

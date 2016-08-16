@@ -6,7 +6,6 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.HotDeploy;
 import com.gifisan.nio.extend.Initializeable;
@@ -34,12 +33,12 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 		this.destroy(context, config);
 	}
 
-	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
-		logger.error(cause.getMessage(), cause);
+	public void futureSent(Session session, ReadFuture future) {
+
 	}
-
-	public void futureSent(Session session, WriteFuture future) {
-
+	
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+		logger.error(cause.getMessage(), cause);
 	}
 
 	public String toString() {

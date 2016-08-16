@@ -10,6 +10,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandle;
 import com.gifisan.nio.component.ReadFutureAcceptor;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.IOEventHandle.IOEventState;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.DynamicClassLoader;
@@ -52,7 +53,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 				
 				IOEventHandle eventHandle = future.getIOEventHandle();
 				
-				eventHandle.exceptionCaughtOnRead(session, future, e);
+				eventHandle.exceptionCaught(session, future, e, IOEventState.HANDLE);
 				
 				return true;
 			}

@@ -42,10 +42,6 @@ public abstract interface HttpReadFuture extends ReadFuture {
 
 	public abstract String getContentType();
 	
-	public abstract String getStatusDescription() ;
-
-	public abstract void setStatusDescription(String statusDescription) ;
-
 	public abstract Map<String, String> getRequestParams();
 	
 	public abstract Map<String, String> getHeaders();
@@ -56,9 +52,9 @@ public abstract interface HttpReadFuture extends ReadFuture {
 	
 	public abstract void setRequestParams(Map<String, String> params);
 
-	public abstract int getStatus();
+	public abstract HttpStatus getStatus();
 
-	public abstract void setStatus(int status);
+	public abstract void setStatus(HttpStatus status);
 
 	public abstract void setOutputStream(OutputStream outputStream);
 	

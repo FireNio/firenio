@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandle;
+import com.gifisan.nio.component.IOEventHandle.IOEventState;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 
@@ -43,7 +44,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		}
 		
 		try {
-			handle.exceptionCaughtOnWrite(session, readFuture, this, e);
+			handle.exceptionCaught(session, readFuture, e,IOEventState.WRITE);
 		} catch (Throwable e1) {
 			logger.debug(e1);
 		}
@@ -60,7 +61,7 @@ public abstract class AbstractWriteFuture extends FutureImpl implements IOWriteF
 		}
 
 		try {
-			handle.futureSent(session, this);
+			handle.futureSent(session, getReadFuture());
 		} catch (Throwable e) {
 			logger.debug(e);
 		}

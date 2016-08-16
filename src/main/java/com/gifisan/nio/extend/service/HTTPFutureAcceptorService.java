@@ -3,7 +3,7 @@ package com.gifisan.nio.extend.service;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.HttpStatus;
 import com.gifisan.nio.extend.plugin.http.HttpContext;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.plugin.http.HttpSessionFactory;
@@ -25,25 +25,18 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 
 	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
 
-	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		
-		if (future instanceof HttpReadFuture) {
+		if (state == IOEventState.HANDLE) {
 			
-			HttpReadFuture f = (HttpReadFuture)future;
+			if (future instanceof HttpReadFuture) {
+				((HttpReadFuture)future).setStatus(HttpStatus.C500);
+			}
 			
-			f.setStatus(500);
+			future.write("server error:"+cause.getMessage());
 			
-			f.write("server error:"+cause.getMessage());
-			
-			session.flush(f);
-			
-		}else if(future instanceof WebSocketReadFuture){
-			
-			WebSocketReadFuture f = (WebSocketReadFuture)future;
-			
-			f.write("server error:"+cause.getMessage());
-			
-			session.flush(f);
+			session.flush(future);
 		}
+		
 	}
 }

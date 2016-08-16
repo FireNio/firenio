@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.druid.sql.visitor.functions.If;
 import com.gifisan.nio.common.FileUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.LoggerUtil;
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpHeaderParser;
@@ -29,10 +31,16 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
 
-		HttpEntity entity = html_cache.get(serviceName);
+		String _service_name = serviceName;
+		
+		if ("/".equals(_service_name)) {
+			_service_name = "/index.html";
+		}
+		
+		HttpEntity entity = html_cache.get(_service_name);
 
 		if (entity == null) {
-			entity = html_cache.get("/index.html");
+			entity = html_cache.get("/404.html");
 			if (entity == null) {
 				super.accept404(session, future, serviceName);
 				return;

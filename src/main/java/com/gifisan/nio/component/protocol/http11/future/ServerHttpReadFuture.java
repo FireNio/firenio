@@ -14,7 +14,6 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 	public ServerHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
 		this.params = new HashMap<String, String>();
-		this.statusDescription = "OK";
 	}
 
 	protected void decodeHeader(byte[] source_array, int length, int pos) throws IOException {

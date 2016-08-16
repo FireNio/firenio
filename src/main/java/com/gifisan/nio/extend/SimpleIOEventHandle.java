@@ -26,7 +26,7 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
 			logger.error(e.getMessage(), e);
 
-			exceptionCaughtOnWrite(session, future, null, e);
+			exceptionCaught(session, future, e, IOEventState.HANDLE);
 		}
 	}
 

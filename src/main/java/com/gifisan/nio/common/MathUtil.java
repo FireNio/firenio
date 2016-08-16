@@ -185,12 +185,12 @@ public class MathUtil {
 		
 		long2Byte(bb, value, 0);
 
-//		ITestHandle.doTest(new ITest() {
-//
-//			public void test() throws Exception {
-//				MathUtil.byte2Long(bb, 1);
-//			}
-//		}, time, "Byte2Long");
+		ITestHandle.doTest(new ITest() {
+
+			public void test() throws Exception {
+				MathUtil.byte2Long(bb, 1);
+			}
+		}, time, "Byte2Long");
 
 	
 		System.out.println(byte2Long(bb, 0));

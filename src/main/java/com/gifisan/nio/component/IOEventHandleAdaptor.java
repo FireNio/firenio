@@ -6,23 +6,18 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.concurrent.ThreadPool;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
 
 public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements IOEventHandle, LifeCycle {
 
 	private Logger		logger	= LoggerFactory.getLogger(IOEventHandleAdaptor.class);
 
 	private ThreadPool	threadPool;
-
-	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
+	
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		logger.info("exception,{}", cause);
 	}
 
-	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
-		logger.info("exception,{}", cause);
-	}
-
-	public void futureSent(Session session, WriteFuture future) {
+	public void futureSent(Session session, ReadFuture future) {
 		
 	}
 
@@ -40,7 +35,7 @@ public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements 
 
 					logger.error(e.getMessage(), e);
 
-					exceptionCaughtOnWrite(session, future, null, e);
+					exceptionCaught(session, future, e, IOEventState.HANDLE);
 				}
 			}
 		});

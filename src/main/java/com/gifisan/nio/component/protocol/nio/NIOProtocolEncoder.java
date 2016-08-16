@@ -8,7 +8,6 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.ByteArrayWriteFuture;
 import com.gifisan.nio.component.protocol.future.IOWriteFuture;
@@ -21,8 +20,8 @@ import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 // << 左移N位
 public class NIOProtocolEncoder implements ProtocolEncoder {
 
-	private final int	PROTOCOL_HADER		= ProtocolDecoder.PROTOCOL_HADER;
-	private final int	STREAM_BEGIN_INDEX	= ProtocolDecoder.STREAM_BEGIN_INDEX;
+	private final int	PROTOCOL_HADER		= NIOProtocolDecoder.PROTOCOL_HADER;
+	private final int	STREAM_BEGIN_INDEX	= NIOProtocolDecoder.STREAM_BEGIN_INDEX;
 
 	private void calc_text(byte[] header, int text_length) {
 		header[5] = (byte) (text_length & 0xff);
@@ -56,7 +55,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = ProtocolDecoder.TYPE_TEXT;
+		header[0] = NIOProtocolDecoder.TYPE_TEXT;
 		header[4] = (byte) service_name_length;
 
 		calc_future_id(header, future_id);
@@ -76,7 +75,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = ProtocolDecoder.TYPE_STREAM;
+		header[0] = NIOProtocolDecoder.TYPE_STREAM;
 		header[4] = (byte) service_name_length;
 
 		calc_future_id(header, future_id);
@@ -103,7 +102,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = ProtocolDecoder.TYPE_MULTI;
+		header[0] = NIOProtocolDecoder.TYPE_MULTI;
 		header[4] = (byte) service_name_length;
 
 		calc_future_id(header, future_id);
@@ -125,7 +124,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = ProtocolDecoder.TYPE_TEXT;
+		header[0] = NIOProtocolDecoder.TYPE_TEXT;
 		header[4] = (byte) service_name_length;
 
 		calc_future_id(header, future_id);

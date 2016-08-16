@@ -17,17 +17,17 @@ public abstract class NIOFutureAcceptorService extends FutureAcceptorService{
 
 	protected abstract void doAccept(Session session, NIOReadFuture future) throws Exception;
 	
-	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		
-		ErrorServlet servlet = new ErrorServlet(cause);
-
-		try {
-
-			servlet.accept(session, future);
-
-		} catch (Throwable e) {
-
-			logger.error(e.getMessage(), e);
+		if (state == IOEventState.HANDLE) {
+			
+			ErrorServlet servlet = new ErrorServlet(cause);
+			try {
+				servlet.accept(session, future);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
+			
 		}
 	}
 }

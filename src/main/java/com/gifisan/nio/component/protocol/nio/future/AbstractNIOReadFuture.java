@@ -8,8 +8,8 @@ import com.gifisan.nio.component.DefaultParameters;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.nio.NIOProtocolDecoder;
 
 public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture implements NIOReadFuture {
 
@@ -56,7 +56,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 	public AbstractNIOReadFuture(Session session, ByteBuffer header) {
 		super(session);
 		this.header = header;
-		if (header.position() == ProtocolDecoder.PROTOCOL_HADER) {
+		if (header.position() == NIOProtocolDecoder.PROTOCOL_HADER) {
 			doHeaderComplete(header);
 		}
 	}
@@ -76,7 +76,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 		byte[] header_array = header.array();
 
 		int text_and_service_name_length = gainTextLength(header_array)
-				+ header_array[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX];
+				+ header_array[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX];
 
 		this.futureID = gainFutureIDLength(header_array);
 
@@ -128,7 +128,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 	}
 
 	protected int gainStreamLength(byte[] header) {
-		return MathUtil.byte2Int(header, ProtocolDecoder.STREAM_BEGIN_INDEX);
+		return MathUtil.byte2Int(header, NIOProtocolDecoder.STREAM_BEGIN_INDEX);
 	}
 
 	protected int gainTextLength(byte[] header) {
@@ -153,12 +153,12 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 
 		byte[] bytes = buffer.array();
 
-		this.serviceName = new String(bytes, 0, header.array()[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX]);
+		this.serviceName = new String(bytes, 0, header.array()[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX]);
 	}
 
 	protected void gainText(TCPEndPoint endPoint, ByteBuffer header, ByteBuffer buffer) throws IOException {
 
-		this.text = new String(buffer.array(), header.array()[ProtocolDecoder.SERVICE_NAME_LENGTH_INDEX], textLength,
+		this.text = new String(buffer.array(), header.array()[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX], textLength,
 				endPoint.getContext().getEncoding());
 	}
 

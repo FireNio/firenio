@@ -7,6 +7,7 @@ import java.net.SocketException;
 import com.gifisan.nio.DisconnectException;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.component.IOEventHandle.IOEventState;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
@@ -103,8 +104,9 @@ public class IOSession implements Session {
 
 			if (handle != null) {
 
-				handle.exceptionCaughtOnWrite(this, future, null, new DisconnectException("disconnected"));
+				handle.exceptionCaught(this, future, new DisconnectException("disconnected"),IOEventState.WRITE);
 			}
+			
 			return;
 		}
 
@@ -128,7 +130,7 @@ public class IOSession implements Session {
 
 			IOEventHandle handle = future.getIOEventHandle();
 
-			handle.exceptionCaughtOnWrite(this, future, writeFuture, e);
+			handle.exceptionCaught(this, future, e,IOEventState.WRITE);
 		}
 	}
 

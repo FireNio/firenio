@@ -2,7 +2,6 @@ package com.gifisan.nio.extend.service;
 
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 
@@ -20,16 +19,12 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 		this.filter.accept(session,future);
 	}
 	
-	public void exceptionCaughtOnRead(Session session, ReadFuture future, Exception cause) {
-		filter.exceptionCaughtOnRead(session, future, cause);
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+		this.filter.exceptionCaught(session, future, cause, state);
 	}
 
-	public void exceptionCaughtOnWrite(Session session, ReadFuture readFuture, WriteFuture writeFuture, Exception cause) {
-		filter.exceptionCaughtOnWrite(session, readFuture, writeFuture, cause);
-	}
-
-	public void futureSent(Session session, WriteFuture future) {
-		filter.futureSent(session, future);
+	public void futureSent(Session session, ReadFuture future) {
+		this.filter.futureSent(session, future);
 	}
 
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
