@@ -29,7 +29,9 @@
 
 ### 详见 {src\test\java\test}，各种用法
 
-### 免费的消息推送：http://www.generallycloud.com/
+### HTTP Demo：http://www.generallycloud.com/
+### WebSOcket Demo：http://www.generallycloud.com/web-socket.html
+### 私有协议 Demo：http://www.generallycloud.com:18300/
 
 ## 案例
 案例地址：https://github.com/NimbleIO/android-chat-starter
