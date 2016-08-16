@@ -9,6 +9,7 @@ import com.gifisan.nio.Looper;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListABQ;
@@ -79,14 +80,27 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 			
 			JSONObject o = JSONObject.parseObject(msg);
 			
-			o.put("name", getAddress(session));
+			String name = o.getString("name");
+			
+			if(StringUtil.isNullOrBlank(name)){
+				name = getAddress(session);
+			}
+			
+			o.put("name", name);
 			o.put("id", session.getSessionID());
-			o.put("life", "1");
-			o.put("authorized", "false");
-			o.put("x", Double.valueOf(o.getString("x")));
-			o.put("y", Double.valueOf(o.getString("x")));
-			o.put("momentum", Double.valueOf(o.getString("momentum")));
-			o.put("angle", Double.valueOf(o.getString("angle")));
+			
+			String type = o.getString("type");
+			
+			if ("update".equals(type)) {
+				o.put("life", "1");
+				o.put("authorized", "false");
+				o.put("x", Double.valueOf(o.getString("x")));
+				o.put("y", Double.valueOf(o.getString("x")));
+				o.put("momentum", Double.valueOf(o.getString("momentum")));
+				o.put("angle", Double.valueOf(o.getString("angle")));
+			}else if("message".equals(type)){
+				
+			}
 			
 			msgAdapter.sendMsg(o.toJSONString());
 		}
