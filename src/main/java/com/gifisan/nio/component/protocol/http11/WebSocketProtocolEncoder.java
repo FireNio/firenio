@@ -31,12 +31,12 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			header = new byte[2];
 			header[0] = -127;
 			header[1] = (byte)size;
-		}else if(size < (1 << 16 -1)){
+		}else if(size < ((1 << 16) -1)){
 			header = new byte[4];
 			header[0] = -127;
 			header[1] = 126;
-			header[2] = (byte)(size & 0xff);
-			header[3] = (byte)((size >> 8) & 0xff);
+			header[3] = (byte)(size & 0xff);
+			header[2] = (byte)((size >> 8) & 0xff);
 		}else{
 			header = new byte[6];
 			header[0] = -127;

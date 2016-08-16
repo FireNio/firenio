@@ -3,9 +3,9 @@ package com.test.servlet.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
 import com.gifisan.nio.Looper;
-import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
@@ -22,26 +22,34 @@ import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
-public class TestWebSocketServlet extends HTTPFutureAcceptorService {
+public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
-	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketServlet.class);
+	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketRumpetrollServlet.class);
 
 	private MsgAdapter		msgAdapter	= new MsgAdapter();
 
 	private UniqueThread	msgAdapterThread;
-
+	
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
-		String token = future.getRequestParam("token");
-
-		if ("WebSocket".equals(token)) {
-			future.updateWebSocketProtocol();
-			msgAdapter.addClient(session.getIOSession());
-		} else {
-			future.write("illegal argement token:" + token);
-		}
-
+		future.updateWebSocketProtocol();
+		
+		msgAdapter.addClient(session.getIOSession());
+		
 		session.flush(future);
+		
+		Session ioSession = session.getIOSession();
+		
+		JSONObject o = new JSONObject();
+		o.put("type", "welcome");
+		o.put("id", ioSession.getSessionID());
+//		o.put("name", getAddress(ioSession));
+		
+		WebSocketReadFuture f = new WebSocketReadFutureImpl(session.getIOSession());
+		
+		f.write(o.toJSONString());
+		
+		session.flush(f);
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
@@ -58,26 +66,29 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 			msgAdapter.removeClient(session);
 			
+			JSONObject o = new JSONObject();
+			o.put("type", "closed");
+			o.put("id", session.getSessionID());
+			
+			msgAdapter.sendMsg(o.toJSONString());
+			
 			logger.info("客户端主动关闭连接：{}",session);
 		} else {
 
-			StringBuilder b = new StringBuilder();
-
-			String address = getAddress(session);
-
-			b.append("[");
-
-			b.append(address);
-
-			b.append("][");
+			String msg = f.getData().toString(Encoding.UTF8);
 			
-			b.append(DateUtil.now());
-
-			b.append("]:");
+			JSONObject o = JSONObject.parseObject(msg);
 			
-			b.append(f.getData().toString(Encoding.UTF8));
-
-			msgAdapter.sendMsg(b.toString());
+			o.put("name", getAddress(session));
+			o.put("id", session.getSessionID());
+			o.put("life", "1");
+			o.put("authorized", "false");
+			o.put("x", Double.valueOf(o.getString("x")));
+			o.put("y", Double.valueOf(o.getString("x")));
+			o.put("momentum", Double.valueOf(o.getString("momentum")));
+			o.put("angle", Double.valueOf(o.getString("angle")));
+			
+			msgAdapter.sendMsg(o.toJSONString());
 		}
 	}
 
@@ -96,7 +107,7 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		msgAdapterThread = new UniqueThread(msgAdapter, "WebSocketChat");
+		msgAdapterThread = new UniqueThread(msgAdapter, "WebSocketRumpetroll");
 
 		msgAdapterThread.start();
 
@@ -146,8 +157,6 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 				return;
 			}
 			
-			logger.info("WebSocketMsg:{}",msg);
-
 			synchronized (this) {
 
 				for (Session s : clients) {
@@ -156,7 +165,7 @@ public class TestWebSocketServlet extends HTTPFutureAcceptorService {
 						
 						WebSocketReadFuture f = new WebSocketReadFutureImpl(s);
 						
-						f.write(msg);
+						f.write(msg.getBytes(Encoding.UTF8));
 						
 						s.flush(f);
 					}else{
