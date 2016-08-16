@@ -1,22 +1,15 @@
 package com.test.servlet.http;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.Looper;
 import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
@@ -26,7 +19,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketChatServlet.class);
 
-	private MsgAdapter		msgAdapter	= new MsgAdapter();
+	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
 	private UniqueThread	msgAdapterThread;
 
@@ -35,8 +28,15 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 		String token = future.getRequestParam("token");
 
 		if ("WebSocket".equals(token)) {
+			
 			future.updateWebSocketProtocol();
+			
 			msgAdapter.addClient(session.getIOSession());
+			
+			String msg = getMsg(session.getIOSession(),"加入房间");
+			
+			msgAdapter.sendMsg(msg);
+			
 		} else {
 			future.write("illegal argement token:" + token);
 		}
@@ -58,27 +58,29 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 			msgAdapter.removeClient(session);
 			
-			logger.info("客户端主动关闭连接：{}",session);
+			logger.info("客户端主动关闭连接：{}", session);
+			
+			String msg = getMsg(session,"离开房间");
+			
+			msgAdapter.sendMsg(msg);
 		} else {
 
-			StringBuilder b = new StringBuilder();
-
-			String address = getAddress(session);
-
-			b.append("[");
-
-			b.append(address);
-
-			b.append("][");
+			String msg = getMsg(session, f.getData().toString(Encoding.UTF8));
 			
-			b.append(DateUtil.now());
-
-			b.append("]:");
-			
-			b.append(f.getData().toString(Encoding.UTF8));
-
-			msgAdapter.sendMsg(b.toString());
+			msgAdapter.sendMsg(msg);
 		}
+	}
+	
+	private String getMsg(Session session,String msg){
+		StringBuilder b = new StringBuilder();
+		String address = getAddress(session);
+		b.append("[");
+		b.append(address);
+		b.append("][");
+		b.append(DateUtil.now());
+		b.append("]:");
+		b.append(msg);
+		return b.toString();
 	}
 
 	private String getAddress(Session session) {
@@ -108,62 +110,5 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 		LifeCycleUtil.stop(msgAdapterThread);
 
 		super.destroy(context, config);
-	}
-
-	class MsgAdapter implements Looper {
-
-		private List<Session>		clients	= new ArrayList<Session>();
-
-		private LinkedList<String>	msgs		= new LinkedListABQ<String>(1024 * 4);
-
-		public void stop() {
-
-		}
-
-		public synchronized void addClient(Session session) {
-				
-			clients.add(session);
-			
-			logger.info("当前客户端数量：{}",clients.size());
-		}
-
-		public synchronized void removeClient(Session session) {
-				
-			clients.remove(session);
-			
-			logger.info("当前客户端数量：{}",clients.size());
-		}
-
-		public void sendMsg(String msg) {
-			msgs.offer(msg);
-		}
-
-		public void loop() {
-
-			String msg = msgs.poll(16);
-
-			if (msg == null) {
-				return;
-			}
-			
-			logger.info("WebSocketMsg:{}",msg);
-
-			synchronized (this) {
-
-				for (Session s : clients) {
-					
-					if (s.isOpened()) {
-						
-						WebSocketReadFuture f = new WebSocketReadFutureImpl(s);
-						
-						f.write(msg);
-						
-						s.flush(f);
-					}else{
-						removeClient(s);
-					}
-				}
-			}
-		}
 	}
 }

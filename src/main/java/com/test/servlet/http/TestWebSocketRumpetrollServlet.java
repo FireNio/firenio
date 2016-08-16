@@ -1,18 +1,12 @@
 package com.test.servlet.http;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.Looper;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
@@ -27,29 +21,28 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketRumpetrollServlet.class);
 
-	private MsgAdapter		msgAdapter	= new MsgAdapter();
+	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
 	private UniqueThread	msgAdapterThread;
-	
+
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
-		
+
 		msgAdapter.addClient(session.getIOSession());
-		
+
 		session.flush(future);
-		
+
 		Session ioSession = session.getIOSession();
-		
+
 		JSONObject o = new JSONObject();
 		o.put("type", "welcome");
 		o.put("id", ioSession.getSessionID());
-//		o.put("name", getAddress(ioSession));
-		
+
 		WebSocketReadFuture f = new WebSocketReadFutureImpl(session.getIOSession());
-		
+
 		f.write(o.toJSONString());
-		
+
 		session.flush(f);
 	}
 
@@ -66,31 +59,31 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		if (f.getType() == 8) {
 
 			msgAdapter.removeClient(session);
-			
+
 			JSONObject o = new JSONObject();
 			o.put("type", "closed");
 			o.put("id", session.getSessionID());
-			
+
 			msgAdapter.sendMsg(o.toJSONString());
-			
-			logger.info("客户端主动关闭连接：{}",session);
+
+			logger.info("客户端主动关闭连接：{}", session);
 		} else {
 
 			String msg = f.getData().toString(Encoding.UTF8);
-			
+
 			JSONObject o = JSONObject.parseObject(msg);
-			
+
 			String name = o.getString("name");
-			
-			if(StringUtil.isNullOrBlank(name)){
+
+			if (StringUtil.isNullOrBlank(name)) {
 				name = getAddress(session);
 			}
-			
+
 			o.put("name", name);
 			o.put("id", session.getSessionID());
-			
+
 			String type = o.getString("type");
-			
+
 			if ("update".equals(type)) {
 				o.put("life", "1");
 				o.put("authorized", "false");
@@ -98,10 +91,10 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 				o.put("y", Double.valueOf(o.getString("x")));
 				o.put("momentum", Double.valueOf(o.getString("momentum")));
 				o.put("angle", Double.valueOf(o.getString("angle")));
-			}else if("message".equals(type)){
-				
+			} else if ("message".equals(type)) {
+
 			}
-			
+
 			msgAdapter.sendMsg(o.toJSONString());
 		}
 	}
@@ -133,60 +126,5 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		LifeCycleUtil.stop(msgAdapterThread);
 
 		super.destroy(context, config);
-	}
-
-	class MsgAdapter implements Looper {
-
-		private List<Session>		clients	= new ArrayList<Session>();
-
-		private LinkedList<String>	msgs		= new LinkedListABQ<String>(1024 * 4);
-
-		public void stop() {
-
-		}
-
-		public synchronized void addClient(Session session) {
-				
-			clients.add(session);
-			
-			logger.info("当前客户端数量：{}",clients.size());
-		}
-
-		public synchronized void removeClient(Session session) {
-				
-			clients.remove(session);
-			
-			logger.info("当前客户端数量：{}",clients.size());
-		}
-
-		public void sendMsg(String msg) {
-			msgs.offer(msg);
-		}
-
-		public void loop() {
-
-			String msg = msgs.poll(16);
-
-			if (msg == null) {
-				return;
-			}
-			
-			synchronized (this) {
-
-				for (Session s : clients) {
-					
-					if (s.isOpened()) {
-						
-						WebSocketReadFuture f = new WebSocketReadFutureImpl(s);
-						
-						f.write(msg.getBytes(Encoding.UTF8));
-						
-						s.flush(f);
-					}else{
-						removeClient(s);
-					}
-				}
-			}
-		}
 	}
 }
