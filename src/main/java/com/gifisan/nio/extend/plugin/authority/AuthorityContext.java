@@ -8,9 +8,9 @@ import com.gifisan.nio.extend.AbstractPluginContext;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.implementation.AuthorityFilter;
+import com.gifisan.nio.extend.security.AuthorityLoginCenter;
 import com.gifisan.nio.extend.service.FutureAcceptorFilter;
 import com.gifisan.nio.extend.service.FutureAcceptorService;
-import com.likemessage.server.LMLoginCenter;
 
 public class AuthorityContext extends AbstractPluginContext {
 	
@@ -34,7 +34,7 @@ public class AuthorityContext extends AbstractPluginContext {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		context.setLoginCenter(new LMLoginCenter());
+		context.setLoginCenter(new AuthorityLoginCenter());
 		
 		context.addSessionEventListener(new AuthoritySEListener());
 		
