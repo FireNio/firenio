@@ -27,11 +27,11 @@
 
 ## 功能列表
 
-#### 详见 {src\test\java\test}，各种用法
+详见 {src\test\java\test}，各种用法
 
 ## 案例
 * HTTP Demo：http://www.generallycloud.com/
-* WebSOcket Demo：http://www.generallycloud.com/web-socket.html
+* WebSocketChat Demo：http://www.generallycloud.com/web-socket.html
 * 小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html                                
  （我写的后端，前端https://github.com/danielmahal/Rumpetroll）
 * 私有协议 Demo：http://www.generallycloud.com:18300/
