@@ -14,7 +14,6 @@ import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
 import com.gifisan.nio.connector.TCPConnector;
 
 public class TestLoadClient {
@@ -39,10 +38,6 @@ public class TestLoadClient {
 //					logger.info("************************================" + count);
 //				}
 				// }
-			}
-
-			public void futureSent(Session session, WriteFuture future) {
-				
 			}
 		};
 

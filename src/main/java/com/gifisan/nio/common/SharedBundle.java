@@ -124,6 +124,11 @@ public class SharedBundle {
 		setClassPath(new File(path).getCanonicalPath() + "/");
 		
 		File[] files = root.listFiles();
+		
+		if (files == null) {
+			throw new IOException("empty folder:"+root.getCanonicalPath());
+		}
+		
 		for (File file : files) {
 			if (file.isFile() && file.getName().endsWith(".properties")) {
 				try {
