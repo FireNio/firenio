@@ -19,7 +19,7 @@ public class TestNIOServer {
 
 	public void launch() throws Exception {
 		
-		PropertiesLoader.setBasepath("nio1");
+		PropertiesLoader.setBasepath("nio");
 		
 		ApplicationContext applicationContext = new ApplicationContext();
 		
