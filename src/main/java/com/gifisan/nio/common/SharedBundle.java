@@ -123,6 +123,8 @@ public class SharedBundle {
 		
 		setClassPath(new File(path).getCanonicalPath() + "/");
 		
+		root = new File(getClassPath());
+		
 		File[] files = root.listFiles();
 		
 		if (files == null) {
