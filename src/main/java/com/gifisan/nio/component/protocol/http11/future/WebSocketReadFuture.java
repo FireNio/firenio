@@ -5,7 +5,7 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public interface WebSocketReadFuture extends ReadFuture {
 
-	public static final int		HEADER_LENGTH			= 2;
+	public static final int	HEADER_LENGTH				= 2;
 
 	public static final String	SESSION_KEY_SERVICE_NAME	= "_SESSION_KEY_SERVICE_NAME";
 

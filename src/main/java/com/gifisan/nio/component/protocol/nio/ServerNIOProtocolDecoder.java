@@ -1,4 +1,4 @@
-package com.gifisan.nio.acceptor;
+package com.gifisan.nio.component.protocol.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -8,15 +8,14 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.nio.NIOProtocolDecoder;
 
-public class ServerProtocolDecoder extends NIOProtocolDecoder {
+public class ServerNIOProtocolDecoder extends NIOProtocolDecoder {
 
-	private Logger			logger	= LoggerFactory.getLogger(ServerProtocolDecoder.class);
+	private Logger			logger	= LoggerFactory.getLogger(ServerNIOProtocolDecoder.class);
 	private StringBuilder	http		= new StringBuilder();
 	private byte[]		httpArray	;
 
-	public ServerProtocolDecoder() {
+	public ServerNIOProtocolDecoder() {
 
 		http.append("HTTP/1.1 200 OK\n");
 		http.append("Server: nimbleio/1.1\n");

@@ -40,7 +40,7 @@ public interface TCPEndPoint extends EndPoint {
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
 
-	public abstract EndPointWriter getEndPointWriter();
+	public abstract void offer(IOWriteFuture future);
 
 	public abstract boolean isBlocking();
 	

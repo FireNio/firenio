@@ -34,7 +34,8 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private long				next_network_weak	= Long.MAX_VALUE;
 	private ProtocolEncoder		protocolEncoder;
 	private ProtocolDecoder		protocolDecoder;
-
+	
+	// FIXME 改进network wak 机制
 	// FIXME network weak check
 	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
 			throws SocketException {
@@ -156,10 +157,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return currentWriter;
 	}
 
-	public EndPointWriter getEndPointWriter() {
-		return endPointWriter;
-	}
-
 	public InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
@@ -226,4 +223,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return channel.write(buffer);
 	}
 
+	public void offer(IOWriteFuture future) {
+		this.endPointWriter.offer(future);
+	}
 }

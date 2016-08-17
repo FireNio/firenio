@@ -24,7 +24,6 @@ public class IOSession implements Session {
 	private boolean					closed;
 	private NIOContext					context;
 	private TCPEndPoint					endPoint;
-	private EndPointWriter				endPointWriter;
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
 	private Object[]					attachments	= new Object[4];
@@ -35,7 +34,6 @@ public class IOSession implements Session {
 
 	public IOSession(TCPEndPoint endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
-		this.endPointWriter = endPoint.getEndPointWriter();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
 		this.lastAccess = this.creationTime;
@@ -122,7 +120,7 @@ public class IOSession implements Session {
 
 			writeFuture.attach(future.attachment());
 
-			this.endPointWriter.offer(writeFuture);
+			endPoint.offer(writeFuture);
 
 		} catch (IOException e) {
 
