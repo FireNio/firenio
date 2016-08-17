@@ -12,7 +12,7 @@
 * 无差别 [服务端/客户端 ] 转换
 * IO读写分离
 * 轻松实现简易负载均衡
-* 轻松实现心跳包
+* 轻松实现心跳机制
 * 超过10W QPS(Socket)的处理速度(百兆网卡IO压满,I7*70%)
 * 超过 4W QPS(HTTP)的处理速度(百兆网卡IO压满,I7*50%)
 * 弱网络环境下优良的性能表现
@@ -29,16 +29,11 @@
 
 ### 详见 {src\test\java\test}，各种用法
 
+## 案例
 ### HTTP Demo：http://www.generallycloud.com/
 ### WebSOcket Demo：http://www.generallycloud.com/web-socket.html
 ### 小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html
 （我写的后端，前端https://github.com/danielmahal/Rumpetroll）
 ### 私有协议 Demo：http://www.generallycloud.com:18300/
-
-## 案例
-案例地址：https://github.com/NimbleIO/android-chat-starter
-
-	(感谢android-chat-starter@https://github.com/madhur/android-chat-starter)
-![](https://raw.githubusercontent.com/NimbleIO/NimbleIO/master/images/TEST-1.png)
 
 

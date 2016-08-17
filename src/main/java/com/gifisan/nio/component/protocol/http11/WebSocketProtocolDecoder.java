@@ -18,6 +18,7 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 		int length = endPoint.read(buffer);
 
 		if (length < 1) {
+			//FIXME 处理连接异常导致的关闭
 			if (length == -1) {
 				CloseUtil.close(endPoint);
 			}
