@@ -1,11 +1,16 @@
 package com.gifisan.nio.extend.plugin.jms.server;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.extend.plugin.jms.Message;
 
 public class SubscribeProductLine extends AbstractProductLine implements MessageQueue, Runnable {
 
+	private Logger logger = LoggerFactory.getLogger(SubscribeProductLine.class);
+	
 	public SubscribeProductLine(MQContext context) {
 		super(context);
 	}
@@ -38,7 +43,11 @@ public class SubscribeProductLine extends AbstractProductLine implements Message
 			}
 
 			for(Consumer consumer:consumers){
-				consumer.push(message);
+				try {
+					consumer.push(message);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
+				}
 			}
 
 			context.consumerMessage(message);

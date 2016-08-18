@@ -30,7 +30,11 @@ public class TestLoadClient1 extends ITestThread{
 		for (int i = 0; i < time1; i++) {
 			ReadFuture future = ReadFutureFactory.create(session, "test",session.getContext().getIOEventHandleAdaptor());
 			future.write("hello server !");
-			session.flush(future);
+			try {
+				session.flush(future);
+			} catch (IOException e) {
+				throw new Error(e);
+			}
 		}
 	}
 

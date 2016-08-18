@@ -2,36 +2,43 @@ package com.gifisan.nio.extend;
 
 import java.io.IOException;
 
+import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.SEListenerAdapter;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.extend.implementation.SYSTEMBeatPacketServlet;
+import com.gifisan.nio.component.concurrent.Waiter;
+import com.gifisan.nio.component.protocol.future.ReadFuture;
 
-public class SessionActiveSEListener extends SEListenerAdapter {
+public abstract class SessionActiveSEListener extends SEListenerAdapter {
 
-	private FixedSession	fixedSession	= null;
-	
-	public SessionActiveSEListener(FixedSession fixedSession) {
-		this.fixedSession = fixedSession;
-	}
+	public static final String	SESSION_ACTIVE_BEAT	= "_SESSION_ACTIVE_BEAT";
 
-	private Logger			logger		= LoggerFactory.getLogger(SessionActiveSEListener.class);
+	public static final String	SESSION_ACTIVE_WAITER	= "_SESSION_ACTIVE_WAITER";
+
+	private Logger				logger				= LoggerFactory.getLogger(SessionActiveSEListener.class);
 
 	public void sessionIdled(Session session, long lastIdleTime, long currentTime) {
 
+		ReadFuture future = getBeatPacket(session);
+
+		Waiter<ReadFuture> waiter = new Waiter<ReadFuture>();
+
+		session.setAttribute(SESSION_ACTIVE_WAITER, waiter);
+
 		try {
-
-			if (fixedSession == null) {
-				return;
-			}
-
-			fixedSession.request(SYSTEMBeatPacketServlet.SERVICE_NAME, null);
-
-			logger.debug("收到心跳回报!");
-
+			session.flush(future);
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(),e);
+			return;
+		}
+
+		if (waiter.await(3000)) {
+			CloseUtil.close(session);
+		} else {
+			logger.info("收到心跳回报");
 		}
 	}
+
+	protected abstract ReadFuture getBeatPacket(Session session);
 }

@@ -37,7 +37,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 		this.selectorLoopThread.start();
 
-		if (!waiter.await(30000)) {
+		if (waiter.await(30000)) {
 
 			CloseUtil.close(this);
 			
@@ -50,15 +50,14 @@ public class TCPConnector extends AbstractIOConnector {
 				throw new TimeoutException(MessageFormatter.format("connect faild,connector:{},nested exception is {}",
 						this, t.getMessage()), t);
 			}
+			
+			if (o == null) {
+				this.connected.compareAndSet(true, false);
+
+				throw new TimeoutException("time out");
+			}
+			
 		}
-
-		if (waiter.isSuccess()) {
-			return;
-		}
-
-		this.connected.compareAndSet(true, false);
-
-		throw new TimeoutException("time out");
 	}
 
 	protected void finishConnect(Session session,IOException exception) {
@@ -69,12 +68,12 @@ public class TCPConnector extends AbstractIOConnector {
 
 			this.waiter.setPayload(null);
 
-			if (waiter.isSuccess()) {
-				//do something
+			if (waiter.isTimeouted()) {
+				//FIXME do something
 			}
 		} else {
 
-			this.waiter.setPayload(exception, false);
+			this.waiter.setPayload(exception);
 		}
 	}
 

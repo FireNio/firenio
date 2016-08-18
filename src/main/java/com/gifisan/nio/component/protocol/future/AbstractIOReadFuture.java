@@ -9,6 +9,8 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	public AbstractIOReadFuture(Session session) {
 		super(session);
 	}
+	
+	public AbstractIOReadFuture(){}
 
 	public void flush() {
 		endPoint.incrementWriter();

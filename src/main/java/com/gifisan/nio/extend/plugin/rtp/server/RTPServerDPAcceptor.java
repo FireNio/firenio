@@ -96,7 +96,11 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			future.write(ByteUtil.TRUE);
 			
-			session.flush(future);
+			try {
+				session.flush(future);
+			} catch (IOException e) {
+				logger.error(e.getMessage(),e);
+			}
 			
 		}else{
 			logger.debug(">>>> {}",request.getServiceName());

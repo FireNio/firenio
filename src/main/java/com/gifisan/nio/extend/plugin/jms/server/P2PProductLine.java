@@ -1,12 +1,16 @@
 package com.gifisan.nio.extend.plugin.jms.server;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.extend.plugin.jms.Message;
 
 public class P2PProductLine extends AbstractProductLine implements MessageQueue, Runnable {
 
-
+	private Logger logger = LoggerFactory.getLogger(P2PProductLine.class);
+	
 	public P2PProductLine(MQContext context) {
 		super(context);
 	}
@@ -40,7 +44,12 @@ public class P2PProductLine extends AbstractProductLine implements MessageQueue,
 			}
 
 			for(Consumer consumer:consumers){
-				consumer.push(message);
+				try {
+					consumer.push(message);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
+					this.offerMessage(message);
+				}
 			}
 
 			context.consumerMessage(message);

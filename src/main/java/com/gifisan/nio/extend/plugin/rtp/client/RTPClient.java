@@ -268,7 +268,7 @@ public class RTPClient {
 
 					connector.sendDatagramPacket(packet);
 
-					if (waiter.lightWait(300)) {
+					if (waiter.wait4Callback(300)) {
 
 						break;
 					}

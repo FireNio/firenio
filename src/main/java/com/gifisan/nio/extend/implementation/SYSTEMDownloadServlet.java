@@ -64,7 +64,7 @@ public class SYSTEMDownloadServlet extends NIOFutureAcceptorService {
 		}
 	}
 	
-	private void fileNotFound(Session session,ReadFuture future,String msg){
+	private void fileNotFound(Session session,ReadFuture future,String msg) throws IOException{
 		RESMessage message = new RESMessage(404, msg);
 		future.write(message.toString());
 		session.flush(future);

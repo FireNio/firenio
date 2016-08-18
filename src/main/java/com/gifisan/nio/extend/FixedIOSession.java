@@ -166,7 +166,7 @@ public class FixedIOSession implements FixedSession {
 		session.flush(readFuture);
 
 		// FIXME 连接丢失时叫醒我
-		if (onReadFuture.await(timeout)) {
+		if (!onReadFuture.await(timeout)) {
 
 			return (NIOReadFuture) onReadFuture.getReadFuture();
 		}

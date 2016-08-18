@@ -8,6 +8,11 @@ public class WaiterOnReadFuture implements OnReadFuture {
 
 	private Waiter<ReadFuture>	waiter	= new Waiter<ReadFuture>();
 
+	
+	/**
+	 * @param timeout
+	 * @return timeouted
+	 */
 	public boolean await(long timeout) {
 		return waiter.await(timeout);
 	}

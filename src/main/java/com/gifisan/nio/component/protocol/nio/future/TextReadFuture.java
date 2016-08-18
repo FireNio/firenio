@@ -15,7 +15,7 @@ public class TextReadFuture extends AbstractNIOReadFuture {
 	public TextReadFuture(Session session, ByteBuffer header) {
 		super(session, header);
 	}
-
+	
 	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
 		return true;
 	}

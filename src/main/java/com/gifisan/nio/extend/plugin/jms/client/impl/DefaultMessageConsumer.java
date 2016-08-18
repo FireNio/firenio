@@ -39,7 +39,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			session.write(MQTransactionServlet.SERVICE_NAME, action);
 
-			if (onReadFuture.await(3000)) {
+			if (!onReadFuture.await(3000)) {
 
 				NIOReadFuture future = (NIOReadFuture) onReadFuture.getReadFuture();
 

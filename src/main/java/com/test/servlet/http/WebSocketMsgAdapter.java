@@ -1,5 +1,6 @@
 package com.test.servlet.http;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,11 @@ public class WebSocketMsgAdapter implements Looper {
 
 					f.write(msg.getBytes(Encoding.UTF8));
 
-					s.flush(f);
+					try {
+						s.flush(f);
+					} catch (IOException e) {
+						logger.error(e.getMessage(),e);
+					}
 				} else {
 
 					removeClient(s);

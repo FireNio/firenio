@@ -1,5 +1,7 @@
 package com.gifisan.nio.front;
 
+import java.io.IOException;
+
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.ReadFutureFactory;
@@ -41,6 +43,10 @@ public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
 
 		future.write(session.toString());
 
-		router.flush(future);
+		try {
+			router.flush(future);
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+		}
 	}
 }

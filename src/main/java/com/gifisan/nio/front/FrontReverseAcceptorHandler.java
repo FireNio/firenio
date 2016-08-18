@@ -1,5 +1,6 @@
 package com.gifisan.nio.front;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -54,7 +55,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 						readFuture.write(future.getText());
 
-						s.flush(readFuture);
+						try {
+							s.flush(readFuture);
+						} catch (IOException e) {
+							logger.error(e.getMessage(),e);
+						}
 					}
 				}
 			}

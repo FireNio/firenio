@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-//FIXME complete
 public class Waiter<T> {
 
 	private ReentrantLock	lock		= new ReentrantLock();
@@ -13,13 +12,10 @@ public class Waiter<T> {
 	private boolean		callbacked;
 	private boolean		timeouted;
 	private T				t;
-	private boolean		success;
 
 	/**
-	 * 触发callback则返回true，否则返回false
-	 * 
 	 * @param timeout
-	 * @return
+	 * @return timeouted
 	 */
 	public boolean await(long timeout) {
 
@@ -31,7 +27,7 @@ public class Waiter<T> {
 
 			lock.unlock();
 
-			return true;
+			return false;
 		}
 
 		try {
@@ -44,10 +40,11 @@ public class Waiter<T> {
 
 		lock.unlock();
 
-		return success;
+		return timeouted;
 	}
 
-	public boolean lightWait(long timeout) {
+	
+	public boolean wait4Callback(long timeout) {
 
 		ReentrantLock lock = this.lock;
 
@@ -72,18 +69,9 @@ public class Waiter<T> {
 	}
 	
 	public void setPayload(T t) {
-		setPayload(t, true);
-	}
-
-	public void setPayload(T t,boolean success) {
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
-
-		if (!timeouted) {
-			
-			this.success = success;
-		}
 
 		this.callbacked = true;
 
@@ -100,7 +88,7 @@ public class Waiter<T> {
 		return t;
 	}
 
-	public boolean isSuccess() {
-		return success;
+	public boolean isTimeouted() {
+		return timeouted;
 	}
 }

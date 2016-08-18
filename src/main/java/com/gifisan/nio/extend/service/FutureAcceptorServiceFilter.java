@@ -65,7 +65,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		flush(session, future, message);
 	}
 
-	private void flush(Session session, ReadFuture future, RESMessage message) {
+	private void flush(Session session, ReadFuture future, RESMessage message) throws IOException {
 
 		future.setIOEventHandle(this);
 

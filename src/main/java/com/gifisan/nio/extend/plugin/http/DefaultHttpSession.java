@@ -1,5 +1,7 @@
 package com.gifisan.nio.extend.plugin.http;
 
+import java.io.IOException;
+
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.Session;
@@ -34,7 +36,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 		this.lastAccessTime = System.currentTimeMillis();
 	}
 
-	public void flush(ReadFuture future) {
+	public void flush(ReadFuture future) throws IOException {
 		ioSession.flush(future);
 	}
 

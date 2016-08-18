@@ -1,5 +1,6 @@
 package com.likemessage.server;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import com.gifisan.database.DataBaseContext;
@@ -32,7 +33,7 @@ public abstract class LMServlet extends NIOFutureAcceptorService {
 
 	protected abstract void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception;
 
-	protected void actionNotFound(Session session, ReadFuture future, AbstractService _service) {
+	protected void actionNotFound(Session session, ReadFuture future, AbstractService _service) throws IOException {
 
 		RESMessage message = RESMessage.EMPTY_404;
 

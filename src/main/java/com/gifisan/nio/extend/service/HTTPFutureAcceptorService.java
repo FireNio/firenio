@@ -1,5 +1,9 @@
 package com.gifisan.nio.extend.service;
 
+import java.io.IOException;
+
+import com.gifisan.nio.common.Logger;
+import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
@@ -9,6 +13,8 @@ import com.gifisan.nio.extend.plugin.http.HttpSession;
 import com.gifisan.nio.extend.plugin.http.HttpSessionFactory;
 
 public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
+	
+	private Logger logger = LoggerFactory.getLogger(HTTPFutureAcceptorService.class);
 
 	private HttpContext		context	= HttpContext.getInstance();
 
@@ -35,7 +41,11 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 			
 			future.write("server error:"+cause.getMessage());
 			
-			session.flush(future);
+			try {
+				session.flush(future);
+			} catch (IOException e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 		
 	}

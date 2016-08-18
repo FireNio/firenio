@@ -14,16 +14,12 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<excludes>
-					<exclude>**/*.1</exclude>
-					<exclude>**/*.2</exclude>
 				</excludes>
 			</resource>
 			<resource>
 				<directory>src/test/resources</directory>
 				<excludes>
-					<exclude>**/*.jar</exclude>
-					<exclude>**/*.properties</exclude>
-					<exclude>**/*.config</exclude>
+					<exclude>**/*.cfg</exclude>
 				</excludes>
 			</resource>
 		</resources>

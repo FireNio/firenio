@@ -8,7 +8,7 @@ public class LoggerFactory {
 		try {
 			PropertiesLoader.load();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 			enableSLF4JLogger = false;
 		}
 	}

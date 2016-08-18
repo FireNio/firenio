@@ -27,7 +27,7 @@ public class HttpClient {
 		session.flush(future);
 
 		// FIXME 连接丢失时叫醒我
-		if (listener.await(timeout)) {
+		if (!listener.await(timeout)) {
 
 			return (HttpReadFuture) listener.getReadFuture();
 		}

@@ -1,5 +1,7 @@
 package com.gifisan.nio.extend.plugin.jms.server;
 
+import java.io.IOException;
+
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
@@ -34,7 +36,7 @@ public class Consumer {
 	}
 
 	// FIXME push 失败时对message进行回收,并移除Consumer
-	public void push(Message message) {
+	public void push(Message message) throws IOException {
 
 		this.message = message;
 

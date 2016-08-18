@@ -88,7 +88,7 @@ public class IOSession implements Session {
 		}
 	}
 
-	public void flush(ReadFuture future) {
+	public void flush(ReadFuture future) throws IOException {
 
 		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
@@ -98,14 +98,7 @@ public class IOSession implements Session {
 
 		if (!endPoint.isOpened()) {
 
-			IOEventHandle handle = future.getIOEventHandle();
-
-			if (handle != null) {
-
-				handle.exceptionCaught(this, future, new DisconnectException("disconnected"),IOEventState.WRITE);
-			}
-			
-			return;
+			throw new DisconnectException("disconnected");
 		}
 
 		IOWriteFuture writeFuture = null;

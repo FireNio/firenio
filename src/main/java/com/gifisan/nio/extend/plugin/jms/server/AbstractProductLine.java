@@ -110,5 +110,4 @@ public abstract class AbstractProductLine extends AbstractLifeCycle implements M
 	public void setDueTime(long dueTime) {
 		this.dueTime = dueTime;
 	}
-
 }

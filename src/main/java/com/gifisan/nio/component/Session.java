@@ -1,6 +1,7 @@
 package com.gifisan.nio.component;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -21,7 +22,7 @@ public interface Session extends Closeable{
 	 */
 	public abstract void close();
 
-	public abstract void flush(ReadFuture future);
+	public abstract void flush(ReadFuture future) throws IOException;
 
 	public abstract Object getAttachment();
 
