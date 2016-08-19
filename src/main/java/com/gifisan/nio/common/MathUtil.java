@@ -102,6 +102,13 @@ public class MathUtil {
 		return bytes;
 	}
 	
+	public static void int2Byte(byte [] bytes,int value) {
+		bytes[3] = (byte) ((value & 0xff));
+		bytes[2] = (byte) ((value >> 8*1) & 0xff);
+		bytes[1] = (byte) ((value >> 8*2) & 0xff);
+		bytes[0] = (byte) ((value >> 8*3));
+	}
+	
 	public static void intTo2Byte(byte[] bytes, int value, int offset) {
 		
 		checkLength(bytes, 2, offset);

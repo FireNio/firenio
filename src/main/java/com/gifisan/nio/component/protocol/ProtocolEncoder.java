@@ -8,6 +8,6 @@ import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public interface ProtocolEncoder {
 
-	public abstract IOWriteFuture encode(TCPEndPoint endPoint,ReadFuture readFuture) throws IOException;
+	public abstract IOWriteFuture encode(TCPEndPoint endPoint,ReadFuture future) throws IOException;
 
 }

@@ -30,11 +30,15 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements Se
 				_read_acceptor.accept(selectionKey);
 			} else if (selectionKey.isWritable()) {
 				_write_acceptor.accept(selectionKey);
-			} else if (selectionKey.isAcceptable()) {
-				_alpha_acceptor.accept(selectionKey);
-			} else if (selectionKey.isConnectable()) {
+			} else {
 				_alpha_acceptor.accept(selectionKey);
 			}
+			
+//			else if (selectionKey.isAcceptable()) {
+//				_alpha_acceptor.accept(selectionKey);
+//			} else if (selectionKey.isConnectable()) {
+//				_alpha_acceptor.accept(selectionKey);
+//			}
 
 		} catch (Throwable e) {
 			acceptException(selectionKey, e);

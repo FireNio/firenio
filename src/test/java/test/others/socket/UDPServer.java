@@ -1,4 +1,4 @@
-package socket;
+package test.others.socket;
 
 import java.io.*;
 import java.net.*;

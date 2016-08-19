@@ -14,6 +14,7 @@ import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.LoggerUtil;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.DatagramPacketAcceptor;
 import com.gifisan.nio.component.NIOContext;
@@ -79,7 +80,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.configuration = configurationLoader.loadConfiguration(bundle);
 
 		this.encoding = context.getEncoding();
-		this.appLocalAddres = bundle.getClassPath() + "app/";
+		this.appLocalAddres = bundle.getClassPath() + PropertiesLoader.getAppPath();
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
