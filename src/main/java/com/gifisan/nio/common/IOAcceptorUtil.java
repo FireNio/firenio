@@ -10,9 +10,7 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class IOAcceptorUtil {
 
-	private static Logger		logger	= LoggerFactory.getLogger(IOAcceptorUtil.class);
-
-	private static TCPAcceptor	acceptor;
+	private static Logger	logger	= LoggerFactory.getLogger(IOAcceptorUtil.class);
 
 	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor) {
 
@@ -22,32 +20,29 @@ public class IOAcceptorUtil {
 	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor,
 			ServerConfiguration configuration) {
 
-		if (acceptor == null) {
+		TCPAcceptor acceptor = new TCPAcceptor();
 
-			try {
+		try {
 
-				acceptor = new TCPAcceptor();
+			NIOContext context = new DefaultNIOContext();
 
-				NIOContext context = new DefaultNIOContext();
+			context.setServerConfiguration(configuration);
 
-				context.setServerConfiguration(configuration);
+			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
-				context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
+			context.addSessionEventListener(new LoggerSEListener());
 
-				context.addSessionEventListener(new LoggerSEListener());
+			context.addSessionEventListener(new SessionAliveSEListener());
 
-				context.addSessionEventListener(new SessionAliveSEListener());
+			acceptor.setContext(context);
 
-				acceptor.setContext(context);
+		} catch (Throwable e) {
 
-			} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 
-				logger.error(e.getMessage(), e);
+			acceptor.unbind();
 
-				acceptor.unbind();
-
-				throw new RuntimeException(e);
-			}
+			throw new RuntimeException(e);
 		}
 
 		return acceptor;

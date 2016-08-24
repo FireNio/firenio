@@ -2,7 +2,7 @@ package com.gifisan.nio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.component.AbstractIOService;
@@ -13,7 +13,8 @@ import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
 
-	protected AtomicBoolean		connected		= new AtomicBoolean(false);
+	protected boolean			active		= false;
+	protected ReentrantLock		activeLock	= new ReentrantLock();
 	protected InetSocketAddress	serverAddress	;
 	protected Session			session		;
 
@@ -26,19 +27,42 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		if (getSelectorLoopThread().isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");
 		}
+		
+		ReentrantLock lock = this.activeLock;
 
-		if (connected.compareAndSet(true, false)) {
+		lock.lock();
+
+		try {
+
+			if (!active) {
+				return;
+			}
 
 			close(context);
-			
+
+		} finally {
+
+			active = false;
+
 			LifeCycleUtil.stop(context);
+
+			lock.unlock();
 		}
 	}
 	
 	protected abstract void close(NIOContext context);
 	
 	public void connect() throws IOException {
-		if (connected.compareAndSet(false, true)) {
+		
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+
+			if (active) {
+				return;
+			}
 
 			if (context == null) {
 				throw new IllegalArgumentException("null nio context");
@@ -57,6 +81,12 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 			this.setIOService(context);
 
 			this.connect(context,serverAddress);
+
+			active = true;
+
+		} finally {
+
+			lock.unlock();
 		}
 	}
 	
@@ -70,4 +100,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		return session != null && session.isOpened();
 	}
 	
+	public boolean isActive() {
+		return isConnected();
+	}
 }

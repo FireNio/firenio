@@ -12,4 +12,6 @@ public interface IOService{
 	public abstract InetSocketAddress getServerSocketAddress();
 	
 	public abstract String getServiceDescription();
+	
+	public abstract boolean isActive();
 }

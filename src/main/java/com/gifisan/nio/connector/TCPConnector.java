@@ -52,11 +52,8 @@ public class TCPConnector extends AbstractIOConnector {
 			}
 			
 			if (o == null) {
-				this.connected.compareAndSet(true, false);
-
 				throw new TimeoutException("time out");
 			}
-			
 		}
 	}
 

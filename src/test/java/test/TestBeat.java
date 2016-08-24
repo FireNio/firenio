@@ -8,6 +8,7 @@ import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.protocol.future.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
+import com.gifisan.nio.extend.NIOSessionActiveSEListener;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.test.servlet.nio.TestSimpleServlet;
 
@@ -23,6 +24,8 @@ public class TestBeat {
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().addSessionEventListener(new NIOSessionActiveSEListener());
 		
 		connector.getContext().setSessionIdleTime(1200);
 		

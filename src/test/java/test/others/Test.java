@@ -1,54 +1,35 @@
 package test.others;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
 
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.FileUtil;
-import com.gifisan.nio.common.PropertiesLoader;
+import com.gifisan.nio.common.MathUtil;
 
 public class Test {
 
 	public static void main(String[] args) throws IOException {
 
-		//http://www.daqianduan.com/4280.html
-		
-		PropertiesLoader.setBasepath("nio");
+		int j = 1;
+		for (int i = 0; i < 8; i++) {
+			j <<= 1;
+			System.out.println(j);
+		}
 
-		InputStream stream = Test.class.getClassLoader().getResourceAsStream("aa");
+		System.out.println("==================");
 		
-		String content = FileUtil.input2String(stream, Encoding.UTF8);
-		
-		String [] ls = content.split("\n");
-		
-		for(String s: ls){
+		for (int i = 4; i < 8; i++) {
 			
-			String [] s1 = s.split("\t");
-			
-			String c = s1[0];
-			String d = s1[1];
-			
-//			StringBuilder b = new StringBuilder();
-			
-//			C200(200,"OK","200 OK");
-			
-			System.out.println("/**");
-			System.out.print(" *");
-			System.out.println(s1[2].replace("\n", "").replace("\r", ""));
-			System.out.println(" */");
-			
-			String r = "C"+c+"("+c+",\""+d+"\",\" "+c+" "+d+"\"),";
-			
-			System.out.println(r);
-			
-//			int i = s.indexOf("\t");
-//			String s1 = s.substring(0,i);
-//			String []s2 = s1.split("")
-			
-			
+			System.out.println(MathUtil.byte2BinaryString((byte)i));
+			int y = i & 3;
+			System.out.println(y);
 			
 			
 		}
-
+		
+		HashMap map = new HashMap(16);
+		
+		
+		map.put("k1", "v1");
+		
 	}
 }

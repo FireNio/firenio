@@ -8,7 +8,6 @@ import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ConnectorCloseSEListener;
-import com.gifisan.nio.extend.NIOSessionActiveSEListener;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 public class IOConnectorUtil {
@@ -35,9 +34,7 @@ public class IOConnectorUtil {
 			context.addSessionEventListener(new LoggerSEListener());
 
 			context.addSessionEventListener(new ConnectorCloseSEListener(connector));
-			
-			context.addSessionEventListener(new NIOSessionActiveSEListener());
-			
+
 			connector.setContext(context);
 
 			return connector;
