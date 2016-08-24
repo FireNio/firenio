@@ -182,9 +182,30 @@ public class MathUtil {
 		return (int) (value % Integer.MAX_VALUE);
 	}
 
+	/**
+	 * 右起0 ~ 7
+	 * @param b
+	 * @param pos
+	 * @return
+	 */
+	public static boolean getBoolean(byte b ,int pos){
+		if (pos < 0 || pos > 8) {
+			throw new IllegalArgumentException("illegal pos,"+pos);
+		}
+		return (b & (1 << pos)) >> pos == 1;
+	}
+	
+	public static String byte2BinaryString(byte b){
+		StringBuilder builder = new StringBuilder();
+		for (int i = 7; i > -1; i--) {
+			builder.append(getBoolean(b, i) ? '1' : '0');
+		}
+		return builder.toString();
+	}
+	
 	public static void main(String[] args) {
 
-		int time = 1;
+		int time = 199999;
 		
 		final byte [] bb = new byte[10];
 		
@@ -204,6 +225,7 @@ public class MathUtil {
 		
 		System.out.println(getHexString(new byte[]{125}));
 		
+		System.out.println(byte2BinaryString((byte)-127));
 	}
 
 }

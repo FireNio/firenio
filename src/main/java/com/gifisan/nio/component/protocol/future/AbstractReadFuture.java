@@ -35,8 +35,6 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		this.endPoint = this.session.getTCPEndPoint();
 	}
 	
-	public AbstractReadFuture(){}
-	
 	public boolean flushed() {
 		return flushed;
 	}
