@@ -36,6 +36,7 @@ public class IOSession implements Session {
 		this.context = endPoint.getContext();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
+		//这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime;
 	}
 

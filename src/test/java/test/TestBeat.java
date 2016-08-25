@@ -27,7 +27,7 @@ public class TestBeat {
 		
 		connector.getContext().addSessionEventListener(new NIOSessionActiveSEListener());
 		
-		connector.getContext().setSessionIdleTime(1200);
+		connector.getContext().setSessionIdleTime(10);
 		
 		FixedSession session = eventHandle.getFixedSession();
 		
