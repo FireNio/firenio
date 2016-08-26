@@ -1,13 +1,12 @@
 package com.gifisan.nio.extend.startup;
 
-import java.io.File;
-
+import com.gifisan.nio.acceptor.ServerIOReadFutureDispatcher;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.SharedBundle;
+import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.ManagerSEListener;
@@ -45,6 +44,8 @@ public class NIOServerStartup {
 			context.addSessionEventListener(new ManagerSEListener());
 
 			context.setProtocolFactory(new NIOProtocolFactory());
+			
+			context.setIOReadFutureAcceptor(new ServerIOReadFutureDispatcher());
 
 			acceptor.setContext(context);
 
@@ -68,13 +69,7 @@ public class NIOServerStartup {
 
 	public static void main(String[] args) throws Exception {
 		
-		String classPath = SharedBundle.instance().getClassPath() + "nio/";
-		
-		File f = new File(classPath);
-		
-		if (f.exists()) {
-			SharedBundle.instance().setClassPath(classPath);
-		}
+		PropertiesLoader.setBasepath("nio");
 		
 		NIOServerStartup launcher = new NIOServerStartup();
 
