@@ -121,7 +121,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		
 		this.opened = false;
 
-//		this.selectionKey.attach(null);
+		this.selectionKey.attach(null);
 
 		this.channel.close();
 		
