@@ -47,6 +47,8 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
 
 	public abstract void setSessionIdleTime(long sessionIdleTime);
+	
+	public abstract long getStartupTime();
 
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
 

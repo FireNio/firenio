@@ -44,6 +44,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private UniqueThread				sessionFactoryThread;
 	private long						sessionIdleTime	= 30 * 60 * 1000;
 	private BeatFutureFactory			beatFutureFactory;
+	private long 						startupTime		= System.currentTimeMillis();
 	
 	public BeatFutureFactory getBeatFutureFactory() {
 		return beatFutureFactory;
@@ -279,6 +280,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		}
 
 		this.sessionIdleTime = sessionIdleTime;
+	}
+
+	public long getStartupTime() {
+		return startupTime;
 	}
 
 }
