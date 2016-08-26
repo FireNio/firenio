@@ -5,8 +5,8 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.WriteFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
+import com.gifisan.nio.component.protocol.WriteFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class SimpleIOEventHandle extends IOEventHandleAdaptor {

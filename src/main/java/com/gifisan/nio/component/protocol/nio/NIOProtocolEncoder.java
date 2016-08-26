@@ -8,25 +8,23 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.ByteArrayInputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.protocol.ByteArrayWriteFuture;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
+import com.gifisan.nio.component.protocol.MultiWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.ByteArrayWriteFuture;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
-import com.gifisan.nio.component.protocol.future.MultiWriteFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.TextWriteFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 
-// >> 右移N位
-// << 左移N位
 public class NIOProtocolEncoder implements ProtocolEncoder {
 
 	private final int	PROTOCOL_HADER		= NIOProtocolDecoder.PROTOCOL_HADER;
 	private final int	STREAM_BEGIN_INDEX	= NIOProtocolDecoder.STREAM_BEGIN_INDEX;
 
 	private void calc_text(byte[] header, int text_length) {
-		header[5] = (byte) (text_length & 0xff);
-		header[6] = (byte) ((text_length >> 8) & 0xff);
-		header[7] = (byte) ((text_length >> 16) & 0xff);
+		header[4] = (byte) (text_length & 0xff);
+		header[5] = (byte) ((text_length >> 8) & 0xff);
+		header[6] = (byte) ((text_length >> 16) & 0xff);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {
@@ -55,8 +53,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = NIOProtocolDecoder.TYPE_TEXT;
-		header[4] = (byte) service_name_length;
+		header[0] = (byte)((NIOProtocolDecoder.TYPE_TEXT << 6) | service_name_length);
 
 		calc_future_id(header, future_id);
 		calc_text(header, text_length);
@@ -75,8 +72,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = NIOProtocolDecoder.TYPE_STREAM;
-		header[4] = (byte) service_name_length;
+		header[0] = (byte)((NIOProtocolDecoder.TYPE_STREAM << 6) | service_name_length);
 
 		calc_future_id(header, future_id);
 		calc_stream(header, stream_length);
@@ -102,8 +98,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = NIOProtocolDecoder.TYPE_MULTI;
-		header[4] = (byte) service_name_length;
+		header[0] = (byte)((NIOProtocolDecoder.TYPE_MULTI << 6) | service_name_length);
 
 		calc_future_id(header, future_id);
 		calc_text(header, textLength);
@@ -124,8 +119,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] header = new byte[PROTOCOL_HADER];
 
-		header[0] = NIOProtocolDecoder.TYPE_TEXT;
-		header[4] = (byte) service_name_length;
+		header[0] = (byte)((NIOProtocolDecoder.TYPE_TEXT << 6) | service_name_length);
 
 		calc_future_id(header, future_id);
 
@@ -134,11 +128,22 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		return buffer;
 	}
 	
-	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
+		
+		if (readFuture.isBeatPacket()) {
+			
+			byte [] array = new byte[1];
+
+			array [0] = (byte)(NIOProtocolDecoder.TYPE_BEAT << 6);
+			
+			ByteBuffer buffer = ByteBuffer.wrap(array);
+			
+			return new TextWriteFuture(endPoint, readFuture, buffer);
+		}
 		
 		Session session = endPoint.getSession();
-		NIOReadFuture ioReadFuture = (NIOReadFuture) readFuture;
 		
+		NIOReadFuture ioReadFuture = (NIOReadFuture) readFuture;
 		
 		Integer future_id = ioReadFuture.getFutureID();
 		String service_name = ioReadFuture.getServiceName();
@@ -147,7 +152,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		byte[] service_name_array = service_name.getBytes(session.getContext().getEncoding());
 
-		if (service_name.length() > 127) {
+		if (service_name.length() > ((1 << 6) -1)) {
 			throw new IllegalArgumentException("service name too long ," + service_name);
 		}
 

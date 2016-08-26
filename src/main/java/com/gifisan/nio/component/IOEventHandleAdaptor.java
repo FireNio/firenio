@@ -5,7 +5,7 @@ import com.gifisan.nio.LifeCycle;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.concurrent.ThreadPool;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements IOEventHandle, LifeCycle {
 

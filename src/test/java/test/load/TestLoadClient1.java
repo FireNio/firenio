@@ -12,7 +12,7 @@ import com.gifisan.nio.common.test.ITestThreadHandle;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 
 public class TestLoadClient1 extends ITestThread{

@@ -1,7 +1,7 @@
 package com.gifisan.nio.extend.implementation;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.service.FutureAcceptorFilter;
 

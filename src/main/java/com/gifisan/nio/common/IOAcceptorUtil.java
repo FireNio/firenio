@@ -1,5 +1,6 @@
 package com.gifisan.nio.common;
 
+import com.gifisan.nio.acceptor.ServerIOReadFutureDispatcher;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
@@ -27,6 +28,8 @@ public class IOAcceptorUtil {
 			NIOContext context = new DefaultNIOContext();
 
 			context.setServerConfiguration(configuration);
+			
+			context.setIOReadFutureAcceptor(new ServerIOReadFutureDispatcher());
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 

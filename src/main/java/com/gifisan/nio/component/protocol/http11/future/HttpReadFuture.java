@@ -3,7 +3,7 @@ package com.gifisan.nio.component.protocol.http11.future;
 import java.io.OutputStream;
 import java.util.Map;
 
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public abstract interface HttpReadFuture extends ReadFuture {
 

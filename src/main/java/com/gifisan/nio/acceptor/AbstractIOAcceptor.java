@@ -14,7 +14,7 @@ import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.SessionMEvent;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 

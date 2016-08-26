@@ -8,14 +8,15 @@ import com.gifisan.nio.component.DefaultParameters;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
 import com.gifisan.nio.component.protocol.nio.NIOProtocolDecoder;
 
 public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture implements NIOReadFuture {
 
-	private int			textLength;
-	private boolean		headerComplete;
-	private boolean		textBufferComplete;
+	private int			text_length;
+	private int			service_name_length;
+	private boolean		header_complete;
+	private boolean		text_buffer_complete;
 	private ByteBuffer		header;
 	private Parameters		parameters;
 	protected boolean		hasStream;
@@ -53,6 +54,11 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 		this.futureID = futureID;
 	}
 
+	public AbstractNIOReadFuture(Session session, boolean isBeatPacket) {
+		super(session);
+		this.isBeatPacket = isBeatPacket;
+	}
+
 	public AbstractNIOReadFuture(Session session, ByteBuffer header) {
 		super(session);
 		this.header = header;
@@ -71,14 +77,15 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 
 	private void doHeaderComplete(ByteBuffer header) {
 
-		headerComplete = true;
+		header_complete = true;
 
 		byte[] header_array = header.array();
 
-		int text_and_service_name_length = gainTextLength(header_array)
-				+ header_array[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX];
+		this.service_name_length = (header_array[0] & 0x3f);
 
-		this.futureID = gainFutureIDLength(header_array);
+		int text_and_service_name_length = gainTextLength(header_array) + service_name_length;
+
+		this.futureID = gainFutureID(header_array);
 
 		this.textBuffer = ByteBuffer.allocate(text_and_service_name_length);
 
@@ -89,7 +96,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 
 		TCPEndPoint endPoint = this.endPoint;
 
-		if (!headerComplete) {
+		if (!header_complete) {
 
 			ByteBuffer header = this.header;
 
@@ -102,7 +109,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 			doHeaderComplete(header);
 		}
 
-		if (!textBufferComplete) {
+		if (!text_buffer_complete) {
 			ByteBuffer buffer = this.textBuffer;
 
 			endPoint.read(buffer);
@@ -111,7 +118,7 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 				return false;
 			}
 
-			textBufferComplete = true;
+			text_buffer_complete = true;
 
 			this.gainServiceName(endPoint, header, buffer);
 
@@ -132,16 +139,16 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 	}
 
 	protected int gainTextLength(byte[] header) {
-		int v0 = (header[5] & 0xff);
-		int v1 = (header[6] & 0xff) << 8;
-		int v2 = (header[7] & 0xff) << 16;
+		int v0 = (header[4] & 0xff);
+		int v1 = (header[5] & 0xff) << 8;
+		int v2 = (header[6] & 0xff) << 16;
 
-		this.textLength = v0 | v1 | v2;
+		this.text_length = v0 | v1 | v2;
 
-		return textLength;
+		return text_length;
 	}
 
-	protected int gainFutureIDLength(byte[] header) {
+	protected int gainFutureID(byte[] header) {
 		int v0 = (header[1] & 0xff);
 		int v1 = (header[2] & 0xff) << 8;
 		int v2 = (header[3] & 0xff) << 16;
@@ -153,15 +160,15 @@ public abstract class AbstractNIOReadFuture extends AbstractIOReadFuture impleme
 
 		byte[] bytes = buffer.array();
 
-		this.serviceName = new String(bytes, 0, header.array()[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX]);
+		this.serviceName = new String(bytes, 0, service_name_length);
 	}
 
 	protected void gainText(TCPEndPoint endPoint, ByteBuffer header, ByteBuffer buffer) throws IOException {
 
-		this.text = new String(buffer.array(), header.array()[NIOProtocolDecoder.SERVICE_NAME_LENGTH_INDEX], textLength,
-				endPoint.getContext().getEncoding());
+		this.text = new String(buffer.array(), service_name_length, text_length, endPoint.getContext().getEncoding());
 	}
 
+	//FIXME check
 	public boolean hasOutputStream() {
 		return hasStream;
 	}

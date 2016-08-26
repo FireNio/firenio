@@ -9,10 +9,10 @@ import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.IOEventHandle.IOEventState;
 import com.gifisan.nio.component.concurrent.ReentrantMap;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
 
 //FIXME attributes
@@ -108,11 +108,13 @@ public class IOSession implements Session {
 			
 			ProtocolEncoder encoder = endPoint.getProtocolEncoder();
 
-			writeFuture = encoder.encode(endPoint, future);
-
-			((IOReadFuture) future).flush();
+			IOReadFuture ioReadFuture = (IOReadFuture)future;
+			
+			writeFuture = encoder.encode(endPoint, ioReadFuture);
 
 			writeFuture.attach(future.attachment());
+			
+			ioReadFuture.flush();
 
 			endPoint.offer(writeFuture);
 

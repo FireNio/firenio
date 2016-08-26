@@ -7,7 +7,7 @@ import test.IOConnectorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;

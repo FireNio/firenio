@@ -6,15 +6,15 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.TextWriteFuture;
 import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
 
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 

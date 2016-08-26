@@ -5,9 +5,9 @@ import com.gifisan.nio.common.IOAcceptorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
 import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
 
 public class TestServer {
 

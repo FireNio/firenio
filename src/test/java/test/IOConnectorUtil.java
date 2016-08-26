@@ -6,6 +6,7 @@ import com.gifisan.nio.component.DefaultNIOContext;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.LoggerSEListener;
 import com.gifisan.nio.component.NIOContext;
+import com.gifisan.nio.connector.ClientIOReadFutureDispatcher;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.ConnectorCloseSEListener;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
@@ -28,6 +29,8 @@ public class IOConnectorUtil {
 			NIOContext context = new DefaultNIOContext();
 
 			context.setServerConfiguration(configuration);
+			
+			context.setIOReadFutureAcceptor(new ClientIOReadFutureDispatcher());
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 

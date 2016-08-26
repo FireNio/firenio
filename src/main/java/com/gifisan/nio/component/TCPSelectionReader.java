@@ -2,15 +2,15 @@ package com.gifisan.nio.component;
 
 import java.nio.channels.SelectionKey;
 
+import com.gifisan.nio.component.protocol.IOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
 public class TCPSelectionReader implements SelectionAcceptor {
-
-	private ReadFutureAcceptor	readFutureAcceptor;
+	
+	private IOReadFutureAcceptor	ioReadFutureAcceptor;
 
 	public TCPSelectionReader(NIOContext context) {
-		this.readFutureAcceptor = context.getReadFutureAcceptor();
+		this.ioReadFutureAcceptor = context.getIOReadFutureAcceptor();
 	}
 
 	public void accept(SelectionKey selectionKey) throws Exception {
@@ -36,16 +36,18 @@ public class TCPSelectionReader implements SelectionAcceptor {
 			endPoint.setReadFuture(future);
 		}
 
-		if (future.read()) {
+		if (!future.read()) {
 
-			endPoint.setReadFuture(null);
-
-			Session session = endPoint.getSession();
-
-			session.active();
-
-			readFutureAcceptor.accept(session, future);
+			return;
 		}
+
+		endPoint.setReadFuture(null);
+
+		Session session = endPoint.getSession();
+		
+		session.active();
+		
+		ioReadFutureAcceptor.accept(session, future);
 	}
 
 }

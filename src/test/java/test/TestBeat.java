@@ -5,10 +5,11 @@ import java.io.IOException;
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
+import com.gifisan.nio.component.protocol.nio.future.NIOBeatFutureFactory;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.NIOSessionActiveSEListener;
+import com.gifisan.nio.extend.SessionActiveSEListener;
 import com.gifisan.nio.extend.SimpleIOEventHandle;
 import com.test.servlet.nio.TestSimpleServlet;
 
@@ -25,9 +26,11 @@ public class TestBeat {
 
 		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 		
-		connector.getContext().addSessionEventListener(new NIOSessionActiveSEListener());
+		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
 		
-		connector.getContext().setSessionIdleTime(10);
+		connector.getContext().setBeatFutureFactory(new NIOBeatFutureFactory());
+		
+		connector.getContext().setSessionIdleTime(100);
 		
 		FixedSession session = eventHandle.getFixedSession();
 		

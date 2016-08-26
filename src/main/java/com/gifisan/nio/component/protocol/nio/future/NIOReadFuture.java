@@ -3,7 +3,7 @@ package com.gifisan.nio.component.protocol.nio.future;
 import java.io.InputStream;
 
 import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public interface NIOReadFuture extends ReadFuture {
 

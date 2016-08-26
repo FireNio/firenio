@@ -6,17 +6,23 @@ import java.nio.ByteBuffer;
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.TextWriteFuture;
 
-// >> 右移N位
-// << 左移N位
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
-	@Override
-	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture future) throws IOException {
+	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture future) throws IOException {
+		
+		if (future.isBeatPacket()) {
+			
+			byte [] array = MathUtil.int2Byte(-1);
+			
+			ByteBuffer buffer = ByteBuffer.wrap(array);
+			
+			return new TextWriteFuture(endPoint, future, buffer);
+		}
 		
 		BufferedOutputStream outputStream = future.getWriteBuffer();
 		
@@ -34,7 +40,4 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 		
 		return new TextWriteFuture(endPoint, future, buffer);
 	}
-
-	
-
 }

@@ -1,7 +1,7 @@
 package com.gifisan.nio.component.protocol.http11.future;
 
 import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public interface WebSocketReadFuture extends ReadFuture {
 

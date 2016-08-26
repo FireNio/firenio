@@ -11,7 +11,7 @@ import com.gifisan.nio.component.NIOContext;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.protocol.DatagramPacket;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.connector.UDPConnector;
 import com.gifisan.nio.extend.FixedSession;

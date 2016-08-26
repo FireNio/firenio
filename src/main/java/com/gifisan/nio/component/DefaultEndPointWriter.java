@@ -14,7 +14,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.concurrent.LinkedList;
 import com.gifisan.nio.component.concurrent.LinkedListABQ;
 import com.gifisan.nio.component.concurrent.ReentrantList;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.extend.configuration.ServerConfiguration;
 
 //FIXME 问题好像出在这里
@@ -162,8 +162,6 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 		if (futureFromEndPoint.write()) {
 			
-			endPoint.getSession().active();
-
 			endPoint.decrementWriter();
 
 			endPoint.setCurrentWriter(null);
@@ -191,8 +189,6 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 		if (futureFromWriters.write()) {
 			
-			endPoint.getSession().active();
-
 			endPoint.decrementWriter();
 
 			futureFromWriters.onSuccess();

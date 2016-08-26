@@ -7,7 +7,7 @@ import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
 
 public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements WebSocketReadFuture{
 

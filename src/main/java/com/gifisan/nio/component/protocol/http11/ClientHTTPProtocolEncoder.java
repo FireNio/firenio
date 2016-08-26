@@ -7,16 +7,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
-import com.gifisan.nio.component.protocol.future.TextWriteFuture;
+import com.gifisan.nio.component.protocol.TextWriteFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpRequestFuture;
 
 //FIXME jinji
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(TCPEndPoint endPoint, ReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
 		
 		HttpRequestFuture future = (HttpRequestFuture) readFuture;
 

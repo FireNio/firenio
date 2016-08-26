@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
 
 public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpRequestFuture {
 

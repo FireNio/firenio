@@ -5,14 +5,15 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.component.TCPEndPoint;
+import com.gifisan.nio.component.protocol.IOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
 
 /**
  * <pre>
  * [0       ~              3]
  *  0 ~ 3为一个Integer，表示后续报文长度
+ *  如果长度为-1，则该future的心跳请求
  * </pre>
  */
 public class FixedLengthProtocolDecoder implements ProtocolDecoder {

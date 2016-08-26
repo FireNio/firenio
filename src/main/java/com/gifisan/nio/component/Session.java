@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import com.gifisan.nio.component.concurrent.ReentrantMap;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.extend.PluginContext;
 
 public interface Session extends Closeable{

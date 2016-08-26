@@ -20,7 +20,9 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract ProtocolEncoder getProtocolEncoder();
 
-	public abstract ReadFutureAcceptor getReadFutureAcceptor();
+	public abstract IOReadFutureAcceptor getIOReadFutureAcceptor();
+
+	public abstract void setIOReadFutureAcceptor(IOReadFutureAcceptor ioReadFutureAcceptor);
 
 	public abstract ServerConfiguration getServerConfiguration();
 
@@ -38,9 +40,13 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract Sequence getSequence();
 
-	public long getSessionIdleTime();
+	public abstract long getSessionIdleTime();
 
-	public void setSessionIdleTime(long sessionIdleTime);
+	public abstract BeatFutureFactory getBeatFutureFactory();
+
+	public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
+
+	public abstract void setSessionIdleTime(long sessionIdleTime);
 
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
 

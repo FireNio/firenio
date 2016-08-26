@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.protocol.future;
+package com.gifisan.nio.component.protocol;
 
 import java.io.InputStream;
 
@@ -9,6 +9,8 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	public AbstractIOReadFuture(Session session) {
 		super(session);
 	}
+	
+	protected boolean isBeatPacket;
 	
 	public void flush() {
 		endPoint.incrementWriter();
@@ -21,5 +23,9 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 
 	public void setHasOutputStream(boolean hasOutputStream) {
 		this.hasOutputStream = hasOutputStream;
+	}
+	
+	public boolean isBeatPacket() {
+		return isBeatPacket;
 	}
 }

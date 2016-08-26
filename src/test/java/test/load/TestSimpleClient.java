@@ -10,7 +10,7 @@ import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.ReadFutureFactory;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.connector.TCPConnector;
 
 public class TestSimpleClient {

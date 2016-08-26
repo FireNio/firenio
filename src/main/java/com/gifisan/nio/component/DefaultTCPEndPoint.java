@@ -13,10 +13,10 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 

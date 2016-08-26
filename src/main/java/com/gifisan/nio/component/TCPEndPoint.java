@@ -3,10 +3,10 @@ package com.gifisan.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.gifisan.nio.component.protocol.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOWriteFuture;
 import com.gifisan.nio.component.protocol.ProtocolDecoder;
 import com.gifisan.nio.component.protocol.ProtocolEncoder;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
-import com.gifisan.nio.component.protocol.future.IOWriteFuture;
 
 //FIXME 有的连接会断掉，但是没有执行session close，这些连接莫名其妙断掉的，
 //发送消息后服务端收不到，也不会回复

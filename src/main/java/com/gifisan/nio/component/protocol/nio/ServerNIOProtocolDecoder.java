@@ -7,7 +7,7 @@ import com.gifisan.nio.common.CloseUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.IOReadFuture;
+import com.gifisan.nio.component.protocol.IOReadFuture;
 
 public class ServerNIOProtocolDecoder extends NIOProtocolDecoder {
 

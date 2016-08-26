@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.gifisan.nio.component.IOService;
 import com.gifisan.nio.component.SessionMEvent;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public interface IOAcceptor extends IOService {
 

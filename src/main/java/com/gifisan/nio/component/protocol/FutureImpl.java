@@ -1,4 +1,4 @@
-package com.gifisan.nio.component.protocol.future;
+package com.gifisan.nio.component.protocol;
 
 
 public class FutureImpl implements Future {

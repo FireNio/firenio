@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 
 import com.gifisan.nio.common.MathUtil;
 import com.gifisan.nio.component.Session;
+import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
 import com.gifisan.nio.component.protocol.ProtocolException;
-import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
 
 public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements FixedLengthReadFuture {
 
@@ -38,14 +38,29 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 	public FixedLengthReadFutureImpl(Session session) {
 		super(session);
 	}
+	
+	protected FixedLengthReadFutureImpl(Session session,boolean isBeatPacket) {
+		super(session);
+		this.isBeatPacket = isBeatPacket;
+	}
 
 	private void doHeaderComplete(ByteBuffer header) {
 
 		header_complete = true;
 
 		length = MathUtil.byte2Int(header.array());
-
+		
 		if (length < 1) {
+			
+			if (length == -1) {
+			
+				isBeatPacket = true;
+				
+				body_complete = true;
+				
+				return;
+			}
+			
 			throw new ProtocolException("illegal length:" + length);
 		}
 

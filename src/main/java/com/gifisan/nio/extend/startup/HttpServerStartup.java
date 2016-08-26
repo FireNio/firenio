@@ -2,6 +2,7 @@ package com.gifisan.nio.extend.startup;
 
 import java.io.File;
 
+import com.gifisan.nio.acceptor.ServerIOReadFutureDispatcher;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
 import com.gifisan.nio.common.Logger;
@@ -42,6 +43,8 @@ public class HttpServerStartup {
 			context.addSessionEventListener(new LoggerSEListener());
 
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
+			
+			context.setIOReadFutureAcceptor(new ServerIOReadFutureDispatcher());
 
 			acceptor.setContext(context);
 

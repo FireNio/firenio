@@ -16,7 +16,7 @@ import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
-import com.gifisan.nio.component.protocol.future.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
 import com.gifisan.nio.component.protocol.http11.WebSocketProtocolFactory;
 
 //FIXME 解析BODY中的内容

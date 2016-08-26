@@ -8,7 +8,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.UniqueThread;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFutureImpl;

@@ -9,7 +9,7 @@ import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Parameters;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 import com.gifisan.nio.extend.RESMessage;
 import com.gifisan.nio.extend.service.NIOFutureAcceptorService;

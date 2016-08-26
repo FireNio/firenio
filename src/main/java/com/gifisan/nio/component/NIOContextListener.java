@@ -34,7 +34,6 @@ public class NIOContextListener extends AbstractLifeCycleListener implements Lif
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 		// NIOConnector connector = (NIOConnector) lifeCycle;
 		logger.error(exception.getMessage(), exception);
-		;
 	}
 
 	public void lifeCycleStopped(LifeCycle lifeCycle) {

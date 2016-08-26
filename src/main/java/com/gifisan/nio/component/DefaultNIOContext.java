@@ -32,7 +32,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionEventListenerWrapper	lastSessionEventListener;
 	private Logger						logger			= LoggerFactory.getLogger(DefaultNIOContext.class);
 	private ProtocolEncoder				protocolEncoder;
-	private ReadFutureAcceptor			readFutureAcceptor;
+	private IOReadFutureAcceptor			ioReadFutureAcceptor;
 	private ServerConfiguration			serverConfiguration;
 	private SessionEventListenerWrapper	sessionEventListenerStub;
 	private SessionFactory				sessionFactory;
@@ -43,6 +43,15 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private ProtocolFactory				protocolFactory;
 	private UniqueThread				sessionFactoryThread;
 	private long						sessionIdleTime	= 30 * 60 * 1000;
+	private BeatFutureFactory			beatFutureFactory;
+	
+	public BeatFutureFactory getBeatFutureFactory() {
+		return beatFutureFactory;
+	}
+
+	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
+		this.beatFutureFactory = beatFutureFactory;
+	}
 
 	public DefaultNIOContext() {
 		this.addLifeCycleListener(new NIOContextListener());
@@ -69,6 +78,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		if (ioEventHandleAdaptor == null) {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
+		
+		if (ioReadFutureAcceptor == null) {
+			throw new IllegalArgumentException("null ioReadFutureAcceptor");
+		}
 
 		if (serverConfiguration == null) {
 			this.serverConfiguration = loadServerConfiguration(bundle);
@@ -84,7 +97,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.encoding = Encoding.DEFAULT;
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
-		this.readFutureAcceptor = new ReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
 		this.addSessionEventListener(new ManagerSEListener());
@@ -156,8 +168,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return protocolEncoder;
 	}
 
-	public ReadFutureAcceptor getReadFutureAcceptor() {
-		return readFutureAcceptor;
+	public IOReadFutureAcceptor getIOReadFutureAcceptor() {
+		return ioReadFutureAcceptor;
+	}
+	
+	public void setIOReadFutureAcceptor(IOReadFutureAcceptor ioReadFutureAcceptor) {
+		this.ioReadFutureAcceptor = ioReadFutureAcceptor;
 	}
 
 	public ServerConfiguration getServerConfiguration() {

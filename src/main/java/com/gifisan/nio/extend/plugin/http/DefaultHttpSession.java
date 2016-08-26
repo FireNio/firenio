@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.gifisan.nio.common.UUIDGenerator;
 import com.gifisan.nio.component.AttributesImpl;
 import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.future.ReadFuture;
+import com.gifisan.nio.component.protocol.ReadFuture;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
