@@ -2,15 +2,15 @@ package test.fixedlength;
 
 import java.io.IOException;
 
-import test.IOConnectorUtil;
-
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
+import com.gifisan.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
 import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
 import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 import com.gifisan.nio.connector.TCPConnector;
@@ -45,6 +45,8 @@ public class TestClient {
 		future.write("hello server !");
 
 		session.flush(future);
+		
+		session.flush(new FLBeatFutureFactory().createBeatPacket(session));
 
 		ThreadUtil.sleep(100);
 

@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.ReadFuture;

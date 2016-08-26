@@ -45,7 +45,16 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private long						sessionIdleTime	= 30 * 60 * 1000;
 	private BeatFutureFactory			beatFutureFactory;
 	private long 						startupTime		= System.currentTimeMillis();
-	
+	private boolean					isAcceptBeat;
+
+	public boolean isAcceptBeat() {
+		return isAcceptBeat;
+	}
+
+	public void setAcceptBeat(boolean isAcceptBeat) {
+		this.isAcceptBeat = isAcceptBeat;
+	}
+
 	public BeatFutureFactory getBeatFutureFactory() {
 		return beatFutureFactory;
 	}
@@ -80,10 +89,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
 		
-		if (ioReadFutureAcceptor == null) {
-			throw new IllegalArgumentException("null ioReadFutureAcceptor");
-		}
-
 		if (serverConfiguration == null) {
 			this.serverConfiguration = loadServerConfiguration(bundle);
 		}
@@ -98,6 +103,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.encoding = Encoding.DEFAULT;
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
+		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
 		this.addSessionEventListener(new ManagerSEListener());
@@ -173,10 +179,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return ioReadFutureAcceptor;
 	}
 	
-	public void setIOReadFutureAcceptor(IOReadFutureAcceptor ioReadFutureAcceptor) {
-		this.ioReadFutureAcceptor = ioReadFutureAcceptor;
-	}
-
 	public ServerConfiguration getServerConfiguration() {
 		return serverConfiguration;
 	}

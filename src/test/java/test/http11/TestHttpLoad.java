@@ -2,9 +2,8 @@ package test.http11;
 
 import java.io.IOException;
 
-import test.IOConnectorUtil;
-
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.common.test.ITest;
 import com.gifisan.nio.common.test.ITestHandle;
 import com.gifisan.nio.component.ReadFutureFactory;

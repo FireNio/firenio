@@ -35,7 +35,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private ProtocolEncoder		protocolEncoder;
 	private ProtocolDecoder		protocolDecoder;
 	
-	// FIXME 改进network wak 机制
+	// FIXME 改进network wake 机制
 	// FIXME network weak check
 	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
 			throws SocketException {

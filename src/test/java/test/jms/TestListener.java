@@ -1,8 +1,7 @@
 package test.jms;
 
-import test.IOConnectorUtil;
-
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.ThreadUtil;
 import com.gifisan.nio.connector.TCPConnector;

@@ -115,7 +115,7 @@ public class IOSession implements Session {
 			writeFuture.attach(future.attachment());
 			
 			ioReadFuture.flush();
-
+			
 			endPoint.offer(writeFuture);
 
 		} catch (IOException e) {

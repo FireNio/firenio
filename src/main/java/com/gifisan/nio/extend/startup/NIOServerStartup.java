@@ -1,6 +1,5 @@
 package com.gifisan.nio.extend.startup;
 
-import com.gifisan.nio.acceptor.ServerIOReadFutureDispatcher;
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.acceptor.UDPAcceptor;
 import com.gifisan.nio.common.LifeCycleUtil;
@@ -45,7 +44,7 @@ public class NIOServerStartup {
 
 			context.setProtocolFactory(new NIOProtocolFactory());
 			
-			context.setIOReadFutureAcceptor(new ServerIOReadFutureDispatcher());
+			context.setAcceptBeat(true);
 
 			acceptor.setContext(context);
 

@@ -102,7 +102,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			
 			endPoint.read(header);
 			
-			if (header.position() != HEADER_LENGTH) {
+			if (!header.hasRemaining()) {
 				return false;
 			}
 			

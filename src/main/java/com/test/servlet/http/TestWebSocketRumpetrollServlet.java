@@ -28,10 +28,10 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
+		
+		session.flush(future);
 
 		msgAdapter.addClient(session.getIOSession());
-
-		session.flush(future);
 
 		Session ioSession = session.getIOSession();
 

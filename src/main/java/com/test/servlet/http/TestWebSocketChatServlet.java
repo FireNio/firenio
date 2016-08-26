@@ -31,6 +31,8 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 			
 			future.updateWebSocketProtocol();
 			
+			session.flush(future);
+			
 			msgAdapter.addClient(session.getIOSession());
 			
 			String msg = getMsg(session.getIOSession(),"加入房间");
@@ -38,10 +40,11 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 			msgAdapter.sendMsg(msg);
 			
 		} else {
+			
 			future.write("illegal argement token:" + token);
+			
+			session.flush(future);
 		}
-
-		session.flush(future);
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {

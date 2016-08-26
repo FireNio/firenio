@@ -22,8 +22,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract IOReadFutureAcceptor getIOReadFutureAcceptor();
 
-	public abstract void setIOReadFutureAcceptor(IOReadFutureAcceptor ioReadFutureAcceptor);
-
 	public abstract ServerConfiguration getServerConfiguration();
 
 	public abstract SessionFactory getSessionFactory();
@@ -41,6 +39,10 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract Sequence getSequence();
 
 	public abstract long getSessionIdleTime();
+	
+	public abstract boolean isAcceptBeat() ;
+
+	public abstract void setAcceptBeat(boolean isAcceptBeat) ;
 
 	public abstract BeatFutureFactory getBeatFutureFactory();
 

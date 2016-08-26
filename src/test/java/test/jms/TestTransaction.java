@@ -2,8 +2,7 @@ package test.jms;
 
 import java.io.IOException;
 
-import test.IOConnectorUtil;
-
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.connector.TCPConnector;
 import com.gifisan.nio.extend.FixedSession;
 import com.gifisan.nio.extend.SimpleIOEventHandle;

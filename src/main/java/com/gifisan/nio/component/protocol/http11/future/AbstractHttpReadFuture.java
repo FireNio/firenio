@@ -17,6 +17,8 @@ import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.TCPEndPoint;
 import com.gifisan.nio.component.protocol.AbstractIOReadFuture;
+import com.gifisan.nio.component.protocol.ProtocolDecoder;
+import com.gifisan.nio.component.protocol.ProtocolEncoder;
 import com.gifisan.nio.component.protocol.http11.WebSocketProtocolFactory;
 
 //FIXME 解析BODY中的内容
@@ -259,8 +261,9 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public void flush() {
 		
 		if (updateWebSocketProtocol) {
-			endPoint.setProtocolDecoder(PROTOCOL_FACTORY.getProtocolDecoder());
-			endPoint.setProtocolEncoder(PROTOCOL_FACTORY.getProtocolEncoder());
+			
+			endPoint.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
+			endPoint.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
 			
 			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getServiceName());
 		}
@@ -270,6 +273,10 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	
 	private static final WebSocketProtocolFactory PROTOCOL_FACTORY = new WebSocketProtocolFactory();
 
+	private static final ProtocolDecoder WEBSOCKET_PROTOCOL_DECODER = PROTOCOL_FACTORY.getProtocolDecoder();
+	
+	private static final ProtocolEncoder WEBSOCKET_PROTOCOL_ENCODER = PROTOCOL_FACTORY.getProtocolEncoder();
+	
 	private boolean updateWebSocketProtocol;
 	
 	public void updateWebSocketProtocol() {

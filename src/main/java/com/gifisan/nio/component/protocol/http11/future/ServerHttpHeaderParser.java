@@ -14,7 +14,9 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 		for (;;) {
 			char c = lexer.current();
 			if (R == c || N == c) {
-				lexer.next();
+				if (!lexer.next()) {
+					return;
+				}
 				continue;
 			}
 			break;

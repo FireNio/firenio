@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.Waiter;
 import com.gifisan.nio.component.protocol.ReadFuture;

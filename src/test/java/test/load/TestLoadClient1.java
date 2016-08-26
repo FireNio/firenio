@@ -3,9 +3,8 @@ package test.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import test.IOConnectorUtil;
-
 import com.gifisan.nio.common.CloseUtil;
+import com.gifisan.nio.common.IOConnectorUtil;
 import com.gifisan.nio.common.PropertiesLoader;
 import com.gifisan.nio.common.test.ITestThread;
 import com.gifisan.nio.common.test.ITestThreadHandle;
