@@ -1,7 +1,10 @@
 package com.gifisan.nio.extend.startup;
 
+import java.io.File;
+
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.IOAcceptorUtil;
+import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
@@ -12,7 +15,15 @@ import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 public class HttpServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
-
+		
+		String classPath = SharedBundle.instance().getClassPath()  + "http/";
+		
+		File f = new File(classPath);
+		
+		if (f.exists()) {
+			SharedBundle.instance().setClassPath(classPath);
+		}
+		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {

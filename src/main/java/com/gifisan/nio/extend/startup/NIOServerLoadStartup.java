@@ -1,7 +1,10 @@
 package com.gifisan.nio.extend.startup;
 
+import java.io.File;
+
 import com.gifisan.nio.acceptor.TCPAcceptor;
 import com.gifisan.nio.common.IOAcceptorUtil;
+import com.gifisan.nio.common.SharedBundle;
 import com.gifisan.nio.component.IOEventHandleAdaptor;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.ReadFuture;
@@ -10,6 +13,14 @@ import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
 public class NIOServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
+		
+		String classPath = SharedBundle.instance().getClassPath()  + "nio/";
+		
+		File f = new File(classPath);
+		
+		if (f.exists()) {
+			SharedBundle.instance().setClassPath(classPath);
+		}
 		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
