@@ -31,7 +31,7 @@
 详见 {src\test\java\test}，各种用法
 
 ## 演示及用例
-* HTTP Demo：http://www.generallycloud.com/
+* HTTP Demo：http://www.generallycloud.com/index.html
 * WebSocketChat Demo：http://www.generallycloud.com/web-socket/chat/index.html                                
  （我写的后端，前端https://github.com/socketio/socket.io/ ）
 * 小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html                                
