@@ -91,6 +91,10 @@ public class IOSession implements Session {
 
 	public void flush(ReadFuture future) throws IOException {
 
+		if (future == null) {
+			throw new IllegalStateException("null future");
+		}
+		
 		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
