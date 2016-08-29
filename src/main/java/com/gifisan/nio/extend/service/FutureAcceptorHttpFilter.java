@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gifisan.nio.Encoding;
 import com.gifisan.nio.common.FileUtil;
 import com.gifisan.nio.common.Logger;
 import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.common.LoggerUtil;
+import com.gifisan.nio.common.StringUtil;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpHeaderParser;
@@ -31,9 +33,9 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 		String _service_name = serviceName;
 		
-		if ("/".equals(_service_name)) {
-			_service_name = "/index.html";
-		}
+//		if ("/".equals(_service_name)) {
+//			_service_name = "/index.html";
+//		}
 		
 		HttpEntity entity = html_cache.get(_service_name);
 
@@ -47,7 +49,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		
 		File file = entity.file;
 		
-		if(file.lastModified() > entity.lastModify){
+		if(file != null && file.lastModified() > entity.lastModify){
 			
 			synchronized (entity) {
 				entity.array = FileUtil.readFileToByteArray(file);
@@ -65,17 +67,11 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	}
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+		
 		String rootPath = context.getAppLocalAddress();
 
 		File rootFile = new File(rootPath);
-
-		scanFolder(rootFile, rootPath);
-
-		super.initialize(context, config);
-	}
-
-	private void scanFolder(File file, String root) throws IOException {
-
+		
 		Map<String, String> mapping = new HashMap<String, String>();
 
 		mapping.put("htm", HttpHeaderParser.CONTENT_TYPE_TEXT_HTML);
@@ -88,7 +84,13 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		mapping.put("gif", HttpHeaderParser.CONTENT_TYPE_IMAGE_GIF);
 		mapping.put("txt", HttpHeaderParser.CONTENT_TYPE_TEXT_PLAIN);
 		mapping.put("ico", HttpHeaderParser.CONTENT_TYPE_IMAGE_ICON);
-		// mapping.put("", HttpHeaderParser.);
+
+		scanFolder(rootFile, rootPath,mapping);
+
+		super.initialize(context, config);
+	}
+
+	private void scanFolder(File file, String root,Map<String, String> mapping) throws IOException {
 
 		if (file.exists()) {
 			if (file.isFile()) {
@@ -102,6 +104,8 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				fileName = fileName.replace("\\", "/");
 
 				String staticName = fileName.substring(root.length() - 1, fileName.length());
+				
+				staticName = getHttpPath(file, root);
 
 				HttpEntity entity = new HttpEntity();
 
@@ -114,12 +118,91 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 				LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", staticName, fileName);
 			} else if (file.isDirectory()) {
+				
 				File[] fs = file.listFiles();
-				for (File f : fs) {
-					scanFolder(f, root);
+				
+				StringBuilder b = new StringBuilder();
+				
+				b.append("<!DOCTYPE html>\n");
+				b.append("<html lang=\"en\">\n");
+				b.append("	<head>\n");
+				b.append("		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+				b.append("		<meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no\">\n");
+				b.append("		<title>nimbleio</title>\n");
+				b.append("		<style type=\"text/css\"> \n");
+				b.append("			p {margin:15px;}\n");
+				b.append("			a:link { color:#F94F4F;  }");
+				b.append("			a:visited { color:#F94F4F; }");
+				b.append("			a:hover { color:#000000; }");
+				b.append("		</style>\n");
+				b.append("	</head>\n");
+				b.append("	<body style=\"font-family:Georgia;\">\n");
+				b.append("		<div style=\"margin-left:20px;\">\n");
+				b.append("			Index of "+getHttpPath(file, root)+"\n");
+				b.append("		</div>\n");
+				b.append("		<hr>\n");
+				
+				File rootFile = new File(root);
+				
+				if (!rootFile.equals(file)) {
+					b.append("		<p>\n");
+					b.append("			<a href=\""+getHttpPath(file.getParentFile(), root)+"\">&lt;dir&gt;..</a>\n");
+					b.append("		</p>\n");
 				}
+				
+				StringBuilder db = new StringBuilder();
+				StringBuilder fb = new StringBuilder();
+				
+				for (File f : fs) {
+					
+					scanFolder(f, root,mapping);
+					
+					if (f.isDirectory()) {
+						db.append("		<p>\n");
+						db.append("			<a href=\""+getHttpPath(f, root)+"\">&lt;dir&gt;"+f.getName()+"</a>\n");
+						db.append("		</p>\n");
+					}else{
+						fb.append("		<p>\n");
+						fb.append("			<a href=\""+getHttpPath(f, root)+"\">"+f.getName()+"</a>\n");
+						fb.append("		<p>\n");
+					}
+				}
+				
+				b.append(db);
+				b.append(fb);
+				
+				b.append("		<hr>\n");
+				b.append("	</body>\n");
+				b.append("</html>");
+				
+				HttpEntity entity = new HttpEntity();
+				
+				entity.array = b.toString().getBytes(Encoding.DEFAULT);
+				entity.contentType = HttpHeaderParser.CONTENT_TYPE_TEXT_HTML;
+				
+				String staticName = getHttpPath(file, root);
+				
+				if ("".equals(staticName)) {
+					staticName = "/";
+				}
+				html_cache.put(staticName, entity);
 			}
 		}
+	}
+	
+	private String getHttpPath(File file,String root) throws IOException{
+		
+		String fileName = file.getCanonicalPath();
+
+		fileName = fileName.replace("\\", "/");
+
+		String staticName = fileName.substring(root.length() - 1, fileName.length());
+		
+		if (StringUtil.isNullOrBlank(staticName)) {
+			staticName = "/";
+		}
+		
+		return staticName;
 	}
 
 	private String getContentType(String fileName, Map<String, String> mapping) {

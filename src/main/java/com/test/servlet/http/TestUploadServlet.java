@@ -1,5 +1,7 @@
 package com.test.servlet.http;
 
+import java.io.IOException;
+
 import com.gifisan.nio.component.BufferedOutputStream;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
@@ -14,6 +16,11 @@ public class TestUploadServlet extends HTTPFutureAcceptorService {
 		if (future.hasOutputStream()) {
 
 			if (future.getOutputStream() == null) {
+				
+				if (future.getContentLength() > 1024 * 1024) {
+					throw new IOException("too large file");
+				}
+				
 				future.setOutputStream(new BufferedOutputStream());
 				return;
 			}
