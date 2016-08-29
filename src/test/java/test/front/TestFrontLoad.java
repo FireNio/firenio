@@ -27,9 +27,9 @@ public class TestFrontLoad {
 				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getServiceName())) {
 					System.out.println("客户端已下线：" + readFuture.getText());
 				} else {
-					System.out.println("~~~~~~收到报文：" + future.toString());
-					String res = "(***" + readFuture.getText() + "***)";
-					System.out.println("~~~~~~处理报文：" + res);
+					System.out.println("收到报文：" + future.toString());
+					String res = "_____________" + readFuture.getText();
+					System.out.println("处理报文：" + res);
 					future.write(res);
 					session.flush(future);
 				}

@@ -1,15 +1,14 @@
 package com.test.servlet.http;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.DateUtil;
 import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
 import com.gifisan.nio.component.Session;
 import com.gifisan.nio.component.concurrent.UniqueThread;
 import com.gifisan.nio.component.protocol.ReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
 import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
+import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 import com.gifisan.nio.extend.ApplicationContext;
 import com.gifisan.nio.extend.configuration.Configuration;
 import com.gifisan.nio.extend.plugin.http.HttpSession;
@@ -17,34 +16,16 @@ import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
-	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketChatServlet.class);
-
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
 	private UniqueThread	msgAdapterThread;
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
-		String token = future.getRequestParam("token");
-
-		if ("WebSocket".equals(token)) {
-			
-			future.updateWebSocketProtocol();
-			
-			session.flush(future);
-			
-			msgAdapter.addClient(session.getIOSession());
-			
-			String msg = getMsg(session.getIOSession(),"加入房间");
-			
-			msgAdapter.sendMsg(msg);
-			
-		} else {
-			
-			future.write("illegal argement token:" + token);
-			
-			session.flush(future);
-		}
+		future.updateWebSocketProtocol();
+		
+		session.flush(future);
+		
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
@@ -61,42 +42,94 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 			msgAdapter.removeClient(session);
 			
-			logger.info("客户端主动关闭连接：{}", session);
+			JSONObject obj = new JSONObject();
 			
-			String msg = getMsg(session,"离开房间");
+			obj.put("username", session.getAttribute("username"));
+			obj.put("numUsers", msgAdapter.getClientSize());
+			obj.put("action", "user-left");
 			
-			msgAdapter.sendMsg(msg);
+			String msg1 = obj.toJSONString();
+			
+			msgAdapter.sendMsg(msg1);
+			
 		} else {
 
-			String msg = getMsg(session, f.getData().toString(Encoding.UTF8));
+//			String msg = getMsg(session, );
 			
-			msgAdapter.sendMsg(msg);
+			String msg = f.getData().toString(Encoding.UTF8);
+			
+			JSONObject obj = JSONObject.parseObject(msg);
+			
+			String action = obj.getString("action");
+			
+			if("new-message".equals(action)){
+				
+				obj.put("username", session.getAttribute("username"));
+				
+				String msg1 = obj.toJSONString();
+				
+				msgAdapter.sendMsg(msg1);
+				
+			}else if("add-user".equals(action)){
+				
+				msgAdapter.addClient(session);
+				
+				String username = (String)session.getAttribute("username");
+				
+				if(username != null){
+					return;
+				}
+				
+				username = obj.getString("username");
+				
+				session.setAttribute("username", username);
+				
+				obj.put("numUsers", msgAdapter.getClientSize());
+				obj.put("action", "login");
+				
+				String msg1 = obj.toJSONString();
+				
+				WebSocketReadFutureImpl f2 = new WebSocketReadFutureImpl(session);
+				f2.write(msg1);
+				session.flush(f2);
+				
+				obj.put("username", username);
+				obj.put("action", "user-joined");
+				
+				String msg2 = obj.toJSONString();
+				
+				msgAdapter.sendMsg(msg2);
+				
+			}else if("typing".equals(action)){
+				
+				obj.put("username", session.getAttribute("username"));
+				
+				String msg1 = obj.toJSONString();
+				
+				msgAdapter.sendMsg(msg1);
+				
+				
+			}else if("stop-typing".equals(action)){
+				
+				obj.put("username", session.getAttribute("username"));
+				
+				String msg1 = obj.toJSONString();
+				
+				msgAdapter.sendMsg(msg1);
+				
+			}else if("disconnect".equals(action)){
+				
+				msgAdapter.removeClient(session);
+				
+				obj.put("username", session.getAttribute("username"));
+				obj.put("numUsers", msgAdapter.getClientSize());
+				obj.put("action", "user-left");
+				
+				String msg1 = obj.toJSONString();
+				
+				msgAdapter.sendMsg(msg1);
+			}
 		}
-	}
-	
-	private String getMsg(Session session,String msg){
-		StringBuilder b = new StringBuilder();
-		String address = getAddress(session);
-		b.append("[");
-		b.append(address);
-		b.append("][");
-		b.append(DateUtil.now());
-		b.append("]:");
-		b.append(msg);
-		return b.toString();
-	}
-
-	private String getAddress(Session session) {
-
-		String address = (String) session.getAttribute("_remote_address");
-
-		if (address == null) {
-			address = session.getRemoteSocketAddress().toString();
-
-			session.setAttribute("_remote_address", address);
-		}
-
-		return address;
 	}
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {

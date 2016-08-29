@@ -244,8 +244,8 @@ var App = function(aSettings, aCanvas) {
 		model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
 		
 		model.arrows = {};
-		
-		webSocket 				= new WebSocket( model.settings.socketServer );
+		var url = "ws://" + window.location.host + model.settings.socketServer;
+		webSocket 				= new WebSocket( url );
 		webSocket.onopen 		= app.onSocketOpen;
 		webSocket.onclose		= app.onSocketClose;
 		webSocket.onmessage 	= app.onSocketMessage;

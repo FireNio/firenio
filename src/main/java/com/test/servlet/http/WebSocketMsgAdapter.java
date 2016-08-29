@@ -43,6 +43,10 @@ public class WebSocketMsgAdapter implements Looper {
 	public void sendMsg(String msg) {
 		msgs.offer(msg);
 	}
+	
+	public int getClientSize(){
+		return clients.size();
+	}
 
 	public void loop() {
 

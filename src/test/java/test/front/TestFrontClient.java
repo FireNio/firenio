@@ -42,7 +42,7 @@ public class TestFrontClient {
 
 		for (int i = 0; i < 1; i++) {
 
-			ReadFuture future = ReadFutureFactory.create(session, "~~~service-name~~~");
+			ReadFuture future = ReadFutureFactory.create(session, "service-name");
 
 			future.write("你好！");
 

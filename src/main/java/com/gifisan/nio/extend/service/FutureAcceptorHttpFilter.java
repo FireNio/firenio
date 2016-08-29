@@ -44,6 +44,16 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				return;
 			}
 		}
+		
+		File file = entity.file;
+		
+		if(file.lastModified() > entity.lastModify){
+			
+			synchronized (entity) {
+				entity.array = FileUtil.readFileToByteArray(file);
+				entity.lastModify = file.lastModified();
+			}
+		}
 
 		HttpReadFuture f = (HttpReadFuture) future;
 
@@ -97,6 +107,8 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 				entity.array = bytes;
 				entity.contentType = contentType;
+				entity.file = file;
+				entity.lastModify = file.lastModified();
 
 				html_cache.put(staticName, entity);
 
@@ -134,5 +146,9 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		byte[]	array;
 
 		String	contentType;
+		
+		File file;
+		
+		long lastModify;
 	}
 }
