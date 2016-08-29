@@ -7,7 +7,7 @@ import com.gifisan.nio.component.protocol.ProtocolFactory;
 public class NIOProtocolFactory implements ProtocolFactory{
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return new ServerNIOProtocolDecoder();
+		return new NIOProtocolDecoder();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {

@@ -14,12 +14,24 @@ import com.gifisan.nio.component.protocol.nio.future.TextReadFuture;
 
 /**
  * <pre>
- * [0       ~              11]
- *  0         = 高两位：类型 [0=TEXT，1=STREAM，2=MULTI, 3=BEAT]
- *  0         = 低六位：service name的长度
- *  1,2,3     = future id的长度
- *  4,5,6     = text content的长度
- *  7,8,9,10  = stream content的长度
+ *  B0 - B10:
+ * 
+ *  B0：
+ *  +-----------------------------------+
+ *  |                 B0                |
+ *  +   -   -   -   -   -   -   -   -   +
+ *  |   0   1   2   3   4   5   6   7   | 
+ *  |   -   -   -   -   -   -   -   -   + 
+ *  |  T Y P E|      Service  Name      |
+ *  +-----------------------------------+
+ *  
+ *  Type:高两位，类型 [0=TEXT，1=STREAM，2=MULTI, 3=BEAT]
+ *  ServiceName:低六位，service name的长度
+ *  
+ *  B1 - B3 ：future id
+ *  B4 - B6 ：text content的长度
+ *  B7 - B10：stream content的长度
+ * 
  * </pre>
  */
 public class NIOProtocolDecoder implements ProtocolDecoder {
@@ -65,12 +77,7 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 		} else if(type == TYPE_BEAT){
 			return new NIOBeatReadFuture(endPoint.getSession());
 		}else {
-			return this.doDecodeExtend(endPoint, header, type);
+			throw new IOException("not happen");
 		}
 	}
-
-	public IOReadFuture doDecodeExtend(TCPEndPoint endPoint, ByteBuffer header, int type) throws IOException {
-		return null;
-	}
-
 }

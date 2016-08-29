@@ -205,7 +205,7 @@ public class MathUtil {
 	
 	public static void main(String[] args) {
 
-		int time = 199999;
+		int time = 999999;
 		
 		final byte [] bb = new byte[10];
 		
@@ -223,9 +223,12 @@ public class MathUtil {
 	
 		System.out.println(byte2Long(bb, 0));
 		
-		System.out.println(getHexString(new byte[]{125}));
+		System.out.println(getHexString(new byte[]{125,-22,-25,89,19,90}));
 		
 		System.out.println(byte2BinaryString((byte)-127));
+		System.out.println(byte2BinaryString((byte)-128));
+		System.out.println(byte2BinaryString((byte)-2));
+		System.out.println(byte2BinaryString((byte)-1));
 	}
 
 }
