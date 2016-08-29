@@ -32,7 +32,7 @@
 
 ## 案例
 * HTTP Demo：http://www.generallycloud.com/
-* WebSocketChat Demo：http://www.generallycloud.com/web-socket.html
+* WebSocketChat Demo：http://www.generallycloud.com/web-socket/chat/index.html
   （我写的后端，前端https://github.com/socketio/socket.io/ ）
 * 小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html                                
  （我写的后端，前端https://github.com/danielmahal/Rumpetroll ）
