@@ -11,10 +11,14 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Cipher;
+
+import com.gifisan.nio.Encoding;
 
 public class RSAUtil {
 
@@ -102,19 +106,19 @@ public class RSAUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String encryptByPublicKey(String data, RSAPublicKey publicKey) throws Exception {
+	public static String encryptByPublicKey(byte [] data, RSAPublicKey publicKey) throws Exception {
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 		// 模长
 		int key_len = publicKey.getModulus().bitLength() / 8;
 		// 加密数据长度 <= 模长-11
-		String[] datas = splitString(data, key_len - 11);
-		String mi = "";
+		List<byte[]> datas = splitArray(data, key_len - 11);
+		StringBuilder mi = new StringBuilder();
 		// 如果明文长度大于模长-11则要分组加密
-		for (String s : datas) {
-			mi += bcd2Str(cipher.doFinal(s.getBytes()));
+		for (byte[] s : datas) {
+			mi.append(bcd2Str(cipher.doFinal(s)));
 		}
-		return mi;
+		return mi.toString();
 	}
 
 	/**
@@ -125,21 +129,20 @@ public class RSAUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String decryptByPrivateKey(String data, RSAPrivateKey privateKey) throws Exception {
+	public static String decryptByPrivateKey(byte [] bytes, RSAPrivateKey privateKey) throws Exception {
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, privateKey);
 		// 模长
 		int key_len = privateKey.getModulus().bitLength() / 8;
-		byte[] bytes = data.getBytes();
 		byte[] bcd = ASCII_To_BCD(bytes, bytes.length);
 		System.err.println(bcd.length);
 		// 如果密文长度大于模长则要分组解密
-		String ming = "";
-		byte[][] arrays = splitArray(bcd, key_len);
+		StringBuilder ming = new StringBuilder();
+		List<byte[]> arrays = splitArray(bcd, key_len);
 		for (byte[] arr : arrays) {
-			ming += new String(cipher.doFinal(arr));
+			ming.append(new String(cipher.doFinal(arr)));
 		}
-		return ming;
+		return ming.toString();
 	}
 
 	/**
@@ -149,7 +152,8 @@ public class RSAUtil {
 	private static byte[] ASCII_To_BCD(byte[] ascii, int asc_len) {
 		byte[] bcd = new byte[asc_len / 2];
 		int j = 0;
-		for (int i = 0; i < (asc_len + 1) / 2; i++) {
+		int len = (asc_len + 1) / 2;
+		for (int i = 0; i < len; i++) {
 			bcd[i] = asc_to_bcd(ascii[j++]);
 			bcd[i] = (byte) (((j >= asc_len) ? 0x00 : asc_to_bcd(ascii[j++])) + (bcd[i] << 4));
 		}
@@ -189,48 +193,37 @@ public class RSAUtil {
 	/**
 	 * 拆分字符串
 	 */
-	private static String[] splitString(String string, int len) {
-		int x = string.length() / len;
-		int y = string.length() % len;
-		int z = 0;
-		if (y != 0) {
-			z = 1;
-		}
-		String[] strings = new String[x + z];
-		String str = "";
-		for (int i = 0; i < x + z; i++) {
-			if (i == x + z - 1 && y != 0) {
-				str = string.substring(i * len, i * len + y);
-			} else {
-				str = string.substring(i * len, i * len + len);
-			}
-			strings[i] = str;
-		}
-		return strings;
-	}
+	private static List<byte[]> splitArray(byte [] array, int len) {
+		
+		int length = array.length;
 
-	/**
-	 * 拆分数组
-	 */
-	private static byte[][] splitArray(byte[] data, int len) {
-		int x = data.length / len;
-		int y = data.length % len;
-		int z = 0;
-		if (y != 0) {
-			z = 1;
+		List<byte []> list = new ArrayList<byte[]>();
+		
+		if (length <= len) {
+			
+			list.add(array);
+			
+			return list;
 		}
-		byte[][] arrays = new byte[x + z][];
-		byte[] arr;
-		for (int i = 0; i < x + z; i++) {
-			arr = new byte[len];
-			if (i == x + z - 1 && y != 0) {
-				System.arraycopy(data, i * len, arr, 0, y);
-			} else {
-				System.arraycopy(data, i * len, arr, 0, len);
-			}
-			arrays[i] = arr;
+		
+		int size = length / len;
+		
+		for (int i = 0; i < size; i++) {
+			byte [] a = new byte [len] ;
+			System.arraycopy(array, i * len, a, 0, len);
+			list.add(a);
 		}
-		return arrays;
+		
+
+		int yu = array.length % len;
+		
+		if (yu > 0) {
+			byte [] a = new byte [yu] ;
+			System.arraycopy(array, length - yu, a, 0, yu);
+			list.add(a);
+		}
+		
+		return list;
 	}
 
 	public static class RSAKeys {
@@ -256,7 +249,7 @@ public class RSAUtil {
 	}
 	
 	public static void generateKeys(String file,int length) throws NoSuchAlgorithmException, IOException{
-		RSAKeys keys = RSAUtil.getKeys(1024);
+		RSAKeys keys = RSAUtil.getKeys(length);
 		// 生成公钥和私钥
 		RSAPublicKey publicKey = keys.getPublicKey();
 		RSAPrivateKey privateKey = keys.getPrivateKey();
@@ -333,15 +326,16 @@ public class RSAUtil {
 		// 私钥指数
 		String private_exponent = privateKey.getPrivateExponent().toString();
 		// 明文
-		String ming = "123456789";
+		String ming = "你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好";
+//		ming = "22ttt2adw";
 		// 使用模和指数生成公钥和私钥
 		RSAPublicKey pubKey = RSAUtil.getPublicKey(modulus, public_exponent);
 		RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, private_exponent);
 		// 加密后的密文
-		String mi = RSAUtil.encryptByPublicKey(ming, pubKey);
-		System.err.println(mi);
+		String mi = RSAUtil.encryptByPublicKey(ming.getBytes(Encoding.UTF8), pubKey);
+		System.err.println("密文："+mi);
 		// 解密后的明文
-		ming = RSAUtil.decryptByPrivateKey(mi, priKey);
-		System.err.println(ming);
+		ming = RSAUtil.decryptByPrivateKey(mi.getBytes(Encoding.UTF8), priKey);
+		System.err.println("明文："+ming);
 	}
 }
