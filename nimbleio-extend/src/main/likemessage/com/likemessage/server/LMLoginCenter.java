@@ -3,13 +3,13 @@ package com.likemessage.server;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.common.database.SessionQuery;
-import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.extend.security.Authority;
-import com.gifisan.nio.extend.security.AuthorityLoginCenter;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.common.database.SessionQuery;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.extend.security.Authority;
+import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
 import com.likemessage.bean.T_USER;
 
 public class LMLoginCenter extends AuthorityLoginCenter {

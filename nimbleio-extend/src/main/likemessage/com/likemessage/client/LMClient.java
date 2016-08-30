@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.common.MD5Token;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.extend.RESMessageDecoder;
+import com.generallycloud.nio.common.MD5Token;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.RESMessage;
+import com.generallycloud.nio.extend.RESMessageDecoder;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_MESSAGE;

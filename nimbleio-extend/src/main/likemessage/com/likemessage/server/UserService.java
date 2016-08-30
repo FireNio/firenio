@@ -4,14 +4,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.gifisan.nio.common.UUIDGenerator;
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.extend.ApplicationContextUtil;
-import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.extend.security.Authority;
+import com.generallycloud.nio.common.UUIDGenerator;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.extend.ApplicationContextUtil;
+import com.generallycloud.nio.extend.RESMessage;
+import com.generallycloud.nio.extend.security.Authority;
 
 public class UserService extends AbstractService{
 

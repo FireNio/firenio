@@ -2,18 +2,18 @@ package test.fixedlength;
 
 import java.io.IOException;
 
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.IOEventHandleAdaptor;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
-import com.gifisan.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
-import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
-import com.gifisan.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
+import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestClient {
 

@@ -2,7 +2,7 @@ package test.others;
 
 import java.io.IOException;
 
-import com.gifisan.nio.common.MathUtil;
+import com.generallycloud.nio.common.MathUtil;
 
 public class Test {
 

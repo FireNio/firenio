@@ -1,9 +1,9 @@
 package com.test.service.nio;
 
-import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
 
 public class TestSimpleServlet extends NIOFutureAcceptorService{
 	

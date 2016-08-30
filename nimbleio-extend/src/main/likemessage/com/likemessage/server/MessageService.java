@@ -3,7 +3,7 @@ package com.likemessage.server;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.gifisan.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.common.database.DataBaseContext;
 import com.likemessage.bean.T_MESSAGE;
 
 public class MessageService extends AbstractService {

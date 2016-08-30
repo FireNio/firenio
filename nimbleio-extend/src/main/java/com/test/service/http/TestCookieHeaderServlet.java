@@ -1,11 +1,11 @@
 package com.test.service.http;
 
-import com.gifisan.nio.common.StringUtil;
-import com.gifisan.nio.common.UUIDGenerator;
-import com.gifisan.nio.component.protocol.http11.future.Cookie;
-import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.plugin.http.HttpSession;
-import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.common.UUIDGenerator;
+import com.generallycloud.nio.component.protocol.http11.HttpSession;
+import com.generallycloud.nio.component.protocol.http11.future.Cookie;
+import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
+import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {
 	

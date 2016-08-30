@@ -2,11 +2,11 @@ package test.others;
 
 import java.io.File;
 
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.FileUtil;
-import com.gifisan.nio.common.KMPByteUtil;
-import com.gifisan.nio.common.test.ITest;
-import com.gifisan.nio.common.test.ITestHandle;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.FileUtil;
+import com.generallycloud.nio.common.KMPByteUtil;
+import com.generallycloud.nio.common.test.ITest;
+import com.generallycloud.nio.common.test.ITestHandle;
 
 public class TestKMPHttpHeader {
 

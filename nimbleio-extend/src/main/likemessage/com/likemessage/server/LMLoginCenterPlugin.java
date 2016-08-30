@@ -1,8 +1,8 @@
 package com.likemessage.server;
 
-import com.gifisan.nio.extend.AbstractPluginContext;
-import com.gifisan.nio.extend.ApplicationContext;
-import com.gifisan.nio.extend.configuration.Configuration;
+import com.generallycloud.nio.component.Configuration;
+import com.generallycloud.nio.extend.AbstractPluginContext;
+import com.generallycloud.nio.extend.ApplicationContext;
 
 public class LMLoginCenterPlugin extends AbstractPluginContext {
 

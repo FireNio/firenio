@@ -6,17 +6,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.Waiter;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.IOConnectorUtil;
-import com.gifisan.nio.extend.OnReadFuture;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.gifisan.nio.extend.implementation.SYSTEMDownloadServlet;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.component.OnReadFuture;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.concurrent.Waiter;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.extend.implementation.SYSTEMDownloadServlet;
 
 public class TestDownload {
 	

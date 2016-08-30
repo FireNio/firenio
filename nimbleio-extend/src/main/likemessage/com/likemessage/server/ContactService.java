@@ -3,8 +3,8 @@ package com.likemessage.server;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.extend.RESMessage;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.extend.RESMessage;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 import com.likemessage.bean.T_USER;

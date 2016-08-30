@@ -2,14 +2,14 @@ package com.test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.MD5Token;
-import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.IOConnectorUtil;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.MD5Token;
+import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
 
 public class TestLogin {
 

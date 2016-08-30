@@ -2,8 +2,8 @@ package com.likemessage.server;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gifisan.nio.common.LifeCycleUtil;
-import com.gifisan.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.common.LifeCycleUtil;
+import com.generallycloud.nio.common.database.DataBaseContext;
 
 public class DataBaseUtil {
 

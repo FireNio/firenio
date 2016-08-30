@@ -2,7 +2,7 @@ package test.front;
 
 import java.io.IOException;
 
-import com.gifisan.nio.front.FrontServerMain;
+import com.generallycloud.nio.balancing.FrontServerMain;
 
 public class TestFrontMain {
 

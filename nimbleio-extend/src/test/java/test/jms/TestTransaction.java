@@ -2,15 +2,15 @@ package test.jms;
 
 import java.io.IOException;
 
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.IOConnectorUtil;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.gifisan.nio.extend.plugin.jms.MQException;
-import com.gifisan.nio.extend.plugin.jms.Message;
-import com.gifisan.nio.extend.plugin.jms.client.MessageConsumer;
-import com.gifisan.nio.extend.plugin.jms.client.OnMessage;
-import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.extend.plugin.jms.MQException;
+import com.generallycloud.nio.extend.plugin.jms.Message;
+import com.generallycloud.nio.extend.plugin.jms.client.MessageConsumer;
+import com.generallycloud.nio.extend.plugin.jms.client.OnMessage;
+import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageConsumer;
 
 public class TestTransaction {
 

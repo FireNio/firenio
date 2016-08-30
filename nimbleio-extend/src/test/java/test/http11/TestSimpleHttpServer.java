@@ -1,13 +1,13 @@
 package test.http11;
 
-import com.gifisan.nio.acceptor.TCPAcceptor;
-import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.IOEventHandleAdaptor;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.component.protocol.http11.ServerHTTPProtocolFactory;
-import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.IOAcceptorUtil;
+import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
+import com.generallycloud.nio.extend.IOAcceptorUtil;
 
 public class TestSimpleHttpServer {
 

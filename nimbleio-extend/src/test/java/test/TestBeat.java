@@ -2,16 +2,16 @@ package test;
 
 import java.io.IOException;
 
-import com.gifisan.nio.common.CloseUtil;
-import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.common.ThreadUtil;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOBeatFutureFactory;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.IOConnectorUtil;
-import com.gifisan.nio.extend.SessionActiveSEListener;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOBeatFutureFactory;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SessionActiveSEListener;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.test.service.nio.TestSimpleServlet;
 
 public class TestBeat {

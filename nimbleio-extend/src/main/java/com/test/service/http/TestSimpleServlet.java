@@ -1,8 +1,8 @@
 package com.test.service.http;
 
-import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.plugin.http.HttpSession;
-import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.component.protocol.http11.HttpSession;
+import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
+import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestSimpleServlet extends HTTPFutureAcceptorService {
 	

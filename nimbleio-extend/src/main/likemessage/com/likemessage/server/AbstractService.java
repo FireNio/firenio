@@ -2,8 +2,8 @@ package com.likemessage.server;
 
 import java.sql.SQLException;
 
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.common.database.SessionQuery;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.common.database.SessionQuery;
 
 public abstract class AbstractService {
 

@@ -2,16 +2,16 @@ package test.jms;
 
 import java.io.IOException;
 
-import com.gifisan.nio.common.PropertiesLoader;
-import com.gifisan.nio.connector.TCPConnector;
-import com.gifisan.nio.extend.FixedSession;
-import com.gifisan.nio.extend.IOConnectorUtil;
-import com.gifisan.nio.extend.SimpleIOEventHandle;
-import com.gifisan.nio.extend.plugin.jms.MQException;
-import com.gifisan.nio.extend.plugin.jms.MapMessage;
-import com.gifisan.nio.extend.plugin.jms.TextMessage;
-import com.gifisan.nio.extend.plugin.jms.client.MessageProducer;
-import com.gifisan.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.extend.FixedSession;
+import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.extend.plugin.jms.MQException;
+import com.generallycloud.nio.extend.plugin.jms.MapMessage;
+import com.generallycloud.nio.extend.plugin.jms.TextMessage;
+import com.generallycloud.nio.extend.plugin.jms.client.MessageProducer;
+import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
 
 public class TestTeller {
 

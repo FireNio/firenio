@@ -1,2 +1,2 @@
 @rem >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-@java -Xms128m -Xmx512m -cp .;.\lib\*; com.gifisan.nio.extend.startup.NIOServerStartup
+@java -Xms128m -Xmx512m -cp .;.\lib\*; com.generallycloud.nio.extend.startup.NIOServerStartup

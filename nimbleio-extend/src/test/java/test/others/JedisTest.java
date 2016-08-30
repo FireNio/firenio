@@ -2,7 +2,7 @@ package test.others;
 
 import java.util.Set;
 
-import com.gifisan.nio.common.CloseUtil;
+import com.generallycloud.nio.common.CloseUtil;
 
 import redis.clients.jedis.Jedis;
 

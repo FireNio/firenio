@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gifisan.nio.Encoding;
-import com.gifisan.nio.Looper;
-import com.gifisan.nio.common.Logger;
-import com.gifisan.nio.common.LoggerFactory;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.concurrent.LinkedList;
-import com.gifisan.nio.component.concurrent.LinkedListABQ;
-import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.gifisan.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.concurrent.LinkedList;
+import com.generallycloud.nio.component.concurrent.LinkedListABQ;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 
 public class WebSocketMsgAdapter implements Looper {
 

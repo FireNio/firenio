@@ -3,13 +3,13 @@ package com.likemessage.server;
 import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONArray;
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.ApplicationContext;
-import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.extend.configuration.Configuration;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.component.Configuration;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.RESMessage;
 
 public class UserServlet extends LMServlet {
 

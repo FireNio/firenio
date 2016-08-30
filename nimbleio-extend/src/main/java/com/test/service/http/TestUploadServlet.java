@@ -2,10 +2,10 @@ package com.test.service.http;
 
 import java.io.IOException;
 
-import com.gifisan.nio.component.BufferedOutputStream;
-import com.gifisan.nio.component.protocol.http11.future.HttpReadFuture;
-import com.gifisan.nio.extend.plugin.http.HttpSession;
-import com.gifisan.nio.extend.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.protocol.http11.HttpSession;
+import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
+import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestUploadServlet extends HTTPFutureAcceptorService {
 

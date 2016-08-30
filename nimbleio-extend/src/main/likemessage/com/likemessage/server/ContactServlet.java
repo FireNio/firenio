@@ -3,15 +3,15 @@ package com.likemessage.server;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.gifisan.nio.common.BeanUtil;
-import com.gifisan.nio.common.database.DataBaseContext;
-import com.gifisan.nio.component.Parameters;
-import com.gifisan.nio.component.Session;
-import com.gifisan.nio.component.protocol.ReadFuture;
-import com.gifisan.nio.component.protocol.nio.future.NIOReadFuture;
-import com.gifisan.nio.extend.ApplicationContextUtil;
-import com.gifisan.nio.extend.RESMessage;
-import com.gifisan.nio.extend.security.Authority;
+import com.generallycloud.nio.common.BeanUtil;
+import com.generallycloud.nio.common.database.DataBaseContext;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.extend.ApplicationContextUtil;
+import com.generallycloud.nio.extend.RESMessage;
+import com.generallycloud.nio.extend.security.Authority;
 import com.likemessage.bean.B_Contact;
 import com.likemessage.bean.T_CONTACT;
 
