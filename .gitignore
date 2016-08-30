@@ -1,11 +1,2 @@
-/bin/
-/ignore/
-/logs/
-/download.zip
-/src*.rar
-/upload-temp.zip
-/test.TestSimpleBigParam
-/src/test/java/test/demo/
-/target/
-/release/NimbleIO/logs
-/temp1.zip
+/release/nimble-io.http/logs
+/release/nimble-io.nio/logs

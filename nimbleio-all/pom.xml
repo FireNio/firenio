@@ -1,0 +1,91 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>nimbleio-all</artifactId>
+	<packaging>jar</packaging>
+	<name>${project.artifactId}</name>
+	<description>The all in one project of nimbleio</description>  
+
+	<parent>
+		<groupId>com.generallycloud</groupId>
+		<artifactId>nimbleio</artifactId>
+		<version>${project.version}</version>
+		<relativePath>../nimbleio/pom.xml</relativePath>
+	</parent>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+						<phase>deploy</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+				<configuration>
+					<show>public</show>
+					<charset>UTF-8</charset>
+					<encoding>UTF-8</encoding>
+					<docencoding>UTF-8</docencoding>
+					<excludePackageNames>com.alibaba.com.*</excludePackageNames>
+					<links>
+						<link>http://docs.oracle.com/javase/6/docs/api</link>
+					</links>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createSourcesJar>false</createSourcesJar>
+							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+							<artifactSet>
+								<includes>
+								    <include>com.generallycloud:nimbleio-core</include>
+									<include>com.generallycloud:nimbleio-extend</include>
+								</includes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>nimbleio-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>nimbleio-extend</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+	</dependencies>
+</project>

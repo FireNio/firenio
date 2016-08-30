@@ -1,0 +1,58 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>nimbleio-extend</artifactId>
+	<packaging>jar</packaging>
+	<name>${project.artifactId}</name>
+
+	<parent>
+		<groupId>com.generallycloud</groupId>
+		<artifactId>nimbleio</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../nimbleio/pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/*.cfg</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerVersion>1.6</compilerVersion>
+					<fork>1.6</fork>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+					<attach>true</attach>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>nimbleio-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+	</dependencies>
+
+
+
+</project>
