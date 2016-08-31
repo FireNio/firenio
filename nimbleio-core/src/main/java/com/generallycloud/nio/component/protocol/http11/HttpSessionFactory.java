@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.AbstractLooper;
 import com.generallycloud.nio.component.Session;
@@ -76,7 +77,10 @@ public class HttpSessionFactory extends AbstractLooper{
 				HttpSession session = e.getValue();
 				
 				if (!session.isValidate()) {
+					
 					sessions.remove(e.getKey());
+					
+					CloseUtil.close(session.getIOSession());
 				}
 			}
 			

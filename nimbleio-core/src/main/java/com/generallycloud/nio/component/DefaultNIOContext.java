@@ -101,7 +101,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		Encoding.DEFAULT = encoding;
 
 		this.encoding = Encoding.DEFAULT;
-		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", SERVER_CORE_SIZE);
+		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", 
+				SERVER_CORE_SIZE,
+				SERVER_CORE_SIZE * 8,
+				SERVER_CORE_SIZE * SERVER_WRITE_QUEUE_SIZE,
+				60 * 1000L);
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
