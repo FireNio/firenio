@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 public interface TCPSelectionAlpha extends SelectionAcceptor{
 
-	public EndPointWriter getEndPointWriter() ;
+	public ChannelWriter getChannelWriter() ;
 
-	public void setEndPointWriter(EndPointWriter endPointWriter) ;
+	public void setChannelWriter(ChannelWriter channelWriter) ;
 }

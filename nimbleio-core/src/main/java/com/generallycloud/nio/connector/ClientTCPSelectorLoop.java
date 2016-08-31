@@ -6,17 +6,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.DefaultEndPointWriter;
-import com.generallycloud.nio.component.EndPointWriter;
+import com.generallycloud.nio.component.ChannelWriterImpl;
+import com.generallycloud.nio.component.ChannelWriter;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.TCPSelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 
 public class ClientTCPSelectorLoop extends TCPSelectorLoop {
 	
-	private EndPointWriter	endPointWriter			= null;
+	private ChannelWriter	channelWriter			= null;
 
-	private UniqueThread	endPointWriterThread	= null;
+	private UniqueThread	channelWriterThread	= null;
 
 	public ClientTCPSelectorLoop(NIOContext context, TCPConnector connector) {
 
@@ -29,13 +29,13 @@ public class ClientTCPSelectorLoop extends TCPSelectorLoop {
 
 		this.selector = Selector.open();
 		
-		this.endPointWriter = new DefaultEndPointWriter(context);
+		this.channelWriter = new ChannelWriterImpl(context);
 
-		this.endPointWriterThread = new UniqueThread(endPointWriter, endPointWriter.toString());
+		this.channelWriterThread = new UniqueThread(channelWriter, channelWriter.toString());
 		
-		this._alpha_acceptor.setEndPointWriter(endPointWriter);
+		this._alpha_acceptor.setChannelWriter(channelWriter);
 
-		this.endPointWriterThread.start();
+		this.channelWriterThread.start();
 
 		TCPSelectionConnector selectionConnector = (TCPSelectionConnector) this._alpha_acceptor;
 
@@ -48,6 +48,6 @@ public class ClientTCPSelectorLoop extends TCPSelectorLoop {
 
 		super.stop();
 
-		LifeCycleUtil.stop(endPointWriterThread);
+		LifeCycleUtil.stop(channelWriterThread);
 	}
 }

@@ -94,5 +94,9 @@ public class SessionFactory extends AbstractLooper {
 		// throw
 		this.events.offer(event);
 	}
+	
+	public int getManagedSessionSize(){
+		return sessions.size();
+	}
 
 }

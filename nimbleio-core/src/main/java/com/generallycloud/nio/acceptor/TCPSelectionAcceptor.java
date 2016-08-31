@@ -8,14 +8,12 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
-import com.generallycloud.nio.component.EndPointWriter;
 import com.generallycloud.nio.component.NIOContext;
 
 public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	private Selector				selector;
 	private NIOContext				context			;
-	private EndPointWriter			endPointWriter		;
 	private int					this_core_index	;
 	private int					next_core_index	;
 	private CoreProcessors			processors		;
@@ -93,18 +91,10 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 注册到selector，等待连接
 		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
 		// 绑定EndPoint到SelectionKey
-		attachEndPoint(context, endPointWriter, sk);
+		attachEndPoint(context, getChannelWriter(), sk);
 
 		// logger.debug("__________________chanel____gen____{}", channel);
 
-	}
-	
-	public EndPointWriter getEndPointWriter() {
-		return endPointWriter;
-	}
-
-	public void setEndPointWriter(EndPointWriter endPointWriter) {
-		this.endPointWriter = endPointWriter;
 	}
 
 	protected void setSelector(Selector selector) {

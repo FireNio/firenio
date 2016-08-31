@@ -104,6 +104,10 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 	public void offerSessionMEvent(SessionMEvent event) {
 		context.getSessionFactory().offerSessionMEvent(event);
 	}
+	
+	public int getManagedSessionSize() {
+		return context.getSessionFactory().getManagedSessionSize();
+	}
 
 	public void unbind() {
 

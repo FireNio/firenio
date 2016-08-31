@@ -17,15 +17,15 @@ import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 
 //FIXME 问题好像出在这里
-public class DefaultEndPointWriter implements EndPointWriter {
+public class ChannelWriterImpl implements ChannelWriter {
 
 	protected LinkedList<IOWriteFuture>		writerQueue;
 	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
-	private Logger							logger		= LoggerFactory.getLogger(DefaultEndPointWriter.class);
-	private ReentrantList<EndPointWriteEvent>	events		= new ReentrantList<EndPointWriteEvent>();
+	private Logger							logger		= LoggerFactory.getLogger(ChannelWriterImpl.class);
+	private ReentrantList<ChannelWriteEvent>	events		= new ReentrantList<ChannelWriteEvent>();
 	private NIOContext						context		= null;
 
-	public DefaultEndPointWriter(NIOContext context) {
+	public ChannelWriterImpl(NIOContext context) {
 		
 		this.context = context;
 		
@@ -36,7 +36,7 @@ public class DefaultEndPointWriter implements EndPointWriter {
 		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
 	}
 
-	public void fire(EndPointWriteEvent event) {
+	public void fire(ChannelWriteEvent event) {
 		events.add(event);
 	}
 
@@ -82,9 +82,9 @@ public class DefaultEndPointWriter implements EndPointWriter {
 		list.add(future);
 	}
 
-	private void fireEvents(List<EndPointWriteEvent> events) {
+	private void fireEvents(List<ChannelWriteEvent> events) {
 
-		for (EndPointWriteEvent e : events) {
+		for (ChannelWriteEvent e : events) {
 
 			e.handle(this);
 		}
@@ -94,109 +94,108 @@ public class DefaultEndPointWriter implements EndPointWriter {
 
 	public void loop() {
 
-		List<EndPointWriteEvent> events = this.events.getSnapshot();
+		List<ChannelWriteEvent> events = this.events.getSnapshot();
 
 		if (!events.isEmpty()) {
 
 			fireEvents(events);
 		}
 
-		IOWriteFuture futureFromWriters = writerQueue.poll(16);
+		IOWriteFuture futureFromQueue = writerQueue.poll(16);
 
-		if (futureFromWriters == null) {
+		if (futureFromQueue == null) {
 
 			return;
 		}
 
-		TCPEndPoint endPoint = futureFromWriters.getEndPoint();
+		TCPEndPoint endPoint = futureFromQueue.getEndPoint();
 
 		if (!endPoint.isOpened()) {
 
 			endPoint.decrementWriter();
 
-			futureFromWriters.onException(new DisconnectException("disconnected"));
+			futureFromQueue.onException(new DisconnectException("disconnected"));
 
 			return;
 		}
 
 		if (endPoint.isNetworkWeak()) {
 
-			this.sleepWriter(endPoint, futureFromWriters);
+			this.sleepWriter(endPoint, futureFromQueue);
 
 			return;
 		}
 
 		try {
 
-			IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriter();
+			IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriteFuture();
 
 			if (futureFromEndPoint != null) {
 
-				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromWriters, endPoint);
+				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromQueue, endPoint);
 
 				return;
 			}
 
-			doWriteFutureFromWriters(futureFromWriters, endPoint);
+			doWriteFutureFromWriters(futureFromQueue, endPoint);
 
 		} catch (IOException e) {
 			logger.debug(e);
 
 			CloseUtil.close(endPoint);
 
-			futureFromWriters.onException(e);
+			futureFromQueue.onException(e);
 
 		} catch (Throwable e) {
 			logger.debug(e);
 
 			CloseUtil.close(endPoint);
 
-			futureFromWriters.onException(new IOException(e));
+			futureFromQueue.onException(new IOException(e));
 		}
 	}
 
 	// write future from endPoint
-	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromWriters,
+	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromQueue,
 			TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromEndPoint.write()) {
 			
 			endPoint.decrementWriter();
 
-			endPoint.setCurrentWriter(null);
+			endPoint.setCurrentWriteFuture(null);
 
 			futureFromEndPoint.onSuccess();
 
-			doWriteFutureFromWriters(futureFromWriters, endPoint);
+			doWriteFutureFromWriters(futureFromQueue, endPoint);
 
 			return;
 		}
 
-		if (!writerQueue.offer(futureFromWriters)) {
+		if (!writerQueue.offer(futureFromQueue)) {
 
 			endPoint.decrementWriter();
 
-			logger.debug("give up {}", futureFromWriters);
+			logger.debug("give up {}", futureFromQueue);
 
 			futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
 		}
-
 	}
 
 	// write future from writers
-	private void doWriteFutureFromWriters(IOWriteFuture futureFromWriters, TCPEndPoint endPoint) throws IOException {
+	private void doWriteFutureFromWriters(IOWriteFuture futureFromQueue, TCPEndPoint endPoint) throws IOException {
 
-		if (futureFromWriters.write()) {
+		if (futureFromQueue.write()) {
 			
 			endPoint.decrementWriter();
 
-			futureFromWriters.onSuccess();
+			futureFromQueue.onSuccess();
 
 		} else {
 
-			endPoint.setCurrentWriter(futureFromWriters);
+			endPoint.setCurrentWriteFuture(futureFromQueue);
 
-			offer(futureFromWriters);
+			offer(futureFromQueue);
 		}
 	}
 
@@ -211,8 +210,8 @@ public class DefaultEndPointWriter implements EndPointWriter {
 		return service.getServiceDescription() + "(Writer)";
 	}
 
-	public interface EndPointWriteEvent {
+	public interface ChannelWriteEvent {
 
-		void handle(EndPointWriter endPointWriter);
+		void handle(ChannelWriter channelWriter);
 	}
 }

@@ -15,4 +15,6 @@ public interface IOAcceptor extends IOService {
 	public abstract void broadcast(ReadFuture future);
 	
 	public abstract void offerSessionMEvent(SessionMEvent event);
+	
+	public abstract int getManagedSessionSize();
 }

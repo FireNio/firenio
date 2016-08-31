@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 
 public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 
-	private EndPointWriter	endPointWriter;
+	private ChannelWriter	channelWriter;
 
 	private ProtocolDecoder	protocolDecoder;
 
@@ -19,15 +19,15 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 		this.protocolEncoder = context.getProtocolEncoder();
 	}
 
-	public EndPointWriter getEndPointWriter() {
-		return endPointWriter;
+	public ChannelWriter getChannelWriter() {
+		return channelWriter;
 	}
 
-	public void setEndPointWriter(EndPointWriter endPointWriter) {
-		this.endPointWriter = endPointWriter;
+	public void setChannelWriter(ChannelWriter channelWriter) {
+		this.channelWriter = channelWriter;
 	}
 
-	protected TCPEndPoint attachEndPoint(NIOContext context, EndPointWriter endPointWriter, SelectionKey selectionKey)
+	protected TCPEndPoint attachEndPoint(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
 			throws SocketException {
 
 		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
@@ -37,7 +37,7 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 			return endPoint;
 		}
 
-		endPoint = new DefaultTCPEndPoint(context, selectionKey, endPointWriter);
+		endPoint = new DefaultTCPEndPoint(context, selectionKey, channelWriter);
 
 		endPoint.setProtocolDecoder(protocolDecoder);
 

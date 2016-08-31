@@ -42,7 +42,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
 			channel.register(selector, SelectionKey.OP_READ);
 
-			final TCPEndPoint endPoint = attachEndPoint(context, getEndPointWriter(), selectionKey);
+			final TCPEndPoint endPoint = attachEndPoint(context, getChannelWriter(), selectionKey);
 
 			context.getThreadPool().dispatch(new Runnable() {
 

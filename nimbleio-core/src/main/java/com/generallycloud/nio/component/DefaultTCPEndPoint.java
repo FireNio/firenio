@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.DefaultEndPointWriter.EndPointWriteEvent;
+import com.generallycloud.nio.component.ChannelWriterImpl.ChannelWriteEvent;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
@@ -23,9 +23,9 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private static final Logger	logger			= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
 	private boolean			_networkWeak;
 	private SocketChannel		channel;
-	private IOWriteFuture		currentWriter;
+	private IOWriteFuture		currentWriteFuture;
 	private boolean			opened			= true;
-	private EndPointWriter		endPointWriter;
+	private ChannelWriter		channelWriter;
 	private IOReadFuture		readFuture;
 	private SelectionKey		selectionKey;
 	private Session			session;
@@ -37,11 +37,11 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, EndPointWriter endPointWriter)
+	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, ChannelWriter channelWriter)
 			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
-		this.endPointWriter = endPointWriter;
+		this.channelWriter = channelWriter;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		// FIXME 检查这行代码是否可以解决远程访问服务时卡顿问题
@@ -138,23 +138,19 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 	public void wakeup() throws IOException {
 
-		this.endPointWriter.fire(new EndPointWriteEvent() {
+		this.channelWriter.fire(new ChannelWriteEvent() {
 			
-			public void handle(EndPointWriter endPointWriter) {
+			public void handle(ChannelWriter channelWriter) {
 				
 				DefaultTCPEndPoint endPoint = DefaultTCPEndPoint.this;
 				
 				endPoint.updateNetworkState(1);
 				
-				endPointWriter.wekeupEndPoint(endPoint);
+				channelWriter.wekeupEndPoint(endPoint);
 			}
 		});
 
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
-	}
-
-	public IOWriteFuture getCurrentWriter() {
-		return currentWriter;
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
@@ -211,8 +207,12 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return this.channel.read(buffer);
 	}
 
-	public void setCurrentWriter(IOWriteFuture writer) {
-		this.currentWriter = writer;
+	public void setCurrentWriteFuture(IOWriteFuture future) {
+		this.currentWriteFuture = future;
+	}
+
+	public IOWriteFuture getCurrentWriteFuture() {
+		return currentWriteFuture;
 	}
 
 	public void setReadFuture(IOReadFuture readFuture) {
@@ -224,6 +224,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	public void offer(IOWriteFuture future) {
-		this.endPointWriter.offer(future);
+		this.channelWriter.offer(future);
 	}
 }

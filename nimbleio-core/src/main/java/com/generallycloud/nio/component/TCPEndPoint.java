@@ -16,9 +16,9 @@ import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 //下次循环时检测是否收到心跳
 public interface TCPEndPoint extends EndPoint {
 
-	public abstract void setCurrentWriter(IOWriteFuture writer);
+	public abstract void setCurrentWriteFuture(IOWriteFuture future);
 
-	public abstract IOWriteFuture getCurrentWriter();
+	public abstract IOWriteFuture getCurrentWriteFuture();
 
 	public abstract boolean isOpened();
 

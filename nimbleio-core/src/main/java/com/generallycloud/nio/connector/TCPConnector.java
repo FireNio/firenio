@@ -41,19 +41,17 @@ public class TCPConnector extends AbstractIOConnector {
 
 			CloseUtil.close(this);
 
-			Object o = waiter.getPayload();
+			throw new TimeoutException("time out");
+		}
+		
+		Object o = waiter.getPayload();
 
-			if (o instanceof Exception) {
+		if (o instanceof Exception) {
 
-				Exception t = (Exception) o;
+			Exception t = (Exception) o;
 
-				throw new TimeoutException(MessageFormatter.format(
-						"connect faild,connector:{},nested exception is {}", this, t.getMessage()), t);
-			}
-
-			if (o == null) {
-				throw new TimeoutException("time out");
-			}
+			throw new TimeoutException(MessageFormatter.format(
+					"connect faild,connector:[{}],nested exception is {}", this.getServiceDescription(), t.getMessage()), t);
 		}
 	}
 
