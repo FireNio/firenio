@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public abstract class TCPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
+public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
 
 	private Logger				logger	= LoggerFactory.getLogger(TCPSelectorLoop.class);
 	protected SelectionAcceptor	_read_acceptor;

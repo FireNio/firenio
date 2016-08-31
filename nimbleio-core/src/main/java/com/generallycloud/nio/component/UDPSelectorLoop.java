@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public abstract class UDPSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
+public abstract class UDPSelectorLoop extends AbstractSelectorLoop {
 
 	private Logger				logger	= LoggerFactory.getLogger(UDPSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor;
