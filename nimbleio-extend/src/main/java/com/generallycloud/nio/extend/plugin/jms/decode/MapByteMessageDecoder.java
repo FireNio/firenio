@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.plugin.jms.decode;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.HeapOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.jms.MapByteMessage;
@@ -15,7 +15,7 @@ public class MapByteMessageDecoder implements MessageDecoder{
 		String queueName = param.getParameter("queueName");
 		JSONObject map = param.getJSONObject("map");
 		
-		BufferedOutputStream outputStream = (BufferedOutputStream) future.getOutputStream();
+		HeapOutputStream outputStream = (HeapOutputStream) future.getOutputStream();
 		
 		byte[] array = outputStream.toByteArray();
 		

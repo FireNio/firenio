@@ -2,6 +2,7 @@ package test.http11;
 
 import com.generallycloud.nio.acceptor.TCPAcceptor;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.ChannelBufferOutputstream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -27,7 +28,7 @@ public class TestSimpleHttpServer {
 				if (f.hasOutputStream()) {
 
 					if (f.getOutputStream() == null) {
-						f.setOutputStream(new BufferedOutputStream());
+						f.setOutputStream(new ChannelBufferOutputstream());
 						return;
 					}
 

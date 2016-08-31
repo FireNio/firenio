@@ -5,6 +5,7 @@ import java.io.File;
 import com.generallycloud.nio.acceptor.TCPAcceptor;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.ChannelBufferOutputstream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -38,7 +39,7 @@ public class HttpServerLoadStartup {
 				if (f.hasOutputStream()) {
 
 					if (f.getOutputStream() == null) {
-						f.setOutputStream(new BufferedOutputStream());
+						future.setOutputStream(new ChannelBufferOutputstream());
 						return;
 					}
 

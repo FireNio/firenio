@@ -3,6 +3,7 @@ package com.test.service.http;
 import java.io.IOException;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.ChannelBufferOutputstream;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
@@ -21,7 +22,7 @@ public class TestUploadServlet extends HTTPFutureAcceptorService {
 					throw new IOException("too large file");
 				}
 				
-				future.setOutputStream(new BufferedOutputStream());
+				future.setOutputStream(new ChannelBufferOutputstream());
 				return;
 			}
 

@@ -6,15 +6,18 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.ChannelBufferOutputstream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 
+//FIXME 根据outputstream判断是否拷贝数据
 public class MultiReadFuture extends AbstractNIOReadFuture {
 
 	private int				dataLength;
 	private ByteBuffer			streamBuffer;
 	private int				readLength	= -1;
+	private boolean			enableChannelBuffer;
 	private static final Logger	logger		= LoggerFactory.getLogger(MultiReadFuture.class);
 
 	public MultiReadFuture(Session session, ByteBuffer header) {
@@ -26,12 +29,6 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 		this.hasStream = true;
 
 		this.dataLength = gainStreamLength(header);
-
-		int bufferLength = 1024 * 256;
-
-		bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
-
-		this.streamBuffer = ByteBuffer.allocate(bufferLength);
 	}
 
 	protected boolean doRead(TCPEndPoint endPoint) throws IOException {
@@ -49,14 +46,33 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 			if (this.outputStream == null) {
 				throw new IOException("none outputstream");
 			}
+			
+			if (outputStream instanceof ChannelBufferOutputstream) {
+				
+				this.streamBuffer = ByteBuffer.allocate(dataLength);
+				
+				((ChannelBufferOutputstream)outputStream).setBuffer(streamBuffer);
+				
+				this.enableChannelBuffer = true;
+				
+			}else{
+				
+				int bufferLength = 1024 * 256;
+
+				bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
+
+				this.streamBuffer = ByteBuffer.allocate(bufferLength);
+			}
+			
 			readLength = 0;
 		}
 
 		if (readLength < dataLength) {
+			
 			ByteBuffer buffer = streamBuffer;
 
 			endPoint.read(buffer);
-
+			
 			fill(outputStream, buffer);
 		}
 
@@ -65,8 +81,6 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 
 	private void fill(OutputStream outputStream, ByteBuffer buffer) throws IOException {
 
-		byte[] array = buffer.array();
-
 		int length = buffer.position();
 
 		if (length == 0) {
@@ -74,7 +88,13 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 		}
 
 		readLength += length;
+		
+		if (enableChannelBuffer) {
+			return;
+		}
 
+		byte[] array = buffer.array();
+		
 		outputStream.write(array, 0, buffer.position());
 
 		buffer.clear();

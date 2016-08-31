@@ -31,7 +31,7 @@ public class FixedIOSession implements FixedSession {
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
-	private long							timeout	= 5000;
+	private long							timeout	= 50000;//FIXME timeout
 
 	public void setTimeout(long timeout) {
 		if (timeout < 0) {

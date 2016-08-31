@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 //FIXME 用到这里的检查是否需要实例化
-public class BufferedOutputStream extends OutputStream {
+public class BufferedOutputStream extends OutputStream implements HeapOutputStream{
 
 	private byte		cache[]	;
 	private int		count	;

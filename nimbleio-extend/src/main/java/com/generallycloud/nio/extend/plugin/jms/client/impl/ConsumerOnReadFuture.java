@@ -3,6 +3,7 @@ package com.generallycloud.nio.extend.plugin.jms.client.impl;
 import java.io.OutputStream;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.ChannelBufferOutputstream;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -33,7 +34,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 				OutputStream outputStream = f.getOutputStream();
 
 				if (outputStream == null) {
-					f.setOutputStream(new BufferedOutputStream(f.getStreamLength()));
+					f.setOutputStream(new ChannelBufferOutputstream());
 					return;
 				}
 			}
