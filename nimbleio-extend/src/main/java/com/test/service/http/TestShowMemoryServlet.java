@@ -48,7 +48,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append(context.getSessionFactory().getManagedSessionSize());
 //		builder.append("M;</BR>虚拟机最大可占用内存：");
 //		builder.append(runtime.maxMemory()/M );
-		builder.append("M;\n</BR>服务运行时间：");
+		builder.append(";\n</BR>服务运行时间：");
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");
 		builder.append("		<hr>\n");
