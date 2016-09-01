@@ -13,7 +13,6 @@ import com.generallycloud.nio.component.concurrent.ReentrantMap;
 import com.generallycloud.nio.component.protocol.http11.future.Cookie;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 
-//FIXME 改为EventLoop
 public class HttpSessionFactory extends AbstractLooper{
 	
 	private static final String COOKIE_NAME_SESSIONID = "NSESSIONID";
@@ -79,7 +78,7 @@ public class HttpSessionFactory extends AbstractLooper{
 				if (!session.isValidate()) {
 					
 					sessions.remove(e.getKey());
-					
+					//FIXME should close?
 					CloseUtil.close(session.getIOSession());
 				}
 			}

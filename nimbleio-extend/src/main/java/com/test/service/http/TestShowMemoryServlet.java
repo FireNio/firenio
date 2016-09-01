@@ -44,10 +44,10 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append((runtime.totalMemory() - runtime.freeMemory()) / M);
 		builder.append("M;\n</BR>空闲内存：");
 		builder.append(runtime.freeMemory() / M);
-		builder.append("M;\n</BR>服务器当前连接数：");
+		builder.append("M;\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionFactory().getManagedSessionSize());
-//		builder.append("M;</BR>虚拟机最大可占用内存：");
-//		builder.append(runtime.maxMemory()/M );
+		builder.append(";\n</BR>服务器当前会话数（http-session）：");
+		builder.append(context.getSessionFactory().getManagedSessionSize());
 		builder.append(";\n</BR>服务运行时间：");
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");
