@@ -90,4 +90,8 @@ public class HttpSessionFactory extends AbstractLooper{
 		
 		sleep(30 * 60 * 1000);
 	}
+	
+	public int getManagedSessionSize(){
+		return sessions.size();
+	}
 }

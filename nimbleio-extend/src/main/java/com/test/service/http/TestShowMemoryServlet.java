@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.protocol.http11.HttpContext;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
@@ -13,6 +14,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
 		NIOContext context = session.getIOSession().getContext();
+		HttpContext httpContext = session.getContext();
 		
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
@@ -47,7 +49,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append("M;\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionFactory().getManagedSessionSize());
 		builder.append(";\n</BR>服务器当前会话数（http-session）：");
-		builder.append(context.getSessionFactory().getManagedSessionSize());
+		builder.append(httpContext.getHttpSessionFactory().getManagedSessionSize());
 		builder.append(";\n</BR>服务运行时间：");
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");
