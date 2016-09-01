@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
@@ -30,7 +29,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private SelectionKey		selectionKey;
 	private Session			session;
 	private Socket				socket;
-	private AtomicInteger		writers			= new AtomicInteger();
 	private long				next_network_weak	= Long.MAX_VALUE;
 	private ProtocolEncoder		protocolEncoder;
 	private ProtocolDecoder		protocolDecoder;
@@ -115,25 +113,12 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 	
 	public void physicalClose() throws IOException {
-		if (writers.get() > 0) {
-			//FIXME writes
-		}
 		
 		this.opened = false;
 
 		this.selectionKey.attach(null);
 
 		this.channel.close();
-		
-	}
-
-	public void decrementWriter() {
-		writers.decrementAndGet();
-	}
-
-	public void endConnect() {
-//		this.endConnect = true;
-		CloseUtil.close(session);
 	}
 
 	public void wakeup() throws IOException {
@@ -181,10 +166,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 	public Session getSession() {
 		return session;
-	}
-
-	public void incrementWriter() {
-		writers.incrementAndGet();
 	}
 
 	private void interestWrite() {

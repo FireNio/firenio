@@ -17,6 +17,7 @@ import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 
 //FIXME 问题好像出在这里
+//FIXME 如果当前edp网速良好则多执行几次write
 public class ChannelWriterImpl implements ChannelWriter {
 
 	protected LinkedList<IOWriteFuture>		writerQueue;
@@ -112,8 +113,6 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 		if (!endPoint.isOpened()) {
 
-			endPoint.decrementWriter();
-
 			futureFromQueue.onException(new DisconnectException("disconnected"));
 
 			return;
@@ -137,7 +136,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 				return;
 			}
 
-			doWriteFutureFromWriters(futureFromQueue, endPoint);
+			doWriteFutureFromQueue(futureFromQueue, endPoint);
 
 		} catch (IOException e) {
 			logger.debug(e);
@@ -161,20 +160,16 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 		if (futureFromEndPoint.write()) {
 			
-			endPoint.decrementWriter();
-
 			endPoint.setCurrentWriteFuture(null);
 
 			futureFromEndPoint.onSuccess();
 
-			doWriteFutureFromWriters(futureFromQueue, endPoint);
+			doWriteFutureFromQueue(futureFromQueue, endPoint);
 
 			return;
 		}
 
 		if (!writerQueue.offer(futureFromQueue)) {
-
-			endPoint.decrementWriter();
 
 			logger.debug("give up {}", futureFromQueue);
 
@@ -182,13 +177,10 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	// write future from writers
-	private void doWriteFutureFromWriters(IOWriteFuture futureFromQueue, TCPEndPoint endPoint) throws IOException {
+	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromQueue.write()) {
 			
-			endPoint.decrementWriter();
-
 			futureFromQueue.onSuccess();
 
 		} else {
@@ -200,7 +192,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 	}
 
 	public void stop() {
-
+		//FIXME 处理剩下的future
 	}
 
 	public String toString() {

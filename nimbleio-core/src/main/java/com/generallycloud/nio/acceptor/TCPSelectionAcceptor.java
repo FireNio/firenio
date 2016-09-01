@@ -65,9 +65,8 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 				return;
 			}
 
-			// 返回为之创建此键的通道。
 			ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
-			// 此方法返回的套接字通道（如果有）将处于阻塞模式。
+			
 			channel = server.accept();
 			// 前面已经有人获取到channel，而且把core_index+1，
 			//这里虽然匹配到core，但是是拿不到channel的，有待改进

@@ -131,9 +131,9 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				b.append("		<title>nimbleio</title>\n");
 				b.append("		<style type=\"text/css\"> \n");
 				b.append("			p {margin:15px;}\n");
-				b.append("			a:link { color:#F94F4F;  }");
-				b.append("			a:visited { color:#F94F4F; }");
-				b.append("			a:hover { color:#000000; }");
+				b.append("			a:link { color:#F94F4F;  }\n");
+				b.append("			a:visited { color:#F94F4F; }\n");
+				b.append("			a:hover { color:#000000; }\n");
 				b.append("		</style>\n");
 				b.append("	</head>\n");
 				b.append("	<body style=\"font-family:Georgia;\">\n");

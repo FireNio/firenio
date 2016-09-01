@@ -13,7 +13,6 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	protected boolean isBeatPacket;
 	
 	public void flush() {
-		endPoint.incrementWriter();
 		flushed = true;
 	}
 

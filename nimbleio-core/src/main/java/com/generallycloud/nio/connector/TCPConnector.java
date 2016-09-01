@@ -15,11 +15,12 @@ import com.generallycloud.nio.component.TCPSelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
+//FIXME 重连的时候不需要重新加载NIOContext
 public class TCPConnector extends AbstractIOConnector {
 
 	private TCPSelectorLoop	selectorLoop;
 	private UniqueThread	selectorLoopThread;
-	private Waiter			waiter	= new Waiter();
+	private Waiter<Object>		waiter	= new Waiter<Object>();
 
 	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
 

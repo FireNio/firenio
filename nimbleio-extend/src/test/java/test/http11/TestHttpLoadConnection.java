@@ -24,9 +24,9 @@ public class TestHttpLoadConnection {
 		configuration.setSERVER_WRITE_QUEUE_SIZE(4);
 		
 		try {
-			for (int i = 0; i < 1599; i++) {
+			for (int i = 0; i < 999; i++) {
 				
-				if (i % 500 == 0) {
+				if (i % 100 == 0) {
 					System.out.println("i__________________"+i);
 				}
 				
