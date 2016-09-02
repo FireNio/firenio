@@ -1,13 +1,9 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.DefaultNIOContext;
-import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOBeatFutureFactory;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
