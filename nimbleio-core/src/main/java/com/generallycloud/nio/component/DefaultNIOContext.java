@@ -43,11 +43,20 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private UniqueThread				sessionFactoryThread;
 	private long						sessionIdleTime	;
 	private BeatFutureFactory			beatFutureFactory;
+	private int						sessionAttachmentSize;
 	private long 						startupTime		= System.currentTimeMillis();
 	private boolean					isAcceptBeat;
 
 	public boolean isAcceptBeat() {
 		return isAcceptBeat;
+	}
+	
+	public int getSessionAttachmentSize() {
+		return sessionAttachmentSize;
+	}
+	
+	public void setSessionAttachmentSize(int sessionAttachmentSize) {
+		this.sessionAttachmentSize = sessionAttachmentSize;
 	}
 
 	public BeatFutureFactory getBeatFutureFactory() {

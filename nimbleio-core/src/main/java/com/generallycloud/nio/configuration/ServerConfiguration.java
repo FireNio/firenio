@@ -16,7 +16,6 @@ public class ServerConfiguration {
 	private int		SERVER_CHANNEL_QUEUE_SIZE	= 1024 * 512;
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
 	private boolean	SERVER_IS_ACCEPT_BEAT		= false;
-	private int		SERVER_SESSION_ATTACH_SIZE	= 1;
 
 	public int getSERVER_CHANNEL_QUEUE_SIZE() {
 		return SERVER_CHANNEL_QUEUE_SIZE;
@@ -94,14 +93,5 @@ public class ServerConfiguration {
 	public void setSERVER_IS_ACCEPT_BEAT(boolean SERVER_IS_ACCEPT_BEAT) {
 		this.SERVER_IS_ACCEPT_BEAT = SERVER_IS_ACCEPT_BEAT;
 	}
-
-	public int getSERVER_SESSION_ATTACH_SIZE() {
-		return SERVER_SESSION_ATTACH_SIZE;
-	}
-
-	public void setSERVER_SESSION_ATTACH_SIZE(int SERVER_SESSION_ATTACH_SIZE) {
-		this.SERVER_SESSION_ATTACH_SIZE = SERVER_SESSION_ATTACH_SIZE;
-	}
-
 	
 }

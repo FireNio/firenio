@@ -25,7 +25,7 @@ public class IOSession implements Session {
 	private TCPEndPoint					endPoint;
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
-	private Object[]					attachments	= new Object[8];
+	private Object[]					attachments	;
 	private long						creationTime	= System.currentTimeMillis();
 	private long						lastAccess;
 	//FIXME 这里使用ReentrantMap有问题
@@ -35,6 +35,7 @@ public class IOSession implements Session {
 		this.context = endPoint.getContext();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
+		this.attachments = new Object[context.getSessionAttachmentSize()];
 		//这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime;
 	}

@@ -92,6 +92,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.acceptorServiceLoader.listen(services);
 		this.sessionFactory = new FixedSessionFactory(context);
 		this.context.setSessionFactory(sessionFactory);
+		this.context.setSessionAttachmentSize(filterService.getPluginContexts().length);
 	}
 
 	public void addSessionEventListener(SessionEventListener listener) {

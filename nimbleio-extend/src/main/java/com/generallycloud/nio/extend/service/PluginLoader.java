@@ -19,7 +19,7 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 	private ApplicationContext	context		;
 	private DynamicClassLoader	classLoader	;
 	private Logger				logger		= LoggerFactory.getLogger(PluginLoader.class);
-	private PluginContext[]		pluginContexts	= new PluginContext[4];
+	private PluginContext[]		pluginContexts	;
 	private PluginsConfiguration	configuration	;
 
 	public PluginLoader(ApplicationContext context, DynamicClassLoader classLoader) {
@@ -81,9 +81,7 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 		List<Configuration> plugins = configuration.getPlugins();
 
-		if (plugins.size() > 4) {
-			throw new IllegalArgumentException("plugin size max to 4");
-		}
+		pluginContexts = new PluginContext[plugins.size()];
 
 		for (int i = 0; i < plugins.size(); i++) {
 

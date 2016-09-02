@@ -41,6 +41,10 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract long getSessionIdleTime();
 	
 	public abstract boolean isAcceptBeat() ;
+	
+	public abstract int getSessionAttachmentSize();
+	
+	public abstract void setSessionAttachmentSize(int sessionAttachmentSize);
 
 	public abstract BeatFutureFactory getBeatFutureFactory();
 
