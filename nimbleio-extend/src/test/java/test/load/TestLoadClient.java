@@ -1,6 +1,5 @@
 package test.load;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
@@ -19,7 +18,7 @@ public class TestLoadClient {
 
 	final static int	time		= 640000;
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 		

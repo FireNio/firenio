@@ -1,7 +1,5 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
@@ -14,7 +12,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 
 public class TestSessionDisconnect {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 

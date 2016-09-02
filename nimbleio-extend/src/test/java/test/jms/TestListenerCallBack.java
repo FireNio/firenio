@@ -1,14 +1,11 @@
 package test.jms;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageConsumer;
 import com.generallycloud.nio.extend.plugin.jms.client.OnMessage;
@@ -16,7 +13,7 @@ import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageConsum
 
 public class TestListenerCallBack {
 
-	public static void main(String[] args) throws IOException, MQException {
+	public static void main(String[] args) throws Exception {
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

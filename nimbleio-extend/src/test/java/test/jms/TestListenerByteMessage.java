@@ -1,7 +1,5 @@
 package test.jms;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -9,7 +7,6 @@ import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.TextByteMessage;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageConsumer;
@@ -18,7 +15,7 @@ import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageConsum
 
 public class TestListenerByteMessage {
 
-	public static void main(String[] args) throws IOException, MQException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 		

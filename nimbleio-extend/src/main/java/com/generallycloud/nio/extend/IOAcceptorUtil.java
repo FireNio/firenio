@@ -3,24 +3,31 @@ package com.generallycloud.nio.extend;
 import com.generallycloud.nio.acceptor.TCPAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionAliveSEListener;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class IOAcceptorUtil {
 
 	private static Logger	logger	= LoggerFactory.getLogger(IOAcceptorUtil.class);
 
-	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor) {
+	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
 
 		return getTCPAcceptor(ioEventHandleAdaptor, null);
 	}
 
 	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor,
-			ServerConfiguration configuration) {
+			ServerConfiguration configuration) throws Exception {
+		
+		if (configuration == null) {
+			PropertiesSCLoader loader = new PropertiesSCLoader();
+			configuration = loader.loadConfiguration(SharedBundle.instance());
+		}
 
 		TCPAcceptor acceptor = new TCPAcceptor();
 

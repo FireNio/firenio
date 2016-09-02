@@ -24,7 +24,9 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 		Thread thread = Thread.currentThread();
 
-		if (getSelectorLoopThread().isMonitor(thread)) {
+		UniqueThread loopThread = getSelectorLoopThread();
+		
+		if (loopThread != null && loopThread.isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");
 		}
 		

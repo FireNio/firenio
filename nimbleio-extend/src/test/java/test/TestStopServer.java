@@ -1,7 +1,5 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -12,7 +10,7 @@ import com.generallycloud.nio.extend.implementation.SYSTEMStopServerServlet;
 
 public class TestStopServer {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		String serviceKey = SYSTEMStopServerServlet.SERVICE_NAME;
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();

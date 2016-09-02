@@ -1,6 +1,5 @@
 package com.test;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.generallycloud.nio.common.CloseUtil;
@@ -15,7 +14,7 @@ import com.likemessage.client.LMClient;
 public class TestGetContactListByUserID {
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String username = "wk";
 		String password = "wk";

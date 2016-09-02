@@ -276,7 +276,7 @@ public class RTPClient {
 			}
 		});
 
-		if (!waiter.await(3000)) {
+		if (waiter.await(3000)) {
 			CloseUtil.close(connector);
 
 			throw new DisconnectException("disconnected");

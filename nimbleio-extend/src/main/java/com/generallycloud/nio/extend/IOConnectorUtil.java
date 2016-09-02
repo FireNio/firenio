@@ -2,21 +2,28 @@ package com.generallycloud.nio.extend;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
 
 public class IOConnectorUtil {
 
-	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) {
+	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
 		return getTCPConnector(ioEventHandleAdaptor, null);
 	}
 
 	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
-			ServerConfiguration configuration) {
+			ServerConfiguration configuration) throws Exception {
+		
+		if (configuration == null) {
+			PropertiesSCLoader loader = new PropertiesSCLoader();
+			configuration = loader.loadConfiguration(SharedBundle.instance());
+		}
 		
 		TCPConnector connector = null;
 

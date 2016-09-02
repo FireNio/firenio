@@ -1,7 +1,5 @@
 package test.http11;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.ReadFutureFactory;
@@ -16,7 +14,7 @@ import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestSimpleHttp {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 

@@ -1,7 +1,5 @@
 package test.front;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.balancing.FrontContext;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -14,7 +12,7 @@ import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestFrontLoad {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 

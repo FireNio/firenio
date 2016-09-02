@@ -1,7 +1,6 @@
 package test;
 
 import java.io.File;
-import java.io.IOException;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
@@ -14,7 +13,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 public class TestSimpleBigParam {
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String serviceKey = "TestSimpleServlet";
 		

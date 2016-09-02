@@ -38,7 +38,7 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 	}
 
 	public void close() throws IOException {
-		throw new UnsupportedOperationException("physicalClose close instead");
+		this.physicalClose();
 	}
 
 	public void physicalClose() throws IOException {

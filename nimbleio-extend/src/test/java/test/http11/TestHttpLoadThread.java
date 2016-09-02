@@ -19,7 +19,7 @@ public class TestHttpLoadThread extends ITestThread {
 
 	HttpIOEventHandle	eventHandleAdaptor	= new HttpIOEventHandle();
 
-	TCPConnector		connector			= IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
+	TCPConnector		connector			;
 
 	Session			session;
 
@@ -44,7 +44,9 @@ public class TestHttpLoadThread extends ITestThread {
 		}
 	}
 
-	public void prepare() throws IOException {
+	public void prepare() throws Exception {
+		
+		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 

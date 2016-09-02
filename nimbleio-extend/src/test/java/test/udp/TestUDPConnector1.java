@@ -1,6 +1,7 @@
 package test.udp;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.connector.UDPConnector;
@@ -12,6 +13,8 @@ import com.generallycloud.nio.extend.plugin.rtp.client.RTPClient;
 public class TestUDPConnector1 {
 
 	public static void main(String[] args) throws Exception {
+		
+		PropertiesLoader.setBasepath("nio");
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

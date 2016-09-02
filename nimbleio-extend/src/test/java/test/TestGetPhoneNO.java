@@ -1,7 +1,5 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -13,7 +11,7 @@ import com.test.service.nio.TestGetPhoneNOServlet;
 public class TestGetPhoneNO {
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String serviceKey = TestGetPhoneNOServlet.SERVICE_NAME;
 		

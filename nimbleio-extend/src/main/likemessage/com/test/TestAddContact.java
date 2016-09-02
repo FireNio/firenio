@@ -1,6 +1,5 @@
 package com.test;
 
-import java.io.IOException;
 import java.util.Map;
 
 import com.generallycloud.nio.common.BeanUtil;
@@ -17,7 +16,7 @@ import com.likemessage.client.LMClient;
 
 public class TestAddContact {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

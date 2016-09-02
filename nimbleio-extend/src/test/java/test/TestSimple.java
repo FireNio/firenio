@@ -1,7 +1,5 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -18,7 +16,7 @@ import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
 public class TestSimple {
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		PropertiesLoader.setBasepath("nio");
 

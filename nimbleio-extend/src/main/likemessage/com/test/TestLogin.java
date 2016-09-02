@@ -1,7 +1,5 @@
 package com.test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MD5Token;
@@ -13,7 +11,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 
 public class TestLogin {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String username = "wk";
 		String password = "wk";

@@ -3,7 +3,6 @@ package test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.CloseUtil;
@@ -20,7 +19,7 @@ import com.generallycloud.nio.extend.implementation.SYSTEMDownloadServlet;
 
 public class TestDownload {
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String serviceName = SYSTEMDownloadServlet.SERVICE_NAME;
 		

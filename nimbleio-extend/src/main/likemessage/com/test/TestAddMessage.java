@@ -1,7 +1,5 @@
 package com.test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -14,7 +12,7 @@ import com.likemessage.client.LMClient;
 
 public class TestAddMessage {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

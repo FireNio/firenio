@@ -1,7 +1,5 @@
 package test;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
@@ -12,7 +10,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 
 public class Test404 {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
 		PropertiesLoader.setBasepath("nio");
 
