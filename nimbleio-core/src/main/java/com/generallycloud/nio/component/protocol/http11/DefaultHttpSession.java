@@ -57,7 +57,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 	}
 
 	public boolean isValidate() {
-		return System.currentTimeMillis() - lastAccessTime > 1000 * 60 * 30;
+		return System.currentTimeMillis() - lastAccessTime < 1000 * 60 * 30;
 	}
 
 	public HttpContext getContext() {

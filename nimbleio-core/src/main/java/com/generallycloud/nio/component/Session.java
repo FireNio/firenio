@@ -16,11 +16,6 @@ public interface Session extends Closeable{
 
 	public abstract boolean closed();
 
-	/**
-	 * 该方法为非线程安全，Connector端使用时应注意
-	 */
-	public abstract void close();
-
 	public abstract void flush(ReadFuture future) throws IOException;
 
 	public abstract Object getAttachment();

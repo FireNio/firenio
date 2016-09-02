@@ -69,6 +69,11 @@ public class RTPRoom {
 	}
 
 	public boolean join(UDPEndPoint endPoint) {
+		
+		if (endPoint == null) {
+//			throw new RuntimeException("udpEndPoint is null");
+			return false;
+		}
 
 		ReentrantLock lock = endPointList.getReentrantLock();
 
