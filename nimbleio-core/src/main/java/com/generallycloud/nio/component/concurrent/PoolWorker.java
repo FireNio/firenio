@@ -4,9 +4,9 @@ import com.generallycloud.nio.Looper;
 
 public class PoolWorker implements Looper {
 
-	private LinkedList<Runnable>	jobs		;
+	private ListQueue<Runnable>	jobs		;
 
-	public PoolWorker(LinkedList<Runnable>	jobs) {
+	public PoolWorker(ListQueue<Runnable>	jobs) {
 		this.jobs = jobs;
 	}
 

@@ -9,8 +9,8 @@ import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.concurrent.LinkedList;
-import com.generallycloud.nio.component.concurrent.LinkedListABQ;
+import com.generallycloud.nio.component.concurrent.ListQueue;
+import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 
@@ -20,7 +20,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 	private List<Session>		clients	= new ArrayList<Session>();
 
-	private LinkedList<String>	msgs		= new LinkedListABQ<String>(1024 * 4);
+	private ListQueue<String>	msgs		= new ListQueueABQ<String>(1024 * 4);
 
 	public void stop() {
 

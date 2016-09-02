@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.MessageFormatter;
 
-public abstract class AbstractLinkedList<T> implements LinkedList<T> {
+public abstract class AbstractLinkedList<T> implements ListQueue<T> {
 
 	protected int			_capability	;
 	private Object[]		_array		;

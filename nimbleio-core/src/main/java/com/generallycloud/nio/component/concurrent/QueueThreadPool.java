@@ -12,7 +12,7 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 	private UniqueThread[]		poolWorkerThreads;
 	private PoolWorker[]		poolWorks;
 	private FixedAtomicInteger	indexer;
-	private LinkedList<Runnable> jobs;
+	private ListQueue<Runnable> jobs;
 
 	public QueueThreadPool(String threadPrefix, int core_size) {
 		this.core_size = core_size;
@@ -20,7 +20,7 @@ public class QueueThreadPool extends AbstractLifeCycle implements ThreadPool {
 		this.poolWorks = new PoolWorker[core_size];
 		this.poolWorkerThreads = new UniqueThread[core_size];
 		this.indexer = new FixedAtomicInteger(core_size - 1);
-		this.jobs = new LinkedListABQ<Runnable>(1024 * 10240);
+		this.jobs = new ListQueueABQ<Runnable>(1024 * 10240);
 	}
 
 	public void dispatch(Runnable runnable) {

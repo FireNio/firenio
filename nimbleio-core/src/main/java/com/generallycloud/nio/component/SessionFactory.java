@@ -6,8 +6,8 @@ import java.util.Set;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.LinkedList;
-import com.generallycloud.nio.component.concurrent.LinkedListABQ;
+import com.generallycloud.nio.component.concurrent.ListQueue;
+import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
@@ -18,7 +18,7 @@ public class SessionFactory extends AbstractLooper {
 	private long						current_idle_time;
 	private long						last_idle_time ;
 	private ReentrantMap<Integer, Session>	sessions		= new ReentrantMap<Integer, Session>();
-	private LinkedList<SessionMEvent>		events		= new LinkedListABQ<SessionMEvent>(512);
+	private ListQueue<SessionMEvent>		events		= new ListQueueABQ<SessionMEvent>(512);
 	private Logger						logger		= LoggerFactory.getLogger(SessionFactory.class);
 
 	protected SessionFactory(NIOContext context) {

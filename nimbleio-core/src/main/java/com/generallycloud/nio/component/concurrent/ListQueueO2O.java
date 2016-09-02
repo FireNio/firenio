@@ -1,14 +1,14 @@
 package com.generallycloud.nio.component.concurrent;
 
-public class LinkedListO2O<T> extends AbstractLinkedList<T> implements LinkedList<T>{
+public class ListQueueO2O<T> extends AbstractLinkedList<T> implements ListQueue<T>{
 
 	private int			_end			;
 
-	protected LinkedListO2O(int _capability) {
+	protected ListQueueO2O(int _capability) {
 		super(_capability);
 	}
 	
-	protected LinkedListO2O(){
+	protected ListQueueO2O(){
 		super();
 	}
 	

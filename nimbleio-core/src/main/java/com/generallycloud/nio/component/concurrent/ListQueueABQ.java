@@ -6,12 +6,12 @@ import java.util.concurrent.TimeUnit;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public class LinkedListABQ<T> implements LinkedList<T> {
+public class ListQueueABQ<T> implements ListQueue<T> {
 
 	private ArrayBlockingQueue<T>	queue;
-	private Logger				logger	= LoggerFactory.getLogger(LinkedListABQ.class);
+	private Logger				logger	= LoggerFactory.getLogger(ListQueueABQ.class);
 
-	public LinkedListABQ(int capacity) {
+	public ListQueueABQ(int capacity) {
 		this.queue = new ArrayBlockingQueue<T>(capacity);
 	}
 	

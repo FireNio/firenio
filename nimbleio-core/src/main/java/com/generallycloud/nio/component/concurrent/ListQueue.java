@@ -1,6 +1,6 @@
 package com.generallycloud.nio.component.concurrent;
 
-public interface LinkedList<T> {
+public interface ListQueue<T> {
 
 	public abstract boolean offer(T object);
 	

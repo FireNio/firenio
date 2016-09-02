@@ -11,8 +11,8 @@ import com.generallycloud.nio.WriterOverflowException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.LinkedList;
-import com.generallycloud.nio.component.concurrent.LinkedListABQ;
+import com.generallycloud.nio.component.concurrent.ListQueue;
+import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -21,21 +21,21 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 //FIXME 如果当前edp网速良好则多执行几次write
 public class ChannelWriterImpl implements ChannelWriter {
 
-	protected LinkedList<IOWriteFuture>		writerQueue;
+	private ListQueue<IOWriteFuture>			writerQueue;
 	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger							logger		= LoggerFactory.getLogger(ChannelWriterImpl.class);
 	private ReentrantList<ChannelWriteEvent>	events		= new ReentrantList<ChannelWriteEvent>();
 	private NIOContext						context		= null;
 
 	public ChannelWriterImpl(NIOContext context) {
-		
+
 		this.context = context;
-		
+
 		ServerConfiguration configuration = context.getServerConfiguration();
 
 		int capacity = configuration.getSERVER_CHANNEL_QUEUE_SIZE();
 
-		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
+		this.writerQueue = new ListQueueABQ<IOWriteFuture>(capacity);
 	}
 
 	public void fire(ChannelWriteEvent event) {
@@ -160,7 +160,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 			TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromEndPoint.write()) {
-			
+
 			endPoint.setCurrentWriteFuture(null);
 
 			futureFromEndPoint.onSuccess();
@@ -181,7 +181,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, TCPEndPoint endPoint) throws IOException {
 
 		if (futureFromQueue.write()) {
-			
+
 			futureFromQueue.onSuccess();
 
 		} else {
@@ -193,13 +193,13 @@ public class ChannelWriterImpl implements ChannelWriter {
 	}
 
 	public void stop() {
-		//FIXME 处理剩下的future
+		// FIXME 处理剩下的future
 	}
 
 	public String toString() {
-		
+
 		IOService service = context.getTCPService();
-		
+
 		return service.getServiceDescription() + "(Writer)";
 	}
 

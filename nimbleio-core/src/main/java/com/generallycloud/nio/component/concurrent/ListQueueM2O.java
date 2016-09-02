@@ -1,15 +1,15 @@
 package com.generallycloud.nio.component.concurrent;
 
-public class LinkedListM2O<T> extends AbstractLinkedList<T> implements LinkedList<T> {
+public class ListQueueM2O<T> extends AbstractLinkedList<T> implements ListQueue<T> {
 
 	private FixedAtomicInteger	_end;
 
-	protected LinkedListM2O(int capability) {
+	protected ListQueueM2O(int capability) {
 		super(capability);
 		_end = new FixedAtomicInteger(capability - 1);
 	}
 
-	protected LinkedListM2O() {
+	protected ListQueueM2O() {
 		super();
 		_end = new FixedAtomicInteger(_capability - 1);
 	}
