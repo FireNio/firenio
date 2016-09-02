@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.MessageFormatter;
 
-public abstract class AbstractLinkedList<T> implements ListQueue<T> {
+public abstract class AbstractListQueue<T> implements ListQueue<T> {
 
 	protected int			_capability	;
 	private Object[]		_array		;
@@ -18,12 +18,12 @@ public abstract class AbstractLinkedList<T> implements ListQueue<T> {
 	private boolean		_locked		= false;
 	private int			_start		;
 
-	protected AbstractLinkedList(int capability) {
+	protected AbstractListQueue(int capability) {
 		this._capability = capability;
 		this._array = new Object[capability];
 	}
 
-	protected AbstractLinkedList() {
+	protected AbstractListQueue() {
 		this(1024 * 8);
 	}
 
