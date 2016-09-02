@@ -7,11 +7,11 @@ import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.HotDeploy;
 import com.generallycloud.nio.extend.PluginContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.configuration.PluginsConfiguration;
 
 public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {

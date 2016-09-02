@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class FrontFacadeAcceptor {
 
@@ -32,18 +32,16 @@ public class FrontFacadeAcceptor {
 		this.frontContext.setFrontFacadeAcceptor(this);
 
 		this.frontReverseAcceptor = new FrontReverseAcceptor();
-
-		NIOContext context = new DefaultNIOContext();
-
-		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
-
-		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
-
+		
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 
 		serverConfiguration.setSERVER_TCP_PORT(configuration.getFRONT_FACADE_PORT());
 
-		context.setServerConfiguration(serverConfiguration);
+		NIOContext context = new DefaultNIOContext(serverConfiguration);
+
+		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
+
+		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
 
 		this.frontReverseAcceptor.start(frontContext);
 

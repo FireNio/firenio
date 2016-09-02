@@ -15,6 +15,7 @@ import com.generallycloud.nio.component.concurrent.LinkedList;
 import com.generallycloud.nio.component.concurrent.LinkedListABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 //FIXME 问题好像出在这里
 //FIXME 如果当前edp网速良好则多执行几次write
@@ -32,7 +33,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 
-		int capacity = configuration.getSERVER_WRITE_QUEUE_SIZE();
+		int capacity = configuration.getSERVER_CHANNEL_QUEUE_SIZE();
 
 		this.writerQueue = new LinkedListABQ<IOWriteFuture>(capacity);
 	}

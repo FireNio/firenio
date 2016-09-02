@@ -4,9 +4,15 @@ import java.io.IOException;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOBeatFutureFactory;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
+import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
@@ -17,21 +23,25 @@ import com.test.service.nio.TestSimpleServlet;
 public class TestBeat {
 	
 	
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws Exception {
 
 		PropertiesLoader.setBasepath("nio");
 
 		String serviceKey = TestSimpleServlet.SERVICE_NAME;
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		
+		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
+		
+		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		configuration.setSERVER_SESSION_IDLE_TIME(100);
+		
+		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle,configuration);
 		
 		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
 		
 		connector.getContext().setBeatFutureFactory(new NIOBeatFutureFactory());
-		
-		connector.getContext().setSessionIdleTime(100);
 		
 		FixedSession session = eventHandle.getFixedSession();
 		

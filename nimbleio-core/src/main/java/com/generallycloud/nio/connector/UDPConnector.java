@@ -11,11 +11,11 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.UDPEndPoint;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class UDPConnector extends AbstractIOConnector {
 

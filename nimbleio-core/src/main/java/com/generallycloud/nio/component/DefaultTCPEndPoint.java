@@ -116,6 +116,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		
 		this.opened = false;
 
+		//FIXME close 之后依然会收到 selectionKey
 		this.selectionKey.attach(null);
 
 		this.channel.close();

@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Configuration;
 
 public abstract class AbstractACLoader implements ApplicationConfigurationLoader{
 

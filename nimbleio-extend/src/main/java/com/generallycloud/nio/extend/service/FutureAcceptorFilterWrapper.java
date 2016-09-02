@@ -1,9 +1,9 @@
 package com.generallycloud.nio.extend.service;
 
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 

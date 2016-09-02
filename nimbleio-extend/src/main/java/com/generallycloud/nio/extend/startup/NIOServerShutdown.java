@@ -7,8 +7,8 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.extend.FixedSession;
@@ -54,9 +54,7 @@ public class NIOServerShutdown {
 
 		TCPConnector connector = new TCPConnector();
 
-		NIOContext context = new DefaultNIOContext();
-		
-		context.setServerConfiguration(serverConfiguration);
+		NIOContext context = new DefaultNIOContext(serverConfiguration);
 
 		context.setIOEventHandleAdaptor(eventHandle);
 

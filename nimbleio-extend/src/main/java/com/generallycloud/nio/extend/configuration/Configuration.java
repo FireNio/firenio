@@ -1,6 +1,7 @@
-package com.generallycloud.nio.component;
+package com.generallycloud.nio.extend.configuration;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.component.DefaultParameters;
 
 public class Configuration extends DefaultParameters{
 

@@ -6,7 +6,7 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
 
 public class IOConnectorUtil {
@@ -24,10 +24,8 @@ public class IOConnectorUtil {
 
 			connector = new TCPConnector();
 
-			NIOContext context = new DefaultNIOContext();
+			NIOContext context = new DefaultNIOContext(configuration);
 
-			context.setServerConfiguration(configuration);
-			
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());

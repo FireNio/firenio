@@ -2,11 +2,11 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import java.util.Map;
 
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.service.FutureAcceptorService;
 
 public class RTPContext extends AbstractPluginContext {

@@ -3,8 +3,6 @@ package com.generallycloud.nio.extend.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.component.Configuration;
-
 public class PermissionConfiguration {
 
 	private List<Configuration>	roles		= new ArrayList<Configuration>();

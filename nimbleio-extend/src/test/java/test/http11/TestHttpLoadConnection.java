@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
@@ -21,7 +21,7 @@ public class TestHttpLoadConnection {
 		
 		configuration.setSERVER_HOST("www.generallycloud.com");
 		configuration.setSERVER_TCP_PORT(80);
-		configuration.setSERVER_WRITE_QUEUE_SIZE(4);
+		configuration.setSERVER_CHANNEL_QUEUE_SIZE(4);
 		
 		try {
 			for (int i = 0; i < 999; i++) {
@@ -32,12 +32,11 @@ public class TestHttpLoadConnection {
 				
 				HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 				
-				TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
+				TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
 				
 				eventHandleAdaptor.setTCPConnector(connector);
 
 				connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
-				connector.getContext().setServerConfiguration(configuration);
 				
 				connector.connect();
 				

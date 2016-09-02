@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.generallycloud.nio.component.Configuration;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 public class InitializeUtil {
 

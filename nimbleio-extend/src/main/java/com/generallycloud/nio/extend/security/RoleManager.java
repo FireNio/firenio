@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.InitializeableImpl;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.configuration.PermissionConfiguration;
 
 public class RoleManager extends InitializeableImpl {

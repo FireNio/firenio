@@ -67,7 +67,7 @@ public class IOSession implements Session {
 			for (; listenerWrapper != null;) {
 				try {
 					listenerWrapper.sessionClosed(this);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}
 				listenerWrapper = listenerWrapper.nextListener();

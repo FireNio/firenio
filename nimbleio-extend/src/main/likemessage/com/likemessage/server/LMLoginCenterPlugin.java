@@ -1,8 +1,8 @@
 package com.likemessage.server;
 
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 public class LMLoginCenterPlugin extends AbstractPluginContext {
 

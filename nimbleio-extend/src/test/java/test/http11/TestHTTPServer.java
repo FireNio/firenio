@@ -4,10 +4,14 @@ import com.generallycloud.nio.acceptor.TCPAcceptor;
 import com.generallycloud.nio.acceptor.UDPAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
+import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedIOEventHandle;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
@@ -20,7 +24,11 @@ public class TestHTTPServer {
 		
 		ApplicationContext applicationContext = new ApplicationContext();
 		
-		NIOContext context = new DefaultNIOContext();
+		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
+		
+		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
+
+		NIOContext context = new DefaultNIOContext(configuration);
 		
 		TCPAcceptor acceptor = new TCPAcceptor();
 		

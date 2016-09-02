@@ -11,13 +11,13 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpHeaderParser;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 

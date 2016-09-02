@@ -7,8 +7,8 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.SessionAliveSEListener;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class IOAcceptorUtil {
 
@@ -25,19 +25,17 @@ public class IOAcceptorUtil {
 		TCPAcceptor acceptor = new TCPAcceptor();
 
 		try {
-
-			NIOContext context = new DefaultNIOContext();
-
-			context.setServerConfiguration(configuration);
 			
+			configuration.setSERVER_IS_ACCEPT_BEAT(true);
+
+			NIOContext context = new DefaultNIOContext(configuration);
+
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());
 
 			context.addSessionEventListener(new SessionAliveSEListener());
 			
-			context.setAcceptBeat(true);
-
 			acceptor.setContext(context);
 
 		} catch (Throwable e) {

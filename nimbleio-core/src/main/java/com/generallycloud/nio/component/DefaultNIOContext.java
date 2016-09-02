@@ -12,7 +12,6 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.concurrent.ExecutorThreadPool;
 import com.generallycloud.nio.component.concurrent.ThreadPool;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
@@ -20,13 +19,14 @@ import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	private Map<Object, Object>			attributes		= new HashMap<Object, Object>();
 	private Sequence					sequence			= new Sequence();
 	private DatagramPacketAcceptor		datagramPacketAcceptor;
-	private Charset					encoding			= Encoding.DEFAULT;
+	private Charset					encoding			;
 	private IOEventHandleAdaptor			ioEventHandleAdaptor;
 	private SessionEventListenerWrapper	lastSessionEventListener;
 	private Logger						logger			= LoggerFactory.getLogger(DefaultNIOContext.class);
@@ -41,17 +41,13 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private IOService					udpService;
 	private ProtocolFactory				protocolFactory;
 	private UniqueThread				sessionFactoryThread;
-	private long						sessionIdleTime	= 30 * 60 * 1000;
+	private long						sessionIdleTime	;
 	private BeatFutureFactory			beatFutureFactory;
 	private long 						startupTime		= System.currentTimeMillis();
 	private boolean					isAcceptBeat;
 
 	public boolean isAcceptBeat() {
 		return isAcceptBeat;
-	}
-
-	public void setAcceptBeat(boolean isAcceptBeat) {
-		this.isAcceptBeat = isAcceptBeat;
 	}
 
 	public BeatFutureFactory getBeatFutureFactory() {
@@ -62,7 +58,14 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.beatFutureFactory = beatFutureFactory;
 	}
 
-	public DefaultNIOContext() {
+	public DefaultNIOContext(ServerConfiguration configuration) {
+		
+		if (configuration == null) {
+			throw new IllegalArgumentException("null server configuration");
+		}
+		
+		this.serverConfiguration = configuration;
+		
 		this.addLifeCycleListener(new NIOContextListener());
 	}
 
@@ -82,29 +85,25 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	protected void doStart() throws Exception {
 
-		SharedBundle bundle = SharedBundle.instance();
-
 		if (ioEventHandleAdaptor == null) {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
 		
-		if (serverConfiguration == null) {
-			this.serverConfiguration = loadServerConfiguration(bundle);
-		}
-
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
-		int SERVER_WRITE_QUEUE_SIZE = serverConfiguration.getSERVER_WRITE_QUEUE_SIZE();
+		int SERVER_CHANNEL_QUEUE_SIZE = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
 
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
 
 		Encoding.DEFAULT = encoding;
 
 		this.encoding = Encoding.DEFAULT;
+		this.isAcceptBeat = serverConfiguration.isSERVER_IS_ACCEPT_BEAT();
+		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", 
 				SERVER_CORE_SIZE,
 				SERVER_CORE_SIZE * 8,
-				SERVER_CORE_SIZE * SERVER_WRITE_QUEUE_SIZE,
+				SERVER_CORE_SIZE * SERVER_CHANNEL_QUEUE_SIZE,
 				60 * 1000L);
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
@@ -115,7 +114,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} * {} }", SERVER_WRITE_QUEUE_SIZE, SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} * {} }", SERVER_CHANNEL_QUEUE_SIZE, SERVER_CORE_SIZE);
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
 			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
@@ -214,26 +213,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return udpService;
 	}
 
-	private ServerConfiguration loadServerConfiguration(SharedBundle bundle) {
-
-		ServerConfiguration configuration = new ServerConfiguration();
-
-		int WRITE_QUEUE_SIZE = configuration.getSERVER_WRITE_QUEUE_SIZE();
-
-		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
-
-		configuration.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
-		configuration.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
-		configuration.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
-		configuration.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
-		configuration.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
-		configuration.setSERVER_ENCODING(Charset.forName(encoding));
-		configuration.setSERVER_WRITE_QUEUE_SIZE(bundle.getIntegerProperty("SERVER.WRITE_QUEUE_SIZE",
-				WRITE_QUEUE_SIZE));
-
-		return configuration;
-	}
-
 	public Object removeAttribute(Object key) {
 		return this.attributes.remove(key);
 	}
@@ -248,10 +227,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor) {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
-	}
-
-	public void setServerConfiguration(ServerConfiguration serverConfiguration) {
-		this.serverConfiguration = serverConfiguration;
 	}
 
 	public void setTCPService(IOService tcpService) {
@@ -276,15 +251,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public long getSessionIdleTime() {
 		return sessionIdleTime;
-	}
-
-	public void setSessionIdleTime(long sessionIdleTime) {
-
-		if (sessionIdleTime < 1) {
-			throw new IllegalArgumentException("illegal sessionIdleTime:" + sessionIdleTime);
-		}
-
-		this.sessionIdleTime = sessionIdleTime;
 	}
 
 	public long getStartupTime() {

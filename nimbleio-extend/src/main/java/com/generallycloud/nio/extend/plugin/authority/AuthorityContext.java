@@ -3,10 +3,10 @@ package com.generallycloud.nio.extend.plugin.authority;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.implementation.AuthorityFilter;
 import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
 import com.generallycloud.nio.extend.service.FutureAcceptorFilter;

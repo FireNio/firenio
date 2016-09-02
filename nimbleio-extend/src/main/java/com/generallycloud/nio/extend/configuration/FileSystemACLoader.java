@@ -7,7 +7,6 @@ import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Configuration;
 
 public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
 

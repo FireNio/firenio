@@ -12,6 +12,9 @@ import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.component.protocol.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
+import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedIOEventHandle;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
@@ -24,8 +27,12 @@ public class HttpServerStartup {
 	public void launch() throws Exception {
 
 		ApplicationContext applicationContext = new ApplicationContext();
+		
+		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
+		
+		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		NIOContext context = new DefaultNIOContext();
+		NIOContext context = new DefaultNIOContext(configuration);
 
 		TCPAcceptor acceptor = new TCPAcceptor();
 

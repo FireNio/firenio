@@ -9,11 +9,11 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPSelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 //FIXME 重连的时候不需要重新加载NIOContext
 public class TCPConnector extends AbstractIOConnector {

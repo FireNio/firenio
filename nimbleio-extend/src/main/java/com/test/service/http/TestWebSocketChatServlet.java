@@ -3,7 +3,6 @@ package com.test.service.http;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -12,6 +11,7 @@ import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.nio.extend.ApplicationContext;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {

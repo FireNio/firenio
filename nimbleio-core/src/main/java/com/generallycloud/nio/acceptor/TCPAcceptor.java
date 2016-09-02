@@ -8,8 +8,8 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SelectorLoop;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class TCPAcceptor extends AbstractIOAcceptor {
 

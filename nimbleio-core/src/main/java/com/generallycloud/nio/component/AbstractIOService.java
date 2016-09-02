@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component;
 
+import com.generallycloud.nio.configuration.ServerConfiguration;
+
 
 public abstract class AbstractIOService implements IOService {
 

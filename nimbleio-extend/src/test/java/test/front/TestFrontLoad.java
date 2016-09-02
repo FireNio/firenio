@@ -5,10 +5,10 @@ import java.io.IOException;
 import com.generallycloud.nio.balancing.FrontContext;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 

@@ -8,13 +8,13 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.UUIDGenerator;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedSessionFactory;
 import com.generallycloud.nio.extend.InitializeableImpl;
 import com.generallycloud.nio.extend.LoginCenter;
+import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.plugin.authority.AuthorityContext;
 import com.generallycloud.nio.extend.plugin.authority.AuthoritySessionAttachment;
 

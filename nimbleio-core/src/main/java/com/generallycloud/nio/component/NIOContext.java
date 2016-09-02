@@ -8,6 +8,7 @@ import com.generallycloud.nio.component.concurrent.ThreadPool;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public interface NIOContext extends Attributes, LifeCycle {
 
@@ -41,14 +42,10 @@ public interface NIOContext extends Attributes, LifeCycle {
 	
 	public abstract boolean isAcceptBeat() ;
 
-	public abstract void setAcceptBeat(boolean isAcceptBeat) ;
-
 	public abstract BeatFutureFactory getBeatFutureFactory();
 
 	public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
 
-	public abstract void setSessionIdleTime(long sessionIdleTime);
-	
 	public abstract long getStartupTime();
 
 	public abstract UDPEndPointFactory getUDPEndPointFactory();
@@ -56,8 +53,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);
 
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
-
-	public abstract void setServerConfiguration(ServerConfiguration serverConfiguration);
 
 	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
 

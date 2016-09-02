@@ -4,12 +4,12 @@ import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.nio.common.database.DataBaseContext;
-import com.generallycloud.nio.component.Configuration;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.RESMessage;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 public class UserServlet extends LMServlet {
 

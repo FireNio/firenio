@@ -12,11 +12,11 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.AbstractIOService;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.ReadFutureFactory;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor {
 

@@ -9,6 +9,7 @@ import com.generallycloud.nio.LifeCycleListener;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class NIOContextListener extends AbstractLifeCycleListener implements LifeCycleListener {
 

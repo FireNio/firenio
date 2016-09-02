@@ -7,9 +7,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.AbstractIOService;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ServerConfiguration;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
 

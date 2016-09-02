@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend;
 
-import com.generallycloud.nio.component.Configuration;
+import com.generallycloud.nio.extend.configuration.Configuration;
 
 
 public interface Initializeable {
