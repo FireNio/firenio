@@ -21,6 +21,17 @@ $(function() {
 	
 	var socket = new WebSocket(url);
 	
+	socket.onopen = function(e){
+		if(username){
+			var data = {
+				action: "add-user",
+				username: username
+			};
+
+			sendMsg(data);
+		}
+	}
+	
 	socket.onmessage = function(e) {
 
 		var data = JSON.parse(e.data);
@@ -57,6 +68,10 @@ $(function() {
 	};
 	
 	socket.onclose = function(e){
+		reconnect();
+	}
+	
+	function reconnect(){
 		socket = new WebSocket(url);
 	}
 
@@ -73,7 +88,9 @@ $(function() {
 
 	// Sets the client's username
 	function setUsername() {
-		username = cleanInput($usernameInput.val().trim());
+		if(!username){
+			username = cleanInput($usernameInput.val().trim());
+		}
 
 		// If the username is valid
 		if (username) {
@@ -88,7 +105,16 @@ $(function() {
 				username: username
 			};
 
+			sendMsg(data);
+		}
+	}
+	
+	function sendMsg(data){
+		try{
 			socket.send(JSON.stringify(data));
+		}catch(e){
+			cosole.log(e);
+			reconnect();
 		}
 	}
 
@@ -100,19 +126,14 @@ $(function() {
 		// if there is a non-empty message and a socket connection
 		if (message && connected) {
 			$inputMessage.val('');
-			/*
-      addChatMessage({
-        username: username,
-        message: message
-      });
-	  */
+			
 			// tell server to execute 'new message' and send along one parameter
 			var data = {
 				action: "new-message",
 				message: message
 			};
 
-			socket.send(JSON.stringify(data));
+			sendMsg(data);
 		}
 	}
 
@@ -262,8 +283,7 @@ $(function() {
 		}
 	});
 
-	$inputMessage.on('input',
-	function() {
+	$inputMessage.on('input',function() {
 		updateTyping();
 	});
 
@@ -277,46 +297,5 @@ $(function() {
 	$inputMessage.click(function() {
 		$inputMessage.focus();
 	});
-
-	// Socket events
-	/*
-  // Whenever the server emits 'login', log the login message
-  socket.on('login', function (data) {
-    connected = true;
-    // Display the welcome message
-    var message = "Welcome to Socket.IO Chat – ";
-    log(message, {
-      prepend: true
-    });
-    addParticipantsMessage(data);
-  });
-
-  // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', function (data) {
-    addChatMessage(data);
-  });
-
-  // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', function (data) {
-    log(data.username + ' joined');
-    addParticipantsMessage(data);
-  });
-
-  // Whenever the server emits 'user left', log it in the chat body
-  socket.on('user left', function (data) {
-    log(data.username + ' left');
-    addParticipantsMessage(data);
-    removeChatTyping(data);
-  });
-
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', function (data) {
-    addChatTyping(data);
-  });
-
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', function (data) {
-    removeChatTyping(data);
-  });
-  */
+	
 });
