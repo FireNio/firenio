@@ -12,7 +12,7 @@ public interface WebSocketReadFuture extends ReadFuture {
 	public abstract boolean isEof();
 
 	public abstract int getType();
-
+	
 	public abstract int getLength();
 
 	public abstract BufferedOutputStream getData();

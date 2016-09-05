@@ -162,7 +162,7 @@ public class MathUtil {
 			
 			builder.append("0x");
 			
-			builder.append(getHexString(array[i]));
+			builder.append(byte2HexString(array[i]));
 			
 			builder.append(",");
 		}
@@ -174,7 +174,7 @@ public class MathUtil {
 		return builder.toString();
 	}
 	
-	public static String getHexString(byte b){
+	public static String byte2HexString(byte b){
 		return Integer.toHexString(b & 0xFF);
 	}
 	
@@ -201,6 +201,35 @@ public class MathUtil {
 			builder.append(getBoolean(b, i) ? '1' : '0');
 		}
 		return builder.toString();
+	}
+	
+	public static byte binaryString2byte(String string){
+		
+		Assert.notNull(string, "null binary string");
+		char c0 = '0';
+		char c1 = '1';
+		if (string.length() != 8) {
+			throw new IllegalArgumentException("except length 8");
+		}
+		char [] cs = string.toCharArray();
+		byte result = 0;
+		for (int i = 0; i < 8; i++) {
+			char c = cs[i];
+			int x = 0;
+			if (c0 == c) {
+			}else if(c1 ==c){
+				x = 1;
+			}else{
+				throw new IllegalArgumentException(String.valueOf(c));
+			}
+			result = (byte) ((x << (7-i)) | result);
+		}
+		return result;
+	}
+	
+	public static String binaryString2HexString(String string){
+		byte b = binaryString2byte(string);
+		return byte2HexString(b);
 	}
 	
 	public static void main(String[] args) {

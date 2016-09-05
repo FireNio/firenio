@@ -12,7 +12,7 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
@@ -39,7 +39,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		o.put("type", "welcome");
 		o.put("id", ioSession.getSessionID());
 
-		WebSocketReadFuture f = new WebSocketReadFutureImpl(session.getIOSession());
+		WebSocketReadFuture f = new WebSocketTextReadFutureImpl(session.getIOSession());
 
 		f.write(o.toJSONString());
 

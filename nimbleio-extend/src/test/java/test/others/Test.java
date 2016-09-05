@@ -13,9 +13,9 @@ public class Test {
 		System.out.println(MathUtil.byte2BinaryString(b));
 		System.out.println(MathUtil.byte2BinaryString((byte)(b&0x3f)));
 		
-		Object [] os = new Object[0];
+		System.out.println(MathUtil.byte2BinaryString((byte) -1));
+		System.out.println(MathUtil.byte2BinaryString((byte) -2));
 		
-		System.out.println(os);
 		
 	}
 }

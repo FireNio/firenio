@@ -12,7 +12,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketTextReadFutureImpl;
 
 public class WebSocketMsgAdapter implements Looper {
 
@@ -64,7 +64,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 				if (s.isOpened()) {
 
-					WebSocketReadFuture f = new WebSocketReadFutureImpl(s);
+					WebSocketReadFuture f = new WebSocketTextReadFutureImpl(s);
 
 					f.write(msg.getBytes(Encoding.UTF8));
 

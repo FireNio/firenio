@@ -8,12 +8,13 @@ import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.component.protocol.http11.WebSocketProtocolDecoder;
 
 public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements WebSocketReadFuture{
+	
+	protected int type;
 
 	private boolean eof;
-	
-	private int type;
 	
 	private boolean hasMask;
 	
@@ -51,7 +52,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		}
 	}
 	
-	public WebSocketReadFutureImpl(Session session) {
+	protected WebSocketReadFutureImpl(Session session) {
 		super(session);
 	}
 	
@@ -64,6 +65,9 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		eof = ((b & 0xFF) >> 7) == 1;
 		
 		type = (b & 0xF); 
+		
+		isBeatPacket = type == WebSocketProtocolDecoder.TYPE_PING || 
+				type == WebSocketProtocolDecoder.TYPE_PONG;
 		
 		b = array[1];
 		
@@ -208,7 +212,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	public int getType() {
 		return type;
 	}
-
+	
 	public int getLength() {
 		return length;
 	}

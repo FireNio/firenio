@@ -32,6 +32,8 @@ public class HttpServerStartup {
 		
 		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
+		configuration.setSERVER_IS_ACCEPT_BEAT(true);
+		
 		NIOContext context = new DefaultNIOContext(configuration);
 
 		TCPAcceptor acceptor = new TCPAcceptor();
