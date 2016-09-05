@@ -2,9 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.generallycloud</groupId>
 	<artifactId>nimbleio-all</artifactId>
-	<packaging>jar</packaging>
+	<version>${project.version}</version>
 	<name>${project.artifactId}</name>
+	<packaging>jar</packaging>
 	<description>The all in one project of nimbleio</description>  
 
 	<parent>
