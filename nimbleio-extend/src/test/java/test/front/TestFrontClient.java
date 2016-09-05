@@ -20,7 +20,7 @@ public class TestFrontClient {
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
-			public void acceptAlong(Session session, ReadFuture future) throws Exception {
+			public void accept(Session session, ReadFuture future) throws Exception {
 				
 				NIOReadFuture f = (NIOReadFuture)future;
 				

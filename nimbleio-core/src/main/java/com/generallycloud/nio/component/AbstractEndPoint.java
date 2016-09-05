@@ -13,7 +13,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 	private Integer			endPointID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-
+	
 	public AbstractEndPoint(NIOContext context) {
 		this.context = context;
 		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
@@ -122,4 +122,5 @@ public abstract class AbstractEndPoint implements EndPoint {
 
 		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
 	}
+
 }

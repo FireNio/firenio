@@ -9,6 +9,8 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionAliveSEListener;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -35,7 +37,12 @@ public class IOAcceptorUtil {
 			
 			configuration.setSERVER_IS_ACCEPT_BEAT(true);
 
-			NIOContext context = new DefaultNIOContext(configuration);
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+					"IOEvent", 
+					configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+					configuration.getSERVER_CORE_SIZE());
+
+			NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 

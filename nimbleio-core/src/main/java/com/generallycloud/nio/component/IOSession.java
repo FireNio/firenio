@@ -3,18 +3,18 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.HashMap;
 
 import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
-import com.generallycloud.nio.component.concurrent.ReentrantMap;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
-//FIXME attributes
 public class IOSession implements Session {
 
 	private static final Logger			logger		= LoggerFactory.getLogger(IOSession.class);
@@ -26,10 +26,10 @@ public class IOSession implements Session {
 	private Integer					sessionID;
 	private UDPEndPoint					udpEndPoint;
 	private Object[]					attachments	;
+	private EventLoop					eventLoop;
 	private long						creationTime	= System.currentTimeMillis();
 	private long						lastAccess;
-	//FIXME 这里使用ReentrantMap有问题
-	private ReentrantMap<Object, Object>	attributes	= new ReentrantMap<Object, Object>();
+	private HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
 	public IOSession(TCPEndPoint endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
@@ -37,7 +37,8 @@ public class IOSession implements Session {
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
 		//这里认为在第一次Idle之前，连接都是畅通的
-		this.lastAccess = this.creationTime;
+		this.lastAccess = this.creationTime + context.getSessionIdleTime();
+		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 
 	public void clearAttributes() {
@@ -46,6 +47,10 @@ public class IOSession implements Session {
 
 	public boolean closed() {
 		return closed;
+	}
+	
+	public EventLoop getEventLoop() {
+		return eventLoop;
 	}
 
 	public void close() {
@@ -138,10 +143,6 @@ public class IOSession implements Session {
 
 	public Object getAttachment(int index) {
 
-		if (index > 7 || index < 0) {
-			throw new IllegalArgumentException("index ,"+index);
-		}
-
 		return attachments[index];
 	}
 
@@ -149,7 +150,7 @@ public class IOSession implements Session {
 		return attributes.get(key);
 	}
 
-	public ReentrantMap<Object, Object> getAttributes() {
+	public HashMap<Object, Object> getAttributes() {
 		return attributes;
 	}
 
@@ -226,10 +227,6 @@ public class IOSession implements Session {
 	}
 
 	public void setAttachment(int index, Object attachment) {
-
-		if (index > 7 || index < 0) {
-			throw new IllegalArgumentException("index ,"+index);
-		}
 
 		this.attachments[index] = attachment;
 	}

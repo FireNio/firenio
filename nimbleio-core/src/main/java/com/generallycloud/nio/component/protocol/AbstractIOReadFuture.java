@@ -3,6 +3,7 @@ package com.generallycloud.nio.component.protocol;
 import java.io.InputStream;
 
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.TCPEndPoint;
 
 public abstract class AbstractIOReadFuture extends AbstractReadFuture implements IOReadFuture {
 
@@ -26,5 +27,9 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	
 	public boolean isBeatPacket() {
 		return isBeatPacket;
+	}
+	
+	public TCPEndPoint getTCPEndPoint() {
+		return endPoint;
 	}
 }

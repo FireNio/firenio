@@ -4,8 +4,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.HashMap;
 
-import com.generallycloud.nio.component.concurrent.ReentrantMap;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public interface Session extends Closeable{
@@ -24,7 +25,7 @@ public interface Session extends Closeable{
 
 	public abstract Object getAttribute(Object key) ;
 	
-	public abstract ReentrantMap<Object, Object> getAttributes() ;
+	public abstract HashMap<Object, Object> getAttributes() ;
 
 	public abstract NIOContext getContext();
 
@@ -69,5 +70,7 @@ public interface Session extends Closeable{
 	public abstract void setSessionID(Integer sessionID);
 
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
+	
+	public abstract EventLoop getEventLoop();
 
 }

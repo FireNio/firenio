@@ -7,6 +7,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class FrontReverseAcceptor {
@@ -20,8 +22,13 @@ public class FrontReverseAcceptor {
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 
 		serverConfiguration.setSERVER_TCP_PORT(configuration.getFRONT_REVERSE_PORT());
+		
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+				"IOEvent", 
+				serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE(),
+				serverConfiguration.getSERVER_CORE_SIZE());
 
-		NIOContext context = new DefaultNIOContext(serverConfiguration);
+		NIOContext context = new DefaultNIOContext(serverConfiguration,eventLoopGroup);
 
 		context.setIOEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 

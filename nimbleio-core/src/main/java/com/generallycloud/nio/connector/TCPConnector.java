@@ -34,7 +34,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 		channel.connect(socketAddress);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
 
 		this.selectorLoopThread.start();
 

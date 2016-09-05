@@ -3,7 +3,6 @@ package com.generallycloud.nio.extend;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.WriteFuture;
@@ -14,7 +13,7 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 	private Logger			logger		= LoggerFactory.getLogger(SimpleIOEventHandle.class);
 	private FixedSession	fixedSession	= new FixedIOSession();
 
-	public void acceptAlong(Session session, ReadFuture future) {
+	public void accept(Session session, ReadFuture future) {
 
 		FixedSession fixedSession = this.fixedSession;
 
@@ -30,9 +29,9 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 		}
 	}
 
-	public void setContext(NIOContext context) {
-		context.addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
-		super.setContext(context);
+	protected void doStart() throws Exception {
+		getContext().addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
+		super.doStart();
 	}
 
 	public void futureSent(Session session, WriteFuture future) {
@@ -42,11 +41,5 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 	public FixedSession getFixedSession() {
 		return fixedSession;
 	}
-
-	// private AtomicInteger sent = new AtomicInteger(1);
-	//
-	// public void futureSent(Session session, WriteFuture future) {
-	// logger.info("sent:{}",sent.getAndIncrement());
-	// }
 
 }

@@ -200,7 +200,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 		IOService service = context.getTCPService();
 
-		return service.getServiceDescription() + "(Writer)";
+		return service.getServiceDescription() + "(writer)";
 	}
 
 	public interface ChannelWriteEvent {

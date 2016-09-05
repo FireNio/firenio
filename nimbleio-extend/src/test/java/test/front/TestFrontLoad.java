@@ -18,7 +18,7 @@ public class TestFrontLoad {
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
-			public void acceptAlong(Session session, ReadFuture future) throws Exception {
+			public void accept(Session session, ReadFuture future) throws Exception {
 				
 				NIOReadFuture readFuture = (NIOReadFuture)future;
 				

@@ -12,13 +12,11 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.concurrent.ExecutorThreadPool;
-import com.generallycloud.nio.component.concurrent.ThreadPool;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
-import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
@@ -36,7 +34,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionEventListenerWrapper	sessionEventListenerStub;
 	private SessionFactory				sessionFactory;
 	private IOService					tcpService;
-	private ThreadPool					threadPool;
 	private UDPEndPointFactory			udpEndPointFactory;
 	private IOService					udpService;
 	private ProtocolFactory				protocolFactory;
@@ -46,6 +43,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private int						sessionAttachmentSize;
 	private long 						startupTime		= System.currentTimeMillis();
 	private boolean					isAcceptBeat;
+	private EventLoopGroup				eventLoopGroup;
 
 	public boolean isAcceptBeat() {
 		return isAcceptBeat;
@@ -67,13 +65,19 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.beatFutureFactory = beatFutureFactory;
 	}
 
-	public DefaultNIOContext(ServerConfiguration configuration) {
+	public DefaultNIOContext(ServerConfiguration configuration,EventLoopGroup eventLoopGroup) {
 		
 		if (configuration == null) {
-			throw new IllegalArgumentException("null server configuration");
+			throw new IllegalArgumentException("null configuration");
+		}
+		
+		if (eventLoopGroup == null) {
+			throw new IllegalArgumentException("null eventLoopGroup");
 		}
 		
 		this.serverConfiguration = configuration;
+		
+		this.eventLoopGroup = eventLoopGroup;
 		
 		this.addLifeCycleListener(new NIOContextListener());
 	}
@@ -98,6 +102,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			throw new IllegalArgumentException("null ioEventHandle");
 		}
 		
+		if (protocolFactory == null) {
+			throw new IllegalArgumentException("null protocolFactory");
+		}
+		
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
 		int SERVER_CHANNEL_QUEUE_SIZE = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
@@ -109,11 +117,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.encoding = Encoding.DEFAULT;
 		this.isAcceptBeat = serverConfiguration.isSERVER_IS_ACCEPT_BEAT();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
-		this.threadPool = new ExecutorThreadPool("IOEvent-Executor", 
-				SERVER_CORE_SIZE,
-				SERVER_CORE_SIZE * 8,
-				SERVER_CORE_SIZE * SERVER_CHANNEL_QUEUE_SIZE,
-				60 * 1000L);
+		
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 
@@ -137,23 +141,19 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			sessionFactory = new SessionFactory(this);
 		}
 
-		if (protocolFactory == null) {
-			protocolFactory = new NIOProtocolFactory();
-		}
-
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
 
 		this.sessionFactoryThread.start();
 
-		LifeCycleUtil.start(threadPool);
+		LifeCycleUtil.start(eventLoopGroup);
 	}
 
 	protected void doStop() throws Exception {
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
-		LifeCycleUtil.stop(threadPool);
+		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(sessionFactoryThread);
 	}
@@ -210,8 +210,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return tcpService;
 	}
 
-	public ThreadPool getThreadPool() {
-		return threadPool;
+	public EventLoopGroup getEventLoopGroup() {
+		return eventLoopGroup;
 	}
 
 	public UDPEndPointFactory getUDPEndPointFactory() {

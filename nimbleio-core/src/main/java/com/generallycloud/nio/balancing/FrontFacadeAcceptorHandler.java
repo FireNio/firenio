@@ -18,7 +18,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 		this.frontRouterMapping = frontRouterMapping;
 	}
 
-	public void acceptAlong(Session session, ReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 		
 		NIOReadFuture f = (NIOReadFuture) future;
 

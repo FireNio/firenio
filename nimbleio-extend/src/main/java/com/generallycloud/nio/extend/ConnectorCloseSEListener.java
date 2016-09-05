@@ -15,7 +15,7 @@ public class ConnectorCloseSEListener extends SEListenerAdapter {
 
 	public void sessionClosed(Session session) {
 
-		session.getContext().getThreadPool().dispatch(new Runnable() {
+		session.getEventLoop().dispatch(new Runnable() {
 			public void run() {
 				CloseUtil.close(connector);
 			}

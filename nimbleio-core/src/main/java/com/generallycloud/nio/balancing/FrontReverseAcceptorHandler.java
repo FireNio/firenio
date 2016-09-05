@@ -66,7 +66,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		});
 	}
 
-	public void acceptAlong(Session session, ReadFuture future) throws Exception {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
 		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 		

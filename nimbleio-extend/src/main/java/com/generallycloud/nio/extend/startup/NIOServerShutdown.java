@@ -7,6 +7,8 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -44,9 +46,9 @@ public class NIOServerShutdown {
 
 		String password = args[2];
 		
-		ServerConfiguration serverConfiguration = new ServerConfiguration();
+		ServerConfiguration configuration = new ServerConfiguration();
 		
-		serverConfiguration.setSERVER_TCP_PORT(port);
+		configuration.setSERVER_TCP_PORT(port);
 
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
@@ -54,7 +56,14 @@ public class NIOServerShutdown {
 
 		TCPConnector connector = new TCPConnector();
 
-		NIOContext context = new DefaultNIOContext(serverConfiguration);
+		configuration.setSERVER_IS_ACCEPT_BEAT(true);
+
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+				"IOEvent", 
+				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+				configuration.getSERVER_CORE_SIZE());
+
+		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
 
 		context.setIOEventHandleAdaptor(eventHandle);
 

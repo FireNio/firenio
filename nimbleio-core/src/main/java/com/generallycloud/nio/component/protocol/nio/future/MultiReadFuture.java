@@ -38,7 +38,7 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 			IOEventHandleAdaptor eventHandle = session.getContext().getIOEventHandleAdaptor();
 
 			try {
-				eventHandle.acceptAlong(session, this);
+				eventHandle.accept(session, this);
 			} catch (Exception e) {
 				logger.debug(e);
 			}

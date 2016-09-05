@@ -52,7 +52,7 @@ public final class TCPAcceptor extends AbstractIOAcceptor {
 			
 			SelectorLoop selectorLoop = selectorLoops[i];
 			
-			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
+			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
 			
 			selectorLoopThreads[i].start();
 		}

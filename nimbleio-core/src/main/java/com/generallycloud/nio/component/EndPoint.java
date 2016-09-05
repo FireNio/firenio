@@ -37,5 +37,5 @@ public interface EndPoint extends Closeable{
 	public abstract InetSocketAddress getRemoteSocketAddress();
 
 	public abstract int getMaxIdleTime() throws SocketException;
-
+	
 }

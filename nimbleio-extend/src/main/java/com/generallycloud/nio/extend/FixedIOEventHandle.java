@@ -18,7 +18,7 @@ public class FixedIOEventHandle extends IOEventHandleAdaptor {
 		this.applicationContext = applicationContext;
 	}
 
-	public void acceptAlong(Session session, ReadFuture future) {
+	public void accept(Session session, ReadFuture future) {
 
 		try {
 

@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
-import com.generallycloud.nio.component.concurrent.ThreadPool;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
@@ -34,7 +34,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract void setUDPService(IOService udpService);
 
-	public abstract ThreadPool getThreadPool();
+	public abstract EventLoopGroup getEventLoopGroup();
 
 	public abstract Sequence getSequence();
 

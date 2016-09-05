@@ -44,7 +44,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
 			final TCPEndPoint endPoint = attachEndPoint(context, getChannelWriter(), selectionKey);
 
-			context.getThreadPool().dispatch(new Runnable() {
+			endPoint.getSession().getEventLoop().dispatch(new Runnable() {
 
 				public void run() {
 					connector.finishConnect(endPoint.getSession(), null);
@@ -52,7 +52,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 			});
 		} catch (final IOException e) {
 
-			context.getThreadPool().dispatch(new Runnable() {
+			context.getEventLoopGroup().getNext().dispatch(new Runnable() {
 
 				public void run() {
 					connector.finishConnect(null, e);
@@ -60,7 +60,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 			});
 		} catch (final Exception e) {
 
-			context.getThreadPool().dispatch(new Runnable() {
+			context.getEventLoopGroup().getNext().dispatch(new Runnable() {
 
 				public void run() {
 					connector.finishConnect(null, new IOException(e.getMessage(), e));

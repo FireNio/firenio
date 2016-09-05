@@ -7,6 +7,8 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -31,7 +33,14 @@ public class IOConnectorUtil {
 
 			connector = new TCPConnector();
 
-			NIOContext context = new DefaultNIOContext(configuration);
+			configuration.setSERVER_IS_ACCEPT_BEAT(true);
+
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+					"IOEvent", 
+					configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+					1);
+
+			NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 

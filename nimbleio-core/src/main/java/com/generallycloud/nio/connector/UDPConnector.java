@@ -102,7 +102,7 @@ public class UDPConnector extends AbstractIOConnector {
 
 		this.endPoint.setSession(session);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(Selector)");
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
 
 		this.selectorLoopThread.start();
 	}

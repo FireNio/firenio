@@ -68,4 +68,8 @@ public class UniqueThread implements Looper {
 	public boolean isMonitor(Thread thread) {
 		return monitor == thread;
 	}
+	
+	public String toString() {
+		return threadName;
+	}
 }

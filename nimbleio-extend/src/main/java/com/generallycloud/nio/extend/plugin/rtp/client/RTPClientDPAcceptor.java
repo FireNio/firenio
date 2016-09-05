@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
-import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.UDPEndPoint;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.DatagramPacketGroup;
@@ -18,7 +17,6 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 	private DatagramPacketGroup	packetGroup		;
 	private RTPHandle			udpReceiveHandle	;
 	private RTPClient			rtpClient			;
-	private NIOContext			context			;
 	private int				groupSize			;
 	private Logger				logger			= LoggerFactory.getLogger(RTPClientDPAcceptor.class);
 
@@ -27,7 +25,6 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 		this.markInterval = markInterval;
 		this.udpReceiveHandle = udpReceiveHandle;
 		this.rtpClient = rtpClient;
-		this.context = rtpClient.getContext();
 		this.markInterval = markInterval;
 		this.currentMark = currentMark;
 		this.lastMark = currentMark - markInterval;
@@ -68,7 +65,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 			this.packetGroup.addDatagramPacket(packet);
 
-			context.getThreadPool().dispatch(new Runnable() {
+			endPoint.getSession().getEventLoop().dispatch(new Runnable() {
 
 				public void run() {
 					try {
@@ -78,7 +75,6 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 					}
 				}
 			});
-
 		}
 	}
 

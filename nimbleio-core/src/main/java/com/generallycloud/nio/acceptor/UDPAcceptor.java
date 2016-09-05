@@ -33,7 +33,7 @@ public final class UDPAcceptor extends AbstractIOAcceptor {
 		
 		this.selectorLoop.register(context, channel);
 		
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription()+"(Selector)");
+		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription()+"(selector)");
 
 		this.selectorLoopThread.start();
 	}
