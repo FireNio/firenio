@@ -4,9 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
 	<artifactId>nimbleio-extend</artifactId>
-	<version>${project.version}</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
+	<description>The extend of nimbleio</description>  
 	
 	<parent>
 		<groupId>com.generallycloud</groupId>
