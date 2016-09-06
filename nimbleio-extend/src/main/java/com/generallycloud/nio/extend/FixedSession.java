@@ -1,6 +1,5 @@
 package com.generallycloud.nio.extend;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -11,7 +10,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.security.Authority;
 
-public interface FixedSession extends ReadFutureAcceptor, Closeable {
+public interface FixedSession extends ReadFutureAcceptor {
 
 	public abstract void logout();
 

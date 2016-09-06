@@ -58,9 +58,7 @@ public class TestBeat {
 		}
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
 		
-		CloseUtil.close(session);
-		
-		connector.close();
+		CloseUtil.close(connector);
 		
 	}
 }

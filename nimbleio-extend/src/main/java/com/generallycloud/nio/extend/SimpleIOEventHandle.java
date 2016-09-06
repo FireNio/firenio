@@ -29,11 +29,6 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 		}
 	}
 
-	protected void doStart() throws Exception {
-		getContext().addSessionEventListener(new UpdateFixedSessionSEListener(fixedSession));
-		super.doStart();
-	}
-
 	public void futureSent(Session session, WriteFuture future) {
 
 	}

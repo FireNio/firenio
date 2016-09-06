@@ -4,7 +4,6 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IOEventHandle;
-import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
@@ -61,16 +60,6 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 		}
 
 		return "(service-name:" + serviceName + "@class:" + this.getClass().getName() + ")";
-	}
-	
-	private NIOContext context;
-
-	public NIOContext getContext() {
-		return context;
-	}
-
-	public void setContext(NIOContext context) {
-		this.context = context;
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.test;
+package test.likemessage;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;

@@ -1,4 +1,4 @@
-package com.test;
+package test.likemessage;
 
 import java.util.Map;
 

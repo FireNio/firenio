@@ -227,9 +227,4 @@ public class FixedIOSession implements FixedSession {
 
 		session.flush(readFuture);
 	}
-
-	public void close() throws IOException {
-		CloseUtil.close(session);
-	}
-
 }

@@ -10,8 +10,6 @@ public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements 
 
 	private Logger		logger	= LoggerFactory.getLogger(IOEventHandleAdaptor.class);
 
-	private NIOContext context = null;
-	
 	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		logger.info("exception, {}", cause);
 	}
@@ -28,11 +26,4 @@ public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements 
 
 	}
 
-	public NIOContext getContext() {
-		return context;
-	}
-
-	public void setContext(NIOContext context) {
-		this.context = context;
-	}
 }
