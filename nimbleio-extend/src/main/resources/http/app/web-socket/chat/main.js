@@ -222,7 +222,7 @@ $(function() {
 					action: "typing"
 				};
 
-				socket.send(JSON.stringify(data));
+				sendMsg(data);
 			}
 			lastTypingTime = (new Date()).getTime();
 
@@ -235,7 +235,7 @@ $(function() {
 						action: "stop-typing"
 					};
 
-					socket.send(JSON.stringify(data));
+					sendMsg(data);
 					typing = false;
 				}
 			},
@@ -275,7 +275,7 @@ $(function() {
 				var data = {
 					action: "stop-typing"
 				};
-				socket.send(JSON.stringify(data));
+				sendMsg(data);
 				typing = false;
 			} else {
 				setUsername();
