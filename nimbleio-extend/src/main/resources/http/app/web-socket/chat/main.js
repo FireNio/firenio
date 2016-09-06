@@ -21,58 +21,65 @@ $(function() {
 	
 	var socket = new WebSocket(url);
 	
-	socket.onopen = function(e){
-		if(username){
-			var data = {
-				action: "add-user",
-				username: username
-			};
-
-			sendMsg(data);
-		}
-	}
+	initWebSocket(socket);
 	
-	socket.onmessage = function(e) {
+	function initWebSocket(socket){
+	
+		socket.onopen = function(e){
+			if(username){
+				var data = {
+					action: "add-user",
+					username: username
+				};
 
-		var data = JSON.parse(e.data);
-		var action = data.action;
+				sendMsg(data);
+			}
+		}
+		
+		socket.onmessage = function(e) {
 
-		if ("new-message" == action) {
-			addChatMessage(data);
-		} else if ("login" == action) {
-			connected = true;
-			// Display the welcome message
-			var message = "Welcome to Socket.IO Chat – ";
-			log(message, {
-				prepend: true
-			});
-			addParticipantsMessage(data);
-		} else if ("user-joined" == action) {
-			log(data.username + ' joined');
-			addParticipantsMessage(data);
-		} else if ("user-left" == action) {
-			log(data.username + ' left');
-			addParticipantsMessage(data);
-			removeChatTyping(data);
-		} else if ("typing" == action) {
-			addChatTyping(data);
-		} else if ("stop-typing" == action) {
-			removeChatTyping(data);
-		} else {
+			var data = JSON.parse(e.data);
+			var action = data.action;
+
+			if ("new-message" == action) {
+				addChatMessage(data);
+			} else if ("login" == action) {
+				connected = true;
+				// Display the welcome message
+				var message = "Welcome to Socket.IO Chat – ";
+				log(message, {
+					prepend: true
+				});
+				addParticipantsMessage(data);
+			} else if ("user-joined" == action) {
+				log(data.username + ' joined');
+				addParticipantsMessage(data);
+			} else if ("user-left" == action) {
+				log(data.username + ' left');
+				addParticipantsMessage(data);
+				removeChatTyping(data);
+			} else if ("typing" == action) {
+				addChatTyping(data);
+			} else if ("stop-typing" == action) {
+				removeChatTyping(data);
+			} else {
+				console.log(e);
+			}
+
+		};
+		socket.onerror = function(e) {
 			console.log(e);
+		};
+		
+		socket.onclose = function(e){
+			console.log(e);
+			reconnect();
 		}
-
-	};
-	socket.onerror = function(e) {
-		console.log(e);
-	};
-	
-	socket.onclose = function(e){
-		reconnect();
 	}
 	
 	function reconnect(){
 		socket = new WebSocket(url);
+		initWebSocket(socket);
 	}
 
 	//var socket = io("/web-socket-chat");
