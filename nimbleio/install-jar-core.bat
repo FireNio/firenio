@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=com.generallycloud -DartifactId=nimbleio-core -Dversion=0.0.1-SNAPSHOT -Dpackaging=jar -Dfile=..\nimbleio-core\target\nimbleio-core-0.0.1-SNAPSHOT.jar

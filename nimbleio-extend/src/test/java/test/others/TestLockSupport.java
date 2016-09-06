@@ -2,12 +2,7 @@ package test.others;
 
 import java.util.concurrent.locks.LockSupport;
 
-import sun.misc.Unsafe;
-
 public class TestLockSupport {
-	
-	 private static final Unsafe unsafe = Unsafe.getUnsafe();
-
 	
 	public static void main(String[] args) {
 		
