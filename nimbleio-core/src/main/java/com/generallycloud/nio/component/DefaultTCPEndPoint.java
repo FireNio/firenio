@@ -16,6 +16,7 @@ import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
+import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
@@ -32,6 +33,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private long				next_network_weak	= Long.MAX_VALUE;
 	private ProtocolEncoder		protocolEncoder;
 	private ProtocolDecoder		protocolDecoder;
+	private ProtocolFactory		protocolFactory;
 	
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -76,6 +78,14 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
 		this.protocolDecoder = protocolDecoder;
+	}
+	
+	public ProtocolFactory getProtocolFactory() {
+		return protocolFactory;
+	}
+
+	public void setProtocolFactory(ProtocolFactory protocolFactory) {
+		this.protocolFactory = protocolFactory;
 	}
 
 	//FIXME synch it ? 

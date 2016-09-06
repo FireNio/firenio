@@ -20,6 +20,7 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
 	public TCPSelectionAcceptor(NIOContext context,CoreProcessors processors) {
+		
 		super(context);
 		
 		this.context = context;

@@ -5,8 +5,6 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -15,10 +13,6 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract Charset getEncoding();
 
 	public abstract IOEventHandleAdaptor getIOEventHandleAdaptor();
-
-	public abstract ProtocolDecoder getProtocolDecoder();
-
-	public abstract ProtocolEncoder getProtocolEncoder();
 
 	public abstract IOReadFutureAcceptor getIOReadFutureAcceptor();
 
@@ -67,6 +61,8 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);
 
 	public abstract SessionEventListenerWrapper getSessionEventListenerStub();
+	
+	public abstract ProtocolFactory getProtocolFactory();
 
 	public abstract void addSessionEventListener(SessionEventListener listener);
 

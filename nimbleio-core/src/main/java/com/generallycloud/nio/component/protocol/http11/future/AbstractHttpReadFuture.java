@@ -264,6 +264,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			
 			endPoint.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
 			endPoint.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
+			endPoint.setProtocolFactory(PROTOCOL_FACTORY);
 			
 			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getServiceName());
 		}

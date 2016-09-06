@@ -72,5 +72,7 @@ public interface Session extends Closeable{
 	public abstract void setUDPEndPoint(UDPEndPoint udpEndPoint);
 	
 	public abstract EventLoop getEventLoop();
+	
+	public abstract String getProtocolID();
 
 }

@@ -39,6 +39,11 @@ public class SessionActiveSEListener extends SEListenerAdapter {
 			}
 
 			ReadFuture future = factory.createBeatPacket(session);
+			
+			if (future == null) {
+				// 该session无需心跳,比如HTTP协议
+				return;
+			}
 
 			try {
 				session.flush(future);

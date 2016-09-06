@@ -14,8 +14,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -28,7 +26,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private IOEventHandleAdaptor			ioEventHandleAdaptor;
 	private SessionEventListenerWrapper	lastSessionEventListener;
 	private Logger						logger			= LoggerFactory.getLogger(DefaultNIOContext.class);
-	private ProtocolEncoder				protocolEncoder;
 	private IOReadFutureAcceptor			ioReadFutureAcceptor;
 	private ServerConfiguration			serverConfiguration;
 	private SessionEventListenerWrapper	sessionEventListenerStub;
@@ -139,7 +136,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			sessionFactory = new SessionFactory(this);
 		}
 
-		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
 
 		this.sessionFactoryThread.start();
@@ -154,6 +150,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(sessionFactoryThread);
+	}
+	
+	public ProtocolFactory getProtocolFactory() {
+		return protocolFactory;
 	}
 
 	public Object getAttribute(Object key) {
@@ -174,14 +174,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public IOEventHandleAdaptor getIOEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolFactory.getProtocolDecoder();
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
 	}
 
 	public IOReadFutureAcceptor getIOReadFutureAcceptor() {

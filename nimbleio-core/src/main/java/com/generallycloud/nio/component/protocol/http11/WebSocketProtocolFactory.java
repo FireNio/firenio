@@ -13,4 +13,8 @@ public class WebSocketProtocolFactory implements ProtocolFactory{
 	public ProtocolEncoder getProtocolEncoder() {
 		return new WebSocketProtocolEncoder();
 	}
+	
+	public String getProtocolID() {
+		return "WebSocket";
+	}
 }

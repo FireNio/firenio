@@ -14,5 +14,7 @@ public class NIOProtocolFactory implements ProtocolFactory{
 		return new NIOProtocolEncoder();
 	}
 
-	
+	public String getProtocolID() {
+		return "NIO";
+	}
 }

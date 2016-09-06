@@ -14,5 +14,8 @@ public class FixedLengthProtocolFactory implements ProtocolFactory{
 		return new FixedLengthProtocolEncoder();
 	}
 
+	public String getProtocolID() {
+		return "FixedLength";
+	}
 	
 }

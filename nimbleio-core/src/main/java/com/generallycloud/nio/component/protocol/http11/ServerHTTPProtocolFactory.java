@@ -13,4 +13,8 @@ public class ServerHTTPProtocolFactory implements ProtocolFactory{
 	public ProtocolEncoder getProtocolEncoder() {
 		return new ServerHTTPProtocolEncoder();
 	}
+	
+	public String getProtocolID() {
+		return "HTTP11";
+	}
 }

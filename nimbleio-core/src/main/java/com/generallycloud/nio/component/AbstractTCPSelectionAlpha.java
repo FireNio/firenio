@@ -5,18 +5,22 @@ import java.nio.channels.SelectionKey;
 
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
+import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
 public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 
 	private ChannelWriter	channelWriter;
-
-	private ProtocolDecoder	protocolDecoder;
-
-	private ProtocolEncoder	protocolEncoder;
-
+	
+	private ProtocolFactory protocolFactory;
+	
+	private ProtocolDecoder protocolDecoder;
+	
+	private ProtocolEncoder protocolEncoder;
+	
 	protected AbstractTCPSelectionAlpha(NIOContext context) {
-		this.protocolDecoder = context.getProtocolDecoder();
-		this.protocolEncoder = context.getProtocolEncoder();
+		this.protocolFactory = context.getProtocolFactory();
+		this.protocolDecoder = protocolFactory.getProtocolDecoder();
+		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 	}
 
 	public ChannelWriter getChannelWriter() {
@@ -42,6 +46,8 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 		endPoint.setProtocolDecoder(protocolDecoder);
 
 		endPoint.setProtocolEncoder(protocolEncoder);
+		
+		endPoint.setProtocolFactory(protocolFactory);
 
 		selectionKey.attach(endPoint);
 

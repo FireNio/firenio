@@ -52,6 +52,10 @@ public class IOSession implements Session {
 	public EventLoop getEventLoop() {
 		return eventLoop;
 	}
+	
+	public String getProtocolID() {
+		return endPoint.getProtocolFactory().getProtocolID();
+	}
 
 	public void close() {
 		
