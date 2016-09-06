@@ -11,6 +11,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketBeatReadFutureImpl;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketTextReadFutureImpl;
 
@@ -21,6 +22,10 @@ public class WebSocketMsgAdapter implements Looper {
 	private List<Session>		clients	= new ArrayList<Session>();
 
 	private ListQueue<String>	msgs		= new ListQueueABQ<String>(1024 * 4);
+	
+	private long next_beat				= 0;
+	
+	private long beat_interval			= 15 * 1000;
 
 	public void stop() {
 
@@ -51,6 +56,37 @@ public class WebSocketMsgAdapter implements Looper {
 	public void loop() {
 
 		String msg = msgs.poll(16);
+		
+		long now = System.currentTimeMillis();
+		
+		if (now > next_beat) {
+			
+			next_beat = now + beat_interval;
+			
+			synchronized (this) {
+
+				for (int i = 0; i < clients.size(); i++) {
+
+					Session s = clients.get(i);
+
+					if (s.isOpened()) {
+
+						WebSocketReadFuture f = new WebSocketBeatReadFutureImpl(s);
+
+						try {
+							s.flush(f);
+						} catch (IOException e) {
+							logger.error(e.getMessage(),e);
+						}
+					} else {
+
+						removeClient(s);
+
+						i--;
+					}
+				}
+			}
+		}
 
 		if (msg == null) {
 			return;
