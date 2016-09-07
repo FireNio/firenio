@@ -8,6 +8,9 @@ import java.util.Set;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.buffer.DirectByteBufferPool;
+import com.generallycloud.nio.buffer.HeapByteBufferPool;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -41,6 +44,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private long 						startupTime		= System.currentTimeMillis();
 	private boolean					isAcceptBeat;
 	private EventLoopGroup				eventLoopGroup;
+	private ByteBufferPool				heapByteBufferPool;
+	private ByteBufferPool				directByteBufferPool;
 
 	public boolean isAcceptBeat() {
 		return isAcceptBeat;
@@ -56,6 +61,14 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 	public BeatFutureFactory getBeatFutureFactory() {
 		return beatFutureFactory;
+	}
+
+	public ByteBufferPool getHeapByteBufferPool() {
+		return heapByteBufferPool;
+	}
+
+	public ByteBufferPool getDirectByteBufferPool() {
+		return directByteBufferPool;
 	}
 
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
@@ -117,6 +130,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
+		
+		int bCapacity = 1024;
+		
+		this.heapByteBufferPool = new HeapByteBufferPool(bCapacity * 100);
+		this.directByteBufferPool = new DirectByteBufferPool(bCapacity * 100);
 
 		this.addSessionEventListener(new ManagerSEListener());
 

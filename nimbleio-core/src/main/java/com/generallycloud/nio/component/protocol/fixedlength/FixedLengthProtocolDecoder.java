@@ -1,8 +1,9 @@
 package com.generallycloud.nio.component.protocol.fixedlength;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
@@ -34,10 +35,12 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 	public static final int	PROTOCOL_HADER				= 4;
 
 	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
+		
+		ByteBufferPool byteBufferPool = endPoint.getContext().getDirectByteBufferPool();
+		
+		ByteBuf buffer = byteBufferPool.poll(4);
 
-		ByteBuffer header = ByteBuffer.allocate(PROTOCOL_HADER);
-
-		int length = endPoint.read(header);
+		int length = buffer.read(endPoint);
 
 		if (length < 1) {
 			if (length == -1) {
@@ -46,6 +49,6 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 			return null;
 		}
 
-		return new FixedLengthReadFutureImpl(endPoint.getSession(),header);
+		return new FixedLengthReadFutureImpl(endPoint.getSession(),buffer);
 	}
 }

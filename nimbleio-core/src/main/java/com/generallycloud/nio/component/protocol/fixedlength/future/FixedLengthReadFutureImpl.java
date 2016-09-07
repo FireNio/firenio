@@ -1,16 +1,17 @@
 package com.generallycloud.nio.component.protocol.fixedlength.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.common.MathUtil;
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolException;
+import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolDecoder;
 
 public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements FixedLengthReadFuture {
 
-	private ByteBuffer	header;
+	private ByteBuf	buf;
 
 	private String		text;
 
@@ -20,18 +21,18 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	private boolean	body_complete;
 
-	private ByteBuffer	body;
-
 	private byte[]	byteArray;
 
 	private int		limit	= 1024 * 1024;
 
-	public FixedLengthReadFutureImpl(Session session, ByteBuffer header) {
+	public FixedLengthReadFutureImpl(Session session, ByteBuf buf) {
+		
 		super(session);
-		this.header = header;
+		
+		this.buf = buf;
 
-		if (!header.hasRemaining()) {
-			doHeaderComplete(header);
+		if (!isHeaderReadComplete(buf)) {
+			doHeaderComplete(buf);
 		}
 	}
 
@@ -43,12 +44,26 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		super(session);
 		this.isBeatPacket = isBeatPacket;
 	}
+	
+	private boolean isHeaderReadComplete(ByteBuf buf){
+		return buf.position() > FixedLengthProtocolDecoder.PROTOCOL_HADER;
+	}
 
-	private void doHeaderComplete(ByteBuffer header) {
+	private void doHeaderComplete(ByteBuf buf) {
 
 		header_complete = true;
-
-		length = MathUtil.byte2Int(header.array());
+		
+		ByteBufferPool bufferPool = endPoint.getContext().getDirectByteBufferPool();
+		
+//		ByteBuf temp = bufferPool.poll(4);
+//		
+//		buffer.getBytes(temp.array());
+		
+//		int length = MathUtil.byte2Int(temp.array());
+		
+		int length = buf.getInt(0);
+		
+		this.length = length;
 		
 		if (length < 1) {
 			
@@ -58,51 +73,69 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 				
 				body_complete = true;
 				
+//				temp.release();
+				
 				return;
 			}
 			
 			throw new ProtocolException("illegal length:" + length);
-		}
-
-		if (length > limit) {
+			
+		}else if (length > limit) {
+			
 			throw new ProtocolException("max 1M ,length:" + length);
+			
+		}else if(length > buf.capacity()){
+			
+			buf.release();
+			
+			this.buf = bufferPool.poll(length);
+			
+		}else{
+			
+			buf.clear();
+			
+			buf.limit(length);
 		}
-		// FIXME limit length
-		body = ByteBuffer.allocate(length);
 	}
 
 	public boolean read() throws IOException {
 
 		if (!header_complete) {
 
-			endPoint.read(header);
+			buf.read(endPoint);
 
-			if (header.hasRemaining()) {
+			if (!isHeaderReadComplete(buf)) {
 				return false;
 			}
 
-			doHeaderComplete(header);
+			doHeaderComplete(buf);
 		}
 
 		if (!body_complete) {
 
-			endPoint.read(body);
+			buf.read(endPoint);
 
-			if (body.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			doBodyComplete(body);
+			doBodyComplete(buf);
 		}
+		
+		buf.release();
 
 		return true;
 	}
 
-	private void doBodyComplete(ByteBuffer body) {
+	private void doBodyComplete(ByteBuf buf) {
 
 		body_complete = true;
 
-		byteArray = body.array();
+		byteArray = new byte[buf.limit()];
+		
+		buf.flip();
+		
+		buf.getBytes(byteArray);
 	}
 
 	public String getServiceName() {
@@ -116,6 +149,10 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		}
 
 		return text;
+	}
+	
+	public int getLength() {
+		return length;
 	}
 
 	public byte[] getByteArray() {

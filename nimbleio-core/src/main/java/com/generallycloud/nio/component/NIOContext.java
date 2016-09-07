@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -63,6 +64,10 @@ public interface NIOContext extends Attributes, LifeCycle {
 	public abstract SessionEventListenerWrapper getSessionEventListenerStub();
 	
 	public abstract ProtocolFactory getProtocolFactory();
+	
+	public abstract ByteBufferPool getHeapByteBufferPool();
+	
+	public abstract ByteBufferPool getDirectByteBufferPool();
 
 	public abstract void addSessionEventListener(SessionEventListener listener);
 

@@ -16,6 +16,5 @@ public class Test {
 		System.out.println(MathUtil.byte2BinaryString((byte) -1));
 		System.out.println(MathUtil.byte2BinaryString((byte) -2));
 		
-		
 	}
 }

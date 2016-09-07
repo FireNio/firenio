@@ -8,7 +8,6 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
@@ -48,7 +47,7 @@ public class IOAcceptorUtil {
 
 			context.addSessionEventListener(new LoggerSEListener());
 
-			context.addSessionEventListener(new SessionAliveSEListener());
+//			context.addSessionEventListener(new SessionAliveSEListener());
 			
 			acceptor.setContext(context);
 
