@@ -50,7 +50,7 @@ public class PooledByteBuffer implements ByteBuf {
 
 			memory.clear();
 
-			byteBufferPool.offer(this);
+			byteBufferPool.release(this);
 
 		} finally {
 			lock.unlock();

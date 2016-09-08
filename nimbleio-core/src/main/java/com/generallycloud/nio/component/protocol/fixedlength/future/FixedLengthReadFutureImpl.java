@@ -3,7 +3,6 @@ package com.generallycloud.nio.component.protocol.fixedlength.future;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolException;
@@ -53,8 +52,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		header_complete = true;
 		
-		ByteBufferPool bufferPool = endPoint.getContext().getDirectByteBufferPool();
-		
 //		ByteBuf temp = bufferPool.poll(4);
 //		
 //		buffer.getBytes(temp.array());
@@ -88,7 +85,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 			buf.release();
 			
-			this.buf = bufferPool.poll(length);
+			this.buf = endPoint.getContext().getDirectByteBufferPool().poll(length);
 			
 		}else{
 			

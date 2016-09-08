@@ -4,13 +4,14 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class AbstractByteBufferPool implements ByteBufferPool {
+import com.generallycloud.nio.AbstractLifeCycle;
+
+public abstract class AbstractByteBufferPool extends AbstractLifeCycle implements ByteBufferPool {
 
 	protected int						capacity	= 0;
 	protected int						size		= 0;
 	protected ArrayBlockingQueue<ByteBuf>	buffers	= null;
 	protected ReentrantLock				lock		= new ReentrantLock();
-
 
 	protected AbstractByteBufferPool(int capacity) {
 		this.capacity = capacity;
@@ -18,6 +19,18 @@ public abstract class AbstractByteBufferPool implements ByteBufferPool {
 	}
 
 	protected abstract ByteBuffer allocate(int capacity);
+	
+	protected void doStart() throws Exception {
+		
+	}
+	
+	public int getUnitMemorySize() {
+		return 0;
+	}
+
+	protected void doStop() throws Exception {
+		
+	}
 
 	private ByteBuf newByteBuffer() {
 
@@ -43,7 +56,7 @@ public abstract class AbstractByteBufferPool implements ByteBufferPool {
 		}
 	}
 
-	public void offer(ByteBuf buffer) {
+	public void release(ByteBuf buffer) {
 		if (!buffers.offer(buffer)) {
 			throw new RuntimeException("system error");
 		}

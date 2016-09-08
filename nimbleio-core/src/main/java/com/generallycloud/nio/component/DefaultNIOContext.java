@@ -9,8 +9,8 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.DirectByteBufferPool;
-import com.generallycloud.nio.buffer.HeapByteBufferPool;
+import com.generallycloud.nio.buffer.DirectMemoryPool;
+import com.generallycloud.nio.buffer.HeapMemoryPool;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -133,9 +133,12 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		int bCapacity = 1024;
 		
-		this.heapByteBufferPool = new HeapByteBufferPool(bCapacity * 100);
-		this.directByteBufferPool = new DirectByteBufferPool(bCapacity * 100);
-
+//		this.heapByteBufferPool = new HeapByteBufferPool(bCapacity * 100);
+//		this.directByteBufferPool = new DirectByteBufferPool(bCapacity * 100);
+		
+		this.heapByteBufferPool = new HeapMemoryPool(bCapacity);
+		this.directByteBufferPool = new DirectMemoryPool(bCapacity);
+		
 		this.addSessionEventListener(new ManagerSEListener());
 
 		LoggerUtil.prettyNIOServerLog(logger,
@@ -154,11 +157,15 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 			sessionFactory = new SessionFactory(this);
 		}
 
+		this.heapByteBufferPool.start();
+		
+		this.directByteBufferPool.start();
+		
 		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
 
 		this.sessionFactoryThread.start();
-
-		LifeCycleUtil.start(eventLoopGroup);
+		
+		this.eventLoopGroup.start();
 	}
 
 	protected void doStop() throws Exception {
@@ -168,6 +175,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(sessionFactoryThread);
+		
+		LifeCycleUtil.stop(heapByteBufferPool);
+		
+		LifeCycleUtil.stop(directByteBufferPool);
 	}
 	
 	public ProtocolFactory getProtocolFactory() {
