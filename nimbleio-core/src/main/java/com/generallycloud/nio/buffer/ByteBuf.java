@@ -10,19 +10,17 @@ public interface ByteBuf {
 
 	public abstract void release();
 	
-	public abstract void touch();
-
 	public abstract ByteBuf duplicate();
 
 	public abstract int remaining();
 
 	public abstract int position();
 
-	public abstract void position(int position);
+	public abstract ByteBuf position(int position);
 
 	public abstract int limit();
 
-	public abstract void limit(int limit);
+	public abstract ByteBuf limit(int limit);
 
 	public abstract int capacity();
 
@@ -32,9 +30,9 @@ public interface ByteBuf {
 	
 	public abstract byte [] array();
 	
-	public abstract void flip();
+	public abstract ByteBuf flip();
 
-	public abstract void clear();
+	public abstract ByteBuf clear();
 	
 	public abstract int getInt();
 	

@@ -185,7 +185,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 		}
 	}
 	
-	public void flip(){
+	public ByteBuf flip(){
 		limit = position;
 		position = 0;
 		
@@ -194,6 +194,8 @@ public class PooledByteBufferGroup implements ByteBuf {
 		for (int i = 0; i < size; i++) {
 			bufs[i].flip();
 		}
+		
+		return this;
 	}
 
 	public ByteBuf duplicate() {
@@ -242,15 +244,16 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return position;
 	}
 
-	public void position(int position) {
+	public ByteBuf position(int position) {
 		this.position = position;
+		return this;
 	}
 
 	public int limit() {
 		return limit;
 	}
 
-	public void limit(int limit) {
+	public ByteBuf limit(int limit) {
 		
 		this.limit = limit;
 		
@@ -261,6 +264,8 @@ public class PooledByteBufferGroup implements ByteBuf {
 		}
 		
 		tailBuf.limit(_limit);
+		
+		return this;
 	}
 
 	public int capacity() {
@@ -280,12 +285,13 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return false;
 	}
 
-	public void clear() {
+	public ByteBuf clear() {
 		limit = capacity;
 		position = 0;
 		for (ByteBuf buf : bufs) {
 			buf.clear();
 		}
+		return this;
 	}
 	
 	public void touch() {

@@ -156,10 +156,11 @@ public class MemoryBlock implements PooledByteBuf {
 		memory.put(src, offset, length);
 	}
 
-	public void flip() {
+	public PooledByteBuf flip() {
 		memory.limit(offset + position).position(offset);
 		limit = position;
 		position = offset;
+		return this;
 	}
 
 	public PooledByteBuf duplicate() {
@@ -195,17 +196,19 @@ public class MemoryBlock implements PooledByteBuf {
 		return position;
 	}
 
-	public void position(int position) {
+	public PooledByteBuf position(int position) {
 		this.position = position;
+		return this;
 	}
 
 	public int limit() {
 		return limit;
 	}
 
-	public void limit(int limit) {
+	public PooledByteBuf limit(int limit) {
 		this.limit = limit;
 		memory.limit(offset + limit).position(offset);
+		return this;
 	}
 
 	public int capacity() {
@@ -220,10 +223,11 @@ public class MemoryBlock implements PooledByteBuf {
 		return memory.hasArray();
 	}
 
-	public void clear() {
+	public PooledByteBuf clear() {
 		this.position = 0;
 		this.limit = capacity;
 		memory.position(offset).limit(limit);
+		return this;
 	}
 
 	public void touch() {

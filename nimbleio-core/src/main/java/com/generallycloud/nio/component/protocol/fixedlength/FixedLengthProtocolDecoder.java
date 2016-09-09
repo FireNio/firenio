@@ -1,13 +1,10 @@
 package com.generallycloud.nio.component.protocol.fixedlength;
 
-import java.io.IOException;
-
-import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
+import com.generallycloud.nio.component.protocol.ProtocolDecoderAdapter;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 
 /**
@@ -30,25 +27,17 @@ import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthR
  *  
  * </pre>
  */
-public class FixedLengthProtocolDecoder implements ProtocolDecoder {
+public class FixedLengthProtocolDecoder extends ProtocolDecoderAdapter {
 	
 	public static final int	PROTOCOL_HADER				= 4;
 
-	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
-		
-		ByteBufferPool byteBufferPool = endPoint.getContext().getDirectByteBufferPool();
-		
-		ByteBuf buffer = byteBufferPool.poll(4);
-
-		int length = buffer.read(endPoint);
-
-		if (length < 1) {
-			if (length == -1) {
-				CloseUtil.close(endPoint);
-			}
-			return null;
-		}
-
-		return new FixedLengthReadFutureImpl(endPoint.getSession(),buffer);
+	
+	protected ByteBuf allocate(ByteBufferPool byteBufferPool) {
+		return byteBufferPool.allocate(4);
 	}
+
+	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) {
+		return new FixedLengthReadFutureImpl(session,buffer);
+	}
+	
 }

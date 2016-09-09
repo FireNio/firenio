@@ -6,10 +6,12 @@ public interface ByteBufferPool extends LifeCycle{
 
 	public abstract void release(ByteBuf buffer);
 
-	public abstract ByteBuf poll(int capacity);
+	public abstract ByteBuf allocate(int capacity);
 	
 	public abstract int getUnitMemorySize();
 	
+	public abstract void freeMemory();
 	
+	public abstract int getCapacity();
 
 }

@@ -52,12 +52,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		header_complete = true;
 		
-//		ByteBuf temp = bufferPool.poll(4);
-//		
-//		buffer.getBytes(temp.array());
-		
-//		int length = MathUtil.byte2Int(temp.array());
-		
 		int length = buf.getInt(0);
 		
 		this.length = length;
@@ -69,8 +63,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 				isBeatPacket = true;
 				
 				body_complete = true;
-				
-//				temp.release();
 				
 				return;
 			}
@@ -85,7 +77,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 			buf.release();
 			
-			this.buf = endPoint.getContext().getDirectByteBufferPool().poll(length);
+			this.buf = endPoint.getContext().getDirectByteBufferPool().allocate(length);
 			
 		}else{
 			

@@ -3,11 +3,7 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.AbstractLifeCycle;
-
-public abstract class MemoryPool extends AbstractLifeCycle implements ByteBufferPool {
-
-	private int			unitMemorySize;
+public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 	private PooledByteBuf	memoryBlock;
 
@@ -21,17 +17,11 @@ public abstract class MemoryPool extends AbstractLifeCycle implements ByteBuffer
 
 	private int			capacity;
 
-	private ReentrantLock	lock	= new ReentrantLock();
-
-	public int getUnitMemorySize() {
-		return unitMemorySize;
-	}
-
 	protected void doStart() throws Exception {
 
 		int capacity = this.capacity;
 
-		this.memory = allocate(capacity * unitMemorySize);
+		this.memory = allocateMemory(capacity * unitMemorySize);
 
 		memoryUnits = new MemoryUnit[capacity];
 
@@ -61,7 +51,7 @@ public abstract class MemoryPool extends AbstractLifeCycle implements ByteBuffer
 
 		memoryUnitEnd = next;
 
-		memoryBlock = new MemoryBlock(this,memory);
+		memoryBlock = new MemoryBlock(this, memory);
 
 		memoryBlock.setMemory(memoryUnitStart, memoryUnitEnd);
 
@@ -71,9 +61,7 @@ public abstract class MemoryPool extends AbstractLifeCycle implements ByteBuffer
 		this.freeMemory();
 	}
 
-	protected abstract void freeMemory();
-
-	public ByteBuf poll(int capacity) {
+	public ByteBuf allocate(int capacity) {
 
 		int size = (capacity + unitMemorySize - 1) / unitMemorySize;
 
@@ -98,27 +86,27 @@ public abstract class MemoryPool extends AbstractLifeCycle implements ByteBuffer
 					continue;
 				}
 
-				PooledByteBuf r = new MemoryBlock(this,memory);
+				PooledByteBuf r = new MemoryBlock(this, memory);
 
 				MemoryUnit start = next.getStart();
 
-				MemoryUnit end = memoryUnits[start.getIndex() + size-1];
+				MemoryUnit end = memoryUnits[start.getIndex() + size - 1];
 
 				r.setMemory(start, end);
-				
+
 				r.use();
-				
+
 				r.limit(capacity);
 
 				next.setMemory(end.getNext(), next.getEnd());
-				
+
 				PooledByteBuf left = next.getPrevious();
-				
+
 				if (left != null) {
 					r.setPrevious(left);
 					left.setNext(r);
 				}
-				
+
 				r.setNext(next);
 				next.setPrevious(r);
 
@@ -128,19 +116,15 @@ public abstract class MemoryPool extends AbstractLifeCycle implements ByteBuffer
 		} finally {
 			lock.unlock();
 		}
-
 	}
 
-	public MemoryPool(int capacity) {
+	public MemoryPoolV1(int capacity) {
 		this(capacity, 1024);
 	}
 
-	public MemoryPool(int capacity, int unitMemorySize) {
-		this.capacity = capacity;
-		this.unitMemorySize = unitMemorySize;
+	public MemoryPoolV1(int capacity, int unitMemorySize) {
+		super(capacity, unitMemorySize);
 	}
-
-	protected abstract ByteBuffer allocate(int capacity);
 
 	public void release(ByteBuf memoryBlock) {
 

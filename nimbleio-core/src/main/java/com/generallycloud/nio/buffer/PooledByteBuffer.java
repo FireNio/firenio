@@ -83,12 +83,14 @@ public class PooledByteBuffer implements ByteBuf {
 		}
 	}
 	
-	public void flip() {
+	public ByteBuf flip() {
 		memory.flip();
+		return this;
 	}
 
-	public void clear() {
+	public ByteBuf clear() {
 		memory.clear();
+		return this;
 	}
 
 	public int getInt() {
@@ -155,12 +157,14 @@ public class PooledByteBuffer implements ByteBuf {
 		return memory.hasRemaining();
 	}
 
-	public void position(int position) {
+	public ByteBuf position(int position) {
 		memory.position(position);
+		return this;
 	}
 
-	public void limit(int limit) {
+	public ByteBuf limit(int limit) {
 		memory.limit(limit);
+		return this;
 	}
 	
 	public void touch() {

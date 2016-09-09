@@ -2,17 +2,17 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class DirectMemoryPool extends MemoryPool{
+public class DirectMemoryPoolV2 extends MemoryPoolV2{
 
-	public DirectMemoryPool(int capacity) {
+	public DirectMemoryPoolV2(int capacity) {
 		super(capacity);
 	}
 
-	protected ByteBuffer allocate(int capacity) {
+	protected ByteBuffer allocateMemory(int capacity) {
 		return ByteBuffer.allocateDirect(capacity);
 	}
 
-	protected void freeMemory() {
+	public void freeMemory() {
 		
 		sun.nio.ch.DirectBuffer buffer = (sun.nio.ch.DirectBuffer) memory;
 		
