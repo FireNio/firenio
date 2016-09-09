@@ -51,7 +51,7 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 		memoryUnitEnd = next;
 
-		memoryBlock = new MemoryBlock(this, memory);
+		memoryBlock = new MemoryBlockV1(this, memory);
 
 		memoryBlock.setMemory(memoryUnitStart, memoryUnitEnd);
 
@@ -86,7 +86,7 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 					continue;
 				}
 
-				PooledByteBuf r = new MemoryBlock(this, memory);
+				PooledByteBuf r = new MemoryBlockV1(this, memory);
 
 				MemoryUnit start = next.getStart();
 

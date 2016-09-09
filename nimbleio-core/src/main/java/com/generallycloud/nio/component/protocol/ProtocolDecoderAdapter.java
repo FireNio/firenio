@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 
@@ -16,24 +15,10 @@ public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 
 		ByteBuf buffer = allocate(byteBufferPool);
 
-		int length = -1;
-
-		try {
-
-			length = buffer.read(endPoint);
-
-		} finally {
-
-			if (length < 1) {
-				
-				buffer.release();
-				
-				if (length == -1) {
-					CloseUtil.close(endPoint);
-				}
-				
-				return null;
-			}
+		int length = buffer.read(endPoint);
+		
+		if (length < 1) {
+			return null;
 		}
 
 		return fetchFuture(endPoint.getSession(), buffer);
@@ -41,6 +26,6 @@ public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 	
 	protected abstract ByteBuf allocate(ByteBufferPool byteBufferPool);
 
-	protected abstract IOReadFuture fetchFuture(Session session, ByteBuf buffer) ;
+	protected abstract IOReadFuture fetchFuture(Session session, ByteBuf buffer) throws IOException ;
 
 }

@@ -2,11 +2,12 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
-public class ChannelBufferOutputstream extends OutputStream implements HeapOutputStream{
+import com.generallycloud.nio.buffer.ByteBuf;
 
-	private ByteBuffer	buffer;
+public class ChannelBufferOutputstream extends OutputStream implements HeapOutputStream {
+
+	private ByteBuf	buffer;
 
 	public int size() {
 		return buffer.limit();
@@ -15,7 +16,7 @@ public class ChannelBufferOutputstream extends OutputStream implements HeapOutpu
 	public byte[] toByteArray() {
 		return array();
 	}
-	
+
 	public byte[] array() {
 		return buffer.array();
 	}
@@ -24,11 +25,11 @@ public class ChannelBufferOutputstream extends OutputStream implements HeapOutpu
 		throw new UnsupportedOperationException();
 	}
 
-	public ByteBuffer getBuffer() {
+	public ByteBuf getBuffer() {
 		return buffer;
 	}
 
-	public void setBuffer(ByteBuffer buffer) {
+	public void setBuffer(ByteBuf buffer) {
 		this.buffer = buffer;
 	}
 }

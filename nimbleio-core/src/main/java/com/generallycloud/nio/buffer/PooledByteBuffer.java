@@ -27,6 +27,10 @@ public class PooledByteBuffer implements ByteBuf {
 		this.byteBufferPool = byteBufferPool;
 		this.memory = memory;
 	}
+	
+	public byte[] getBytes() {
+		return null;
+	}
 
 	private ReentrantLock	lock	= new ReentrantLock();
 
@@ -177,6 +181,10 @@ public class PooledByteBuffer implements ByteBuf {
 	
 	public String toString() {
 		return memory.toString();
+	}
+
+	public byte get(int index) {
+		return 0;
 	}
 	
 }

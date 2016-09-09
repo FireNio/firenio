@@ -14,7 +14,7 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool{
 
 	protected ByteBuffer	memory;
 
-	private boolean		ordinal;
+	private boolean		ordinal = true;
 
 	private int			middleIndex;
 

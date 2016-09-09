@@ -26,6 +26,10 @@ public class PooledByteBufferGroup implements ByteBuf {
 	private ReferenceCount	referenceCount;
 	
 	private int bufIndex = 0;
+	
+	public byte[] getBytes() {
+		return null;
+	}
 
 	private ReentrantLock	lock	= new ReentrantLock();
 
@@ -321,6 +325,10 @@ public class PooledByteBufferGroup implements ByteBuf {
 
 	public byte[] array() {
 		return bufs[0].array();
+	}
+
+	public byte get(int index) {
+		return 0;
 	}
 	
 }

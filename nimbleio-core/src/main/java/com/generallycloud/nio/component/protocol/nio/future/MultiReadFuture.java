@@ -2,8 +2,8 @@ package com.generallycloud.nio.component.protocol.nio.future;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.ChannelBufferOutputstream;
@@ -15,12 +15,11 @@ import com.generallycloud.nio.component.TCPEndPoint;
 public class MultiReadFuture extends AbstractNIOReadFuture {
 
 	private int				dataLength;
-	private ByteBuffer			streamBuffer;
 	private int				readLength	= -1;
 	private boolean			enableChannelBuffer;
 	private static final Logger	logger		= LoggerFactory.getLogger(MultiReadFuture.class);
 
-	public MultiReadFuture(Session session, ByteBuffer header) {
+	public MultiReadFuture(Session session, ByteBuf header) throws IOException {
 		super(session, header);
 	}
 
@@ -49,19 +48,37 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 			
 			if (outputStream instanceof ChannelBufferOutputstream) {
 				
-				this.streamBuffer = ByteBuffer.allocate(dataLength);
+				ByteBuf buffer = this.buffer;
 				
-				((ChannelBufferOutputstream)outputStream).setBuffer(streamBuffer);
+				if (buffer.capacity() > dataLength) {
+					
+					buffer.limit(dataLength);
+				}else{
+					
+					buffer.release();
+					
+					this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(dataLength);
+				}
+				
+				((ChannelBufferOutputstream)outputStream).setBuffer(buffer);
 				
 				this.enableChannelBuffer = true;
 				
 			}else{
 				
-				int bufferLength = 1024 * 256;
+				int bufferLength = 1024 * 8;
 
 				bufferLength = dataLength > bufferLength ? bufferLength : dataLength;
-
-				this.streamBuffer = ByteBuffer.allocate(bufferLength);
+				
+				if (buffer.capacity() > bufferLength) {
+					
+					buffer.limit(bufferLength);
+				}else{
+					
+					buffer.release();
+					
+					this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(bufferLength);
+				}
 			}
 			
 			readLength = 0;
@@ -69,17 +86,24 @@ public class MultiReadFuture extends AbstractNIOReadFuture {
 
 		if (readLength < dataLength) {
 			
-			ByteBuffer buffer = streamBuffer;
+			ByteBuf buffer = this.buffer;
 
-			endPoint.read(buffer);
+			buffer.read(endPoint);
 			
 			fill(outputStream, buffer);
 		}
 
-		return readLength == dataLength;
+		if (readLength == dataLength) {
+			
+			buffer.release();
+			
+			return true;
+		}
+		
+		return false;
 	}
 
-	private void fill(OutputStream outputStream, ByteBuffer buffer) throws IOException {
+	private void fill(OutputStream outputStream, ByteBuf buffer) throws IOException {
 
 		int length = buffer.position();
 

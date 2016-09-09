@@ -3,10 +3,14 @@ package com.generallycloud.nio.component.protocol.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
+import com.generallycloud.nio.component.protocol.ProtocolDecoderAdapter;
 import com.generallycloud.nio.component.protocol.nio.future.MultiReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOBeatReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.StreamReadFuture;
@@ -34,7 +38,7 @@ import com.generallycloud.nio.component.protocol.nio.future.TextReadFuture;
  * 
  * </pre>
  */
-public class NIOProtocolDecoder implements ProtocolDecoder {
+public class NIOProtocolDecoder extends ProtocolDecoderAdapter {
 	
 	public static final byte	TYPE_HTTP					= 71;
 	public static final byte	TYPE_BEAT					= 3;
@@ -46,36 +50,31 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 	public static final int	STREAM_BEGIN_INDEX			= 7;
 	public static final int	TEXT_BEGIN_INDEX				= 4;
 
-	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
+	
+	protected ByteBuf allocate(ByteBufferPool byteBufferPool) {
+		return byteBufferPool.allocate(PROTOCOL_HADER);
+	}
 
-		ByteBuffer header = ByteBuffer.allocate(PROTOCOL_HADER);
-
-		int length = endPoint.read(header);
-
-		if (length < 1) {
-			if (length == -1) {
-				CloseUtil.close(endPoint);
-			}
-			return null;
-		}
-
-		byte _type = header.get(0);
+	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) throws IOException {
+		
+		
+		byte _type = buffer.get(0);
 		
 		int type = (_type & 0xff) >> 6;
 		
-		return doDecode(endPoint, header, type);
+		return doDecode(session, buffer, type);
 	}
 
-	private IOReadFuture doDecode(TCPEndPoint endPoint, ByteBuffer header, int type) throws IOException {
+	private IOReadFuture doDecode(Session session, ByteBuf buffer, int type) throws IOException {
 
 		if (type == TYPE_TEXT) {
-			return new TextReadFuture(endPoint.getSession(), header);
+			return new TextReadFuture(session, buffer);
 		} else if (type == TYPE_MULTI) {
-			return new MultiReadFuture(endPoint.getSession(), header);
+			return new MultiReadFuture(session, buffer);
 		} else if(type == TYPE_STREAM){
-			return new StreamReadFuture(endPoint.getSession(), header);
+			return new StreamReadFuture(session, buffer);
 		} else if(type == TYPE_BEAT){
-			return new NIOBeatReadFuture(endPoint.getSession());
+			return new NIOBeatReadFuture(session);
 		}else {
 			throw new IOException("not happen");
 		}

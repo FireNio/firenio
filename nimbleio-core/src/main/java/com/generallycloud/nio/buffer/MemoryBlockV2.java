@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.TCPEndPoint;
 
 public class MemoryBlockV2 implements ByteBuf {
@@ -40,6 +41,19 @@ public class MemoryBlockV2 implements ByteBuf {
 		this.limit = capacity;
 		memory.position(offset).limit(limit);
 		return this;
+	}
+	
+	public byte get(int index) {
+		return memory.get(offset + index);
+	}
+	
+	public byte[] getBytes() {
+		
+		byte[] bytes = new byte[limit];
+		
+		getBytes(bytes);
+		
+		return bytes;
 	}
 
 	public ByteBuf duplicate() {
@@ -148,12 +162,29 @@ public class MemoryBlockV2 implements ByteBuf {
 	}
 
 	public int read(TCPEndPoint endPoint) throws IOException {
+		
+		int length = -1;
 
-		int read = endPoint.read(memory);
+		try {
 
-		position += read;
+			length = endPoint.read(memory);
+			
+			return length;
 
-		return read;
+		} finally {
+
+			if (length < 1) {
+				
+				this.release();
+				
+				if (length == -1) {
+					CloseUtil.close(endPoint);
+				}
+			}else{
+				
+				position += length;
+			}
+		}
 	}
 
 	public void release() {
@@ -219,10 +250,28 @@ public class MemoryBlockV2 implements ByteBuf {
 
 	public int write(TCPEndPoint endPoint) throws IOException {
 
-		int read = endPoint.write(memory);
+		int length = -1;
 
-		position += read;
+		try {
 
-		return read;
+			length = endPoint.write(memory);
+			
+			return length;
+
+		} finally {
+
+			if (length < 1) {
+				
+				this.release();
+				
+				if (length == -1) {
+					CloseUtil.close(endPoint);
+				}
+			}else{
+				
+				position += length;
+			}
+		}
 	}
+	
 }

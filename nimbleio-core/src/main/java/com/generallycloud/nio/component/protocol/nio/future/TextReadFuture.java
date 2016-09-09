@@ -1,8 +1,8 @@
 package com.generallycloud.nio.component.protocol.nio.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 
@@ -12,8 +12,8 @@ public class TextReadFuture extends AbstractNIOReadFuture {
 		super(session, futureID, serviceName);
 	}
 
-	public TextReadFuture(Session session, ByteBuffer header) {
-		super(session, header);
+	public TextReadFuture(Session session, ByteBuf buffer) throws IOException {
+		super(session, buffer);
 	}
 
 	protected TextReadFuture(Session session, boolean isBeatPacket) {

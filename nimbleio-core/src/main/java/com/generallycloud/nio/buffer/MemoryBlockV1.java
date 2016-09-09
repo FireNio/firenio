@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.TCPEndPoint;
 
-public class MemoryBlock implements PooledByteBuf {
+public class MemoryBlockV1 implements PooledByteBuf {
 
 	private PooledByteBuf	previous;
 
@@ -37,6 +37,10 @@ public class MemoryBlock implements PooledByteBuf {
 	public int getSize() {
 		return size;
 	}
+	
+	public byte get(int index) {
+		return 0;
+	}
 
 	public MemoryUnit getEnd() {
 		return end;
@@ -56,6 +60,10 @@ public class MemoryBlock implements PooledByteBuf {
 
 	public void setNext(PooledByteBuf next) {
 		this.next = next;
+	}
+	
+	public byte[] getBytes() {
+		return null;
 	}
 
 	public PooledByteBuf use() {
@@ -89,7 +97,7 @@ public class MemoryBlock implements PooledByteBuf {
 
 	private ReentrantLock	lock	= new ReentrantLock();
 
-	public MemoryBlock(ByteBufferPool byteBufferPool,ByteBuffer memory) {
+	public MemoryBlockV1(ByteBufferPool byteBufferPool,ByteBuffer memory) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
 		this.referenceCount = new ReferenceCount();
@@ -176,7 +184,7 @@ public class MemoryBlock implements PooledByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlock block = new MemoryBlock(memoryPool,memory.duplicate());
+			MemoryBlockV1 block = new MemoryBlockV1(memoryPool,memory.duplicate());
 
 			block.referenceCount = referenceCount;
 			block.referenceCount.increament();
@@ -228,10 +236,6 @@ public class MemoryBlock implements PooledByteBuf {
 		this.limit = capacity;
 		memory.position(offset).limit(limit);
 		return this;
-	}
-
-	public void touch() {
-
 	}
 
 	public int getInt() {

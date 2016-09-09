@@ -34,6 +34,8 @@ public interface ByteBuf {
 
 	public abstract ByteBuf clear();
 	
+	public abstract byte get(int index);
+	
 	public abstract int getInt();
 	
 	public abstract long getLong();
@@ -43,6 +45,8 @@ public interface ByteBuf {
 	public abstract long getLong(int offset);
 	
 	public abstract void getBytes(byte [] dst);
+	
+	public abstract byte [] getBytes();
 	
 	public abstract void getBytes(byte [] dst,int offset,int length);
 
