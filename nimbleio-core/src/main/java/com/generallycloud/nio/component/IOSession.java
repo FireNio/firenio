@@ -8,6 +8,7 @@ import java.util.HashMap;
 import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
@@ -132,6 +133,10 @@ public class IOSession implements Session {
 			endPoint.offer(writeFuture);
 
 		} catch (IOException e) {
+			
+			ReleaseUtil.release(writeFuture);
+			
+			ReleaseUtil.release(future);
 
 			logger.debug(e.getMessage(), e);
 

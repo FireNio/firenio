@@ -2,7 +2,6 @@ package com.generallycloud.nio.extend.plugin.jms.client.impl;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.ByteArrayInputStream;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.plugin.jms.BytedMessage;
@@ -42,9 +41,7 @@ public class DefaultMessageProducer implements MessageProducer {
 				
 				BytedMessage _message = (BytedMessage) message;
 				
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(_message.getByteArray());
-				
-				future = session.request(serviceName, param, inputStream);
+				future = session.request(serviceName, param, _message.getByteArray());
 				
 			} else {
 				

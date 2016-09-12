@@ -40,7 +40,7 @@ public class TestListenSimple {
 			}
 		});
 		
-		session.write(serviceKey, param, null);
+		session.write(serviceKey, param);
 		
 		ThreadUtil.sleep(1000);
 		CloseUtil.close(connector);

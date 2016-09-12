@@ -3,7 +3,6 @@ package com.generallycloud.nio.component.protocol.nio.future;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
@@ -11,7 +10,6 @@ import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.NIOProtocolDecoder;
 
 /**
  * @author wangkai
@@ -98,9 +96,11 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		int textLength = gainTextLength(header_array, offset);
 
-		int binaryLength = gainStreamLength(header_array, offset);
+		int binaryLength = gainBinaryLength(header_array, offset);
 
 		int all_length = service_name_length + textLength + binaryLength;
+		
+		this.service_name_length = service_name_length;
 
 		this.textLength = textLength;
 
@@ -110,7 +110,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		if (buffer.capacity() >= all_length) {
 
-			buffer.clear().limit(all_length);
+			buffer.limit(all_length);
 
 		} else {
 
@@ -172,33 +172,36 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		this.gainBinary(array, offset);
 	}
 
-	private int gainStreamLength(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + NIOProtocolDecoder.BINARY_BEGIN_INDEX);
+	private int gainBinaryLength(byte[] header, int offset) {
+		int v0 = (header[offset + 8] & 0xff);
+		int v1 = (header[offset + 7] & 0xff) << 8;
+		int v2 = (header[offset + 6] & 0xff) << 16;
+
+		return v0 | v1 | v2;
 	}
 
 	private int gainTextLength(byte[] header, int offset) {
-		int v0 = (header[offset + 4] & 0xff);
-		int v1 = (header[offset + 5] & 0xff) << 8;
+		int v0 = (header[offset + 5] & 0xff);
+		int v1 = (header[offset + 4] & 0xff) << 8;
 		return v0 | v1;
 	}
 
 	private int gainFutureID(byte[] header) {
-		int v0 = (header[1] & 0xff);
+		int v0 = (header[3] & 0xff);
 		int v1 = (header[2] & 0xff) << 8;
-		int v2 = (header[3] & 0xff) << 16;
+		int v2 = (header[1] & 0xff) << 16;
 
 		return v0 | v1 | v2;
 	}
 
 	private void gainServiceName(byte[] array, int offset) {
 
-		this.serviceName = new String(array, offset + NIOProtocolDecoder.PROTOCOL_HADER, service_name_length);
+		this.serviceName = new String(array, offset, service_name_length);
 	}
 
 	private void gainText(byte[] array, int offset) {
 
-		this.text = new String(array, offset + NIOProtocolDecoder.PROTOCOL_HADER + service_name_length, textLength,
-				endPoint.getContext().getEncoding());
+		this.text = new String(array, offset + service_name_length, textLength,endPoint.getContext().getEncoding());
 	}
 	
 	private void gainBinary(byte[] array, int offset) {

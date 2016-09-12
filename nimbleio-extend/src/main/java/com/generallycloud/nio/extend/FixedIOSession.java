@@ -31,8 +31,8 @@ public class FixedIOSession implements FixedSession {
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
-	private long							timeout	= 50000;//FIXME timeout
-
+	private long							timeout	= 50000;									// FIXME
+																						// timeout
 	public void setTimeout(long timeout) {
 		if (timeout < 0) {
 			throw new IllegalArgumentException("illegal argument timeout: " + timeout);
@@ -75,7 +75,7 @@ public class FixedIOSession implements FixedSession {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
-		
+
 		OnReadFutureWrapper wrapper = listeners.get(serviceName);
 
 		if (wrapper == null) {
@@ -84,7 +84,7 @@ public class FixedIOSession implements FixedSession {
 
 			listeners.put(serviceName, wrapper);
 		}
-		
+
 		if (onReadFuture == null) {
 			return;
 		}
@@ -149,7 +149,7 @@ public class FixedIOSession implements FixedSession {
 		return request(serviceName, content, null);
 	}
 
-	public NIOReadFuture request(String serviceName, String content, InputStream inputStream) throws IOException {
+	public NIOReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
@@ -159,13 +159,40 @@ public class FixedIOSession implements FixedSession {
 
 		readFuture.write(content);
 
-		readFuture.setInputStream(inputStream);
+		if (binary != null) {
+			readFuture.writeBinary(binary);
+		}
 
 		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
 
 		waiterListen(serviceName, onReadFuture);
 
 		session.flush(readFuture);
+
+		// FIXME 连接丢失时叫醒我
+		if (!onReadFuture.await(timeout)) {
+
+			return (NIOReadFuture) onReadFuture.getReadFuture();
+		}
+
+		CloseUtil.close(session);
+
+		throw new TimeoutException("timeout");
+	}
+
+	public NIOReadFuture request(String serviceName, Map params, InputStream inputStream) throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		BinaryFlusher flusher = new BinaryFlusher(inputStream, session, serviceName, params);
+
+		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+
+		waiterListen(serviceName, onReadFuture);
+
+		flusher.flush();
 
 		// FIXME 连接丢失时叫醒我
 		if (!onReadFuture.await(timeout)) {
@@ -213,8 +240,7 @@ public class FixedIOSession implements FixedSession {
 		write(serviceName, content, null);
 	}
 
-	public void write(String serviceName, String content, InputStream inputStream) throws IOException {
-
+	public void write(String serviceName, String content, byte[] binary) throws IOException {
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
@@ -223,8 +249,11 @@ public class FixedIOSession implements FixedSession {
 
 		readFuture.write(content);
 
-		readFuture.setInputStream(inputStream);
+		if (binary != null) {
+			readFuture.writeBinary(binary);
+		}
 
 		session.flush(readFuture);
 	}
+
 }

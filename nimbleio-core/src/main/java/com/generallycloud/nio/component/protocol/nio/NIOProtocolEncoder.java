@@ -3,7 +3,6 @@ package com.generallycloud.nio.component.protocol.nio;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
@@ -16,25 +15,24 @@ import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 public class NIOProtocolEncoder implements ProtocolEncoder {
 
 	private final int	PROTOCOL_HADER		= NIOProtocolDecoder.PROTOCOL_HADER;
-	private final int	BINARY_BEGIN_INDEX	= NIOProtocolDecoder.BINARY_BEGIN_INDEX;
 
 	private void calc_text(byte[] header, int text_length) {
-		header[4] = (byte) (text_length & 0xff);
-		header[5] = (byte) ((text_length >> 8) & 0xff);
-		header[6] = (byte) ((text_length >> 16) & 0xff);
+		header[5] = (byte) (text_length & 0xff);
+		header[4] = (byte) ((text_length >> 8) & 0xff);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {
-		header[1] = (byte) (future_id & 0xff);
+		header[3] = (byte) (future_id & 0xff);
 		header[2] = (byte) ((future_id >> 8) & 0xff);
-		header[3] = (byte) ((future_id >> 16) & 0xff);
+		header[1] = (byte) ((future_id >> 16) & 0xff);
 	}
 
-	private void calc_stream(byte[] header, int stream_length) {
-
-		MathUtil.int2Byte(header, stream_length, BINARY_BEGIN_INDEX);
+	private void calc_binary(byte[] header, int binary_length) {
+		header[8] = (byte) (binary_length & 0xff);
+		header[7] = (byte) ((binary_length >> 8) & 0xff);
+		header[6] = (byte) ((binary_length >> 16) & 0xff);
 	}
-
+	
 	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
 		
 		if (readFuture.isBeatPacket()) {
@@ -86,7 +84,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		calc_future_id(header, future_id);
 		
 		calc_text(header, text_length);
-		calc_stream(header, binary_length);
+		calc_binary(header, binary_length);
 
 		buffer.put(header);
 		buffer.put(service_name_array);
