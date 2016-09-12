@@ -3,10 +3,15 @@ package com.generallycloud.nio.component.protocol.http11;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
+import com.generallycloud.nio.component.protocol.ProtocolDecoderAdapter;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 
 //FIXME 心跳貌似由服务端发起
@@ -36,7 +41,7 @@ import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutu
  * </pre>
  *
  */
-public class WebSocketProtocolDecoder implements ProtocolDecoder {
+public class WebSocketProtocolDecoder extends ProtocolDecoderAdapter {
 
 	public static final int	TYPE_TEXT		= 1;
 	public static final int	TYPE_BINARY		= 2;
@@ -44,21 +49,13 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	public static final int	TYPE_PING		= 9;
 	public static final int	TYPE_PONG		= 10;
 
-	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
 
-		ByteBuffer buffer = ByteBuffer.allocate(2);
+	protected ByteBuf allocate(NIOContext context) {
+		return context.getHeapByteBufferPool().allocate(2);
+	}
 
-		int length = endPoint.read(buffer);
-
-		if (length < 1) {
-			// FIXME 处理连接异常导致的关闭
-			if (length == -1) {
-				CloseUtil.close(endPoint);
-			}
-			return null;
-		}
-
-		return new WebSocketReadFutureImpl(endPoint.getSession(), buffer);
+	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) throws IOException {
+		return new WebSocketReadFutureImpl(session, buffer);
 	}
 
 }

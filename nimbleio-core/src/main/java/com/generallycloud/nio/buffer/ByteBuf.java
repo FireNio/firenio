@@ -2,14 +2,13 @@ package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.Releasable;
 import com.generallycloud.nio.component.TCPEndPoint;
 
-public interface ByteBuf {
+public interface ByteBuf extends Releasable{
 	
 	public static final int UNIT_CAPACITY = 12;
 
-	public abstract void release();
-	
 	public abstract ByteBuf duplicate();
 
 	public abstract int remaining();
@@ -34,6 +33,8 @@ public interface ByteBuf {
 
 	public abstract ByteBuf clear();
 	
+	public abstract int offset();
+	
 	public abstract byte get(int index);
 	
 	public abstract int getInt();
@@ -44,15 +45,15 @@ public interface ByteBuf {
 	
 	public abstract long getLong(int offset);
 	
-	public abstract void getBytes(byte [] dst);
+	public abstract void get(byte [] dst);
 	
 	public abstract byte [] getBytes();
 	
-	public abstract void getBytes(byte [] dst,int offset,int length);
+	public abstract void get(byte [] dst,int offset,int length);
 
-	public abstract void putBytes(byte [] src);
+	public abstract void put(byte [] src);
 	
-	public abstract void putBytes(byte [] src,int offset,int length);
+	public abstract void put(byte [] src,int offset,int length);
 
 	// 往buffer中write
 	public abstract int read(TCPEndPoint endPoint) throws IOException;

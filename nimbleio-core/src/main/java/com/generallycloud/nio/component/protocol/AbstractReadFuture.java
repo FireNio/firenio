@@ -1,7 +1,5 @@
 package com.generallycloud.nio.component.protocol;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Encoding;
@@ -13,14 +11,12 @@ import com.generallycloud.nio.component.TCPEndPoint;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
-	private BufferedOutputStream	writeBuffer		= new BufferedOutputStream();
-	private IOEventHandle		ioEventHandle		;
-	protected boolean 		hasOutputStream	;
-	protected boolean			flushed			;
-	protected InputStream		inputStream;
-	protected OutputStream		outputStream;
-	protected TCPEndPoint		endPoint			;
-	protected IOSession		session			;
+	protected BufferedOutputStream	writeBuffer		= new BufferedOutputStream();
+	protected IOEventHandle			ioEventHandle		;
+	protected boolean 			hasOutputStream	;
+	protected TCPEndPoint			endPoint			;
+	protected IOSession			session			;
+	protected boolean				flushed			;
 	
 	public IOEventHandle getIOEventHandle() {
 		return ioEventHandle;
@@ -35,10 +31,6 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		this.endPoint = this.session.getTCPEndPoint();
 	}
 	
-	public boolean flushed() {
-		return flushed;
-	}
-
 	public void write(byte b) {
 		writeBuffer.write(b);
 	}
@@ -67,19 +59,8 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		return writeBuffer;
 	}
 
-	public OutputStream getOutputStream() {
-		return outputStream;
+	public boolean flushed() {
+		return flushed;
 	}
 
-	public boolean hasOutputStream() {
-		return hasOutputStream;
-	}
-
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
-	}
-
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
 }

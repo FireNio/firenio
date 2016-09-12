@@ -65,7 +65,7 @@ public class MQBrowserServlet extends MQServlet {
 
 							byte[] bytes = byteMessage.getByteArray();
 
-							future.setInputStream(new ByteArrayInputStream(bytes));
+							future.writeBinary(bytes);
 						}
 					}
 				}

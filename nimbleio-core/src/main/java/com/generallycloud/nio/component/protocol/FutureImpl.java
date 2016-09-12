@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component.protocol;
 
-
-public class FutureImpl implements Future {
+public abstract class FutureImpl implements Future {
 	
 	private Object		attachment	;
 

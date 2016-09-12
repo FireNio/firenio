@@ -45,7 +45,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected String				host;
 	protected HttpHeaderParser		httpHeaderParser;
 	protected String				method;
-	protected OutputStream			outputStream;
+	protected BufferedOutputStream	outputStream;
 	protected Map<String, String>	params;
 	protected ByteBuffer			read_buffer;
 	protected int					read_length		= 0;
@@ -55,6 +55,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected String				version;
+	protected boolean 			hasOutputStream;
 
 	public AbstractHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser,ByteBuffer readBuffer) {
 		super(session);
@@ -135,6 +136,14 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			buffer.clear();
 		}
 	}
+	
+	public boolean isHasOutputStream() {
+		return hasOutputStream;
+	}
+
+	public void setHasOutputStream(boolean hasOutputStream) {
+		this.hasOutputStream = hasOutputStream;
+	}
 
 	protected abstract void decodeBody();
 
@@ -199,8 +208,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public String getMethod() {
 		return method;
 	}
-
-	public OutputStream getOutputStream() {
+	
+	public BufferedOutputStream getBody() {
 		return outputStream;
 	}
 
@@ -236,10 +245,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		ByteBuffer buffer = this.read_buffer;
 
 		return decode(endPoint, buffer);
-	}
-
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
 	}
 
 	public void setRequestParams(Map<String, String> params) {
@@ -304,4 +309,13 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		}
 		throw new IllegalArgumentException("illegal http header : empty Sec-WebSocket-Key");
 	}
+
+	public void release() {
+		
+	}
+
+	public boolean hasBody() {
+		return contentLength > 0;
+	}
+	
 }

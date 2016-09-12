@@ -1,6 +1,5 @@
 package com.generallycloud.nio.extend.plugin.jms.decode;
 
-import com.generallycloud.nio.component.HeapOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.jms.Message;
@@ -14,9 +13,7 @@ public class TextByteMessageDecoder implements MessageDecoder{
 		String queueName = param.getParameter("queueName");
 		String text = param.getParameter("text");
 		
-		HeapOutputStream outputStream = (HeapOutputStream) future.getOutputStream();
-		
-		byte[] array = outputStream.toByteArray();
+		byte[] array = future.getBinary();
 		
 		return new TextByteMessage(messageID,queueName,text,array);
 	}

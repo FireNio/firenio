@@ -3,6 +3,7 @@ package com.generallycloud.nio.buffer;
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.TCPEndPoint;
 
 public class PooledByteBufferGroup implements ByteBuf {
@@ -53,6 +54,10 @@ public class PooledByteBufferGroup implements ByteBuf {
 
 	PooledByteBufferGroup() {
 	}
+	
+	public int offset() {
+		return 0;
+	}
 
 	public void release() {
 
@@ -73,7 +78,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 			released = true;
 
 			for (ByteBuf buf : bufs) {
-				buf.release();
+				ReleaseUtil.release(buf);
 			}
 
 		} finally {
@@ -123,12 +128,12 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return read;
 	}
 
-	public void getBytes(byte[] dst) {
-		getBytes(dst, 0, dst.length);
+	public void get(byte[] dst) {
+		get(dst, 0, dst.length);
 	}
 
 	//FIXME offset buwei0shiyouwenti
-	public void getBytes(byte[] dst, int offset, int length) {
+	public void get(byte[] dst, int offset, int length) {
 		
 		if (offset != 0) {
 			throw new UnsupportedOperationException();
@@ -138,7 +143,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 		
 		if (length < unit_capacity) {
 			
-			headBuf.getBytes(dst, offset, length);
+			headBuf.get(dst, offset, length);
 			return;
 		}
 		
@@ -146,22 +151,22 @@ public class PooledByteBufferGroup implements ByteBuf {
 		
 		for (int i = 0; i < size; i++) {
 			
-			bufs[i].getBytes(dst, unit_capacity * i, unit_capacity);
+			bufs[i].get(dst, unit_capacity * i, unit_capacity);
 		}
 		
 		int remain = length % unit_capacity;
 		
 		if (remain > 0) {
-			bufs[size].getBytes(dst, size * unit_capacity, remain);
+			bufs[size].get(dst, size * unit_capacity, remain);
 		}
 	}
 
-	public void putBytes(byte[] src) {
-		putBytes(src, 0, src.length);
+	public void put(byte[] src) {
+		put(src, 0, src.length);
 	}
 
 	//FIXME offset buwei0shiyouwenti
-	public void putBytes(byte[] src, int offset, int length) {
+	public void put(byte[] src, int offset, int length) {
 		
 		if (offset != 0) {
 			throw new UnsupportedOperationException();
@@ -171,7 +176,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 		
 		if (length < unit_capacity) {
 			
-			headBuf.putBytes(src, offset, length);
+			headBuf.put(src, offset, length);
 			return;
 		}
 		
@@ -179,13 +184,13 @@ public class PooledByteBufferGroup implements ByteBuf {
 		
 		for (int i = 0; i < size; i++) {
 			
-			bufs[i].putBytes(src, unit_capacity * i, unit_capacity);
+			bufs[i].put(src, unit_capacity * i, unit_capacity);
 		}
 		
 		int remain = length % unit_capacity;
 		
 		if (remain > 0) {
-			bufs[size+1].putBytes(src, size * unit_capacity, remain);
+			bufs[size+1].put(src, size * unit_capacity, remain);
 		}
 	}
 	

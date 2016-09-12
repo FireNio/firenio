@@ -60,6 +60,10 @@ public class PooledByteBuffer implements ByteBuf {
 			lock.unlock();
 		}
 	}
+	
+	public int offset() {
+		return 0;
+	}
 
 	public ByteBuf duplicate() {
 
@@ -117,19 +121,19 @@ public class PooledByteBuffer implements ByteBuf {
 		return memory.array();
 	}
 
-	public void getBytes(byte[] dst) {
-		getBytes(dst, 0, dst.length);
+	public void get(byte[] dst) {
+		get(dst, 0, dst.length);
 	}
 
-	public void getBytes(byte[] dst, int offset, int length) {
+	public void get(byte[] dst, int offset, int length) {
 		memory.get(dst, offset, length);
 	}
 
-	public void putBytes(byte[] src) {
-		getBytes(src, 0, src.length);
+	public void put(byte[] src) {
+		get(src, 0, src.length);
 	}
 
-	public void putBytes(byte[] src, int offset, int length) {
+	public void put(byte[] src, int offset, int length) {
 		memory.put(src, offset, length);
 	}
 

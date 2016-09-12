@@ -15,6 +15,6 @@ public interface WebSocketReadFuture extends ReadFuture {
 	
 	public abstract int getLength();
 
-	public abstract BufferedOutputStream getData();
+	public abstract  BufferedOutputStream getData();
 
 }

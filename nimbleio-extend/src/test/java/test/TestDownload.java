@@ -1,12 +1,14 @@
 package test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.OnReadFuture;
+import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -44,26 +46,35 @@ public class TestDownload {
 				
 				NIOReadFuture f = (NIOReadFuture) future;
 				
+				Parameters parameters = f.getParameters();
+				
+				OutputStream outputStream = (OutputStream) session.getAttachment();
+				
 				try {
-					if (f.hasOutputStream()) {
+					if (outputStream == null) {
 						
-						if (f.getOutputStream() == null) {
-							
-							File file = new File("download.zip");
-							
-							FileOutputStream outputStream = new FileOutputStream(file);
-							
-							f.setOutputStream(outputStream);
-							
-							return;
-						}
+						String fileName = "download-" + f.getText();
+						
+						outputStream = new FileOutputStream(new File(fileName));
+						
+						session.setAttachment(outputStream);
 					}
 					
-					System.out.println("_________"+f.getText());
+					byte [] data = f.getBinary();
 					
-					w.setPayload(null);
+					outputStream.write(data);
 					
-				} catch (FileNotFoundException e) {
+					boolean isEnd = parameters.getBooleanParameter("isEnd");
+					
+					if (isEnd) {
+						
+						CloseUtil.close(outputStream);
+						
+						session.setAttachment(null);
+						
+						w.setPayload(null);
+					}
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}

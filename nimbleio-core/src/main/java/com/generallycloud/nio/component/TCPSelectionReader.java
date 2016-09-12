@@ -1,7 +1,10 @@
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 
@@ -31,15 +34,27 @@ public class TCPSelectionReader implements SelectionAcceptor {
 			future = decoder.decode(endPoint);
 
 			if (future == null) {
+				CloseUtil.close(endPoint);
 				return;
 			}
 
 			endPoint.setReadFuture(future);
 		}
 
-		if (!future.read()) {
+		try {
+			if (!future.read()) {
 
-			return;
+				return;
+			}
+		} catch (Throwable e) {
+			
+			ReleaseUtil.release(future);
+			
+			if (e instanceof IOException) {
+				throw (IOException)e;
+			}
+			
+			throw new IOException("exception occurred when read from channel,the nested exception is,"+e.getMessage(),e);
 		}
 
 		endPoint.setReadFuture(null);

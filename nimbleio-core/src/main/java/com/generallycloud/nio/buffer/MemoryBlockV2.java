@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.TCPEndPoint;
 
 public class MemoryBlockV2 implements ByteBuf {
@@ -42,19 +41,6 @@ public class MemoryBlockV2 implements ByteBuf {
 		memory.position(offset).limit(limit);
 		return this;
 	}
-	
-	public byte get(int index) {
-		return memory.get(offset + index);
-	}
-	
-	public byte[] getBytes() {
-		
-		byte[] bytes = new byte[limit];
-		
-		getBytes(bytes);
-		
-		return bytes;
-	}
 
 	public ByteBuf duplicate() {
 
@@ -88,13 +74,27 @@ public class MemoryBlockV2 implements ByteBuf {
 		return this;
 	}
 
-	public void getBytes(byte[] dst) {
-		getBytes(dst, 0, dst.length);
+	public byte get(int index) {
+		return memory.get(offset + index);
+	}
+
+	public byte[] getBytes() {
+
+		byte[] bytes = new byte[limit];
+
+		get(bytes);
+
+		return bytes;
+	}
+	
+	public void get(byte[] dst) {
+		get(dst, 0, dst.length);
 	}
 
 	// FIXME offset buwei0shiyouwenti
-	public void getBytes(byte[] dst, int offset, int length) {
-		memory.get(dst, offset, length);
+	public void get(byte[] dst, int offset, int length) {
+		this.memory.get(dst, offset, length);
+		this.position += (length - offset);
 	}
 
 	public int getEnd() {
@@ -152,39 +152,26 @@ public class MemoryBlockV2 implements ByteBuf {
 		return this;
 	}
 
-	public void putBytes(byte[] src) {
-		putBytes(src, 0, src.length);
+	public void put(byte[] src) {
+		put(src, 0, src.length);
 	}
 
 	// FIXME offset buwei0shiyouwenti
-	public void putBytes(byte[] src, int offset, int length) {
-		memory.put(src, offset, length);
+	public void put(byte[] src, int offset, int length) {
+		this.memory.put(src, offset, length);
+		this.position += (length - offset);
 	}
 
 	public int read(TCPEndPoint endPoint) throws IOException {
-		
-		int length = -1;
 
-		try {
+		int length = endPoint.read(memory);
 
-			length = endPoint.read(memory);
-			
-			return length;
-
-		} finally {
-
-			if (length < 1) {
-				
-				this.release();
-				
-				if (length == -1) {
-					CloseUtil.close(endPoint);
-				}
-			}else{
-				
-				position += length;
-			}
+		if (length > 0) {
+			position += length;
 		}
+
+		return length;
+
 	}
 
 	public void release() {
@@ -196,7 +183,7 @@ public class MemoryBlockV2 implements ByteBuf {
 		try {
 
 			if (released) {
-				throw new ReleasedException("released");
+				return;
 			}
 
 			if (referenceCount.deincreament() > 0) {
@@ -210,6 +197,10 @@ public class MemoryBlockV2 implements ByteBuf {
 		} finally {
 			lock.unlock();
 		}
+	}
+	
+	public int offset() {
+		return offset;
 	}
 
 	public int remaining() {
@@ -237,10 +228,6 @@ public class MemoryBlockV2 implements ByteBuf {
 		return b.toString();
 	}
 
-	public void touch() {
-
-	}
-
 	public ByteBuf use() {
 		this.offset = start * memoryPool.getUnitMemorySize();
 		this.capacity = size * memoryPool.getUnitMemorySize();
@@ -250,28 +237,13 @@ public class MemoryBlockV2 implements ByteBuf {
 
 	public int write(TCPEndPoint endPoint) throws IOException {
 
-		int length = -1;
+		int length = endPoint.write(memory);
 
-		try {
-
-			length = endPoint.write(memory);
-			
-			return length;
-
-		} finally {
-
-			if (length < 1) {
-				
-				this.release();
-				
-				if (length == -1) {
-					CloseUtil.close(endPoint);
-				}
-			}else{
-				
-				position += length;
-			}
+		if (length > 0) {
+			position += length;
 		}
+
+		return length;
 	}
-	
+
 }

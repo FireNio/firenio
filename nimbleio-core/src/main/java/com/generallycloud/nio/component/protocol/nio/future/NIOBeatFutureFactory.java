@@ -7,6 +7,6 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 public class NIOBeatFutureFactory implements BeatFutureFactory{
 
 	public ReadFuture createBeatPacket(Session session) {
-		return new NIOBeatReadFuture(session);
+		return new NIOReadFutureImpl(session,true);
 	}
 }

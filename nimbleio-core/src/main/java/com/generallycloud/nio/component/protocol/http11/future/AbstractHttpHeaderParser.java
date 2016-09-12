@@ -5,6 +5,7 @@ import java.util.Map;
 import com.generallycloud.nio.common.KMPUtil;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.BufferedOutputStream;
 
 public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 
@@ -98,6 +99,8 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 		if (!StringUtil.isNullOrBlank(cookie)) {
 			parse_cookies(cookie, future.cookies);
 		}
+		
+		future.outputStream = new BufferedOutputStream(future.contentLength);
 	}
 	
 	protected abstract void parseContentType(AbstractHttpReadFuture future,String contentType);

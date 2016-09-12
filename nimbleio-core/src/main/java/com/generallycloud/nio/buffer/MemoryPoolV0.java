@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.ReleaseUtil;
+
 public abstract class MemoryPoolV0 extends AbstractMemoryPool {
 
 	protected int						size		= 0;
@@ -73,7 +75,7 @@ public abstract class MemoryPoolV0 extends AbstractMemoryPool {
 			if (buf == null) {
 
 				for (int j = 0; j < i; j++) {
-					bufs[j].release();
+					ReleaseUtil.release(bufs[j]);
 				}
 
 				throw new BufferException("no enough buf");

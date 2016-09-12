@@ -1,18 +1,18 @@
 package com.generallycloud.nio.component.protocol.http11;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.TextWriteFuture;
 import com.generallycloud.nio.component.protocol.http11.future.Cookie;
 import com.generallycloud.nio.component.protocol.http11.future.ServerHttpReadFuture;
 
@@ -64,7 +64,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		int size = o.size();
 		
-		ByteBuffer buffer = ByteBuffer.allocate(h.length() + size);
+		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(h.length() + size);
 		
 		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
 		
@@ -74,7 +74,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		TextWriteFuture textWriteFuture = new TextWriteFuture(endPoint, readFuture, buffer);
+		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(endPoint, readFuture, buffer);
 
 		return textWriteFuture;
 	}

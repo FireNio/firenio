@@ -6,23 +6,19 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public abstract class MemoryPoolV2 extends AbstractMemoryPool{
-	
-	private Logger logger = LoggerFactory.getLogger(MemoryPoolV2.class);
+public abstract class MemoryPoolV2 extends AbstractMemoryPool {
+
+	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV2.class);
 
 	private boolean[]		memoryUnits;
 
+	private int			mask;
+
 	protected ByteBuffer	memory;
-
-	private boolean		ordinal = true;
-
-	private int			middleIndex;
 
 	protected void doStart() throws Exception {
 
 		int capacity = this.capacity;
-
-		this.middleIndex = this.capacity / 2;
 
 		this.memory = allocateMemory(capacity * unitMemorySize);
 
@@ -34,8 +30,8 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool{
 	}
 
 	public void setFree(int start, int end, boolean free) {
-		logger.debug("setFree,start={},end={},free={}",new Object[]{start,end,free});
-//		new Exception().printStackTrace();
+		logger.debug("setFree,start={},end={},free={}", new Object[] { start, end, free });
+		// new Exception().printStackTrace();
 		boolean[] memoryUnits = this.memoryUnits;
 		for (int i = start; i < end; i++) {
 			memoryUnits[i] = free;
@@ -52,47 +48,50 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool{
 
 		try {
 
-			boolean[] memoryUnits = this.memoryUnits;
+			ByteBuf buf = allocate(capacity,mask, this.capacity - size, size);
 
-			int _size = this.capacity - size;
+			if (buf == null) {
 
-			int i = 0;
-
-//			if (ordinal) {
-//				ordinal = false;
-//			} else {
-//				i = middleIndex;
-//				ordinal = true;
-//			}
-
-			for (; i < _size;) {
-
-				if (!memoryUnits[i]) {
-					i++;
-					continue;
-				}
-
-				int end = size + i;
-
-				if (memoryUnits[end]) {
-
-					setFree(i, end, false);
-
-					MemoryBlockV2 memoryBlock = new MemoryBlockV2(this, memory);
-
-					memoryBlock.setMemory(i, end);
-
-					return memoryBlock.use().limit(capacity);
-				}
-
-				i = end + 1;
+				return allocate(capacity,0, mask - size, size);
 			}
 
-			return null;
+			return buf;
 
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	private ByteBuf allocate(int capacity,int start, int end, int size) {
+
+		boolean[] memoryUnits = this.memoryUnits;
+
+		for (; start < end;) {
+
+			if (!memoryUnits[start]) {
+				start++;
+				continue;
+			}
+
+			int _end = size + start;
+
+			if (memoryUnits[_end]) {
+
+				setFree(start, _end, false);
+
+				MemoryBlockV2 memoryBlock = new MemoryBlockV2(this, memory);
+
+				memoryBlock.setMemory(start, _end);
+
+				mask = _end;
+
+				return memoryBlock.use().limit(capacity);
+			}
+
+			start = _end + 1;
+		}
+
+		return null;
 	}
 
 	public MemoryPoolV2(int capacity) {
@@ -119,20 +118,20 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool{
 			lock.unlock();
 		}
 	}
-	
+
 	public String toString() {
-		
+
 		boolean[] memoryUnits = this.memoryUnits;
-		
+
 		int free = 0;
-		
-		for (boolean b :memoryUnits) {
-			
+
+		for (boolean b : memoryUnits) {
+
 			if (b) {
 				free++;
 			}
 		}
-		
+
 		StringBuilder b = new StringBuilder();
 		b.append(this.getClass().getName());
 		b.append("[free=");
@@ -140,7 +139,7 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool{
 		b.append(",memory=");
 		b.append(capacity);
 		b.append("]");
-		
+
 		return b.toString();
 	}
 

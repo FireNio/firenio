@@ -1,15 +1,15 @@
 package com.generallycloud.nio.component.protocol.http11;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.TextWriteFuture;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
 
 //WebSocket规定服务端不准向客户端发送mask过的数据
@@ -45,7 +45,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuffer buffer = ByteBuffer.allocate(header.length + size);
+		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(header.length + size);
 		
 		buffer.put(header);
 		
@@ -53,9 +53,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		TextWriteFuture textWriteFuture = new TextWriteFuture(endPoint, readFuture, buffer);
-
-		return textWriteFuture;
+		return new IOWriteFutureImpl(endPoint, readFuture, buffer);
 	}
 	
 	public IOWriteFuture encodeWithMask(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
@@ -87,7 +85,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuffer buffer = ByteBuffer.allocate(header.length + size + 4);
+		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(header.length + size + 4);
 		
 		buffer.put(header);
 		
@@ -106,9 +104,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		TextWriteFuture textWriteFuture = new TextWriteFuture(endPoint, readFuture, buffer);
-
-		return textWriteFuture;
+		return new IOWriteFutureImpl(endPoint, readFuture, buffer);
 	}
 
 }

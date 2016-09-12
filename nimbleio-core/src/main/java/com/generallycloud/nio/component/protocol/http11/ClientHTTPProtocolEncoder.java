@@ -1,16 +1,16 @@
 package com.generallycloud.nio.component.protocol.http11;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.TextWriteFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 
 //FIXME jinji
@@ -57,13 +57,13 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuffer buffer = ByteBuffer.allocate(h.length());
+		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(h.length());
 
 		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
 		
 		buffer.flip();
 
-		TextWriteFuture textWriteFuture = new TextWriteFuture(endPoint, readFuture, buffer);
+		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(endPoint, readFuture, buffer);
 
 		return textWriteFuture;
 	}

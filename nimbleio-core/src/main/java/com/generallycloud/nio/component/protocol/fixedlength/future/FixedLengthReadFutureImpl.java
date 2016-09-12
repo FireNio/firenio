@@ -3,6 +3,7 @@ package com.generallycloud.nio.component.protocol.fixedlength.future;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolException;
@@ -10,7 +11,7 @@ import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocol
 
 public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements FixedLengthReadFuture {
 
-	private ByteBuf	buf;
+	private ByteBuf	buffer;
 
 	private String		text;
 
@@ -28,7 +29,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		
 		super(session);
 		
-		this.buf = buf;
+		this.buffer = buf;
 
 		if (!isHeaderReadComplete(buf)) {
 			doHeaderComplete(buf);
@@ -75,9 +76,9 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 		}else if(length > buf.capacity()){
 			
-			buf.release();
+			ReleaseUtil.release(buf);
 			
-			this.buf = endPoint.getContext().getDirectByteBufferPool().allocate(length);
+			this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(length);
 			
 		}else{
 			
@@ -89,30 +90,32 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	public boolean read() throws IOException {
 
+		ByteBuf buffer = this.buffer;
+		
 		if (!header_complete) {
 
-			buf.read(endPoint);
+			buffer.read(endPoint);
 
-			if (!isHeaderReadComplete(buf)) {
+			if (!isHeaderReadComplete(buffer)) {
 				return false;
 			}
 
-			doHeaderComplete(buf);
+			doHeaderComplete(buffer);
 		}
 
 		if (!body_complete) {
 
-			buf.read(endPoint);
+			buffer.read(endPoint);
 
-			if (buf.hasRemaining()) {
+			if (buffer.hasRemaining()) {
 				return false;
 			}
 
-			doBodyComplete(buf);
+			doBodyComplete(buffer);
 		}
 		
-		buf.release();
-
+		ReleaseUtil.release(buffer);
+		
 		return true;
 	}
 
@@ -120,11 +123,12 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		body_complete = true;
 
+		//FIXME 
 		byteArray = new byte[buf.limit()];
 		
 		buf.flip();
 		
-		buf.getBytes(byteArray);
+		buf.get(byteArray);
 	}
 
 	public String getServiceName() {
@@ -147,4 +151,9 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 	public byte[] getByteArray() {
 		return byteArray;
 	}
+
+	public void release() {
+		
+	}
+	
 }

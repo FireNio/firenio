@@ -103,7 +103,7 @@ public class IOSession implements Session {
 		if (future == null) {
 			throw new IllegalStateException("null future");
 		}
-		
+
 		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
@@ -120,9 +120,9 @@ public class IOSession implements Session {
 		try {
 			
 			ProtocolEncoder encoder = endPoint.getProtocolEncoder();
-
-			IOReadFuture ioReadFuture = (IOReadFuture)future;
 			
+			IOReadFuture ioReadFuture = (IOReadFuture) future;
+
 			writeFuture = encoder.encode(endPoint, ioReadFuture);
 
 			writeFuture.attach(future.attachment());

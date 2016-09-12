@@ -52,7 +52,7 @@ public class SYSTEMDownloadServlet extends NIOFutureAcceptorService {
 				downloadLength = available - start;
 			}
 
-			future.setInputStream(inputStream);
+//			future.setInputStream(inputStream);//FIXME download
 			
 			future.write("下载成功！");
 
@@ -62,6 +62,7 @@ public class SYSTEMDownloadServlet extends NIOFutureAcceptorService {
 			logger.debug(e);
 			fileNotFound(session, future, e.getMessage());
 		}
+		
 	}
 	
 	private void fileNotFound(Session session,ReadFuture future,String msg) throws IOException{

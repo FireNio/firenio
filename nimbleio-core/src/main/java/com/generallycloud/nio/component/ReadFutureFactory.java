@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFutureImpl;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.TextReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 
 public class ReadFutureFactory {
 
@@ -15,7 +15,7 @@ public class ReadFutureFactory {
 	public static NIOReadFuture create(Session session, Integer futureID, String serviceName,
 			IOEventHandle ioEventHandle) {
 
-		TextReadFuture textReadFuture = new TextReadFuture(session, futureID, serviceName);
+		NIOReadFutureImpl textReadFuture = new NIOReadFutureImpl(session, futureID, serviceName);
 
 		textReadFuture.setIOEventHandle(ioEventHandle);
 

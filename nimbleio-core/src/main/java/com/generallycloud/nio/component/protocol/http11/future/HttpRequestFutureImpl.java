@@ -95,4 +95,9 @@ public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpR
 	public boolean read() throws IOException {
 		return true;
 	}
+
+	public void release() {
+		
+	}
+	
 }

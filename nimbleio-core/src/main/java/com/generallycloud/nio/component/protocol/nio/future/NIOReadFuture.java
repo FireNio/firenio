@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component.protocol.nio.future;
 
-import java.io.InputStream;
-
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
@@ -11,9 +10,21 @@ public interface NIOReadFuture extends ReadFuture {
 
 	public abstract String getText();
 
+	public abstract int getTextLength();
+
 	public abstract Parameters getParameters();
 
-	public abstract InputStream getInputStream();
+	public abstract int getBinaryLength();
 
-	public abstract int getStreamLength();
+	public abstract boolean hasBinary();
+
+	public abstract byte[] getBinary();
+
+	public abstract BufferedOutputStream getWriteBinaryBuffer();
+
+	public abstract void writeBinary(byte b);
+
+	public abstract void writeBinary(byte[] bytes);
+
+	public abstract void writeBinary(byte[] bytes, int offset, int length);
 }

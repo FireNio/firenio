@@ -146,21 +146,21 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		return read;
 	}
 
-	public void getBytes(byte[] dst) {
-		getBytes(dst, 0, dst.length);
+	public void get(byte[] dst) {
+		get(dst, 0, dst.length);
 	}
 
 	// FIXME offset buwei0shiyouwenti
-	public void getBytes(byte[] dst, int offset, int length) {
+	public void get(byte[] dst, int offset, int length) {
 		memory.get(dst, offset, length);
 	}
 
-	public void putBytes(byte[] src) {
-		putBytes(src, 0, src.length);
+	public void put(byte[] src) {
+		put(src, 0, src.length);
 	}
 
 	// FIXME offset buwei0shiyouwenti
-	public void putBytes(byte[] src, int offset, int length) {
+	public void put(byte[] src, int offset, int length) {
 		memory.put(src, offset, length);
 	}
 
@@ -257,4 +257,9 @@ public class MemoryBlockV1 implements PooledByteBuf {
 	public byte[] array() {
 		return memory.array();
 	}
+
+	public int offset() {
+		return 0;
+	}
+	
 }

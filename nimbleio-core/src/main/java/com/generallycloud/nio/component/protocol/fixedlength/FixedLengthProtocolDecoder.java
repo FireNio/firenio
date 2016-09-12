@@ -1,7 +1,7 @@
 package com.generallycloud.nio.component.protocol.fixedlength;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoderAdapter;
@@ -31,9 +31,8 @@ public class FixedLengthProtocolDecoder extends ProtocolDecoderAdapter {
 	
 	public static final int	PROTOCOL_HADER				= 4;
 
-	
-	protected ByteBuf allocate(ByteBufferPool byteBufferPool) {
-		return byteBufferPool.allocate(4);
+	protected ByteBuf allocate(NIOContext context) {
+		return context.getHeapByteBufferPool().allocate(PROTOCOL_HADER);
 	}
 
 	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) {

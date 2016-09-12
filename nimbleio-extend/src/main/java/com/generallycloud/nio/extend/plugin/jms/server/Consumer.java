@@ -2,7 +2,6 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.ByteArrayInputStream;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
@@ -70,16 +69,11 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			future.setInputStream(new ByteArrayInputStream(bytes));
+			future.writeBinary(bytes);
 
 			session.flush(future);
 		}
 	}
-
-	// public void refresh(){
-	//
-	// this.future = ReadFutureFactory.create(future);
-	// }
 
 	public Message getMessage() {
 		return message;

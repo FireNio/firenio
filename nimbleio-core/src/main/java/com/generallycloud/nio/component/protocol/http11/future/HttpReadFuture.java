@@ -1,8 +1,8 @@
 package com.generallycloud.nio.component.protocol.http11.future;
 
-import java.io.OutputStream;
 import java.util.Map;
 
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public abstract interface HttpReadFuture extends ReadFuture {
@@ -51,13 +51,15 @@ public abstract interface HttpReadFuture extends ReadFuture {
 	public abstract void setReuestParam(String key,String value);
 	
 	public abstract void setRequestParams(Map<String, String> params);
+	
+	public abstract BufferedOutputStream getBody();
+	
+	public abstract boolean hasBody();
 
 	public abstract HttpStatus getStatus();
 
 	public abstract void setStatus(HttpStatus status);
 
-	public abstract void setOutputStream(OutputStream outputStream);
-	
 	public abstract String getCookie(String name);
 	
 	public abstract void addCookie(Cookie cookie);
