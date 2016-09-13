@@ -1,6 +1,7 @@
 package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -95,6 +96,10 @@ public class PooledByteBufferGroup implements ByteBuf {
 		position += read;
 		
 		return read;
+	}
+	
+	public ByteBuffer getMemory() {
+		return null;
 	}
 
 	private ByteBuf findBuf() {

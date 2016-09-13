@@ -49,6 +49,10 @@ public class MemoryBlockV1 implements PooledByteBuf {
 	public PooledByteBuf getPrevious() {
 		return previous;
 	}
+	
+	public ByteBuffer getMemory() {
+		return memory;
+	}
 
 	public void setPrevious(PooledByteBuf previous) {
 		this.previous = previous;

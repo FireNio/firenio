@@ -64,6 +64,10 @@ public class PooledByteBuffer implements ByteBuf {
 	public int offset() {
 		return 0;
 	}
+	
+	public ByteBuffer getMemory() {
+		return memory;
+	}
 
 	public ByteBuf duplicate() {
 

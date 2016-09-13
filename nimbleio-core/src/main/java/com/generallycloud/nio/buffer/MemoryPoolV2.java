@@ -30,7 +30,7 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool {
 	}
 
 	public void setFree(int start, int end, boolean free) {
-		logger.debug("setFree,start={},end={},free={}", new Object[] { start, end, free });
+//		logger.debug("setFree,start={},end={},free={}", new Object[] { start, end, free });
 //		 new Exception().printStackTrace();
 		boolean[] memoryUnits = this.memoryUnits;
 		for (int i = start; i < end; i++) {

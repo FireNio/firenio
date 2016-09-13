@@ -119,6 +119,11 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
 		int SERVER_CHANNEL_QUEUE_SIZE = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
+		
+		int SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY();
+		int SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
+		
+		int MEMORY_POOL_SIZE = SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT / (1024 * 1024);
 
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
 
@@ -131,25 +136,22 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 		
-		int bCapacity = 1024;
-		
-//		this.heapByteBufferPool = new HeapByteBufferPool(bCapacity * 100);
-//		this.directByteBufferPool = new DirectByteBufferPool(bCapacity * 100);
-		
-		this.heapByteBufferPool = new HeapMemoryPoolV2(bCapacity);
-		this.directByteBufferPool = new DirectMemoryPoolV2(bCapacity);
+		this.heapByteBufferPool = new HeapMemoryPoolV2(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
+		this.directByteBufferPool = new DirectMemoryPoolV2(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 		
 		this.addSessionEventListener(new ManagerSEListener());
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区(EDPW)   ：{ {} * {} }", SERVER_CHANNEL_QUEUE_SIZE, SERVER_CORE_SIZE);
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
 			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
-		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区         ：{ {} * {} }", SERVER_CHANNEL_QUEUE_SIZE, SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", 
+				new Object[]{ SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,MEMORY_POOL_SIZE});
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 

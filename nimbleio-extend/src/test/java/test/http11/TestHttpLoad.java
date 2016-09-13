@@ -1,6 +1,7 @@
 package test.http11;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.test.ITest;
 import com.generallycloud.nio.common.test.ITestHandle;
 import com.generallycloud.nio.component.ReadFutureFactory;
@@ -15,6 +16,8 @@ import com.generallycloud.nio.extend.IOConnectorUtil;
 public class TestHttpLoad {
 
 	public static void main(String[] args) throws Exception {
+		
+		PropertiesLoader.setBasepath("http");
 
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 
@@ -39,7 +42,7 @@ public class TestHttpLoad {
 				client.request(session, future, 3000);
 				
 			}
-		}, 2000, "test-http");
+		}, 100000, "test-http");
 		
 
 		CloseUtil.close(connector);

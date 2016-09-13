@@ -26,6 +26,12 @@ public class MemoryBlockV2 implements ByteBuf {
 		this.memoryPool = byteBufferPool;
 		this.referenceCount = new ReferenceCount();
 	}
+	
+	public MemoryBlockV2(ByteBufferPool byteBufferPool, ByteBuffer memory,ReferenceCount referenceCount) {
+		this.memory = memory;
+		this.memoryPool = byteBufferPool;
+		this.referenceCount = referenceCount;
+	}
 
 	public byte[] array() {
 		return memory.array();
@@ -55,11 +61,17 @@ public class MemoryBlockV2 implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV2 block = new MemoryBlockV2(memoryPool, memory.duplicate());
+			MemoryBlockV2 block = new MemoryBlockV2(memoryPool, memory.duplicate(),referenceCount);
 
-			block.referenceCount = referenceCount;
 			block.referenceCount.increament();
-
+			block.capacity = capacity;
+			block.end = end;
+			block.limit = limit;
+			block.offset = offset;
+			block.position = position;
+			block.size = size;
+			block.start = start;
+			
 			return block;
 
 		} finally {
@@ -76,6 +88,10 @@ public class MemoryBlockV2 implements ByteBuf {
 
 	public byte get(int index) {
 		return memory.get(offset + index);
+	}
+	
+	public ByteBuffer getMemory() {
+		return memory;
 	}
 
 	public byte[] getBytes() {

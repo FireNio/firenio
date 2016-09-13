@@ -16,26 +16,26 @@ import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestLoadClient {
 
-	final static int	time		= 640000;
-	
+	final static int	time	= 36400;
+
 	public static void main(String[] args) throws Exception {
-		
+
 		PropertiesLoader.setBasepath("nio");
-		
-		final Logger	logger	= LoggerFactory.getLogger(TestLoadClient.class);
-		
+
+		final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
+
 		final CountDownLatch latch = new CountDownLatch(time);
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				latch.countDown();
-//				long count = latch.getCount();
-				// if (count % 10 == 0) {
-//				if (count < 50) {
-//					logger.info("************************================" + count);
-//				}
-				// }
+				long count = latch.getCount();
+				if (count % 10 == 0) {
+					if (count < 50) {
+						logger.info("************************================" + count);
+					}
+				}
 			}
 		};
 
@@ -49,8 +49,10 @@ public class TestLoadClient {
 
 		long old = System.currentTimeMillis();
 
+		IOEventHandleAdaptor adaptor = session.getContext().getIOEventHandleAdaptor();
+		
 		for (int i = 0; i < time; i++) {
-			ReadFuture future = ReadFutureFactory.create(session, "test",session.getContext().getIOEventHandleAdaptor());
+			ReadFuture future = ReadFutureFactory.create(session, "test",adaptor );
 
 			future.write("hello server !");
 

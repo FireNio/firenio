@@ -1,6 +1,7 @@
 package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.Releasable;
 import com.generallycloud.nio.component.TCPEndPoint;
@@ -48,6 +49,8 @@ public interface ByteBuf extends Releasable{
 	public abstract void get(byte [] dst);
 	
 	public abstract byte [] getBytes();
+	
+	public abstract ByteBuffer getMemory();
 	
 	public abstract void get(byte [] dst,int offset,int length);
 

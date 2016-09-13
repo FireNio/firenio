@@ -65,9 +65,9 @@ public class TestHttpLoadThread extends ITestThread {
 	
 	public static void main(String[] args) {
 		
-		PropertiesLoader.setBasepath("nio");
+		PropertiesLoader.setBasepath("http");
 		
-		int	time		= 10240000;
+		int	time		= 5120000;
 		
 		int core_size = 256;
 		

@@ -62,9 +62,9 @@ public class TestLoadClient1 extends ITestThread{
 		
 		PropertiesLoader.setBasepath("nio");
 		
-		int	time		= 2560000;
+		int	time		= 12800;
 		
-		int core_size = 32;
+		int core_size = 4;
 		
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

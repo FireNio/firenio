@@ -1,9 +1,12 @@
 package com.generallycloud.nio.component.protocol.nio.future;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.Parameters;
@@ -159,15 +162,31 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		body_complete = true;
 
-		byte[] array = buffer.array();
-
-		int offset = buffer.offset();
-
-		this.gainServiceName(array, offset);
-
-		this.gainText(array, offset);
+		buffer.flip();
 		
-		this.gainBinary(array, offset);
+		Charset charset = endPoint.getContext().getEncoding();
+		
+		int offset = buffer.offset();
+		
+		ByteBuffer memory = buffer.getMemory();
+		
+		int src_pos = memory.position();
+		
+		int src_limit = memory.limit();
+		
+		memory.limit(offset + service_name_length);
+		
+		serviceName = StringUtil.decode(charset, memory);
+		
+		memory.limit(memory.position() + textLength);
+		
+		text = StringUtil.decode(charset, memory);
+		
+		memory.position(src_pos);
+		
+		memory.limit(src_limit);
+		
+		this.gainBinary(buffer, offset);
 	}
 
 	private int gainBinaryLength(byte[] header, int offset) {
@@ -192,17 +211,13 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		return v0 | v1 | v2;
 	}
 
-	private void gainServiceName(byte[] array, int offset) {
-
-		this.serviceName = new String(array, offset, service_name_length);
-	}
-
-	private void gainText(byte[] array, int offset) {
-
-		this.text = new String(array, offset + service_name_length, textLength,endPoint.getContext().getEncoding());
-	}
-	
-	private void gainBinary(byte[] array, int offset) {
+	private void gainBinary(ByteBuf buffer, int offset) {
+		
+		if (binaryLength < 1) {
+			return;
+		}
+		
+		byte [] array = buffer.array();
 		
 		this.binary = new byte[binaryLength]; 
 				

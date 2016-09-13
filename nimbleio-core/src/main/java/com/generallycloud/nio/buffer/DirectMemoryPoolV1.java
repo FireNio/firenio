@@ -12,12 +12,11 @@ public class DirectMemoryPoolV1 extends MemoryPoolV1{
 		return ByteBuffer.allocateDirect(capacity);
 	}
 
-	@SuppressWarnings("restriction")
 	public void freeMemory() {
 		
-		sun.nio.ch.DirectBuffer buffer = (sun.nio.ch.DirectBuffer) memory;
-		
-		buffer.cleaner().clean();
+//		sun.nio.ch.DirectBuffer buffer = (sun.nio.ch.DirectBuffer) memory;
+//		
+//		buffer.cleaner().clean();
 	}
 
 }

@@ -23,7 +23,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			Selector selector = this.selector;
 
-			int selected = selector.select(1000);
+			int selected = selector.select(64);
 
 			if (selected < 1) {
 

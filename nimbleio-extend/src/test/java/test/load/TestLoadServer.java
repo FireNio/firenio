@@ -5,6 +5,7 @@ import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.IOAcceptorUtil;
 
@@ -25,6 +26,8 @@ public class TestLoadServer {
 		};
 
 		TCPAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
+		
+		acceptor.getContext().setProtocolFactory(new NIOProtocolFactory());
 
 		acceptor.bind();
 	}
