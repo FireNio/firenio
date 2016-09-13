@@ -3,6 +3,7 @@ package com.test.service.http;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.generallycloud.nio.buffer.MemoryPoolV2;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.http11.HttpContext;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
@@ -19,6 +20,9 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
+		
+		MemoryPoolV2 heap = (MemoryPoolV2) context.getHeapByteBufferPool();
+		MemoryPoolV2 direct = (MemoryPoolV2) context.getDirectByteBufferPool();
 		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();
@@ -46,7 +50,11 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append((runtime.totalMemory() - runtime.freeMemory()) / M);
 		builder.append("M;\n</BR>空闲内存：");
 		builder.append(runtime.freeMemory() / M);
-		builder.append("M;\n</BR>服务器当前连接数（io-session）：");
+		builder.append("M;\n</BR>内存池状态（Heap）：");
+		builder.append(heap.toSimpleString());
+		builder.append(";\n</BR>内存池状态（Direct）：");
+		builder.append(direct.toSimpleString());
+		builder.append(";\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionFactory().getManagedSessionSize());
 		builder.append(";\n</BR>服务器当前会话数（http-session）：");
 		builder.append(httpContext.getHttpSessionFactory().getManagedSessionSize());

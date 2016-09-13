@@ -142,5 +142,28 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool {
 
 		return b.toString();
 	}
+	
+	public String toSimpleString() {
+
+		boolean[] memoryUnits = this.memoryUnits;
+
+		int free = 0;
+
+		for (boolean b : memoryUnits) {
+
+			if (b) {
+				free++;
+			}
+		}
+
+		StringBuilder b = new StringBuilder();
+		b.append("[free=");
+		b.append(free);
+		b.append(",memory=");
+		b.append(capacity);
+		b.append("]");
+
+		return b.toString();
+	}
 
 }
