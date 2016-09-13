@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.FileUtil;
+import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -121,22 +122,8 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				
 				File[] fs = file.listFiles();
 				
-				StringBuilder b = new StringBuilder();
+				StringBuilder b = new StringBuilder(HtmlUtil.HTML_HEADER);
 				
-				b.append("<!DOCTYPE html>\n");
-				b.append("<html lang=\"en\">\n");
-				b.append("	<head>\n");
-				b.append("		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
-				b.append("		<meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no\">\n");
-				b.append("		<title>nimbleio</title>\n");
-				b.append("		<style type=\"text/css\"> \n");
-				b.append("			p {margin:15px;}\n");
-				b.append("			a:link { color:#F94F4F;  }\n");
-				b.append("			a:visited { color:#F94F4F; }\n");
-				b.append("			a:hover { color:#000000; }\n");
-				b.append("		</style>\n");
-				b.append("	</head>\n");
-				b.append("	<body style=\"font-family:Georgia;\">\n");
 				b.append("		<div style=\"margin-left:20px;\">\n");
 				b.append("			Index of "+getHttpPath(file, root)+"\n");
 				b.append("		</div>\n");
@@ -172,8 +159,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				b.append(fb);
 				
 				b.append("		<hr>\n");
-				b.append("	</body>\n");
-				b.append("</html>");
+				b.append(HtmlUtil.HTML_BOTTOM);
 				
 				HttpEntity entity = new HttpEntity();
 				

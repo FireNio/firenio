@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.generallycloud.nio.buffer.MemoryPoolV2;
+import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.http11.HttpContext;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
@@ -26,22 +27,8 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();
-		StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
 		
-		builder.append("<!DOCTYPE html>\n");
-		builder.append("<html lang=\"en\">\n");
-		builder.append("	<head>\n");
-		builder.append("		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
-		builder.append("		<meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no\">\n");
-		builder.append("		<title>nimbleio</title>\n");
-		builder.append("		<style type=\"text/css\"> \n");
-		builder.append("			p {margin:15px;}\n");
-		builder.append("			a:link { color:#F94F4F;  }");
-		builder.append("			a:visited { color:#F94F4F; }");
-		builder.append("			a:hover { color:#000000; }");
-		builder.append("		</style>\n");
-		builder.append("	</head>\n");
-		builder.append("	<body style=\"font-family:Georgia;\">\n");
 		builder.append("		<div style=\"margin-left:20px;\">\n");
 		builder.append("服务器内存使用情况：</BR>\n");
 		builder.append("虚拟机占用内存：");
@@ -62,13 +49,11 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");
 		builder.append("		<hr>\n");
-		builder.append("	</body>\n");
-		builder.append("</html>");
+		builder.append(HtmlUtil.HTML_BOTTOM);
 		
 		future.write(builder.toString());
 		
 		session.flush(future);
-		
 	}
 	
 }
