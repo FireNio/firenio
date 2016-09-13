@@ -49,11 +49,11 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		return buf.position() > FixedLengthProtocolDecoder.PROTOCOL_HADER;
 	}
 
-	private void doHeaderComplete(ByteBuf buf) {
+	private void doHeaderComplete(ByteBuf buffer) {
 
 		header_complete = true;
 		
-		int length = buf.getInt(0);
+		int length = buffer.getInt(0);
 		
 		this.length = length;
 		
@@ -72,19 +72,19 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 		}else if (length > limit) {
 			
+			ReleaseUtil.release(buffer);
+			
 			throw new ProtocolException("max 1M ,length:" + length);
 			
-		}else if(length > buf.capacity()){
+		}else if(length > buffer.capacity()){
 			
-			ReleaseUtil.release(buf);
+			ReleaseUtil.release(buffer);
 			
 			this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(length);
 			
 		}else{
 			
-			buf.clear();
-			
-			buf.limit(length);
+			buffer.limit(length);
 		}
 	}
 
@@ -113,8 +113,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 			doBodyComplete(buffer);
 		}
-		
-		ReleaseUtil.release(buffer);
 		
 		return true;
 	}
@@ -153,7 +151,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 	}
 
 	public void release() {
-		
+		ReleaseUtil.release(buffer);
 	}
 	
 }

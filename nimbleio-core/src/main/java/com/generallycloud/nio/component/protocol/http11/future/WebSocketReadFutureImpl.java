@@ -52,15 +52,17 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		super(session);
 	}
 	
-	private void doHeaderComplete(ByteBuf header){
+	private void doHeaderComplete(ByteBuf buffer){
 		
 		headerComplete = true;
 		
+		int offset = buffer.offset();
+		
 		int remain_header_size = 0;
 		
-		byte [] array = header.array();
+		byte [] array = buffer.array();
 		
-		byte b = array[0];
+		byte b = array[offset + 0];
 		
 		eof = ((b & 0xFF) >> 7) == 1;
 		
@@ -69,7 +71,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		isBeatPacket = type == WebSocketProtocolDecoder.TYPE_PING || 
 				type == WebSocketProtocolDecoder.TYPE_PONG;
 		
-		b = array[1];
+		b = array[offset + 1];
 		
 		hasMask = ((b & 0xFF) >> 7) == 1;
 		
@@ -102,8 +104,10 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		byte [] array = buffer.array();
 		int offset = buffer.offset();
-		
-		if (length == 126) {
+		if(length < 126){
+			
+			
+		}else if (length == 126) {
 			
 			length = MathUtil.byte2IntFrom2Byte(array, offset);
 			
@@ -111,7 +115,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			
 			if ((array[offset] >> 7) == -1) {
 				// 欺负java没有无符号整型?
-				throw new IOException("illegal data length:"+MathUtil.getHexString(array));
+				throw new IOException("illegal data length ,unsigned integer");
 			}
 			
 			length = MathUtil.byte2Int(array,offset);
@@ -127,6 +131,8 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	public boolean read() throws IOException {
 		
 		TCPEndPoint endPoint = this.endPoint;
+		
+		ByteBuf buffer = this.buffer;
 		
 		if (!headerComplete) {
 			
@@ -157,6 +163,8 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			if (buffer.hasRemaining()) {
 				return false;
 			}
+			
+			buffer.flip();
 			
 			byte [] array = buffer.getBytes();
 			

@@ -41,7 +41,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 			array [0] = (byte)(NIOProtocolDecoder.TYPE_BEAT << 6);
 			
-			ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(1);
+			ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(1);
 			
 			buffer.put(array);
 			
@@ -75,8 +75,6 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		
 		int all_length = PROTOCOL_HADER + service_name_length + text_length + binary_length;
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(all_length);
-		
 		byte[] header = new byte[PROTOCOL_HADER];
 
 		header[0] = (byte)(service_name_length);
@@ -86,6 +84,8 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
+		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(all_length);
+		
 		buffer.put(header);
 		buffer.put(service_name_array);
 		

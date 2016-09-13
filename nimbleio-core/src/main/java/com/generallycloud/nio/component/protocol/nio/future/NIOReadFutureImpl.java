@@ -152,8 +152,6 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 			doBodyComplete(buffer);
 		}
 
-		ReleaseUtil.release(buffer);
-
 		return true;
 	}
 

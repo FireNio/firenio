@@ -44,7 +44,7 @@ public class TestClient {
 
 		session.flush(future);
 		
-		session.flush(new FLBeatFutureFactory().createBeatPacket(session));
+//		session.flush(new FLBeatFutureFactory().createBeatPacket(session));
 
 		ThreadUtil.sleep(100);
 

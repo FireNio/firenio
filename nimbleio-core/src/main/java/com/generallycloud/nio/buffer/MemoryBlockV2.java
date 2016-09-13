@@ -70,7 +70,7 @@ public class MemoryBlockV2 implements ByteBuf {
 	public ByteBuf flip() {
 		memory.limit(offset + position).position(offset);
 		limit = position;
-		position = offset;
+		position = 0;
 		return this;
 	}
 
@@ -139,6 +139,7 @@ public class MemoryBlockV2 implements ByteBuf {
 
 	public ByteBuf limit(int limit) {
 		this.limit = limit;
+		this.position = 0;
 		memory.limit(offset + limit).position(offset);
 		return this;
 	}

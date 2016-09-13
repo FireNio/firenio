@@ -37,8 +37,6 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 		ReadFuture readFuture = this.getReadFuture();
 
-		ReleaseUtil.release(readFuture);
-
 		ReleaseUtil.release(this);
 
 		IOEventHandle handle = readFuture.getIOEventHandle();
@@ -58,8 +56,6 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	public void onSuccess() {
 
 		ReadFuture readFuture = this.getReadFuture();
-
-		ReleaseUtil.release(readFuture);
 
 		ReleaseUtil.release(this);
 

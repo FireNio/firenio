@@ -46,6 +46,9 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 				return;
 			}
+			
+			ReleaseUtil.release(future);
+			
 		} catch (Throwable e) {
 			
 			ReleaseUtil.release(future);

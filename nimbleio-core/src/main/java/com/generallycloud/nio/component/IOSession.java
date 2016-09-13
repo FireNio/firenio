@@ -126,8 +126,6 @@ public class IOSession implements Session {
 
 			writeFuture = encoder.encode(endPoint, ioReadFuture);
 
-			writeFuture.attach(future.attachment());
-			
 			ioReadFuture.flush();
 			
 			endPoint.offer(writeFuture);
@@ -135,8 +133,6 @@ public class IOSession implements Session {
 		} catch (IOException e) {
 			
 			ReleaseUtil.release(writeFuture);
-			
-			ReleaseUtil.release(future);
 
 			logger.debug(e.getMessage(), e);
 

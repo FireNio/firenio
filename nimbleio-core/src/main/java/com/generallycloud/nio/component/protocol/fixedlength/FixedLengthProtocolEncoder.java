@@ -19,7 +19,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 			
 			byte [] array = MathUtil.int2Byte(-1);
 			
-			ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(4);
+			ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(4);
 			
 			buffer.put(array);
 			

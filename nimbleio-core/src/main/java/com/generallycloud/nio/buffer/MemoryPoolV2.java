@@ -79,7 +79,7 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool {
 
 				setFree(start, _end, false);
 
-				MemoryBlockV2 memoryBlock = new MemoryBlockV2(this, memory);
+				MemoryBlockV2 memoryBlock = new MemoryBlockV2(this, memory.duplicate());
 
 				memoryBlock.setMemory(start, _end);
 
