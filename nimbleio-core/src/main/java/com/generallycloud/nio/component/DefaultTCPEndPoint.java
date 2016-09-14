@@ -9,8 +9,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.ChannelWriterImpl.ChannelWriteEvent;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
@@ -20,7 +18,6 @@ import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
-	private static final Logger	logger			= LoggerFactory.getLogger(DefaultTCPEndPoint.class);
 	private boolean			_networkWeak;
 	private SocketChannel		channel;
 	private IOWriteFuture		currentWriteFuture;
@@ -28,7 +25,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	private ChannelWriter		channelWriter;
 	private IOReadFuture		readFuture;
 	private SelectionKey		selectionKey;
-	private Session			session;
+	private IOSession			session;
 	private Socket				socket;
 	private long				next_network_weak	= Long.MAX_VALUE;
 	private ProtocolEncoder		protocolEncoder;
@@ -51,17 +48,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		}
 		
 		this.session = new IOSessionImpl(this, getEndPointID());
-
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
-
-		for (; listenerWrapper != null;) {
-			try {
-				listenerWrapper.sessionOpened(session);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			listenerWrapper = listenerWrapper.nextListener();
-		}
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
@@ -175,7 +161,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		return remote;
 	}
 
-	public Session getSession() {
+	public IOSession getSession() {
 		return session;
 	}
 

@@ -288,5 +288,19 @@ public class IOSessionImpl implements IOSession {
 	public ProtocolEncoder getProtocolEncoder() {
 		return endPoint.getProtocolEncoder();
 	}
+	
+	public void fireOpend(){
+		
+		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+
+		for (; listenerWrapper != null;) {
+			try {
+				listenerWrapper.sessionOpened(this);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			listenerWrapper = listenerWrapper.nextListener();
+		}
+	}
 
 }

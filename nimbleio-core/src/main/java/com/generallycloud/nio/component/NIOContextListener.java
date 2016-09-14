@@ -20,10 +20,7 @@ public class NIOContextListener extends AbstractLifeCycleListener implements Lif
 	}
 
 	public void lifeCycleStarted(LifeCycle lifeCycle) {
-		NIOContext context = (NIOContext) lifeCycle;
-		ServerConfiguration configuration = context.getServerConfiguration();
-		LoggerUtil.prettyNIOServerLog(logger, "服务启动完成  @127.0.0.1:" + configuration.getSERVER_TCP_PORT() + " 花费 "
-				+ (System.currentTimeMillis() - context.getStartupTime()) + " 毫秒");
+//		LoggerUtil.prettyNIOServerLog(logger, "CONTEXT加载完成");
 	}
 
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {

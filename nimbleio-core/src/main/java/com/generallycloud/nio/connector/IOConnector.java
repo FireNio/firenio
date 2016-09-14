@@ -11,4 +11,8 @@ public interface IOConnector extends IOService, Connectable, Closeable {
 	public abstract Session getSession();
 	
 	public abstract boolean isConnected();
+	
+	public abstract long getTimeout() ;
+
+	public abstract void setTimeout(long timeout) ;
 }

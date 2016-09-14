@@ -20,7 +20,7 @@ public class TCPConnector extends AbstractIOConnector {
 
 	private TCPSelectorLoop	selectorLoop;
 	private UniqueThread	selectorLoopThread;
-	private Waiter<Object>		waiter	= new Waiter<Object>();
+	private Waiter<Object>	waiter	= new Waiter<Object>();
 
 	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
 
@@ -38,13 +38,15 @@ public class TCPConnector extends AbstractIOConnector {
 
 		this.selectorLoopThread.start();
 
-		if (waiter.await(30000)) {
+		if (waiter.await(getTimeout())) {
 
+			active = true;
+			
 			CloseUtil.close(this);
 
-			throw new TimeoutException("time out");
+			throw new TimeoutException("connect to "+this.getServiceDescription()+" time out");
 		}
-		
+
 		Object o = waiter.getPayload();
 
 		if (o instanceof Exception) {
@@ -52,7 +54,8 @@ public class TCPConnector extends AbstractIOConnector {
 			Exception t = (Exception) o;
 
 			throw new TimeoutException(MessageFormatter.format(
-					"connect faild,connector:[{}],nested exception is {}", this.getServiceDescription(), t.getMessage()), t);
+					"connect faild,connector:[{}],nested exception is {}", this.getServiceDescription(),
+					t.getMessage()), t);
 		}
 	}
 

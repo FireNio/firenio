@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.AbstractIOService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
@@ -51,6 +52,8 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 			this.setIOService(context);
 
 			this.bind(context, getInetSocketAddress(SERVER_PORT));
+			
+			LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}",getServiceDescription());
 
 			active = true;
 

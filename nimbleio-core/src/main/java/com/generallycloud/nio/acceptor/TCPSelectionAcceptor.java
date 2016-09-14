@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.TCPEndPoint;
 
 public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
@@ -91,10 +92,11 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 注册到selector，等待连接
 		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
 		// 绑定EndPoint到SelectionKey
-		attachEndPoint(context, getChannelWriter(), sk);
-
+		TCPEndPoint endPoint = attachEndPoint(context, getChannelWriter(), sk);
+		
+		//
+		endPoint.getSession().fireOpend();
 		// logger.debug("__________________chanel____gen____{}", channel);
-
 	}
 
 	protected void setSelector(Selector selector) {

@@ -19,7 +19,7 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(DefaultUDPEndPoint.class);
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
-	private Session			session;
+	private IOSession			session;
 	private DatagramSocket		socket;
 
 	public DefaultUDPEndPoint(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
@@ -73,7 +73,7 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 		return remote;
 	}
 
-	public Session getSession() {
+	public IOSession getSession() {
 		return session;
 	}
 
@@ -88,7 +88,7 @@ public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint 
 	}
 
 	public void setSession(Session session) {
-		this.session = (Session) session;
+		this.session = (IOSession) session;
 	}
 
 }

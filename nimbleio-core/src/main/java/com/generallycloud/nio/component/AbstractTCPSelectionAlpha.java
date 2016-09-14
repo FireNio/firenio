@@ -48,7 +48,7 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 		endPoint.setProtocolEncoder(protocolEncoder);
 		
 		endPoint.setProtocolFactory(protocolFactory);
-
+		
 		selectionKey.attach(endPoint);
 
 		return endPoint;
