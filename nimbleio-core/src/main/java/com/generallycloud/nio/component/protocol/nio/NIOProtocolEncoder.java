@@ -33,7 +33,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		header[6] = (byte) ((binary_length >> 16) & 0xff);
 	}
 	
-	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(TCPEndPoint endPoint,IOReadFuture readFuture) throws IOException {
 		
 		if (readFuture.isBeatPacket()) {
 			
@@ -55,7 +55,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		NIOReadFuture nioReadFuture = (NIOReadFuture) readFuture;
 		
 		Integer future_id = nioReadFuture.getFutureID();
-		String service_name = nioReadFuture.getServiceName();
+		String service_name = nioReadFuture.getFutureName();
 		BufferedOutputStream textOPS = nioReadFuture.getWriteBuffer();
 		BufferedOutputStream binaryOPS = nioReadFuture.getWriteBinaryBuffer();
 		
@@ -84,7 +84,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(all_length);
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(all_length);
 		
 		buffer.put(header);
 		buffer.put(service_name_array);

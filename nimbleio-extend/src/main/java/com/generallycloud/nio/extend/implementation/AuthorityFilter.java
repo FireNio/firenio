@@ -32,7 +32,7 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 			attachment.setAuthorityManager(authorityManager);
 		}
 		
-		if (!authorityManager.isInvokeApproved(future.getServiceName())) {
+		if (!authorityManager.isInvokeApproved(future.getFutureName())) {
 			
 			future.write("forbidden");
 			
@@ -40,7 +40,7 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 			
 			logger.debug("已拒绝非法请求，请求IP：{}，服务名称：{}，请求内容：{}", new String[] { 
 						session.getRemoteAddr(), 
-						future.getServiceName()});
+						future.getFutureName()});
 		}
 	}
 

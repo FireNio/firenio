@@ -45,7 +45,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(header.length + size);
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size);
 //		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size);
 		
 		buffer.put(header);
@@ -86,7 +86,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(header.length + size + 4);
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size + 4);
 		
 		buffer.put(header);
 		

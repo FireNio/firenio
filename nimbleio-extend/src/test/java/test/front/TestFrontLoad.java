@@ -5,6 +5,7 @@ import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -22,7 +23,7 @@ public class TestFrontLoad {
 				
 				NIOReadFuture readFuture = (NIOReadFuture)future;
 				
-				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getServiceName())) {
+				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getFutureName())) {
 					System.out.println("客户端已下线：" + readFuture.getText());
 				} else {
 					System.out.println("收到报文：" + future.toString());
@@ -40,6 +41,8 @@ public class TestFrontLoad {
 
 		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		
 		connector.connect();
 	}
 

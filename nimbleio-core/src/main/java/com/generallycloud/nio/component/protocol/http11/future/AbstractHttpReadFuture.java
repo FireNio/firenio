@@ -225,7 +225,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		return requestURI;
 	}
 
-	public String getServiceName() {
+	public String getFutureName() {
 		return requestURI;
 	}
 
@@ -271,7 +271,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			endPoint.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
 			endPoint.setProtocolFactory(PROTOCOL_FACTORY);
 			
-			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getServiceName());
+			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
 		}
 		
 		super.flush();

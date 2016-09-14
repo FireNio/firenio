@@ -67,7 +67,7 @@ public interface NIOContext extends Attributes, LifeCycle {
 	
 	public abstract ByteBufferPool getHeapByteBufferPool();
 	
-	public abstract ByteBufferPool getDirectByteBufferPool();
+//	public abstract ByteBufferPool getDirectByteBufferPool();
 
 	public abstract void addSessionEventListener(SessionEventListener listener);
 

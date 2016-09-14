@@ -26,7 +26,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		String serviceName = future.getServiceName();
+		String serviceName = future.getFutureName();
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 

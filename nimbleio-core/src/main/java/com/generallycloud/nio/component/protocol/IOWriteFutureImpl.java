@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component.protocol;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
@@ -9,6 +8,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 
@@ -18,7 +18,6 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	protected ReadFuture		readFuture;
 	protected TCPEndPoint		endPoint;
 	protected ByteBuf			buffer;
-	protected InputStream		inputStream;
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
 	public IOWriteFutureImpl(TCPEndPoint endPoint, ReadFuture readFuture, ByteBuf buffer) {
@@ -99,6 +98,10 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	public void release() {
 		ReleaseUtil.release(buffer);
+	}
+
+	public IOWriteFuture duplicate(IOSession session) {
+		return new IOWriteFutureImpl(session.getTCPEndPoint(), readFuture, buffer.duplicate());
 	}
 	
 }

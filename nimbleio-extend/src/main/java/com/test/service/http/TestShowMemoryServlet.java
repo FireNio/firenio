@@ -23,7 +23,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 		
 		MemoryPoolV3 heap = (MemoryPoolV3) context.getHeapByteBufferPool();
-		MemoryPoolV3 direct = (MemoryPoolV3) context.getDirectByteBufferPool();
+		MemoryPoolV3 direct = (MemoryPoolV3) context.getHeapByteBufferPool();
 		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();
@@ -39,7 +39,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append(runtime.freeMemory() / M);
 		builder.append("M;\n</BR>内存池状态（Heap）：");
 		builder.append(heap.toSimpleString());
-		builder.append(";\n</BR>内存池状态（Direct）：");
+		builder.append(";\n</BR>内存池状态（Heap）：");
 		builder.append(direct.toSimpleString());
 		builder.append(";\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionFactory().getManagedSessionSize());

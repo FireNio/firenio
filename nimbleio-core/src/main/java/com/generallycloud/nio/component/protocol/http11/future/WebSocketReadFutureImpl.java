@@ -204,7 +204,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(length);
 	}
 	
-	public String getServiceName() {
+	public String getFutureName() {
 		return serviceName;
 	}
 

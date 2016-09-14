@@ -1,20 +1,22 @@
 package com.generallycloud.nio.balancing;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.generallycloud.nio.acceptor.IOAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.ReadFutureFactory;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
+import com.generallycloud.nio.component.protocol.BalanceReadFuture;
+import com.generallycloud.nio.component.protocol.IOReadFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.WriteFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
@@ -27,7 +29,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		this.frontRouterMapping = frontContext.getFrontRouterMapping();
 	}
 
-	private void broadcast(final NIOReadFuture future) {
+	private void broadcast(final BalanceReadFuture future) {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
@@ -43,23 +45,51 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				logger.info("广播报文：{} ", future);
 
-				Set<Entry<Integer, Session>> entries = sessions.entrySet();
+				Iterator<Session> ss = sessions.values().iterator();
+				
+				if (!ss.hasNext()) {
+					return;
+				}
+				
+				IOSession _s = (IOSession) ss.next();
+				
+				IOReadFuture ioReadFuture = (IOReadFuture) future;
+				
+				ProtocolEncoder encoder = _s.getProtocolEncoder();
+				
+				IOWriteFuture writeFuture;
+				
+				try {
+					writeFuture = encoder.encode(_s.getTCPEndPoint(), ioReadFuture);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
+					return;
+				}
+				
+				for (; ss.hasNext();) {
 
-				for (Entry<Integer, Session> entry : entries) {
-
-					Session s = entry.getValue();
-
+					IOSession s = (IOSession) ss.next();
+					
 					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
-
-						ReadFuture readFuture = ReadFutureFactory.create(s, future);
-
-						readFuture.write(future.getText());
+						
+						IOWriteFuture copy = writeFuture.duplicate(s);
 
 						try {
-							s.flush(readFuture);
-						} catch (IOException e) {
-							logger.error(e.getMessage(),e);
+
+							s.flush(copy);
+
+						} catch (Exception e) {
+
+							logger.error(e.getMessage(), e);
 						}
+					}
+				}
+				
+				if (_s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
+					try {
+						_s.flush(writeFuture);
+					} catch (IOException e) {
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -70,7 +100,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 		
-		NIOReadFuture f = (NIOReadFuture) future;
+		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		Integer sessionID = f.getFutureID();
 
@@ -83,7 +113,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		Session response = (Session) session.getAttribute(sessionID);
+		IOSession response = (IOSession) session.getAttribute(sessionID);
 
 		if (response != null) {
 
@@ -95,12 +125,10 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				return;
 			}
-
-			ReadFuture readFuture = ReadFutureFactory.create(response, f);
-
-			readFuture.write(f.getText());
-
-			response.flush(readFuture);
+			
+			IOWriteFuture writeFuture = f.translate(response);
+			
+			response.flush(writeFuture);
 
 			logger.info("回复报文到客户端：{} ", f);
 

@@ -9,13 +9,14 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
+import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class FrontReverseAcceptor {
 
 	private TCPAcceptor	acceptor	= new TCPAcceptor();
 
-	protected void start(FrontContext frontContext) throws IOException {
+	protected void start(FrontContext frontContext,ProtocolFactory protocolFactory) throws IOException {
 
 		FrontConfiguration configuration = frontContext.getFrontConfiguration();
 
@@ -33,10 +34,12 @@ public class FrontReverseAcceptor {
 		context.setIOEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 
 		context.addSessionEventListener(frontContext.getFrontReverseAcceptorSEListener());
+		
+		context.setProtocolFactory(protocolFactory);
 
-		acceptor.setContext(context);
+		this.acceptor.setContext(context);
 
-		acceptor.bind();
+		this.acceptor.bind();
 
 		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontReverseAcceptor.class),
 				"Front Reverse Acceptor 启动成功 ...");

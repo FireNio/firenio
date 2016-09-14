@@ -15,7 +15,7 @@ public class DatagramRequest {
 		this.serviceName = parameters.getParameter("serviceName");
 	}
 
-	public String getServiceName() {
+	public String getFutureName() {
 		return serviceName;
 	}
 

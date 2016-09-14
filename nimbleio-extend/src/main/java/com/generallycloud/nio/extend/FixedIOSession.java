@@ -47,7 +47,7 @@ public class FixedIOSession implements FixedSession {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		OnReadFutureWrapper onReadFuture = listeners.get(future.getServiceName());
+		OnReadFutureWrapper onReadFuture = listeners.get(future.getFutureName());
 
 		if (onReadFuture != null) {
 			onReadFuture.onResponse(this.getSession(), future);

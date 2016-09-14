@@ -7,6 +7,7 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.TCPConnector;
@@ -34,6 +35,8 @@ public class TestFrontClient {
 
 		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		
 		connector.connect();
 
 		Session session = connector.getSession();
@@ -47,7 +50,7 @@ public class TestFrontClient {
 			session.flush(future);
 		}
 
-		ThreadUtil.sleep(200);
+		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
 	}

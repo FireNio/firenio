@@ -3,10 +3,11 @@ package com.generallycloud.nio.balancing;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.ReadFutureFactory;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.BalanceReadFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
@@ -20,11 +21,11 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 		
-		NIOReadFuture f = (NIOReadFuture) future;
+		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
-		Session routerSession = frontRouterMapping.getRouterSession(session);
+		IOSession routerSession = frontRouterMapping.getRouterSession((IOSession) session);
 
 		if (routerSession == null) {
 
@@ -32,20 +33,19 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		Integer sessionID = session.getSessionID();
-
-		String transCode = f.getServiceName();
+		String transCode = f.getFutureName();
 
 		if ("E001".equals(transCode)) {
 			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
+			return;
 		}
+		
+		f.setFutureID(session.getSessionID());
 
-		ReadFuture readFuture = ReadFutureFactory.create(routerSession, sessionID, f.getServiceName());
-
-		readFuture.write(f.getText());
-
-		routerSession.flush(readFuture);
-
+		IOWriteFuture writeFuture = f.translate(routerSession);
+		
+		routerSession.flush(writeFuture);
+		
 		logger.info("分发请求到：[ {} ]", routerSession.getRemoteSocketAddress());
 	}
 

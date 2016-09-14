@@ -32,7 +32,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 		
 		int size = outputStream.size();
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(size + 4);
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(size + 4);
 		
 		byte [] size_array = MathUtil.int2Byte(size);
 		

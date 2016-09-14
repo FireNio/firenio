@@ -9,7 +9,7 @@ public class ReadFutureFactory {
 
 	public static NIOReadFuture create(Session session, NIOReadFuture future) {
 		NIOReadFuture readFuture = (NIOReadFuture) future;
-		return create(session, readFuture.getFutureID(), readFuture.getServiceName(), readFuture.getIOEventHandle());
+		return create(session, readFuture.getFutureID(), readFuture.getFutureName(), readFuture.getIOEventHandle());
 	}
 
 	public static NIOReadFuture create(Session session, Integer futureID, String serviceName,

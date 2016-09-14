@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.SEListenerAdapter;
 import com.generallycloud.nio.component.Session;
@@ -29,7 +30,7 @@ public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
 
 		Integer sessionID = session.getSessionID();
 
-		Session router = routerProxy.getRouterSession(session);
+		IOSession router = routerProxy.getRouterSession((IOSession) session);
 
 		if (router == null) {
 

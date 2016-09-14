@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 
 import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public interface Session extends Closeable{
@@ -74,5 +75,7 @@ public interface Session extends Closeable{
 	public abstract EventLoop getEventLoop();
 	
 	public abstract String getProtocolID();
+	
+	public abstract ProtocolEncoder getProtocolEncoder();
 
 }

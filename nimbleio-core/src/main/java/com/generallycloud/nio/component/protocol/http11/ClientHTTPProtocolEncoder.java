@@ -57,7 +57,7 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(h.length());
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(h.length());
 
 		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
 		

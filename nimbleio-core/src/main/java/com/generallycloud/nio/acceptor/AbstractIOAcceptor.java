@@ -10,12 +10,14 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.AbstractIOService;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
+import com.generallycloud.nio.component.protocol.IOReadFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor {
@@ -60,32 +62,53 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 	protected abstract void bind(NIOContext context, InetSocketAddress socketAddress) throws IOException;
 
-	public void broadcast(ReadFuture future) {
-
-		final NIOReadFuture nioReadFuture = (NIOReadFuture) future;
+	public void broadcast(final ReadFuture future) {
 
 		offerSessionMEvent(new SessionMEvent() {
 
 			public void handle(Map<Integer, Session> sessions) {
 
 				Iterator<Session> ss = sessions.values().iterator();
-
+				
+				if (!ss.hasNext()) {
+					return;
+				}
+				
+				IOSession _s = (IOSession) ss.next();
+				
+				IOReadFuture ioReadFuture = (IOReadFuture) future;
+				
+				ProtocolEncoder encoder = _s.getProtocolEncoder();
+				
+				IOWriteFuture writeFuture;
+				
+				try {
+					writeFuture = encoder.encode(_s.getTCPEndPoint(), ioReadFuture);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
+					return;
+				}
+				
 				for (; ss.hasNext();) {
 
-					Session s = ss.next();
+					IOSession s = (IOSession) ss.next();
 
-					NIOReadFuture f = ReadFutureFactory.create(s, nioReadFuture);
-
-					f.write(nioReadFuture.getText());
+					IOWriteFuture copy = writeFuture.duplicate(s);
 
 					try {
 
-						s.flush(f);
+						s.flush(copy);
 
 					} catch (Exception e) {
 
 						logger.error(e.getMessage(), e);
 					}
+				}
+				
+				try {
+					_s.flush(writeFuture);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
 		});

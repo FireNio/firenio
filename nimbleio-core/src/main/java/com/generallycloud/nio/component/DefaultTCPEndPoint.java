@@ -50,7 +50,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 			throw new SocketException("socket is empty");
 		}
 		
-		this.session = new IOSession(this, getEndPointID());
+		this.session = new IOSessionImpl(this, getEndPointID());
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 

@@ -4,24 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
 
 public class FrontRouterMapping {
 
 	private int			index			= 0;
-	private List<Session>	routerList		= new ArrayList<Session>();
+	private List<IOSession>	routerList		= new ArrayList<IOSession>();
 	private ReentrantLock	lock				= new ReentrantLock();
 	private String			SESSION_ID_ROUTER	= "_SESSION_ID_ROUTER";
 
-	private Session getNextRouterSession() {
+	private IOSession getNextRouterSession() {
 
-		List<Session> list = this.routerList;
+		List<IOSession> list = this.routerList;
 
 		if (list.isEmpty()) {
 			return null;
 		}
 
-		Session session;
+		IOSession session;
 
 		if (index < list.size()) {
 
@@ -36,7 +36,7 @@ public class FrontRouterMapping {
 		return session;
 	}
 
-	public void addRouterSession(Session session) {
+	public void addRouterSession(IOSession session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -47,7 +47,7 @@ public class FrontRouterMapping {
 		lock.unlock();
 	}
 
-	public void removeRouterSession(Session session) {
+	public void removeRouterSession(IOSession session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -59,9 +59,9 @@ public class FrontRouterMapping {
 	}
 
 	// FIXME 从SESSION获取router
-	public Session getRouterSession(Session session) {
+	public IOSession getRouterSession(IOSession session) {
 
-		Session router_session = (Session) session.getAttribute(SESSION_ID_ROUTER);
+		IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
 
 		if (router_session == null) {
 
@@ -76,7 +76,7 @@ public class FrontRouterMapping {
 		return router_session;
 	}
 
-	private Session getRouterSessionFresh(Session session) {
+	private IOSession getRouterSessionFresh(IOSession session) {
 		
 		ReentrantLock lock = this.lock;
 
@@ -84,7 +84,7 @@ public class FrontRouterMapping {
 
 		try {
 			
-			Session router_session = (Session) session.getAttribute(SESSION_ID_ROUTER);
+			IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
 			
 			if (router_session != null) {
 				return router_session;

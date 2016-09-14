@@ -13,7 +13,7 @@ public class LoggerFilter extends FutureAcceptorFilter {
 	public void accept(Session session, ReadFuture future) throws Exception {
 
 		logger.info("请求IP：{}，服务名称：{}，请求内容：{}", 
-				new String[] { session.getRemoteAddr(), future.getServiceName() });
+				new String[] { session.getRemoteAddr(), future.getFutureName() });
 	}
 
 }

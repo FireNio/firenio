@@ -9,13 +9,14 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.component.protocol.IOWriteFuture;
 
 /**
- * @author wangkai
  *
  */
 public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFuture {
@@ -31,9 +32,9 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private Integer			futureID;
 	private int				binaryLength;
 	private BufferedOutputStream	writeBinaryBuffer;
-	private byte []			binary;
+	private byte[]				binary;
 
-	public String getServiceName() {
+	public String getFutureName() {
 		return serviceName;
 	}
 
@@ -55,7 +56,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	public void release() {
 		ReleaseUtil.release(buffer);
 	}
-	
+
 	public boolean hasBinary() {
 		return binaryLength > 0;
 	}
@@ -102,14 +103,14 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		int binaryLength = gainBinaryLength(header_array, offset);
 
 		int all_length = service_name_length + textLength + binaryLength;
-		
+
 		this.service_name_length = service_name_length;
 
 		this.textLength = textLength;
 
 		this.binaryLength = binaryLength;
 
-		this.futureID = gainFutureID(header_array);
+		this.futureID = gainFutureID(header_array,offset);
 
 		if (buffer.capacity() >= all_length) {
 
@@ -123,7 +124,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 				throw new IOException("max length 1024 * 10,length=" + all_length);
 			}
 
-			this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(all_length);
+			this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(all_length);
 		}
 	}
 
@@ -151,7 +152,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 			if (buffer.hasRemaining()) {
 				return false;
 			}
-			
+
 			doBodyComplete(buffer);
 		}
 
@@ -163,29 +164,29 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		body_complete = true;
 
 		buffer.flip();
-		
+
 		Charset charset = endPoint.getContext().getEncoding();
-		
+
 		int offset = buffer.offset();
-		
+
 		ByteBuffer memory = buffer.getMemory();
-		
+
 		int src_pos = memory.position();
-		
+
 		int src_limit = memory.limit();
-		
+
 		memory.limit(offset + service_name_length);
-		
+
 		serviceName = StringUtil.decode(charset, memory);
-		
+
 		memory.limit(memory.position() + textLength);
-		
+
 		text = StringUtil.decode(charset, memory);
-		
+
 		memory.position(src_pos);
-		
+
 		memory.limit(src_limit);
-		
+
 		this.gainBinary(buffer, offset);
 	}
 
@@ -203,24 +204,24 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		return v0 | v1;
 	}
 
-	private int gainFutureID(byte[] header) {
-		int v0 = (header[3] & 0xff);
-		int v1 = (header[2] & 0xff) << 8;
-		int v2 = (header[1] & 0xff) << 16;
+	private int gainFutureID(byte[] header,int offset) {
+		int v0 = (header[offset + 3] & 0xff);
+		int v1 = (header[offset + 2] & 0xff) << 8;
+		int v2 = (header[offset + 1] & 0xff) << 16;
 
 		return v0 | v1 | v2;
 	}
 
 	private void gainBinary(ByteBuf buffer, int offset) {
-		
+
 		if (binaryLength < 1) {
 			return;
 		}
-		
-		byte [] array = buffer.array();
-		
-		this.binary = new byte[binaryLength]; 
-				
+
+		byte[] array = buffer.array();
+
+		this.binary = new byte[binaryLength];
+
 		System.arraycopy(array, offset + buffer.limit() - binaryLength, binary, 0, binaryLength);
 	}
 
@@ -233,30 +234,49 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	}
 
 	public void writeBinary(byte b) {
-		
+
 		if (writeBinaryBuffer == null) {
 			writeBinaryBuffer = new BufferedOutputStream();
 		}
-		
+
 		writeBinaryBuffer.write(b);
 	}
-	
+
 	public byte[] getBinary() {
 		return binary;
 	}
 
 	public void writeBinary(byte[] bytes) {
-		
+		if (binary == null) {
+			return;
+		}
 		writeBinary(bytes, 0, bytes.length);
 	}
 
 	public void writeBinary(byte[] bytes, int offset, int length) {
-		
+
 		if (writeBinaryBuffer == null) {
 			writeBinaryBuffer = new BufferedOutputStream();
 		}
-		
+
 		writeBinaryBuffer.write(bytes, offset, length);
 	}
+
+	public void setFutureID(Integer futureID) {
+		this.futureID = futureID;
+	}
+
+	private boolean translated;
 	
+	public IOWriteFuture translate(IOSession session) throws IOException {
+
+		if (!translated) {
+			translated = true;
+			this.write(text);
+			this.writeBinary(binary);
+		}
+
+		return session.getProtocolEncoder().encode(session.getTCPEndPoint(),this);
+	}
+
 }

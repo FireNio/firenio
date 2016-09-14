@@ -2,11 +2,9 @@ package com.generallycloud.nio.component.protocol.nio.future;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.BalanceReadFuture;
 
-public interface NIOReadFuture extends ReadFuture {
-
-	public abstract Integer getFutureID();
+public interface NIOReadFuture extends BalanceReadFuture {
 
 	public abstract String getText();
 

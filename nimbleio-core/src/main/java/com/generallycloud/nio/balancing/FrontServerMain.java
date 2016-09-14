@@ -3,10 +3,12 @@ package com.generallycloud.nio.balancing;
 import java.io.IOException;
 
 import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.component.protocol.ProtocolFactory;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 
 public class FrontServerMain {
 
-	public void startup() throws IOException{
+	public void startup(ProtocolFactory protocolFactory) throws IOException{
 		
 		PropertiesLoader.setBasepath("nio");
 		
@@ -16,7 +18,7 @@ public class FrontServerMain {
 		
 		FrontFacadeAcceptor frontFacadeAcceptor = new FrontFacadeAcceptor();
 		
-		frontFacadeAcceptor.start(configuration);
+		frontFacadeAcceptor.start(configuration,protocolFactory);
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -24,6 +26,6 @@ public class FrontServerMain {
 		
 		FrontServerMain main = new FrontServerMain();
 		
-		main.startup();
+		main.startup(new NIOProtocolFactory());
 	}
 }

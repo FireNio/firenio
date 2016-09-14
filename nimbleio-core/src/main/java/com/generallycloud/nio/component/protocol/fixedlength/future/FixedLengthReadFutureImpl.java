@@ -80,7 +80,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 			ReleaseUtil.release(buffer);
 			
-			this.buffer = endPoint.getContext().getDirectByteBufferPool().allocate(length);
+			this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(length);
 			
 		}else{
 			
@@ -129,7 +129,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		buf.get(byteArray);
 	}
 
-	public String getServiceName() {
+	public String getFutureName() {
 		return null;
 	}
 

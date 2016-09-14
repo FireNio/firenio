@@ -64,7 +64,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		int size = o.size();
 		
-		ByteBuf buffer = endPoint.getContext().getDirectByteBufferPool().allocate(h.length() + size);
+		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(h.length() + size);
 		
 		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
 		

@@ -10,6 +10,7 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
+import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class FrontFacadeAcceptor {
@@ -19,7 +20,7 @@ public class FrontFacadeAcceptor {
 	private FrontContext		frontContext;
 	private FrontReverseAcceptor	frontReverseAcceptor;
 
-	public void start(FrontConfiguration configuration) throws IOException {
+	public void start(FrontConfiguration configuration,ProtocolFactory protocolFactory) throws IOException {
 
 		if (configuration == null) {
 			throw new IllegalArgumentException("null configuration");
@@ -49,12 +50,14 @@ public class FrontFacadeAcceptor {
 		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
 		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
+		
+		context.setProtocolFactory(protocolFactory);
 
-		this.frontReverseAcceptor.start(frontContext);
+		this.frontReverseAcceptor.start(frontContext,protocolFactory);
 
-		acceptor.setContext(context);
+		this.acceptor.setContext(context);
 
-		acceptor.bind();
+		this.acceptor.bind();
 
 		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontFacadeAcceptor.class), "Front Facade Acceptor 启动成功 ...");
 	}

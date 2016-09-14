@@ -27,7 +27,7 @@ public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpR
 		this.method = method;
 	}
 
-	public String getServiceName() {
+	public String getFutureName() {
 		return requestURI;
 	}
 

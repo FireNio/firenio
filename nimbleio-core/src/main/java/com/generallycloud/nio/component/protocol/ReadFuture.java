@@ -13,7 +13,7 @@ public interface ReadFuture extends Future {
 	
 	public abstract void setIOEventHandle(IOEventHandle ioEventHandle) ;
 
-	public abstract String getServiceName();
+	public abstract String getFutureName();
 	
 	public abstract void write(byte b);
 

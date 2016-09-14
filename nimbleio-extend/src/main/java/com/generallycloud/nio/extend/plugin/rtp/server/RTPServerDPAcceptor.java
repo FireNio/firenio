@@ -62,7 +62,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 	
 	protected void execute(UDPEndPoint endPoint,DatagramRequest request) {
 
-		String serviceName = request.getServiceName();
+		String serviceName = request.getFutureName();
 
 		if (BIND_SESSION.equals(serviceName)) {
 			
@@ -103,7 +103,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			}
 			
 		}else{
-			logger.debug(">>>> {}",request.getServiceName());
+			logger.debug(">>>> {}",request.getFutureName());
 		}
 	}
 
