@@ -6,9 +6,11 @@ import com.generallycloud.nio.component.IOSession;
 
 public interface BalanceReadFuture extends ReadFuture{
 
-	public abstract Integer getFutureID();
+	public abstract Object getFutureID();
 	
-	public abstract void setFutureID(Integer futureID);
+	public abstract void setFutureID(Object futureID);
+	
+	public abstract boolean isBroadcast();
 	
 	public abstract IOWriteFuture translate(IOSession session) throws IOException;
 }

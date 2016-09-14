@@ -102,9 +102,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
-		Integer sessionID = f.getFutureID();
-
-		if (0 == sessionID.intValue()) {
+		if (f.isBroadcast()) {
 
 			broadcast(f);
 
@@ -112,6 +110,8 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 			return;
 		}
+
+		Object sessionID = f.getFutureID();
 
 		IOSession response = (IOSession) session.getAttribute(sessionID);
 

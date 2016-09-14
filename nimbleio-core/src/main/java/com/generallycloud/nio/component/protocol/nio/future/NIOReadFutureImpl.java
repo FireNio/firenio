@@ -262,8 +262,8 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		writeBinaryBuffer.write(bytes, offset, length);
 	}
 
-	public void setFutureID(Integer futureID) {
-		this.futureID = futureID;
+	public void setFutureID(Object futureID) {
+		this.futureID = (Integer) futureID;
 	}
 
 	private boolean translated;
@@ -277,6 +277,10 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		}
 
 		return session.getProtocolEncoder().encode(session.getTCPEndPoint(),this);
+	}
+
+	public boolean isBroadcast() {
+		return futureID.intValue() == 0;
 	}
 
 }
