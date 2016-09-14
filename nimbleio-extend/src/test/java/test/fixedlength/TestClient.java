@@ -7,7 +7,6 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.connector.TCPConnector;

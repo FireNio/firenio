@@ -7,11 +7,11 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 	private PooledByteBuf	memoryBlock;
 
-	private MemoryUnit		memoryUnitStart;
+	private MemoryUnitV1		memoryUnitStart;
 
-	private MemoryUnit		memoryUnitEnd;
+	private MemoryUnitV1		memoryUnitEnd;
 
-	private MemoryUnit[]	memoryUnits;
+	private MemoryUnitV1[]	memoryUnits;
 
 	protected ByteBuffer	memory;
 
@@ -23,13 +23,13 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 		this.memory = allocateMemory(capacity * unitMemorySize);
 
-		memoryUnits = new MemoryUnit[capacity];
+		memoryUnits = new MemoryUnitV1[capacity];
 
-		MemoryUnit next = memoryUnitStart;
+		MemoryUnitV1 next = memoryUnitStart;
 
 		for (int i = 0; i < capacity; i++) {
 
-			MemoryUnit temp = new MemoryUnit(i);
+			MemoryUnitV1 temp = new MemoryUnitV1(i);
 
 			memoryUnits[i] = temp;
 
@@ -88,9 +88,9 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 				PooledByteBuf r = new MemoryBlockV1(this, memory);
 
-				MemoryUnit start = next.getStart();
+				MemoryUnitV1 start = next.getStart();
 
-				MemoryUnit end = memoryUnits[start.getIndex() + size - 1];
+				MemoryUnitV1 end = memoryUnits[start.getIndex() + size - 1];
 
 				r.setMemory(start, end);
 
@@ -138,11 +138,11 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 			_memoryBlock.free();
 
-			MemoryUnit start = _memoryBlock.getStart();
-			MemoryUnit end = _memoryBlock.getEnd();
+			MemoryUnitV1 start = _memoryBlock.getStart();
+			MemoryUnitV1 end = _memoryBlock.getEnd();
 
-			MemoryUnit left = start.getPrevious();
-			MemoryUnit right = end.getNext();
+			MemoryUnitV1 left = start.getPrevious();
+			MemoryUnitV1 right = end.getNext();
 
 			if (left != null && !left.isUsing()) {
 				if (right != null && !right.isUsing()) {
@@ -150,8 +150,8 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 					PooledByteBuf bLeft = _memoryBlock.getPrevious();
 					PooledByteBuf bRight = _memoryBlock.getNext();
 
-					MemoryUnit newStart = bLeft.getStart();
-					MemoryUnit newEnd = bRight.getEnd();
+					MemoryUnitV1 newStart = bLeft.getStart();
+					MemoryUnitV1 newEnd = bRight.getEnd();
 
 					bLeft.setMemory(newStart, newEnd);
 					bLeft.setNext(bRight);
@@ -162,8 +162,8 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 					PooledByteBuf bLeft = _memoryBlock.getPrevious();
 
-					MemoryUnit newStart = bLeft.getStart();
-					MemoryUnit newEnd = _memoryBlock.getEnd();
+					MemoryUnitV1 newStart = bLeft.getStart();
+					MemoryUnitV1 newEnd = _memoryBlock.getEnd();
 
 					bLeft.setMemory(newStart, newEnd);
 				}
@@ -173,8 +173,8 @@ public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 					PooledByteBuf bRight = _memoryBlock.getNext();
 
-					MemoryUnit newStart = _memoryBlock.getStart();
-					MemoryUnit newEnd = bRight.getEnd();
+					MemoryUnitV1 newStart = _memoryBlock.getStart();
+					MemoryUnitV1 newEnd = bRight.getEnd();
 
 					bRight.setMemory(newStart, newEnd);
 					bRight.setPrevious(_memoryBlock.getPrevious());

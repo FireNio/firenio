@@ -12,11 +12,11 @@ public class MemoryBlockV1 implements PooledByteBuf {
 
 	private PooledByteBuf	next;
 
-	private MemoryUnit	start;
+	private MemoryUnitV1	start;
 
 	private int		size;
 
-	private MemoryUnit	end;
+	private MemoryUnitV1	end;
 
 	private ByteBufferPool	memoryPool;
 
@@ -24,13 +24,13 @@ public class MemoryBlockV1 implements PooledByteBuf {
 
 	private int		offset;
 
-	public void setMemory(MemoryUnit start, MemoryUnit end) {
+	public void setMemory(MemoryUnitV1 start, MemoryUnitV1 end) {
 		this.start = start;
 		this.end = end;
 		this.size = end.getIndex() - start.getIndex() + 1;
 	}
 
-	public MemoryUnit getStart() {
+	public MemoryUnitV1 getStart() {
 		return start;
 	}
 
@@ -42,7 +42,7 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		return 0;
 	}
 
-	public MemoryUnit getEnd() {
+	public MemoryUnitV1 getEnd() {
 		return end;
 	}
 

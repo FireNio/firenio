@@ -1,25 +1,25 @@
 package com.generallycloud.nio.buffer;
 
 
-public class MemoryUnit {
+public class MemoryUnitV1 {
 
-	private MemoryUnit	previous;
+	private MemoryUnitV1	previous;
 
 	private int			index;
 
 	private boolean		using;
 
-	private MemoryUnit	next;
+	private MemoryUnitV1	next;
 
-	public MemoryUnit(int index) {
+	public MemoryUnitV1(int index) {
 		this.index = index;
 	}
 
-	public MemoryUnit getPrevious() {
+	public MemoryUnitV1 getPrevious() {
 		return previous;
 	}
 
-	public void setPrevious(MemoryUnit previous) {
+	public void setPrevious(MemoryUnitV1 previous) {
 		this.previous = previous;
 	}
 
@@ -27,11 +27,11 @@ public class MemoryUnit {
 		return index;
 	}
 
-	public MemoryUnit getNext() {
+	public MemoryUnitV1 getNext() {
 		return next;
 	}
 
-	public void setNext(MemoryUnit next) {
+	public void setNext(MemoryUnitV1 next) {
 		this.next = next;
 	}
 
@@ -43,7 +43,7 @@ public class MemoryUnit {
 		this.using = using;
 	}
 
-	protected MemoryUnit() {
+	protected MemoryUnitV1() {
 
 	}
 	

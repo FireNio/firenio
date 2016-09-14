@@ -2,11 +2,11 @@ package com.generallycloud.nio.buffer;
 
 public interface PooledByteBuf extends ByteBuf {
 
-	public MemoryUnit getStart();
+	public MemoryUnitV1 getStart();
 
 	public int getSize();
 
-	public MemoryUnit getEnd();
+	public MemoryUnitV1 getEnd();
 
 	public PooledByteBuf getPrevious();
 
@@ -22,6 +22,6 @@ public interface PooledByteBuf extends ByteBuf {
 
 	public boolean using();
 	
-	public abstract void setMemory(MemoryUnit start, MemoryUnit end);
+	public abstract void setMemory(MemoryUnitV1 start, MemoryUnitV1 end);
 
 }

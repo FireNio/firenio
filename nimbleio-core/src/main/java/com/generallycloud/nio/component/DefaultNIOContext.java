@@ -9,8 +9,8 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.acceptor.UDPEndPointFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.DirectMemoryPoolV2;
-import com.generallycloud.nio.buffer.HeapMemoryPoolV2;
+import com.generallycloud.nio.buffer.DirectMemoryPoolV3;
+import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -136,8 +136,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.udpEndPointFactory = new UDPEndPointFactory();
 		
-		this.heapByteBufferPool = new HeapMemoryPoolV2(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
-		this.directByteBufferPool = new DirectMemoryPoolV2(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
+		this.heapByteBufferPool = new HeapMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
+		this.directByteBufferPool = new DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 		
 		this.addSessionEventListener(new ManagerSEListener());
 
