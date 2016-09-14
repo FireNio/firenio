@@ -3,12 +3,9 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-
 public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
-	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
+//	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
 
 	private MemoryUnitV3[]	memoryUnits;
 
@@ -33,7 +30,7 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 	}
 
 	public void setEmploy(MemoryUnitV3 memoryStart, MemoryUnitV3 memoryEnd,int blockEnd) {
-		logger.debug("setEmploy,start={},end={}", memoryStart.index, memoryEnd.index);
+//		logger.debug("setEmploy,start={},end={}", memoryStart.index, memoryEnd.index);
 		// new Exception().printStackTrace();
 
 		memoryStart.free = false;
@@ -128,7 +125,7 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 			MemoryUnitV3 memoryStart = block.memoryStart;
 			MemoryUnitV3 memoryEnd = block.memoryEnd;
 
-			logger.debug("setFree,start={},end={}", new Object[] { memoryStart.index, memoryEnd.index });
+//			logger.debug("setFree,start={},end={}", memoryStart.index, memoryEnd.index );
 			// new Exception().printStackTrace();
 
 			memoryStart.free = true;

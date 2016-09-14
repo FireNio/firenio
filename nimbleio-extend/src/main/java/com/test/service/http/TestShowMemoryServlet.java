@@ -3,7 +3,7 @@ package com.test.service.http;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.generallycloud.nio.buffer.MemoryPoolV2;
+import com.generallycloud.nio.buffer.MemoryPoolV3;
 import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.protocol.http11.HttpContext;
@@ -22,8 +22,8 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 		
-		MemoryPoolV2 heap = (MemoryPoolV2) context.getHeapByteBufferPool();
-		MemoryPoolV2 direct = (MemoryPoolV2) context.getDirectByteBufferPool();
+		MemoryPoolV3 heap = (MemoryPoolV3) context.getHeapByteBufferPool();
+		MemoryPoolV3 direct = (MemoryPoolV3) context.getDirectByteBufferPool();
 		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();
