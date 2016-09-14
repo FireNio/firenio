@@ -1,5 +1,8 @@
 package test.front;
 
+import java.util.Random;
+
+import com.generallycloud.nio.balancing.FrontContext;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -40,10 +43,16 @@ public class TestFrontClient {
 		connector.connect();
 
 		Session session = connector.getSession();
+		
+		ReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
+
+		future.write("你好！");
+
+		session.flush(future);
 
 		for (int i = 0; i < 1; i++) {
 
-			ReadFuture future = ReadFutureFactory.create(session, "service-name");
+			future = ReadFutureFactory.create(session,new Random().nextInt(), "service-name");
 
 			future.write("你好！");
 

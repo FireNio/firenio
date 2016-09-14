@@ -12,5 +12,7 @@ public interface BalanceReadFuture extends ReadFuture{
 	
 	public abstract boolean isBroadcast();
 	
+	public abstract boolean isReceiveBroadcast();
+	
 	public abstract IOWriteFuture translate(IOSession session) throws IOException;
 }

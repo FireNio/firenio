@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.generallycloud.nio.balancing.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
@@ -281,6 +282,10 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 	public boolean isBroadcast() {
 		return futureID.intValue() == 0;
+	}
+
+	public boolean isReceiveBroadcast() {
+		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
 }

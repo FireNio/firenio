@@ -1,5 +1,8 @@
 package com.generallycloud.nio.component;
 
+import java.util.Random;
+
+import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFutureImpl;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;

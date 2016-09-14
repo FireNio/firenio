@@ -243,8 +243,8 @@ public class IOSessionImpl implements IOSession {
 		return endPoint.isOpened();
 	}
 
-	public void removeAttribute(Object key) {
-		attributes.remove(key);
+	public Object removeAttribute(Object key) {
+		return attributes.remove(key);
 	}
 
 	public void setAttachment(Object attachment) {

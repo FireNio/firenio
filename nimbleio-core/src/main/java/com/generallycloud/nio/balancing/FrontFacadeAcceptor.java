@@ -39,6 +39,7 @@ public class FrontFacadeAcceptor {
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 
 		serverConfiguration.setSERVER_TCP_PORT(configuration.getFRONT_FACADE_PORT());
+		serverConfiguration.setSERVER_IS_ACCEPT_BEAT(configuration.isAcceptBeat());
 
 		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 				"IOEvent", 
@@ -52,7 +53,7 @@ public class FrontFacadeAcceptor {
 		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
 		
 		context.setProtocolFactory(protocolFactory);
-
+		
 		this.frontReverseAcceptor.start(frontContext,protocolFactory);
 
 		this.acceptor.setContext(context);

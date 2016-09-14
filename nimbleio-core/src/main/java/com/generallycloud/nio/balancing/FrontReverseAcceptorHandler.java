@@ -53,14 +53,10 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 				
 				IOSession _s = (IOSession) ss.next();
 				
-				IOReadFuture ioReadFuture = (IOReadFuture) future;
-				
-				ProtocolEncoder encoder = _s.getProtocolEncoder();
-				
 				IOWriteFuture writeFuture;
 				
 				try {
-					writeFuture = encoder.encode(_s.getTCPEndPoint(), ioReadFuture);
+					writeFuture = future.translate(_s);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;
@@ -113,13 +109,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		Object sessionID = f.getFutureID();
 
-		IOSession response = (IOSession) session.getAttribute(sessionID);
+		IOSession response = (IOSession) session.removeAttribute(sessionID);
 
 		if (response != null) {
 
 			if (response.closed()) {
-
-				session.removeAttribute(sessionID);
 
 				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, f);
 

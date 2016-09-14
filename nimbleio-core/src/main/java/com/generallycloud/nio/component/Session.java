@@ -60,7 +60,7 @@ public interface Session extends Closeable{
 
 	public abstract boolean isOpened();
 
-	public abstract void removeAttribute(Object key) ;
+	public abstract Object removeAttribute(Object key) ;
 	
 	public abstract void setAttachment(Object attachment);
 

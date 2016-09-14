@@ -60,7 +60,8 @@ public class PropertiesLoader {
 	}
 
 	private static String getPath(String path) {
-		if (StringUtil.isNullOrBlank(path)) {
+		
+		if (path == null) {
 			throw new IllegalArgumentException("empty path");
 		}
 

@@ -14,38 +14,38 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 	private Logger				logger	= LoggerFactory.getLogger(FrontFacadeAcceptorHandler.class);
 	private FrontRouterMapping	frontRouterMapping;
 	private byte[]				V		= {};
-	
+
 	public FrontFacadeAcceptorHandler(FrontRouterMapping frontRouterMapping) {
 		this.frontRouterMapping = frontRouterMapping;
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
-		
+
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
 		IOSession routerSession = frontRouterMapping.getRouterSession((IOSession) session);
 
+		if (f.isReceiveBroadcast()) {
+			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
+			return;
+		}
+		
 		if (routerSession == null) {
 
 			logger.info("未发现负载节点，报文分发失败：{} ", future);
 			return;
 		}
 
-		String transCode = f.getFutureName();
-
-		if ("E001".equals(transCode)) {
-			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
-			return;
+		synchronized (routerSession) {
+			routerSession.setAttribute(f.getFutureID(), session);
 		}
-		
-		f.setFutureID(session.getSessionID());
 
 		IOWriteFuture writeFuture = f.translate(routerSession);
-		
+
 		routerSession.flush(writeFuture);
-		
+
 		logger.info("分发请求到：[ {} ]", routerSession.getRemoteSocketAddress());
 	}
 

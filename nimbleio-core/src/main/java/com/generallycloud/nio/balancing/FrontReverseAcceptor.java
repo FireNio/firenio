@@ -23,6 +23,7 @@ public class FrontReverseAcceptor {
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 
 		serverConfiguration.setSERVER_TCP_PORT(configuration.getFRONT_REVERSE_PORT());
+		serverConfiguration.setSERVER_IS_ACCEPT_BEAT(configuration.isAcceptBeat());
 		
 		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 				"IOEvent", 
