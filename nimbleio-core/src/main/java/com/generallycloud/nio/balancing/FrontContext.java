@@ -1,5 +1,6 @@
 package com.generallycloud.nio.balancing;
 
+
 public class FrontContext {
 
 	public static final String			FRONT_CHANNEL_LOST			= "FRONT_CHANNEL_LOST";
@@ -7,15 +8,16 @@ public class FrontContext {
 
 	private FrontFacadeAcceptor			frontFacadeAcceptor;
 	private FrontReverseAcceptor			frontReverseAcceptor;
-	private FrontConfiguration			frontConfiguration;
 	private FrontFacadeAcceptorSEListener	frontFacadeAcceptorSEListener;
 	private FrontReverseAcceptorSEListener	frontReverseAcceptorSEListener;
 	private FrontRouterMapping			frontRouterMapping			= new FrontRouterMapping();
 	private FrontReverseAcceptorHandler	frontReverseAcceptorHandler	;
 	private FrontFacadeAcceptorHandler		frontFacadeAcceptorHandler	;
+	
+	
 
-	public FrontContext(FrontConfiguration configuration) {
-		this.frontConfiguration = configuration;
+	protected FrontContext(FrontFacadeAcceptor facadeAcceptor) {
+		this.frontFacadeAcceptor = facadeAcceptor;
 		this.frontFacadeAcceptorSEListener = new FrontFacadeAcceptorSEListener(frontRouterMapping);
 		this.frontReverseAcceptorSEListener = new FrontReverseAcceptorSEListener(frontRouterMapping);
 		this.frontFacadeAcceptorHandler = new FrontFacadeAcceptorHandler(frontRouterMapping);
@@ -48,26 +50,6 @@ public class FrontContext {
 
 	public FrontRouterMapping getFrontRouterMapping() {
 		return frontRouterMapping;
-	}
-
-	public void setFrontFacadeAcceptor(FrontFacadeAcceptor frontFacadeAcceptor) {
-		this.frontFacadeAcceptor = frontFacadeAcceptor;
-	}
-
-	public void setFrontFacadeAcceptorHandler(FrontFacadeAcceptorHandler frontFacadeAcceptorHandler) {
-		this.frontFacadeAcceptorHandler = frontFacadeAcceptorHandler;
-	}
-
-	public void setFrontReverseAcceptor(FrontReverseAcceptor frontReverseAcceptor) {
-		this.frontReverseAcceptor = frontReverseAcceptor;
-	}
-
-	public void setFrontReverseAcceptorHandler(FrontReverseAcceptorHandler frontReverseAcceptorHandler) {
-		this.frontReverseAcceptorHandler = frontReverseAcceptorHandler;
-	}
-
-	public FrontConfiguration getFrontConfiguration() {
-		return frontConfiguration;
 	}
 
 }

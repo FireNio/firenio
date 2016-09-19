@@ -1,1 +1,1 @@
-java -Xms512m -Xmx2048m -cp .:./lib/*: com.generallycloud.nio.extend.startup.NIOServerStartup %CD%
+java -Xms512m -Xmx2048m -verbose:gc -Xloggc:gc.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n -cp .:./lib/*: com.generallycloud.nio.extend.startup.NIOServerStartup %CD%

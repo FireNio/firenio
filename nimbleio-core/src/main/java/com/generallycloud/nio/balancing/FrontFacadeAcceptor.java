@@ -6,57 +6,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.generallycloud.nio.acceptor.TCPAcceptor;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
-import com.generallycloud.nio.component.protocol.ProtocolFactory;
-import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class FrontFacadeAcceptor {
 
 	private AtomicBoolean		started	= new AtomicBoolean(false);
 	private TCPAcceptor			acceptor	= new TCPAcceptor();
 	private FrontContext		frontContext;
-	private FrontReverseAcceptor	frontReverseAcceptor;
+	private FrontReverseAcceptor	frontReverseAcceptor = new FrontReverseAcceptor();
 
-	public void start(FrontConfiguration configuration,ProtocolFactory protocolFactory) throws IOException {
+	public void start(FrontContext frontContext,NIOContext frontNIOContext,NIOContext frontReverseNIOContext) throws IOException {
 
-		if (configuration == null) {
+		if (frontContext == null) {
 			throw new IllegalArgumentException("null configuration");
 		}
 
 		if (!started.compareAndSet(false, true)) {
 			return;
 		}
-
-		this.frontContext = new FrontContext(configuration);
-
-		this.frontContext.setFrontFacadeAcceptor(this);
-
-		this.frontReverseAcceptor = new FrontReverseAcceptor();
 		
-		ServerConfiguration serverConfiguration = new ServerConfiguration();
-
-		serverConfiguration.setSERVER_TCP_PORT(configuration.getFRONT_FACADE_PORT());
-		serverConfiguration.setSERVER_IS_ACCEPT_BEAT(configuration.isAcceptBeat());
-
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-				"IOEvent", 
-				serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE(),
-				serverConfiguration.getSERVER_CORE_SIZE());
+		this.frontContext = frontContext;
 		
-		NIOContext context = new DefaultNIOContext(serverConfiguration,eventLoopGroup);
+		this.frontReverseAcceptor.start(frontReverseNIOContext);
 
-		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
-
-		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
-		
-		context.setProtocolFactory(protocolFactory);
-		
-		this.frontReverseAcceptor.start(frontContext,protocolFactory);
-
-		this.acceptor.setContext(context);
+		this.acceptor.setContext(frontNIOContext);
 
 		this.acceptor.bind();
 

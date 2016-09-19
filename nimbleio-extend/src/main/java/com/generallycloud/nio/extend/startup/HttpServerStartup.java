@@ -19,7 +19,6 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedIOEventHandle;
-import com.generallycloud.nio.extend.SessionActiveSEListener;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
 import com.generallycloud.nio.extend.service.FutureAcceptorHttpFilter;
 
