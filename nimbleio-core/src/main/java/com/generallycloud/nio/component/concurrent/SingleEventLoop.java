@@ -42,7 +42,7 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 		return thread.toString();
 	}
 
-	class RealSingleEventLoop extends AbstractLooper implements Looper {
+	class RealSingleEventLoop extends AbstractLooper {
 
 		protected RealSingleEventLoop(int queueSize) {
 			this.jobs = new ArrayBlockingQueue<Runnable>(queueSize);

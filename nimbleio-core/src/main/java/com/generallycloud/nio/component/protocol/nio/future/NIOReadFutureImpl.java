@@ -32,8 +32,8 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private String				text;
 	private Integer			futureID;
 	private int				binaryLength;
+	private byte[]			binary;
 	private BufferedOutputStream	writeBinaryBuffer;
-	private byte[]				binary;
 
 	public String getFutureName() {
 		return serviceName;
