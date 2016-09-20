@@ -7,6 +7,7 @@ import java.util.Map;
 import com.generallycloud.nio.acceptor.IOAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
@@ -83,6 +84,8 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 					} catch (IOException e) {
 						logger.error(e.getMessage(),e);
 					}
+				}else {
+					ReleaseUtil.release(writeFuture);
 				}
 			}
 		});
