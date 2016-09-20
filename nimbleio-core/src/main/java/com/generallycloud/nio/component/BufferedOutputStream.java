@@ -2,7 +2,6 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -51,7 +50,7 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 		return new String(cache, 0, count);
 	}
 
-	public String toString(Charset charset) throws UnsupportedEncodingException {
+	public String toString(Charset charset) {
 		return new String(cache, 0, count, charset);
 	}
 

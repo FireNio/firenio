@@ -219,7 +219,7 @@ public class MemoryBlockV3 implements ByteBuf {
 	public void setMemory(MemoryUnitV3 memoryStart, MemoryUnitV3 memoryEnd) {
 		this.memoryStart = memoryStart;
 		this.memoryEnd = memoryEnd;
-		this.size = memoryEnd.blockEnd - memoryStart.index;
+		this.size = memoryStart.blockEnd - memoryStart.index;
 	}
 
 	public String toString() {

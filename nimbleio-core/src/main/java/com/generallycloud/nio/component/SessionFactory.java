@@ -66,6 +66,7 @@ public class SessionFactory extends AbstractLooper {
 		}
 	}
 
+	// FIXME 优化这个方法
 	private void sessionIdle(Session session, long lastIdleTime, long currentTime) {
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
