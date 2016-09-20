@@ -1,9 +1,12 @@
 package com.generallycloud.nio.balancing;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
@@ -15,6 +18,8 @@ public class FrontServerBootStrap {
 	private ProtocolFactory frontReverseProtocolFactory;
 	private ServerConfiguration frontServerConfiguration;
 	private ServerConfiguration frontReverseServerConfiguration;
+	private List<SessionEventListener> frontSessionEventListeners;
+	private List<SessionEventListener> frontReverseSessionEventListeners;
 	
 	public void startup() throws IOException{
 		
@@ -44,6 +49,10 @@ public class FrontServerBootStrap {
 		
 		context.setProtocolFactory(protocolFactory);
 		
+		if (frontSessionEventListeners != null) {
+			addSessionEventListener2Context(context, frontSessionEventListeners);
+		}
+		
 		return context;
 	}
 	
@@ -61,6 +70,10 @@ public class FrontServerBootStrap {
 		context.addSessionEventListener(frontContext.getFrontReverseAcceptorSEListener());
 		
 		context.setProtocolFactory(protocolFactory);
+		
+		if (frontReverseSessionEventListeners != null) {
+			addSessionEventListener2Context(context, frontReverseSessionEventListeners);
+		}
 		
 		return context;
 	}
@@ -96,4 +109,25 @@ public class FrontServerBootStrap {
 	public void setFrontReverseServerConfiguration(ServerConfiguration frontReverseServerConfiguration) {
 		this.frontReverseServerConfiguration = frontReverseServerConfiguration;
 	}
+	
+	public void addFrontSessionEventListener(SessionEventListener listener){
+		if (frontSessionEventListeners == null) {
+			frontSessionEventListeners = new ArrayList<SessionEventListener>();
+		}
+		frontSessionEventListeners.add(listener);
+	}
+	
+	public void addFrontReverseSessionEventListener(SessionEventListener listener){
+		if (frontReverseSessionEventListeners == null) {
+			frontReverseSessionEventListeners = new ArrayList<SessionEventListener>();
+		}
+		frontReverseSessionEventListeners.add(listener);
+	}
+	
+	private void addSessionEventListener2Context(NIOContext context,List<SessionEventListener> listeners){
+		for(SessionEventListener l : listeners){
+			context.addSessionEventListener(l);
+		}
+	}
+	
 }
