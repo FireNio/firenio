@@ -16,12 +16,12 @@ public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 
 			if (!session.getContext().isAcceptBeat()) {
 				
-				logger.debug("收到心跳回报!");
+				logger.info("收到心跳回报!来自：{}",session);
 				
 				return;
 			}
 			
-			logger.debug("收到心跳请求!");
+			logger.info("收到心跳请求!来自：{}",session);
 
 			session.flush(future);
 
