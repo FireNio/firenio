@@ -41,8 +41,6 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 					return;
 				}
 
-				logger.info("广播报文：{} ", future);
-
 				Iterator<Session> ss = sessions.values().iterator();
 				
 				if (!ss.hasNext()) {
@@ -100,7 +98,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 			broadcast(f);
 
-			logger.info("广播报文：{}", f);
+			logger.info("广播报文");
 
 			return;
 		}
@@ -122,7 +120,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 			
 			response.flush(writeFuture);
 
-			logger.info("回复报文到客户端：{} ", f);
+			logger.info("回复报文到客户端");
 
 			return;
 		}
