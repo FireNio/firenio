@@ -12,15 +12,21 @@ import com.generallycloud.nio.common.ThreadUtil;
 
 public abstract class AbstractSelectorLoop implements SelectorLoop {
 
-	private Logger				logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
-	private boolean			working	= false;
-	protected Selector			selector;
+	private Logger		logger	= LoggerFactory.getLogger(AbstractSelectorLoop.class);
+	private boolean	working	= false;
+	private boolean	shutdown	= false;
+	protected Selector	selector;
 
 	public void loop() {
 
 		try {
 			working = true;
-
+			
+			if (shutdown) {
+				working = false;
+				return;
+			}
+			
 			Selector selector = this.selector;
 
 			int selected = selector.select(64);
@@ -56,6 +62,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	}
 
 	public void stop() {
+		
+		this.shutdown = true;
 
 		this.selector.wakeup();
 

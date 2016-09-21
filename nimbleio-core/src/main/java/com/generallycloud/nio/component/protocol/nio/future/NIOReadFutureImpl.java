@@ -248,7 +248,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	}
 
 	public void writeBinary(byte[] bytes) {
-		if (binary == null) {
+		if (bytes == null) {
 			return;
 		}
 		writeBinary(bytes, 0, bytes.length);

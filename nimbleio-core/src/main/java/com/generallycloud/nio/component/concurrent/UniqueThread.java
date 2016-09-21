@@ -54,15 +54,9 @@ public class UniqueThread implements Looper {
 
 	public void stop() {
 
+		this.looper.stop();
+		
 		this.running = false;
-
-		Looper looper = this.looper;
-
-		if (looper == null) {
-			return;
-		}
-
-		looper.stop();
 	}
 
 	public boolean isMonitor(Thread thread) {

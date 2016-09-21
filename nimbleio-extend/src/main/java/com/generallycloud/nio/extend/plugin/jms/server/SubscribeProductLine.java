@@ -7,10 +7,10 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 
-public class SubscribeProductLine extends AbstractProductLine implements MessageQueue, Runnable {
+public class SubscribeProductLine extends AbstractProductLine {
 
-	private Logger logger = LoggerFactory.getLogger(SubscribeProductLine.class);
-	
+	private Logger	logger	= LoggerFactory.getLogger(SubscribeProductLine.class);
+
 	public SubscribeProductLine(MQContext context) {
 		super(context);
 	}
@@ -20,37 +20,34 @@ public class SubscribeProductLine extends AbstractProductLine implements Message
 		return new SUBConsumerQueue();
 	}
 
-	//FIXME 完善消息匹配机制
-	public void run() {
+	// FIXME 完善消息匹配机制
+	public void loop() {
 
-		for (; running;) {
+		Message message = storage.poll(16);
 
-			Message message = storage.poll(16);
-
-			if (message == null) {
-				continue;
-			}
-
-			String queueName = message.getQueueName();
-
-			ConsumerQueue consumerQueue = getConsumerQueue(queueName);
-
-			List<Consumer> consumers = consumerQueue.getSnapshot();
-
-			if (consumers.size() == 0) {
-
-				continue;
-			}
-
-			for(Consumer consumer:consumers){
-				try {
-					consumer.push(message);
-				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-
-			context.consumerMessage(message);
+		if (message == null) {
+			return;
 		}
+
+		String queueName = message.getQueueName();
+
+		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
+
+		List<Consumer> consumers = consumerQueue.getSnapshot();
+
+		if (consumers.size() == 0) {
+
+			return;
+		}
+
+		for (Consumer consumer : consumers) {
+			try {
+				consumer.push(message);
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+
+		context.consumerMessage(message);
 	}
 }

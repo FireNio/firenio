@@ -25,7 +25,6 @@ public abstract class AbstractLooper implements Looper {
 		}finally {
 			
 			lock.unlock();
-			
 		}
 	}
 

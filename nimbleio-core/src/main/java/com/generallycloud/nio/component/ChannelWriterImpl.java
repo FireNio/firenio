@@ -11,6 +11,7 @@ import com.generallycloud.nio.WriterOverflowException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
@@ -193,7 +194,9 @@ public class ChannelWriterImpl implements ChannelWriter {
 	}
 
 	public void stop() {
-		// FIXME 处理剩下的future
+		for(;writerQueue.size() > 0;){
+			ThreadUtil.sleep(8);
+		}
 	}
 
 	public String toString() {
