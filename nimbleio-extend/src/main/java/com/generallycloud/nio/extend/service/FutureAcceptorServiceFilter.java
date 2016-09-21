@@ -7,6 +7,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
@@ -24,7 +25,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	protected void accept(Session session, NamedReadFuture future) throws Exception {
 
 		String serviceName = future.getFutureName();
 

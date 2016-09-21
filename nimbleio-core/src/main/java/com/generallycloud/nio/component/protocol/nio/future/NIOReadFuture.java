@@ -3,8 +3,9 @@ package com.generallycloud.nio.component.protocol.nio.future;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.protocol.BalanceReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 
-public interface NIOReadFuture extends BalanceReadFuture {
+public interface NIOReadFuture extends BalanceReadFuture,NamedReadFuture {
 
 	public abstract String getText();
 

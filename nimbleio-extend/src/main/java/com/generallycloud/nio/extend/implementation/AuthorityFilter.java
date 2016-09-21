@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.implementation;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.plugin.authority.AuthorityContext;
 import com.generallycloud.nio.extend.plugin.authority.AuthoritySessionAttachment;
@@ -15,7 +15,7 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 
 	private Logger		logger	= LoggerFactory.getLogger(AuthorityFilter.class);
 	
-	public void accept(Session session, ReadFuture future) throws Exception {
+	protected void accept(Session session, NamedReadFuture future) throws Exception {
 		
 		AuthorityContext pluginContext = AuthorityContext.getInstance();
 		

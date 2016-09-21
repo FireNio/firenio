@@ -1,6 +1,7 @@
 package com.generallycloud.nio.extend.service;
 
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -19,6 +20,10 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 		this.filter.accept(session,future);
 	}
 	
+	protected void accept(Session session, NamedReadFuture future) throws Exception {
+		this.filter.accept(session, future);
+	}
+
 	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		this.filter.exceptionCaught(session, future, cause, state);
 	}

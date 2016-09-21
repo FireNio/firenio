@@ -3,9 +3,9 @@ package com.generallycloud.nio.component.protocol.http11.future;
 import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 
-public abstract interface HttpReadFuture extends ReadFuture {
+public abstract interface HttpReadFuture extends NamedReadFuture {
 
 	public abstract String getHeader(String name);
 

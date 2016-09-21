@@ -19,6 +19,7 @@ import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
@@ -47,10 +48,12 @@ public class FixedIOSession implements FixedSession {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		OnReadFutureWrapper onReadFuture = listeners.get(future.getFutureName());
+		NamedReadFuture f = (NamedReadFuture) future;
+		
+		OnReadFutureWrapper onReadFuture = listeners.get(f.getFutureName());
 
 		if (onReadFuture != null) {
-			onReadFuture.onResponse(this.getSession(), future);
+			onReadFuture.onResponse(this.getSession(), f);
 		}
 	}
 

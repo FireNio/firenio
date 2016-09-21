@@ -2,6 +2,7 @@ package com.generallycloud.nio.extend.service;
 
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.HotDeploy;
@@ -21,6 +22,12 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 		
 	}
 	
+	public void accept(Session session, ReadFuture future) throws Exception {
+		this.accept(session, (NamedReadFuture)future);
+	}
+	
+	protected abstract void accept(Session session, NamedReadFuture future) throws Exception;
+
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 		this.initialize(context, config);
 	}
