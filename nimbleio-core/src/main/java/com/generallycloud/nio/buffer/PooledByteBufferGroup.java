@@ -138,7 +138,6 @@ public class PooledByteBufferGroup implements ByteBuf {
 		get(dst, 0, dst.length);
 	}
 
-	//FIXME offset buwei0shiyouwenti
 	public void get(byte[] dst, int offset, int length) {
 		
 		if (offset != 0) {
@@ -171,7 +170,6 @@ public class PooledByteBufferGroup implements ByteBuf {
 		put(src, 0, src.length);
 	}
 
-	//FIXME offset buwei0shiyouwenti
 	public void put(byte[] src, int offset, int length) {
 		
 		if (offset != 0) {

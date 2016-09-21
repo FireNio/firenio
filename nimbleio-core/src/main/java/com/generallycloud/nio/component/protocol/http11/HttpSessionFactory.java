@@ -78,7 +78,6 @@ public class HttpSessionFactory extends AbstractLooper{
 				if (!session.isValidate()) {
 					
 					sessions.remove(e.getKey());
-					//FIXME should close?
 					CloseUtil.close(session.getIOSession());
 				}
 			}

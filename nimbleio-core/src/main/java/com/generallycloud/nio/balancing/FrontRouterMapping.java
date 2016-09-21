@@ -58,7 +58,6 @@ public class FrontRouterMapping {
 		lock.unlock();
 	}
 
-	// FIXME 从SESSION获取router
 	public IOSession getRouterSession(IOSession session) {
 
 		IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
