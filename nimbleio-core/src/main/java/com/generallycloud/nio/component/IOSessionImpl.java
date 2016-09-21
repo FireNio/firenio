@@ -68,7 +68,6 @@ public class IOSessionImpl implements IOSession {
 
 			this.closed = true;
 			
-			//FIXME
 			physicalClose(udpEndPoint);
 			
 			physicalClose(endPoint);

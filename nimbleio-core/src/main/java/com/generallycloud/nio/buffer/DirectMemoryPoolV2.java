@@ -2,6 +2,7 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class DirectMemoryPoolV2 extends MemoryPoolV2{
 
 	public DirectMemoryPoolV2(int capacity) {

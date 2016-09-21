@@ -2,7 +2,6 @@ package com.generallycloud.nio.common;
 
 import java.util.Properties;
 
-//FIXME ..
 public class FixedProperties extends Properties{
 	
 	private static final long	serialVersionUID	= 1L;

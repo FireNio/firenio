@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.TCPEndPoint;
 
+@Deprecated
 public class MemoryBlockV1 implements PooledByteBuf {
 
 	private PooledByteBuf	previous;
@@ -154,7 +155,6 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		get(dst, 0, dst.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void get(byte[] dst, int offset, int length) {
 		memory.get(dst, offset, length);
 	}
@@ -163,7 +163,6 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		put(src, 0, src.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void put(byte[] src, int offset, int length) {
 		memory.put(src, offset, length);
 	}
@@ -177,7 +176,6 @@ public class MemoryBlockV1 implements PooledByteBuf {
 
 	public PooledByteBuf duplicate() {
 
-		// FIXME .......................
 		ReentrantLock lock = this.lock;
 
 		lock.lock();

@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.ReleaseUtil;
 
+@Deprecated
 public abstract class MemoryPoolV0 extends AbstractMemoryPool {
 
 	protected int						size		= 0;

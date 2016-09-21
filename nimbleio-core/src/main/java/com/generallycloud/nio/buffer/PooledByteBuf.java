@@ -1,5 +1,6 @@
 package com.generallycloud.nio.buffer;
 
+@Deprecated
 public interface PooledByteBuf extends ByteBuf {
 
 	public MemoryUnitV1 getStart();

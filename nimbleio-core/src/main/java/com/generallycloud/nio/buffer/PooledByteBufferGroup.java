@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.TCPEndPoint;
 
+@Deprecated
 public class PooledByteBufferGroup implements ByteBuf {
 
 	private ByteBuf[]		bufs;

@@ -3,6 +3,7 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Deprecated
 public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 	private PooledByteBuf	memoryBlock;

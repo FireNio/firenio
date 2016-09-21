@@ -96,10 +96,6 @@ public class FrontRouterMapping {
 				return null;
 			}
 
-			Integer sessionID = session.getSessionID();
-			
-			router_session.setAttribute(sessionID, session);
-
 			session.setAttribute(SESSION_ID_ROUTER, router_session);
 
 			return router_session;

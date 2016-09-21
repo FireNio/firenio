@@ -121,7 +121,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		body_complete = true;
 
-		//FIXME 
 		byteArray = new byte[buf.limit()];
 		
 		buf.flip();

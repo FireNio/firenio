@@ -1,6 +1,7 @@
 package com.generallycloud.nio.buffer;
 
 
+@Deprecated
 public class MemoryUnitV1 {
 
 	private MemoryUnitV1	previous;

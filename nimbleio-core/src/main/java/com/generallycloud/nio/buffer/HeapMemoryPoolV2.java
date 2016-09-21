@@ -2,6 +2,7 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class HeapMemoryPoolV2 extends MemoryPoolV2{
 
 	public HeapMemoryPoolV2(int capacity) {

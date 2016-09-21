@@ -50,7 +50,6 @@ public class MemoryBlockV3 implements ByteBuf {
 
 	public ByteBuf duplicate() {
 
-		// FIXME .......................
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
@@ -107,7 +106,6 @@ public class MemoryBlockV3 implements ByteBuf {
 		get(dst, 0, dst.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void get(byte[] dst, int offset, int length) {
 		this.memory.get(dst, offset, length);
 		this.position += (length - offset);
@@ -165,7 +163,6 @@ public class MemoryBlockV3 implements ByteBuf {
 		put(src, 0, src.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void put(byte[] src, int offset, int length) {
 		this.memory.put(src, offset, length);
 		this.position += (length - offset);

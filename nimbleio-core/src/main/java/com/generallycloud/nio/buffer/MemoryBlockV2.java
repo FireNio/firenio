@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.TCPEndPoint;
 
+@Deprecated
 public class MemoryBlockV2 implements ByteBuf {
 
 	private int			capacity;
@@ -50,7 +51,6 @@ public class MemoryBlockV2 implements ByteBuf {
 
 	public ByteBuf duplicate() {
 
-		// FIXME .......................
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
@@ -107,7 +107,6 @@ public class MemoryBlockV2 implements ByteBuf {
 		get(dst, 0, dst.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void get(byte[] dst, int offset, int length) {
 		this.memory.get(dst, offset, length);
 		this.position += (length - offset);
@@ -173,7 +172,6 @@ public class MemoryBlockV2 implements ByteBuf {
 		put(src, 0, src.length);
 	}
 
-	// FIXME offset buwei0shiyouwenti
 	public void put(byte[] src, int offset, int length) {
 		this.memory.put(src, offset, length);
 		this.position += (length - offset);

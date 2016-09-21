@@ -8,6 +8,8 @@ import com.generallycloud.nio.component.TCPEndPoint;
 
 // 注意，在对buffer写入数据时，没有做reference数量判断，
 // 请勿对duplicate出来的buffer做写入操作
+
+@Deprecated
 public class PooledByteBuffer implements ByteBuf {
 
 	private ByteBuffer		memory;
