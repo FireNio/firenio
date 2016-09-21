@@ -1,16 +1,11 @@
 package com.generallycloud.nio.component.protocol.http11;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolDecoderAdapter;
 import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutureImpl;
 

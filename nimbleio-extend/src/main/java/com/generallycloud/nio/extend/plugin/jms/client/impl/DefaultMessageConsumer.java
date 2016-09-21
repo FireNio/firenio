@@ -19,8 +19,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
 	private boolean		sendReceiveCommand		= true;
 	private boolean		sendSubscribeCommand	= true;
-	private FixedSession	session				;
-
+	private FixedSession	session;
 
 	public DefaultMessageConsumer(FixedSession session) {
 		this.session = session;
@@ -39,20 +38,20 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			session.write(MQTransactionServlet.SERVICE_NAME, action);
 
-			if (!onReadFuture.await(3000)) {
-
-				NIOReadFuture future = (NIOReadFuture) onReadFuture.getReadFuture();
-
-				RESMessage message = RESMessageDecoder.decode(future.getText());
-
-				if (message.getCode() == 0) {
-					return true;
-				} else {
-					throw new MQException(message.getDescription());
-				}
+			if (onReadFuture.await(3000)) {
+				throw MQException.TIME_OUT;
 			}
+			
+			NIOReadFuture future = (NIOReadFuture) onReadFuture.getReadFuture();
 
-			throw MQException.TIME_OUT;
+			RESMessage message = RESMessageDecoder.decode(future.getText());
+
+			if (message.getCode() == 0) {
+				return true;
+			} else {
+				throw new MQException(message.getDescription());
+			}
+			
 		} catch (IOException e) {
 			throw new MQException(e.getMessage(), e);
 		}
@@ -66,60 +65,59 @@ public class DefaultMessageConsumer implements MessageConsumer {
 		return transactionVal("rollback");
 	}
 
-	// TODO complete this 考虑收到失败message的处理
-	// TODO cancel receive
 	public void receive(OnMessage onMessage) throws MQException {
 
 		sendReceiveCommandCallback(onMessage);
 	}
 
-	// TODO complete this 考虑收到失败message的处理
-	// TODO cancel subscribe
 	public void subscribe(OnMessage onMessage) throws MQException {
 
 		sendSubscribeCommandCallback(onMessage);
 	}
 
 	private void sendReceiveCommandCallback(OnMessage onMessage) throws MQException {
+		
 		if (sendReceiveCommand) {
-			
-			checkLoginState();
-			
-			try {
+			return;
+		}
+		
+		checkLoginState();
 
-				session.listen("MQConsumerServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+		try {
 
-				session.write("MQConsumerServlet", null);
+			session.listen("MQConsumerServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
 
-				sendReceiveCommand = false;
-			} catch (IOException e) {
-				throw new MQException(e);
-			}
+			session.write("MQConsumerServlet", null);
+
+			sendReceiveCommand = false;
+		} catch (IOException e) {
+			throw new MQException(e);
 		}
 	}
-	
-	private void checkLoginState() throws MQException{
+
+	private void checkLoginState() throws MQException {
 		if (session.getAuthority() == null) {
 			throw new MQException("not login");
 		}
 	}
 
 	private void sendSubscribeCommandCallback(OnMessage onMessage) throws MQException {
-		if (sendSubscribeCommand) {
-			
-			checkLoginState();
-			
-			try {
+		
+		if (!sendSubscribeCommand) {
+			return;
+		}
 
-				session.listen("MQSubscribeServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+		checkLoginState();
 
-				session.write("MQSubscribeServlet", null);
+		try {
 
-				sendSubscribeCommand = false;
-			} catch (IOException e) {
-				throw new MQException(e);
-			}
+			session.listen("MQSubscribeServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
 
+			session.write("MQSubscribeServlet", null);
+
+			sendSubscribeCommand = false;
+		} catch (IOException e) {
+			throw new MQException(e);
 		}
 	}
 }

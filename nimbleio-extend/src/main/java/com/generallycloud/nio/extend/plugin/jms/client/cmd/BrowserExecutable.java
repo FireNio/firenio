@@ -10,6 +10,7 @@ import com.generallycloud.nio.common.cmd.CommandContext;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
 
+@Deprecated
 public class BrowserExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(BrowserExecutable.class);

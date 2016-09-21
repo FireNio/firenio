@@ -3,8 +3,6 @@ package com.generallycloud.nio.extend;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 
-
-//FIXME onLogined
 public interface LoginCenter extends Initializeable {
 
 	public abstract boolean isLogined(Session session);
@@ -14,6 +12,5 @@ public interface LoginCenter extends Initializeable {
 	public abstract boolean isValidate(Parameters future);
 
 	public abstract boolean login(Session session, Parameters future);
-
 
 }

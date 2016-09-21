@@ -7,6 +7,7 @@ import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
 import com.generallycloud.nio.connector.IOConnector;
 
+@Deprecated
 public class ExitExecutable extends MQCommandExecutor {
 
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {

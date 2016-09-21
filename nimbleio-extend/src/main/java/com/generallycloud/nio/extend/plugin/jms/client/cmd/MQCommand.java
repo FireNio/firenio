@@ -7,6 +7,7 @@ import com.generallycloud.nio.common.cmd.Command;
 import com.generallycloud.nio.common.cmd.CommandContext;
 import com.generallycloud.nio.connector.TCPConnector;
 
+@Deprecated
 public class MQCommand extends Command {
 
 	private HelpExecutable	helpExecutable	= new HelpExecutable();

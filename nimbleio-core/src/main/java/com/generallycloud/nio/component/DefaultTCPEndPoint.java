@@ -18,7 +18,7 @@ import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
 public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
 
-	private boolean			_networkWeak;
+	private boolean			networkWeak;
 	private SocketChannel		channel;
 	private IOWriteFuture		currentWriteFuture;
 	private boolean			opened			= true;
@@ -41,7 +41,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		this.channelWriter = channelWriter;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
-		// FIXME 检查这行代码是否可以解决远程访问服务时卡顿问题
 		this.local = getLocalSocketAddress();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
@@ -74,7 +73,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		this.protocolFactory = protocolFactory;
 	}
 
-	//FIXME synch it ? 
 	public void updateNetworkState(int length) {
 
 		if (length == 0) {
@@ -82,9 +80,9 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 				
 				if (System.currentTimeMillis() > next_network_weak) {
 					
-					if (!_networkWeak) {
+					if (!networkWeak) {
 
-						_networkWeak = true;
+						networkWeak = true;
 						
 						interestWrite();
 					}
@@ -99,7 +97,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 				
 				next_network_weak = Long.MAX_VALUE;
 				
-				_networkWeak = false;
+				networkWeak = false;
 			}
 		}
 	}
@@ -112,7 +110,6 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 		
 		this.opened = false;
 
-		//FIXME close 之后依然会收到 selectionKey
 		this.selectionKey.attach(null);
 
 		this.channel.close();
@@ -174,7 +171,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	}
 
 	public boolean isNetworkWeak() {
-		return _networkWeak;
+		return networkWeak;
 	}
 
 	public boolean isOpened() {

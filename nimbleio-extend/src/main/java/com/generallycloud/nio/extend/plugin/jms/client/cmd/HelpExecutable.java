@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
 
+@Deprecated
 public class HelpExecutable extends MQCommandExecutor {
 
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {

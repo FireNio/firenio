@@ -15,6 +15,7 @@ import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.FieldMapping;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ResultSetHandle {
 
 	public List fillData(DataBaseContext context, ResultSet resultSet, Class clazz) throws SQLException {
@@ -147,6 +148,7 @@ public class ResultSetHandle {
 		 
 	}
 
+	
 	private List string2list(Class actualType, List<Map> src) throws IllegalArgumentException, IllegalAccessException,
 			InstantiationException {
 		List list = new ArrayList();

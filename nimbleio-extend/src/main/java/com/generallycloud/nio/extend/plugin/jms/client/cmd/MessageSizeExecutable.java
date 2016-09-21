@@ -8,6 +8,7 @@ import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
 
+@Deprecated
 public class MessageSizeExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(MessageSizeExecutable.class);

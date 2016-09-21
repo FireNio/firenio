@@ -6,6 +6,7 @@ import com.generallycloud.nio.connector.IOConnector;
 import com.generallycloud.nio.connector.TCPConnector;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
 
+@Deprecated
 public abstract class MQCommandExecutor implements Executable {
 
 	private String		KEY_CONNECTOR	= "KEY_CONNECTOR";

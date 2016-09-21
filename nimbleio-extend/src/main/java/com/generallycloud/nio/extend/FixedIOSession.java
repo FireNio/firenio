@@ -32,8 +32,9 @@ public class FixedIOSession implements FixedSession {
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
-	private long							timeout	= 50000;									// FIXME
-																						// timeout
+	// FIXME timeout
+	private long							timeout	= 50000;
+
 	public void setTimeout(long timeout) {
 		if (timeout < 0) {
 			throw new IllegalArgumentException("illegal argument timeout: " + timeout);
@@ -49,7 +50,7 @@ public class FixedIOSession implements FixedSession {
 	public void accept(Session session, ReadFuture future) throws Exception {
 
 		NamedReadFuture f = (NamedReadFuture) future;
-		
+
 		OnReadFutureWrapper onReadFuture = listeners.get(f.getFutureName());
 
 		if (onReadFuture != null) {
@@ -127,7 +128,7 @@ public class FixedIOSession implements FixedSession {
 
 				String className = o.getString("className");
 
-				Class clazz = ClassUtil.forName(className);
+				Class<?> clazz = ClassUtil.forName(className);
 
 				Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
 
@@ -173,16 +174,17 @@ public class FixedIOSession implements FixedSession {
 		session.flush(readFuture);
 
 		// FIXME 连接丢失时叫醒我
-		if (!onReadFuture.await(timeout)) {
+		if (onReadFuture.await(timeout)) {
 
-			return (NIOReadFuture) onReadFuture.getReadFuture();
+			CloseUtil.close(session);
+
+			throw new TimeoutException("timeout");
 		}
 
-		CloseUtil.close(session);
-
-		throw new TimeoutException("timeout");
+		return (NIOReadFuture) onReadFuture.getReadFuture();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public NIOReadFuture request(String serviceName, Map params, InputStream inputStream) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {

@@ -20,7 +20,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageBrowser;
 
-//TODO complete
+@Deprecated
 public class ConnectExecutable extends MQCommandExecutor {
 
 	private Logger	logger		= LoggerFactory.getLogger(ConnectExecutable.class);

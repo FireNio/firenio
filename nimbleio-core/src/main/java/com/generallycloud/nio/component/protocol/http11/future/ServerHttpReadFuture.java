@@ -71,7 +71,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		}
 	}
 
-	//FIXME 解析BODY中的内容
+	
 	protected void decodeBody() {
 
 		BufferedOutputStream o = (BufferedOutputStream) outputStream;
@@ -81,6 +81,8 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 			String paramString = new String(o.toByteArray(), session.getContext().getEncoding());
 
 			parseParamString(paramString);
+		}else{
+			//FIXME 解析BODY中的内容
 		}
 		
 		body_complete = true;
