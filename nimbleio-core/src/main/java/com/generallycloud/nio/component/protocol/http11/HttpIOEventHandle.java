@@ -4,7 +4,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 
 public class HttpIOEventHandle extends IOEventHandleAdaptor{
 	
@@ -20,7 +20,7 @@ public class HttpIOEventHandle extends IOEventHandleAdaptor{
 		return httpClient;
 	}
 	
-	public void setTCPConnector(TCPConnector connector){
+	public void setTCPConnector(SocketChannelConnector connector){
 		this.httpClient = new HttpClient(connector);
 	}
 

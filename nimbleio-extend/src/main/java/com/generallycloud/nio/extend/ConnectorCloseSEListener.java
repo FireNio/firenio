@@ -3,13 +3,13 @@ package com.generallycloud.nio.extend;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.SEListenerAdapter;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 
 public class ConnectorCloseSEListener extends SEListenerAdapter {
 
-	private TCPConnector	connector	= null;
+	private SocketChannelConnector	connector	= null;
 
-	public ConnectorCloseSEListener(TCPConnector connector) {
+	public ConnectorCloseSEListener(SocketChannelConnector connector) {
 		this.connector = connector;
 	}
 

@@ -5,12 +5,12 @@ import java.nio.channels.SelectionKey;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public abstract class UDPSelectorLoop extends AbstractSelectorLoop {
+public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 
-	private Logger				logger	= LoggerFactory.getLogger(UDPSelectorLoop.class);
+	private Logger				logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor;
 
-	public UDPSelectorLoop(NIOContext context) {
+	public DatagramChannelSelectorLoop(NIOContext context) {
 		this._read_acceptor = new UDPSelectionReader(context);
 	}
 

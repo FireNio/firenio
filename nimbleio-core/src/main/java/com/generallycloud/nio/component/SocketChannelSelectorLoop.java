@@ -7,16 +7,16 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
+public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
-	private Logger				logger	= LoggerFactory.getLogger(TCPSelectorLoop.class);
+	private Logger				logger	= LoggerFactory.getLogger(SocketChannelSelectorLoop.class);
 	protected SelectionAcceptor	_read_acceptor;
 	protected SelectionAcceptor	_write_acceptor;
-	protected TCPSelectionAlpha	_alpha_acceptor;
+	protected SocketChannelSelectionAlpha	_alpha_acceptor;
 
-	public TCPSelectorLoop(NIOContext context) {
+	public SocketChannelSelectorLoop(NIOContext context) {
 		this._write_acceptor = new TCPSelectionWriter();
-		this._read_acceptor = new TCPSelectionReader(context);
+		this._read_acceptor = new SocketChannelSelectionReader(context);
 	}
 	
 	public void accept(SelectionKey selectionKey) throws IOException {

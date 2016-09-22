@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.startup;
 
 import java.io.File;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.acceptor.UDPAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
@@ -45,7 +45,7 @@ public class NIOServerStartup {
 
 		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
 
-		TCPAcceptor acceptor = new TCPAcceptor();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
 		UDPAcceptor udpAcceptor = new UDPAcceptor();
 

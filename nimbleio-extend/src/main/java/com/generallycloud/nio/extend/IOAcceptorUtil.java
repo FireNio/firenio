@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
@@ -17,12 +17,12 @@ public class IOAcceptorUtil {
 
 	private static Logger	logger	= LoggerFactory.getLogger(IOAcceptorUtil.class);
 
-	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
+	public static SocketChannelAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
 
 		return getTCPAcceptor(ioEventHandleAdaptor, null);
 	}
 
-	public static TCPAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor,
+	public static SocketChannelAcceptor getTCPAcceptor(IOEventHandleAdaptor ioEventHandleAdaptor,
 			ServerConfiguration configuration) throws Exception {
 		
 		if (configuration == null) {
@@ -30,7 +30,7 @@ public class IOAcceptorUtil {
 			configuration = loader.loadConfiguration(SharedBundle.instance());
 		}
 
-		TCPAcceptor acceptor = new TCPAcceptor();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
 		try {
 			

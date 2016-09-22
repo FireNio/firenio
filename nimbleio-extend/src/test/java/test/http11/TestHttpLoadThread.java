@@ -12,14 +12,14 @@ import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactor
 import com.generallycloud.nio.component.protocol.http11.HttpClient;
 import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestHttpLoadThread extends ITestThread {
 
 	HttpIOEventHandle	eventHandleAdaptor	= new HttpIOEventHandle();
 
-	TCPConnector		connector			;
+	SocketChannelConnector		connector			;
 
 	Session			session;
 

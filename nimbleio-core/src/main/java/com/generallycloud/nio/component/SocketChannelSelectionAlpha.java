@@ -1,6 +1,6 @@
 package com.generallycloud.nio.component;
 
-public interface TCPSelectionAlpha extends SelectionAcceptor{
+public interface SocketChannelSelectionAlpha extends SelectionAcceptor{
 
 	public ChannelWriter getChannelWriter() ;
 

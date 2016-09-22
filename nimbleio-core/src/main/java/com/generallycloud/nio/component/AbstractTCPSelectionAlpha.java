@@ -7,7 +7,7 @@ import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
-public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
+public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectionAlpha {
 
 	private ChannelWriter	channelWriter;
 	

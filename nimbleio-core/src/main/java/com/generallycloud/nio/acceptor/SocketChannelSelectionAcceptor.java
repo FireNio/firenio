@@ -10,7 +10,7 @@ import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
+public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	private Selector				selector;
 	private NIOContext				context			;
@@ -19,7 +19,7 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 	private CoreProcessors			processors		;
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public TCPSelectionAcceptor(NIOContext context,CoreProcessors processors) {
+	public SocketChannelSelectionAcceptor(NIOContext context,CoreProcessors processors) {
 		
 		super(context);
 		

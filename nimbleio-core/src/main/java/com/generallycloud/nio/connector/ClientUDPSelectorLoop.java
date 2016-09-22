@@ -9,9 +9,9 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.UDPSelectorLoop;
+import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
-public class ClientUDPSelectorLoop extends UDPSelectorLoop {
+public class ClientUDPSelectorLoop extends DatagramChannelSelectorLoop {
 
 	private DatagramChannel	datagramChannel;
 

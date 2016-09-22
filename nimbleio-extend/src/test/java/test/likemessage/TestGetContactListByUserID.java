@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -21,7 +21,7 @@ public class TestGetContactListByUserID {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

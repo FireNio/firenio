@@ -9,7 +9,7 @@ import com.generallycloud.nio.component.protocol.nio.future.NIOBeatFutureFactory
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SessionActiveSEListener;
@@ -33,7 +33,7 @@ public class TestBeat {
 
 		configuration.setSERVER_SESSION_IDLE_TIME(100);
 		
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle,configuration);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle,configuration);
 		
 		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
 		

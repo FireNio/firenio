@@ -2,14 +2,14 @@ package com.generallycloud.nio.balancing;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.NIOContext;
 
 public class FrontReverseAcceptor {
 
-	private TCPAcceptor		acceptor	= new TCPAcceptor();
+	private SocketChannelAcceptor		acceptor	= new SocketChannelAcceptor();
 
 	protected void start(NIOContext context) throws IOException {
 
@@ -21,7 +21,7 @@ public class FrontReverseAcceptor {
 				"Front Reverse Acceptor 启动成功 ...");
 	}
 	
-	protected TCPAcceptor getAcceptor() {
+	protected SocketChannelAcceptor getAcceptor() {
 		return acceptor;
 	}
 

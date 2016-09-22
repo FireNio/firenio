@@ -9,7 +9,7 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestClient {
@@ -29,7 +29,7 @@ public class TestClient {
 			}
 		};
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 

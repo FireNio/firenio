@@ -1,6 +1,6 @@
 package test.http11;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -38,7 +38,7 @@ public class TestSimpleHttpServer {
 			}
 		};
 
-		TCPAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
+		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 
 		acceptor.getContext().setProtocolFactory(new ServerHTTPProtocolFactory());
 

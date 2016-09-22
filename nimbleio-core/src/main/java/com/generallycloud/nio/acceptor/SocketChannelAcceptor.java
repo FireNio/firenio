@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public final class TCPAcceptor extends AbstractIOAcceptor {
+public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 
 	private SelectorLoop []		selectorLoops			;
 	private UniqueThread []		selectorLoopThreads		;

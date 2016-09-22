@@ -4,7 +4,7 @@ import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -18,7 +18,7 @@ public class TestLogin {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

@@ -7,13 +7,13 @@ import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.UDPSelectorLoop;
+import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class UDPAcceptor extends AbstractIOAcceptor {
 	
-	private UDPSelectorLoop		selectorLoop		;
+	private DatagramChannelSelectorLoop		selectorLoop		;
 	private UniqueThread		selectorLoopThread	;
 	private DatagramChannel		channel			;
 	private DatagramSocket		serverSocket		;

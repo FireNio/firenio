@@ -6,9 +6,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.UDPSelectorLoop;
+import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
-public class ServerUDPSelectorLoop extends UDPSelectorLoop {
+public class ServerUDPSelectorLoop extends DatagramChannelSelectorLoop {
 
 	public ServerUDPSelectorLoop(NIOContext context) {
 		super(context);

@@ -12,15 +12,15 @@ import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 
 public class IOConnectorUtil {
 
-	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
+	public static SocketChannelConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
 		return getTCPConnector(ioEventHandleAdaptor, null);
 	}
 
-	public static TCPConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
+	public static SocketChannelConnector getTCPConnector(IOEventHandleAdaptor ioEventHandleAdaptor,
 			ServerConfiguration configuration) throws Exception {
 		
 		if (configuration == null) {
@@ -28,11 +28,11 @@ public class IOConnectorUtil {
 			configuration = loader.loadConfiguration(SharedBundle.instance());
 		}
 		
-		TCPConnector connector = null;
+		SocketChannelConnector connector = null;
 
 		try {
 
-			connector = new TCPConnector();
+			connector = new SocketChannelConnector();
 
 			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 					"IOEvent", 

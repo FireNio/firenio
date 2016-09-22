@@ -8,15 +8,15 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 
 public class HttpClient {
 	
-	protected HttpClient(TCPConnector connector) {
+	protected HttpClient(SocketChannelConnector connector) {
 		this.connector = connector;
 	}
 	
-	private TCPConnector connector;
+	private SocketChannelConnector connector;
 
 	private WaiterOnReadFuture listener = null;
 	

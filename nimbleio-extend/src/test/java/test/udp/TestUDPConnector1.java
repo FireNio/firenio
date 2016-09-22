@@ -3,7 +3,7 @@ package test.udp;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.connector.UDPConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
@@ -18,7 +18,7 @@ public class TestUDPConnector1 {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = eventHandle.getFixedSession();
 

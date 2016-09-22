@@ -8,14 +8,14 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestHttpLoadConnection {
 
 	public static void main(String[] args) throws IOException {
 		
-		List<TCPConnector> connectors = new ArrayList<TCPConnector>();
+		List<SocketChannelConnector> connectors = new ArrayList<SocketChannelConnector>();
 		
 		ServerConfiguration configuration = new ServerConfiguration();
 		
@@ -32,7 +32,7 @@ public class TestHttpLoadConnection {
 				
 				HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 				
-				TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
+				SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
 				
 				eventHandleAdaptor.setTCPConnector(connector);
 
@@ -45,7 +45,7 @@ public class TestHttpLoadConnection {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
-			for (TCPConnector connector : connectors) {
+			for (SocketChannelConnector connector : connectors) {
 				
 				CloseUtil.close(connector);
 			}

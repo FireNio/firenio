@@ -8,11 +8,11 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 
-public class TCPSelectionReader implements SelectionAcceptor {
+public class SocketChannelSelectionReader implements SelectionAcceptor {
 	
 	private IOReadFutureAcceptor	ioReadFutureAcceptor;
 
-	public TCPSelectionReader(NIOContext context) {
+	public SocketChannelSelectionReader(NIOContext context) {
 		this.ioReadFutureAcceptor = context.getIOReadFutureAcceptor();
 	}
 

@@ -3,7 +3,7 @@ package com.generallycloud.nio.balancing;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.NIOContext;
@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.NIOContext;
 public class FrontFacadeAcceptor {
 
 	private AtomicBoolean		started	= new AtomicBoolean(false);
-	private TCPAcceptor			acceptor	= new TCPAcceptor();
+	private SocketChannelAcceptor			acceptor	= new SocketChannelAcceptor();
 	private FrontContext		frontContext;
 	private FrontReverseAcceptor	frontReverseAcceptor = new FrontReverseAcceptor();
 
@@ -49,7 +49,7 @@ public class FrontFacadeAcceptor {
 		return frontContext;
 	}
 
-	public TCPAcceptor getAcceptor() {
+	public SocketChannelAcceptor getAcceptor() {
 		return acceptor;
 	}
 

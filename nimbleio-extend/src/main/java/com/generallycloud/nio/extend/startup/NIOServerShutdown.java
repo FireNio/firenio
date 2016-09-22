@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -54,7 +54,7 @@ public class NIOServerShutdown {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		TCPConnector connector = new TCPConnector();
+		SocketChannelConnector connector = new SocketChannelConnector();
 
 		configuration.setSERVER_IS_ACCEPT_BEAT(true);
 

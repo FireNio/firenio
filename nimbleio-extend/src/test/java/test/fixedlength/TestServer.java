@@ -1,6 +1,6 @@
 package test.fixedlength;
 
-import com.generallycloud.nio.acceptor.TCPAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -25,7 +25,7 @@ public class TestServer {
 			}
 		};
 
-		TCPAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
+		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 		
 		acceptor.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 

@@ -9,10 +9,10 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.ChannelWriterImpl;
 import com.generallycloud.nio.component.ChannelWriter;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.TCPSelectorLoop;
+import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 
-public class ServerTCPSelectorLoop extends TCPSelectorLoop {
+public class ServerTCPSelectorLoop extends SocketChannelSelectorLoop {
 
 	private ChannelWriter	channelWriter			= null;
 
@@ -22,7 +22,7 @@ public class ServerTCPSelectorLoop extends TCPSelectorLoop {
 
 		super(context);
 
-		this._alpha_acceptor = new TCPSelectionAcceptor(context, processors);
+		this._alpha_acceptor = new SocketChannelSelectionAcceptor(context, processors);
 	}
 
 	public void register(NIOContext context, SelectableChannel channel) throws IOException {
@@ -37,7 +37,7 @@ public class ServerTCPSelectorLoop extends TCPSelectorLoop {
 
 		this.channelWriterThread.start();
 
-		TCPSelectionAcceptor selectionAcceptor = (TCPSelectionAcceptor) this._alpha_acceptor;
+		SocketChannelSelectionAcceptor selectionAcceptor = (SocketChannelSelectionAcceptor) this._alpha_acceptor;
 
 		selectionAcceptor.setSelector(selector);
 

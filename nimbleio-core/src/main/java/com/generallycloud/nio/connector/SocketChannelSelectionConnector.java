@@ -8,13 +8,13 @@ import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
+public class SocketChannelSelectionConnector extends AbstractTCPSelectionAlpha {
 
 	private Selector		selector;
-	private TCPConnector	connector;
+	private SocketChannelConnector	connector;
 	private NIOContext		context;
 
-	public TCPSelectionConnector(NIOContext context, TCPConnector connector) {
+	public SocketChannelSelectionConnector(NIOContext context, SocketChannelConnector connector) {
 		super(context);
 		this.connector = connector;
 		this.context = context;

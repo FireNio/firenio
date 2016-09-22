@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.Command;
 import com.generallycloud.nio.common.cmd.CommandContext;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 
 @Deprecated
 public class MQCommand extends Command {
@@ -31,7 +31,7 @@ public class MQCommand extends Command {
 
 	public void printPrefix(CommandContext context) {
 
-		TCPConnector connector = (TCPConnector) context.getAttribute("KEY_CONNECTOR");
+		SocketChannelConnector connector = (SocketChannelConnector) context.getAttribute("KEY_CONNECTOR");
 
 		if (connector == null) {
 			System.out.print("未连接> ");

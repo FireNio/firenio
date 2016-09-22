@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
 public class TestFrontLoad {
@@ -39,7 +39,7 @@ public class TestFrontLoad {
 
 		configuration.setSERVER_TCP_PORT(8800);
 
-		TCPConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
+		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
 		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 		

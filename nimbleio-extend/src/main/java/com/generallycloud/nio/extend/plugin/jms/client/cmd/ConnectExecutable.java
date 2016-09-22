@@ -13,7 +13,7 @@ import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.TCPConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -29,7 +29,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 		
-		TCPConnector connector = getClientConnector(context);
+		SocketChannelConnector connector = getClientConnector(context);
 		
 		if (connector != null) {
 			response.setResponse("已登录。");
@@ -57,7 +57,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 			
 			configuration.setSERVER_TCP_PORT(Integer.parseInt(port));
 			
-			connector = new TCPConnector();
+			connector = new SocketChannelConnector();
 
 //			String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
