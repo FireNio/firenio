@@ -16,22 +16,22 @@ public class ServerHTTPProtocolDecoder implements ProtocolDecoder {
 
 	private ServerHttpHeaderParser	parser			= new ServerHttpHeaderParser();
 
-	public IOReadFuture decode(SocketChannel endPoint) throws IOException {
+	public IOReadFuture decode(SocketChannel channel) throws IOException {
 
 		ByteBuffer buffer = this.buffer;
 
-		int length = endPoint.read(buffer);
+		int length = channel.read(buffer);
 
 		if (length < 1) {
 			if (length == -1) {
-				CloseUtil.close(endPoint);
+				CloseUtil.close(channel);
 			}
 			return null;
 		}
 
-		ServerHttpReadFuture future = new ServerHttpReadFuture(endPoint.getSession(), parser, buffer);
+		ServerHttpReadFuture future = new ServerHttpReadFuture(channel.getSession(), parser, buffer);
 
-		future.decode(endPoint, buffer);
+		future.decode(channel, buffer);
 
 		return future;
 	}

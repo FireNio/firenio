@@ -35,7 +35,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 	}
 
-	public void accept(DatagramChannel endPoint, DatagramPacket packet) throws IOException {
+	public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
 
 		long timestamp = packet.getTimestamp();
 
@@ -65,7 +65,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 			this.packetGroup.addDatagramPacket(packet);
 
-			endPoint.getSession().getEventLoop().dispatch(new Runnable() {
+			channel.getSession().getEventLoop().dispatch(new Runnable() {
 
 				public void run() {
 					try {

@@ -91,4 +91,8 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		this.session = (IOSession) session;
 	}
 
+	public boolean isOpened() {
+		return channel.isConnected() || channel.isOpen();
+	}
+
 }

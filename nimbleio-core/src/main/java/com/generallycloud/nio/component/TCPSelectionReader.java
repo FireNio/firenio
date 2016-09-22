@@ -18,27 +18,27 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 	public void accept(SelectionKey selectionKey) throws Exception {
 
-		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
+		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
-		if (endPoint == null || !endPoint.isOpened()) {
+		if (channel == null || !channel.isOpened()) {
 			//该EndPoint已经被关闭
 			return;
 		}
 
-		IOReadFuture future = endPoint.getReadFuture();
+		IOReadFuture future = channel.getReadFuture();
 
 		if (future == null) {
 			
-			ProtocolDecoder decoder = endPoint.getProtocolDecoder();
+			ProtocolDecoder decoder = channel.getProtocolDecoder();
 
-			future = decoder.decode(endPoint);
+			future = decoder.decode(channel);
 
 			if (future == null) {
-				CloseUtil.close(endPoint);
+				CloseUtil.close(channel);
 				return;
 			}
 
-			endPoint.setReadFuture(future);
+			channel.setReadFuture(future);
 		}
 
 		try {
@@ -60,9 +60,9 @@ public class TCPSelectionReader implements SelectionAcceptor {
 			throw new IOException("exception occurred when read from channel,the nested exception is,"+e.getMessage(),e);
 		}
 
-		endPoint.setReadFuture(null);
+		channel.setReadFuture(null);
 
-		Session session = endPoint.getSession();
+		Session session = channel.getSession();
 		
 		session.active();
 		

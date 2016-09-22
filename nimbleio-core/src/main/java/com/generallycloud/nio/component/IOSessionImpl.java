@@ -18,26 +18,26 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public class IOSessionImpl implements IOSession {
 
-	private static final Logger			logger		= LoggerFactory.getLogger(IOSessionImpl.class);
-	
-	private Object						attachment;
-	private boolean					closed;
-	private NIOContext					context;
-	private SocketChannel					endPoint;
-	private Integer					sessionID;
-	private DatagramChannel					udpEndPoint;
-	private Object[]					attachments	;
-	private EventLoop					eventLoop;
-	private long						creationTime	= System.currentTimeMillis();
-	private long						lastAccess;
-	private HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
+	private static final Logger		logger		= LoggerFactory.getLogger(IOSessionImpl.class);
 
-	public IOSessionImpl(SocketChannel endPoint, Integer sessionID) {
-		this.context = endPoint.getContext();
-		this.endPoint = endPoint;
+	private Object					attachment;
+	private boolean				closed;
+	private NIOContext				context;
+	private SocketChannel			socketChannel;
+	private Integer				sessionID;
+	private DatagramChannel			datagramChannel;
+	private Object[]				attachments;
+	private EventLoop				eventLoop;
+	private long					creationTime	= System.currentTimeMillis();
+	private long					lastAccess;
+	private HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
+
+	public IOSessionImpl(SocketChannel channel, Integer sessionID) {
+		this.context = channel.getContext();
+		this.socketChannel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
-		//这里认为在第一次Idle之前，连接都是畅通的
+		// 这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
@@ -49,31 +49,31 @@ public class IOSessionImpl implements IOSession {
 	public boolean closed() {
 		return closed;
 	}
-	
+
 	public EventLoop getEventLoop() {
 		return eventLoop;
 	}
-	
+
 	public String getProtocolID() {
-		return endPoint.getProtocolFactory().getProtocolID();
+		return socketChannel.getProtocolFactory().getProtocolID();
 	}
 
 	public void close() {
-		
+
 		synchronized (this) {
-			
+
 			if (closed) {
 				return;
 			}
 
 			this.closed = true;
-			
-			physicalClose(udpEndPoint);
-			
-			physicalClose(endPoint);
-			
+
+			physicalClose(datagramChannel);
+
+			physicalClose(socketChannel);
+
 			SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
-			
+
 			for (; listenerWrapper != null;) {
 				try {
 					listenerWrapper.sessionClosed(this);
@@ -84,17 +84,17 @@ public class IOSessionImpl implements IOSession {
 			}
 		}
 	}
-	
+
 	private void physicalClose(Channel endPoint) {
-		
+
 		if (endPoint == null) {
 			return;
 		}
-		
+
 		try {
-			endPoint.physicalClose();
+			socketChannel.physicalClose();
 		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -107,10 +107,10 @@ public class IOSessionImpl implements IOSession {
 		if (future.flushed()) {
 			throw new IllegalStateException("flushed already");
 		}
-		
-		SocketChannel endPoint = this.endPoint;
 
-		if (!endPoint.isOpened()) {
+		SocketChannel endPoint = this.socketChannel;
+
+		if (!socketChannel.isOpened()) {
 
 			throw new DisconnectException("disconnected");
 		}
@@ -118,46 +118,46 @@ public class IOSessionImpl implements IOSession {
 		IOWriteFuture writeFuture = null;
 
 		try {
-			
-			ProtocolEncoder encoder = endPoint.getProtocolEncoder();
-			
+
+			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
+
 			IOReadFuture ioReadFuture = (IOReadFuture) future;
 
-			writeFuture = encoder.encode(endPoint, ioReadFuture);
+			writeFuture = encoder.encode(socketChannel, ioReadFuture);
 
 			ioReadFuture.flush();
-			
-			endPoint.offer(writeFuture);
+
+			socketChannel.offer(writeFuture);
 
 		} catch (Exception e) {
-			
+
 			ReleaseUtil.release(writeFuture);
 
 			logger.debug(e.getMessage(), e);
 
 			IOEventHandle handle = future.getIOEventHandle();
 
-			handle.exceptionCaught(this, future, e,IOEventState.WRITE);
+			handle.exceptionCaught(this, future, e, IOEventState.WRITE);
 		}
 	}
-	
+
 	public void flush(IOWriteFuture future) throws IOException {
-		
+
 		try {
-			
-			endPoint.offer(future);
-			
+
+			socketChannel.offer(future);
+
 		} catch (Exception e) {
-			
+
 			ReleaseUtil.release(future);
-			
+
 			ReadFuture readFuture = future.getReadFuture();
 
 			logger.debug(e.getMessage(), e);
 
 			IOEventHandle handle = readFuture.getIOEventHandle();
 
-			handle.exceptionCaught(this, readFuture, e,IOEventState.WRITE);
+			handle.exceptionCaught(this, readFuture, e, IOEventState.WRITE);
 		}
 	}
 
@@ -187,39 +187,39 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public String getLocalAddr() {
-		return endPoint.getLocalAddr();
+		return socketChannel.getLocalAddr();
 	}
 
 	public String getLocalHost() {
-		return endPoint.getLocalHost();
+		return socketChannel.getLocalHost();
 	}
 
 	public int getLocalPort() {
-		return endPoint.getLocalPort();
+		return socketChannel.getLocalPort();
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
-		return endPoint.getLocalSocketAddress();
+		return socketChannel.getLocalSocketAddress();
 	}
 
 	public int getMaxIdleTime() throws SocketException {
-		return endPoint.getMaxIdleTime();
+		return socketChannel.getMaxIdleTime();
 	}
 
 	public String getRemoteAddr() {
-		return endPoint.getRemoteAddr();
+		return socketChannel.getRemoteAddr();
 	}
 
 	public String getRemoteHost() {
-		return endPoint.getRemoteHost();
+		return socketChannel.getRemoteHost();
 	}
 
 	public int getRemotePort() {
-		return endPoint.getRemotePort();
+		return socketChannel.getRemotePort();
 	}
 
 	public InetSocketAddress getRemoteSocketAddress() {
-		return endPoint.getRemoteSocketAddress();
+		return socketChannel.getRemoteSocketAddress();
 	}
 
 	public Integer getSessionID() {
@@ -227,19 +227,19 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public SocketChannel getTCPEndPoint() {
-		return endPoint;
+		return socketChannel;
 	}
 
 	public DatagramChannel getUDPEndPoint() {
-		return udpEndPoint;
+		return datagramChannel;
 	}
 
 	public boolean isBlocking() {
-		return endPoint.isBlocking();
+		return socketChannel.isBlocking();
 	}
 
 	public boolean isOpened() {
-		return endPoint.isOpened();
+		return socketChannel.isOpened();
 	}
 
 	public Object removeAttribute(Object key) {
@@ -265,13 +265,13 @@ public class IOSessionImpl implements IOSession {
 
 	public void setUDPEndPoint(DatagramChannel udpEndPoint) {
 
-		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
+		if (this.datagramChannel != null && this.datagramChannel != udpEndPoint) {
 			throw new IllegalArgumentException("udpEndPoint setted");
 		}
 
-		this.udpEndPoint = udpEndPoint;
+		this.datagramChannel = udpEndPoint;
 	}
-	
+
 	public void active() {
 		this.lastAccess = System.currentTimeMillis();
 	}
@@ -281,15 +281,15 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public String toString() {
-		return endPoint.toString();
+		return socketChannel.toString();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
-		return endPoint.getProtocolEncoder();
+		return socketChannel.getProtocolEncoder();
 	}
-	
-	public void fireOpend(){
-		
+
+	public void fireOpend() {
+
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
 		for (; listenerWrapper != null;) {

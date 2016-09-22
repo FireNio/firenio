@@ -35,7 +35,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 		this.context = context;
 	}
 
-	public void doAccept(DatagramChannel endPoint, DatagramPacket packet,Session session) throws IOException {
+	public void doAccept(DatagramChannel channel, DatagramPacket packet,Session session) throws IOException {
 
 		AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(session);
 		
@@ -54,13 +54,13 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 		RTPRoom room = attachment.getRtpRoom();
 		
 		if (room != null) {
-			room.broadcast(endPoint, packet);
+			room.broadcast(channel, packet);
 		}else{
 			logger.debug("___________________null room,packet:{}",packet);
 		}
 	}
 	
-	protected void execute(DatagramChannel endPoint,DatagramRequest request) {
+	protected void execute(DatagramChannel channel,DatagramRequest request) {
 
 		String serviceName = request.getFutureName();
 
@@ -86,9 +86,9 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 				return ;
 			}
 			
-			endPoint.setSession(session);
+			channel.setSession(session);
 			
-			session.setUDPEndPoint(endPoint);
+			session.setUDPEndPoint(channel);
 			
 			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK,session.getContext().getIOEventHandleAdaptor());
 			

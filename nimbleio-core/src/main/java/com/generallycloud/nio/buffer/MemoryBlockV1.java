@@ -133,18 +133,18 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		}
 	}
 
-	public int read(SocketChannel endPoint) throws IOException {
+	public int read(SocketChannel channel) throws IOException {
 
-		int read = endPoint.read(memory);
+		int read = channel.read(memory);
 
 		position += read;
 
 		return read;
 	}
 
-	public int write(SocketChannel endPoint) throws IOException {
+	public int write(SocketChannel channel) throws IOException {
 
-		int read = endPoint.write(memory);
+		int read = channel.write(memory);
 
 		position += read;
 

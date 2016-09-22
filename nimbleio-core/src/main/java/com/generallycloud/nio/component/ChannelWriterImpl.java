@@ -51,9 +51,9 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	public void wekeupEndPoint(SocketChannel endPoint) {
+	public void wekeupEndPoint(SocketChannel channel) {
 
-		Integer endPointID = endPoint.getEndPointID();
+		Integer endPointID = channel.getEndPointID();
 
 		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
 
@@ -69,9 +69,9 @@ public class ChannelWriterImpl implements ChannelWriter {
 		sleepEndPoints.remove(endPointID);
 	}
 
-	private void sleepWriter(SocketChannel endPoint, IOWriteFuture future) {
+	private void sleepWriter(SocketChannel channel, IOWriteFuture future) {
 
-		Integer endPointID = endPoint.getEndPointID();
+		Integer endPointID = channel.getEndPointID();
 
 		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
 
@@ -111,46 +111,46 @@ public class ChannelWriterImpl implements ChannelWriter {
 			return;
 		}
 
-		SocketChannel endPoint = futureFromQueue.getEndPoint();
+		SocketChannel channel = futureFromQueue.getEndPoint();
 
-		if (!endPoint.isOpened()) {
+		if (!channel.isOpened()) {
 
 			futureFromQueue.onException(new DisconnectException("disconnected"));
 
 			return;
 		}
 
-		if (endPoint.isNetworkWeak()) {
+		if (channel.isNetworkWeak()) {
 
-			this.sleepWriter(endPoint, futureFromQueue);
+			this.sleepWriter(channel, futureFromQueue);
 
 			return;
 		}
 
 		try {
 
-			IOWriteFuture futureFromEndPoint = endPoint.getCurrentWriteFuture();
+			IOWriteFuture futureFromEndPoint = channel.getCurrentWriteFuture();
 
 			if (futureFromEndPoint != null) {
 
-				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromQueue, endPoint);
+				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromQueue, channel);
 
 				return;
 			}
 
-			doWriteFutureFromQueue(futureFromQueue, endPoint);
+			doWriteFutureFromQueue(futureFromQueue, channel);
 
 		} catch (IOException e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint);
+			CloseUtil.close(channel);
 
 			futureFromQueue.onException(e);
 
 		} catch (Throwable e) {
 			logger.debug(e);
 
-			CloseUtil.close(endPoint);
+			CloseUtil.close(channel);
 
 			futureFromQueue.onException(new IOException(e));
 		}
@@ -158,15 +158,15 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 	// write future from endPoint
 	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromQueue,
-			SocketChannel endPoint) throws IOException {
+			SocketChannel channel) throws IOException {
 
 		if (futureFromEndPoint.write()) {
 
-			endPoint.setCurrentWriteFuture(null);
+			channel.setCurrentWriteFuture(null);
 
 			futureFromEndPoint.onSuccess();
 
-			doWriteFutureFromQueue(futureFromQueue, endPoint);
+			doWriteFutureFromQueue(futureFromQueue, channel);
 
 			return;
 		}
@@ -179,7 +179,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, SocketChannel endPoint) throws IOException {
+	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, SocketChannel channel) throws IOException {
 
 		if (futureFromQueue.write()) {
 
@@ -187,7 +187,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 		} else {
 
-			endPoint.setCurrentWriteFuture(futureFromQueue);
+			channel.setCurrentWriteFuture(futureFromQueue);
 
 			offer(futureFromQueue);
 		}

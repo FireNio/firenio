@@ -35,13 +35,13 @@ public class RTPRoom {
 		this.join(session.getUDPEndPoint());
 	}
 
-	public void broadcast(DatagramChannel endPoint, DatagramPacket packet) {
+	public void broadcast(DatagramChannel channel, DatagramPacket packet) {
 
 		List<DatagramChannel> endPoints = endPointList.getSnapshot();
 
 		for (DatagramChannel point : endPoints) {
 
-			if (endPoint == point) {
+			if (channel == point) {
 				continue;
 			}
 
@@ -68,9 +68,9 @@ public class RTPRoom {
 		return roomID;
 	}
 
-	public boolean join(DatagramChannel endPoint) {
+	public boolean join(DatagramChannel channel) {
 		
-		if (endPoint == null) {
+		if (channel == null) {
 //			throw new RuntimeException("udpEndPoint is null");
 			return false;
 		}
@@ -86,7 +86,7 @@ public class RTPRoom {
 			return false;
 		}
 
-		if (!endPointList.add(endPoint)) {
+		if (!endPointList.add(channel)) {
 
 			lock.unlock();
 
@@ -95,7 +95,7 @@ public class RTPRoom {
 
 		lock.unlock();
 
-		Session session = (Session) endPoint.getSession();
+		Session session = (Session) channel.getSession();
 
 		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
 

@@ -21,8 +21,6 @@ public interface SocketChannel extends DuplexChannel {
 
 	public abstract IOWriteFuture getCurrentWriteFuture();
 
-	public abstract boolean isOpened();
-
 	public abstract boolean isNetworkWeak();
 
 	public abstract void updateNetworkState(int length);

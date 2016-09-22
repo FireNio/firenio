@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFutu
 //A server MUST NOT mask any frames that it sends to the client.
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(SocketChannel endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(SocketChannel channel, IOReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
@@ -45,8 +45,8 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size);
-//		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size);
+		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size);
+//		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size);
 		
 		buffer.put(header);
 		
@@ -54,10 +54,10 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		return new IOWriteFutureImpl(endPoint, readFuture, buffer);
+		return new IOWriteFutureImpl(channel, readFuture, buffer);
 	}
 	
-	public IOWriteFuture encodeWithMask(SocketChannel endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encodeWithMask(SocketChannel channel, IOReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
@@ -86,7 +86,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(header.length + size + 4);
+		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size + 4);
 		
 		buffer.put(header);
 		
@@ -105,7 +105,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		return new IOWriteFutureImpl(endPoint, readFuture, buffer);
+		return new IOWriteFutureImpl(channel, readFuture, buffer);
 	}
 
 }

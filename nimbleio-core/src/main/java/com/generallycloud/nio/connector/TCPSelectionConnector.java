@@ -41,12 +41,12 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
 			channel.register(selector, SelectionKey.OP_READ);
 
-			final SocketChannel endPoint = attachEndPoint(context, getChannelWriter(), selectionKey);
+			final SocketChannel socketChannel = attachEndPoint(context, getChannelWriter(), selectionKey);
 
-			endPoint.getSession().getEventLoop().dispatch(new Runnable() {
+			socketChannel.getSession().getEventLoop().dispatch(new Runnable() {
 
 				public void run() {
-					connector.finishConnect(endPoint.getSession(), null);
+					connector.finishConnect(socketChannel.getSession(), null);
 				}
 			});
 		} catch (final IOException e) {

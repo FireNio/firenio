@@ -15,31 +15,31 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 	
 	private Logger logger = LoggerFactory.getLogger(ServerDPAcceptor.class);
 
-	public void accept(DatagramChannel endPoint, DatagramPacket packet) throws IOException {
+	public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
 
-		NIOContext nioContext = endPoint.getContext();
+		NIOContext nioContext = channel.getContext();
 
 		DatagramRequest request = DatagramRequest.create(packet, nioContext);
 
 		if (request != null) {
-			execute(endPoint,request);
+			execute(channel,request);
 			return;
 		}
 		
 //		logger.debug("___________________server receive,packet:{}",packet);
 		
-		Session session = endPoint.getSession();
+		Session session = channel.getSession();
 		
 		if (session == null) {
 			logger.debug("___________________null session,packet:{}",packet);
 			return;
 		}
 		
-		doAccept(endPoint, packet,session);
+		doAccept(channel, packet,session);
 	}
 	
-	protected abstract void doAccept(DatagramChannel endPoint, DatagramPacket packet,Session session) throws IOException ;
+	protected abstract void doAccept(DatagramChannel channel, DatagramPacket packet,Session session) throws IOException ;
 	
-	protected abstract void execute(DatagramChannel endPoint,DatagramRequest request) ;
+	protected abstract void execute(DatagramChannel channel,DatagramRequest request) ;
 
 }

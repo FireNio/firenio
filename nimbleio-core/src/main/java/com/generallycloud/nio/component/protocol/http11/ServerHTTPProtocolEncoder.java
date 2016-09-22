@@ -18,7 +18,7 @@ import com.generallycloud.nio.component.protocol.http11.future.ServerHttpReadFut
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(SocketChannel endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(SocketChannel channel, IOReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture future = (ServerHttpReadFuture) readFuture;
 
@@ -64,9 +64,9 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		int size = o.size();
 		
-		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(h.length() + size);
+		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(h.length() + size);
 		
-		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
+		buffer.put(h.toString().getBytes(channel.getContext().getEncoding()));
 		
 		if (size != 0) {
 			buffer.put(o.toByteArray(), 0, o.size());
@@ -74,7 +74,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(endPoint, readFuture, buffer);
+		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(channel, readFuture, buffer);
 
 		return textWriteFuture;
 	}

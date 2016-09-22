@@ -121,11 +121,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			
 			public void handle(ChannelWriter channelWriter) {
 				
-				NioSocketChannel endPoint = NioSocketChannel.this;
+				NioSocketChannel channel = NioSocketChannel.this;
 				
-				endPoint.updateNetworkState(1);
+				channel.updateNetworkState(1);
 				
-				channelWriter.wekeupEndPoint(endPoint);
+				channelWriter.wekeupEndPoint(channel);
 			}
 		});
 

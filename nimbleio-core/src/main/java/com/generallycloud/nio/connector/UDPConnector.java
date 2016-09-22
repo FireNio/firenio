@@ -18,12 +18,11 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class UDPConnector extends AbstractIOConnector {
 
-	private DatagramChannel			endPoint;
+	private DatagramChannel		datagramChannel;
 	private Logger				logger		= LoggerFactory.getLogger(UDPConnector.class);
+	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private ClientUDPSelectorLoop	selectorLoop;
 	private UniqueThread		selectorLoopThread;
-	private java.nio.channels.DatagramChannel		channel;
-	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
 	protected UniqueThread getSelectorLoopThread() {
 		return selectorLoopThread;
@@ -39,7 +38,7 @@ public class UDPConnector extends AbstractIOConnector {
 	}
 
 	public InetSocketAddress getServerSocketAddress() {
-		return endPoint.getLocalSocketAddress();
+		return datagramChannel.getLocalSocketAddress();
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) {
@@ -47,7 +46,7 @@ public class UDPConnector extends AbstractIOConnector {
 		allocate(cacheBuffer, packet);
 
 		try {
-			endPoint.sendPacket(cacheBuffer, serverAddress);
+			datagramChannel.sendPacket(cacheBuffer, serverAddress);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 
@@ -89,17 +88,17 @@ public class UDPConnector extends AbstractIOConnector {
 
 	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
 
-		this.channel = java.nio.channels.DatagramChannel.open();
+		java.nio.channels.DatagramChannel datagramChannel = java.nio.channels.DatagramChannel.open();
 
 		this.selectorLoop = new ClientUDPSelectorLoop(context);
 
-		this.selectorLoop.register(context, channel);
+		this.selectorLoop.register(context, datagramChannel);
 
-		this.channel.connect(socketAddress);
+		datagramChannel.connect(socketAddress);
 
-		this.endPoint = selectorLoop.getEndPoint();
+		this.datagramChannel = selectorLoop.getEndPoint();
 
-		this.endPoint.setSession(session);
+		this.datagramChannel.setSession(session);
 
 		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
 
@@ -108,13 +107,13 @@ public class UDPConnector extends AbstractIOConnector {
 
 	protected void close(NIOContext context) {
 
-		if (channel != null && channel.isConnected()) {
-			CloseUtil.close(channel);
+		if (datagramChannel != null && datagramChannel.isOpened()) {
+			CloseUtil.close(datagramChannel);
 		}
 
 		LifeCycleUtil.stop(selectorLoopThread);
 
-		CloseUtil.close(endPoint);
+		CloseUtil.close(datagramChannel);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

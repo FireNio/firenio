@@ -29,7 +29,7 @@ public class UDPEndPointFactory {
 		return endPoint;
 	}
 
-	public void removeUDPEndPoint(DatagramChannel endPoint) {
-		endPoints.remove(endPoint.getRemoteSocketAddress());
+	public void removeUDPEndPoint(DatagramChannel channel) {
+		endPoints.remove(channel.getRemoteSocketAddress());
 	}
 }

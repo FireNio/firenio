@@ -34,23 +34,23 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 	protected SocketChannel attachEndPoint(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
 			throws SocketException {
 
-		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
+		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
-		if (endPoint != null) {
+		if (channel != null) {
 
-			return endPoint;
+			return channel;
 		}
 
-		endPoint = new NioSocketChannel(context, selectionKey, channelWriter);
+		channel = new NioSocketChannel(context, selectionKey, channelWriter);
 
-		endPoint.setProtocolDecoder(protocolDecoder);
+		channel.setProtocolDecoder(protocolDecoder);
 
-		endPoint.setProtocolEncoder(protocolEncoder);
+		channel.setProtocolEncoder(protocolEncoder);
 		
-		endPoint.setProtocolFactory(protocolFactory);
+		channel.setProtocolFactory(protocolFactory);
 		
-		selectionKey.attach(endPoint);
+		selectionKey.attach(channel);
 
-		return endPoint;
+		return channel;
 	}
 }

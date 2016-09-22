@@ -10,14 +10,14 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 
-	public IOReadFuture decode(SocketChannel endPoint) throws IOException {
+	public IOReadFuture decode(SocketChannel channel) throws IOException {
 		
-		ByteBuf buffer = allocate(endPoint.getContext());
+		ByteBuf buffer = allocate(channel.getContext());
 
 		int length = -1;
 		
 		try {
-			length = buffer.read(endPoint);
+			length = buffer.read(channel);
 		} finally {
 			if (length == -1) {
 				ReleaseUtil.release(buffer);
@@ -25,7 +25,7 @@ public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 			}
 		}
 
-		return fetchFuture(endPoint.getSession(), buffer);
+		return fetchFuture(channel.getSession(), buffer);
 	}
 	
 	protected abstract ByteBuf allocate(NIOContext context);

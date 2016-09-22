@@ -177,9 +177,9 @@ public class MemoryBlockV2 implements ByteBuf {
 		this.position += (length - offset);
 	}
 
-	public int read(SocketChannel endPoint) throws IOException {
+	public int read(SocketChannel channel) throws IOException {
 
-		int length = endPoint.read(memory);
+		int length = channel.read(memory);
 
 		if (length > 0) {
 			position += length;
@@ -250,9 +250,9 @@ public class MemoryBlockV2 implements ByteBuf {
 		return this;
 	}
 
-	public int write(SocketChannel endPoint) throws IOException {
+	public int write(SocketChannel channel) throws IOException {
 
-		int length = endPoint.write(memory);
+		int length = channel.write(memory);
 
 		if (length > 0) {
 			position += length;

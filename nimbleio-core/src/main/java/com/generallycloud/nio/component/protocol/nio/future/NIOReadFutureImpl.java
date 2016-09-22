@@ -125,19 +125,19 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 				throw new IOException("max length 1024 * 10,length=" + all_length);
 			}
 
-			this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(all_length);
+			this.buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);
 		}
 	}
 
 	public boolean read() throws IOException {
 
-		SocketChannel endPoint = this.endPoint;
+		SocketChannel channel = this.channel;
 
 		ByteBuf buffer = this.buffer;
 
 		if (!header_complete) {
 
-			buffer.read(endPoint);
+			buffer.read(channel);
 
 			if (buffer.hasRemaining()) {
 				return false;
@@ -148,7 +148,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		if (!body_complete) {
 
-			buffer.read(endPoint);
+			buffer.read(channel);
 
 			if (buffer.hasRemaining()) {
 				return false;
@@ -166,7 +166,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		buffer.flip();
 
-		Charset charset = endPoint.getContext().getEncoding();
+		Charset charset = channel.getContext().getEncoding();
 
 		int offset = buffer.offset();
 

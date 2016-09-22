@@ -16,20 +16,20 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	protected Session			session;
 	protected ReadFuture		readFuture;
-	protected SocketChannel		endPoint;
+	protected SocketChannel		channel;
 	protected ByteBuf			buffer;
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(SocketChannel endPoint, ReadFuture readFuture, ByteBuf buffer) {
-		this.endPoint = endPoint;
+	public IOWriteFutureImpl(SocketChannel channel, ReadFuture readFuture, ByteBuf buffer) {
+		this.channel = channel;
 		this.readFuture = readFuture;
-		this.session = endPoint.getSession();
+		this.session = channel.getSession();
 		this.buffer = buffer;
 	}
 
 	protected void updateNetworkState(int length) {
 
-		endPoint.updateNetworkState(length);
+		channel.updateNetworkState(length);
 	}
 
 	public void onException(IOException e) {
@@ -75,13 +75,13 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 		ByteBuf buffer = this.buffer;
 
-		updateNetworkState(buffer.write(endPoint));
+		updateNetworkState(buffer.write(channel));
 
 		return !buffer.hasRemaining();
 	}
 
 	public SocketChannel getEndPoint() {
-		return endPoint;
+		return channel;
 	}
 
 	public ReadFuture getReadFuture() {

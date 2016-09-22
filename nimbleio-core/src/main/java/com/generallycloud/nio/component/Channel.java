@@ -13,6 +13,8 @@ public interface Channel extends Closeable{
 
 	public abstract int getLocalPort();
 
+	public abstract boolean isOpened();
+
 	public abstract String getRemoteAddr();
 
 	public abstract String getRemoteHost();

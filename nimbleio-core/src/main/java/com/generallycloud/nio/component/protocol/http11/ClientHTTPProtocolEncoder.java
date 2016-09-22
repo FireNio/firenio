@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture
 //FIXME jinji
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(SocketChannel endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(SocketChannel channel, IOReadFuture readFuture) throws IOException {
 		
 		HttpRequestFuture future = (HttpRequestFuture) readFuture;
 
@@ -57,13 +57,13 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(h.length());
+		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(h.length());
 
-		buffer.put(h.toString().getBytes(endPoint.getContext().getEncoding()));
+		buffer.put(h.toString().getBytes(channel.getContext().getEncoding()));
 		
 		buffer.flip();
 
-		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(endPoint, readFuture, buffer);
+		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(channel, readFuture, buffer);
 
 		return textWriteFuture;
 	}

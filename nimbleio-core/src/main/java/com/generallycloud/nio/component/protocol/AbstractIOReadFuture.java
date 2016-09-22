@@ -20,7 +20,7 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	}
 
 	public SocketChannel getTCPEndPoint() {
-		return endPoint;
+		return channel;
 	}
 
 }

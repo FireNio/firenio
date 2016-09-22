@@ -33,7 +33,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		header[6] = (byte) ((binary_length >> 16) & 0xff);
 	}
 	
-	public IOWriteFuture encode(SocketChannel endPoint,IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(SocketChannel channel,IOReadFuture readFuture) throws IOException {
 		
 		if (readFuture.isBeatPacket()) {
 			
@@ -41,16 +41,16 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 			array [0] = (byte)(NIOProtocolDecoder.TYPE_BEAT << 6);
 			
-			ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(1);
+			ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(1);
 			
 			buffer.put(array);
 			
 			buffer.flip();
 			
-			return new IOWriteFutureImpl(endPoint, readFuture, buffer);
+			return new IOWriteFutureImpl(channel, readFuture, buffer);
 		}
 		
-		Session session = endPoint.getSession();
+		Session session = channel.getSession();
 		
 		NIOReadFuture nioReadFuture = (NIOReadFuture) readFuture;
 		
@@ -84,7 +84,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = endPoint.getContext().getHeapByteBufferPool().allocate(all_length);
+		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);
 		
 		buffer.put(header);
 		buffer.put(service_name_array);
@@ -99,7 +99,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		return new IOWriteFutureImpl(endPoint, readFuture, buffer);
+		return new IOWriteFutureImpl(channel, readFuture, buffer);
 	}
 
 }

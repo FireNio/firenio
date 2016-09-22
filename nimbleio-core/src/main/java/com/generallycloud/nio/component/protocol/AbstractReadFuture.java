@@ -14,7 +14,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	protected BufferedOutputStream	writeBuffer		= new BufferedOutputStream();
 	protected IOEventHandle			ioEventHandle		;
 	protected boolean 			hasOutputStream	;
-	protected SocketChannel			endPoint			;
+	protected SocketChannel			channel			;
 	protected IOSessionImpl			session			;
 	protected boolean				flushed			;
 	
@@ -28,7 +28,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	
 	public AbstractReadFuture(Session session) {
 		this.session = (IOSessionImpl) session;
-		this.endPoint = this.session.getTCPEndPoint();
+		this.channel = this.session.getTCPEndPoint();
 	}
 	
 	public void write(byte b) {

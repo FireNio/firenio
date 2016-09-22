@@ -72,13 +72,13 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		cookieList.add(cookie);
 	}
 	
-	public boolean decode(SocketChannel endPoint, ByteBuffer buffer) throws IOException {
+	public boolean decode(SocketChannel channel, ByteBuffer buffer) throws IOException {
 
 		try {
 
 			if (!header_complete) {
 
-				endPoint.read(buffer);
+				channel.read(buffer);
 
 				BufferedOutputStream header_buffer = this.header_buffer;
 
@@ -114,7 +114,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 					body_buffer.clear();
 
-					endPoint.read(body_buffer);
+					channel.read(body_buffer);
 
 					fill(outputStream, body_buffer);
 				}
@@ -240,11 +240,11 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	// FIXME 是否会出现第一次读到\r\n结束，下一次loop开头读到\r\n的情况
 	public boolean read() throws IOException {
 
-		SocketChannel endPoint = this.endPoint;
+		SocketChannel channel = this.channel;
 
 		ByteBuffer buffer = this.read_buffer;
 
-		return decode(endPoint, buffer);
+		return decode(channel, buffer);
 	}
 
 	public void setRequestParams(Map<String, String> params) {
@@ -267,9 +267,9 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		
 		if (updateWebSocketProtocol) {
 			
-			endPoint.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
-			endPoint.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
-			endPoint.setProtocolFactory(PROTOCOL_FACTORY);
+			channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
+			channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
+			channel.setProtocolFactory(PROTOCOL_FACTORY);
 			
 			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
 		}

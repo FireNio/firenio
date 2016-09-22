@@ -147,12 +147,12 @@ public class PooledByteBuffer implements ByteBuf {
 		return memory.remaining();
 	}
 
-	public int read(SocketChannel endPoint) throws IOException {
-		return endPoint.read(memory);
+	public int read(SocketChannel channel) throws IOException {
+		return channel.read(memory);
 	}
 
-	public int write(SocketChannel endPoint) throws IOException {
-		return endPoint.write(memory);
+	public int write(SocketChannel channel) throws IOException {
+		return channel.write(memory);
 	}
 
 	public int position() {

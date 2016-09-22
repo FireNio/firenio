@@ -7,13 +7,13 @@ public class TCPSelectionWriter implements SelectionAcceptor {
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
+		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
-		if (!endPoint.isOpened()) {
+		if (!channel.isOpened()) {
 			return;
 		}
 
-		endPoint.wakeup();
+		channel.wakeup();
 	}
 
 }

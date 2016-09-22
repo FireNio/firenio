@@ -130,7 +130,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 
 	public boolean read() throws IOException {
 		
-		SocketChannel endPoint = this.endPoint;
+		SocketChannel endPoint = this.channel;
 		
 		ByteBuf buffer = this.buffer;
 		
@@ -201,7 +201,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		ReleaseUtil.release(buffer);
 		
-		this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(length);
+		this.buffer = channel.getContext().getHeapByteBufferPool().allocate(length);
 	}
 	
 	public String getFutureName() {

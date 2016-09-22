@@ -80,7 +80,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 			
 			ReleaseUtil.release(buffer);
 			
-			this.buffer = endPoint.getContext().getHeapByteBufferPool().allocate(length);
+			this.buffer = channel.getContext().getHeapByteBufferPool().allocate(length);
 			
 		}else{
 			
@@ -94,7 +94,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		
 		if (!header_complete) {
 
-			buffer.read(endPoint);
+			buffer.read(channel);
 
 			if (!isHeaderReadComplete(buffer)) {
 				return false;
@@ -105,7 +105,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		if (!body_complete) {
 
-			buffer.read(endPoint);
+			buffer.read(channel);
 
 			if (buffer.hasRemaining()) {
 				return false;
