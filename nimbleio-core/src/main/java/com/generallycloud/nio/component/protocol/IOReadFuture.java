@@ -12,6 +12,6 @@ public interface IOReadFuture extends ReadFuture{
 	
 	public abstract boolean isBeatPacket();
 	
-	public abstract SocketChannel getTCPEndPoint();
+	public abstract SocketChannel getSocketChannel();
 	
 }

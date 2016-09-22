@@ -49,7 +49,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
 
 		Object attachment = selectionKey.attachment();
 
-		if (isTCPEndPoint(attachment)) {
+		if (isSocketChannel(attachment)) {
 
 			CloseUtil.close(((SocketChannel) attachment));
 		}
@@ -59,7 +59,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
 		logger.error(exception.getMessage(), exception);
 	}
 
-	private boolean isTCPEndPoint(Object object) {
+	private boolean isSocketChannel(Object object) {
 		return object != null && (object.getClass() == NioSocketChannel.class || object instanceof SocketChannel);
 	}
 

@@ -6,7 +6,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
-import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.UDPSelectorLoop;
@@ -27,17 +27,17 @@ public class ClientUDPSelectorLoop extends UDPSelectorLoop {
 
 		SelectionKey selectionKey = channel.register(selector, SelectionKey.OP_READ);
 
-		UDPEndPointFactory endPointFactory = context.getUDPEndPointFactory();
+		DatagramChannelFactory factory = context.getDatagramChannelFactory();
 
 		java.nio.channels.DatagramChannel ch = (java.nio.channels.DatagramChannel) channel;
 
 		InetSocketAddress socketAddress = (InetSocketAddress) ch.socket().getLocalSocketAddress();
 
-		this.datagramChannel = endPointFactory.getUDPEndPoint(context, selectionKey, socketAddress);
+		this.datagramChannel = factory.getDatagramChannel(context, selectionKey, socketAddress);
 
 	}
 
-	public DatagramChannel getEndPoint() {
+	public DatagramChannel getDatagramChannel() {
 		return datagramChannel;
 	}
 

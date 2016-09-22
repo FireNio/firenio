@@ -10,7 +10,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
@@ -45,9 +45,9 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		
 		if (_closed.compareAndSet(false, true)) {
 
-			UDPEndPointFactory factory = getContext().getUDPEndPointFactory();
+			DatagramChannelFactory factory = getContext().getDatagramChannelFactory();
 
-			factory.removeUDPEndPoint(this);
+			factory.removeDatagramChannel(this);
 			
 			LOGGER.debug(">>>> rm {}", this.toString());
 		}

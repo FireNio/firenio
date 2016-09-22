@@ -21,7 +21,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
 		if (channel == null || !channel.isOpened()) {
-			//该EndPoint已经被关闭
+			//该channel已经被关闭
 			return;
 		}
 

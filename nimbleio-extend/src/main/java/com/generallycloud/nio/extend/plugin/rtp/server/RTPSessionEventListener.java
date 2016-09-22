@@ -36,7 +36,7 @@ public class RTPSessionEventListener extends SEListenerAdapter {
 			return;
 		}
 
-		room.leave(session.getUDPEndPoint());
+		room.leave(session.getDatagramChannel());
 	}
 	
 }

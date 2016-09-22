@@ -19,7 +19,7 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		return isBeatPacket;
 	}
 
-	public SocketChannel getTCPEndPoint() {
+	public SocketChannel getSocketChannel() {
 		return channel;
 	}
 

@@ -85,9 +85,9 @@ public class IOSessionImpl implements IOSession {
 		}
 	}
 
-	private void physicalClose(Channel endPoint) {
+	private void physicalClose(Channel channel) {
 
-		if (endPoint == null) {
+		if (channel == null) {
 			return;
 		}
 
@@ -108,7 +108,7 @@ public class IOSessionImpl implements IOSession {
 			throw new IllegalStateException("flushed already");
 		}
 
-		SocketChannel endPoint = this.socketChannel;
+		SocketChannel socketChannel = this.socketChannel;
 
 		if (!socketChannel.isOpened()) {
 
@@ -226,11 +226,11 @@ public class IOSessionImpl implements IOSession {
 		return sessionID;
 	}
 
-	public SocketChannel getTCPEndPoint() {
+	public SocketChannel getSocketChannel() {
 		return socketChannel;
 	}
 
-	public DatagramChannel getUDPEndPoint() {
+	public DatagramChannel getDatagramChannel() {
 		return datagramChannel;
 	}
 
@@ -263,13 +263,13 @@ public class IOSessionImpl implements IOSession {
 		this.sessionID = sessionID;
 	}
 
-	public void setUDPEndPoint(DatagramChannel udpEndPoint) {
+	public void setDatagramChannel(DatagramChannel datagramChannel) {
 
-		if (this.datagramChannel != null && this.datagramChannel != udpEndPoint) {
-			throw new IllegalArgumentException("udpEndPoint setted");
+		if (this.datagramChannel != null && this.datagramChannel != datagramChannel) {
+			throw new IllegalArgumentException("datagram channel setted");
 		}
 
-		this.datagramChannel = udpEndPoint;
+		this.datagramChannel = datagramChannel;
 	}
 
 	public void active() {

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Encoding;
-import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.DirectMemoryPoolV3;
 import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
@@ -34,7 +34,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private SessionEventListenerWrapper	sessionEventListenerStub;
 	private SessionFactory				sessionFactory;
 	private IOService					tcpService;
-	private UDPEndPointFactory			udpEndPointFactory;
+	private DatagramChannelFactory		datagramChannelFactory;
 	private IOService					udpService;
 	private ProtocolFactory				protocolFactory;
 	private UniqueThread				sessionFactoryThread;
@@ -134,7 +134,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 		
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
-		this.udpEndPointFactory = new UDPEndPointFactory();
+		this.datagramChannelFactory = new DatagramChannelFactory();
 		
 		this.heapByteBufferPool = new HeapMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 		this.directByteBufferPool = new DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
@@ -235,8 +235,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return eventLoopGroup;
 	}
 
-	public UDPEndPointFactory getUDPEndPointFactory() {
-		return udpEndPointFactory;
+	public DatagramChannelFactory getDatagramChannelFactory() {
+		return datagramChannelFactory;
 	}
 
 	public IOService getUDPService() {
@@ -263,8 +263,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.tcpService = tcpService;
 	}
 
-	public void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory) {
-		this.udpEndPointFactory = udpEndPointFactory;
+	public void setDatagramChannelFactory(DatagramChannelFactory datagramChannelFactory) {
+		this.datagramChannelFactory = datagramChannelFactory;
 	}
 
 	public void setUDPService(IOService udpService) {

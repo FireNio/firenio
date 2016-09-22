@@ -96,7 +96,7 @@ public class UDPConnector extends AbstractIOConnector {
 
 		datagramChannel.connect(socketAddress);
 
-		this.datagramChannel = selectorLoop.getEndPoint();
+		this.datagramChannel = selectorLoop.getDatagramChannel();
 
 		this.datagramChannel.setSession(session);
 

@@ -9,7 +9,7 @@ public interface IOWriteFuture extends WriteFuture {
 
 	public abstract boolean write() throws IOException;
 
-	public abstract SocketChannel getEndPoint();
+	public abstract SocketChannel getSocketChannel();
 
 	public IOWriteFuture duplicate(IOSession session);
 

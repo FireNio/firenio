@@ -8,7 +8,7 @@ public interface ProtocolEncoder {
 
 	/**
 	 * 注意：encode失败要release掉encode过程中申请的内存
-	 * @param endPoint
+	 * @param channel
 	 * @param future
 	 * @return
 	 * @throws IOException

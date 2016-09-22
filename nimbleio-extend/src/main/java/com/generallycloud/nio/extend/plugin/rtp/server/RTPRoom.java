@@ -23,7 +23,7 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
-	private ReentrantList<DatagramChannel>	endPointList	= new ReentrantList<DatagramChannel>();
+	private ReentrantList<DatagramChannel>	datagramChannelList	= new ReentrantList<DatagramChannel>();
 	private RTPRoomFactory			roomFactory	;
 	private Integer				roomID		;
 	private boolean				closed		= false;
@@ -32,16 +32,16 @@ public class RTPRoom {
 		this.roomID = genRoomID();
 		this.roomFactory = context.getRTPRoomFactory();
 		this.context = context;
-		this.join(session.getUDPEndPoint());
+		this.join(session.getDatagramChannel());
 	}
 
 	public void broadcast(DatagramChannel channel, DatagramPacket packet) {
 
-		List<DatagramChannel> endPoints = endPointList.getSnapshot();
+		List<DatagramChannel> datagramChannels = datagramChannelList.getSnapshot();
 
-		for (DatagramChannel point : endPoints) {
+		for (DatagramChannel ch : datagramChannels) {
 
-			if (channel == point) {
+			if (channel == ch) {
 				continue;
 			}
 
@@ -50,7 +50,7 @@ public class RTPRoom {
 			buffer.flip();
 
 			try {
-				point.sendPacket(buffer);
+				ch.sendPacket(buffer);
 			} catch (Throwable e) {
 				logger.debug(e);
 			}
@@ -71,11 +71,10 @@ public class RTPRoom {
 	public boolean join(DatagramChannel channel) {
 		
 		if (channel == null) {
-//			throw new RuntimeException("udpEndPoint is null");
 			return false;
 		}
 
-		ReentrantLock lock = endPointList.getReentrantLock();
+		ReentrantLock lock = datagramChannelList.getReentrantLock();
 
 		lock.lock();
 
@@ -86,7 +85,7 @@ public class RTPRoom {
 			return false;
 		}
 
-		if (!endPointList.add(channel)) {
+		if (!datagramChannelList.add(channel)) {
 
 			lock.unlock();
 
@@ -104,23 +103,23 @@ public class RTPRoom {
 		return true;
 	}
 
-	public void leave(DatagramChannel endPoint) {
+	public void leave(DatagramChannel channel) {
 
-		ReentrantLock lock = endPointList.getReentrantLock();
+		ReentrantLock lock = datagramChannelList.getReentrantLock();
 
 		lock.lock();
 
-		endPointList.remove(endPoint);
+		datagramChannelList.remove(channel);
 
-		List<DatagramChannel> endPoints = endPointList.getSnapshot();
+		List<DatagramChannel> chs = datagramChannelList.getSnapshot();
 
-		for (DatagramChannel e : endPoints) {
+		for (DatagramChannel ch : chs) {
 
-			if (e == endPoint) {
+			if (ch == channel) {
 				continue;
 			}
 
-			Session session = (Session) e.getSession();
+			Session session = (Session) ch.getSession();
 			
 			Authority authority = ApplicationContextUtil.getAuthority(session);
 
@@ -135,7 +134,7 @@ public class RTPRoom {
 			mqContext.offerMessage(message);
 		}
 
-		if (endPointList.size() == 0) {
+		if (datagramChannelList.size() == 0) {
 
 			this.closed = true;
 

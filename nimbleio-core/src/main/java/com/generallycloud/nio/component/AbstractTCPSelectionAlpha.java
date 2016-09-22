@@ -31,7 +31,7 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 		this.channelWriter = channelWriter;
 	}
 
-	protected SocketChannel attachEndPoint(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
+	protected SocketChannel attachSocketChannel(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
 			throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();

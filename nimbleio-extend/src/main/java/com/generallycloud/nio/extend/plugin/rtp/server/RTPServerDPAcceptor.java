@@ -88,7 +88,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			channel.setSession(session);
 			
-			session.setUDPEndPoint(channel);
+			session.setDatagramChannel(channel);
 			
 			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK,session.getContext().getIOEventHandleAdaptor());
 			

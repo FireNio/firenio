@@ -23,7 +23,7 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 public class ChannelWriterImpl implements ChannelWriter {
 
 	private ListQueue<IOWriteFuture>			writerQueue;
-	private Map<Integer, List<IOWriteFuture>>	sleepEndPoints	= new HashMap<Integer, List<IOWriteFuture>>();
+	private Map<Integer, List<IOWriteFuture>>	sleepChannels	= new HashMap<Integer, List<IOWriteFuture>>();
 	private Logger							logger		= LoggerFactory.getLogger(ChannelWriterImpl.class);
 	private ReentrantList<ChannelWriteEvent>	events		= new ReentrantList<ChannelWriteEvent>();
 	private NIOContext						context		= null;
@@ -51,11 +51,11 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	public void wekeupEndPoint(SocketChannel channel) {
+	public void wekeupSocketChannel(SocketChannel channel) {
 
-		Integer endPointID = channel.getEndPointID();
+		Integer channelID = channel.getChannelID();
 
-		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
+		List<IOWriteFuture> list = sleepChannels.get(channelID);
 
 		if (list == null) {
 			return;
@@ -66,20 +66,20 @@ public class ChannelWriterImpl implements ChannelWriter {
 			this.offer(f);
 		}
 
-		sleepEndPoints.remove(endPointID);
+		sleepChannels.remove(channelID);
 	}
 
 	private void sleepWriter(SocketChannel channel, IOWriteFuture future) {
 
-		Integer endPointID = channel.getEndPointID();
+		Integer channelID = channel.getChannelID();
 
-		List<IOWriteFuture> list = sleepEndPoints.get(endPointID);
+		List<IOWriteFuture> list = sleepChannels.get(channelID);
 
 		if (list == null) {
 
 			list = new ArrayList<IOWriteFuture>();
 
-			sleepEndPoints.put(endPointID, list);
+			sleepChannels.put(channelID, list);
 		}
 
 		list.add(future);
@@ -111,7 +111,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 			return;
 		}
 
-		SocketChannel channel = futureFromQueue.getEndPoint();
+		SocketChannel channel = futureFromQueue.getSocketChannel();
 
 		if (!channel.isOpened()) {
 
@@ -129,11 +129,11 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 		try {
 
-			IOWriteFuture futureFromEndPoint = channel.getCurrentWriteFuture();
+			IOWriteFuture futureFromChannel = channel.getCurrentWriteFuture();
 
-			if (futureFromEndPoint != null) {
+			if (futureFromChannel != null) {
 
-				doWriteFutureFromEndPoint(futureFromEndPoint, futureFromQueue, channel);
+				doWriteFutureFromChannel(futureFromChannel, futureFromQueue, channel);
 
 				return;
 			}
@@ -156,15 +156,15 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	// write future from endPoint
-	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromQueue,
+	// write future from Channel
+	private void doWriteFutureFromChannel(IOWriteFuture futureFromChannel, IOWriteFuture futureFromQueue,
 			SocketChannel channel) throws IOException {
 
-		if (futureFromEndPoint.write()) {
+		if (futureFromChannel.write()) {
 
 			channel.setCurrentWriteFuture(null);
 
-			futureFromEndPoint.onSuccess();
+			futureFromChannel.onSuccess();
 
 			doWriteFutureFromQueue(futureFromQueue, channel);
 
@@ -175,7 +175,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 			logger.debug("give up {}", futureFromQueue);
 
-			futureFromEndPoint.onException(WriterOverflowException.INSTANCE);
+			futureFromChannel.onException(WriterOverflowException.INSTANCE);
 		}
 	}
 

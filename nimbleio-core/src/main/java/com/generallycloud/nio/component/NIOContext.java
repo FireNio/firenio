@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.LifeCycle;
-import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
@@ -47,13 +47,13 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract long getStartupTime();
 
-	public abstract UDPEndPointFactory getUDPEndPointFactory();
+	public abstract DatagramChannelFactory getDatagramChannelFactory();
 
 	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);
 
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
-	public abstract void setUDPEndPointFactory(UDPEndPointFactory udpEndPointFactory);
+	public abstract void setDatagramChannelFactory(DatagramChannelFactory datagramChannelFactory);
 
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
 

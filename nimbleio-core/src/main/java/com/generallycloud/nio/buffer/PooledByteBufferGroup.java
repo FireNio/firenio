@@ -88,11 +88,11 @@ public class PooledByteBufferGroup implements ByteBuf {
 		}
 	}
 
-	public int read(SocketChannel endPoint) throws IOException {
+	public int read(SocketChannel channel) throws IOException {
 		
 		ByteBuf buf = findBuf();
 		
-		int read = buf.read(endPoint);
+		int read = buf.read(channel);
 		
 		position += read;
 		
@@ -123,11 +123,11 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return buf;
 	}
 
-	public int write(SocketChannel endPoint) throws IOException {
+	public int write(SocketChannel channel) throws IOException {
 		
 		ByteBuf buf = findBuf();
 		
-		int read = buf.write(endPoint);
+		int read = buf.write(channel);
 		
 		position += read;
 		

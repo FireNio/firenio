@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-import com.generallycloud.nio.acceptor.UDPEndPointFactory;
+import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
@@ -33,7 +33,7 @@ public class UDPSelectionReader implements SelectionAcceptor {
 
 		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(cacheBuffer);
 
-		UDPEndPointFactory factory = context.getUDPEndPointFactory();
+		DatagramChannelFactory factory = context.getDatagramChannelFactory();
 
 		DatagramPacket packet = new DatagramPacket(cacheBuffer, remoteSocketAddress);
 
@@ -44,7 +44,7 @@ public class UDPSelectionReader implements SelectionAcceptor {
 			return;
 		}
 
-		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getUDPEndPoint(context, selectionKey, remoteSocketAddress);
+		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getDatagramChannel(context, selectionKey, remoteSocketAddress);
 
 		acceptor.accept(datagramChannel, packet);
 

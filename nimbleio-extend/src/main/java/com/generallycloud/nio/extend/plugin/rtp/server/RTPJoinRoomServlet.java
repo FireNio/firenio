@@ -19,9 +19,9 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 		RTPRoom room = roomFactory.getRTPRoom(roomID);
 
-		DatagramChannel udpEndPoint = session.getUDPEndPoint();
+		DatagramChannel datagramChannel = session.getDatagramChannel();
 
-		if (room == null || udpEndPoint == null) {
+		if (room == null || datagramChannel == null) {
 
 			future.write(ByteUtil.FALSE);
 
@@ -30,7 +30,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 			return;
 		}
 
-		if (room.join(udpEndPoint)) {
+		if (room.join(datagramChannel)) {
 			
 			future.write(ByteUtil.TRUE);
 			

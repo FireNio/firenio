@@ -277,7 +277,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 			this.writeBinary(binary);
 		}
 
-		return session.getProtocolEncoder().encode(session.getTCPEndPoint(),this);
+		return session.getProtocolEncoder().encode(session.getSocketChannel(),this);
 	}
 
 	public boolean isBroadcast() {

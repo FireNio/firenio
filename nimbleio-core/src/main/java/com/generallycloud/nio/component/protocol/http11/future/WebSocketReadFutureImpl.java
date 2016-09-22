@@ -130,13 +130,13 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 
 	public boolean read() throws IOException {
 		
-		SocketChannel endPoint = this.channel;
+		SocketChannel channel = this.channel;
 		
 		ByteBuf buffer = this.buffer;
 		
 		if (!headerComplete) {
 			
-			buffer.read(endPoint);
+			buffer.read(channel);
 			
 			if (buffer.hasRemaining()) {
 				return false;
@@ -147,7 +147,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		if (!remain_header_complete) {
 			
-			buffer.read(endPoint);
+			buffer.read(channel);
 			
 			if (buffer.hasRemaining()) {
 				return false;
@@ -158,7 +158,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		if (!dataComplete) {
 			
-			buffer.read(endPoint);
+			buffer.read(channel);
 			
 			if (buffer.hasRemaining()) {
 				return false;

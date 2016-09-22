@@ -80,7 +80,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		return !buffer.hasRemaining();
 	}
 
-	public SocketChannel getEndPoint() {
+	public SocketChannel getSocketChannel() {
 		return channel;
 	}
 
@@ -101,7 +101,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	}
 
 	public IOWriteFuture duplicate(IOSession session) {
-		return new IOWriteFutureImpl(session.getTCPEndPoint(), readFuture, buffer.duplicate());
+		return new IOWriteFutureImpl(session.getSocketChannel(), readFuture, buffer.duplicate());
 	}
 	
 }

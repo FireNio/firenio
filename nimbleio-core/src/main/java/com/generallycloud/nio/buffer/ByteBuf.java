@@ -59,9 +59,9 @@ public interface ByteBuf extends Releasable{
 	public abstract void put(byte [] src,int offset,int length);
 
 	// 往buffer中write
-	public abstract int read(SocketChannel endPoint) throws IOException;
+	public abstract int read(SocketChannel channel) throws IOException;
 
 	// 往buffer中read
-	public abstract int write(SocketChannel endPoint) throws IOException;
+	public abstract int write(SocketChannel channel) throws IOException;
 
 }

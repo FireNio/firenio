@@ -34,7 +34,7 @@ public interface Channel extends Closeable{
 	
 	public abstract IOSession getSession();
 
-	public abstract Integer getEndPointID();
+	public abstract Integer getChannelID();
 	
 	public abstract InetSocketAddress getRemoteSocketAddress();
 

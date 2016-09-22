@@ -54,7 +54,7 @@ public interface Session extends Closeable{
 
 	public abstract Integer getSessionID();
 
-	public abstract DatagramChannel getUDPEndPoint();
+	public abstract DatagramChannel getDatagramChannel();
 
 	public abstract boolean isBlocking();
 
@@ -70,7 +70,7 @@ public interface Session extends Closeable{
 
 	public abstract void setSessionID(Integer sessionID);
 
-	public abstract void setUDPEndPoint(DatagramChannel udpEndPoint);
+	public abstract void setDatagramChannel(DatagramChannel datagramChannel);
 	
 	public abstract EventLoop getEventLoop();
 	

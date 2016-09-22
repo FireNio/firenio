@@ -6,6 +6,6 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public interface ProtocolDecoder {
 
-	public abstract IOReadFuture decode(SocketChannel endPoint) throws IOException;
+	public abstract IOReadFuture decode(SocketChannel channel) throws IOException;
 
 }

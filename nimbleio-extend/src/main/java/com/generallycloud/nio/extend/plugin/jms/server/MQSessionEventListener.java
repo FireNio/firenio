@@ -23,7 +23,7 @@ public class MQSessionEventListener extends SEListenerAdapter {
 		}
 	}
 
-	// FIXME 移除该EndPoint上的consumer
+	// FIXME 移除该session上的consumer
 	public void sessionClosed(Session session) {
 		
 		MQContext context = MQContext.getInstance();

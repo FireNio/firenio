@@ -10,6 +10,6 @@ public interface ChannelWriter extends Looper{
 
 	public abstract void offer(IOWriteFuture future);
 	
-	public abstract void wekeupEndPoint(SocketChannel endPoint);
+	public abstract void wekeupSocketChannel(SocketChannel channel);
 
 }

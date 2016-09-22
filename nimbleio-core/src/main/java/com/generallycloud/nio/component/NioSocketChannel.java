@@ -46,7 +46,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			throw new SocketException("socket is empty");
 		}
 		
-		this.session = new IOSessionImpl(this, getEndPointID());
+		this.session = new IOSessionImpl(this, getChannelID());
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
@@ -125,7 +125,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				
 				channel.updateNetworkState(1);
 				
-				channelWriter.wekeupEndPoint(channel);
+				channelWriter.wekeupSocketChannel(channel);
 			}
 		});
 

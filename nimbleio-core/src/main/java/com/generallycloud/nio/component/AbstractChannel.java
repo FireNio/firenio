@@ -10,13 +10,13 @@ public abstract class AbstractChannel implements Channel {
 	private Object				attachment;
 	private NIOContext			context;
 	private String 			edp_description;
-	private Integer			endPointID;
+	private Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	
 	public AbstractChannel(NIOContext context) {
 		this.context = context;
-		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
+		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
 
 	public Object getAttachment() {
@@ -27,8 +27,8 @@ public abstract class AbstractChannel implements Channel {
 		return context;
 	}
 
-	public Integer getEndPointID() {
-		return endPointID;
+	public Integer getChannelID() {
+		return channelID;
 	}
 
 	public String getLocalAddr() {
@@ -105,7 +105,7 @@ public abstract class AbstractChannel implements Channel {
 			edp_description = new StringBuilder("[")
 			.append(getMarkPrefix())
 			.append("(id:")
-			.append(getIdHexString(endPointID))
+			.append(getIdHexString(channelID))
 			.append(") remote /")
 			.append(this.getRemoteAddr())
 			.append(":")
@@ -116,9 +116,9 @@ public abstract class AbstractChannel implements Channel {
 		return edp_description;
 	}
 	
-	private String getIdHexString(Integer endPointID) {
+	private String getIdHexString(Integer channelID) {
 		
-		String id = Long.toHexString(endPointID);
+		String id = Long.toHexString(channelID);
 
 		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
 	}
