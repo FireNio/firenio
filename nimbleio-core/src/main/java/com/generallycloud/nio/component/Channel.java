@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
+//FIXME 扩展更多Channel
 public interface Channel extends Closeable{
 
 	public abstract String getLocalAddr();
@@ -21,7 +22,7 @@ public interface Channel extends Closeable{
 
 	public abstract int getRemotePort();
 	
-	//FIXME 考虑放在select线程执行否则会导致java.nio.channels.CancelledKeyException异常
+	//FIXME 考虑放在IO线程执行否则会导致java.nio.channels.CancelledKeyException异常
 	public abstract void physicalClose() throws IOException;
 
 	public abstract NIOContext getContext();

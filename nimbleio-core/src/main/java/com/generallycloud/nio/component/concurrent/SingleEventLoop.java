@@ -5,28 +5,29 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.nio.AbstractLifeCycle;
+import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.AbstractLooper;
+import com.generallycloud.nio.common.ThreadUtil;
 
 public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 
 	private static Logger		logger	= LoggerFactory.getLogger(SingleEventLoop.class);
 
-	private UniqueThread		thread;
+	private EventLoopThread			thread;
 
-	private RealSingleEventLoop	realSingleEventLoop;
+	private SingleEventLoopWorker	singleEventLoopWorker;
 
 	public SingleEventLoop(String threadName, int queueSize) {
-		
-		this.realSingleEventLoop = new RealSingleEventLoop(queueSize);
-		
-		this.thread = new UniqueThread(realSingleEventLoop, threadName);
+
+		this.singleEventLoopWorker = new SingleEventLoopWorker(queueSize);
+
+		this.thread = new EventLoopThread(singleEventLoopWorker, threadName);
 	}
 
 	public void dispatch(Runnable job) {
-		realSingleEventLoop.dispatch(job);
+		singleEventLoopWorker.dispatch(job);
 	}
 
 	protected void doStart() throws Exception {
@@ -41,9 +42,11 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 		return thread.toString();
 	}
 
-	class RealSingleEventLoop extends AbstractLooper {
+	class SingleEventLoopWorker implements Looper {
 
-		protected RealSingleEventLoop(int queueSize) {
+		private boolean	stoped	= false;
+
+		protected SingleEventLoopWorker(int queueSize) {
 			this.jobs = new ArrayBlockingQueue<Runnable>(queueSize);
 		}
 
@@ -51,7 +54,7 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 
 		public void dispatch(Runnable job) {
 
-			if (!jobs.offer(job)) {
+			if (stoped || !jobs.offer(job)) {
 				throw new RejectedExecutionException();
 			}
 		}
@@ -69,6 +72,15 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 				runnable.run();
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
+			}
+		}
+
+		public void stop() {
+
+			stoped = true;
+
+			for (; jobs.size() > 0;) {
+				ThreadUtil.sleep(8);
 			}
 		}
 	}

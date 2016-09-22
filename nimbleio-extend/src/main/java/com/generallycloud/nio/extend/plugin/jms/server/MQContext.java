@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 import com.generallycloud.nio.component.concurrent.ReentrantSet;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
@@ -26,8 +26,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 	private ReentrantSet<String>			receivers		= new ReentrantSet<String>();
 	private MessageDecoder				messageDecoder	= new DefaultMessageDecoder();
 	private static MQContext			instance;
-	private UniqueThread				p2pThread;
-	private UniqueThread				subThread;
+	private EventLoopThread				p2pThread;
+	private EventLoopThread				subThread;
 
 	public static MQContext getInstance() {
 		return instance;
@@ -47,9 +47,9 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 
-		p2pThread = new UniqueThread(p2pProductLine, "MQ-P2P-ProductLine");
+		p2pThread = new EventLoopThread(p2pProductLine, "MQ-P2P-ProductLine");
 
-		subThread = new UniqueThread(subProductLine, "MQ-SUB-ProductLine");
+		subThread = new EventLoopThread(subProductLine, "MQ-SUB-ProductLine");
 
 		p2pThread.start();
 		subThread.start();
@@ -144,9 +144,9 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 
-		p2pThread = new UniqueThread(p2pProductLine, "MQ-P2P-ProductLine");
+		p2pThread = new EventLoopThread(p2pProductLine, "MQ-P2P-ProductLine");
 
-		subThread = new UniqueThread(subProductLine, "MQ-SUB-ProductLine");
+		subThread = new EventLoopThread(subProductLine, "MQ-SUB-ProductLine");
 
 		p2pThread.start();
 		subThread.start();

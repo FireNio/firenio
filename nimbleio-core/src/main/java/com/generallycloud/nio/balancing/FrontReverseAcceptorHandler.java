@@ -112,7 +112,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		if (response != null) {
 
-			if (response.closed()) {
+			if (response.isClosed()) {
 
 				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, f);
 

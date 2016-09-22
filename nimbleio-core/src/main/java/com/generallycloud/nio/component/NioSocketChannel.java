@@ -174,6 +174,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return networkWeak;
 	}
 
+	//FIXME 是否使用channel.isOpen()
 	public boolean isOpened() {
 		return opened;
 	}

@@ -8,13 +8,13 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SelectorLoop;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 
 	private SelectorLoop []		selectorLoops			;
-	private UniqueThread []		selectorLoopThreads		;
+	private EventLoopThread []		selectorLoopThreads		;
 	private ServerSocketChannel	channel				;
 	private ServerSocket		serverSocket			;
 	
@@ -46,13 +46,13 @@ public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 			selectorLoops[i].register(context, channel);
 		}
 		
-		selectorLoopThreads = new UniqueThread[core_size];
+		selectorLoopThreads = new EventLoopThread[core_size];
 		
 		for (int i = 0; i < core_size; i++) {
 			
 			SelectorLoop selectorLoop = selectorLoops[i];
 			
-			selectorLoopThreads[i] = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
+			selectorLoopThreads[i] = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 			
 			selectorLoopThreads[i].start();
 		}

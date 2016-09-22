@@ -11,7 +11,7 @@ import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -19,7 +19,7 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 public class SocketChannelConnector extends AbstractIOConnector {
 
 	private SocketChannelSelectorLoop	selectorLoop;
-	private UniqueThread	selectorLoopThread;
+	private EventLoopThread	selectorLoopThread;
 	private Waiter<Object>	waiter	= new Waiter<Object>();
 
 	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
@@ -34,7 +34,7 @@ public class SocketChannelConnector extends AbstractIOConnector {
 
 		channel.connect(socketAddress);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
+		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
 		this.selectorLoopThread.start();
 
@@ -80,7 +80,7 @@ public class SocketChannelConnector extends AbstractIOConnector {
 		return this.serverAddress;
 	}
 
-	protected UniqueThread getSelectorLoopThread() {
+	protected EventLoopThread getSelectorLoopThread() {
 		return selectorLoopThread;
 	}
 

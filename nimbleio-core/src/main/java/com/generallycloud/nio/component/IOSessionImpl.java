@@ -21,7 +21,6 @@ public class IOSessionImpl implements IOSession {
 	private static final Logger		logger		= LoggerFactory.getLogger(IOSessionImpl.class);
 
 	private Object					attachment;
-	private boolean				closed;
 	private NIOContext				context;
 	private SocketChannel			socketChannel;
 	private Integer				sessionID;
@@ -46,8 +45,8 @@ public class IOSessionImpl implements IOSession {
 		attributes.clear();
 	}
 
-	public boolean closed() {
-		return closed;
+	public boolean isClosed() {
+		return !isOpened();
 	}
 
 	public EventLoop getEventLoop() {
@@ -62,26 +61,29 @@ public class IOSessionImpl implements IOSession {
 
 		synchronized (this) {
 
-			if (closed) {
+			if (isClosed()) {
 				return;
 			}
-
-			this.closed = true;
 
 			physicalClose(datagramChannel);
 
 			physicalClose(socketChannel);
+		}
+		
+		fireClosed();
+	}
+	
+	private void fireClosed(){
 
-			SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
-			for (; listenerWrapper != null;) {
-				try {
-					listenerWrapper.sessionClosed(this);
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-				listenerWrapper = listenerWrapper.nextListener();
+		for (; listenerWrapper != null;) {
+			try {
+				listenerWrapper.sessionClosed(this);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
 			}
+			listenerWrapper = listenerWrapper.nextListener();
 		}
 	}
 
@@ -238,10 +240,6 @@ public class IOSessionImpl implements IOSession {
 		return socketChannel.isBlocking();
 	}
 
-	public boolean isOpened() {
-		return socketChannel.isOpened();
-	}
-
 	public Object removeAttribute(Object key) {
 		return attributes.remove(key);
 	}
@@ -278,6 +276,10 @@ public class IOSessionImpl implements IOSession {
 
 	public long getLastAccessTime() {
 		return lastAccess;
+	}
+	
+	public boolean isOpened() {
+		return socketChannel.isOpened();
 	}
 
 	public String toString() {

@@ -9,7 +9,6 @@ import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
-import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -50,8 +49,6 @@ public class IOConnectorUtil {
 				context.addSessionEventListener(new UpdateFixedSessionSEListener(eventHandle.getFixedSession()));
 			}
 
-			context.setProtocolFactory(new NIOProtocolFactory());
-			
 			context.addSessionEventListener(new LoggerSEListener());
 
 			context.addSessionEventListener(new ConnectorCloseSEListener(connector));

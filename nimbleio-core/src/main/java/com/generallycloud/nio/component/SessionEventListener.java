@@ -1,7 +1,8 @@
 package com.generallycloud.nio.component;
 
+import java.util.EventListener;
 
-public interface SessionEventListener {
+public interface SessionEventListener extends EventListener{
 
 	public abstract void sessionOpened(Session session);
 

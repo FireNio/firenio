@@ -10,13 +10,13 @@ import com.generallycloud.nio.component.ChannelWriterImpl;
 import com.generallycloud.nio.component.ChannelWriter;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 	
 	private ChannelWriter	channelWriter			= null;
 
-	private UniqueThread	channelWriterThread	= null;
+	private EventLoopThread	channelWriterThread	= null;
 
 	public ClientTCPSelectorLoop(NIOContext context, SocketChannelConnector connector) {
 
@@ -31,7 +31,7 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 		
 		this.channelWriter = new ChannelWriterImpl(context);
 
-		this.channelWriterThread = new UniqueThread(channelWriter, channelWriter.toString());
+		this.channelWriterThread = new EventLoopThread(channelWriter, channelWriter.toString());
 		
 		this._alpha_acceptor.setChannelWriter(channelWriter);
 

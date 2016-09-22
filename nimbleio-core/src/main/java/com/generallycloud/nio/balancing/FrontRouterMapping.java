@@ -67,7 +67,7 @@ public class FrontRouterMapping {
 			return getRouterSessionFresh(session);
 		}
 
-		if (!router_session.isOpened()) {
+		if (router_session.isClosed()) {
 
 			return getRouterSessionFresh(session);
 		}

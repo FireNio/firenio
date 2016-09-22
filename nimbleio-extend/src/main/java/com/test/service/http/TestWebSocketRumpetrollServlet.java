@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
@@ -23,7 +23,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
-	private UniqueThread	msgAdapterThread;
+	private EventLoopThread	msgAdapterThread;
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
@@ -114,7 +114,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		msgAdapterThread = new UniqueThread(msgAdapter, "WebSocketRumpetroll");
+		msgAdapterThread = new EventLoopThread(msgAdapter, "WebSocketRumpetroll");
 
 		msgAdapterThread.start();
 

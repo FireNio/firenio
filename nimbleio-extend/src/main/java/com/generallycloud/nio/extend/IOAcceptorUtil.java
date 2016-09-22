@@ -47,8 +47,6 @@ public class IOAcceptorUtil {
 
 			context.addSessionEventListener(new LoggerSEListener());
 
-//			context.addSessionEventListener(new SessionAliveSEListener());
-			
 			acceptor.setContext(context);
 
 		} catch (Throwable e) {

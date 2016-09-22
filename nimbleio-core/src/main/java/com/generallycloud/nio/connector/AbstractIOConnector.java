@@ -12,7 +12,7 @@ import com.generallycloud.nio.component.AbstractIOService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
@@ -25,13 +25,13 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractIOConnector.class);
 
-	protected abstract UniqueThread getSelectorLoopThread();
+	protected abstract EventLoopThread getSelectorLoopThread();
 
 	public void close() throws IOException {
 
 		Thread thread = Thread.currentThread();
 
-		UniqueThread loopThread = getSelectorLoopThread();
+		EventLoopThread loopThread = getSelectorLoopThread();
 
 		if (loopThread != null && loopThread.isMonitor(thread)) {
 			throw new IllegalStateException("not allow to close on future callback");

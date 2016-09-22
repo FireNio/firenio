@@ -8,13 +8,13 @@ import java.nio.channels.DatagramChannel;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
 	
 	private DatagramChannelSelectorLoop		selectorLoop		;
-	private UniqueThread		selectorLoopThread	;
+	private EventLoopThread		selectorLoopThread	;
 	private DatagramChannel		channel			;
 	private DatagramSocket		serverSocket		;
 
@@ -33,7 +33,7 @@ public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
 		
 		this.selectorLoop.register(context, channel);
 		
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription()+"(selector)");
+		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription()+"(selector)");
 
 		this.selectorLoopThread.start();
 	}

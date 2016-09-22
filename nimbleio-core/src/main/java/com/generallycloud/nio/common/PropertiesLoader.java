@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
+//FIXME 改进这个类
 public class PropertiesLoader {
 
 	private static SharedBundle	bundle				= SharedBundle.instance();

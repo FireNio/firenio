@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -22,9 +22,9 @@ public class DatagramChannelConnector extends AbstractIOConnector {
 	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private ClientUDPSelectorLoop	selectorLoop;
-	private UniqueThread		selectorLoopThread;
+	private EventLoopThread		selectorLoopThread;
 
-	protected UniqueThread getSelectorLoopThread() {
+	protected EventLoopThread getSelectorLoopThread() {
 		return selectorLoopThread;
 	}
 
@@ -100,7 +100,7 @@ public class DatagramChannelConnector extends AbstractIOConnector {
 
 		this.datagramChannel.setSession(session);
 
-		this.selectorLoopThread = new UniqueThread(selectorLoop, getServiceDescription() + "(selector)");
+		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
 		this.selectorLoopThread.start();
 	}

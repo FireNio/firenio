@@ -6,16 +6,16 @@ import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public class UniqueThread implements Looper {
+public class EventLoopThread implements Looper {
 
 	private boolean		running		= false;
 	private AtomicBoolean	initialized	= new AtomicBoolean();
-	private Logger			logger		= LoggerFactory.getLogger(UniqueThread.class);
+	private Logger			logger		= LoggerFactory.getLogger(EventLoopThread.class);
 	private Looper			looper;
 	private Thread			monitor;
 	private String			threadName;
 	
-	public UniqueThread(Looper looper, String threadName) {
+	public EventLoopThread(Looper looper, String threadName) {
 		this.looper = looper;
 		this.threadName = threadName;
 	}

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.http11.HttpSession;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
@@ -19,7 +19,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
-	private UniqueThread	msgAdapterThread;
+	private EventLoopThread	msgAdapterThread;
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
@@ -140,7 +140,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		msgAdapterThread = new UniqueThread(msgAdapter, "WebSocketChat");
+		msgAdapterThread = new EventLoopThread(msgAdapter, "WebSocketChat");
 
 		msgAdapterThread.start();
 

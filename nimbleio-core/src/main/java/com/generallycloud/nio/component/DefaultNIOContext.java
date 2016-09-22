@@ -16,7 +16,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.UniqueThread;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -37,7 +37,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private DatagramChannelFactory		datagramChannelFactory;
 	private IOService					udpService;
 	private ProtocolFactory				protocolFactory;
-	private UniqueThread				sessionFactoryThread;
+	private EventLoopThread				sessionFactoryThread;
 	private long						sessionIdleTime	;
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
@@ -163,7 +163,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		this.directByteBufferPool.start();
 		
-		this.sessionFactoryThread = new UniqueThread(sessionFactory, "session-manager");
+		this.sessionFactoryThread = new EventLoopThread(sessionFactory, "session-manager");
 
 		this.sessionFactoryThread.start();
 		

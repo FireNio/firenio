@@ -16,7 +16,7 @@ public interface Session extends Closeable{
 	
 	public abstract void clearAttributes() ;
 
-	public abstract boolean closed();
+	public abstract boolean isClosed();
 
 	public abstract void flush(ReadFuture future) throws IOException;
 
@@ -58,8 +58,6 @@ public interface Session extends Closeable{
 
 	public abstract boolean isBlocking();
 
-	public abstract boolean isOpened();
-
 	public abstract Object removeAttribute(Object key) ;
 	
 	public abstract void setAttachment(Object attachment);
@@ -77,5 +75,7 @@ public interface Session extends Closeable{
 	public abstract String getProtocolID();
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
+
+	public abstract boolean isOpened();
 
 }
