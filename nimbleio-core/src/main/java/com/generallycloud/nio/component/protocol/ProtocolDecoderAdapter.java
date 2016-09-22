@@ -6,11 +6,11 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class ProtocolDecoderAdapter implements ProtocolDecoder {
 
-	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
+	public IOReadFuture decode(SocketChannel endPoint) throws IOException {
 		
 		ByteBuf buffer = allocate(endPoint.getContext());
 

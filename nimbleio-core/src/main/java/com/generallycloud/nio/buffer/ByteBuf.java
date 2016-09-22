@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.Releasable;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public interface ByteBuf extends Releasable{
 	
@@ -59,9 +59,9 @@ public interface ByteBuf extends Releasable{
 	public abstract void put(byte [] src,int offset,int length);
 
 	// 往buffer中write
-	public abstract int read(TCPEndPoint endPoint) throws IOException;
+	public abstract int read(SocketChannel endPoint) throws IOException;
 
 	// 往buffer中read
-	public abstract int write(TCPEndPoint endPoint) throws IOException;
+	public abstract int write(SocketChannel endPoint) throws IOException;
 
 }

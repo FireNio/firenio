@@ -8,7 +8,7 @@ public interface IOSession extends Session{
 	
 	public abstract void fireOpend();
 
-	public abstract TCPEndPoint getTCPEndPoint();
+	public abstract SocketChannel getTCPEndPoint();
 	
 	public abstract void flush(IOWriteFuture future) throws IOException;
 }

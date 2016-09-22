@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.http11.future.ClientHttpHeaderParser;
@@ -16,7 +16,7 @@ public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 
 	private ClientHttpHeaderParser	parser	= new ClientHttpHeaderParser();
 
-	public IOReadFuture decode(TCPEndPoint endPoint) throws IOException {
+	public IOReadFuture decode(SocketChannel endPoint) throws IOException {
 
 		ByteBuffer buffer = this.buffer;
 

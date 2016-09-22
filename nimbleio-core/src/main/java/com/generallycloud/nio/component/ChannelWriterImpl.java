@@ -51,7 +51,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	public void wekeupEndPoint(TCPEndPoint endPoint) {
+	public void wekeupEndPoint(SocketChannel endPoint) {
 
 		Integer endPointID = endPoint.getEndPointID();
 
@@ -69,7 +69,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 		sleepEndPoints.remove(endPointID);
 	}
 
-	private void sleepWriter(TCPEndPoint endPoint, IOWriteFuture future) {
+	private void sleepWriter(SocketChannel endPoint, IOWriteFuture future) {
 
 		Integer endPointID = endPoint.getEndPointID();
 
@@ -111,7 +111,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 			return;
 		}
 
-		TCPEndPoint endPoint = futureFromQueue.getEndPoint();
+		SocketChannel endPoint = futureFromQueue.getEndPoint();
 
 		if (!endPoint.isOpened()) {
 
@@ -158,7 +158,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 
 	// write future from endPoint
 	private void doWriteFutureFromEndPoint(IOWriteFuture futureFromEndPoint, IOWriteFuture futureFromQueue,
-			TCPEndPoint endPoint) throws IOException {
+			SocketChannel endPoint) throws IOException {
 
 		if (futureFromEndPoint.write()) {
 
@@ -179,7 +179,7 @@ public class ChannelWriterImpl implements ChannelWriter {
 		}
 	}
 
-	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, TCPEndPoint endPoint) throws IOException {
+	private void doWriteFutureFromQueue(IOWriteFuture futureFromQueue, SocketChannel endPoint) throws IOException {
 
 		if (futureFromQueue.write()) {
 

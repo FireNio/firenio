@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.UDPEndPoint;
+import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.DatagramRequest;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -35,7 +35,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 		this.context = context;
 	}
 
-	public void doAccept(UDPEndPoint endPoint, DatagramPacket packet,Session session) throws IOException {
+	public void doAccept(DatagramChannel endPoint, DatagramPacket packet,Session session) throws IOException {
 
 		AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(session);
 		
@@ -60,7 +60,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 		}
 	}
 	
-	protected void execute(UDPEndPoint endPoint,DatagramRequest request) {
+	protected void execute(DatagramChannel endPoint,DatagramRequest request) {
 
 		String serviceName = request.getFutureName();
 

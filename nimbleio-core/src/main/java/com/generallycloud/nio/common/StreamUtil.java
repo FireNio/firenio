@@ -5,11 +5,11 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.ByteArrayInputStream;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class StreamUtil {
 
-	public static void write(InputStream inputStream, TCPEndPoint endPoint, int start, int length, int block)
+	public static void write(InputStream inputStream, SocketChannel endPoint, int start, int length, int block)
 			throws IOException {
 		
 		if (inputStream.getClass() == ByteArrayInputStream.class) {

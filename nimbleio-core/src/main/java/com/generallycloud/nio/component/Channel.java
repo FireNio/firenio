@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-public interface EndPoint extends Closeable{
+public interface Channel extends Closeable{
 
 	public abstract String getLocalAddr();
 

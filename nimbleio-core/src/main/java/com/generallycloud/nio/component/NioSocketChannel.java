@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 import com.generallycloud.nio.component.protocol.ProtocolFactory;
 
-public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint {
+public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
 
 	private boolean			networkWeak;
 	private SocketChannel		channel;
@@ -34,7 +34,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 	
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public DefaultTCPEndPoint(NIOContext context, SelectionKey selectionKey, ChannelWriter channelWriter)
+	public NioSocketChannel(NIOContext context, SelectionKey selectionKey, ChannelWriter channelWriter)
 			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
@@ -121,7 +121,7 @@ public class DefaultTCPEndPoint extends AbstractEndPoint implements TCPEndPoint 
 			
 			public void handle(ChannelWriter channelWriter) {
 				
-				DefaultTCPEndPoint endPoint = DefaultTCPEndPoint.this;
+				NioSocketChannel endPoint = NioSocketChannel.this;
 				
 				endPoint.updateNetworkState(1);
 				

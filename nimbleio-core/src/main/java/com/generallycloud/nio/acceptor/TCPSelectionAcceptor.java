@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
@@ -51,7 +50,7 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		SocketChannel channel;
+		java.nio.channels.SocketChannel channel;
 		
 		CoreProcessors processors = this.processors;
 		
@@ -92,10 +91,10 @@ public class TCPSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 注册到selector，等待连接
 		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
 		// 绑定EndPoint到SelectionKey
-		TCPEndPoint endPoint = attachEndPoint(context, getChannelWriter(), sk);
+		SocketChannel socketChannel = attachEndPoint(context, getChannelWriter(), sk);
 		
 		//
-		endPoint.getSession().fireOpend();
+		socketChannel.getSession().fireOpend();
 		// logger.debug("__________________chanel____gen____{}", channel);
 	}
 

@@ -3,13 +3,13 @@ package com.generallycloud.nio.component.protocol;
 import java.io.IOException;
 
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public interface IOWriteFuture extends WriteFuture {
 
 	public abstract boolean write() throws IOException;
 
-	public abstract TCPEndPoint getEndPoint();
+	public abstract SocketChannel getEndPoint();
 
 	public IOWriteFuture duplicate(IOSession session);
 

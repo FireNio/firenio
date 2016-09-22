@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
-public interface UDPEndPoint extends EndPoint {
+public interface DatagramChannel extends Channel {
 
 	public abstract void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException;
 

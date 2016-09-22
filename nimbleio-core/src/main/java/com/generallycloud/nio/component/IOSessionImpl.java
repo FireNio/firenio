@@ -23,16 +23,16 @@ public class IOSessionImpl implements IOSession {
 	private Object						attachment;
 	private boolean					closed;
 	private NIOContext					context;
-	private TCPEndPoint					endPoint;
+	private SocketChannel					endPoint;
 	private Integer					sessionID;
-	private UDPEndPoint					udpEndPoint;
+	private DatagramChannel					udpEndPoint;
 	private Object[]					attachments	;
 	private EventLoop					eventLoop;
 	private long						creationTime	= System.currentTimeMillis();
 	private long						lastAccess;
 	private HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
-	public IOSessionImpl(TCPEndPoint endPoint, Integer sessionID) {
+	public IOSessionImpl(SocketChannel endPoint, Integer sessionID) {
 		this.context = endPoint.getContext();
 		this.endPoint = endPoint;
 		this.sessionID = sessionID;
@@ -85,7 +85,7 @@ public class IOSessionImpl implements IOSession {
 		}
 	}
 	
-	private void physicalClose(EndPoint endPoint) {
+	private void physicalClose(Channel endPoint) {
 		
 		if (endPoint == null) {
 			return;
@@ -108,7 +108,7 @@ public class IOSessionImpl implements IOSession {
 			throw new IllegalStateException("flushed already");
 		}
 		
-		TCPEndPoint endPoint = this.endPoint;
+		SocketChannel endPoint = this.endPoint;
 
 		if (!endPoint.isOpened()) {
 
@@ -226,11 +226,11 @@ public class IOSessionImpl implements IOSession {
 		return sessionID;
 	}
 
-	public TCPEndPoint getTCPEndPoint() {
+	public SocketChannel getTCPEndPoint() {
 		return endPoint;
 	}
 
-	public UDPEndPoint getUDPEndPoint() {
+	public DatagramChannel getUDPEndPoint() {
 		return udpEndPoint;
 	}
 
@@ -263,7 +263,7 @@ public class IOSessionImpl implements IOSession {
 		this.sessionID = sessionID;
 	}
 
-	public void setUDPEndPoint(UDPEndPoint udpEndPoint) {
+	public void setUDPEndPoint(DatagramChannel udpEndPoint) {
 
 		if (this.udpEndPoint != null && this.udpEndPoint != udpEndPoint) {
 			throw new IllegalArgumentException("udpEndPoint setted");

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class MemoryBlockV3 implements ByteBuf {
 
@@ -168,7 +168,7 @@ public class MemoryBlockV3 implements ByteBuf {
 		this.position += (length - offset);
 	}
 
-	public int read(TCPEndPoint endPoint) throws IOException {
+	public int read(SocketChannel endPoint) throws IOException {
 
 		int length = endPoint.read(memory);
 
@@ -241,7 +241,7 @@ public class MemoryBlockV3 implements ByteBuf {
 		return this;
 	}
 
-	public int write(TCPEndPoint endPoint) throws IOException {
+	public int write(SocketChannel endPoint) throws IOException {
 
 		int length = endPoint.write(memory);
 

@@ -7,14 +7,14 @@ import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOSessionImpl;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
 	protected BufferedOutputStream	writeBuffer		= new BufferedOutputStream();
 	protected IOEventHandle			ioEventHandle		;
 	protected boolean 			hasOutputStream	;
-	protected TCPEndPoint			endPoint			;
+	protected SocketChannel			endPoint			;
 	protected IOSessionImpl			session			;
 	protected boolean				flushed			;
 	

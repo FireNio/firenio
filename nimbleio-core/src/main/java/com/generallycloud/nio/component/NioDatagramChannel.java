@@ -14,19 +14,19 @@ import com.generallycloud.nio.acceptor.UDPEndPointFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public class DefaultUDPEndPoint extends AbstractEndPoint implements UDPEndPoint {
+public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.nio.component.DatagramChannel {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(DefaultUDPEndPoint.class);
+	private static final Logger	LOGGER	= LoggerFactory.getLogger(NioDatagramChannel.class);
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
 	private IOSession			session;
 	private DatagramSocket		socket;
 
-	public DefaultUDPEndPoint(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
+	public NioDatagramChannel(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
 		this(context,(DatagramChannel) selectionKey.channel(),remote);
 	}
 	
-	public DefaultUDPEndPoint(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
+	public NioDatagramChannel(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
 		super(context);
 		this.channel = channel;

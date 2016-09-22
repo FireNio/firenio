@@ -3,11 +3,10 @@ package com.generallycloud.nio.connector;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
@@ -23,7 +22,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
 	public void accept(SelectionKey selectionKey) throws Exception {
 
-		SocketChannel channel = (SocketChannel) selectionKey.channel();
+		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectionKey.channel();
 
 		// does it need connection pending ?
 		if (!channel.isConnectionPending()) {
@@ -34,7 +33,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 		finishConnect(selectionKey, channel);
 	}
 
-	private void finishConnect(SelectionKey selectionKey, SocketChannel channel) {
+	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) {
 
 		try {
 
@@ -42,7 +41,7 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 
 			channel.register(selector, SelectionKey.OP_READ);
 
-			final TCPEndPoint endPoint = attachEndPoint(context, getChannelWriter(), selectionKey);
+			final SocketChannel endPoint = attachEndPoint(context, getChannelWriter(), selectionKey);
 
 			endPoint.getSession().getEventLoop().dispatch(new Runnable() {
 
@@ -72,8 +71,5 @@ public class TCPSelectionConnector extends AbstractTCPSelectionAlpha {
 	protected void setSelector(Selector selector) {
 		this.selector = selector;
 	}
-	
-	
-	
 	
 }

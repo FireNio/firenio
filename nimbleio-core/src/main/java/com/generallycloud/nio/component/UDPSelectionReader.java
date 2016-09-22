@@ -44,9 +44,9 @@ public class UDPSelectionReader implements SelectionAcceptor {
 			return;
 		}
 
-		UDPEndPoint endPoint = factory.getUDPEndPoint(context, selectionKey, remoteSocketAddress);
+		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getUDPEndPoint(context, selectionKey, remoteSocketAddress);
 
-		acceptor.accept(endPoint, packet);
+		acceptor.accept(datagramChannel, packet);
 
 	}
 }

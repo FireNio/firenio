@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
-import com.generallycloud.nio.component.UDPEndPoint;
+import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.DatagramPacketGroup;
 
@@ -35,7 +35,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 	}
 
-	public void accept(UDPEndPoint endPoint, DatagramPacket packet) throws IOException {
+	public void accept(DatagramChannel endPoint, DatagramPacket packet) throws IOException {
 
 		long timestamp = packet.getTimestamp();
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 // 注意，在对buffer写入数据时，没有做reference数量判断，
 // 请勿对duplicate出来的buffer做写入操作
@@ -147,11 +147,11 @@ public class PooledByteBuffer implements ByteBuf {
 		return memory.remaining();
 	}
 
-	public int read(TCPEndPoint endPoint) throws IOException {
+	public int read(SocketChannel endPoint) throws IOException {
 		return endPoint.read(memory);
 	}
 
-	public int write(TCPEndPoint endPoint) throws IOException {
+	public int write(SocketChannel endPoint) throws IOException {
 		return endPoint.write(memory);
 	}
 

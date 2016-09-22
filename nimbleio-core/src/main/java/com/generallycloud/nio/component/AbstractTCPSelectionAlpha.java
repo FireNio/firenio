@@ -31,17 +31,17 @@ public abstract class AbstractTCPSelectionAlpha implements TCPSelectionAlpha {
 		this.channelWriter = channelWriter;
 	}
 
-	protected TCPEndPoint attachEndPoint(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
+	protected SocketChannel attachEndPoint(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
 			throws SocketException {
 
-		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
+		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
 
 		if (endPoint != null) {
 
 			return endPoint;
 		}
 
-		endPoint = new DefaultTCPEndPoint(context, selectionKey, channelWriter);
+		endPoint = new NioSocketChannel(context, selectionKey, channelWriter);
 
 		endPoint.setProtocolDecoder(protocolDecoder);
 

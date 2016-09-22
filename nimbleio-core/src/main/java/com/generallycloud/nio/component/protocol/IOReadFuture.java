@@ -2,7 +2,7 @@ package com.generallycloud.nio.component.protocol;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public interface IOReadFuture extends ReadFuture{
 	
@@ -12,6 +12,6 @@ public interface IOReadFuture extends ReadFuture{
 	
 	public abstract boolean isBeatPacket();
 	
-	public abstract TCPEndPoint getTCPEndPoint();
+	public abstract SocketChannel getTCPEndPoint();
 	
 }

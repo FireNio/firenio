@@ -6,5 +6,5 @@ import com.generallycloud.nio.component.protocol.DatagramPacket;
 
 public interface DatagramPacketAcceptor {
 	
-	public abstract void accept(UDPEndPoint endPoint,DatagramPacket packet) throws IOException;
+	public abstract void accept(DatagramChannel channel,DatagramPacket packet) throws IOException;
 }

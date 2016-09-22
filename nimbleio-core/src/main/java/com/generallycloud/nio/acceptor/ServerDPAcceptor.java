@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.UDPEndPoint;
+import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.DatagramRequest;
 
@@ -15,7 +15,7 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 	
 	private Logger logger = LoggerFactory.getLogger(ServerDPAcceptor.class);
 
-	public void accept(UDPEndPoint endPoint, DatagramPacket packet) throws IOException {
+	public void accept(DatagramChannel endPoint, DatagramPacket packet) throws IOException {
 
 		NIOContext nioContext = endPoint.getContext();
 
@@ -38,8 +38,8 @@ public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 		doAccept(endPoint, packet,session);
 	}
 	
-	protected abstract void doAccept(UDPEndPoint endPoint, DatagramPacket packet,Session session) throws IOException ;
+	protected abstract void doAccept(DatagramChannel endPoint, DatagramPacket packet,Session session) throws IOException ;
 	
-	protected abstract void execute(UDPEndPoint endPoint,DatagramRequest request) ;
+	protected abstract void execute(DatagramChannel endPoint,DatagramRequest request) ;
 
 }

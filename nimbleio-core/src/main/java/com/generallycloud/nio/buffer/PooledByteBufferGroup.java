@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
 public class PooledByteBufferGroup implements ByteBuf {
@@ -88,7 +88,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 		}
 	}
 
-	public int read(TCPEndPoint endPoint) throws IOException {
+	public int read(SocketChannel endPoint) throws IOException {
 		
 		ByteBuf buf = findBuf();
 		
@@ -123,7 +123,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return buf;
 	}
 
-	public int write(TCPEndPoint endPoint) throws IOException {
+	public int write(SocketChannel endPoint) throws IOException {
 		
 		ByteBuf buf = findBuf();
 		

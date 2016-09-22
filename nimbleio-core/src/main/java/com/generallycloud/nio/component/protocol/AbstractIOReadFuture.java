@@ -1,7 +1,7 @@
 package com.generallycloud.nio.component.protocol;
 
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractIOReadFuture extends AbstractReadFuture implements IOReadFuture {
 
@@ -19,7 +19,7 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		return isBeatPacket;
 	}
 
-	public TCPEndPoint getTCPEndPoint() {
+	public SocketChannel getTCPEndPoint() {
 		return endPoint;
 	}
 

@@ -51,7 +51,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
 
 		if (isTCPEndPoint(attachment)) {
 
-			CloseUtil.close(((TCPEndPoint) attachment));
+			CloseUtil.close(((SocketChannel) attachment));
 		}
 
 		selectionKey.cancel();
@@ -60,7 +60,7 @@ public abstract class TCPSelectorLoop extends AbstractSelectorLoop {
 	}
 
 	private boolean isTCPEndPoint(Object object) {
-		return object != null && (object.getClass() == DefaultTCPEndPoint.class || object instanceof TCPEndPoint);
+		return object != null && (object.getClass() == NioSocketChannel.class || object instanceof SocketChannel);
 	}
 
 	public String toString() {

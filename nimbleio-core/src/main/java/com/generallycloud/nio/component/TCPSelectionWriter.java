@@ -7,7 +7,7 @@ public class TCPSelectionWriter implements SelectionAcceptor {
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
+		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
 
 		if (!endPoint.isOpened()) {
 			return;

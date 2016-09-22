@@ -13,7 +13,7 @@ import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 
@@ -131,7 +131,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 	public boolean read() throws IOException {
 
-		TCPEndPoint endPoint = this.endPoint;
+		SocketChannel endPoint = this.endPoint;
 
 		ByteBuf buffer = this.buffer;
 

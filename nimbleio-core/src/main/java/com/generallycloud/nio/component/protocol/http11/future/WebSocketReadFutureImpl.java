@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolException;
 import com.generallycloud.nio.component.protocol.http11.WebSocketProtocolDecoder;
@@ -130,7 +130,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 
 	public boolean read() throws IOException {
 		
-		TCPEndPoint endPoint = this.endPoint;
+		SocketChannel endPoint = this.endPoint;
 		
 		ByteBuf buffer = this.buffer;
 		

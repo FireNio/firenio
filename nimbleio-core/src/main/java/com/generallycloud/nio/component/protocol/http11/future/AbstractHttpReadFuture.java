@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.component.protocol.ProtocolDecoder;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
@@ -72,7 +72,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		cookieList.add(cookie);
 	}
 	
-	public boolean decode(TCPEndPoint endPoint, ByteBuffer buffer) throws IOException {
+	public boolean decode(SocketChannel endPoint, ByteBuffer buffer) throws IOException {
 
 		try {
 
@@ -240,7 +240,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	// FIXME 是否会出现第一次读到\r\n结束，下一次loop开头读到\r\n的情况
 	public boolean read() throws IOException {
 
-		TCPEndPoint endPoint = this.endPoint;
+		SocketChannel endPoint = this.endPoint;
 
 		ByteBuffer buffer = this.read_buffer;
 

@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture
 //FIXME jinji
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(SocketChannel endPoint, IOReadFuture readFuture) throws IOException {
 		
 		HttpRequestFuture future = (HttpRequestFuture) readFuture;
 

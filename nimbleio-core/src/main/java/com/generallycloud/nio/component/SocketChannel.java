@@ -15,7 +15,7 @@ import com.generallycloud.nio.component.protocol.ProtocolFactory;
 //客户端心跳：task&request超时即断开链接
 //服务端心跳：session-manager监测上次收到回报时间，长时间没有交互则发出心跳包，
 //下次循环时检测是否收到心跳
-public interface TCPEndPoint extends EndPoint {
+public interface SocketChannel extends DuplexChannel {
 
 	public abstract void setCurrentWriteFuture(IOWriteFuture future);
 

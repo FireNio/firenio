@@ -2,10 +2,10 @@ package com.generallycloud.nio.component.protocol;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public interface ProtocolDecoder {
 
-	public abstract IOReadFuture decode(TCPEndPoint endPoint) throws IOException;
+	public abstract IOReadFuture decode(SocketChannel endPoint) throws IOException;
 
 }

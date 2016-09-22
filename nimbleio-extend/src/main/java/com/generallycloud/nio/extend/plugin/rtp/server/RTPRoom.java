@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.UDPEndPoint;
+import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.extend.ApplicationContext;
@@ -23,7 +23,7 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
-	private ReentrantList<UDPEndPoint>	endPointList	= new ReentrantList<UDPEndPoint>();
+	private ReentrantList<DatagramChannel>	endPointList	= new ReentrantList<DatagramChannel>();
 	private RTPRoomFactory			roomFactory	;
 	private Integer				roomID		;
 	private boolean				closed		= false;
@@ -35,11 +35,11 @@ public class RTPRoom {
 		this.join(session.getUDPEndPoint());
 	}
 
-	public void broadcast(UDPEndPoint endPoint, DatagramPacket packet) {
+	public void broadcast(DatagramChannel endPoint, DatagramPacket packet) {
 
-		List<UDPEndPoint> endPoints = endPointList.getSnapshot();
+		List<DatagramChannel> endPoints = endPointList.getSnapshot();
 
-		for (UDPEndPoint point : endPoints) {
+		for (DatagramChannel point : endPoints) {
 
 			if (endPoint == point) {
 				continue;
@@ -68,7 +68,7 @@ public class RTPRoom {
 		return roomID;
 	}
 
-	public boolean join(UDPEndPoint endPoint) {
+	public boolean join(DatagramChannel endPoint) {
 		
 		if (endPoint == null) {
 //			throw new RuntimeException("udpEndPoint is null");
@@ -104,7 +104,7 @@ public class RTPRoom {
 		return true;
 	}
 
-	public void leave(UDPEndPoint endPoint) {
+	public void leave(DatagramChannel endPoint) {
 
 		ReentrantLock lock = endPointList.getReentrantLock();
 
@@ -112,9 +112,9 @@ public class RTPRoom {
 
 		endPointList.remove(endPoint);
 
-		List<UDPEndPoint> endPoints = endPointList.getSnapshot();
+		List<DatagramChannel> endPoints = endPointList.getSnapshot();
 
-		for (UDPEndPoint e : endPoints) {
+		for (DatagramChannel e : endPoints) {
 
 			if (e == endPoint) {
 				continue;

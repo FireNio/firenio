@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 
 import com.generallycloud.nio.common.StringUtil;
 
-public abstract class AbstractEndPoint implements EndPoint {
+public abstract class AbstractChannel implements Channel {
 
 	private Object				attachment;
 	private NIOContext			context;
@@ -14,7 +14,7 @@ public abstract class AbstractEndPoint implements EndPoint {
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	
-	public AbstractEndPoint(NIOContext context) {
+	public AbstractChannel(NIOContext context) {
 		this.context = context;
 		this.endPointID = context.getSequence().AUTO_ENDPOINT_ID.getAndIncrement();
 	}

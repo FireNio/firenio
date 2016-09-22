@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
@@ -13,7 +13,7 @@ import com.generallycloud.nio.component.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(TCPEndPoint endPoint, IOReadFuture future) throws IOException {
+	public IOWriteFuture encode(SocketChannel endPoint, IOReadFuture future) throws IOException {
 		
 		if (future.isBeatPacket()) {
 			

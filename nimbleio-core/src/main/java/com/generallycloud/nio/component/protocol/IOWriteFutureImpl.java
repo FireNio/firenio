@@ -10,17 +10,17 @@ import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.TCPEndPoint;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	protected Session			session;
 	protected ReadFuture		readFuture;
-	protected TCPEndPoint		endPoint;
+	protected SocketChannel		endPoint;
 	protected ByteBuf			buffer;
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(TCPEndPoint endPoint, ReadFuture readFuture, ByteBuf buffer) {
+	public IOWriteFutureImpl(SocketChannel endPoint, ReadFuture readFuture, ByteBuf buffer) {
 		this.endPoint = endPoint;
 		this.readFuture = readFuture;
 		this.session = endPoint.getSession();
@@ -80,7 +80,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		return !buffer.hasRemaining();
 	}
 
-	public TCPEndPoint getEndPoint() {
+	public SocketChannel getEndPoint() {
 		return endPoint;
 	}
 

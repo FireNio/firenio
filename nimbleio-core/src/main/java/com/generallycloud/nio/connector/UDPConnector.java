@@ -3,7 +3,6 @@ package com.generallycloud.nio.connector;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
@@ -12,18 +11,18 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.UDPEndPoint;
+import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class UDPConnector extends AbstractIOConnector {
 
-	private UDPEndPoint			endPoint;
+	private DatagramChannel			endPoint;
 	private Logger				logger		= LoggerFactory.getLogger(UDPConnector.class);
 	private ClientUDPSelectorLoop	selectorLoop;
 	private UniqueThread		selectorLoopThread;
-	private DatagramChannel		channel;
+	private java.nio.channels.DatagramChannel		channel;
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 
 	protected UniqueThread getSelectorLoopThread() {
@@ -90,7 +89,7 @@ public class UDPConnector extends AbstractIOConnector {
 
 	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
 
-		this.channel = DatagramChannel.open();
+		this.channel = java.nio.channels.DatagramChannel.open();
 
 		this.selectorLoop = new ClientUDPSelectorLoop(context);
 

@@ -18,7 +18,7 @@ public class TCPSelectionReader implements SelectionAcceptor {
 
 	public void accept(SelectionKey selectionKey) throws Exception {
 
-		TCPEndPoint endPoint = (TCPEndPoint) selectionKey.attachment();
+		SocketChannel endPoint = (SocketChannel) selectionKey.attachment();
 
 		if (endPoint == null || !endPoint.isOpened()) {
 			//该EndPoint已经被关闭
