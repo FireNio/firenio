@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		int SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY();
 		int SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 		
-		int MEMORY_POOL_SIZE = SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT / (1024 * 1024);
+		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
 		Charset encoding = serverConfiguration.getSERVER_ENCODING();
 

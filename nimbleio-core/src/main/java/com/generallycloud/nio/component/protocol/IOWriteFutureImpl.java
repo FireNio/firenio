@@ -41,14 +41,14 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		if (handle == null) {
-			logger.error(e.getMessage(), e);
+			logger.debug(e.getMessage(), e);
 			return;
 		}
 
 		try {
 			handle.exceptionCaught(session, readFuture, e, IOEventState.WRITE);
 		} catch (Throwable e1) {
-			logger.debug(e1);
+			logger.debug(e1.getMessage(),e1);
 		}
 	}
 

@@ -7,6 +7,7 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
@@ -25,6 +26,8 @@ public class TestSimpleClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		
 		connector.connect();
 
 		Session session = connector.getSession();

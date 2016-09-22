@@ -11,6 +11,7 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 
@@ -49,7 +50,7 @@ public class TestLoadClient1 extends ITestThread{
 		};
 		
 		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
-		
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 		connector.connect();
 		session = connector.getSession();
 	}
@@ -62,9 +63,9 @@ public class TestLoadClient1 extends ITestThread{
 		
 		PropertiesLoader.setBasepath("nio");
 		
-		int	time		= 12800;
+		int	time		= 1280000;
 		
-		int core_size = 4;
+		int core_size = 8;
 		
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}
