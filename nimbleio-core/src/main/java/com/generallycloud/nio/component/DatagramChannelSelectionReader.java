@@ -11,13 +11,13 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 
-public class UDPSelectionReader implements SelectionAcceptor {
+public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
 	private NIOContext	context		;
 	private ByteBuffer	cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
-	private Logger		logger		= LoggerFactory.getLogger(UDPSelectionReader.class);
+	private Logger		logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
 
-	public UDPSelectionReader(NIOContext context) {
+	public DatagramChannelSelectionReader(NIOContext context) {
 		this.context = context;
 	}
 

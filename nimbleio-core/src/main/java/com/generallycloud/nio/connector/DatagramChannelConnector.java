@@ -16,10 +16,10 @@ import com.generallycloud.nio.component.concurrent.UniqueThread;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public class UDPConnector extends AbstractIOConnector {
+public class DatagramChannelConnector extends AbstractIOConnector {
 
 	private DatagramChannel		datagramChannel;
-	private Logger				logger		= LoggerFactory.getLogger(UDPConnector.class);
+	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private ClientUDPSelectorLoop	selectorLoop;
 	private UniqueThread		selectorLoopThread;
@@ -28,7 +28,7 @@ public class UDPConnector extends AbstractIOConnector {
 		return selectorLoopThread;
 	}
 
-	public UDPConnector(Session session) {
+	public DatagramChannelConnector(Session session) {
 		this.session = session;
 		this.context = session.getContext();
 	}

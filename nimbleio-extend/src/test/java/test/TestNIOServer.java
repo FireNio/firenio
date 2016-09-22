@@ -1,7 +1,7 @@
 package test;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.acceptor.UDPAcceptor;
+import com.generallycloud.nio.acceptor.DatagramChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.PropertiesLoader;
@@ -46,7 +46,7 @@ public class TestNIOServer {
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 		
-		UDPAcceptor udpAcceptor = new UDPAcceptor();
+		DatagramChannelAcceptor udpAcceptor = new DatagramChannelAcceptor();
 		
 		try {
 			

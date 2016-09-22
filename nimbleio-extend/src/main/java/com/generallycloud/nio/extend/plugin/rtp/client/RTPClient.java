@@ -14,7 +14,7 @@ import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.connector.UDPConnector;
+import com.generallycloud.nio.connector.DatagramChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
@@ -34,7 +34,7 @@ public class RTPClient {
 	public static final String	GROUP_SIZE	= "GROUP_SIZE";
 	public static final String	MARK_INTERVAL	= "MARK_INTERVAL";
 
-	private UDPConnector		connector		;
+	private DatagramChannelConnector		connector		;
 	private FixedMessageConsumer	consumer		;
 	private NIOContext			context		;
 	private String				inviteUsername	;
@@ -43,12 +43,12 @@ public class RTPClient {
 	private FixedSession		session		;
 	private RTPHandle			handle		;
 
-	public RTPClient(FixedSession session, UDPConnector connector) {
+	public RTPClient(FixedSession session, DatagramChannelConnector connector) {
 		this(session, connector, new FixedMessageConsumer(session), new DefaultMessageProducer(session));
 	}
 
 	// FIXME listen onf break
-	public RTPClient(FixedSession session, UDPConnector connector, FixedMessageConsumer consumer,
+	public RTPClient(FixedSession session, DatagramChannelConnector connector, FixedMessageConsumer consumer,
 			MessageProducer producer) {
 		this.connector = connector;
 		this.session = session;

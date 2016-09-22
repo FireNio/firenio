@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.startup;
 import java.io.File;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.acceptor.UDPAcceptor;
+import com.generallycloud.nio.acceptor.DatagramChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -47,7 +47,7 @@ public class NIOServerStartup {
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
-		UDPAcceptor udpAcceptor = new UDPAcceptor();
+		DatagramChannelAcceptor udpAcceptor = new DatagramChannelAcceptor();
 
 		try {
 

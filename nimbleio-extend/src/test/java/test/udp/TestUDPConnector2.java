@@ -4,7 +4,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.connector.UDPConnector;
+import com.generallycloud.nio.connector.DatagramChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -26,7 +26,7 @@ public class TestUDPConnector2 {
 
 		session.login("udp2", "udp2");
 		
-		UDPConnector udpConnector = new UDPConnector(connector.getSession());
+		DatagramChannelConnector udpConnector = new DatagramChannelConnector(connector.getSession());
 		
 		udpConnector.connect();
 		

@@ -11,7 +11,7 @@ public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 	private SelectionAcceptor	_read_acceptor;
 
 	public DatagramChannelSelectorLoop(NIOContext context) {
-		this._read_acceptor = new UDPSelectionReader(context);
+		this._read_acceptor = new DatagramChannelSelectionReader(context);
 	}
 
 	public void accept(SelectionKey selectionKey) {
