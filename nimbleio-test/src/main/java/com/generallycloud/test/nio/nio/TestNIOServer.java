@@ -6,6 +6,9 @@ import com.generallycloud.nio.extend.startup.NIOServerStartup;
 public class TestNIOServer {
 
 	public static void main(String[] args) throws Exception {
-		NIOServerStartup.main(args);
+		
+		NIOServerStartup s = new NIOServerStartup();
+		
+		s.launch("nio");
 	}
 }

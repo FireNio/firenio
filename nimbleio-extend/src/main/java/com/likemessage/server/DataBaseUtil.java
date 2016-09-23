@@ -1,5 +1,6 @@
 package com.likemessage.server;
 
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
@@ -11,11 +12,11 @@ public class DataBaseUtil {
 	
 	private static AtomicBoolean initialized = new AtomicBoolean(); 
 	
-	public static void initializeDataBaseContext() throws Exception{
+	public static void initializeDataBaseContext(Properties properties) throws Exception{
 		
 		if (initialized.compareAndSet(false, true)) {
 			
-			dataBaseContext = new DataBaseContext();
+			dataBaseContext = new DataBaseContext(properties);
 			
 			LifeCycleUtil.start(dataBaseContext);
 		}

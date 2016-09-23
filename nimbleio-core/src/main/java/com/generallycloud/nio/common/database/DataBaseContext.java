@@ -12,7 +12,6 @@ import com.generallycloud.nio.common.FieldMapping;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.common.SharedBundle;
 
 public class DataBaseContext extends AbstractLifeCycle {
 
@@ -22,9 +21,15 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 	private QueryParamUtil			queryParamUtil	;
 	
+	private Properties 				properties	;
+	
 	private Logger					logger 		= LoggerFactory.getLogger(DataBaseContext.class);
 
 	private Map<String, FieldMapping>	fieldMappings	= new HashMap<String, FieldMapping>();
+	
+	public DataBaseContext(Properties properties) {
+		this.properties = properties;
+	}
 
 	public DataBaseQuery getDataBaseQuery() {
 		return dataBaseQuery;
@@ -38,9 +43,7 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 		if (dataSource == null) {
 			
-			Properties p = SharedBundle.instance().loadProperties("data.source.properties");
-			
-			DruidDataSource dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(p);
+			DruidDataSource dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(properties);
 			
 			dataSource.init();
 			

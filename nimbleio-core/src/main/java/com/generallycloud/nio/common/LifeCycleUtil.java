@@ -33,7 +33,7 @@ public class LifeCycleUtil {
 		try {
 			lifeCycle.start();
 		} catch (Throwable e) {
-			throw new RuntimeException(e.getMessage(),e);
+			throw new RuntimeException(e);
 		}
 	}
 	
