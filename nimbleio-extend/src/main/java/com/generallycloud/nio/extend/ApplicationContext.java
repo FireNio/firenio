@@ -87,7 +87,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		File temp = new File( bundle.getClassPath() + basePath + "/" + appPath);
 		
-		this.appLocalAddres = temp.getCanonicalPath();
+		this.appLocalAddres = temp.getCanonicalPath() + "/";
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 

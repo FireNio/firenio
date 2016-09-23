@@ -8,7 +8,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.NamedReadFuture;
-import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.RESMessage;
@@ -39,7 +38,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		}
 	}
 
-	private void accept(String serviceName, Session session, ReadFuture future) throws Exception {
+	private void accept(String serviceName, Session session, NamedReadFuture future) throws Exception {
 
 		FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
 
@@ -57,7 +56,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 	
 	
 
-	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
+	protected void accept404(Session session, NamedReadFuture future, String serviceName) throws IOException {
 
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
 
@@ -66,7 +65,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		flush(session, future, message);
 	}
 
-	private void flush(Session session, ReadFuture future, RESMessage message) throws IOException {
+	private void flush(Session session, NamedReadFuture future, RESMessage message) throws IOException {
 
 		future.setIOEventHandle(this);
 
