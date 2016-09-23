@@ -1,9 +1,9 @@
 package com.generallycloud.nio.component.protocol.http11.future;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 
-public interface WebSocketReadFuture extends ReadFuture {
+public interface WebSocketReadFuture extends NamedReadFuture {
 
 	public static final int	HEADER_LENGTH				= 2;
 
