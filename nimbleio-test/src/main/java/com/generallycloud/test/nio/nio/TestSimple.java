@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.nio;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
@@ -18,7 +18,7 @@ public class TestSimple {
 	
 	public static void main(String[] args) throws Exception {
 
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		String serviceKey = "TestSimpleServlet";
 		

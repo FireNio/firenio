@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.http11;
 import java.io.IOException;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.ReadFutureFactory;
@@ -63,9 +63,9 @@ public class TestHttpLoadThread extends ITestThread {
 		CloseUtil.close(connector);
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
-		PropertiesLoader.setBasepath("http");
+		SharedBundle.instance().loadAllProperties("http");
 		
 		int	time		= 5120000;
 		

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.PropertyConfigurator;
 
@@ -15,33 +15,24 @@ import com.generallycloud.nio.PropertiesException;
 public class SharedBundle {
 
 	private static SharedBundle	bundle	= new SharedBundle();
-	
-	private  String classPath;
-	
+
 	public static SharedBundle instance() {
 		return bundle;
 	}
 
-	private AtomicBoolean	initialized	= new AtomicBoolean(false);
-	private Properties		properties	= new Properties();
-
-	private SharedBundle() {
-		if (initialized.compareAndSet(false, true)) {
-			try {
-				initialize();
-			} catch (Exception e) {
-				throw new Error(e);
-			}
-		}
-	}
-
-	public String getClassPath() {
-		return classPath;
-	}
+	private String		classPath;
+	private Properties	properties	= new Properties();
 
 	public boolean getBooleanProperty(String key) {
 		return getBooleanProperty(key, false);
+	}
 
+	private SharedBundle() {
+		try {
+			this.loadAllProperties();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public boolean getBooleanProperty(String key, boolean defaultValue) {
@@ -50,6 +41,10 @@ public class SharedBundle {
 			return defaultValue;
 		}
 		return Boolean.valueOf(temp);
+	}
+
+	public String getClassPath() {
+		return classPath;
 	}
 
 	public double getDoubleProperty(String key) {
@@ -108,36 +103,52 @@ public class SharedBundle {
 		return value;
 	}
 
-	private void initialize() throws Exception {
+	public synchronized void loadAllProperties() throws Exception {
+		loadAllProperties("");
+	}
+
+	public synchronized void loadAllProperties(String path) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource(".");
 		if (url == null) {
 			return;
 		}
 		File root = new File(url.getFile());
-		String path = root.getCanonicalPath();
-		path = URLDecoder.decode(path, "UTF-8");
-		
-		if (path.endsWith("test-classes") || path.endsWith("test-classes/")) {
-			path += "/../classes";
+		String classPath = root.getCanonicalPath();
+		classPath = URLDecoder.decode(classPath, "UTF-8");
+
+		if (classPath.endsWith("test-classes") || classPath.endsWith("test-classes/")) {
+			classPath += "/../classes";
 		}
-		
-		setClassPath(new File(path).getCanonicalPath() + "/");
-		
-		root = new File(getClassPath());
-		
-		File[] files = root.listFiles();
-		
-		if (files == null) {
-			throw new IOException("empty folder:"+root.getCanonicalPath());
-		}
-		
-		for (File file : files) {
-			if (file.isFile() && file.getName().endsWith(".properties")) {
+
+		setClassPath(new File(classPath).getCanonicalPath() + "/");
+
+		root = new File(getClassPath() + path);
+
+		properties.clear();
+
+		loopLoadFile(root);
+	}
+
+	private void loopLoadFile(File file) throws IOException {
+		if (file.isDirectory()) {
+
+			File[] files = file.listFiles();
+
+			if (files == null) {
+				throw new IOException("empty folder:" + file.getCanonicalPath());
+			}
+
+			for (File f : files) {
+
+				loopLoadFile(f);
+			}
+		} else {
+			if (file.getName().endsWith(".properties")) {
 				try {
 					Properties temp = FileUtil.readProperties(file);
 					if ("log4j.properties".equals(file.getName())) {
 						PropertyConfigurator.configure(temp);
-						continue;
+						LoggerFactory.enableSLF4JLogger(true);
 					}
 					properties.putAll(temp);
 				} catch (IOException e) {
@@ -145,6 +156,14 @@ public class SharedBundle {
 				}
 			}
 		}
+	}
+
+	public String loadContent(String file, Charset charset) throws IOException {
+		return FileUtil.readFileToString(loadFile(file), charset);
+	}
+
+	public File loadFile(String file) {
+		return new File(classPath + file);
 	}
 
 	public boolean loadLog4jProperties(String file) throws IOException {
@@ -159,14 +178,6 @@ public class SharedBundle {
 		return false;
 	}
 
-	public Properties loadProperties(String file) throws IOException {
-		File _file = loadFile(file);
-		if (_file.exists()) {
-			return loadProperties(FileUtil.openInputStream(_file));
-		}
-		return null;
-	}
-
 	public Properties loadProperties(InputStream inputStream) throws IOException {
 		Properties temp = new Properties();
 		try {
@@ -177,17 +188,16 @@ public class SharedBundle {
 		}
 	}
 
-	public File loadFile(String file) {
-		return new File(classPath + file);
-	}
-
-	public boolean storageProperties(String file) throws IOException {
+	public Properties loadProperties(String file) throws IOException {
 		File _file = loadFile(file);
 		if (_file.exists()) {
-			storageProperties(FileUtil.openInputStream(_file));
-			return true;
+			return loadProperties(FileUtil.openInputStream(_file));
 		}
-		return false;
+		return null;
+	}
+
+	private void setClassPath(String classPath) {
+		this.classPath = classPath.replace("\\", "/");
 	}
 
 	public void storageProperties(InputStream inputStream) throws IOException {
@@ -200,8 +210,13 @@ public class SharedBundle {
 		}
 	}
 
-	public void setClassPath(String classPath) {
-		this.classPath = classPath.replace("\\", "/");
+	public boolean storageProperties(String file) throws IOException {
+		File _file = loadFile(file);
+		if (_file.exists()) {
+			storageProperties(FileUtil.openInputStream(_file));
+			return true;
+		}
+		return false;
 	}
 
 }

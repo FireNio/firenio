@@ -1,7 +1,6 @@
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -20,8 +19,8 @@ public class TestServer {
 
 	public static void main(String[] args) throws Exception {
 
-		PropertiesLoader.setBasepath("nio");
-
+		SharedBundle.instance().loadAllProperties("nio");
+		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {

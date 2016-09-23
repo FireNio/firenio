@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.nio.Encoding;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
@@ -14,7 +14,7 @@ public class TestTellerByteMessage {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.http11;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
@@ -16,7 +16,7 @@ public class TestSimpleHttp {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("http");
 
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 

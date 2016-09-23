@@ -1,9 +1,6 @@
 package com.generallycloud.nio.extend.startup;
 
-import java.io.File;
-
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -15,14 +12,6 @@ import com.generallycloud.nio.extend.IOAcceptorUtil;
 public class HttpServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
-		
-		String classPath = SharedBundle.instance().getClassPath()  + "http/";
-		
-		File f = new File(classPath);
-		
-		if (f.exists()) {
-			SharedBundle.instance().setClassPath(classPath);
-		}
 		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 

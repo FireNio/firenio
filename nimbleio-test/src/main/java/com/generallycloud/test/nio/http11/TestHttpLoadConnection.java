@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -14,6 +15,8 @@ import com.generallycloud.nio.extend.IOConnectorUtil;
 public class TestHttpLoadConnection {
 
 	public static void main(String[] args) throws IOException {
+		
+		SharedBundle.instance().loadAllProperties("http");
 		
 		List<SocketChannelConnector> connectors = new ArrayList<SocketChannelConnector>();
 		
@@ -50,7 +53,5 @@ public class TestHttpLoadConnection {
 				CloseUtil.close(connector);
 			}
 		}
-		
-
 	}
 }

@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.nio;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -12,7 +12,7 @@ public class Test404 {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		String serviceKey = "22";
 		

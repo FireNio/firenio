@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -61,7 +61,7 @@ public class TestLoadClient1 extends ITestThread{
 
 	public static void main(String[] args) throws IOException {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 		
 		int	time		= 1280000;
 		
