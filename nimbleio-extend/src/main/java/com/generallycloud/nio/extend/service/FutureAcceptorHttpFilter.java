@@ -13,7 +13,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpHeaderParser;
 import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
@@ -30,7 +30,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private Map<String, HttpEntity>	html_cache	= new HashMap<String, HttpEntity>();
 
-	protected void accept404(Session session, ReadFuture future, String serviceName) throws IOException {
+	protected void accept404(Session session, NamedReadFuture future, String serviceName) throws IOException {
 
 		String _service_name = serviceName;
 		
