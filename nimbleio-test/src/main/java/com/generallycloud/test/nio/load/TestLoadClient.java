@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
@@ -20,7 +20,7 @@ public class TestLoadClient {
 
 	public static void main(String[] args) throws Exception {
 
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
 

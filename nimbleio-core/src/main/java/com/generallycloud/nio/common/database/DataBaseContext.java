@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.FieldMapping;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 
 public class DataBaseContext extends AbstractLifeCycle {
 
@@ -38,7 +38,7 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 		if (dataSource == null) {
 			
-			Properties p = PropertiesLoader.loadProperties("data.source.properties");
+			Properties p = SharedBundle.instance().loadProperties("data.source.properties");
 			
 			DruidDataSource dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(p);
 			

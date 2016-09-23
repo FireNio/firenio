@@ -13,7 +13,6 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.NIOContext;
@@ -37,6 +36,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
+	private String							app_path			= "app/";
 	private String							appLocalAddres;
 	private Sequence						sequence			= new Sequence();
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
@@ -51,7 +51,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private List<FutureAcceptorFilter>			pluginFilters		= new ArrayList<FutureAcceptorFilter>();
 	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
 	private RoleManager						roleManager		= new RoleManager();
-	private FixedSessionFactory				sessionFactory		;
+	private FixedSessionFactory				sessionFactory;
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
 	private FutureAcceptorServiceFilter		lastServiceFilter	= null;
@@ -79,7 +79,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.configuration = configurationLoader.loadConfiguration(bundle);
 
 		this.encoding = context.getEncoding();
-		this.appLocalAddres = bundle.getClassPath() + PropertiesLoader.getAppPath();
+		this.appLocalAddres = bundle.getClassPath() + app_path;
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
@@ -236,6 +236,5 @@ public class ApplicationContext extends AbstractLifeCycle {
 	public void setLastServiceFilter(FutureAcceptorServiceFilter lastServiceFilter) {
 		this.lastServiceFilter = lastServiceFilter;
 	}
-	
-	
+
 }

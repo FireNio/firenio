@@ -1,6 +1,7 @@
 package com.generallycloud.test.nio.http11;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -12,6 +13,8 @@ import com.generallycloud.nio.extend.IOAcceptorUtil;
 public class TestSimpleHttpServer {
 
 	public static void main(String[] args) throws Exception {
+		
+		SharedBundle.instance().loadAllProperties("http");
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 

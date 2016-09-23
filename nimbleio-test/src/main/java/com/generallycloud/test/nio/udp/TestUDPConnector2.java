@@ -1,10 +1,10 @@
 package com.generallycloud.test.nio.udp;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.connector.DatagramChannelConnector;
+import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -14,7 +14,7 @@ public class TestUDPConnector2 {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

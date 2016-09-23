@@ -1,9 +1,7 @@
 package com.generallycloud.nio.extend.startup;
 
-import java.io.File;
-
-import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.acceptor.DatagramChannelAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -85,14 +83,6 @@ public class NIOServerStartup {
 	}
 
 	public static void main(String[] args) throws Exception {
-		
-		String classPath = SharedBundle.instance().getClassPath()  + "nio/";
-		
-		File f = new File(classPath);
-		
-		if (f.exists()) {
-			SharedBundle.instance().setClassPath(classPath);
-		}
 		
 		NIOServerStartup launcher = new NIOServerStartup();
 

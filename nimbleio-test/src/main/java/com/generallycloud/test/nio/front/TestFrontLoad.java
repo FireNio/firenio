@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.front;
 
 import com.generallycloud.nio.balancing.FrontContext;
-import com.generallycloud.nio.common.PropertiesLoader;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
@@ -15,7 +15,7 @@ public class TestFrontLoad {
 
 	public static void main(String[] args) throws Exception {
 		
-		PropertiesLoader.setBasepath("nio");
+		SharedBundle.instance().loadAllProperties("nio");
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
