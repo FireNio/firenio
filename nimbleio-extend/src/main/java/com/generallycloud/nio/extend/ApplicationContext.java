@@ -1,5 +1,6 @@
 package com.generallycloud.nio.extend;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +19,6 @@ import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
-import com.generallycloud.nio.extend.configuration.ApplicationConfigurationLoader;
-import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
 import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
 import com.generallycloud.nio.extend.security.RoleManager;
 import com.generallycloud.nio.extend.service.FutureAcceptor;
@@ -36,12 +35,12 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
-	private String							app_path			= "app/";
+	private String							basePath			= "";
+	private String							appPath			= "app/";
 	private String							appLocalAddres;
 	private Sequence						sequence			= new Sequence();
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
-	private ApplicationConfigurationLoader		configurationLoader;
 	private NIOContext						context;
 	private Charset						encoding			= Encoding.DEFAULT;
 	private FutureAcceptor					filterService;
@@ -56,6 +55,18 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
 	private FutureAcceptorServiceFilter		lastServiceFilter	= null;
 
+	public ApplicationContext(ApplicationConfiguration configuration, String basePath) {
+		if (basePath == null) {
+			basePath = "";
+		}
+		this.configuration = configuration;
+		this.basePath = basePath;
+	}
+
+	protected ApplicationContext(ApplicationConfiguration configuration) {
+		this(configuration, "");
+	}
+
 	protected void doStart() throws Exception {
 
 		if (context == null) {
@@ -66,20 +77,17 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		SharedBundle bundle = SharedBundle.instance();
 
-		if (configurationLoader == null) {
-			configurationLoader = new FileSystemACLoader();
-		}
-
 		if (lastServiceFilter == null) {
 			lastServiceFilter = new FutureAcceptorServiceFilter(classLoader);
 		}
 
 		filterService = new FutureAcceptor(this, classLoader, lastServiceFilter);
 
-		this.configuration = configurationLoader.loadConfiguration(bundle);
-
 		this.encoding = context.getEncoding();
-		this.appLocalAddres = bundle.getClassPath() + app_path;
+		
+		File temp = new File( bundle.getClassPath() + basePath + "/" + appPath);
+		
+		this.appLocalAddres = temp.getCanonicalPath();
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
@@ -107,10 +115,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public String getAppLocalAddress() {
 		return appLocalAddres;
-	}
-
-	public void setConfigurationLoader(ApplicationConfigurationLoader configurationLoader) {
-		this.configurationLoader = configurationLoader;
 	}
 
 	public DynamicClassLoader getClassLoader() {
@@ -141,6 +145,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return loginCenter;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public PluginContext getPluginContext(Class clazz) {
 
 		PluginContext[] pluginContexts = filterService.getPluginContexts();
@@ -174,11 +179,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return sessionFactory;
 	}
 
+	@Deprecated
 	public boolean redeploy() {
 
-		ApplicationConfiguration configuration;
+		// ApplicationConfiguration configuration;
 		try {
-			configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
+			// FIXME 重新加载configuration
+			// configuration =
+			// configurationLoader.loadConfiguration(SharedBundle.instance());
 		} catch (Exception e) {
 			logger.info(e.getMessage(), e);
 			return false;
@@ -190,7 +198,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		if (redeployed) {
 
-			this.configuration = configuration;
+			// this.configuration = configuration;
 
 			this.classLoader = classLoader;
 		}

@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -20,8 +22,9 @@ public class SharedBundle {
 		return bundle;
 	}
 
-	private String		classPath;
-	private Properties	properties	= new Properties();
+	private String				classPath		= null;
+	private Properties			properties	= new Properties();
+	private Map<String, String>	fileMapping	= new HashMap<String, String>();
 
 	public boolean getBooleanProperty(String key) {
 		return getBooleanProperty(key, false);
@@ -29,7 +32,7 @@ public class SharedBundle {
 
 	private SharedBundle() {
 		try {
-			this.loadAllProperties();
+			this.loadAllProperties0("");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -108,6 +111,12 @@ public class SharedBundle {
 	}
 
 	public synchronized void loadAllProperties(String path) throws IOException {
+		if (!StringUtil.isNullOrBlank(path)) {
+			this.loadAllProperties0(path);
+		}
+	}
+
+	private synchronized void loadAllProperties0(String path) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource(".");
 		if (url == null) {
 			return;
@@ -126,6 +135,8 @@ public class SharedBundle {
 
 		properties.clear();
 
+		fileMapping.clear();
+
 		loopLoadFile(root);
 	}
 
@@ -143,6 +154,9 @@ public class SharedBundle {
 				loopLoadFile(f);
 			}
 		} else {
+
+			fileMapping.put(file.getName(), file.getCanonicalPath());
+
 			if (file.getName().endsWith(".properties")) {
 				try {
 					Properties temp = FileUtil.readProperties(file);
@@ -179,6 +193,11 @@ public class SharedBundle {
 	}
 
 	public Properties loadProperties(InputStream inputStream) throws IOException {
+
+		if (inputStream == null) {
+			throw new IOException("null inputstream");
+		}
+
 		Properties temp = new Properties();
 		try {
 			temp.load(inputStream);
@@ -193,7 +212,18 @@ public class SharedBundle {
 		if (_file.exists()) {
 			return loadProperties(FileUtil.openInputStream(_file));
 		}
-		return null;
+
+		String filePath = fileMapping.get(file);
+
+		if (filePath != null) {
+			_file = new File(filePath);
+
+			if (_file.exists()) {
+				return loadProperties(FileUtil.openInputStream(_file));
+			}
+		}
+
+		return loadProperties(this.getClass().getClassLoader().getResourceAsStream(file));
 	}
 
 	private void setClassPath(String classPath) {

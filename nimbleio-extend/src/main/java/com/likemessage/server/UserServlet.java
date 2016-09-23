@@ -1,8 +1,10 @@
 package com.likemessage.server;
 
 import java.sql.SQLException;
+import java.util.Properties;
 
 import com.alibaba.fastjson.JSONArray;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
@@ -49,7 +51,9 @@ public class UserServlet extends LMServlet {
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		super.initialize(context, config);
 
-		DataBaseUtil.initializeDataBaseContext();
+		Properties p = SharedBundle.instance().loadProperties(config.getParameter("data-source"));
+		
+		DataBaseUtil.initializeDataBaseContext(p);
 		
 		LMLoginCenter loginCenter = (LMLoginCenter) context.getLoginCenter();
 

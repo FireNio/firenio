@@ -6,6 +6,7 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.NIOProtocolFactory;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -27,6 +28,8 @@ public class TestSimple {
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 
 		FixedSession session = eventHandle.getFixedSession();
 		connector.connect();

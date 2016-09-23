@@ -17,6 +17,8 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedIOEventHandle;
+import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
+import com.generallycloud.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
 import com.generallycloud.nio.extend.service.FutureAcceptorHttpFilter;
 
@@ -24,9 +26,15 @@ public class HttpServerStartup {
 	
 	private Logger logger = LoggerFactory.getLogger(HttpServerStartup.class);
 
-	public void launch() throws Exception {
+	public void launch(String base) throws Exception {
 
-		ApplicationContext applicationContext = new ApplicationContext();
+		SharedBundle.instance().loadAllProperties(base);
+		
+		ApplicationConfigurationLoader acLoader = new FileSystemACLoader(base + "/conf/");
+
+		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
+		
+		ApplicationContext applicationContext = new ApplicationContext(ac,base);
 		
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
 		
@@ -46,12 +54,8 @@ public class HttpServerStartup {
 
 		try {
 
-			FileSystemACLoader fileSystemACLoader = new FileSystemACLoader();
-
 			applicationContext
 					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
-			
-			applicationContext.setConfigurationLoader(fileSystemACLoader);
 			
 			applicationContext.setContext(context);
 			
@@ -83,7 +87,6 @@ public class HttpServerStartup {
 		
 		HttpServerStartup launcher = new HttpServerStartup();
 
-		launcher.launch();
+		launcher.launch("");
 	}
-
 }

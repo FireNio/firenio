@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.common.LifeCycleUtil;
-
 public class SessionQuery extends DefaultConnectionProxy {
 
 	private DataBaseQuery	dataBaseQuery	;
@@ -58,27 +56,6 @@ public class SessionQuery extends DefaultConnectionProxy {
 		params = queryParamUtil.page(offset, size, params);
 
 		return query(sql, params,clazz);
-	}
-	
-	
-	public static void main(String[] args) throws Exception {
-		
-		DataBaseContext context = new DataBaseContext();
-		
-		LifeCycleUtil.start(context);
-		
-		SessionQuery query = new SessionQuery(context);
-		
-		query.open();
-		
-		List list = query.page("select * from ts_user", null,1,1);
-		
-		System.out.println(list);
-		
-		query.close();
-		
-		LifeCycleUtil.stop(context);
-		
 	}
 	
 	/**
