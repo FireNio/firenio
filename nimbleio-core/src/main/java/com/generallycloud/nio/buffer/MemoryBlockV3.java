@@ -156,6 +156,7 @@ public class MemoryBlockV3 implements ByteBuf {
 
 	public ByteBuf position(int position) {
 		this.position = position;
+		this.memory.position(offset + position);
 		return this;
 	}
 
