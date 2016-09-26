@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
 	<artifactId>nimbleio</artifactId>
-	<version>2.1.16-SNAPSHOT</version>
+	<version>2.3.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>nimbleio</name>
 
@@ -46,7 +46,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.version>2.1.16-SNAPSHOT</project.version>
+		<project.version>2.3.10-SNAPSHOT</project.version>
 	</properties>
 	<dependencies>
 	
