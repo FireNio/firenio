@@ -35,11 +35,14 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 	
 	public IOWriteFuture encode(SocketChannel channel,IOReadFuture readFuture) throws IOException {
 		
-		if (readFuture.isBeatPacket()) {
+		if (readFuture.isHeartbeat()) {
 			
 			byte [] array = new byte[1];
 
-			array [0] = (byte)(NIOProtocolDecoder.TYPE_BEAT << 6);
+			array [0] = (byte)(readFuture.isPING() 
+					? NIOProtocolDecoder.PROTOCOL_PING : 
+						NIOProtocolDecoder.PROTOCOL_PONG 
+						<< 6);
 			
 			ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(1);
 			

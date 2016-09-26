@@ -40,8 +40,6 @@ public class HttpServerStartup {
 		
 		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		configuration.setSERVER_IS_ACCEPT_BEAT(false);
-		
 		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 				"IOEvent", 
 				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),

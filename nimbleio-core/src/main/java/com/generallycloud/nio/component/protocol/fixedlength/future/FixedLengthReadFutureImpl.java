@@ -40,11 +40,6 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		super(session);
 	}
 	
-	protected FixedLengthReadFutureImpl(Session session,boolean isBeatPacket) {
-		super(session);
-		this.isBeatPacket = isBeatPacket;
-	}
-	
 	private boolean isHeaderReadComplete(ByteBuf buf){
 		return buf.position() > FixedLengthProtocolDecoder.PROTOCOL_HADER;
 	}
@@ -59,9 +54,16 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		
 		if (length < 1) {
 			
-			if (length == -1) {
+			if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
 			
-				isBeatPacket = true;
+				setPING();
+				
+				body_complete = true;
+				
+				return;
+			}else if(length == FixedLengthProtocolDecoder.PROTOCOL_PONG){
+				
+				setPONG();
 				
 				body_complete = true;
 				

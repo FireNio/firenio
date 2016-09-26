@@ -68,8 +68,12 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		type = (b & 0xF); 
 		
-		isBeatPacket = type == WebSocketProtocolDecoder.TYPE_PING || 
-				type == WebSocketProtocolDecoder.TYPE_PONG;
+		
+		if (type == WebSocketProtocolDecoder.TYPE_PING) {
+			setPING();
+		}else if(type == WebSocketProtocolDecoder.TYPE_PONG){
+			setPONG();
+		}
 		
 		b = array[offset + 1];
 		

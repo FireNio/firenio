@@ -22,7 +22,7 @@ import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
  *  |  T Y P E|      Service  Name      |
  *  +-----------------------------------+
  *  
- *  Type:高两位，类型 [0=RESERVED，1=RESERVED，2=RESERVED, 3=BEAT]
+ *  Type:高两位，类型 [0=RESERVED，1=RESERVED，2=BEAT.PING, 3=BEAT.PONG]
  *  ServiceName:低六位，service name的长度
  *  
  *  B1 - B3 ：future id
@@ -32,27 +32,30 @@ import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
  * </pre>
  */
 public class NIOProtocolDecoder extends ProtocolDecoderAdapter {
-	
-	public static final byte	TYPE_BEAT					= 3;
-	public static final int	PROTOCOL_HADER				= 9;
-	public static final int	FUTURE_ID_BEGIN_INDEX			= 1;
-	public static final int	BINARY_BEGIN_INDEX			= 6;
-	public static final int	TEXT_BEGIN_INDEX				= 4;
+
+	public static final byte	PROTOCOL_PING				= 2;
+	public static final byte	PROTOCOL_PONG				= 3;
+	public static final int	PROTOCOL_HADER			= 9;
+	public static final int	FUTURE_ID_BEGIN_INDEX		= 1;
+	public static final int	BINARY_BEGIN_INDEX		= 6;
+	public static final int	TEXT_BEGIN_INDEX			= 4;
 
 	protected ByteBuf allocate(NIOContext context) {
 		return context.getHeapByteBufferPool().allocate(PROTOCOL_HADER);
 	}
 
 	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) throws IOException {
-		
+
 		byte _type = buffer.get(0);
-		
+
 		int type = (_type & 0xff) >> 6;
-		
-		if (type == TYPE_BEAT) {
-			return new NIOReadFutureImpl(session,true);
+
+		if (type == PROTOCOL_PING) {
+			return new NIOReadFutureImpl(session).setPING();
+		} else if (type == PROTOCOL_PONG) {
+			return new NIOReadFutureImpl(session).setPONG();
 		}
-		
+
 		return new NIOReadFutureImpl(session, buffer);
 	}
 

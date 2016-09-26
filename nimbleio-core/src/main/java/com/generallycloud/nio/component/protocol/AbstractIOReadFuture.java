@@ -5,22 +5,45 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractIOReadFuture extends AbstractReadFuture implements IOReadFuture {
 
+	protected boolean	isHeartbeat;
+
+	protected boolean	isPING;
+
+	protected boolean	isPONG;
+
 	public AbstractIOReadFuture(Session session) {
 		super(session);
 	}
 
-	protected boolean	isBeatPacket;
-
 	public void flush() {
 		flushed = true;
-	}
-
-	public boolean isBeatPacket() {
-		return isBeatPacket;
 	}
 
 	public SocketChannel getSocketChannel() {
 		return channel;
 	}
 
+	public boolean isHeartbeat() {
+		return isHeartbeat;
+	}
+
+	public boolean isPING() {
+		return isHeartbeat && isPING;
+	}
+
+	public boolean isPONG() {
+		return isHeartbeat && isPONG;
+	}
+
+	public IOReadFuture setPING() {
+		this.isPING = true;
+		this.isHeartbeat = true;
+		return this;
+	}
+
+	public IOReadFuture setPONG() {
+		this.isPONG = true;
+		this.isHeartbeat = true;
+		return this;
+	}
 }

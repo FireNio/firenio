@@ -69,16 +69,15 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	public int getBinaryLength() {
 		return binaryLength;
 	}
+	
+	public NIOReadFutureImpl(Session session) {
+		super(session);
+	}
 
 	public NIOReadFutureImpl(Session session, Integer futureID, String serviceName) {
 		super(session);
 		this.serviceName = serviceName;
 		this.futureID = futureID;
-	}
-
-	public NIOReadFutureImpl(Session session, boolean isBeatPacket) {
-		super(session);
-		this.isBeatPacket = isBeatPacket;
 	}
 
 	public NIOReadFutureImpl(Session session, ByteBuf buffer) throws IOException {

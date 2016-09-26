@@ -56,8 +56,6 @@ public class NIOServerShutdown {
 
 		SocketChannelConnector connector = new SocketChannelConnector();
 
-		configuration.setSERVER_IS_ACCEPT_BEAT(true);
-
 		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 				"IOEvent", 
 				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
