@@ -43,15 +43,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
 	private long 						startupTime		= System.currentTimeMillis();
-	private boolean					isAcceptBeat;
 	private EventLoopGroup				eventLoopGroup;
 	private ByteBufferPool				heapByteBufferPool;
 	private ByteBufferPool				directByteBufferPool;
 
-	public boolean isAcceptBeat() {
-		return isAcceptBeat;
-	}
-	
 	public int getSessionAttachmentSize() {
 		return sessionAttachmentSize;
 	}
@@ -131,7 +126,6 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		Encoding.DEFAULT = encoding;
 
 		this.encoding = Encoding.DEFAULT;
-		this.isAcceptBeat = serverConfiguration.isSERVER_IS_ACCEPT_BEAT();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 		
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();

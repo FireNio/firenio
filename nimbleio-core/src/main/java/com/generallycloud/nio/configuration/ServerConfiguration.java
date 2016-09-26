@@ -15,7 +15,6 @@ public class ServerConfiguration {
 	private boolean	SERVER_DEBUG				= false;
 	private int		SERVER_CHANNEL_QUEUE_SIZE	= 1024 * 512;
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
-	private boolean	SERVER_IS_ACCEPT_BEAT		= false;
 	private int		SERVER_MEMORY_POOL_UNIT		= 1024;
 	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024;
 
@@ -98,14 +97,6 @@ public class ServerConfiguration {
 		}
 		
 		this.SERVER_SESSION_IDLE_TIME = SERVER_SESSION_IDLE_TIME;
-	}
-
-	public boolean isSERVER_IS_ACCEPT_BEAT() {
-		return SERVER_IS_ACCEPT_BEAT;
-	}
-
-	public void setSERVER_IS_ACCEPT_BEAT(boolean SERVER_IS_ACCEPT_BEAT) {
-		this.SERVER_IS_ACCEPT_BEAT = SERVER_IS_ACCEPT_BEAT;
 	}
 
 	public int getSERVER_MEMORY_POOL_UNIT() {

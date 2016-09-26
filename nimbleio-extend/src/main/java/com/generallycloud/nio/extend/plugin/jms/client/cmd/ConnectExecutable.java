@@ -63,8 +63,6 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-			configuration.setSERVER_IS_ACCEPT_BEAT(true);
-
 			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
 					"IOEvent", 
 					configuration.getSERVER_CHANNEL_QUEUE_SIZE(),

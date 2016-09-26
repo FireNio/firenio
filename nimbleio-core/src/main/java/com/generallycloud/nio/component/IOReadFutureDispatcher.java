@@ -1,10 +1,14 @@
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
+
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.protocol.IOReadFuture;
+import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 
@@ -12,30 +16,21 @@ public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 
 	public void accept(final Session session, final IOReadFuture future) throws Exception {
 
-		if (future.isBeatPacket()) {
+		if (future.isHeartbeat()) {
 
-			if (!session.getContext().isAcceptBeat()) {
-				
-				logger.info("收到心跳回报!来自：{}",session);
-				
-				return;
-			}
-			
-			logger.info("收到心跳请求!来自：{}",session);
-
-			session.flush(future);
+			acceptHeartBeat(session, future);
 
 			return;
 		}
 
 		EventLoop eventLoop = session.getEventLoop();
-		
+
 		eventLoop.dispatch(new Runnable() {
-			
+
 			public void run() {
-				
+
 				NIOContext context = session.getContext();
-				
+
 				IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
 
 				try {
@@ -50,5 +45,41 @@ public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 				}
 			}
 		});
+	}
+
+	private void acceptHeartBeat(final Session session, final IOReadFuture future) {
+
+		if (future.isPING()) {
+
+			logger.info("收到心跳请求!来自：{}", session);
+			
+			NIOContext context = session.getContext();
+
+			BeatFutureFactory factory = context.getBeatFutureFactory();
+
+			if (factory == null) {
+
+				RuntimeException e = new RuntimeException("none factory of BeatFuture");
+
+				CloseUtil.close(session);
+
+				logger.error(e.getMessage(), e);
+
+				return;
+			}
+
+			ReadFuture f = factory.createPONGPacket(session);
+
+			try {
+				session.flush(f);
+			} catch (IOException e) {
+				CloseUtil.close(session);
+				logger.error(e.getMessage(), e);
+				return;
+			}
+		}else{
+			logger.info("收到心跳回报!来自：{}", session);
+		}
+
 	}
 }

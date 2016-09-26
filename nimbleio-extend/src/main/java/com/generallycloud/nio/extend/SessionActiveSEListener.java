@@ -38,7 +38,7 @@ public class SessionActiveSEListener extends SEListenerAdapter {
 				return;
 			}
 
-			ReadFuture future = factory.createBeatPacket(session);
+			ReadFuture future = factory.createPINGPacket(session);
 			
 			if (future == null) {
 				// 该session无需心跳,比如HTTP协议

@@ -5,10 +5,14 @@ import com.generallycloud.nio.component.protocol.http11.WebSocketProtocolDecoder
 
 public class WebSocketBeatReadFutureImpl extends WebSocketReadFutureImpl implements WebSocketReadFuture{
 
-	public WebSocketBeatReadFutureImpl(Session session) {
+	public WebSocketBeatReadFutureImpl(Session session,boolean ping) {
 		super(session);
-		this.type = WebSocketProtocolDecoder.TYPE_PING;
-		this.isBeatPacket = true;
+		if (ping) {
+			this.type = WebSocketProtocolDecoder.TYPE_PING;
+			this.setPING();
+		}else{
+			this.type = WebSocketProtocolDecoder.TYPE_PONG;
+			this.setPONG();
+		}
 	}
-	
 }

@@ -15,9 +15,11 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 	public IOWriteFuture encode(SocketChannel channel, IOReadFuture future) throws IOException {
 		
-		if (future.isBeatPacket()) {
+		if (future.isHeartbeat()) {
 			
-			byte [] array = MathUtil.int2Byte(-1);
+			byte [] array = MathUtil.int2Byte(future.isPING() 
+					? FixedLengthProtocolDecoder.PROTOCOL_PING : 
+						FixedLengthProtocolDecoder.PROTOCOL_PONG);
 			
 			ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(4);
 			

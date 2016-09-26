@@ -7,10 +7,12 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.SessionActiveSEListener;
 
 public class TestClient {
 
@@ -32,6 +34,10 @@ public class TestClient {
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
+		
+		connector.getContext().setBeatFutureFactory(new FLBeatFutureFactory());
 
 		connector.connect();
 
@@ -43,8 +49,6 @@ public class TestClient {
 
 		session.flush(future);
 		
-//		session.flush(new FLBeatFutureFactory().createBeatPacket(session));
-
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
