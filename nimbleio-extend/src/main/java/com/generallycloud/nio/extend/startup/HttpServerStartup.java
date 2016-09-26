@@ -8,15 +8,16 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.nio.component.protocol.http11.future.WebSocketBeatFutureFactory;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.FixedIOEventHandle;
+import com.generallycloud.nio.extend.SessionActiveSEListener;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
@@ -57,15 +58,13 @@ public class HttpServerStartup {
 			
 			applicationContext.setContext(context);
 			
-//			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
+			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 			
-//			context.addSessionEventListener(new SessionActiveSEListener());
-			
-			context.addSessionEventListener(new SessionAliveSEListener());
+			context.addSessionEventListener(new SessionActiveSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			
