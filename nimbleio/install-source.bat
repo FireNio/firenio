@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=nimbleio-all-2.1.16-SNAPSHOT-source.jar -DgroupId=com.generallycloud -DartifactId=nimbleio-all -Dversion=2.1.16-SNAPSHOT -Dpackaging=jar -Dclassifier=sources
