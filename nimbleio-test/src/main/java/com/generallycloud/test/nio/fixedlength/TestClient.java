@@ -5,6 +5,7 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SessionActiveSEListener;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
@@ -12,7 +13,6 @@ import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthR
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
-import com.generallycloud.nio.extend.SessionActiveSEListener;
 
 public class TestClient {
 

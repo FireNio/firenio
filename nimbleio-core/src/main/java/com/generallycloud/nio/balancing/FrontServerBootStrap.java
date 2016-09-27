@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionEventListener;
@@ -20,6 +21,9 @@ public class FrontServerBootStrap {
 	private ServerConfiguration frontReverseServerConfiguration;
 	private List<SessionEventListener> frontSessionEventListeners;
 	private List<SessionEventListener> frontReverseSessionEventListeners;
+	private BeatFutureFactory		frontBeatFutureFactory;
+	private BeatFutureFactory		frontReverseBeatFutureFactory;
+	
 	
 	public void startup() throws IOException{
 		
@@ -49,6 +53,8 @@ public class FrontServerBootStrap {
 		
 		context.setProtocolFactory(protocolFactory);
 		
+		context.setBeatFutureFactory(frontBeatFutureFactory);
+		
 		if (frontSessionEventListeners != null) {
 			addSessionEventListener2Context(context, frontSessionEventListeners);
 		}
@@ -70,6 +76,8 @@ public class FrontServerBootStrap {
 		context.addSessionEventListener(frontContext.getFrontReverseAcceptorSEListener());
 		
 		context.setProtocolFactory(protocolFactory);
+		
+		context.setBeatFutureFactory(frontReverseBeatFutureFactory);
 		
 		if (frontReverseSessionEventListeners != null) {
 			addSessionEventListener2Context(context, frontReverseSessionEventListeners);
@@ -128,6 +136,22 @@ public class FrontServerBootStrap {
 		for(SessionEventListener l : listeners){
 			context.addSessionEventListener(l);
 		}
+	}
+
+	public BeatFutureFactory getFrontBeatFutureFactory() {
+		return frontBeatFutureFactory;
+	}
+
+	public BeatFutureFactory getFrontReverseBeatFutureFactory() {
+		return frontReverseBeatFutureFactory;
+	}
+
+	public void setFrontBeatFutureFactory(BeatFutureFactory frontBeatFutureFactory) {
+		this.frontBeatFutureFactory = frontBeatFutureFactory;
+	}
+
+	public void setFrontReverseBeatFutureFactory(BeatFutureFactory frontReverseBeatFutureFactory) {
+		this.frontReverseBeatFutureFactory = frontReverseBeatFutureFactory;
 	}
 	
 }

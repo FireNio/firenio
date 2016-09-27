@@ -65,7 +65,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		}
 
 		try {
-			handle.futureSent(session, getReadFuture());
+			handle.futureSent(session, readFuture);
 		} catch (Throwable e) {
 			logger.debug(e);
 		}
