@@ -1,14 +1,10 @@
-package com.generallycloud.nio.extend;
+package com.generallycloud.nio.component;
 
 import java.io.IOException;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.BeatFutureFactory;
-import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 
 public class SessionActiveSEListener extends SEListenerAdapter {

@@ -3,6 +3,7 @@ package com.generallycloud.test.nio.nio;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.SessionActiveSEListener;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOBeatFutureFactory;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
@@ -11,7 +12,6 @@ import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
-import com.generallycloud.nio.extend.SessionActiveSEListener;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.test.service.nio.TestSimpleServlet;
 

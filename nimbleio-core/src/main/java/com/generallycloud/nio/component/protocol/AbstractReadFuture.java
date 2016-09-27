@@ -29,6 +29,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	public AbstractReadFuture(Session session) {
 		this.session = (IOSessionImpl) session;
 		this.channel = this.session.getSocketChannel();
+		this.ioEventHandle = session.getContext().getIOEventHandleAdaptor();
 	}
 	
 	public void write(byte b) {
