@@ -10,7 +10,6 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.DirectMemoryPoolV3;
 import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
@@ -45,7 +44,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private long 						startupTime		= System.currentTimeMillis();
 	private EventLoopGroup				eventLoopGroup;
 	private ByteBufferPool				heapByteBufferPool;
-	private ByteBufferPool				directByteBufferPool;
+//	private ByteBufferPool				directByteBufferPool;
 
 	public int getSessionAttachmentSize() {
 		return sessionAttachmentSize;
@@ -63,9 +62,9 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		return heapByteBufferPool;
 	}
 
-	public ByteBufferPool getDirectByteBufferPool() {
-		return directByteBufferPool;
-	}
+//	public ByteBufferPool getDirectByteBufferPool() {
+//		return directByteBufferPool;
+//	}
 
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
@@ -132,7 +131,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		
 		this.heapByteBufferPool = new HeapMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
-		this.directByteBufferPool = new DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
+//		this.directByteBufferPool = new DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 		
 		this.addSessionEventListener(new ManagerSEListener());
 
@@ -140,6 +139,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }", serverConfiguration.getSERVER_SESSION_IDLE_TIME());
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
 			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
@@ -156,7 +156,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.heapByteBufferPool.start();
 		
-		this.directByteBufferPool.start();
+//		this.directByteBufferPool.start();
 		
 		this.sessionFactoryThread = new EventLoopThread(sessionFactory, "session-manager");
 
@@ -175,7 +175,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		LifeCycleUtil.stop(heapByteBufferPool);
 		
-		LifeCycleUtil.stop(directByteBufferPool);
+//		LifeCycleUtil.stop(directByteBufferPool);
 	}
 	
 	public ProtocolFactory getProtocolFactory() {
