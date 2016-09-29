@@ -53,11 +53,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 		try {
 
-			if (!active) {
-				return;
-			}
-
-			close(context);
+			doClose();
 
 		} finally {
 
@@ -69,7 +65,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		}
 	}
 
-	protected abstract void close(NIOContext context);
+	protected abstract void doClose();
 
 	public void connect() throws IOException {
 

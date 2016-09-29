@@ -92,7 +92,7 @@ public class SocketChannelConnector extends AbstractIOConnector {
 		context.setTCPService(this);
 	}
 
-	protected void close(NIOContext context) {
+	protected void doClose() {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 
