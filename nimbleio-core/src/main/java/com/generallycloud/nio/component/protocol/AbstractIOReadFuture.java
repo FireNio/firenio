@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component.protocol;
 
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannel;
 
@@ -11,8 +12,19 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 
 	protected boolean	isPONG;
 
+	protected AbstractIOReadFuture() {
+	
+	}
+
 	public AbstractIOReadFuture(Session session) {
-		super(session);
+		this.update((IOSession) session);
+	}
+	
+	public void update(IOSession session) {
+		if (this.session == null) {
+			this.session = session;
+			this.channel = this.session.getSocketChannel();
+		}
 	}
 
 	public void flush() {

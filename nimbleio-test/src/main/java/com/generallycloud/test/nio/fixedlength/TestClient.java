@@ -1,25 +1,28 @@
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionActiveSEListener;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 
 public class TestClient {
 
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
@@ -31,19 +34,39 @@ public class TestClient {
 			}
 		};
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
-
-		connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
+		SocketChannelConnector connector = new SocketChannelConnector();
 		
-		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
+		ServerConfiguration configuration = new ServerConfiguration();
 		
-		connector.getContext().setBeatFutureFactory(new FLBeatFutureFactory());
+		configuration.setSERVER_HOST("localhost");
+		configuration.setSERVER_TCP_PORT(18300);
+		
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+				"IOEvent", 
+				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+				1);
 
+		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
+
+		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.addSessionEventListener(new LoggerSEListener());
+
+		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+
+		context.addSessionEventListener(new SessionActiveSEListener());
+		
+		context.setBeatFutureFactory(new FLBeatFutureFactory());
+
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		connector.setContext(context);
+		
 		connector.connect();
 
 		Session session = connector.getSession();
 
-		ReadFuture future = new FixedLengthReadFutureImpl(session);
+		ReadFuture future = new FixedLengthReadFutureImpl();
 
 		future.write("hello server !");
 

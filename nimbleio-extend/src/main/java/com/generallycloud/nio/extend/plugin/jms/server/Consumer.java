@@ -2,9 +2,9 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.plugin.jms.BytedMessage;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 
@@ -51,17 +51,17 @@ public class Consumer {
 
 		Session session = this.session;
 
-		NIOReadFuture future = ReadFutureFactory.create(session,this.future);
+		NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(), future.getFutureName());
 
-		future.attach(this);
+		f.attach(this);
 		
-		future.setIOEventHandle(this.future.getIOEventHandle());
+		f.setIOEventHandle(this.future.getIOEventHandle());
 
-		future.write(content);
+		f.write(content);
 
 		if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 
-			session.flush(future);
+			session.flush(f);
 
 		} else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
 
@@ -69,9 +69,9 @@ public class Consumer {
 
 			byte[] bytes = byteMessage.getByteArray();
 
-			future.writeBinary(bytes);
+			f.writeBinary(bytes);
 
-			session.flush(future);
+			session.flush(f);
 		}
 	}
 
@@ -80,6 +80,7 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		return new Consumer(consumerQueue, attachment, session, ReadFutureFactory.create(session,future), queueName);
+		NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(), future.getFutureName());
+		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

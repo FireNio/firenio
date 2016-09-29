@@ -8,14 +8,14 @@ public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
 	public ReadFuture createPINGPacket(Session session) {
 		if ("WebSocket".equals(session.getProtocolID())) {
-			return new WebSocketBeatReadFutureImpl(session, true);
+			return new WebSocketBeatReadFutureImpl(true);
 		}
 		return null;
 	}
 
 	public ReadFuture createPONGPacket(Session session) {
 		if ("WebSocket".equals(session.getProtocolID())) {
-			return new WebSocketBeatReadFutureImpl(session, false);
+			return new WebSocketBeatReadFutureImpl(false);
 		}
 		return null;
 	}

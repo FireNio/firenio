@@ -3,6 +3,10 @@ package com.generallycloud.nio.common;
 
 public class LoggerFactory {
 	
+	static{
+		SharedBundle.instance();
+	}
+	
 	private static boolean enableSLF4JLogger;
 	
 	public static void enableSLF4JLogger(boolean enable){

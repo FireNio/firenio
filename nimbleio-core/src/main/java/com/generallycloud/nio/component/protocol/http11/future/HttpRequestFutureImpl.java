@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.AbstractIOReadFuture;
 
 public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpRequestFuture {
@@ -21,8 +20,7 @@ public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpR
 
 	private Map<String, String>	params;
 
-	public HttpRequestFutureImpl(Session session, String url, String method) {
-		super(session);
+	public HttpRequestFutureImpl(String url, String method) {
 		this.url = url;
 		this.method = method;
 	}

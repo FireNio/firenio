@@ -41,8 +41,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		if (handle == null) {
-			logger.debug(e.getMessage(), e);
-			return;
+			handle = session.getContext().getIOEventHandleAdaptor();
 		}
 
 		try {
@@ -61,7 +60,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		if (handle == null) {
-			return;
+			handle = session.getContext().getIOEventHandleAdaptor();
 		}
 
 		try {

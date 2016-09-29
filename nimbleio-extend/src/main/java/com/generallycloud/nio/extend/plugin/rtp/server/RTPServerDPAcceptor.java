@@ -6,13 +6,13 @@ import com.generallycloud.nio.acceptor.ServerDPAcceptor;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.ReadFutureFactory;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.component.protocol.DatagramRequest;
 import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.FixedSessionFactory;
@@ -90,7 +90,9 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			session.setDatagramChannel(channel);
 			
-			ReadFuture future = ReadFutureFactory.create(session,BIND_SESSION_CALLBACK,session.getContext().getIOEventHandleAdaptor());
+			ReadFuture future = new NIOReadFutureImpl(BIND_SESSION_CALLBACK);
+			
+			future.setIOEventHandle(session.getContext().getIOEventHandleAdaptor());
 			
 			logger.debug("___________________bind___session___{}",session);
 			

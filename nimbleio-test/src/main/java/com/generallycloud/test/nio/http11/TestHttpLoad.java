@@ -4,7 +4,6 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITest;
 import com.generallycloud.nio.common.test.ITestHandle;
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.component.protocol.http11.HttpClient;
@@ -12,6 +11,7 @@ import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestHttpLoad {
 

@@ -28,7 +28,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private boolean			body_complete;
 	private Parameters			parameters;
 	private ByteBuf			buffer;
-	private String				serviceName;
+	private String				futureName;
 	private String				text;
 	private Integer			futureID;
 	private int				binaryLength;
@@ -36,7 +36,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private BufferedOutputStream	writeBinaryBuffer;
 
 	public String getFutureName() {
-		return serviceName;
+		return futureName;
 	}
 
 	public String getText() {
@@ -70,13 +70,16 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		return binaryLength;
 	}
 	
-	public NIOReadFutureImpl(Session session) {
-		super(session);
+	//for ping & pong
+	public NIOReadFutureImpl() {
 	}
 
-	public NIOReadFutureImpl(Session session, Integer futureID, String serviceName) {
-		super(session);
-		this.serviceName = serviceName;
+	public NIOReadFutureImpl(String futureName) {
+		this.futureName = futureName;
+	}
+	
+	public NIOReadFutureImpl(Integer futureID, String futureName) {
+		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
@@ -177,7 +180,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		memory.limit(offset + service_name_length);
 
-		serviceName = StringUtil.decode(charset, memory);
+		futureName = StringUtil.decode(charset, memory);
 
 		memory.limit(memory.position() + textLength);
 
@@ -226,7 +229,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	}
 
 	public String toString() {
-		return serviceName + "@" + getText();
+		return futureName + "@" + getText();
 	}
 
 	public BufferedOutputStream getWriteBinaryBuffer() {

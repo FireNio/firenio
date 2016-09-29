@@ -1,9 +1,9 @@
 package com.test.service.nio;
 
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
 
 public class TestListenSimpleServlet extends NIOFutureAcceptorService{
@@ -24,12 +24,12 @@ public class TestListenSimpleServlet extends NIOFutureAcceptorService{
 		
 		for (int i = 0; i < 5; i++) {
 			
-			future = ReadFutureFactory.create(session,future);
+			NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(),future.getFutureName());
 			
-			future.write(test);
-			future.write("$");
+			f.write(test);
+			f.write("$");
 			
-			session.flush(future);
+			session.flush(f);
 		}
 		
 	}

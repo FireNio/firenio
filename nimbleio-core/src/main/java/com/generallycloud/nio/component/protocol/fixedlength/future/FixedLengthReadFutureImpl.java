@@ -36,8 +36,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		}
 	}
 
-	public FixedLengthReadFutureImpl(Session session) {
-		super(session);
+	public FixedLengthReadFutureImpl() {
 	}
 	
 	private boolean isHeaderReadComplete(ByteBuf buf){

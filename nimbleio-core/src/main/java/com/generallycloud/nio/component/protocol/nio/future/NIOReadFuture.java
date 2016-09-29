@@ -20,7 +20,7 @@ public interface NIOReadFuture extends BalanceReadFuture,NamedReadFuture {
 	public abstract byte[] getBinary();
 	
 	public abstract Integer getFutureID();
-
+	
 	public abstract BufferedOutputStream getWriteBinaryBuffer();
 
 	public abstract void writeBinary(byte b);

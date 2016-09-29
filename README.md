@@ -5,7 +5,115 @@ NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异�
 
 ## 如何使用
 
-	详见 {nimbleio-test}
+### 服务端：
+
+```Java
+
+public static void main(String[] args) throws Exception {
+
+		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+
+			public void accept(Session session, ReadFuture future) throws Exception {
+				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
+				String res = "yes server already accept your message:" + f.getText();
+				future.write(res);
+				session.flush(future);
+			}
+		};
+
+		ServerConfiguration configuration = new ServerConfiguration();
+		
+		configuration.setSERVER_TCP_PORT(18300);
+
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+				"IOEvent",
+				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+				configuration.getSERVER_CORE_SIZE());
+
+		NIOContext context = new DefaultNIOContext(configuration, eventLoopGroup);
+		
+		context.addSessionEventListener(new LoggerSEListener());
+		
+		context.addSessionEventListener(new SessionAliveSEListener());
+
+		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.setBeatFutureFactory(new FLBeatFutureFactory());
+
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+		acceptor.setContext(context);
+
+		acceptor.bind();
+	}
+
+```
+
+### 客户端：
+
+```Java
+
+public static void main(String[] args) throws Exception {
+
+		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+
+			public void accept(Session session, ReadFuture future) throws Exception {
+
+				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
+				System.out.println();
+				System.out.println("____________________"+f.getText());
+				System.out.println();
+			}
+		};
+
+		SocketChannelConnector connector = new SocketChannelConnector();
+		
+		ServerConfiguration configuration = new ServerConfiguration();
+		
+		configuration.setSERVER_HOST("localhost");
+		configuration.setSERVER_TCP_PORT(18300);
+		
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
+				"IOEvent", 
+				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
+				1);
+
+		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
+
+		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.addSessionEventListener(new LoggerSEListener());
+
+		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
+
+		context.addSessionEventListener(new SessionActiveSEListener());
+		
+		context.setBeatFutureFactory(new FLBeatFutureFactory());
+
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		connector.setContext(context);
+		
+		connector.connect();
+
+		Session session = connector.getSession();
+
+		ReadFuture future = new FixedLengthReadFutureImpl();
+
+		future.write("hello server !");
+
+		session.flush(future);
+		
+		ThreadUtil.sleep(100);
+
+		CloseUtil.close(connector);
+	}
+
+```
+
+###	详见 {nimbleio-test}
 
 ## 项目特色
 

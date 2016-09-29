@@ -39,7 +39,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		o.put("type", "welcome");
 		o.put("id", ioSession.getSessionID());
 
-		WebSocketReadFuture f = new WebSocketTextReadFutureImpl(session.getIOSession());
+		WebSocketReadFuture f = new WebSocketTextReadFutureImpl();
 
 		f.write(o.toJSONString());
 

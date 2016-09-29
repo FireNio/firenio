@@ -7,11 +7,11 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 public class FLBeatFutureFactory implements BeatFutureFactory{
 
 	public ReadFuture createPINGPacket(Session session) {
-		return new FixedLengthReadFutureImpl(session).setPING();
+		return new FixedLengthReadFutureImpl().setPING();
 	}
 
 	public ReadFuture createPONGPacket(Session session) {
-		return new FixedLengthReadFutureImpl(session).setPONG();
+		return new FixedLengthReadFutureImpl().setPONG();
 	}
 	
 }

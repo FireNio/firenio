@@ -16,12 +16,12 @@ import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.generallycloud.nio.extend.security.Authority;
 
@@ -159,8 +159,10 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, context.getIOEventHandleAdaptor());
-
+		NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+		
+		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
+		
 		readFuture.write(content);
 
 		if (binary != null) {
@@ -250,8 +252,10 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, context.getIOEventHandleAdaptor());
-
+		NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+		
+		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
+		
 		readFuture.write(content);
 
 		if (binary != null) {

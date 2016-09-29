@@ -3,6 +3,7 @@ package com.generallycloud.nio.component.protocol.nio;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannel;
@@ -10,6 +11,7 @@ import com.generallycloud.nio.component.protocol.IOReadFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.component.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.component.protocol.ProtocolEncoder;
+import com.generallycloud.nio.component.protocol.ProtocolException;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 
 public class NIOProtocolEncoder implements ProtocolEncoder {
@@ -58,18 +60,22 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		NIOReadFuture nioReadFuture = (NIOReadFuture) readFuture;
 		
 		Integer future_id = nioReadFuture.getFutureID();
-		String service_name = nioReadFuture.getFutureName();
+		String future_name = nioReadFuture.getFutureName();
 		BufferedOutputStream textOPS = nioReadFuture.getWriteBuffer();
 		BufferedOutputStream binaryOPS = nioReadFuture.getWriteBinaryBuffer();
 		
-		byte[] service_name_array = service_name.getBytes(session.getContext().getEncoding());
+		if (StringUtil.isNullOrBlank(future_name)) {
+			throw new ProtocolException("future name is empty");
+		}
+		
+		byte[] future_name_array = future_name.getBytes(session.getContext().getEncoding());
 
-		int service_name_length = service_name_array.length;
+		int service_name_length = future_name_array.length;
 		int text_length = textOPS.size();
 		int binary_length = 0;
 		
 		if (service_name_length > ((1 << 6) -1)) {
-			throw new IllegalArgumentException("service name too long ," + service_name);
+			throw new IllegalArgumentException("service name too long ," + future_name);
 		}
 		
 		if (binaryOPS != null) {
@@ -90,7 +96,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);
 		
 		buffer.put(header);
-		buffer.put(service_name_array);
+		buffer.put(future_name_array);
 		
 		if (text_length > 0) {
 			buffer.put(textOPS.array(),0,text_length);

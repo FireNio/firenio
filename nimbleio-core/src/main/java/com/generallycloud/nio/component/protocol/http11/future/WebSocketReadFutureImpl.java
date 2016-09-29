@@ -48,8 +48,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		}
 	}
 	
-	protected WebSocketReadFutureImpl(Session session) {
-		super(session);
+	protected WebSocketReadFutureImpl() {
 	}
 	
 	private void doHeaderComplete(ByteBuf buffer){

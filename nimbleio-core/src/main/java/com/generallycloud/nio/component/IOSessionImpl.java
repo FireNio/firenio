@@ -124,6 +124,8 @@ public class IOSessionImpl implements IOSession {
 			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
 
 			IOReadFuture ioReadFuture = (IOReadFuture) future;
+			
+			ioReadFuture.update(this);
 
 			writeFuture = encoder.encode(socketChannel, ioReadFuture);
 

@@ -1,5 +1,7 @@
-package com.generallycloud.nio.component;
+package com.generallycloud.test.nio.common;
 
+import com.generallycloud.nio.component.IOEventHandle;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFutureImpl;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
@@ -15,13 +17,13 @@ public class ReadFutureFactory {
 	public static NIOReadFuture create(Session session, Integer futureID, String serviceName,
 			IOEventHandle ioEventHandle) {
 
-		NIOReadFutureImpl textReadFuture = new NIOReadFutureImpl(session, futureID, serviceName);
+		NIOReadFutureImpl textReadFuture = new NIOReadFutureImpl(futureID, serviceName);
 
 		textReadFuture.setIOEventHandle(ioEventHandle);
 
 		return textReadFuture;
 	}
-	
+
 	public static NIOReadFuture create(Session session, Integer futureID, String serviceName) {
 
 		return create(session, futureID, serviceName, session.getContext().getIOEventHandleAdaptor());
@@ -31,11 +33,11 @@ public class ReadFutureFactory {
 
 		return create(session, 0, serviceName, ioEventHandle);
 	}
-	
-	public static HttpRequestFuture createHttpReadFuture(Session session,String url){
-		return new HttpRequestFutureImpl(session, url, "GET");
+
+	public static HttpRequestFuture createHttpReadFuture(Session session, String url) {
+		return new HttpRequestFutureImpl(url, "GET");
 	}
-	
+
 	public static NIOReadFuture create(Session session, String serviceName) {
 
 		return create(session, 0, serviceName, session.getContext().getIOEventHandleAdaptor());

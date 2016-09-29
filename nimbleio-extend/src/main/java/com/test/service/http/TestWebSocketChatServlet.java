@@ -90,7 +90,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 				
 				String msg1 = obj.toJSONString();
 				
-				WebSocketReadFutureImpl f2 = new WebSocketTextReadFutureImpl(session);
+				WebSocketReadFutureImpl f2 = new WebSocketTextReadFutureImpl();
 				f2.write(msg1);
 				session.flush(f2);
 				

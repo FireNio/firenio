@@ -51,9 +51,9 @@ public class NIOProtocolDecoder extends ProtocolDecoderAdapter {
 		int type = (_type & 0xff) >> 6;
 
 		if (type == PROTOCOL_PING) {
-			return new NIOReadFutureImpl(session).setPING();
+			return new NIOReadFutureImpl().setPING();
 		} else if (type == PROTOCOL_PONG) {
-			return new NIOReadFutureImpl(session).setPONG();
+			return new NIOReadFutureImpl().setPONG();
 		}
 
 		return new NIOReadFutureImpl(session, buffer);

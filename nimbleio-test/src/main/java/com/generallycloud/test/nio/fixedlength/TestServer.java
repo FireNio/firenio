@@ -1,7 +1,6 @@
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
@@ -14,15 +13,12 @@ import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class TestServer {
 
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
@@ -33,9 +29,9 @@ public class TestServer {
 			}
 		};
 
-		PropertiesSCLoader loader = new PropertiesSCLoader();
+		ServerConfiguration configuration = new ServerConfiguration();
 		
-		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
+		configuration.setSERVER_TCP_PORT(18300);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
@@ -46,17 +42,17 @@ public class TestServer {
 
 		NIOContext context = new DefaultNIOContext(configuration, eventLoopGroup);
 		
+		context.addSessionEventListener(new LoggerSEListener());
+		
 		context.addSessionEventListener(new SessionAliveSEListener());
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
-
-		context.addSessionEventListener(new LoggerSEListener());
 		
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
-		acceptor.setContext(context);
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		acceptor.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
+		acceptor.setContext(context);
 
 		acceptor.bind();
 	}

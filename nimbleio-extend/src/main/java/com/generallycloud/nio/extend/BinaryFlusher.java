@@ -7,10 +7,10 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.ReadFutureFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
+import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 
 public class BinaryFlusher {
 
@@ -74,7 +74,9 @@ public class BinaryFlusher {
 
 		if (time == 0) {
 
-			NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, adaptor);
+			NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+			
+			readFuture.setIOEventHandle(adaptor);
 
 			int available = inputStream.available();
 
@@ -90,7 +92,9 @@ public class BinaryFlusher {
 
 		} else {
 
-			NIOReadFuture readFuture = ReadFutureFactory.create(session, serviceName, adaptor);
+			NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+			
+			readFuture.setIOEventHandle(adaptor);
 
 			int size = inputStream.read(cache);
 

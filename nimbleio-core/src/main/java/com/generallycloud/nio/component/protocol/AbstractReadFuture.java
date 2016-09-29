@@ -5,8 +5,7 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandle;
-import com.generallycloud.nio.component.IOSessionImpl;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
@@ -15,7 +14,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	protected IOEventHandle			ioEventHandle		;
 	protected boolean 			hasOutputStream	;
 	protected SocketChannel			channel			;
-	protected IOSessionImpl			session			;
+	protected IOSession			session			;
 	protected boolean				flushed			;
 	
 	public IOEventHandle getIOEventHandle() {
@@ -24,12 +23,6 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 
 	public void setIOEventHandle(IOEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
-	}
-	
-	public AbstractReadFuture(Session session) {
-		this.session = (IOSessionImpl) session;
-		this.channel = this.session.getSocketChannel();
-		this.ioEventHandle = session.getContext().getIOEventHandleAdaptor();
 	}
 	
 	public void write(byte b) {
