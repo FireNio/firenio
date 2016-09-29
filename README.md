@@ -5,8 +5,6 @@ NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异�
 
 ## 如何使用
 
-	
-
 	详见 {nimbleio-test}
 
 ## 项目特色
@@ -14,12 +12,12 @@ NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异�
 * IO读写分离
 * 支持内存池
 * 支持内存0拷贝
-* 轻松实现心跳机制
 * 轻松实现简易负载均衡
 * 无差别 [服务端/客户端 ] 转换
-* 超过12W QPS(Socket)的处理速度(服务端：I7 *70%,客户端：I5 *100%；百兆网卡IO *70%)
-* 超过 4W QPS(HTTP)  的处理速度(服务端：I7 *30%,客户端：I5 *100%；百兆网卡IO *30%)
+* 超过12W QPS(Socket)的处理速度
+* 超过 4W QPS(HTTP)  的处理速度
 * 弱网络环境下优良的性能表现
+* 轻松实现断线重连(轻松实现心跳机制)
 * 支持组件扩展，目前的扩展插件有：
  * 简易MQ，offer msg，poll msg
  * 简易实时UDP通讯，用作音/视频实时交互
@@ -32,7 +30,7 @@ NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异�
 
 ## 演示及用例
 * HTTP Demo：http://www.generallycloud.com/index.html
-* WebSocketChat Demo：http://www.generallycloud.com/web-socket/chat/index.html                                
+* WebSocket聊天室 Demo：http://www.generallycloud.com/web-socket/chat/index.html                                
  （我写的后端，前端https://github.com/socketio/socket.io/ ）
-* 小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html                                
+* WebSocket小蝌蚪 Demo：http://www.generallycloud.com/web-socket/rumpetroll/index.html                                
  （我写的后端，前端https://github.com/danielmahal/Rumpetroll ）
