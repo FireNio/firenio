@@ -34,8 +34,18 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		EventLoopThread loopThread = getSelectorLoopThread();
 
 		if (loopThread != null && loopThread.isMonitor(thread)) {
-			throw new IllegalStateException("not allow to close on future callback");
+			session.getEventLoop().dispatch(new Runnable() {
+				
+				public void run() {
+					close0();
+				}
+			});
 		}
+		
+		close0();
+	}
+	
+	protected void close0(){
 
 		ReentrantLock lock = this.activeLock;
 

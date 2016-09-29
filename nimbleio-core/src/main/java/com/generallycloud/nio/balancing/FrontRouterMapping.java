@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.IOSession;
 
 public class FrontRouterMapping {
@@ -85,9 +86,11 @@ public class FrontRouterMapping {
 			
 			IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
 			
-			if (router_session != null) {
+			if (router_session != null && router_session.isOpened()) {
 				return router_session;
 			}
+
+			CloseUtil.close(router_session);
 			
 			router_session = getNextRouterSession();
 
