@@ -50,25 +50,7 @@
 			
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-extend</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-codec</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-balancing</artifactId>
+			<artifactId>nimbleio-all</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
