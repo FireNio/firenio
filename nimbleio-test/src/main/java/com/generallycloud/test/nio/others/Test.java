@@ -16,6 +16,8 @@ public class Test {
 		System.out.println(MathUtil.byte2BinaryString((byte) -1));
 		System.out.println(MathUtil.byte2BinaryString((byte) -2));
 		
+		System.out.println(Integer.MAX_VALUE >> 3);
+		
 		//test branch   tes22222
 		
 	}

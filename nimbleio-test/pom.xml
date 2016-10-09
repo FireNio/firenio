@@ -48,12 +48,6 @@
 
 	<dependencies>
 			
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-all</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 	</dependencies>
 
 </project>

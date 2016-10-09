@@ -1,5 +1,6 @@
 package com.generallycloud.test.nio.nio;
 
+import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
@@ -23,6 +24,8 @@ public class TestShowMemory {
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 
 		FixedSession session = eventHandle.getFixedSession();
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Session;
@@ -19,20 +20,19 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 	private final int	PROTOCOL_HADER		= NIOProtocolDecoder.PROTOCOL_HADER;
 
 	private void calc_text(byte[] header, int text_length) {
-		header[5] = (byte) (text_length & 0xff);
-		header[4] = (byte) ((text_length >> 8) & 0xff);
+		MathUtil.intTo2Byte(header, text_length, NIOProtocolDecoder.TEXT_BEGIN_INDEX);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {
-		header[3] = (byte) (future_id & 0xff);
-		header[2] = (byte) ((future_id >> 8) & 0xff);
-		header[1] = (byte) ((future_id >> 16) & 0xff);
+		MathUtil.int2Byte(header, future_id, NIOProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
 	}
 
 	private void calc_binary(byte[] header, int binary_length) {
-		header[8] = (byte) (binary_length & 0xff);
-		header[7] = (byte) ((binary_length >> 8) & 0xff);
-		header[6] = (byte) ((binary_length >> 16) & 0xff);
+		MathUtil.int2Byte(header, binary_length, NIOProtocolDecoder.BINARY_BEGIN_INDEX);
+	}
+	
+	private void calc_hash(byte[] header, int hash) {
+		MathUtil.int2Byte(header, hash, NIOProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 	
 	public IOWriteFuture encode(SocketChannel channel,IOReadFuture readFuture) throws IOException {
@@ -57,12 +57,12 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		
 		Session session = channel.getSession();
 		
-		NIOReadFuture nioReadFuture = (NIOReadFuture) readFuture;
+		NIOReadFuture f = (NIOReadFuture) readFuture;
 		
-		Integer future_id = nioReadFuture.getFutureID();
-		String future_name = nioReadFuture.getFutureName();
-		BufferedOutputStream textOPS = nioReadFuture.getWriteBuffer();
-		BufferedOutputStream binaryOPS = nioReadFuture.getWriteBinaryBuffer();
+		Integer future_id = f.getFutureID();
+		String future_name = f.getFutureName();
+		BufferedOutputStream textOPS = f.getWriteBuffer();
+		BufferedOutputStream binaryOPS = f.getWriteBinaryBuffer();
 		
 		if (StringUtil.isNullOrBlank(future_name)) {
 			throw new ProtocolException("future name is empty");
@@ -89,7 +89,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		header[0] = (byte)(service_name_length);
 
 		calc_future_id(header, future_id);
-		
+		calc_hash(header, f.getHashCode());
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 

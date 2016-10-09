@@ -3,6 +3,7 @@ package com.generallycloud.test.nio.front;
 import java.io.IOException;
 
 import com.generallycloud.nio.balancing.FrontServerBootStrap;
+import com.generallycloud.nio.balancing.router.HashedFrontRouter;
 import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -24,6 +25,7 @@ public class TestFrontMain {
 		
 		f.setFrontServerConfiguration(fc);
 		f.setFrontReverseServerConfiguration(frc);
+		f.setFrontRouter(new HashedFrontRouter(1024));
 		
 		f.startup();
 	}

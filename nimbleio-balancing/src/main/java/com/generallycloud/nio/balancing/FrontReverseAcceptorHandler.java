@@ -14,17 +14,14 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.WriteFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
-	private Logger				logger			= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
-	private FrontContext		frontContext;
-	private FrontRouterMapping	frontRouterMapping;
+	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
+	private FrontContext	frontContext;
 
 	public FrontReverseAcceptorHandler(FrontContext frontContext) {
 		this.frontContext = frontContext;
-		this.frontRouterMapping = frontContext.getFrontRouterMapping();
 	}
 
 	private void broadcast(final BalanceReadFuture future) {
@@ -32,38 +29,38 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
 		IOAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
-		
+
 		acceptor.offerSessionMEvent(new SessionMEvent() {
-			
+
 			public void handle(Map<Integer, Session> sessions) {
-				
+
 				if (sessions == null || sessions.size() == 0) {
 					return;
 				}
 
 				Iterator<Session> ss = sessions.values().iterator();
-				
+
 				if (!ss.hasNext()) {
 					return;
 				}
-				
+
 				IOSession _s = (IOSession) ss.next();
-				
+
 				IOWriteFuture writeFuture;
-				
+
 				try {
 					writeFuture = future.translate(_s);
 				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
+					logger.error(e.getMessage(), e);
 					return;
 				}
-				
+
 				for (; ss.hasNext();) {
 
 					IOSession s = (IOSession) ss.next();
-					
+
 					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
-						
+
 						IOWriteFuture copy = writeFuture.duplicate(s);
 
 						try {
@@ -76,14 +73,14 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 						}
 					}
 				}
-				
+
 				if (_s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
 					try {
 						_s.flush(writeFuture);
 					} catch (IOException e) {
-						logger.error(e.getMessage(),e);
+						logger.error(e.getMessage(), e);
 					}
-				}else {
+				} else {
 					ReleaseUtil.release(writeFuture);
 				}
 			}
@@ -93,7 +90,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 	public void accept(Session session, ReadFuture future) throws Exception {
 
 		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
-		
+
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (f.isBroadcast()) {
@@ -117,9 +114,9 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				return;
 			}
-			
+
 			IOWriteFuture writeFuture = f.translate(response);
-			
+
 			response.flush(writeFuture);
 
 			logger.info("回复报文到客户端");
@@ -129,12 +126,4 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", session, f);
 	}
-
-	public FrontRouterMapping getRouterProxy() {
-		return frontRouterMapping;
-	}
-
-	public void futureSent(Session session, WriteFuture future) {
-	}
-
 }

@@ -1,11 +1,11 @@
 package com.generallycloud.nio.codec.nio.future;
 
-import com.generallycloud.nio.balancing.BalanceReadFuture;
+import com.generallycloud.nio.balancing.HashedBalanceReadFuture;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 
-public interface NIOReadFuture extends BalanceReadFuture,NamedReadFuture {
+public interface NIOReadFuture extends HashedBalanceReadFuture,NamedReadFuture {
 
 	public abstract String getText();
 

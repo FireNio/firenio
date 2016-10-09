@@ -1,27 +1,27 @@
 package com.generallycloud.nio.balancing;
 
+import com.generallycloud.nio.balancing.router.FrontRouter;
 
 public class FrontContext {
 
-	public static final String			FRONT_CHANNEL_LOST			= "FRONT_CHANNEL_LOST";
-	public static final String			FRONT_RECEIVE_BROADCAST		= "FRONT_RECEIVE_BROADCAST";
+	public static final String			FRONT_CHANNEL_LOST		= "FRONT_CHANNEL_LOST";
+	public static final String			FRONT_RECEIVE_BROADCAST	= "FRONT_RECEIVE_BROADCAST";
 
 	private FrontFacadeAcceptor			frontFacadeAcceptor;
 	private FrontReverseAcceptor			frontReverseAcceptor;
 	private FrontFacadeAcceptorSEListener	frontFacadeAcceptorSEListener;
 	private FrontReverseAcceptorSEListener	frontReverseAcceptorSEListener;
-	private FrontRouterMapping			frontRouterMapping			= new FrontRouterMapping();
-	private FrontReverseAcceptorHandler	frontReverseAcceptorHandler	;
-	private FrontFacadeAcceptorHandler		frontFacadeAcceptorHandler	;
-	private ChannelLostReadFutureFactory	channelLostReadFutureFactory	;
-	
-	
+	private FrontRouter					frontRouter;
+	private FrontReverseAcceptorHandler	frontReverseAcceptorHandler;
+	private FrontFacadeAcceptorHandler		frontFacadeAcceptorHandler;
+	private ChannelLostReadFutureFactory	channelLostReadFutureFactory;
 
-	protected FrontContext(FrontFacadeAcceptor facadeAcceptor) {
+	protected FrontContext(FrontFacadeAcceptor facadeAcceptor,FrontRouter frontRouter) {
 		this.frontFacadeAcceptor = facadeAcceptor;
+		this.frontRouter = frontRouter;
 		this.frontFacadeAcceptorSEListener = new FrontFacadeAcceptorSEListener(this);
-		this.frontReverseAcceptorSEListener = new FrontReverseAcceptorSEListener(frontRouterMapping);
-		this.frontFacadeAcceptorHandler = new FrontFacadeAcceptorHandler(frontRouterMapping);
+		this.frontReverseAcceptorSEListener = new FrontReverseAcceptorSEListener(this);
+		this.frontFacadeAcceptorHandler = new FrontFacadeAcceptorHandler(this);
 		this.frontReverseAcceptorHandler = new FrontReverseAcceptorHandler(this);
 	}
 
@@ -49,8 +49,8 @@ public class FrontContext {
 		return frontReverseAcceptorSEListener;
 	}
 
-	public FrontRouterMapping getFrontRouterMapping() {
-		return frontRouterMapping;
+	public FrontRouter getFrontRouter() {
+		return frontRouter;
 	}
 
 	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {

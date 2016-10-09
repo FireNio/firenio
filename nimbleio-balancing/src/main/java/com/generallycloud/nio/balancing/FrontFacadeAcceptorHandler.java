@@ -1,5 +1,6 @@
 package com.generallycloud.nio.balancing;
 
+import com.generallycloud.nio.balancing.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -10,12 +11,12 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(FrontFacadeAcceptorHandler.class);
-	private FrontRouterMapping	frontRouterMapping;
-	private byte[]				V		= {};
+	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorHandler.class);
+	private FrontRouter		frontRouter;
+	private byte[]		V		= {};
 
-	public FrontFacadeAcceptorHandler(FrontRouterMapping frontRouterMapping) {
-		this.frontRouterMapping = frontRouterMapping;
+	public FrontFacadeAcceptorHandler(FrontContext context) {
+		this.frontRouter = context.getFrontRouter();
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
@@ -24,13 +25,13 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
-		IOSession routerSession = frontRouterMapping.getRouterSession((IOSession) session);
+		IOSession routerSession = frontRouter.getRouterSession((IOSession) session, f);
 
 		if (f.isReceiveBroadcast()) {
 			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
 			return;
 		}
-		
+
 		if (routerSession == null) {
 
 			logger.info("未发现负载节点，报文分发失败：{} ", future);

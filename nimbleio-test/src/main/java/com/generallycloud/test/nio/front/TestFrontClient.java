@@ -44,17 +44,21 @@ public class TestFrontClient {
 
 		Session session = connector.getSession();
 		
-		ReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
+		NIOReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
 
 		future.write("你好！");
 
 		session.flush(future);
 
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 100; i++) {
 
-			future = ReadFutureFactory.create(session,new Random().nextInt(), "service-name");
+			int fid = Math.abs(new Random().nextInt());
+			
+			future = ReadFutureFactory.create(session,fid, "service-name");
 
 			future.write("你好！");
+			
+			future.setHashCode(fid);
 
 			session.flush(future);
 		}

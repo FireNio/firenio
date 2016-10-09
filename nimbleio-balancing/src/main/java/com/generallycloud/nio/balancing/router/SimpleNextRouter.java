@@ -1,4 +1,4 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balancing.router;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontRouterMapping {
+public class SimpleNextRouter implements FrontRouter {
 
 	private int			index			= 0;
 	private List<IOSession>	routerList		= new ArrayList<IOSession>();
@@ -59,7 +60,7 @@ public class FrontRouterMapping {
 		lock.unlock();
 	}
 
-	public IOSession getRouterSession(IOSession session) {
+	public IOSession getRouterSession(IOSession session,ReadFuture future) {
 
 		IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
 
@@ -74,6 +75,11 @@ public class FrontRouterMapping {
 		}
 
 		return router_session;
+	}
+	
+	public IOSession getRouterSession(IOSession session) {
+
+		return (IOSession) session.getAttribute(SESSION_ID_ROUTER);
 	}
 
 	private IOSession getRouterSessionFresh(IOSession session) {
