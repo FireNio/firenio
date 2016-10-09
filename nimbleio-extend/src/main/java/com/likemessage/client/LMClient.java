@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.MD5Token;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.RESMessageDecoder;

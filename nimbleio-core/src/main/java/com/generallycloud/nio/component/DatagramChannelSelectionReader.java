@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.protocol.DatagramPacket;
+import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelSelectionReader implements SelectionAcceptor {
 

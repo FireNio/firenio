@@ -6,13 +6,13 @@ import java.util.List;
 
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
+import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketTextReadFutureImpl;
 
 public class WebSocketMsgAdapter implements Looper {
 

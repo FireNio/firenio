@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SessionActiveSEListener extends SEListenerAdapter {
 

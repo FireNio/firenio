@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.TimeoutException;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
@@ -18,12 +20,10 @@ import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
-import com.generallycloud.nio.component.protocol.NamedReadFuture;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.generallycloud.nio.extend.security.Authority;
+import com.generallycloud.nio.protocol.NamedReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FixedIOSession implements FixedSession {
 

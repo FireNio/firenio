@@ -1,14 +1,14 @@
 package com.generallycloud.test.nio.http11;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.http11.ServerHTTPProtocolFactory;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.IOAcceptorUtil;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class TestSimpleHttpServer {
 

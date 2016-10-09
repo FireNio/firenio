@@ -8,8 +8,8 @@ import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.protocol.DatagramPacket;
-import com.generallycloud.nio.component.protocol.DatagramRequest;
+import com.generallycloud.nio.protocol.DatagramPacket;
+import com.generallycloud.nio.protocol.DatagramRequest;
 
 public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
 	

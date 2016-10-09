@@ -1,11 +1,11 @@
 package com.generallycloud.test.nio.common;
 
+import com.generallycloud.nio.codec.http11.future.HttpRequestFuture;
+import com.generallycloud.nio.codec.http11.future.HttpRequestFutureImpl;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
-import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFutureImpl;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 
 public class ReadFutureFactory {
 

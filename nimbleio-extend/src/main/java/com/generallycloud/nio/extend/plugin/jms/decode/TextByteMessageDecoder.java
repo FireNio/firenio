@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.plugin.jms.decode;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.TextByteMessage;
 

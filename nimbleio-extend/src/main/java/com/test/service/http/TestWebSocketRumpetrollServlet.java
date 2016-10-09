@@ -2,20 +2,20 @@ package com.test.service.http;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.codec.http11.HttpSession;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
+import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.http11.HttpSession;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 

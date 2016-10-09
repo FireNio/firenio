@@ -17,8 +17,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 

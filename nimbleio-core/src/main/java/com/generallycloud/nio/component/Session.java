@@ -7,8 +7,8 @@ import java.net.SocketException;
 import java.util.Map;
 
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface Session extends Closeable{
 

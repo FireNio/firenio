@@ -1,10 +1,10 @@
 package com.generallycloud.nio.extend.plugin.jms.server;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.jms.ErrorMessage;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.NullMessage;

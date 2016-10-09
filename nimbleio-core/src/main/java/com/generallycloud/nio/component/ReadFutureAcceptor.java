@@ -1,6 +1,6 @@
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface ReadFutureAcceptor {
 

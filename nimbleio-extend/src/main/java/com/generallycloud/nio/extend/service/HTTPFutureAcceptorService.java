@@ -2,15 +2,15 @@ package com.generallycloud.nio.extend.service;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.codec.http11.HttpContext;
+import com.generallycloud.nio.codec.http11.HttpSession;
+import com.generallycloud.nio.codec.http11.HttpSessionFactory;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.nio.codec.http11.future.HttpStatus;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.http11.HttpContext;
-import com.generallycloud.nio.component.protocol.http11.HttpSession;
-import com.generallycloud.nio.component.protocol.http11.HttpSessionFactory;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.protocol.http11.future.HttpStatus;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 	

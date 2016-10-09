@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.plugin.jms.server;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.RESMessage;
 
 public class MQTransactionServlet extends MQServlet {

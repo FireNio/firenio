@@ -2,9 +2,9 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.extend.plugin.jms.BytedMessage;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 

@@ -1,13 +1,13 @@
 package com.generallycloud.nio.extend.plugin.jms.client.impl;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.OnMessage;
 import com.generallycloud.nio.extend.plugin.jms.decode.MessageDecoder;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class ConsumerOnReadFuture implements OnReadFuture {
 

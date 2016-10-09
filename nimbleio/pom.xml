@@ -10,6 +10,8 @@
 
 	<modules>
 		<module>../nimbleio-all</module>
+		<module>../nimbleio-balancing</module>
+		<module>../nimbleio-codec</module>
 		<module>../nimbleio-core</module>
 		<module>../nimbleio-extend</module>
 	</modules>

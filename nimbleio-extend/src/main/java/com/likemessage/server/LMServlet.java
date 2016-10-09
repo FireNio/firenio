@@ -3,12 +3,12 @@ package com.likemessage.server;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class LMServlet extends NIOFutureAcceptorService {
 

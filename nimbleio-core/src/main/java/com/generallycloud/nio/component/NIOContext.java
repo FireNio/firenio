@@ -2,12 +2,13 @@ package com.generallycloud.nio.component;
 
 import java.nio.charset.Charset;
 
+import com.generallycloud.nio.Attributes;
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.protocol.ProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public interface NIOContext extends Attributes, LifeCycle {
 

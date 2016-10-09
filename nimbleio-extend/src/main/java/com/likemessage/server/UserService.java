@@ -8,10 +8,10 @@ import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.security.Authority;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class UserService extends AbstractService{
 

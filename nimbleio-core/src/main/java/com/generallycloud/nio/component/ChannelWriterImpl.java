@@ -15,8 +15,8 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
-import com.generallycloud.nio.component.protocol.IOWriteFuture;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.IOWriteFuture;
 
 //FIXME 问题好像出在这里
 //FIXME 如果当前edp网速良好则多执行几次write

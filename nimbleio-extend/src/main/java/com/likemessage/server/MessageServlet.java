@@ -3,11 +3,11 @@ package com.likemessage.server;
 import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
 import com.generallycloud.nio.extend.plugin.jms.server.MQContext;

@@ -11,10 +11,10 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.component.protocol.IOReadFuture;
-import com.generallycloud.nio.component.protocol.IOWriteFuture;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class IOSessionImpl implements IOSession {
 

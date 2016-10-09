@@ -4,11 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.generallycloud.nio.buffer.MemoryPoolV3;
+import com.generallycloud.nio.codec.http11.HttpContext;
+import com.generallycloud.nio.codec.http11.HttpSession;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.protocol.http11.HttpContext;
-import com.generallycloud.nio.component.protocol.http11.HttpSession;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestShowMemoryServlet extends HTTPFutureAcceptorService{

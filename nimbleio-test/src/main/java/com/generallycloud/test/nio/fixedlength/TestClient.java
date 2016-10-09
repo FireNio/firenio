@@ -1,5 +1,9 @@
 package com.generallycloud.test.nio.fixedlength;
 
+import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
@@ -10,14 +14,10 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionActiveSEListener;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.nio.component.protocol.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.nio.component.protocol.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class TestClient {
 

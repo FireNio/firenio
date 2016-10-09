@@ -3,8 +3,8 @@ package com.generallycloud.nio.extend.implementation;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.extend.service.FutureAcceptorFilter;
+import com.generallycloud.nio.protocol.NamedReadFuture;
 
 public class LoggerFilter extends FutureAcceptorFilter {
 

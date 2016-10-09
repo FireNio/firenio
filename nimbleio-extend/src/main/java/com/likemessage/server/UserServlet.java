@@ -4,11 +4,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import com.alibaba.fastjson.JSONArray;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.configuration.Configuration;

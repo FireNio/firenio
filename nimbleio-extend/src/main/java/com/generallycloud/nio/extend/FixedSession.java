@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.ReadFutureAcceptor;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.security.Authority;
 
 public interface FixedSession extends ReadFutureAcceptor {

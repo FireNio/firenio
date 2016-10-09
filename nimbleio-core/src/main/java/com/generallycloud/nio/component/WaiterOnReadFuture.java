@@ -1,7 +1,7 @@
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.component.concurrent.Waiter;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class WaiterOnReadFuture implements OnReadFuture {
 

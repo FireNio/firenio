@@ -3,8 +3,6 @@ package com.generallycloud.nio.common;
 import java.io.Closeable;
 import java.nio.channels.Selector;
 
-import com.generallycloud.nio.acceptor.IOAcceptor;
-
 public class CloseUtil {
 
 	public static void close(Closeable closeable){
@@ -29,12 +27,12 @@ public class CloseUtil {
 		}
 	}
 	
-	public static void unbind(IOAcceptor acceptor){
-		if (acceptor == null) {
+	public static void unbind(Unbindable unbindable){
+		if (unbindable == null) {
 			return;
 		}
 		try {
-			acceptor.unbind();
+			unbindable.unbind();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,10 +1,10 @@
 package com.test.service.http;
 
+import com.generallycloud.nio.codec.http11.HttpSession;
+import com.generallycloud.nio.codec.http11.future.Cookie;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.UUIDGenerator;
-import com.generallycloud.nio.component.protocol.http11.HttpSession;
-import com.generallycloud.nio.component.protocol.http11.future.Cookie;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestCookieHeaderServlet extends HTTPFutureAcceptorService {

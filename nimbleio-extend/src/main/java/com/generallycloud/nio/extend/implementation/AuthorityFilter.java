@@ -3,13 +3,13 @@ package com.generallycloud.nio.extend.implementation;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.NamedReadFuture;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.plugin.authority.AuthorityContext;
 import com.generallycloud.nio.extend.plugin.authority.AuthoritySessionAttachment;
 import com.generallycloud.nio.extend.security.Authority;
 import com.generallycloud.nio.extend.security.AuthorityManager;
 import com.generallycloud.nio.extend.service.FutureAcceptorFilter;
+import com.generallycloud.nio.protocol.NamedReadFuture;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 

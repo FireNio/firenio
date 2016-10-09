@@ -13,8 +13,8 @@ import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.component.protocol.DatagramPacket;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelConnector extends AbstractIOConnector {
 

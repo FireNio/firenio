@@ -7,6 +7,14 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
+            <directory>../nimbleio-balancing/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>../nimbleio-codec/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
             <directory>../nimbleio-core/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>

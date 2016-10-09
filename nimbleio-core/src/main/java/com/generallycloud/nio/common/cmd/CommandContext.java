@@ -2,9 +2,9 @@ package com.generallycloud.nio.common.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.nio.component.AttributesImpl;
+import com.generallycloud.nio.AttributesImpl;
 
-public class CommandContext extends AttributesImpl {
+public class CommandContext extends AttributesImpl{
 
 	private HashMap<String, Executable>	executors	= new HashMap<String, Executable>();
 	

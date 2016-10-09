@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.IOWriteFuture;
 
 public interface IOSession extends Session{
 	

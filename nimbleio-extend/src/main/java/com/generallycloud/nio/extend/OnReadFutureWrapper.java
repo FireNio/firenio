@@ -5,7 +5,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture{
 	

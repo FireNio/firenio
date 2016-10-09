@@ -7,8 +7,8 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.component.protocol.IOReadFuture;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 

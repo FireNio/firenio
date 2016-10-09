@@ -5,12 +5,12 @@ import java.io.InputStream;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.ReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class BinaryFlusher {
 

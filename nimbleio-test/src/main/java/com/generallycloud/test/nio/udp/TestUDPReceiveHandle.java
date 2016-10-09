@@ -4,15 +4,15 @@ import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.protocol.DatagramPacket;
-import com.generallycloud.nio.component.protocol.DatagramPacketFactory;
-import com.generallycloud.nio.component.protocol.DatagramPacketGroup;
-import com.generallycloud.nio.component.protocol.DatagramPacketGroup.DPForeach;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
 import com.generallycloud.nio.extend.plugin.rtp.RTPException;
 import com.generallycloud.nio.extend.plugin.rtp.client.RTPClient;
 import com.generallycloud.nio.extend.plugin.rtp.client.RTPClientDPAcceptor;
 import com.generallycloud.nio.extend.plugin.rtp.client.RTPHandle;
+import com.generallycloud.nio.protocol.DatagramPacket;
+import com.generallycloud.nio.protocol.DatagramPacketFactory;
+import com.generallycloud.nio.protocol.DatagramPacketGroup;
+import com.generallycloud.nio.protocol.DatagramPacketGroup.DPForeach;
 
 public class TestUDPReceiveHandle extends RTPHandle {
 

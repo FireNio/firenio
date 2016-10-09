@@ -4,7 +4,7 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements IOEventHandle, LifeCycle {
 

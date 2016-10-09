@@ -3,9 +3,9 @@ package com.generallycloud.nio.component;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
+import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectionAlpha {
 

@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.plugin.http11;
 
+import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.protocol.http11.HttpContext;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;

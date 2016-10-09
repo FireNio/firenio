@@ -10,11 +10,11 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.ChannelWriterImpl.ChannelWriteEvent;
-import com.generallycloud.nio.component.protocol.IOReadFuture;
-import com.generallycloud.nio.component.protocol.IOWriteFuture;
-import com.generallycloud.nio.component.protocol.ProtocolDecoder;
-import com.generallycloud.nio.component.protocol.ProtocolEncoder;
-import com.generallycloud.nio.component.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
+import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
 

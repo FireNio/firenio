@@ -1,8 +1,8 @@
 package com.test.service.http;
 
+import com.generallycloud.nio.codec.http11.HttpSession;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.protocol.http11.HttpSession;
-import com.generallycloud.nio.component.protocol.http11.future.HttpReadFuture;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestUploadServlet extends HTTPFutureAcceptorService {

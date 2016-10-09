@@ -2,12 +2,12 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.util.Map;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 import com.generallycloud.nio.component.concurrent.ReentrantSet;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;

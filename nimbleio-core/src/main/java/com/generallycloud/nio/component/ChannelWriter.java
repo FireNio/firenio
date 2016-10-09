@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.component.ChannelWriterImpl.ChannelWriteEvent;
-import com.generallycloud.nio.component.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.IOWriteFuture;
 
 public interface ChannelWriter extends Looper{
 	

@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.plugin.rtp.client;
 
-import com.generallycloud.nio.component.protocol.DatagramPacketGroup;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
+import com.generallycloud.nio.protocol.DatagramPacketGroup;
 
 public abstract class RTPHandle {
 	

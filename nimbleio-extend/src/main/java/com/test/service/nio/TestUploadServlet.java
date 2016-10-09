@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
 
 public class TestUploadServlet extends NIOFutureAcceptorService {

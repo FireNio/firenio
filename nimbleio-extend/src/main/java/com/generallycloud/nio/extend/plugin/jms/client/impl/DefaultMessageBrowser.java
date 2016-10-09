@@ -3,8 +3,8 @@ package com.generallycloud.nio.extend.plugin.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
-import com.generallycloud.nio.component.protocol.nio.future.NIOReadFuture;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;

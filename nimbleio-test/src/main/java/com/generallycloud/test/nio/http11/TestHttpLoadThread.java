@@ -2,15 +2,15 @@ package com.generallycloud.test.nio.http11;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.nio.codec.http11.HttpClient;
+import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
+import com.generallycloud.nio.codec.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.protocol.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.nio.component.protocol.http11.HttpClient;
-import com.generallycloud.nio.component.protocol.http11.HttpIOEventHandle;
-import com.generallycloud.nio.component.protocol.http11.future.HttpRequestFuture;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
