@@ -1,6 +1,6 @@
 package com.generallycloud.nio.codec.nio.future;
 
-import com.generallycloud.nio.balancing.HashedBalanceReadFuture;
+import com.generallycloud.nio.balance.HashedBalanceReadFuture;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.protocol.NamedReadFuture;

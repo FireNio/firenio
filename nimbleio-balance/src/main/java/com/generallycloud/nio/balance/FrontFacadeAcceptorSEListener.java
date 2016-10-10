@@ -1,8 +1,8 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.balancing.router.FrontRouter;
+import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOSession;

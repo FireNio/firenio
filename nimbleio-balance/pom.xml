@@ -3,11 +3,11 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
-	<artifactId>nimbleio-balancing</artifactId>
+	<artifactId>nimbleio-balance</artifactId>
 	<version>2.3.10-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The balancing of nimbleio</description>  
+	<description>The balance of nimbleio</description>  
 
 	<parent>
 		<groupId>com.generallycloud</groupId>

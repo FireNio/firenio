@@ -1,6 +1,6 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
-import com.generallycloud.nio.balancing.router.FrontRouter;
+import com.generallycloud.nio.balance.router.FrontRouter;
 
 public class FrontContext {
 

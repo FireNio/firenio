@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.front;
 
-import com.generallycloud.nio.balancing.FrontContext;
+import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.ThreadUtil;

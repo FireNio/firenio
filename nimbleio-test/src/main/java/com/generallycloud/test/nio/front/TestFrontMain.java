@@ -2,8 +2,8 @@ package com.generallycloud.test.nio.front;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.balancing.FrontServerBootStrap;
-import com.generallycloud.nio.balancing.router.HashedFrontRouter;
+import com.generallycloud.nio.balance.FrontServerBootStrap;
+import com.generallycloud.nio.balance.router.HashedFrontRouter;
 import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 

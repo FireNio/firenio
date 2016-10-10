@@ -56,7 +56,7 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-balancing</artifactId>
+			<artifactId>nimbleio-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

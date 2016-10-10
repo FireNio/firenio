@@ -1,4 +1,4 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.generallycloud.nio.balancing.router;
+package com.generallycloud.nio.balance.router;
 
 import com.generallycloud.nio.component.IOSession;
 

@@ -1,4 +1,4 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
 public interface HashedBalanceReadFuture extends BalanceReadFuture {
 

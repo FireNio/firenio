@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import com.generallycloud.nio.balancing.FrontContext;
+import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.nio.NIOProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;

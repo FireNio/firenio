@@ -2,7 +2,7 @@ package com.generallycloud.test.nio.front;
 
 import java.util.Random;
 
-import com.generallycloud.nio.balancing.FrontContext;
+import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.CloseUtil;

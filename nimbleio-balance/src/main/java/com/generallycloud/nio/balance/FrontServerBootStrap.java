@@ -1,11 +1,11 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.balancing.router.FrontRouter;
-import com.generallycloud.nio.balancing.router.SimpleNextRouter;
+import com.generallycloud.nio.balance.router.FrontRouter;
+import com.generallycloud.nio.balance.router.SimpleNextRouter;
 import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;

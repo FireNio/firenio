@@ -1,6 +1,6 @@
-package com.generallycloud.nio.balancing.router;
+package com.generallycloud.nio.balance.router;
 
-import com.generallycloud.nio.balancing.HashedBalanceReadFuture;
+import com.generallycloud.nio.balance.HashedBalanceReadFuture;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 

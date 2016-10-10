@@ -1,4 +1,4 @@
-package com.generallycloud.nio.balancing;
+package com.generallycloud.nio.balance;
 
 import java.io.IOException;
 import java.util.Iterator;
