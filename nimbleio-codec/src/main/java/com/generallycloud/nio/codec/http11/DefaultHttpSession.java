@@ -3,7 +3,6 @@ package com.generallycloud.nio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.nio.AttributesImpl;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -33,11 +32,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 	}
 
 	public void active(Session ioSession) {
-		Session last = this.ioSession;
-		if (last != ioSession) {
-			CloseUtil.close(last);
-			this.ioSession = ioSession;
-		}
+		this.ioSession = ioSession;
 		this.lastAccessTime = System.currentTimeMillis();
 	}
 
