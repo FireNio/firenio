@@ -15,7 +15,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	protected SocketChannelSelectionAlpha	_alpha_acceptor;
 
 	public SocketChannelSelectorLoop(NIOContext context) {
-		this._write_acceptor = new TCPSelectionWriter();
+		this._write_acceptor = new SocketChannelSelectionWriter();
 		this._read_acceptor = new SocketChannelSelectionReader(context);
 	}
 	
