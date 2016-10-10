@@ -72,6 +72,18 @@ ul {
   width: 400px;
 }
 
+@media (max-width: 600px) {
+	.login.page .form .usernameInput {
+	  background-color: transparent;
+	  border: none;
+	  border-bottom: 2px solid #fff;
+	  outline: none;
+	  padding-bottom: 15px;
+	  text-align: center;
+	  width: 80%;
+	}
+}
+
 .login.page .title {
   font-size: 200%;
 }
