@@ -243,9 +243,8 @@ public class MathUtil {
 		long2Byte(bb, value, 0);
 
 		ITestHandle.doTest(new ITest() {
-
-			public void test() throws Exception {
-				MathUtil.byte2Long(bb, 1);
+			public void test(int i) throws Exception {
+				MathUtil.byte2Long(bb, i);
 			}
 		}, time, "Byte2Long");
 

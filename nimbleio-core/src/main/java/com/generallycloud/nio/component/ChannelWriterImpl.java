@@ -18,8 +18,6 @@ import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 
-//FIXME 问题好像出在这里
-//FIXME 如果当前edp网速良好则多执行几次write
 public class ChannelWriterImpl implements ChannelWriter {
 
 	private ListQueue<IOWriteFuture>			writerQueue;

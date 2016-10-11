@@ -22,7 +22,6 @@ public interface Channel extends Closeable{
 
 	public abstract int getRemotePort();
 	
-	//FIXME 考虑放在IO线程执行否则会导致java.nio.channels.CancelledKeyException异常
 	public abstract void physicalClose() throws IOException;
 
 	public abstract NIOContext getContext();

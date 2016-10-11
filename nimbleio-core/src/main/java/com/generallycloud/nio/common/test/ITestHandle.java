@@ -13,17 +13,18 @@ public class ITestHandle {
 		logger.info("################## Test start ####################");
 		logger.info("## Test Name:"+testName);
 		long old = System.currentTimeMillis();
-		for (long i = 0; i < time; i++) {
+		for (int i = 0; i < time; i++) {
 			try {
-				test.test();
+				test.test(i);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
 		long now = System.currentTimeMillis();
 		long spend = (now-old);
+		logger.info("## Expend  Time:"+spend);
 		logger.info("## Execute Time:"+time);
 		logger.info("## OP(W)/S:"+ new BigDecimal(time).divide(new BigDecimal(spend),2,BigDecimal.ROUND_HALF_UP).doubleValue() / 10);
-		logger.info("## Expend Time:"+spend);
+		
 	}
 }

@@ -33,7 +33,7 @@ public class UUIDGenerator {
 		
 		ITestHandle.doTest(new ITest() {
 			
-			public void test() {
+			public void test(int i) {
 				random();
 			}
 		}, 2000000,"uuid");

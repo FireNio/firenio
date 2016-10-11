@@ -28,7 +28,7 @@ public class JSONParse {
 	static void testFastJson() {
 		ITestHandle.doTest(new ITest() {
 
-			public void test() {
+			public void test(int i) {
 				com.alibaba.fastjson.JSONArray
 						.parseArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
 			}
@@ -38,7 +38,7 @@ public class JSONParse {
 
 	static void testMyJson() {
 		ITestHandle.doTest(new ITest() {
-			public void test() {
+			public void test(int i) {
 				try {
 					JSON.stringToArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
 				} catch (JSONSyntaxException e) {
