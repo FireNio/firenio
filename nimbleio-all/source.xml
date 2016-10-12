@@ -7,7 +7,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>../nimbleio-balancing/src/main/java</directory>
+            <directory>../nimbleio-balance/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
