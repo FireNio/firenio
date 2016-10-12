@@ -674,5 +674,17 @@ public class FileUtil {
 		write(content.getBytes(encoding), openOutputStream(file, append));
 	}
 	
-
+	public static int readFromtInputStream(InputStream inputStream,byte [] cache) throws IOException{
+		int c = 0;
+		int s = cache.length;
+		for(;c < s;){
+			int r = inputStream.read(cache,c,s-c);
+			if (r == -1) {
+				return c;
+			}
+			c += r;
+		}
+		return c;
+	}
+	
 }

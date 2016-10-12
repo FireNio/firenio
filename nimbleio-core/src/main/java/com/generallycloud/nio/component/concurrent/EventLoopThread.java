@@ -66,4 +66,8 @@ public class EventLoopThread implements Looper {
 	public String toString() {
 		return threadName;
 	}
+	
+	public Thread getMonitor(){
+		return monitor;
+	}
 }

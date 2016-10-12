@@ -125,8 +125,8 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 			ReleaseUtil.release(buffer);
 
-			if (all_length > 1024 * 10) {
-				throw new IOException("max length 1024 * 10,length=" + all_length);
+			if (all_length > 1024 * 1024) {
+				throw new IOException("max length 1024 * 1024,length=" + all_length);
 			}
 
 			this.buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);

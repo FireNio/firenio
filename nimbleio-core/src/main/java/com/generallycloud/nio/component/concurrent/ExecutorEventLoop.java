@@ -13,6 +13,7 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 	private long		keepAliveTime		;
 	private String		eventLoopName		;
 	private int		maxEventQueueSize	;
+	private NamedThreadFactory threadFactory;
 
 	public ExecutorEventLoop(String eventLoopName,
 			int eventLoopSize, 
@@ -35,7 +36,7 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 
 	protected void doStart() throws Exception {
 
-		NamedThreadFactory threadFactory = new NamedThreadFactory(eventLoopName);
+		threadFactory = new NamedThreadFactory(eventLoopName);
 
 		poolExecutor = new ThreadPoolExecutor(eventLoopSize, maxEventLoopSize, keepAliveTime, TimeUnit.MILLISECONDS,
 				new ArrayBlockingQueue<Runnable>(maxEventQueueSize), threadFactory);
@@ -46,6 +47,10 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 		if (poolExecutor != null) {
 			poolExecutor.shutdown();
 		}
+	}
+
+	public boolean inEventLoop(Thread thread) {
+		return threadFactory.inFactory(thread);
 	}
 
 }

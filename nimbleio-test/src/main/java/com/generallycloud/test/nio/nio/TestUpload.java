@@ -2,43 +2,94 @@ package com.generallycloud.test.nio.nio;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.protocol.ReadFuture;
 import com.test.service.nio.TestUploadServlet;
 
 public class TestUpload {
 
+	
+	static SocketChannelConnector connector = null;
+	
+	
 	public static void main(String[] args) throws Exception {
 
 		SharedBundle.instance().loadAllProperties("nio");
 		
 		String serviceKey = TestUploadServlet.SERVICE_NAME;
 
-		Map params = new HashMap();
-		params.put("fileName", "temp.zip");
+		IOEventHandleAdaptor eventHandle = new IOEventHandleAdaptor() {
+			
+			public void accept(Session session, ReadFuture future) throws Exception {
+				NIOReadFuture f = (NIOReadFuture) future;
+				System.out.println();
+				System.out.println(f.getText());
+				System.out.println();
+				
+				CloseUtil.close(connector);
+				
+			}
+		};
 
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
-
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
-
-		long old = System.currentTimeMillis();
-		File file = new File("D:/GIT/NimbleIO/temp1.zip");
+		Session session = connector.connect();
+		
+		File file = new File("D:/TEMP/lantern-installer-beta.exe");
+		
 		FileInputStream inputStream = new FileInputStream(file);
-		NIOReadFuture future = session.request(serviceKey, params, inputStream);
-		System.out.println("Time:" + (System.currentTimeMillis() - old));
-		System.out.println(future.getText());
-
-		connector.close();
+		
+		int cacheSize = 1024 * 500;
+		
+		int available = inputStream.available();
+		
+		int time = (available + cacheSize) / cacheSize - 1;
+		
+		byte [] cache = new byte[cacheSize];
+		
+		JSONObject json = new JSONObject();
+		json.put(TestUploadServlet.FILE_NAME, file.getName());
+		json.put(TestUploadServlet.IS_END, false);
+		
+		String jsonString = json.toJSONString();
+		
+		for (int i = 0; i < time; i++) {
+			
+			FileUtil.readFromtInputStream(inputStream, cache);
+			
+			NIOReadFuture f = new NIOReadFutureImpl(serviceKey);
+			
+			f.write(jsonString);
+			
+			f.writeBinary(cache);
+			
+			session.flush(f);
+		}
+		
+		int r = FileUtil.readFromtInputStream(inputStream, cache);
+		
+		json.put(TestUploadServlet.IS_END, true);
+		
+		NIOReadFuture f = new NIOReadFutureImpl(serviceKey);
+		
+		f.write(json.toJSONString());
+		
+		f.writeBinary(cache,0,r);
+		
+		session.flush(f);
+		
 	}
 }

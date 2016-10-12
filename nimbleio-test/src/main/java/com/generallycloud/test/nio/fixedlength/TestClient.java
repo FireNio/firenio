@@ -62,9 +62,7 @@ public class TestClient {
 		
 		connector.setContext(context);
 		
-		connector.connect();
-
-		Session session = connector.getSession();
+		Session session = connector.connect();
 
 		ReadFuture future = new FixedLengthReadFutureImpl();
 

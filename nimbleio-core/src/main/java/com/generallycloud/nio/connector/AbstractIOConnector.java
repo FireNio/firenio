@@ -67,7 +67,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 	protected abstract void doClose();
 
-	public void connect() throws IOException {
+	public Session connect() throws IOException {
 
 		ReentrantLock lock = this.activeLock;
 
@@ -76,7 +76,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 		try {
 
 			if (active) {
-				return;
+				return getSession();
 			}
 
 			if (context == null) {
@@ -102,6 +102,8 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 			((IOSession)this.getSession()).fireOpend();
 
 			active = true;
+			
+			return getSession();
 
 		} finally {
 

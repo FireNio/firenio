@@ -84,4 +84,9 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 			}
 		}
 	}
+
+	public boolean inEventLoop(Thread thread) {
+		return thread == this.thread.getMonitor();
+	}
+	
 }

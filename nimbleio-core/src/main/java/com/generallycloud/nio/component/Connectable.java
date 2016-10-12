@@ -4,6 +4,6 @@ import java.io.IOException;
 
 public interface Connectable {
 
-	public abstract void connect() throws IOException;
+	public abstract Session connect() throws IOException;
 	
 }
