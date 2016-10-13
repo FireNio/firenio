@@ -21,9 +21,9 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	}
 	
 	public void update(IOSession session) {
-		if (this.session == null) {
-			this.session = session;
-			this.channel = this.session.getSocketChannel();
+		this.session = session;
+		this.channel = this.session.getSocketChannel();
+		if (this.ioEventHandle == null) {
 			this.ioEventHandle = session.getContext().getIOEventHandleAdaptor();
 		}
 	}
