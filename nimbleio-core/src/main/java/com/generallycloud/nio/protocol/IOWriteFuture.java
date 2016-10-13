@@ -16,4 +16,8 @@ public interface IOWriteFuture extends WriteFuture {
 	public abstract void onException(IOException e);
 
 	public abstract void onSuccess();
+	
+	public abstract IOWriteFuture getNext();
+	
+	public abstract void setNext(IOWriteFuture future);
 }

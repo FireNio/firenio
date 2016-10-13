@@ -18,6 +18,8 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	protected ReadFuture		readFuture;
 	protected SocketChannel		channel;
 	protected ByteBuf			buffer;
+	protected IOWriteFuture		next;
+	
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
 	public IOWriteFutureImpl(SocketChannel channel, ReadFuture readFuture, ByteBuf buffer) {
@@ -92,7 +94,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	}
 
 	public String toString() {
-		return this.buffer.toString();
+		return readFuture.getWriteBuffer().toString();
 	}
 
 	public void release() {
@@ -101,6 +103,14 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	public IOWriteFuture duplicate(IOSession session) {
 		return new IOWriteFutureImpl(session.getSocketChannel(), readFuture, buffer.duplicate());
+	}
+
+	public IOWriteFuture getNext() {
+		return next;
+	}
+
+	public void setNext(IOWriteFuture future) {
+		this.next = future;
 	}
 	
 }

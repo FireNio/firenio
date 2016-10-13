@@ -91,7 +91,7 @@ public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 注册到selector，等待连接
 		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = attachSocketChannel(context, getChannelWriter(), sk);
+		SocketChannel socketChannel = attachSocketChannel(context, getChannelFlusher(), sk);
 		
 		//
 		socketChannel.getSession().fireOpend();

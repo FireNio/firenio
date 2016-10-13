@@ -1,8 +1,8 @@
 package com.generallycloud.nio.component;
 
-public interface SocketChannelSelectionAlpha extends SelectionAcceptor{
+public interface SocketChannelSelectionAlpha extends SelectionAcceptor {
 
-	public ChannelWriter getChannelWriter() ;
+	public ChannelFlusher getChannelFlusher();
 
-	public void setChannelWriter(ChannelWriter channelWriter) ;
+	public void setChannelFlusher(ChannelFlusher channelFlusher);
 }

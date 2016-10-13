@@ -6,17 +6,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.ChannelWriterImpl;
-import com.generallycloud.nio.component.ChannelWriter;
+import com.generallycloud.nio.component.ChannelFlusher;
+import com.generallycloud.nio.component.ChannelFlusherImpl;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
-	
-	private ChannelWriter	channelWriter			= null;
 
-	private EventLoopThread	channelWriterThread	= null;
+	private ChannelFlusher	channelFlusher		= null;
+
+	private EventLoopThread	channelFlushThread	= null;
 
 	public ClientTCPSelectorLoop(NIOContext context, SocketChannelConnector connector) {
 
@@ -28,14 +28,14 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 	public void register(NIOContext context, SelectableChannel channel) throws IOException {
 
 		this.selector = Selector.open();
-		
-		this.channelWriter = new ChannelWriterImpl(context);
 
-		this.channelWriterThread = new EventLoopThread(channelWriter, channelWriter.toString());
-		
-		this._alpha_acceptor.setChannelWriter(channelWriter);
+		this.channelFlusher = new ChannelFlusherImpl(context);
 
-		this.channelWriterThread.start();
+		this.channelFlushThread = new EventLoopThread(channelFlusher, channelFlusher.toString());
+
+		this._alpha_acceptor.setChannelFlusher(channelFlusher);
+
+		this.channelFlushThread.start();
 
 		SocketChannelSelectionConnector selectionConnector = (SocketChannelSelectionConnector) this._alpha_acceptor;
 
@@ -48,6 +48,6 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 
 		super.stop();
 
-		LifeCycleUtil.stop(channelWriterThread);
+		LifeCycleUtil.stop(channelFlushThread);
 	}
 }

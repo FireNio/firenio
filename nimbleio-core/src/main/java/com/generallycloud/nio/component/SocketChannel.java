@@ -50,4 +50,8 @@ public interface SocketChannel extends DuplexChannel {
 	public abstract ProtocolFactory getProtocolFactory() ;
 
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory) ;
+	
+	public abstract boolean flush() throws IOException;
+	
+	public abstract int getWriteFutureSize();
 }

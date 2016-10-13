@@ -9,7 +9,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.ChannelWriterImpl.ChannelWriteEvent;
+import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
+import com.generallycloud.nio.component.concurrent.ListQueue;
+import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -18,118 +20,65 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
 
-	private boolean			networkWeak;
-	private SocketChannel		channel;
-	private IOWriteFuture		currentWriteFuture;
-	private boolean			opened			= true;
-	private ChannelWriter		channelWriter;
-	private IOReadFuture		readFuture;
-	private SelectionKey		selectionKey;
-	private IOSession			session;
-	private Socket				socket;
-	private long				next_network_weak	= Long.MAX_VALUE;
-	private ProtocolEncoder		protocolEncoder;
-	private ProtocolDecoder		protocolDecoder;
-	private ProtocolFactory		protocolFactory;
-	
+	private Socket					socket;
+	private SocketChannel			channel;
+	private IOSession				session;
+	private IOReadFuture			readFuture;
+	private SelectionKey			selectionKey;
+	private ChannelFlusher			channelFlusher;
+	private boolean				networkWeak;
+	private ProtocolDecoder			protocolDecoder;
+	private ProtocolEncoder			protocolEncoder;
+	private ProtocolFactory			protocolFactory;
+	private IOWriteFuture			currentWriteFuture;
+	private boolean				opened			= true;
+	private long					next_network_weak	= Long.MAX_VALUE;
+	private ListQueue<IOWriteFuture>	futures			= new ListQueueABQ<IOWriteFuture>(1024);
+
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(NIOContext context, SelectionKey selectionKey, ChannelWriter channelWriter)
+	public NioSocketChannel(NIOContext context, SelectionKey selectionKey, ChannelFlusher channelFlusher)
 			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;
-		this.channelWriter = channelWriter;
+		this.channelFlusher = channelFlusher;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		this.local = getLocalSocketAddress();
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-		
+
 		this.session = new IOSessionImpl(this, getChannelID());
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
-
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		this.protocolEncoder = protocolEncoder;
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		this.protocolDecoder = protocolDecoder;
-	}
-	
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
-	}
-
-	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		this.protocolFactory = protocolFactory;
-	}
-
-	public void updateNetworkState(int length) {
-
-		if (length == 0) {
-			if (next_network_weak < Long.MAX_VALUE) {
-				
-				if (System.currentTimeMillis() > next_network_weak) {
-					
-					if (!networkWeak) {
-
-						networkWeak = true;
-						
-						interestWrite();
-					}
-				}
-			}else{
-				
-				next_network_weak = System.currentTimeMillis() + 64;
-			}
-		}else{
-			
-			if (next_network_weak != Long.MAX_VALUE) {
-				
-				next_network_weak = Long.MAX_VALUE;
-				
-				networkWeak = false;
-			}
-		}
 	}
 
 	public void close() throws IOException {
 		CloseUtil.close(session);
 	}
-	
-	public void physicalClose() throws IOException {
-		
-		this.opened = false;
 
-		this.selectionKey.attach(null);
+	public boolean flush() throws IOException {
 
-		this.channel.close();
+		if (currentWriteFuture == null) {
+			currentWriteFuture = futures.poll();
+		}
+
+		if (currentWriteFuture == null) {
+			return true;
+		}
+
+		if (!currentWriteFuture.write()) {
+			return false;
+		}
+
+		currentWriteFuture.onSuccess();
+
+		currentWriteFuture = null;
+
+		return true;
 	}
 
-	public void wakeup() throws IOException {
-
-		this.channelWriter.fire(new ChannelWriteEvent() {
-			
-			public void handle(ChannelWriter channelWriter) {
-				
-				NioSocketChannel channel = NioSocketChannel.this;
-				
-				channel.updateNetworkState(1);
-				
-				channelWriter.wekeupSocketChannel(channel);
-			}
-		});
-
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
+	public IOWriteFuture getCurrentWriteFuture() {
+		return currentWriteFuture;
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
@@ -147,6 +96,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return socket.getSoTimeout();
 	}
 
+	public ProtocolDecoder getProtocolDecoder() {
+		return protocolDecoder;
+	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return protocolEncoder;
+	}
+
+	public ProtocolFactory getProtocolFactory() {
+		return protocolFactory;
+	}
+
 	public IOReadFuture getReadFuture() {
 		return readFuture;
 	}
@@ -162,6 +123,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return session;
 	}
 
+	public int getWriteFutureSize() {
+		return futures.size();
+	}
+
 	private void interestWrite() {
 		selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_WRITE);
 	}
@@ -174,9 +139,25 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return networkWeak;
 	}
 
-	//FIXME 是否使用channel.isOpen()
+	// FIXME 是否使用channel.isOpen()
 	public boolean isOpened() {
 		return opened;
+	}
+
+	public void offer(IOWriteFuture future) {
+
+		futures.offer(future);
+
+		channelFlusher.offer(this);
+	}
+
+	public void physicalClose() throws IOException {
+
+		this.opened = false;
+
+		this.selectionKey.attach(null);
+
+		this.channel.close();
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {
@@ -187,19 +168,70 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.currentWriteFuture = future;
 	}
 
-	public IOWriteFuture getCurrentWriteFuture() {
-		return currentWriteFuture;
+	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+		this.protocolDecoder = protocolDecoder;
+	}
+
+	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+		this.protocolEncoder = protocolEncoder;
+	}
+
+	public void setProtocolFactory(ProtocolFactory protocolFactory) {
+		this.protocolFactory = protocolFactory;
 	}
 
 	public void setReadFuture(IOReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
 
+	public void updateNetworkState(int length) {
+
+		if (length == 0) {
+			if (next_network_weak < Long.MAX_VALUE) {
+
+				if (System.currentTimeMillis() > next_network_weak) {
+
+					if (!networkWeak) {
+
+						networkWeak = true;
+
+						interestWrite();
+					}
+				}
+			} else {
+
+				next_network_weak = System.currentTimeMillis() + 64;
+			}
+		} else {
+
+			if (next_network_weak != Long.MAX_VALUE) {
+
+				next_network_weak = Long.MAX_VALUE;
+
+				networkWeak = false;
+			}
+		}
+	}
+
+	public void wakeup() throws IOException {
+
+		this.channelFlusher.fire(new ChannelFlusherEvent() {
+
+			public void handle(ChannelFlusher flusher) {
+
+				NioSocketChannel channel = NioSocketChannel.this;
+
+				channel.updateNetworkState(1);
+
+				flusher.wekeupSocketChannel(channel);
+			}
+		});
+
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
+	}
+
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
 
-	public void offer(IOWriteFuture future) {
-		this.channelWriter.offer(future);
-	}
 }

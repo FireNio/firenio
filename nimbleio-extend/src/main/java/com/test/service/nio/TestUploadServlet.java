@@ -22,6 +22,8 @@ public class TestUploadServlet extends NIOFutureAcceptorService {
 	
 	private String UPLOAD_FILE = "upload-file";
 	
+	private int num;
+	
 	private Logger logger = LoggerFactory.getLogger(TestUploadServlet.class);
 
 	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
@@ -35,21 +37,23 @@ public class TestUploadServlet extends NIOFutureAcceptorService {
 			String fileName = "upload-" + parameters.getParameter(FILE_NAME);
 
 			outputStream = new FileOutputStream(new File(fileName));
-
+			
 			session.setAttribute(UPLOAD_FILE, outputStream);
+			
+			logger.info("upload...................open,stream={},file={}",outputStream,fileName);
 		}
 		
 		byte[] data = future.getBinary();
 
 		outputStream.write(data,0,future.getBinaryLength());
 		
-		logger.info("upload...................{}",future.getBinaryLength());
+		logger.info("upload...................{},{}",future.getBinaryLength(),(num++));
 		
-		outputStream.flush();
-
 		boolean isEnd = parameters.getBooleanParameter(IS_END);
 
 		if (isEnd) {
+			
+			logger.info("upload...................close,stream={}",outputStream);
 			
 			CloseUtil.close(outputStream);
 			

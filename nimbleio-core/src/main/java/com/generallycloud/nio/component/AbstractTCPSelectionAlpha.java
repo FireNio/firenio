@@ -9,7 +9,7 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectionAlpha {
 
-	private ChannelWriter	channelWriter;
+	private ChannelFlusher	channelFlusher;
 	
 	private ProtocolFactory protocolFactory;
 	
@@ -23,15 +23,15 @@ public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectio
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 	}
 
-	public ChannelWriter getChannelWriter() {
-		return channelWriter;
+	public ChannelFlusher getChannelFlusher() {
+		return channelFlusher;
 	}
 
-	public void setChannelWriter(ChannelWriter channelWriter) {
-		this.channelWriter = channelWriter;
+	public void setChannelFlusher(ChannelFlusher channelFlusher) {
+		this.channelFlusher = channelFlusher;
 	}
 
-	protected SocketChannel attachSocketChannel(NIOContext context, ChannelWriter channelWriter, SelectionKey selectionKey)
+	protected SocketChannel attachSocketChannel(NIOContext context, ChannelFlusher channelFlusher, SelectionKey selectionKey)
 			throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
@@ -41,7 +41,7 @@ public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectio
 			return channel;
 		}
 
-		channel = new NioSocketChannel(context, selectionKey, channelWriter);
+		channel = new NioSocketChannel(context, selectionKey, channelFlusher);
 
 		channel.setProtocolDecoder(protocolDecoder);
 

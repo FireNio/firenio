@@ -40,6 +40,11 @@ public class TestUpload {
 				CloseUtil.close(connector);
 				
 			}
+
+			public void futureSent(Session session, ReadFuture future) {
+				NIOReadFuture f = (NIOReadFuture) future;
+				System.out.println(f.getWriteBuffer());
+			}
 		};
 
 		connector = IOConnectorUtil.getTCPConnector(eventHandle);
@@ -48,11 +53,17 @@ public class TestUpload {
 
 		Session session = connector.connect();
 		
-		File file = new File("D:/TEMP/lantern-installer-beta.exe");
+		String fileName = "lantern-installer-beta.exe";
+		
+		fileName = "flashmail-2.4.exe";
+		
+//		fileName = "jdk-8u102-windows-x64.exe";
+		
+		File file = new File("D:/TEMP/"+fileName);
 		
 		FileInputStream inputStream = new FileInputStream(file);
 		
-		int cacheSize = 1024 * 500;
+		int cacheSize = 1024 * 800;
 		
 		int available = inputStream.available();
 		

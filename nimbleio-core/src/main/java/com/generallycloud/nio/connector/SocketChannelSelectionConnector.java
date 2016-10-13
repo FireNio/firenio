@@ -41,7 +41,7 @@ public class SocketChannelSelectionConnector extends AbstractTCPSelectionAlpha {
 
 			channel.register(selector, SelectionKey.OP_READ);
 
-			final SocketChannel socketChannel = attachSocketChannel(context, getChannelWriter(), selectionKey);
+			final SocketChannel socketChannel = attachSocketChannel(context, getChannelFlusher(), selectionKey);
 
 			socketChannel.getSession().getEventLoop().dispatch(new Runnable() {
 
