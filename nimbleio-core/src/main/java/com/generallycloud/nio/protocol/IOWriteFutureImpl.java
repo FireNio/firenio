@@ -34,7 +34,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		channel.updateNetworkState(length);
 	}
 
-	public void onException(IOException e) {
+	public void onException(Exception e) {
 
 		ReadFuture readFuture = this.getReadFuture();
 

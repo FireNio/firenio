@@ -43,7 +43,7 @@ public class TestUpload {
 
 			public void futureSent(Session session, ReadFuture future) {
 				NIOReadFuture f = (NIOReadFuture) future;
-				System.out.println(f.getWriteBuffer());
+				System.out.println("报文已发送："+f.getWriteBuffer());
 			}
 		};
 

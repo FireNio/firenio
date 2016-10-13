@@ -7,11 +7,12 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueABQ;
+import com.generallycloud.nio.component.concurrent.ListQueueLink;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -33,7 +34,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private IOWriteFuture			currentWriteFuture;
 	private boolean				opened			= true;
 	private long					next_network_weak	= Long.MAX_VALUE;
-	private ListQueue<IOWriteFuture>	futures			= new ListQueueABQ<IOWriteFuture>(1024);
+	
+	//FIXME 这里最好不要用ABQ，使用链式可增可减
+	private ListQueue<IOWriteFuture>	futures			= new ListQueueLink<IOWriteFuture>();
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -146,7 +149,12 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public void offer(IOWriteFuture future) {
 
-		futures.offer(future);
+		if(!futures.offer(future)){
+			
+			future.onException(new RejectedExecutionException());
+			
+			return;
+		}
 
 		channelFlusher.offer(this);
 	}
@@ -233,5 +241,4 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
-
 }

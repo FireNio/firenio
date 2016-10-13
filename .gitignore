@@ -24,3 +24,5 @@
 /nimbleio-release/nimble-io.http/app
 /nimbleio-release/nimble-io.http/conf
 /nimbleio-release/nimble-io.http/logs
+/nimbleio-release/nimble-io.http/lib
+/nimbleio-release/nimble-io.nio/lib

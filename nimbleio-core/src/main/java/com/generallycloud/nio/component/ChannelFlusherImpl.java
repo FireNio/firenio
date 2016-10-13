@@ -43,6 +43,10 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 
 		for (SocketChannel ch : chs) {
 
+			if (ch == null) {
+				System.out.println(chs.size());
+			}
+			
 			if (!ch.isOpened()) {
 				continue;
 			}
@@ -69,13 +73,13 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 					continue;
 				}
 
-				channels.add(ch);
+				channels.safeAdd(ch);
 
 				continue;
 			}
 
 			if (ch.getWriteFutureSize() > 0) {
-				channels.add(ch);
+				channels.safeAdd(ch);
 			}
 		}
 	}
@@ -101,12 +105,12 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 	}
 
 	public void offer(SocketChannel channel) {
-		channels.add(channel);
+		channels.safeAdd(channel);
 	}
 
 	public void wekeupSocketChannel(SocketChannel channel) {
 		sleepChannels.remove(channel.getChannelID());
-		channels.add(channel);
+		channels.safeAdd(channel);
 	}
 
 	public String toString() {

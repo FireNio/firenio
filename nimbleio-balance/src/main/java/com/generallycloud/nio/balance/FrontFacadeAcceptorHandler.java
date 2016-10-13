@@ -27,6 +27,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 		IOSession routerSession = frontRouter.getRouterSession((IOSession) session, f);
 
+		//FIXME 是否需要设置取消接收广播
 		if (f.isReceiveBroadcast()) {
 			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
 			return;
