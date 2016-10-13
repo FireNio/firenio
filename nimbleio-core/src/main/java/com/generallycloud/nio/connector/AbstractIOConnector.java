@@ -8,6 +8,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractIOService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
@@ -33,13 +34,15 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 		EventLoopThread loopThread = getSelectorLoopThread();
 
-		if (loopThread != null && loopThread.isMonitor(thread)) {
-			session.getEventLoop().dispatch(new Runnable() {
+		if ((loopThread != null && loopThread.isMonitor(thread)) 
+				|| session.getEventLoop().inEventLoop(thread)) {
+			ThreadUtil.execute(new Runnable() {
 				
 				public void run() {
 					close0();
 				}
 			});
+			return;
 		}
 		
 		close0();
