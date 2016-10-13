@@ -1,33 +1,28 @@
 package com.generallycloud.test.nio.nio;
 
 import java.io.File;
-import java.io.FileInputStream;
 
-import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.nio.extend.FileSendUtil;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.test.service.nio.TestUploadServlet;
 
 public class TestUpload {
 
-	
 	static SocketChannelConnector connector = null;
-	
 	
 	public static void main(String[] args) throws Exception {
 
 		SharedBundle.instance().loadAllProperties("nio");
 		
-		String serviceKey = TestUploadServlet.SERVICE_NAME;
+		String serviceName = TestUploadServlet.SERVICE_NAME;
 
 		IOEventHandleAdaptor eventHandle = new IOEventHandleAdaptor() {
 			
@@ -61,46 +56,11 @@ public class TestUpload {
 		
 		File file = new File("D:/TEMP/"+fileName);
 		
-		FileInputStream inputStream = new FileInputStream(file);
+		FileSendUtil fileSendUtil = new FileSendUtil();
 		
-		int cacheSize = 1024 * 800;
+		fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
 		
-		int available = inputStream.available();
 		
-		int time = (available + cacheSize) / cacheSize - 1;
-		
-		byte [] cache = new byte[cacheSize];
-		
-		JSONObject json = new JSONObject();
-		json.put(TestUploadServlet.FILE_NAME, file.getName());
-		json.put(TestUploadServlet.IS_END, false);
-		
-		String jsonString = json.toJSONString();
-		
-		for (int i = 0; i < time; i++) {
-			
-			FileUtil.readFromtInputStream(inputStream, cache);
-			
-			NIOReadFuture f = new NIOReadFutureImpl(serviceKey);
-			
-			f.write(jsonString);
-			
-			f.writeBinary(cache);
-			
-			session.flush(f);
-		}
-		
-		int r = FileUtil.readFromtInputStream(inputStream, cache);
-		
-		json.put(TestUploadServlet.IS_END, true);
-		
-		NIOReadFuture f = new NIOReadFutureImpl(serviceKey);
-		
-		f.write(json.toJSONString());
-		
-		f.writeBinary(cache,0,r);
-		
-		session.flush(f);
 		
 	}
 }
