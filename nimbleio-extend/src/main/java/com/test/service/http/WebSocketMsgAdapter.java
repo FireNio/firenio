@@ -30,14 +30,14 @@ public class WebSocketMsgAdapter implements Looper {
 
 		clients.add(session);
 
-		logger.info("当前客户端数量：{}", clients.size());
+		logger.info("客户端[{}]已加入当前客户端数量：{}",session, clients.size());
 	}
 
 	public synchronized void removeClient(Session session) {
 
 		clients.remove(session);
 
-		logger.info("当前客户端数量：{}", clients.size());
+		logger.info("客户端[{}]已离开当前客户端数量：{}",session, clients.size());
 	}
 
 	public void sendMsg(String msg) {
