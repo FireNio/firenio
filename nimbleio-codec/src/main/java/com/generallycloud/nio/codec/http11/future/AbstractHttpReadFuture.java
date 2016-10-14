@@ -277,11 +277,11 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		super.flush();
 	}
 	
-	private static final WebSocketProtocolFactory PROTOCOL_FACTORY = new WebSocketProtocolFactory();
+	protected static final WebSocketProtocolFactory PROTOCOL_FACTORY = new WebSocketProtocolFactory();
 
-	private static final ProtocolDecoder WEBSOCKET_PROTOCOL_DECODER = PROTOCOL_FACTORY.getProtocolDecoder();
+	protected static final ProtocolDecoder WEBSOCKET_PROTOCOL_DECODER = PROTOCOL_FACTORY.getProtocolDecoder();
 	
-	private static final ProtocolEncoder WEBSOCKET_PROTOCOL_ENCODER = PROTOCOL_FACTORY.getProtocolEncoder();
+	protected static final ProtocolEncoder WEBSOCKET_PROTOCOL_ENCODER = PROTOCOL_FACTORY.getProtocolEncoder();
 	
 	private boolean updateWebSocketProtocol;
 	

@@ -12,7 +12,7 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
-public class TestSimpleHttp {
+public class TestSimpleHttpClient {
 
 	public static void main(String[] args) throws Exception {
 		

@@ -21,11 +21,11 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 			body_complete = true;
 
 		} else if (contentLength < 1 << 21) {
-			
+
 			this.setHasOutputStream(true);
-			
+
 			int buffer_size = contentLength > 1024 * 256 ? 1024 * 256 : contentLength;
-			
+
 			this.body_buffer = ByteBuffer.allocate(buffer_size);
 
 			this.outputStream = new BufferedOutputStream(contentLength);
@@ -35,7 +35,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 			this.outputStream.write(source_array, pos, read_length);
 
 		} else {
-			
+
 			this.setHasOutputStream(true);
 
 			this.body_buffer = ByteBuffer.allocate(1024 * 256);
@@ -45,7 +45,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 			try {
 				eventHandle.accept(session, this);
 			} catch (Exception e) {
-				throw new IOException(e.getMessage(),e);
+				throw new IOException(e.getMessage(), e);
 			}
 
 			if (this.outputStream == null) {
@@ -62,16 +62,22 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 	protected void decodeBody() {
 		body_complete = true;
 	}
-	
-	public void setRequestURI(String requestURI){
+
+	public void setRequestURI(String requestURI) {
 		this.requestURI = requestURI;
 	}
-	
+
 	public void setHeader(String name, String value) {
 		if (response_headers == null) {
 			response_headers = new HashMap<String, String>();
 			request_headers.put("content-Type", "application/x-www-form-urlencoded");
 		}
 		response_headers.put(name, value);
+	}
+
+	public void updateWebSocketProtocol() {
+		channel.setProtocolFactory(PROTOCOL_FACTORY);
+		channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
+		channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
 	}
 }

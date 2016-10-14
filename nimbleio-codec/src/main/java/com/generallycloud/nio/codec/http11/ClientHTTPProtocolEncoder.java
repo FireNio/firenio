@@ -26,8 +26,6 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 		h.append(" ");
 		h.append(getUrl(future));
 		h.append(" HTTP/1.1\r\n");
-		h.append("Connection:keep-alive\r\n");
-		h.append("Content-Length:0\r\n");
 		
 		Map<String,String> headers = future.getHeaders();
 		
@@ -39,8 +37,6 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 				h.append(header.getValue());
 				h.append("\r\n");
 			}
-		}else{
-			h.append("Content-Type:text/html;charset=UTF-8\r\n");
 		}
 		
 		Map<String,String> cookies = future.getCookies();

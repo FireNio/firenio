@@ -23,6 +23,12 @@ public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpR
 	public HttpRequestFutureImpl(String url, String method) {
 		this.url = url;
 		this.method = method;
+		if(headers == null){
+			headers = new HashMap<String, String>();
+			headers.put("Connection", "keep-alive");
+			headers.put("Content-Length", "0");
+			headers.put("Content-Type", "text/html;charset=UTF-8\r\n");
+		}
 	}
 
 	public String getFutureName() {
@@ -65,9 +71,6 @@ public class HttpRequestFutureImpl extends AbstractIOReadFuture implements HttpR
 	}
 	
 	public void setHeader(String name,String value){
-		if(headers == null){
-			headers = new HashMap<String, String>();
-		}
 		headers.put(name, value);
 	}
 

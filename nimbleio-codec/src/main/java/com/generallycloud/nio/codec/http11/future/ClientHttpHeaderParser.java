@@ -33,7 +33,7 @@ public class ClientHttpHeaderParser extends AbstractHttpHeaderParser{
 
 	protected void parseFirstLine(StringLexer lexer, AbstractHttpReadFuture future) {
 		int index = 0;
-		String[] array = new String[3];
+		String[] array = new String[4];
 		StringBuilder builder = new StringBuilder();
 		for (;;) {
 			char c = lexer.current();

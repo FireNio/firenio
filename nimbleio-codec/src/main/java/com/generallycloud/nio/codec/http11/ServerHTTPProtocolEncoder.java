@@ -30,7 +30,6 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		h.append(future.getStatus().getHeaderText());
 		h.append("\r\n");
 		h.append("Server: nimbleio/0.0.1\r\n");
-		h.append("Connection:keep-alive\r\n");
 		h.append("Content-Length:");
 		h.append(o.size());
 		h.append("\r\n");
@@ -46,6 +45,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 				h.append("\r\n");
 			}
 		}else{
+			h.append("Connection:keep-alive\r\n");
 			h.append("Content-Type:text/html;charset=UTF-8\r\n");
 		}
 
@@ -58,7 +58,6 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 				h.append("\r\n");
 			}
 		}
-		
 		
 		h.append("\r\n");
 		
