@@ -60,7 +60,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 		HttpReadFuture f = (HttpReadFuture) future;
 
-		f.setHeader("Content-Type", entity.contentType);
+		f.setResponseHeader("Content-Type", entity.contentType);
 
 		f.write(entity.array);
 

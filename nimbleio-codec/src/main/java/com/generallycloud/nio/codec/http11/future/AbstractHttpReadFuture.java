@@ -39,8 +39,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected int					contentLength;
 	protected String				contentType;
 	protected List<Cookie>			cookieList;
-	protected Map<String, String>	cookies			= new HashMap<String, String>();
-	protected BufferedOutputStream	header_buffer		= new BufferedOutputStream(1024 * 2);
+	protected Map<String, String>	cookies			;
+	protected BufferedOutputStream	header_buffer		;
 	protected boolean				header_complete;
 	protected String				host;
 	protected HttpHeaderParser		httpHeaderParser;
@@ -48,19 +48,27 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected BufferedOutputStream	outputStream;
 	protected Map<String, String>	params;
 	protected ByteBuffer			read_buffer;
-	protected int					read_length		= 0;
-	protected Map<String, String>	request_headers	= new HashMap<String, String>();
+	protected int					read_length		;
+	protected Map<String, String>	request_headers	;
 	protected String				requestURI;
+	protected String				requestURL;
 	protected Map<String, String>	response_headers;
 
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected String				version;
 	protected boolean 			hasOutputStream;
-
+	
+	public AbstractHttpReadFuture(){
+		
+	}
+	
 	public AbstractHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser,ByteBuffer readBuffer) {
 		super(session);
 		this.httpHeaderParser = httpHeaderParser;
 		this.read_buffer = readBuffer;
+		this.cookies = new HashMap<String, String>();
+		this.header_buffer = new BufferedOutputStream(1024 * 2);
+		this.request_headers = new HashMap<String, String>();
 	}
 
 	public void addCookie(Cookie cookie) {
@@ -193,14 +201,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		return cookieList;
 	}
 
-	public String getHeader(String name) {
-		return request_headers.get(name);
-	}
-
-	public Map<String, String> getHeaders() {
-		return response_headers;
-	}
-	
 	public String getHost() {
 		return host;
 	}
@@ -226,7 +226,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	}
 
 	public String getFutureName() {
-		return requestURI;
+		return getRequestURI();
 	}
 
 	public HttpStatus getStatus() {
@@ -287,7 +287,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	
 	public void updateWebSocketProtocol() {
 		
-		String Sec_WebSocket_Key = getHeader("Sec-WebSocket-Key");
+		String Sec_WebSocket_Key = getRequestHeader("Sec-WebSocket-Key");
 
 		if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
 			
@@ -300,9 +300,9 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			String acceptKey = BASE64Util.byteArrayToBase64(key_array);
 
 			setStatus(HttpStatus.C101);
-			setHeader("Connection", "Upgrade");
-			setHeader("Upgrade", "WebSocket");
-			setHeader("Sec-WebSocket-Accept", acceptKey);
+			setResponseHeader("Connection", "Upgrade");
+			setResponseHeader("Upgrade", "WebSocket");
+			setResponseHeader("Sec-WebSocket-Accept", acceptKey);
 			
 			updateWebSocketProtocol = true;
 			return;
@@ -316,6 +316,93 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	public boolean hasBody() {
 		return contentLength > 0;
+	}
+
+	public String getRequestHeader(String name) {
+		
+		if (StringUtil.isNullOrBlank(name)) {
+			return null;
+		}
+		
+		return request_headers.get(name.toLowerCase());
+	}
+
+	public void setRequestHeader(String name, String value) {
+		if (StringUtil.isNullOrBlank(name)) {
+			return;
+		}
+		request_headers.put(name.toLowerCase(), value);
+	}
+
+	public void setResponseHeader(String name, String value) {
+		if (response_headers == null) {
+			response_headers = new HashMap<String, String>();
+			setDefaultResponseHeaders(response_headers);
+		}
+		response_headers.put(name, value);
+	}
+	
+	protected abstract void setDefaultResponseHeaders(Map<String, String> headers);
+
+	public Map<String, String> getRequestHeaders() {
+		return request_headers;
+	}
+
+	public Map<String, String> getResponseHeaders() {
+		return response_headers;
+	}
+
+	public void setRequestHeaders(Map<String, String> headers) {
+		this.request_headers = headers;
+	}
+
+	public void setResponseHeaders(Map<String, String> headers) {
+		this.response_headers = headers;
+	}
+
+	public String getRequestURL() {
+		return requestURL;
+	}
+
+	public void setRequestURL(String url) {
+		this.requestURL = url;
+		
+		int index = url.indexOf("?");
+
+		if (index > -1) {
+			
+			String paramString = url.substring(index + 1, url.length());
+
+			parseParamString(paramString);
+
+			requestURI = url.substring(0, index);
+			
+		}else{
+			
+			this.requestURI = url;
+		}
+	}
+	
+	protected void parseParamString(String paramString) {
+		
+		String[] array = paramString.split("&");
+		
+		for (String s : array) {
+
+			if (StringUtil.isNullOrBlank(s)) {
+				continue;
+			}
+
+			String[] unitArray = s.split("=");
+
+			if (unitArray.length != 2) {
+				continue;
+			}
+
+			String key = unitArray[0];
+			String value = unitArray[1];
+			params.put(key, value);
+		}
 	}
 	
 }

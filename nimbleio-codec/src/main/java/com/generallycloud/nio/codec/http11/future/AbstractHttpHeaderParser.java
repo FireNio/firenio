@@ -17,8 +17,6 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 
 	public void parseHeader(String content, AbstractHttpReadFuture future) {
 		
-		Map<String, String> headers = future.request_headers;
-		
 		StringLexer lexer = new StringLexer(0, content.toCharArray());
 		
 		parseFirstLine(lexer, future);
@@ -44,7 +42,7 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 					lexer.previous();
 				}
 				
-				headers.put(k, findHeaderValue(lexer));
+				future.setRequestHeader(k, findHeaderValue(lexer));
 			}else{
 				
 				value.append(c);
@@ -80,21 +78,19 @@ public abstract class AbstractHttpHeaderParser implements HttpHeaderParser {
 
 	private void doAfterParseHeader(AbstractHttpReadFuture future) {
 
-		Map<String, String> headers = future.request_headers;
+		future.host = future.getRequestHeader("Host");
 
-		future.host = headers.get("Host");
-
-		String _contentLength = headers.get("Content-Length");
+		String _contentLength = future.getRequestHeader("Content-Length");
 
 		if (!StringUtil.isNullOrBlank(_contentLength)) {
 			future.contentLength = Integer.parseInt(_contentLength);
 		}
 
-		String contentType = headers.get("Content-Type");
+		String contentType = future.getRequestHeader("Content-Type");
 		
 		parseContentType(future,contentType);
 
-		String cookie = headers.get("Cookie");
+		String cookie = future.getRequestHeader("Cookie");
 
 		if (!StringUtil.isNullOrBlank(cookie)) {
 			parse_cookies(cookie, future.cookies);

@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.http11;
 import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.HttpClient;
 import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
-import com.generallycloud.nio.codec.http11.future.HttpRequestFuture;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITest;
@@ -37,7 +37,7 @@ public class TestHttpLoad {
 			
 			public void test(int i) throws Exception {
 				
-				HttpRequestFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
+				HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 				
 				client.request(session, future, 3000);
 				

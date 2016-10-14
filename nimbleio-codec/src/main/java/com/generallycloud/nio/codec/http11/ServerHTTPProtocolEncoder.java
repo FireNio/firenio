@@ -34,7 +34,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		h.append(o.size());
 		h.append("\r\n");
 		
-		Map<String,String> headers = future.getHeaders();
+		Map<String,String> headers = future.getResponseHeaders();
 		
 		if (headers != null) {
 			Set<Entry<String, String>> hs = headers.entrySet();
@@ -44,9 +44,6 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 				h.append(header.getValue());
 				h.append("\r\n");
 			}
-		}else{
-			h.append("Connection:keep-alive\r\n");
-			h.append("Content-Type:text/html;charset=UTF-8\r\n");
 		}
 
 		List<Cookie> cookieList = future.getCookieList();

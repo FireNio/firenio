@@ -1,5 +1,6 @@
 package com.generallycloud.nio.codec.http11.future;
 
+import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
@@ -7,7 +8,19 @@ import com.generallycloud.nio.protocol.NamedReadFuture;
 
 public abstract interface HttpReadFuture extends NamedReadFuture {
 
-	public abstract String getHeader(String name);
+	public abstract String getRequestHeader(String name);
+	
+	public abstract void setRequestHeader(String name,String value);
+	
+	public abstract void setResponseHeader(String name,String value);
+	
+	public abstract Map<String, String> getRequestHeaders();
+	
+	public abstract Map<String, String> getResponseHeaders();
+	
+	public abstract void setRequestHeaders(Map<String, String> headers);
+	
+	public abstract void setResponseHeaders(Map<String, String> headers);
 
 	public abstract String getHost();
 
@@ -33,6 +46,12 @@ public abstract interface HttpReadFuture extends NamedReadFuture {
 	 * </table>
 	 */
 	public abstract String getRequestURI();
+	
+	public abstract String getRequestURL();
+	
+	public abstract void setRequestURL(String url);
+	
+	public abstract List<Cookie> getCookieList();
 
 	public abstract String getMethod();
 
@@ -44,8 +63,6 @@ public abstract interface HttpReadFuture extends NamedReadFuture {
 	
 	public abstract Map<String, String> getRequestParams();
 	
-	public abstract Map<String, String> getHeaders();
-
 	public abstract String getRequestParam(String key);
 
 	public abstract void setReuestParam(String key,String value);
@@ -63,8 +80,6 @@ public abstract interface HttpReadFuture extends NamedReadFuture {
 	public abstract String getCookie(String name);
 	
 	public abstract void addCookie(Cookie cookie);
-	
-	public abstract void setHeader(String name,String value);
 	
 	public abstract void updateWebSocketProtocol();
 }

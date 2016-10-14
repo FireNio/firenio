@@ -77,15 +77,15 @@ public class ServerHttpHeaderParser extends AbstractHttpHeaderParser{
 
 		if (index == 3) {
 			future.method = array[0];
-			future.requestURI = array[1];
+			future.setRequestURL(array[1]);
 			future.version = array[2];
 		} else if (index == 4) {
 			future.method = array[0];
-			future.requestURI = array[2];
+			future.setRequestURL(array[2]);
 			future.version = array[3];
 		} else if (index == 5) {
 			future.method = array[0];
-			future.requestURI = array[3];
+			future.setRequestURL(array[3]);
 			future.version = array[4];
 		} else {
 			logger.error(JSON.toJSONString(array));

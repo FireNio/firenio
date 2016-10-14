@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.common;
 
-import com.generallycloud.nio.codec.http11.future.HttpRequestFuture;
-import com.generallycloud.nio.codec.http11.future.HttpRequestFutureImpl;
+import com.generallycloud.nio.codec.http11.future.ClientHttpReadFuture;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
 import com.generallycloud.nio.component.IOEventHandle;
@@ -34,8 +34,8 @@ public class ReadFutureFactory {
 		return create(session, 0, serviceName, ioEventHandle);
 	}
 
-	public static HttpRequestFuture createHttpReadFuture(Session session, String url) {
-		return new HttpRequestFutureImpl(url, "GET");
+	public static HttpReadFuture createHttpReadFuture(Session session, String url) {
+		return new ClientHttpReadFuture(url, "GET");
 	}
 
 	public static NIOReadFuture create(Session session, String serviceName) {

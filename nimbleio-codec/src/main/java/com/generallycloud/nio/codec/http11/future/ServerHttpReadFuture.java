@@ -3,6 +3,7 @@ package com.generallycloud.nio.codec.http11.future;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
@@ -18,26 +19,16 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
 	protected void decodeHeader(byte[] source_array, int length, int pos) throws IOException {
 
-		int index = requestURI.indexOf("?");
-
-		if (index > -1) {
-			String paramString = requestURI.substring(index + 1, requestURI.length());
-
-			parseParamString(paramString);
-
-			requestURI = requestURI.substring(0, index);
-		}
-
 		if (contentLength < 1) {
 
 			body_complete = true;
 
 		} else if (contentLength < 1 << 21) {
-			
+
 			this.setHasOutputStream(true);
-			
+
 			int buffer_size = contentLength > 1024 * 256 ? 1024 * 256 : contentLength;
-			
+
 			this.body_buffer = ByteBuffer.allocate(buffer_size);
 
 			this.outputStream = new BufferedOutputStream(contentLength);
@@ -47,7 +38,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 			this.outputStream.write(source_array, pos, read_length);
 
 		} else {
-			
+
 			this.setHasOutputStream(true);
 
 			this.body_buffer = ByteBuffer.allocate(1024 * 256);
@@ -57,7 +48,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 			try {
 				eventHandle.accept(session, this);
 			} catch (Exception e) {
-				throw new IOException(e.getMessage(),e);
+				throw new IOException(e.getMessage(), e);
 			}
 
 			if (this.outputStream == null) {
@@ -71,48 +62,25 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		}
 	}
 
-	
 	protected void decodeBody() {
 
 		BufferedOutputStream o = (BufferedOutputStream) outputStream;
-		
+
 		if (HttpHeaderParser.CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-			//FIXME encoding
+			// FIXME encoding
 			String paramString = new String(o.toByteArray(), session.getContext().getEncoding());
 
 			parseParamString(paramString);
-		}else{
-			//FIXME 解析BODY中的内容
+		} else {
+			// FIXME 解析BODY中的内容
 		}
-		
+
 		body_complete = true;
 	}
 
-	private void parseParamString(String paramString) {
-		String[] array = paramString.split("&");
-		for (String s : array) {
-
-			if (StringUtil.isNullOrBlank(s)) {
-				continue;
-			}
-
-			String[] unitArray = s.split("=");
-
-			if (unitArray.length != 2) {
-				continue;
-			}
-
-			String key = unitArray[0];
-			String value = unitArray[1];
-			params.put(key, value);
-		}
+	protected void setDefaultResponseHeaders(Map<String, String> headers) {
+		headers.put("Content-Type", "text/plain");
+		headers.put("Connection", "keep-alive");
 	}
-	
-	public void setHeader(String name, String value) {
-		if (response_headers == null) {
-			response_headers = new HashMap<String, String>();
-			request_headers.put("content-Type", "text/plain");
-		}
-		response_headers.put(name, value);
-	}
+
 }

@@ -2,7 +2,7 @@ package com.generallycloud.nio.codec.http11.future;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -10,6 +10,11 @@ import com.generallycloud.nio.component.Session;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
+	public ClientHttpReadFuture(String url,String method){
+		this.method = method;
+		this.setRequestURL(url);
+	}
+	
 	public ClientHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
 	}
@@ -63,16 +68,9 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		body_complete = true;
 	}
 
-	public void setRequestURI(String requestURI) {
-		this.requestURI = requestURI;
-	}
-
-	public void setHeader(String name, String value) {
-		if (response_headers == null) {
-			response_headers = new HashMap<String, String>();
-			request_headers.put("content-Type", "application/x-www-form-urlencoded");
-		}
-		response_headers.put(name, value);
+	protected void setDefaultResponseHeaders(Map<String, String> headers) {
+		headers.put("Connection", "keep-alive");
+		headers.put("Content-Length", "0");
 	}
 
 	public void updateWebSocketProtocol() {
