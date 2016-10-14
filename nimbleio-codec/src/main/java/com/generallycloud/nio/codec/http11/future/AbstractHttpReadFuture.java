@@ -331,6 +331,11 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		if (StringUtil.isNullOrBlank(name)) {
 			return;
 		}
+		
+		if (request_headers == null) {
+			throw new RuntimeException("did you want to set response header ?");
+		}
+		
 		request_headers.put(name.toLowerCase(), value);
 	}
 

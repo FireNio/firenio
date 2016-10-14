@@ -70,7 +70,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
 		headers.put("Connection", "keep-alive");
-		headers.put("Content-Length", "0");
+//		headers.put("Content-Length", "0");
 	}
 
 	public void updateWebSocketProtocol() {
