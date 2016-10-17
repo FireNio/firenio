@@ -9,23 +9,23 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.UnsafeSession;
 
 public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
-	protected Session			session;
+	protected UnsafeSession		unsafeSession;
 	protected ReadFuture		readFuture;
 	protected SocketChannel		channel;
 	protected ByteBuf			buffer;
 	protected IOWriteFuture		next;
-	
+
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(SocketChannel channel, ReadFuture readFuture, ByteBuf buffer) {
-		this.channel = channel;
+	public IOWriteFutureImpl(IOSession session, ReadFuture readFuture, ByteBuf buffer) {
+		this.unsafeSession = (UnsafeSession) session;
+		this.channel = unsafeSession.getSocketChannel();
 		this.readFuture = readFuture;
-		this.session = channel.getSession();
 		this.buffer = buffer;
 	}
 
@@ -43,12 +43,12 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		try {
-			handle.exceptionCaught(session, readFuture, e, IOEventState.WRITE);
+			handle.exceptionCaught(unsafeSession, readFuture, e, IOEventState.WRITE);
 		} catch (Throwable e1) {
-			logger.debug(e1.getMessage(),e1);
+			logger.debug(e1.getMessage(), e1);
 		}
 	}
-	
+
 	public void onSuccess() {
 
 		ReadFuture readFuture = this.getReadFuture();
@@ -58,12 +58,12 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		IOEventHandle handle = readFuture.getIOEventHandle();
 
 		try {
-			handle.futureSent(session, readFuture);
+			handle.futureSent(unsafeSession, readFuture);
 		} catch (Throwable e) {
 			logger.debug(e);
 		}
 	}
-	
+
 	public boolean write() throws IOException {
 
 		ByteBuf buffer = this.buffer;
@@ -73,8 +73,8 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		return !buffer.hasRemaining();
 	}
 
-	public SocketChannel getSocketChannel() {
-		return channel;
+	public IOSession getIOSession() {
+		return unsafeSession;
 	}
 
 	public ReadFuture getReadFuture() {
@@ -94,7 +94,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	}
 
 	public IOWriteFuture duplicate(IOSession session) {
-		return new IOWriteFutureImpl(session.getSocketChannel(), readFuture, buffer.duplicate());
+		return new IOWriteFutureImpl(session, readFuture, buffer.duplicate());
 	}
 
 	public IOWriteFuture getNext() {
@@ -104,5 +104,5 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	public void setNext(IOWriteFuture future) {
 		this.next = future;
 	}
-	
+
 }

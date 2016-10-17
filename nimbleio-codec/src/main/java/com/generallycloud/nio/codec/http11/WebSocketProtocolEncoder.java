@@ -6,7 +6,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -16,7 +16,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 //A server MUST NOT mask any frames that it sends to the client.
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(SocketChannel channel, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(IOSession session, IOReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
@@ -45,7 +45,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size);
+		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(header.length + size);
 //		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size);
 		
 		buffer.put(header);
@@ -54,10 +54,10 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		return new IOWriteFutureImpl(channel, readFuture, buffer);
+		return new IOWriteFutureImpl(session, readFuture, buffer);
 	}
 	
-	public IOWriteFuture encodeWithMask(SocketChannel channel, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encodeWithMask(IOSession session, IOReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
@@ -86,7 +86,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size + 4);
+		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(header.length + size + 4);
 		
 		buffer.put(header);
 		
@@ -105,7 +105,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		return new IOWriteFutureImpl(channel, readFuture, buffer);
+		return new IOWriteFutureImpl(session, readFuture, buffer);
 	}
 
 }

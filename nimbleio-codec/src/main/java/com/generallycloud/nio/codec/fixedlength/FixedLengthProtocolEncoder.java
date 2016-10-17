@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -13,7 +13,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(SocketChannel channel, IOReadFuture future) throws IOException {
+	public IOWriteFuture encode(IOSession session, IOReadFuture future) throws IOException {
 		
 		if (future.isHeartbeat()) {
 			
@@ -21,20 +21,20 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 					? FixedLengthProtocolDecoder.PROTOCOL_PING : 
 						FixedLengthProtocolDecoder.PROTOCOL_PONG);
 			
-			ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(4);
+			ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(4);
 			
 			buffer.put(array);
 			
 			buffer.flip();
 			
-			return new IOWriteFutureImpl(channel, future, buffer);
+			return new IOWriteFutureImpl(session, future, buffer);
 		}
 		
 		BufferedOutputStream outputStream = future.getWriteBuffer();
 		
 		int size = outputStream.size();
 		
-		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(size + 4);
+		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(size + 4);
 		
 		byte [] size_array = MathUtil.int2Byte(size);
 		
@@ -44,6 +44,6 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 		
-		return new IOWriteFutureImpl(channel, future, buffer);
+		return new IOWriteFutureImpl(session, future, buffer);
 	}
 }

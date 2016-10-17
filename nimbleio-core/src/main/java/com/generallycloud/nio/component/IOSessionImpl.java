@@ -14,16 +14,18 @@ import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
+import com.generallycloud.nio.protocol.ProtocolFactory;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class IOSessionImpl implements IOSession {
+public class IOSessionImpl implements UnsafeSession {
 
 	private static final Logger		logger		= LoggerFactory.getLogger(IOSessionImpl.class);
 
 	private Object					attachment;
 	private NIOContext				context;
-	private SocketChannel			socketChannel;
+	private SocketChannel			channel;
 	private Integer				sessionID;
 	private DatagramChannel			datagramChannel;
 	private Object[]				attachments;
@@ -34,7 +36,7 @@ public class IOSessionImpl implements IOSession {
 
 	public IOSessionImpl(SocketChannel channel, Integer sessionID) {
 		this.context = channel.getContext();
-		this.socketChannel = channel;
+		this.channel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
 		// 这里认为在第一次Idle之前，连接都是畅通的
@@ -55,7 +57,7 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public String getProtocolID() {
-		return socketChannel.getProtocolFactory().getProtocolID();
+		return channel.getProtocolFactory().getProtocolID();
 	}
 
 	public void close() {
@@ -68,7 +70,7 @@ public class IOSessionImpl implements IOSession {
 
 			physicalClose(datagramChannel);
 
-			physicalClose(socketChannel);
+			physicalClose(channel);
 		}
 		
 		fireClosed();
@@ -95,7 +97,7 @@ public class IOSessionImpl implements IOSession {
 		}
 
 		try {
-			socketChannel.physicalClose();
+			channel.physicalClose();
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -111,7 +113,7 @@ public class IOSessionImpl implements IOSession {
 			throw new IllegalStateException("flushed already");
 		}
 
-		SocketChannel socketChannel = this.socketChannel;
+		SocketChannel socketChannel = this.channel;
 
 		if (!socketChannel.isOpened()) {
 
@@ -132,7 +134,7 @@ public class IOSessionImpl implements IOSession {
 			
 //			ioReadFuture.update(this);
 			
-			writeFuture = encoder.encode(socketChannel, ioReadFuture);
+			writeFuture = encoder.encode(this, ioReadFuture);
 
 			ioReadFuture.flush();
 
@@ -154,7 +156,7 @@ public class IOSessionImpl implements IOSession {
 
 		try {
 
-			socketChannel.offer(future);
+			channel.offer(future);
 
 		} catch (Exception e) {
 
@@ -196,39 +198,39 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public String getLocalAddr() {
-		return socketChannel.getLocalAddr();
+		return channel.getLocalAddr();
 	}
 
 	public String getLocalHost() {
-		return socketChannel.getLocalHost();
+		return channel.getLocalHost();
 	}
 
 	public int getLocalPort() {
-		return socketChannel.getLocalPort();
+		return channel.getLocalPort();
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
-		return socketChannel.getLocalSocketAddress();
+		return channel.getLocalSocketAddress();
 	}
 
 	public int getMaxIdleTime() throws SocketException {
-		return socketChannel.getMaxIdleTime();
+		return channel.getMaxIdleTime();
 	}
 
 	public String getRemoteAddr() {
-		return socketChannel.getRemoteAddr();
+		return channel.getRemoteAddr();
 	}
 
 	public String getRemoteHost() {
-		return socketChannel.getRemoteHost();
+		return channel.getRemoteHost();
 	}
 
 	public int getRemotePort() {
-		return socketChannel.getRemotePort();
+		return channel.getRemotePort();
 	}
 
 	public InetSocketAddress getRemoteSocketAddress() {
-		return socketChannel.getRemoteSocketAddress();
+		return channel.getRemoteSocketAddress();
 	}
 
 	public Integer getSessionID() {
@@ -236,7 +238,7 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public SocketChannel getSocketChannel() {
-		return socketChannel;
+		return channel;
 	}
 
 	public DatagramChannel getDatagramChannel() {
@@ -244,7 +246,7 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public boolean isBlocking() {
-		return socketChannel.isBlocking();
+		return channel.isBlocking();
 	}
 
 	public Object removeAttribute(Object key) {
@@ -286,11 +288,11 @@ public class IOSessionImpl implements IOSession {
 	}
 	
 	public boolean isOpened() {
-		return socketChannel.isOpened();
+		return channel.isOpened();
 	}
 
 	public String toString() {
-		return socketChannel.toString();
+		return channel.toString();
 	}
 	
 	public Charset getEncoding() {
@@ -298,7 +300,7 @@ public class IOSessionImpl implements IOSession {
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
-		return socketChannel.getProtocolEncoder();
+		return channel.getProtocolEncoder();
 	}
 
 	public void fireOpend() {
@@ -313,6 +315,26 @@ public class IOSessionImpl implements IOSession {
 			}
 			listenerWrapper = listenerWrapper.nextListener();
 		}
+	}
+
+	public ProtocolDecoder getProtocolDecoder() {
+		return channel.getProtocolDecoder();
+	}
+
+	public ProtocolFactory getProtocolFactory() {
+		return channel.getProtocolFactory();
+	}
+
+	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+		channel.setProtocolDecoder(protocolDecoder);
+	}
+
+	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+		channel.setProtocolEncoder(protocolEncoder);
+	}
+
+	public void setProtocolFactory(ProtocolFactory protocolFactory) {
+		channel.setProtocolFactory(protocolFactory);
 	}
 
 }

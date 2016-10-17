@@ -7,8 +7,7 @@ import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -35,7 +34,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		MathUtil.int2Byte(header, hash, NIOProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 	
-	public IOWriteFuture encode(SocketChannel channel,IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(IOSession session,IOReadFuture readFuture) throws IOException {
 		
 		if (readFuture.isHeartbeat()) {
 			
@@ -46,16 +45,14 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 						NIOProtocolDecoder.PROTOCOL_PONG 
 						<< 6);
 			
-			ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(1);
+			ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(1);
 			
 			buffer.put(array);
 			
 			buffer.flip();
 			
-			return new IOWriteFutureImpl(channel, readFuture, buffer);
+			return new IOWriteFutureImpl(session, readFuture, buffer);
 		}
-		
-		Session session = channel.getSession();
 		
 		NIOReadFuture f = (NIOReadFuture) readFuture;
 		
@@ -93,7 +90,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);
+		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(all_length);
 		
 		buffer.put(header);
 		buffer.put(future_name_array);
@@ -108,7 +105,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		return new IOWriteFutureImpl(channel, readFuture, buffer);
+		return new IOWriteFutureImpl(session, readFuture, buffer);
 	}
 
 }

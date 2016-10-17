@@ -8,7 +8,6 @@ import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SocketChannel;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
@@ -77,9 +76,8 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 	}
 
 	public void updateWebSocketProtocol() {
-		SocketChannel channel = session.getSocketChannel();
-		channel.setProtocolFactory(PROTOCOL_FACTORY);
-		channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
-		channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
+		session.setProtocolFactory(PROTOCOL_FACTORY);
+		session.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
+		session.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
 	}
 }

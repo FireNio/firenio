@@ -86,7 +86,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 				IOWriteFuture writeFuture;
 				
 				try {
-					writeFuture = encoder.encode(_s.getSocketChannel(), ioReadFuture);
+					writeFuture = encoder.encode(_s, ioReadFuture);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;

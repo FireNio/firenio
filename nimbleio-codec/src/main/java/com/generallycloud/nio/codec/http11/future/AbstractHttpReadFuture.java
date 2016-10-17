@@ -17,7 +17,6 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -262,11 +261,9 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		
 		if (updateWebSocketProtocol) {
 			
-			SocketChannel channel = session.getSocketChannel();
-			
-			channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
-			channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
-			channel.setProtocolFactory(PROTOCOL_FACTORY);
+			session.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
+			session.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
+			session.setProtocolFactory(PROTOCOL_FACTORY);
 			
 			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
 		}
