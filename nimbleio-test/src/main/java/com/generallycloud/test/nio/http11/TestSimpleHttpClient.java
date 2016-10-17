@@ -35,7 +35,7 @@ public class TestSimpleHttpClient {
 
 		HttpReadFuture res = client.request(session, future, 3000);
 		System.out.println();
-		System.out.println(res.getBody());
+		System.out.println(new String(res.getBodyContent()));
 		System.out.println();
 		CloseUtil.close(connector);
 

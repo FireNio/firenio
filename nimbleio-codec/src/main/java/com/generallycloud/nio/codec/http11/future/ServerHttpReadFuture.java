@@ -1,80 +1,17 @@
 package com.generallycloud.nio.codec.http11.future;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IOSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ServerHttpReadFuture(IOSession session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
-		super(session, httpHeaderParser, readBuffer);
+	public ServerHttpReadFuture(IOSession session, ByteBuffer readBuffer) {
+		super(session, readBuffer);
 		this.params = new HashMap<String, String>();
-	}
-
-	protected void decodeHeader(byte[] source_array, int length, int pos) throws IOException {
-
-		if (contentLength < 1) {
-
-			body_complete = true;
-
-		} else if (contentLength < 1 << 21) {
-
-			this.setHasOutputStream(true);
-
-			int buffer_size = contentLength > 1024 * 256 ? 1024 * 256 : contentLength;
-
-			this.body_buffer = ByteBuffer.allocate(buffer_size);
-
-			this.outputStream = new BufferedOutputStream(contentLength);
-
-			this.read_length = length - pos;
-
-			this.outputStream.write(source_array, pos, read_length);
-
-		} else {
-
-			this.setHasOutputStream(true);
-
-			this.body_buffer = ByteBuffer.allocate(1024 * 256);
-
-			IOEventHandleAdaptor eventHandle = session.getContext().getIOEventHandleAdaptor();
-
-			try {
-				eventHandle.accept(session, this);
-			} catch (Exception e) {
-				throw new IOException(e.getMessage(), e);
-			}
-
-			if (this.outputStream == null) {
-
-				throw new IOException("none outputstream");
-			}
-
-			read_length = length - pos;
-
-			outputStream.write(source_array, pos, read_length);
-		}
-	}
-
-	protected void decodeBody() {
-
-		BufferedOutputStream o = (BufferedOutputStream) outputStream;
-
-		if (HttpHeaderParser.CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-			// FIXME encoding
-			String paramString = new String(o.toByteArray(), session.getContext().getEncoding());
-
-			parseParamString(paramString);
-		} else {
-			// FIXME 解析BODY中的内容
-		}
-
-		body_complete = true;
 	}
 
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
@@ -82,4 +19,53 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		headers.put("Connection", "keep-alive");
 	}
 
+	protected void parseContentType(String contentType) {
+
+		if (!StringUtil.isNullOrBlank(contentType)) {
+
+			if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+
+				this.contentType = CONTENT_APPLICATION_URLENCODED;
+
+			} else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
+
+				this.contentType = CONTENT_TYPE_TEXT_PLAIN;
+
+			} else if (contentType.startsWith("multipart/form-data;")) {
+
+				int index = KMP_BOUNDARY.match(contentType);
+
+				if (index != -1) {
+					boundary = contentType.substring(index + 9);
+				}
+
+				this.contentType = CONTENT_TYPE_MULTIPART;
+			} else {
+				// FIXME other content-type
+			}
+		} else {
+			this.contentType = CONTENT_APPLICATION_URLENCODED;
+		}
+	}
+
+	protected void parseFirstLine(String line) {
+
+		String[] array = line.split(" ");
+
+		if (array.length == 3) {
+			this.method = array[0];
+			this.setRequestURL(array[1]);
+			this.version = array[2];
+		} else if (array.length == 4) {
+			this.method = array[0];
+			this.setRequestURL(array[2]);
+			this.version = array[3];
+		} else if (array.length == 5) {
+			this.method = array[0];
+			this.setRequestURL(array[3]);
+			this.version = array[4];
+		} else {
+			throw new IllegalArgumentException("http header first line breaked,msg is:" + line);
+		}
+	}
 }

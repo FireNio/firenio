@@ -4,7 +4,6 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.IOAcceptorUtil;
@@ -27,11 +26,9 @@ public class TestSimpleHttpServer {
 
 				String res;
 
-				if (f.hasBody()) {
+				if (f.hasBodyContent()) {
 
-					BufferedOutputStream outputStream =  f.getBody();
-
-					res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>" + outputStream.toString()+"</PRE>";
+					res = "yes server already accept your message :) "+f.getRequestParams()+" </BR><PRE style='font-size: 18px;color: #FF9800;'>" + new String(f.getBodyContent())+"</PRE>";
 				} else {
 					res = "yes server already accept your message :) " + f.getRequestParams();
 				}

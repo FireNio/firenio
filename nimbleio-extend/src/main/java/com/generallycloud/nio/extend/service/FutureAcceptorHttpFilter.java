@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.Encoding;
-import com.generallycloud.nio.codec.http11.future.HttpHeaderParser;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.HtmlUtil;
@@ -75,16 +74,16 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		
 		Map<String, String> mapping = new HashMap<String, String>();
 
-		mapping.put("htm", HttpHeaderParser.CONTENT_TYPE_TEXT_HTML);
-		mapping.put("html", HttpHeaderParser.CONTENT_TYPE_TEXT_HTML);
-		mapping.put("js", HttpHeaderParser.CONTENT_APPLICATION_JAVASCRIPT);
-		mapping.put("css", HttpHeaderParser.CONTENT_TYPE_TEXT_CSS);
-		mapping.put("png", HttpHeaderParser.CONTENT_TYPE_IMAGE_PNG);
-		mapping.put("jpg", HttpHeaderParser.CONTENT_TYPE_IMAGE_JPEG);
-		mapping.put("jpeg", HttpHeaderParser.CONTENT_TYPE_IMAGE_JPEG);
-		mapping.put("gif", HttpHeaderParser.CONTENT_TYPE_IMAGE_GIF);
-		mapping.put("txt", HttpHeaderParser.CONTENT_TYPE_TEXT_PLAIN);
-		mapping.put("ico", HttpHeaderParser.CONTENT_TYPE_IMAGE_ICON);
+		mapping.put("htm", HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
+		mapping.put("html", HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
+		mapping.put("js", HttpReadFuture.CONTENT_APPLICATION_JAVASCRIPT);
+		mapping.put("css", HttpReadFuture.CONTENT_TYPE_TEXT_CSS);
+		mapping.put("png", HttpReadFuture.CONTENT_TYPE_IMAGE_PNG);
+		mapping.put("jpg", HttpReadFuture.CONTENT_TYPE_IMAGE_JPEG);
+		mapping.put("jpeg", HttpReadFuture.CONTENT_TYPE_IMAGE_JPEG);
+		mapping.put("gif", HttpReadFuture.CONTENT_TYPE_IMAGE_GIF);
+		mapping.put("txt", HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN);
+		mapping.put("ico", HttpReadFuture.CONTENT_TYPE_IMAGE_ICON);
 
 		scanFolder(rootFile, rootPath,mapping);
 
@@ -164,7 +163,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				HttpEntity entity = new HttpEntity();
 				
 				entity.array = b.toString().getBytes(Encoding.UTF8);
-				entity.contentType = HttpHeaderParser.CONTENT_TYPE_TEXT_HTML;
+				entity.contentType = HttpReadFuture.CONTENT_TYPE_TEXT_HTML;
 				
 				String staticName = getHttpPath(file, root);
 				
@@ -196,7 +195,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		int index = fileName.lastIndexOf(".");
 
 		if (index == -1) {
-			return HttpHeaderParser.CONTENT_TYPE_TEXT_PLAIN;
+			return HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN;
 		}
 
 		String subfix = fileName.substring(index + 1);
@@ -204,7 +203,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		String contentType = mapping.get(subfix);
 
 		if (contentType == null) {
-			contentType = HttpHeaderParser.CONTENT_TYPE_TEXT_PLAIN;
+			contentType = HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN;
 		}
 
 		return contentType;

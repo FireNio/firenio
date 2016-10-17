@@ -3,10 +3,22 @@ package com.generallycloud.nio.codec.http11.future;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 
 public abstract interface HttpReadFuture extends NamedReadFuture {
+	
+	public static final String	CONTENT_TYPE_MULTIPART					= "multipart/form-data";
+	public static final String	CONTENT_TYPE_TEXT_PLAIN				= "text/plain";
+	public static final String	CONTENT_TYPE_TEXT_CSS					= "text/css";
+	public static final String	CONTENT_TYPE_TEXT_HTML					= "text/html";
+	public static final String	CONTENT_TYPE_IMAGE_PNG					= "image/png";
+	public static final String	CONTENT_TYPE_IMAGE_GIF					= "image/gif";
+	public static final String	CONTENT_TYPE_IMAGE_JPEG				= "image/jpeg";
+	public static final String	CONTENT_TYPE_IMAGE_ICON				= "image/x-icon";
+	public static final String	CONTENT_APPLICATION_URLENCODED			= "application/x-www-form-urlencoded";
+	public static final String	CONTENT_APPLICATION_OCTET_STREAM		= "application/octet-stream";
+	public static final String	CONTENT_APPLICATION_JAVASCRIPT			= "application/x-javascript";
+
 
 	public abstract String getRequestHeader(String name);
 	
@@ -69,9 +81,9 @@ public abstract interface HttpReadFuture extends NamedReadFuture {
 	
 	public abstract void setRequestParams(Map<String, String> params);
 	
-	public abstract BufferedOutputStream getBody();
+	public abstract byte[] getBodyContent();
 	
-	public abstract boolean hasBody();
+	public abstract boolean hasBodyContent();
 
 	public abstract HttpStatus getStatus();
 

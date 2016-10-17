@@ -10,7 +10,6 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.SessionActiveSEListener;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
@@ -64,7 +63,7 @@ public class HttpServerStartup {
 
 			context.addSessionEventListener(new LoggerSEListener());
 			
-			context.addSessionEventListener(new SessionActiveSEListener());
+//			context.addSessionEventListener(new SessionActiveSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			

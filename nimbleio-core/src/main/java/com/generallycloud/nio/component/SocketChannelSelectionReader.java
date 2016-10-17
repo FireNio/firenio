@@ -3,11 +3,8 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -16,14 +13,10 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	private IOReadFutureAcceptor	ioReadFutureAcceptor;
 	
-	private AtomicLong logID = new AtomicLong();
-	
-	private Logger logger = LoggerFactory.getLogger(SocketChannelSelectionReader.class);
-
 	public SocketChannelSelectionReader(NIOContext context) {
 		this.ioReadFutureAcceptor = context.getIOReadFutureAcceptor();
-//		this.buffer = ByteBuffer.allocateDirect(1024 * 10);
-		this.buffer = ByteBuffer.allocate(64);
+//		this.buffer = ByteBuffer.allocateDirect(64);//FIXME 传参
+		this.buffer = ByteBuffer.allocate(32);
 	}
 
 	private ByteBuffer	buffer;
@@ -43,8 +36,6 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		
 		int length = channel.read(buffer);
 
-//		logger.info("buffer read ==================logID:,{}==={}",logID.getAndIncrement(),length);
-		
 		if (length == -1) {
 			CloseUtil.close(channel);
 			return;
@@ -101,11 +92,8 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 			if (!buffer.hasRemaining()) {
 				return;
-			}else{
-//				logger.info("buffer remaining ==================logID:,{}==={}",logID.getAndIncrement(),buffer.remaining());
 			}
+			
 		}
-
 	}
-
 }
