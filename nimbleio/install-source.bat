@@ -1,1 +1,1 @@
-mvn install:install-file -Dfile=nimbleio-all-2.3.10-SNAPSHOT-source.jar -DgroupId=com.generallycloud -DartifactId=nimbleio-all -Dversion=2.3.10-SNAPSHOT -Dpackaging=jar -Dclassifier=sources
+mvn install:install-file -Dfile=nimbleio-all-3.0.2-SNAPSHOT-source.jar -DgroupId=com.generallycloud -DartifactId=nimbleio-all -Dversion=3.0.2-SNAPSHOT -Dpackaging=jar -Dclassifier=sources
