@@ -39,7 +39,7 @@ public class TestListenerByteMessage {
 				System.out.println(message);
 				if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
 					TextByteMessage _Message = (TextByteMessage) message;
-					System.out.println(new String(_Message.getByteArray(),Encoding.DEFAULT));
+					System.out.println(new String(_Message.getByteArray(),Encoding.UTF8));
 				}
 				
 				System.out.println("Time:" + (System.currentTimeMillis() - old));

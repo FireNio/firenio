@@ -1,8 +1,6 @@
 package com.generallycloud.nio.extend;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.NIOContext;
@@ -18,8 +16,6 @@ public interface FixedSession extends ReadFutureAcceptor {
 	public abstract NIOReadFuture request(String serviceName, String content) throws IOException;
 
 	public abstract NIOReadFuture request(String serviceName, String content, byte[] binary) throws IOException;
-
-	public abstract NIOReadFuture request(String serviceName, Map params, InputStream inputStream) throws IOException;
 
 	public abstract void write(String serviceName, String content) throws IOException;
 

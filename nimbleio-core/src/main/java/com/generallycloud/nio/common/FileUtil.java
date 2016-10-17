@@ -24,7 +24,7 @@ import com.generallycloud.nio.Encoding;
 
 public class FileUtil {
 
-	private static Charset ENCODING = Encoding.DEFAULT;
+	private static Charset ENCODING = Encoding.UTF8;
 
 	private static byte[] SKIP_BYTE_BUFFER;
 

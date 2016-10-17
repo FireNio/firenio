@@ -1,6 +1,5 @@
 package com.generallycloud.nio.extend.implementation;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.RESMessage;
@@ -16,7 +15,7 @@ public class ErrorServlet extends NIOFutureAcceptorService{
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage res = new RESMessage(500, exception.getMessage());
-		future.write(res.toString(),Encoding.DEFAULT);
+		future.write(res.toString(),session.getContext().getEncoding());
 		session.flush(future);
 	}
 

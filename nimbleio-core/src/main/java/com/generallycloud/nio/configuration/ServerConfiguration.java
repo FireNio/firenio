@@ -11,7 +11,7 @@ public class ServerConfiguration {
 	private int		SERVER_UDP_PORT;
 	private String		SERVER_HOST				= "localhost";
 	private int		SERVER_CORE_SIZE			= Runtime.getRuntime().availableProcessors();
-	private Charset	SERVER_ENCODING			= Encoding.DEFAULT;
+	private Charset	SERVER_ENCODING			= Encoding.UTF8;
 	private boolean	SERVER_DEBUG				= false;
 	private int		SERVER_CHANNEL_QUEUE_SIZE	= 1024 * 512;
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;

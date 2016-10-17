@@ -2,7 +2,6 @@ package com.generallycloud.nio.protocol;
 
 import java.nio.charset.Charset;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOSession;
@@ -38,7 +37,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	}
 
 	public void write(String content) {
-		write(content, Encoding.DEFAULT);
+		write(content, session.getContext().getEncoding());
 	}
 
 	public void write(String content, Charset encoding) {

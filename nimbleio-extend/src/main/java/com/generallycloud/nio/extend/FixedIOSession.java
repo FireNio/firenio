@@ -1,7 +1,6 @@
 package com.generallycloud.nio.extend;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -114,7 +113,7 @@ public class FixedIOSession implements FixedSession {
 
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put("username", username);
-			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.DEFAULT));
+			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.UTF8));
 
 			String paramString = JSONObject.toJSONString(param);
 
@@ -184,32 +183,6 @@ public class FixedIOSession implements FixedSession {
 		}
 
 		return (NIOReadFuture) onReadFuture.getReadFuture();
-	}
-
-	@SuppressWarnings("rawtypes")
-	public NIOReadFuture request(String serviceName, Map params, InputStream inputStream) throws IOException {
-
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
-
-		BinaryFlusher flusher = new BinaryFlusher(inputStream, session, serviceName, params);
-
-		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
-
-		waiterListen(serviceName, onReadFuture);
-
-		flusher.flush();
-
-		// FIXME 连接丢失时叫醒我
-		if (!onReadFuture.await(timeout)) {
-
-			return (NIOReadFuture) onReadFuture.getReadFuture();
-		}
-
-		CloseUtil.close(session);
-
-		throw new TimeoutException("timeout");
 	}
 
 	public void setAuthority(Authority authority) {

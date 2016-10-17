@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
@@ -120,11 +119,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-		Charset encoding = serverConfiguration.getSERVER_ENCODING();
-
-		Encoding.DEFAULT = encoding;
-
-		this.encoding = Encoding.DEFAULT;
+		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 		
 		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();

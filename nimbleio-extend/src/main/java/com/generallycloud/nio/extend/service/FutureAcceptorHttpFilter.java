@@ -163,7 +163,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				
 				HttpEntity entity = new HttpEntity();
 				
-				entity.array = b.toString().getBytes(Encoding.DEFAULT);
+				entity.array = b.toString().getBytes(Encoding.UTF8);
 				entity.contentType = HttpHeaderParser.CONTENT_TYPE_TEXT_HTML;
 				
 				String staticName = getHttpPath(file, root);

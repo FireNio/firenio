@@ -8,6 +8,4 @@ public class Encoding {
 	
 	public static Charset GBK = Charset.forName("GBK");
 	
-	public static Charset DEFAULT = UTF8;
-	
 }

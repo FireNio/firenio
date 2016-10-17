@@ -49,11 +49,11 @@ public class TestSimpleWebSocketClient {
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 		ServerConfiguration configuration = connector.getContext().getServerConfiguration();
 		configuration.setSERVER_HOST("120.76.222.210");
-		configuration.setSERVER_HOST("115.29.193.48");
-		configuration.setSERVER_HOST("workerman.net");
+//		configuration.setSERVER_HOST("115.29.193.48");
+//		configuration.setSERVER_HOST("workerman.net");
 		configuration.setSERVER_TCP_PORT(30005);
-		configuration.setSERVER_TCP_PORT(29000);
-		configuration.setSERVER_TCP_PORT(8280);
+//		configuration.setSERVER_TCP_PORT(29000);
+//		configuration.setSERVER_TCP_PORT(8280);
 		Session session = connector.connect();
 		String url = "/web-socket-chat";
 		 url = "/";
@@ -68,6 +68,12 @@ public class TestSimpleWebSocketClient {
 //		future.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
 		// future.setRequestHeader("", "");
 		session.flush(future);
+		
+//		ThreadUtil.sleep(1000);
+//		WebSocketReadFuture f2 = new WebSocketReadFutureImpl();
+//		f2.write("test");
+//		session.flush(f2);
+		
 		ThreadUtil.sleep(999999999);
 		CloseUtil.close(connector);
 

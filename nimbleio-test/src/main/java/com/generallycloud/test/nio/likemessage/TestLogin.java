@@ -26,7 +26,7 @@ public class TestLogin {
 		
 		boolean b = session.login(username, password);
 
-		System.out.println(MD5Token.getInstance().getLongToken("admin100", Encoding.DEFAULT));
+		System.out.println(MD5Token.getInstance().getLongToken("admin100", Encoding.UTF8));
 
 		System.out.println(b);
 

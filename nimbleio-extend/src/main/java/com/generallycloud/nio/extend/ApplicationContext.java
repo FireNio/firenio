@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -42,7 +41,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
 	private NIOContext						context;
-	private Charset						encoding			= Encoding.DEFAULT;
+	private Charset						encoding			;
 	private FutureAcceptor					filterService;
 	private Logger							logger			= LoggerFactory
 																.getLogger(ApplicationContext.class);

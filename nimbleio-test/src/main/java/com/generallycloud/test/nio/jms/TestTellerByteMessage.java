@@ -1,6 +1,5 @@
 package com.generallycloud.test.nio.jms;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -28,7 +27,7 @@ public class TestTellerByteMessage {
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 		
-		TextByteMessage message = new TextByteMessage("msgID", "UUID", "============","你好！".getBytes(Encoding.DEFAULT));
+		TextByteMessage message = new TextByteMessage("msgID", "UUID", "============","你好！".getBytes(session.getContext().getEncoding()));
 
 		long old = System.currentTimeMillis();
 		
