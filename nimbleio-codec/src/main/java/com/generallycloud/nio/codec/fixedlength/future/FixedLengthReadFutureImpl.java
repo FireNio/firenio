@@ -1,17 +1,21 @@
 package com.generallycloud.nio.codec.fixedlength.future;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
 public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements FixedLengthReadFuture {
 
-	private ByteBuf	buffer;
+	private ByteBuf	buf;
 
 	private String		text;
 
@@ -21,100 +25,98 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	private boolean	body_complete;
 
-	private byte[]	byteArray;
+	private byte[]		byteArray;
 
 	private int		limit	= 1024 * 1024;
 
-	public FixedLengthReadFutureImpl(Session session, ByteBuf buf) {
-		
-		super(session);
-		
-		this.buffer = buf;
-
-		if (!isHeaderReadComplete(buf)) {
-			doHeaderComplete(buf);
+	public FixedLengthReadFutureImpl(IOSession session, ByteBuf buf) {
+		super(session.getContext());
+		this.buf = buf;
+		if (isHeaderReadComplete(buf)) {
+			doHeaderComplete(session, buf);
 		}
 	}
 
-	public FixedLengthReadFutureImpl() {
-	}
-	
-	private boolean isHeaderReadComplete(ByteBuf buf){
-		return buf.position() > FixedLengthProtocolDecoder.PROTOCOL_HADER;
+	public FixedLengthReadFutureImpl(NIOContext context) {
+		super(context);
 	}
 
-	private void doHeaderComplete(ByteBuf buffer) {
+	private boolean isHeaderReadComplete(ByteBuf buf) {
+		return !buf.hasRemaining();
+	}
+
+	private void doHeaderComplete(Session session, ByteBuf buf) {
 
 		header_complete = true;
-		
-		int length = buffer.getInt(0);
-		
+
+		int length = buf.getInt(0);
+
 		this.length = length;
-		
+
 		if (length < 1) {
-			
+
 			if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-			
+
 				setPING();
-				
+
 				body_complete = true;
-				
+
 				return;
-			}else if(length == FixedLengthProtocolDecoder.PROTOCOL_PONG){
-				
+			} else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
+
 				setPONG();
-				
+
 				body_complete = true;
-				
+
 				return;
 			}
-			
+
 			throw new ProtocolException("illegal length:" + length);
-			
-		}else if (length > limit) {
-			
-			ReleaseUtil.release(buffer);
-			
+
+		} else if (length > limit) {
+
+			ReleaseUtil.release(buf);
+
 			throw new ProtocolException("max 1M ,length:" + length);
-			
-		}else if(length > buffer.capacity()){
-			
-			ReleaseUtil.release(buffer);
-			
-			this.buffer = channel.getContext().getHeapByteBufferPool().allocate(length);
-			
-		}else{
-			
-			buffer.limit(length);
+
+		} else if (length > buf.capacity()) {
+
+			ReleaseUtil.release(buf);
+
+			this.buf = session.getContext().getHeapByteBufferPool().allocate(length);
+
+		} else {
+
+			buf.limit(length);
 		}
 	}
 
-	public boolean read() throws IOException {
+	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
 
-		ByteBuf buffer = this.buffer;
-		
+		ByteBuf buf = this.buf;
+
 		if (!header_complete) {
 
-			buffer.read(channel);
+			buf.read(buffer);
 
-			if (!isHeaderReadComplete(buffer)) {
+			if (!isHeaderReadComplete(buf)) {
 				return false;
 			}
 
-			doHeaderComplete(buffer);
+			doHeaderComplete(session, buf);
 		}
 
 		if (!body_complete) {
 
-			buffer.read(channel);
+			buf.read(buffer);
 
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			doBodyComplete(buffer);
+			doBodyComplete(buf);
 		}
-		
+
 		return true;
 	}
 
@@ -123,9 +125,9 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		body_complete = true;
 
 		byteArray = new byte[buf.limit()];
-		
+
 		buf.flip();
-		
+
 		buf.get(byteArray);
 	}
 
@@ -135,13 +137,18 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	public String getText() {
 
+		return getText(context.getEncoding());
+	}
+
+	public String getText(Charset encoding) {
+
 		if (text == null) {
-			text = new String(byteArray, session.getContext().getEncoding());
+			text = new String(byteArray, encoding);
 		}
 
 		return text;
 	}
-	
+
 	public int getLength() {
 		return length;
 	}
@@ -151,7 +158,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 	}
 
 	public void release() {
-		ReleaseUtil.release(buffer);
+		ReleaseUtil.release(buf);
 	}
-	
+
 }

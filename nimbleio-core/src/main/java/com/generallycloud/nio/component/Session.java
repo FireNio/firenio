@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import com.generallycloud.nio.component.concurrent.EventLoop;
@@ -35,7 +36,7 @@ public interface Session extends Closeable{
 	public abstract long getLastAccessTime();
 
 	public abstract String getLocalAddr();
-
+	
 	public abstract String getLocalHost();
 
 	public abstract int getLocalPort();
@@ -71,6 +72,8 @@ public interface Session extends Closeable{
 	public abstract void setDatagramChannel(DatagramChannel datagramChannel);
 	
 	public abstract EventLoop getEventLoop();
+	
+	public abstract Charset getEncoding();
 	
 	public abstract String getProtocolID();
 	

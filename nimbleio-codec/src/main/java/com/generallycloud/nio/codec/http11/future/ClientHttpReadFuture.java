@@ -6,16 +6,19 @@ import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.SocketChannel;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ClientHttpReadFuture(String url,String method){
+	public ClientHttpReadFuture(NIOContext context,String url,String method){
+		super(context);
 		this.method = method;
 		this.setRequestURL(url);
 	}
 	
-	public ClientHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
+	public ClientHttpReadFuture(IOSession session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
 	}
 
@@ -74,6 +77,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 	}
 
 	public void updateWebSocketProtocol() {
+		SocketChannel channel = session.getSocketChannel();
 		channel.setProtocolFactory(PROTOCOL_FACTORY);
 		channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
 		channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);

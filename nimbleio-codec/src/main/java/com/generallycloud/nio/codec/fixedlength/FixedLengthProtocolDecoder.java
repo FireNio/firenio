@@ -1,11 +1,13 @@
 package com.generallycloud.nio.codec.fixedlength;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
-import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.ProtocolDecoderAdapter;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 /**
  * <pre>
@@ -26,7 +28,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoderAdapter;
  * 
  * </pre>
  */
-public class FixedLengthProtocolDecoder extends ProtocolDecoderAdapter {
+public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_HADER	= 4;
 
@@ -34,12 +36,13 @@ public class FixedLengthProtocolDecoder extends ProtocolDecoderAdapter {
 
 	public static final int	PROTOCOL_PONG		= -2;
 
-	protected ByteBuf allocate(NIOContext context) {
-		return context.getHeapByteBufferPool().allocate(PROTOCOL_HADER);
-	}
-
-	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) {
-		return new FixedLengthReadFutureImpl(session, buffer);
+	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
+		
+		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HADER);
+		
+		buf.read(buffer);
+		
+		return new FixedLengthReadFutureImpl(session,buf);
 	}
 
 }

@@ -64,7 +64,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 				if (s.isOpened()) {
 
-					WebSocketReadFuture f = new WebSocketTextReadFutureImpl();
+					WebSocketReadFuture f = new WebSocketTextReadFutureImpl(s.getContext());
 
 					f.write(msg.getBytes(Encoding.UTF8));
 

@@ -15,7 +15,8 @@ import com.generallycloud.nio.common.KMPByteUtil;
 import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -57,13 +58,15 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected String				version;
 	protected boolean 			hasOutputStream;
+	protected IOSession			session;
 	
-	public AbstractHttpReadFuture(){
-		
+	public AbstractHttpReadFuture(NIOContext context){
+		super(context);
 	}
 	
-	public AbstractHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser,ByteBuffer readBuffer) {
-		super(session);
+	public AbstractHttpReadFuture(IOSession session, HttpHeaderParser httpHeaderParser,ByteBuffer readBuffer) {
+		super(session.getContext());
+		this.session = session;
 		this.httpHeaderParser = httpHeaderParser;
 		this.read_buffer = readBuffer;
 		this.cookies = new HashMap<String, String>();
@@ -80,13 +83,11 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		cookieList.add(cookie);
 	}
 	
-	public boolean decode(SocketChannel channel, ByteBuffer buffer) throws IOException {
+	public boolean decode(IOSession session, ByteBuffer buffer) throws IOException {
 
 		try {
 
 			if (!header_complete) {
-
-				channel.read(buffer);
 
 				BufferedOutputStream header_buffer = this.header_buffer;
 
@@ -121,8 +122,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 					ByteBuffer body_buffer = this.body_buffer;
 
 					body_buffer.clear();
-
-					channel.read(body_buffer);
 
 					fill(outputStream, body_buffer);
 				}
@@ -238,13 +237,9 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	}
 
 	// FIXME 是否会出现第一次读到\r\n结束，下一次loop开头读到\r\n的情况
-	public boolean read() throws IOException {
+	public boolean read(IOSession session,ByteBuffer buffer) throws IOException {
 
-		SocketChannel channel = this.channel;
-
-		ByteBuffer buffer = this.read_buffer;
-
-		return decode(channel, buffer);
+		return decode(session, buffer);
 	}
 
 	public void setRequestParams(Map<String, String> params) {
@@ -266,6 +261,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public void flush() {
 		
 		if (updateWebSocketProtocol) {
+			
+			SocketChannel channel = session.getSocketChannel();
 			
 			channel.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
 			channel.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);

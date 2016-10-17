@@ -1,10 +1,13 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.NIOContext;
+
 
 public abstract class AbstractIOReadFuture extends AbstractReadFuture implements IOReadFuture {
+
+	protected AbstractIOReadFuture(NIOContext context) {
+		super(context);
+	}
 
 	protected boolean	isHeartbeat;
 
@@ -12,28 +15,8 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 
 	protected boolean	isPONG;
 
-	protected AbstractIOReadFuture() {
-	
-	}
-
-	public AbstractIOReadFuture(Session session) {
-		this.update((IOSession) session);
-	}
-	
-	public void update(IOSession session) {
-		this.session = session;
-		this.channel = this.session.getSocketChannel();
-		if (this.ioEventHandle == null) {
-			this.ioEventHandle = session.getContext().getIOEventHandleAdaptor();
-		}
-	}
-
 	public void flush() {
 		flushed = true;
-	}
-
-	public SocketChannel getSocketChannel() {
-		return channel;
 	}
 
 	public boolean isHeartbeat() {

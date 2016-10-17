@@ -13,9 +13,9 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 
@@ -27,7 +27,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private byte[]			binary;
 	private int				binaryLength;
 	private boolean			body_complete;
-	private ByteBuf			buffer;
+	private ByteBuf			buf;
 	private Integer			futureID;
 	private String				futureName;
 	private int				hashCode;
@@ -40,37 +40,40 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private BufferedOutputStream	writeBinaryBuffer;
 
 	// for ping & pong
-	public NIOReadFutureImpl() {
+	public NIOReadFutureImpl(NIOContext context) {
+		super(context);
 	}
 
-	public NIOReadFutureImpl(Integer futureID, String futureName) {
+	public NIOReadFutureImpl(NIOContext context,Integer futureID, String futureName) {
+		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
-	public NIOReadFutureImpl(Session session, ByteBuf buffer) throws IOException {
-		super(session);
-		this.buffer = buffer;
-		if (!buffer.hasRemaining()) {
-			doHeaderComplete(buffer);
+	public NIOReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
+		super(session.getContext());
+		this.buf = buf;
+		if (!buf.hasRemaining()) {
+			doHeaderComplete(session,buf);
 		}
 	}
 
-	public NIOReadFutureImpl(String futureName) {
+	public NIOReadFutureImpl(NIOContext context,String futureName) {
+		super(context);
 		this.futureName = futureName;
 	}
 
-	private void doBodyComplete(ByteBuf buffer) {
+	private void doBodyComplete(Session session,ByteBuf buf) {
 
 		body_complete = true;
 
-		buffer.flip();
+		buf.flip();
 
-		Charset charset = channel.getContext().getEncoding();
+		Charset charset = session.getEncoding();
 
-		int offset = buffer.offset();
+		int offset = buf.offset();
 
-		ByteBuffer memory = buffer.getMemory();
+		ByteBuffer memory = buf.getMemory();
 
 		int src_pos = memory.position();
 
@@ -88,16 +91,16 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 
 		memory.limit(src_limit);
 
-		this.gainBinary(buffer, offset);
+		this.gainBinary(buf, offset);
 	}
 
-	private void doHeaderComplete(ByteBuf buffer) throws IOException {
+	private void doHeaderComplete(Session session,ByteBuf buf) throws IOException {
 
 		header_complete = true;
 
-		byte[] header_array = buffer.array();
+		byte[] header_array = buf.array();
 
-		int offset = buffer.offset();
+		int offset = buf.offset();
 
 		int service_name_length = (header_array[offset] & 0x3f);
 
@@ -117,19 +120,19 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		
 		this.hashCode = gainHashCode(header_array, offset);
 
-		if (buffer.capacity() >= all_length) {
+		if (buf.capacity() >= all_length) {
 
-			buffer.limit(all_length);
+			buf.limit(all_length);
 
 		} else {
 
-			ReleaseUtil.release(buffer);
+			ReleaseUtil.release(buf);
 
 			if (all_length > 1024 * 1024 * 2) {
 				throw new IOException("max length 1024 * 1024 * 2,length=" + all_length);
 			}
 
-			this.buffer = channel.getContext().getHeapByteBufferPool().allocate(all_length);
+			this.buf = session.getContext().getHeapByteBufferPool().allocate(all_length);
 		}
 	}
 
@@ -216,39 +219,37 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
-	public boolean read() throws IOException {
+	public boolean read(IOSession session,ByteBuffer buffer) throws IOException {
 
-		SocketChannel channel = this.channel;
-
-		ByteBuf buffer = this.buffer;
+		ByteBuf buf = this.buf;
 
 		if (!header_complete) {
 
-			buffer.read(channel);
+			buf.read(buffer);
 
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			doHeaderComplete(buffer);
+			doHeaderComplete(session,buf);
 		}
 
 		if (!body_complete) {
 
-			buffer.read(channel);
+			buf.read(buffer);
 
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			doBodyComplete(buffer);
+			doBodyComplete(session,buf);
 		}
 
 		return true;
 	}
 
 	public void release() {
-		ReleaseUtil.release(buffer);
+		ReleaseUtil.release(buf);
 	}
 
 	public void setFutureID(Object futureID) {

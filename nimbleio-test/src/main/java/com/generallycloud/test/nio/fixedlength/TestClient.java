@@ -64,7 +64,7 @@ public class TestClient {
 		
 		Session session = connector.connect();
 
-		ReadFuture future = new FixedLengthReadFutureImpl();
+		ReadFuture future = new FixedLengthReadFutureImpl(context);
 
 		future.write("hello server !");
 

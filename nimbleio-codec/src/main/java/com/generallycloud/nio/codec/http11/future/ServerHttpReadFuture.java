@@ -7,11 +7,11 @@ import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ServerHttpReadFuture(Session session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
+	public ServerHttpReadFuture(IOSession session, HttpHeaderParser httpHeaderParser, ByteBuffer readBuffer) {
 		super(session, httpHeaderParser, readBuffer);
 		this.params = new HashMap<String, String>();
 	}

@@ -51,7 +51,7 @@ public class Consumer {
 
 		Session session = this.session;
 
-		NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(), future.getFutureName());
+		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
 
 		f.attach(this);
 		
@@ -80,7 +80,7 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(), future.getFutureName());
+		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

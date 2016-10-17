@@ -31,7 +31,7 @@ public class FileSendUtil {
 			
 			FileUtil.readFromtInputStream(inputStream, cache);
 			
-			NIOReadFuture f = new NIOReadFutureImpl(serviceName);
+			NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),serviceName);
 			
 			f.write(jsonString);
 			
@@ -44,7 +44,7 @@ public class FileSendUtil {
 		
 		json.put(FileReceiveUtil.IS_END, true);
 		
-		NIOReadFuture f = new NIOReadFutureImpl(serviceName);
+		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),serviceName);
 		
 		f.write(json.toJSONString());
 		

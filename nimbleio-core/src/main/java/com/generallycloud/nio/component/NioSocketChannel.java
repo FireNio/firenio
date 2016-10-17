@@ -37,6 +37,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	
 	//FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<IOWriteFuture>	futures			= new ListQueueLink<IOWriteFuture>();
+//	private ListQueue<IOWriteFuture>	futures			= new ListQueueABQ<IOWriteFuture>(1024 * 10);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check

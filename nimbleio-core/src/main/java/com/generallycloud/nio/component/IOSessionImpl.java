@@ -3,6 +3,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import com.generallycloud.nio.DisconnectException;
@@ -115,10 +116,6 @@ public class IOSessionImpl implements IOSession {
 		if (!socketChannel.isOpened()) {
 
 			IOEventHandle handle = future.getIOEventHandle();
-			
-			if (handle == null) {
-				handle = context.getIOEventHandleAdaptor();
-			}
 
 			handle.exceptionCaught(this, future, new DisconnectException("disconnected"), IOEventState.WRITE);
 			
@@ -133,7 +130,7 @@ public class IOSessionImpl implements IOSession {
 
 			IOReadFuture ioReadFuture = (IOReadFuture) future;
 			
-			ioReadFuture.update(this);
+//			ioReadFuture.update(this);
 			
 			writeFuture = encoder.encode(socketChannel, ioReadFuture);
 
@@ -294,6 +291,10 @@ public class IOSessionImpl implements IOSession {
 
 	public String toString() {
 		return socketChannel.toString();
+	}
+	
+	public Charset getEncoding() {
+		return context.getEncoding();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {

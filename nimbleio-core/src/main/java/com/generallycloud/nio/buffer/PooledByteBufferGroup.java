@@ -339,5 +339,9 @@ public class PooledByteBufferGroup implements ByteBuf {
 	public byte get(int index) {
 		return 0;
 	}
+
+	public int read(ByteBuffer buffer) throws IOException {
+		return 0;
+	}
 	
 }

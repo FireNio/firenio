@@ -261,4 +261,8 @@ public class MemoryBlockV2 implements ByteBuf {
 		return length;
 	}
 
+	public int read(ByteBuffer buffer) throws IOException {
+		return 0;
+	}
+	
 }

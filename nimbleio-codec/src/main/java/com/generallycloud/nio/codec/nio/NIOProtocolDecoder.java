@@ -1,13 +1,13 @@
 package com.generallycloud.nio.codec.nio;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
-import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.ProtocolDecoderAdapter;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 /**
  * <pre>
@@ -32,7 +32,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoderAdapter;
  * 
  * </pre>
  */
-public class NIOProtocolDecoder extends ProtocolDecoderAdapter {
+public class NIOProtocolDecoder implements ProtocolDecoder {
 
 	public static final byte	PROTOCOL_PING				= 2;
 	public static final byte	PROTOCOL_PONG				= 3;
@@ -42,23 +42,23 @@ public class NIOProtocolDecoder extends ProtocolDecoderAdapter {
 	public static final int	TEXT_BEGIN_INDEX			= 9;
 	public static final int	HASH_BEGIN_INDEX			= 5;
 
-	protected ByteBuf allocate(NIOContext context) {
-		return context.getHeapByteBufferPool().allocate(PROTOCOL_HADER);
-	}
-
-	protected IOReadFuture fetchFuture(Session session, ByteBuf buffer) throws IOException {
-
+	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
+		
+		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HADER);
+		
+		buf.read(buffer);
+		
 		byte _type = buffer.get(0);
 
 		int type = (_type & 0xff) >> 6;
 
 		if (type == PROTOCOL_PING) {
-			return new NIOReadFutureImpl().setPING();
+			return new NIOReadFutureImpl(session.getContext()).setPING();
 		} else if (type == PROTOCOL_PONG) {
-			return new NIOReadFutureImpl().setPONG();
+			return new NIOReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		return new NIOReadFutureImpl(session, buffer);
+		return new NIOReadFutureImpl(session, buf);
 	}
 
 }

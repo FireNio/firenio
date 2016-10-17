@@ -30,7 +30,7 @@ public class TestSimpleWebSocketClient {
 					ClientHttpReadFuture f = (ClientHttpReadFuture) future;
 					if (f.getRequestHeader("Sec-WebSocket-Accept") != null) {
 						f.updateWebSocketProtocol();
-						WebSocketReadFuture f2 = new WebSocketReadFutureImpl();
+						WebSocketReadFuture f2 = new WebSocketReadFutureImpl(session.getContext());
 						f2.write("{action: \"add-user\", username: \"火星人\"}");
 //						f2.write("{\"action\":999}");
 						session.flush(f2);
@@ -57,7 +57,7 @@ public class TestSimpleWebSocketClient {
 		Session session = connector.connect();
 		String url = "/web-socket-chat";
 		 url = "/";
-		HttpReadFuture future = new WebSocketUpgradeRequestFuture(url);
+		HttpReadFuture future = new WebSocketUpgradeRequestFuture(session.getContext(),url);
 //		 future.setRequestURL("ws://120.76.222.210:30005/");
 //		future.setResponseHeader("Host", "120.76.222.210:30005");
 //		future.setResponseHeader("Pragma", "no-cache");

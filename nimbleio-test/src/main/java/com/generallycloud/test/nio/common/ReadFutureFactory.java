@@ -17,7 +17,7 @@ public class ReadFutureFactory {
 	public static NIOReadFuture create(Session session, Integer futureID, String serviceName,
 			IOEventHandle ioEventHandle) {
 
-		NIOReadFutureImpl textReadFuture = new NIOReadFutureImpl(futureID, serviceName);
+		NIOReadFutureImpl textReadFuture = new NIOReadFutureImpl(session.getContext(),futureID, serviceName);
 
 		textReadFuture.setIOEventHandle(ioEventHandle);
 
@@ -35,7 +35,7 @@ public class ReadFutureFactory {
 	}
 
 	public static HttpReadFuture createHttpReadFuture(Session session, String url) {
-		return new ClientHttpReadFuture(url, "GET");
+		return new ClientHttpReadFuture(session.getContext(),url, "GET");
 	}
 
 	public static NIOReadFuture create(Session session, String serviceName) {

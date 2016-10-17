@@ -24,7 +24,7 @@ public class TestListenSimpleServlet extends NIOFutureAcceptorService{
 		
 		for (int i = 0; i < 5; i++) {
 			
-			NIOReadFuture f = new NIOReadFutureImpl(future.getFutureID(),future.getFutureName());
+			NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(),future.getFutureName());
 			
 			f.write(test);
 			f.write("$");

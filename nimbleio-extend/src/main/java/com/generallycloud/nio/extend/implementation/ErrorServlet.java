@@ -15,7 +15,7 @@ public class ErrorServlet extends NIOFutureAcceptorService{
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage res = new RESMessage(500, exception.getMessage());
-		future.write(res.toString(),session.getContext().getEncoding());
+		future.write(res.toString());
 		session.flush(future);
 	}
 

@@ -158,7 +158,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+		NIOReadFuture readFuture = new NIOReadFutureImpl(session.getContext(),serviceName);
 		
 		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
 		
@@ -225,7 +225,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = new NIOReadFutureImpl(serviceName);
+		NIOReadFuture readFuture = new NIOReadFutureImpl(session.getContext(),serviceName);
 		
 		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
 		

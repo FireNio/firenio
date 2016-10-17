@@ -213,6 +213,33 @@ public class MemoryBlockV3 implements ByteBuf {
 	public int remaining() {
 		return limit - position;
 	}
+	
+	public int read(ByteBuffer buffer) throws IOException {
+		
+		int srcRemaining = buffer.remaining();
+
+		if (srcRemaining == 0) {
+			return 0;
+		}
+		
+		int remaining = this.remaining();
+		
+		if (remaining <= srcRemaining) {
+			
+			buffer.get(this.memory.array(),offset + position,remaining);
+			
+			this.position(this.limit);
+			
+			return remaining;
+		}else{
+			
+			buffer.get(this.memory.array(),offset + position,srcRemaining);
+			
+			this.position(this.position + srcRemaining);
+			
+			return srcRemaining;
+		}
+	}
 
 	public void setMemory(MemoryUnitV3 memoryStart, MemoryUnitV3 memoryEnd) {
 		this.memoryStart = memoryStart;

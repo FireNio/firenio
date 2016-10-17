@@ -263,5 +263,8 @@ public class MemoryBlockV1 implements PooledByteBuf {
 	public int offset() {
 		return 0;
 	}
-	
+
+	public int read(ByteBuffer buffer) throws IOException {
+		return 0;
+	}
 }

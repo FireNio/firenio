@@ -1,14 +1,15 @@
 package com.generallycloud.nio.codec.http11.future;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
@@ -22,7 +23,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	
 	private int length;
 	
-	private ByteBuf buffer;
+	private ByteBuf buf;
 	
 	private byte [] mask;
 	
@@ -36,19 +37,20 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	
 	private String serviceName;
 	
-	public WebSocketReadFutureImpl(Session session,ByteBuf buffer) {
-		super(session);
+	public WebSocketReadFutureImpl(IOSession session,ByteBuf buf) {
+		super(session.getContext());
 		
-		this.buffer = buffer;
+		this.buf = buf;
 		
 		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
 		
-		if (!buffer.hasRemaining()) {
-			doHeaderComplete(buffer);
+		if (!buf.hasRemaining()) {
+			doHeaderComplete(buf);
 		}
 	}
 	
-	public WebSocketReadFutureImpl() {
+	public WebSocketReadFutureImpl(NIOContext context) {
+		super(context);
 	}
 	
 	private void doHeaderComplete(ByteBuf buffer){
@@ -101,7 +103,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 	}
 	
-	private void doRemainHeaderComplete(ByteBuf buffer) throws IOException{
+	private void doRemainHeaderComplete(IOSession session,ByteBuf buffer) throws IOException{
 		
 		remain_header_complete = true;
 		
@@ -128,48 +130,46 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		System.arraycopy(array, offset + buffer.limit() - 4, mask, 0, 4);
 		
-		doLengthComplete(buffer,length);
+		doLengthComplete(session,buffer,length);
 	}
 
-	public boolean read() throws IOException {
+	public boolean read(IOSession session,ByteBuffer buffer) throws IOException {
 		
-		SocketChannel channel = this.channel;
-		
-		ByteBuf buffer = this.buffer;
+		ByteBuf buf = this.buf;
 		
 		if (!headerComplete) {
 			
-			buffer.read(channel);
+			buf.read(buffer);
 			
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 			
-			doHeaderComplete(buffer);
+			doHeaderComplete(buf);
 		}
 		
 		if (!remain_header_complete) {
 			
-			buffer.read(channel);
+			buf.read(buffer);
 			
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 			
-			doRemainHeaderComplete(buffer);
+			doRemainHeaderComplete(session,buf);
 		}
 		
 		if (!dataComplete) {
 			
-			buffer.read(channel);
+			buf.read(buffer);
 			
-			if (buffer.hasRemaining()) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 			
-			buffer.flip();
+			buf.flip();
 			
-			byte [] array = buffer.getBytes();
+			byte [] array = buf.getBytes();
 			
 			if (hasMask) {
 				
@@ -191,7 +191,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		return true;
 	}
 	
-	private void doLengthComplete(ByteBuf buffer,int length){
+	private void doLengthComplete(IOSession session,ByteBuf buffer,int length){
 		
 		if (length > 1024 * 8) {
 			throw new ProtocolException("max 8KB ,length:" + length);
@@ -204,7 +204,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		ReleaseUtil.release(buffer);
 		
-		this.buffer = channel.getContext().getHeapByteBufferPool().allocate(length);
+		this.buf = session.getContext().getHeapByteBufferPool().allocate(length);
 	}
 	
 	public String getFutureName() {
@@ -224,7 +224,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	}
 	
 	public void release() {
-		ReleaseUtil.release(buffer);
+		ReleaseUtil.release(buf);
 	}
 
 	public BufferedOutputStream getData() {
