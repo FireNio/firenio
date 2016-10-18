@@ -12,8 +12,6 @@ import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionActiveSEListener;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
@@ -41,12 +39,7 @@ public class TestClient {
 		configuration.setSERVER_HOST("localhost");
 		configuration.setSERVER_TCP_PORT(18300);
 		
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-				"IOEvent", 
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
-				1);
-
-		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(configuration);
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		

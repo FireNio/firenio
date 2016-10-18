@@ -16,6 +16,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
+import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -68,7 +69,27 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
 	}
+	
+	
+	public DefaultNIOContext(ServerConfiguration configuration) {
+		
+		if (configuration == null) {
+			throw new IllegalArgumentException("null configuration");
+		}
+		
+		int eventQueueSize = configuration.getSERVER_CHANNEL_QUEUE_SIZE();
 
+		int eventLoopSize = configuration.getSERVER_CORE_SIZE();
+		
+		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
+
+		this.serverConfiguration = configuration;
+		
+		this.eventLoopGroup = eventLoopGroup;
+		
+		this.addLifeCycleListener(new NIOContextListener());
+	}
+	
 	public DefaultNIOContext(ServerConfiguration configuration,EventLoopGroup eventLoopGroup) {
 		
 		if (configuration == null) {
@@ -85,6 +106,8 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		
 		this.addLifeCycleListener(new NIOContextListener());
 	}
+	
+	
 
 	public void addSessionEventListener(SessionEventListener listener) {
 		if (this.sessionEventListenerStub == null) {

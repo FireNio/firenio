@@ -16,7 +16,8 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 	public SocketChannelSelectionReader(NIOContext context) {
 		this.ioReadFutureAcceptor = context.getIOReadFutureAcceptor();
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
-		this.buffer = ByteBuffer.allocateDirect(readBuffer);
+//		this.buffer = ByteBuffer.allocateDirect(readBuffer);
+		this.buffer = ByteBuffer.allocate(readBuffer);//FIXME 使用direct
 	}
 
 	private ByteBuffer	buffer;

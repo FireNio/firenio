@@ -10,8 +10,6 @@ import com.generallycloud.nio.common.cmd.CommandContext;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
@@ -63,13 +61,8 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-					"IOEvent", 
-					configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
-					configuration.getSERVER_CORE_SIZE());
-
-			NIOContext nioContext = new DefaultNIOContext(configuration,eventLoopGroup);
-
+			NIOContext nioContext = new DefaultNIOContext(configuration);
+			
 			nioContext.setIOEventHandleAdaptor(eventHandle);
 
 			nioContext.addSessionEventListener(new LoggerSEListener());

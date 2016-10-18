@@ -11,8 +11,6 @@ import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.ManagerSEListener;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -40,12 +38,7 @@ public class NIOServerStartup {
 		
 		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-				"IOEvent", 
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
-				configuration.getSERVER_CORE_SIZE());
-
-		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(configuration);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 

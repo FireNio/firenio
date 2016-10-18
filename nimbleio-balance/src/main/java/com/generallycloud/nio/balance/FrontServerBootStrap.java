@@ -10,8 +10,6 @@ import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.SessionEventListener;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -48,10 +46,7 @@ public class FrontServerBootStrap {
 	private NIOContext getFrontNIOContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent",
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(), configuration.getSERVER_CORE_SIZE());
-
-		NIOContext context = new DefaultNIOContext(configuration, eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(configuration);
 
 		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
@@ -71,10 +66,7 @@ public class FrontServerBootStrap {
 	private NIOContext getFrontReverseNIOContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent",
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(), configuration.getSERVER_CORE_SIZE());
-
-		NIOContext context = new DefaultNIOContext(configuration, eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(configuration);
 
 		context.setIOEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 
