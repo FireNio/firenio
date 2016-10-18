@@ -5,9 +5,8 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-public class RedisCmdFuture extends AbstractIOReadFuture implements RedisReadFuture{
+public class RedisCmdFuture extends AbstractRedisReadFuture implements RedisReadFuture {
 
 	protected RedisCmdFuture(NIOContext context) {
 		super(context);
@@ -23,4 +22,6 @@ public class RedisCmdFuture extends AbstractIOReadFuture implements RedisReadFut
 	public RedisNode getRedisNode() {
 		return null;
 	}
+
+
 }

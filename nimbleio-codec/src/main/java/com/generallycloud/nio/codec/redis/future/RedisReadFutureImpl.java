@@ -5,10 +5,9 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
 //FIXME 完善心跳
-public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisReadFuture {
+public class RedisReadFutureImpl extends AbstractRedisReadFuture implements RedisReadFuture {
 
 	private StringBuilder	currentLine	= new StringBuilder();
 
@@ -20,10 +19,10 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 
 	public RedisReadFutureImpl(NIOContext context) {
 		super(context);
-		this.currentLine 	= new StringBuilder();
-		this.rootNode		= new RedisNode(0);
-		this.currentNode	= rootNode;
-		this.complete		= false;
+//		this.currentLine 	= new StringBuilder();
+//		this.rootNode		= new RedisNode(0);
+//		this.currentNode	= rootNode;
+//		this.complete		= false;
 	}
 
 	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
@@ -64,7 +63,9 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 						RedisNode n = currentNode.deepNext();
 
 						if (n == null) {
-							complete = true;
+							
+							doComplete();
+							
 							return true;
 						}
 
@@ -78,7 +79,7 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 					
 					currentNode.setValue(line.substring(1));
 					
-					complete = true;
+					doComplete();
 					
 					return true;
 				case TYPE_INTEGERS:
@@ -92,7 +93,9 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 					RedisNode n3 = currentNode.deepNext();
 
 					if (n3 == null) {
-						complete = true;
+						
+						doComplete();
+						
 						return true;
 					}
 
@@ -110,7 +113,9 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 					RedisNode n4 = currentNode.deepNext();
 
 					if (n4 == null) {
-						complete = true;
+						
+						doComplete();
+						
 						return true;
 					}
 
@@ -124,7 +129,9 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 					RedisNode n5 = currentNode.deepNext();
 
 					if (n5 == null) {
-						complete = true;
+						
+						doComplete();
+						
 						return true;
 					}
 
@@ -140,7 +147,24 @@ public class RedisReadFutureImpl extends AbstractIOReadFuture implements RedisRe
 			}
 		}
 
-		return false;
+		return complete;
+	}
+	
+	private void doComplete(){
+		
+		complete = true;
+		
+		if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
+			
+			Object value = rootNode.getValue();
+			
+			if (CMD_PING.equals(value)) {
+				setPING();
+			}else if(CMD_PONG.equals(value)){
+				setPONG();
+			}
+		}
+		
 	}
 
 	public void release() {

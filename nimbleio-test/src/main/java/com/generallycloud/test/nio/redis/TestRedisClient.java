@@ -68,6 +68,12 @@ public class TestRedisClient {
 		
 		client.get("name222");
 		
+		client.set("debug", "PONG");
+		
+		client.get("debug");
+		
+		client.ping();
+		
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);

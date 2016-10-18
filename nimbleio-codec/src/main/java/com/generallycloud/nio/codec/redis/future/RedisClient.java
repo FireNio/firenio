@@ -22,22 +22,7 @@ public class RedisClient {
 
 		RedisReadFuture future = new RedisCmdFuture(context);
 
-		future.write(RedisReadFuture.BYTE_ARRAYS);
-		future.write(String.valueOf(args.length + 1));
-		future.write(RedisReadFuture.CRLF_BYTES);
-		future.write(RedisReadFuture.BYTE_BULK_STRINGS);
-		future.write(String.valueOf(command.length));
-		future.write(RedisReadFuture.CRLF_BYTES);
-		future.write(command);
-		future.write(RedisReadFuture.CRLF_BYTES);
-
-		for (final byte[] arg : args) {
-			future.write(RedisReadFuture.BYTE_BULK_STRINGS);
-			future.write(String.valueOf(arg.length));
-			future.write(RedisReadFuture.CRLF_BYTES);
-			future.write(arg);
-			future.write(RedisReadFuture.CRLF_BYTES);
-		}
+		future.writeCommand(command, args);
 
 		session.flush(future);
 	}
@@ -55,6 +40,10 @@ public class RedisClient {
 	public void get(String key) throws IOException {
 		byte[] _key = key.getBytes(context.getEncoding());
 		sendCommand(RedisCommand.GET, _key);
+	}
+	
+	public void ping() throws IOException {
+		sendCommand(RedisCommand.GET);
 	}
 
 }
