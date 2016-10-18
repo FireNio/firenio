@@ -2,11 +2,10 @@ package com.generallycloud.test.nio.redis;
 
 import com.generallycloud.nio.codec.redis.RedisProtocolFactory;
 import com.generallycloud.nio.codec.redis.future.RedisClient;
-import com.generallycloud.nio.codec.redis.future.RedisReadFuture;
+import com.generallycloud.nio.codec.redis.future.RedisIOEventHandle;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
@@ -15,22 +14,10 @@ import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
-import com.generallycloud.nio.protocol.ReadFuture;
 
 public class TestRedisClient {
 
 	public static void main(String[] args) throws Exception {
-
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
-
-			public void accept(Session session, ReadFuture future) throws Exception {
-
-				RedisReadFuture f = (RedisReadFuture) future;
-				System.out.println();
-				System.out.println("____________________"+f.getRedisNode());
-				System.out.println();
-			}
-		};
 
 		SocketChannelConnector connector = new SocketChannelConnector();
 		
@@ -46,15 +33,11 @@ public class TestRedisClient {
 
 		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
 
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		context.setIOEventHandleAdaptor(new RedisIOEventHandle());
 		
 		context.addSessionEventListener(new LoggerSEListener());
 
 		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
-
-//		context.addSessionEventListener(new SessionActiveSEListener());
-		
-//		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
 		context.setProtocolFactory(new RedisProtocolFactory());
 		
@@ -64,15 +47,25 @@ public class TestRedisClient {
 
 		RedisClient client = new RedisClient(session);
 		
-		client.set("name222", "hello redis!");
+		String value = client.set("name222", "hello redis!");
 		
-		client.get("name222");
+		System.out.println("__________________res______"+value);
 		
-		client.set("debug", "PONG");
+		value = client.get("name222");
 		
-		client.get("debug");
+		System.out.println("__________________res______"+value);
 		
-		client.ping();
+		value = client.set("debug", "PONG");
+		
+		System.out.println("__________________res______"+value);
+		
+		value = client.get("debug");
+		
+		System.out.println("__________________res______"+value);
+		
+		value = client.ping();
+		
+		System.out.println("__________________res______"+value);
 		
 		ThreadUtil.sleep(100);
 

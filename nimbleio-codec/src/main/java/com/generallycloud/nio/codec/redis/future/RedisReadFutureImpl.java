@@ -154,16 +154,17 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture implements Redi
 		
 		complete = true;
 		
-		if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
-			
-			Object value = rootNode.getValue();
-			
-			if (CMD_PING.equals(value)) {
-				setPING();
-			}else if(CMD_PONG.equals(value)){
-				setPONG();
-			}
-		}
+		//FIXME redis的心跳有些特殊
+//		if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
+//			
+//			Object value = rootNode.getValue();
+//			
+//			if (CMD_PING.equals(value)) {
+//				setPING();
+//			}else if(CMD_PONG.equals(value)){
+//				setPONG();
+//			}
+//		}
 		
 	}
 

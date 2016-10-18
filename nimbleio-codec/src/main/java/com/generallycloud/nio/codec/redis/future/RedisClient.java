@@ -2,9 +2,11 @@ package com.generallycloud.nio.codec.redis.future;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.redis.future.RedisReadFuture.RedisCommand;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {
@@ -12,38 +14,54 @@ public class RedisClient {
 	private NIOContext	context;
 
 	private Session	session;
+	
+	private RedisIOEventHandle ioEventHandle;
 
 	public RedisClient(Session session) {
 		this.session = session;
 		this.context = session.getContext();
+		this.ioEventHandle = (RedisIOEventHandle) context.getIOEventHandleAdaptor();
 	}
 
-	private void sendCommand(byte[] command, byte[]... args) throws IOException {
+	private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
 
 		RedisReadFuture future = new RedisCmdFuture(context);
 
 		future.writeCommand(command, args);
+		
+		Waiter<RedisNode> waiter = new Waiter<RedisNode>();
 
+		ioEventHandle.setWaiter(waiter);
+		
 		session.flush(future);
+		
+		if(waiter.await(3000)){
+			throw new TimeoutException("timeout");
+		}
+		
+		return waiter.getPayload();
 	}
 
-	private void sendCommand(RedisCommand command, byte[]... args) throws IOException {
-		sendCommand(command.raw, args);
+	private RedisNode sendCommand(RedisCommand command, byte[]... args) throws IOException {
+		return sendCommand(command.raw, args);
 	}
 
-	public void set(String key, String value) throws IOException {
+	public String set(String key, String value) throws IOException {
 		byte[] _key = key.getBytes(context.getEncoding());
 		byte[] _value = value.getBytes(context.getEncoding());
-		sendCommand(RedisCommand.SET, _key, _value);
+		RedisNode node = sendCommand(RedisCommand.SET, _key, _value);
+		return (String) node.getValue();
 	}
 
-	public void get(String key) throws IOException {
+	public String get(String key) throws IOException {
 		byte[] _key = key.getBytes(context.getEncoding());
-		sendCommand(RedisCommand.GET, _key);
+		RedisNode node = sendCommand(RedisCommand.GET, _key);
+		return (String) node.getValue();
 	}
 	
-	public void ping() throws IOException {
-		sendCommand(RedisCommand.GET);
+	public String ping() throws IOException {
+		RedisNode node = sendCommand(RedisCommand.PING);
+		return (String) node.getValue();
 	}
 
 }
