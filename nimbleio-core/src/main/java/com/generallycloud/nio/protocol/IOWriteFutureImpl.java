@@ -17,16 +17,16 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	protected UnsafeSession		unsafeSession;
 	protected ReadFuture		readFuture;
 	protected SocketChannel		channel;
-	protected ByteBuf			buffer;
+	protected ByteBuf			buf;
 	protected IOWriteFuture		next;
 
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(IOSession session, ReadFuture readFuture, ByteBuf buffer) {
+	public IOWriteFutureImpl(IOSession session, ReadFuture readFuture, ByteBuf buf) {
 		this.unsafeSession = (UnsafeSession) session;
 		this.channel = unsafeSession.getSocketChannel();
 		this.readFuture = readFuture;
-		this.buffer = buffer;
+		this.buf = buf;
 	}
 
 	protected void updateNetworkState(int length) {
@@ -66,7 +66,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	public boolean write() throws IOException {
 
-		ByteBuf buffer = this.buffer;
+		ByteBuf buffer = this.buf;
 
 		updateNetworkState(buffer.write(channel));
 
@@ -90,11 +90,11 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	}
 
 	public void release() {
-		ReleaseUtil.release(buffer);
+		ReleaseUtil.release(buf);
 	}
 
 	public IOWriteFuture duplicate(IOSession session) {
-		return new IOWriteFutureImpl(session, readFuture, buffer.duplicate());
+		return new IOWriteFutureImpl(session, readFuture, buf.duplicate());
 	}
 
 	public IOWriteFuture getNext() {

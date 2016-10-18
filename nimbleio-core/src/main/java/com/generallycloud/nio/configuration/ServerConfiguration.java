@@ -17,6 +17,7 @@ public class ServerConfiguration {
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT		= 1024;
 	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024;
+	private int		SERVER_READ_BUFFER			= 1024 * 100;
 
 	public int getSERVER_CHANNEL_QUEUE_SIZE() {
 		return SERVER_CHANNEL_QUEUE_SIZE;
@@ -119,6 +120,17 @@ public class ServerConfiguration {
 			return;
 		}
 		this.SERVER_MEMORY_POOL_CAPACITY = SERVER_MEMORY_POOL_CAPACITY;
+	}
+
+	public int getSERVER_READ_BUFFER() {
+		return SERVER_READ_BUFFER;
+	}
+
+	public void setSERVER_READ_BUFFER(int SERVER_READ_BUFFER) {
+		if (SERVER_READ_BUFFER == 0) {
+			return;
+		}
+		this.SERVER_READ_BUFFER = SERVER_READ_BUFFER;
 	}
 	
 }
