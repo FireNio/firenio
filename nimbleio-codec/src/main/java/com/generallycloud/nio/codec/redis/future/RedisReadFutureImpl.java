@@ -11,7 +11,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture implements Redi
 
 	private StringBuilder	currentLine	= new StringBuilder();
 
-	private RedisNode		rootNode		= new RedisNode(0);
+	private RedisNode		rootNode		= new RedisNode();
 
 	private RedisNode		currentNode	= rootNode;
 
