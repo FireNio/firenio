@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
 	<artifactId>nimbleio-test</artifactId>
-	<version>2.1.16-SNAPSHOT</version>
+	<version>3.1.6-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
 	<description>The test of nimbleio</description>  
@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>nimbleio</artifactId>
-		<version>2.1.16-SNAPSHOT</version>
+		<version>3.1.6-SNAPSHOT</version>
 		<relativePath>../nimbleio/pom.xml</relativePath>
 	</parent>
 
