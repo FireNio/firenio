@@ -40,7 +40,7 @@ public class ProtobufReadFutureImpl extends NIOReadFutureImpl implements Protobu
 
 			ProtobufIOEventHandle handle = (ProtobufIOEventHandle) context.getIOEventHandleAdaptor();
 
-			Parser<? extends MessageLite> parser = handle.getParser(getText());
+			Parser<? extends MessageLite> parser = handle.getParser(getParserName());
 
 			message = parser.parseFrom(getBinary());
 		}
@@ -73,4 +73,9 @@ public class ProtobufReadFutureImpl extends NIOReadFutureImpl implements Protobu
 	public void write(String content, Charset encoding) {
 		throw new UnsupportedOperationException("use writeProtobuf instead");
 	}
+
+	public String getParserName() {
+		return getText();
+	}
+	
 }

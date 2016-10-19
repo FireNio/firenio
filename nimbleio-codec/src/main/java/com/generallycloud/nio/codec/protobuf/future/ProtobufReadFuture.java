@@ -11,4 +11,6 @@ public interface ProtobufReadFuture extends ReadFuture {
 	public abstract void writeProtobuf(MessageLite messageLite) throws InvalidProtocolBufferException;
 
 	public abstract MessageLite getMessage() throws InvalidProtocolBufferException;
+	
+	public abstract String getParserName();
 }
