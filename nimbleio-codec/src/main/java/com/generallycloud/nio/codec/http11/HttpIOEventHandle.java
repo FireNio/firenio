@@ -6,6 +6,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
 
+//FIXME 参考redis client
 public class HttpIOEventHandle extends IOEventHandleAdaptor{
 	
 	private HttpClient httpClient;
