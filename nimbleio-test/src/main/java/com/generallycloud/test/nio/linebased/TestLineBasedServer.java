@@ -1,26 +1,25 @@
-package com.generallycloud.test.nio.fixedlength;
+package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
+import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class TestServer {
+public class TestLineBasedServer {
 
 	public static void main(String[] args) throws Exception {
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
+				
+				LineBasedReadFuture f = (LineBasedReadFuture) future;
 				String res = "yes server already accept your message:" + f.getText();
 				future.write(res);
 				session.flush(future);
@@ -37,13 +36,9 @@ public class TestServer {
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
-		context.addSessionEventListener(new SessionAliveSEListener());
-
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		
-		context.setBeatFutureFactory(new FLBeatFutureFactory());
-
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		context.setProtocolFactory(new LineBasedProtocolFactory());
 
 		acceptor.setContext(context);
 

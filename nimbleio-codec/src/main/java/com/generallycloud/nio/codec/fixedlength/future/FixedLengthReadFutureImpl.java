@@ -25,7 +25,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	private boolean	body_complete;
 
-	private byte[]		byteArray;
+	private byte[]	byteArray;
 
 	private int		limit	= 1024 * 1024;
 

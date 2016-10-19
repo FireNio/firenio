@@ -1,9 +1,8 @@
-package com.generallycloud.test.nio.fixedlength;
+package com.generallycloud.test.nio.linebased;
 
-import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
+import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
@@ -11,13 +10,12 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SessionActiveSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class TestClient {
+public class TestLineBasedClient {
 
 	public static void main(String[] args) throws Exception {
 
@@ -25,7 +23,7 @@ public class TestClient {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
+				LineBasedReadFuture f = (LineBasedReadFuture) future;
 				System.out.println();
 				System.out.println("____________________"+f.getText());
 				System.out.println();
@@ -47,11 +45,7 @@ public class TestClient {
 
 		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
-		context.addSessionEventListener(new SessionActiveSEListener());
-		
-		context.setBeatFutureFactory(new FLBeatFutureFactory());
-
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		context.setProtocolFactory(new LineBasedProtocolFactory());
 		
 		connector.setContext(context);
 		

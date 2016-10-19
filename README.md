@@ -16,6 +16,7 @@ NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异�
 * 支持协议扩展，已知的扩展协议有：
  * Redis协议，示例：详见 {nimbleio-test}
  * protobuf协议，示例：详见 {nimbleio-test}
+ * LineBased协议（基于换行符的消息分割），示例：详见 {nimbleio-test}
  * HTTP1.1协议（客户端，服务端），示例： http://www.generallycloud.com/
  * WebSocket协议（客户端，服务端），示例： http://www.generallycloud.com/web-socket/chat/index.html 
  * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和数据流

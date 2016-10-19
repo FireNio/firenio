@@ -10,7 +10,6 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 
 	protected BufferedOutputStream	writeBuffer	= new BufferedOutputStream();
 	protected IOEventHandle			ioEventHandle;
-	protected boolean				hasOutputStream;
 	protected boolean				flushed;
 	protected NIOContext			context;
 
