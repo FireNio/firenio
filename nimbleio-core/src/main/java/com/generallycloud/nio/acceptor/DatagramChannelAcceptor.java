@@ -51,8 +51,8 @@ public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
 		LifeCycleUtil.stop(selectorLoopThread);
 	}
 	
-	protected void setIOService(NIOContext context) {
-		context.setUDPService(this);
+	protected void setChannelService(NIOContext context) {
+		context.setDatagramChannelService(this);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {

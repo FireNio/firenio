@@ -54,8 +54,8 @@ public class DatagramChannelConnector extends AbstractIOConnector {
 		}
 	}
 
-	protected void setIOService(NIOContext context) {
-		context.setUDPService(this);
+	protected void setChannelService(NIOContext context) {
+		context.setDatagramChannelService(this);
 	}
 
 	private void allocate(ByteBuffer buffer, DatagramPacket packet) {

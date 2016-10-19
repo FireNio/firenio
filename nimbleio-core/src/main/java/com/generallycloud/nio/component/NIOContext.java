@@ -22,13 +22,13 @@ public interface NIOContext extends Attributes, LifeCycle {
 
 	public abstract SessionFactory getSessionFactory();
 
-	public abstract IOService getTCPService();
+	public abstract ChannelService getSocketChannelService();
 
-	public abstract void setTCPService(IOService tcpService);
+	public abstract void setSocketChannelService(ChannelService service);
 
-	public abstract IOService getUDPService();
+	public abstract ChannelService getDatagramChannelService();
 
-	public abstract void setUDPService(IOService udpService);
+	public abstract void setDatagramChannelService(ChannelService service);
 
 	public abstract EventLoopGroup getEventLoopGroup();
 

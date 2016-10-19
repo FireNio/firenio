@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.AbstractIOService;
+import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
@@ -21,7 +21,7 @@ import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class AbstractIOAcceptor extends AbstractIOService implements IOAcceptor {
+public abstract class AbstractIOAcceptor extends AbstractChannelService implements ChannelAcceptor {
 
 	protected boolean		active		= false;
 	protected ReentrantLock	activeLock	= new ReentrantLock();
@@ -49,7 +49,7 @@ public abstract class AbstractIOAcceptor extends AbstractIOService implements IO
 
 			int SERVER_PORT = getSERVER_PORT(configuration);
 
-			this.setIOService(context);
+			this.setChannelService(context);
 
 			this.bind(context, getInetSocketAddress(SERVER_PORT));
 			

@@ -50,7 +50,7 @@ public class TestHttpLoadThread extends ITestThread {
 		
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 
-		eventHandleAdaptor.setTCPConnector(connector);
+		eventHandleAdaptor.setSocketChannelConnector(connector);
 		
 		client = eventHandleAdaptor.getHttpClient();
 

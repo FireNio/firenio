@@ -21,7 +21,7 @@ public class HttpIOEventHandle extends IOEventHandleAdaptor{
 		return httpClient;
 	}
 	
-	public void setTCPConnector(SocketChannelConnector connector){
+	public void setSocketChannelConnector(SocketChannelConnector connector){
 		this.httpClient = new HttpClient(connector);
 	}
 

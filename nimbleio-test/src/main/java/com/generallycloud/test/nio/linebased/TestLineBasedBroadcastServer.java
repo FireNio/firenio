@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.linebased;
 
-import com.generallycloud.nio.acceptor.IOAcceptor;
+import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
 import com.generallycloud.nio.component.DefaultNIOContext;
@@ -25,7 +25,7 @@ public class TestLineBasedBroadcastServer {
 				
 				future.write(res);
 				
-				IOAcceptor acceptor = (IOAcceptor) session.getContext().getTCPService();
+				ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext().getSocketChannelService();
 				
 				acceptor.broadcast(future);
 				
@@ -38,7 +38,13 @@ public class TestLineBasedBroadcastServer {
 		ServerConfiguration configuration = new ServerConfiguration();
 		
 		configuration.setSERVER_TCP_PORT(18300);
-
+		
+		configuration.setSERVER_SESSION_IDLE_TIME(180000);
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);
+		
+		configuration.setSERVER_MEMORY_POOL_UNIT(64);
+		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
 		NIOContext context = new DefaultNIOContext(configuration);

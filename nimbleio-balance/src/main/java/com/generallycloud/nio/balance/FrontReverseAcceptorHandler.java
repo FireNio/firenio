@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.generallycloud.nio.acceptor.IOAcceptor;
+import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -28,7 +28,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
-		IOAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
+		ChannelAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
 
 		acceptor.offerSessionMEvent(new SessionMEvent() {
 

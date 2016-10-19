@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend.implementation;
 
-import com.generallycloud.nio.acceptor.IOAcceptor;
+import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -50,8 +50,8 @@ public class SYSTEMStopServerServlet extends NIOFutureAcceptorService {
 
 			}
 			
-			IOAcceptor tcpAcceptor = (IOAcceptor) context.getTCPService();
-			IOAcceptor udpAcceptor = (IOAcceptor) context.getUDPService();
+			ChannelAcceptor tcpAcceptor = (ChannelAcceptor) context.getSocketChannelService();
+			ChannelAcceptor udpAcceptor = (ChannelAcceptor) context.getDatagramChannelService();
 			
 			tcpAcceptor.unbind();
 			

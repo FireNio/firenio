@@ -115,7 +115,7 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 
 	public String toString() {
 
-		IOService service = context.getTCPService();
+		ChannelService service = context.getSocketChannelService();
 
 		return service.getServiceDescription() + "(writer)";
 	}

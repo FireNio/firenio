@@ -9,14 +9,14 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.AbstractIOService;
+import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public abstract class AbstractIOConnector extends AbstractIOService implements IOConnector {
+public abstract class AbstractIOConnector extends AbstractChannelService implements IOConnector {
 
 	protected boolean			active		= false;
 	protected ReentrantLock		activeLock	= new ReentrantLock();
@@ -96,7 +96,7 @@ public abstract class AbstractIOConnector extends AbstractIOService implements I
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 
-			this.setIOService(context);
+			this.setChannelService(context);
 
 			this.connect(context, serverAddress);
 			

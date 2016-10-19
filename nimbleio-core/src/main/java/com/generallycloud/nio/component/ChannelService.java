@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import java.net.InetSocketAddress;
 
 
-public interface IOService{
+public interface ChannelService{
 
 	public abstract NIOContext getContext() ;
 

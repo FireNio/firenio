@@ -23,7 +23,7 @@ public class TestHttpLoad {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
-		eventHandleAdaptor.setTCPConnector(connector);
+		eventHandleAdaptor.setSocketChannelConnector(connector);
 
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 		

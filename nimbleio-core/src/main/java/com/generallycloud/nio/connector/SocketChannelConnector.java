@@ -87,9 +87,9 @@ public class SocketChannelConnector extends AbstractIOConnector {
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
 		return configuration.getSERVER_TCP_PORT();
 	}
-
-	protected void setIOService(NIOContext context) {
-		context.setTCPService(this);
+	
+	protected void setChannelService(NIOContext context) {
+		context.setSocketChannelService(this);
 	}
 
 	protected void doClose() {

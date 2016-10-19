@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 
-public abstract class AbstractIOService implements IOService {
+public abstract class AbstractChannelService implements ChannelService {
 
 	protected NIOContext	context	;
 
@@ -17,7 +17,7 @@ public abstract class AbstractIOService implements IOService {
 
 	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
 	
-	protected abstract void setIOService(NIOContext context);
+	protected abstract void setChannelService(NIOContext context);
 	
 	protected String getSERVER_HOST(ServerConfiguration configuration){
 		return configuration.getSERVER_HOST();

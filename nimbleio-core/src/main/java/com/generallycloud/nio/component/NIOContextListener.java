@@ -40,7 +40,7 @@ public class NIOContextListener extends AbstractLifeCycleListener implements Lif
 			return;
 		}
 		
-		if (context.getTCPService() == null) {
+		if (context.getSocketChannelService() == null) {
 			LoggerUtil.prettyNIOServerLog(logger, "服务启动失败，正在停止...");
 			return;
 		}
