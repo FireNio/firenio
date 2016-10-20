@@ -156,6 +156,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "协议名称           ：{ {} }", protocolFactory.getProtocolID());
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
 				serverConfiguration.getSERVER_SESSION_IDLE_TIME());

@@ -15,6 +15,6 @@ public class ServerHTTPProtocolFactory implements ProtocolFactory{
 	}
 	
 	public String getProtocolID() {
-		return "HTTP11";
+		return "HTTP1.1";
 	}
 }

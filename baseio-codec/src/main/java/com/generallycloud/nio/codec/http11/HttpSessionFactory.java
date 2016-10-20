@@ -15,7 +15,7 @@ import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 public class HttpSessionFactory extends AbstractLooper{
 	
-	private static final String COOKIE_NAME_SESSIONID = "NSESSIONID";
+	private static final String COOKIE_NAME_SESSIONID = "BSESSIONID";
 
 	private ReentrantMap<String, HttpSession> sessions = new ReentrantMap<String, HttpSession>();
 	
