@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
@@ -50,7 +50,7 @@ public class TestLoadClient1 extends ITestThread{
 		};
 		
 		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 		connector.connect();
 		session = connector.getSession();
 	}

@@ -1,4 +1,4 @@
-package com.generallycloud.test.nio.nio;
+package com.generallycloud.test.nio.base;
 
 import com.generallycloud.nio.extend.startup.NIOServerStartup;
 

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.Looper;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
@@ -44,7 +44,7 @@ public abstract class AbstractProductLine implements MessageQueue, Looper {
 		return context;
 	}
 
-	public void pollMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;

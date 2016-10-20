@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend.service;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
@@ -12,10 +12,10 @@ public abstract class NIOFutureAcceptorService extends FutureAcceptorService{
 	private Logger logger = LoggerFactory.getLogger(NIOFutureAcceptorService.class);
 
 	public void accept(Session session, ReadFuture future) throws Exception {
-		this.doAccept(session, (NIOReadFuture) future);
+		this.doAccept(session, (BaseReadFuture) future);
 	}
 
-	protected abstract void doAccept(Session session, NIOReadFuture future) throws Exception;
+	protected abstract void doAccept(Session session, BaseReadFuture future) throws Exception;
 	
 	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		

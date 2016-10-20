@@ -1,7 +1,7 @@
 package com.generallycloud.nio.codec.protobuf;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolEncoder;
+import com.generallycloud.nio.codec.base.BaseProtocolEncoder;
 
-public class ProtobufProtocolEncoder extends NIOProtocolEncoder {
+public class ProtobufProtocolEncoder extends BaseProtocolEncoder {
 
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.nio.NIOProtocolDecoder;
+import com.generallycloud.nio.codec.base.BaseProtocolDecoder;
 import com.generallycloud.nio.codec.protobuf.future.ProtobufReadFutureImpl;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
@@ -14,7 +14,7 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
 	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
 		
-		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(NIOProtocolDecoder.PROTOCOL_HADER);
+		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(BaseProtocolDecoder.PROTOCOL_HADER);
 
 		buf.read(buffer);
 
@@ -22,9 +22,9 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
 		int type = (_type & 0xff) >> 6;
 
-		if (type == NIOProtocolDecoder.PROTOCOL_PING) {
+		if (type == BaseProtocolDecoder.PROTOCOL_PING) {
 			return new ProtobufReadFutureImpl(session.getContext()).setPING();
-		} else if (type == NIOProtocolDecoder.PROTOCOL_PONG) {
+		} else if (type == BaseProtocolDecoder.PROTOCOL_PONG) {
 			return new ProtobufReadFutureImpl(session.getContext()).setPONG();
 		}
 

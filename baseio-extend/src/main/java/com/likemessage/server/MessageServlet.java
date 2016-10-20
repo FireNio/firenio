@@ -3,7 +3,7 @@ package com.likemessage.server;
 import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
@@ -23,7 +23,7 @@ public class MessageServlet extends LMServlet {
 		return new MessageService(context);
 	}
 
-	protected void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future, AbstractService _service) throws Exception {
 
 //		if (future.hasOutputStream()) {
 //
@@ -50,7 +50,7 @@ public class MessageServlet extends LMServlet {
 
 	}
 
-	private void addMessage(Session session, NIOReadFuture future, Parameters parameters, MessageService service)
+	private void addMessage(Session session, BaseReadFuture future, Parameters parameters, MessageService service)
 			throws Exception {
 
 		JSONObject object = parameters.getJSONObject("t_message");

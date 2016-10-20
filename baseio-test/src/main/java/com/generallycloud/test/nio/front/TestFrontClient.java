@@ -3,8 +3,8 @@ package com.generallycloud.test.nio.front;
 import java.util.Random;
 
 import com.generallycloud.nio.balance.FrontContext;
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -26,7 +26,7 @@ public class TestFrontClient {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
-				NIOReadFuture f = (NIOReadFuture)future;
+				BaseReadFuture f = (BaseReadFuture)future;
 				
 				System.out.println(f.getText());
 			}
@@ -38,13 +38,13 @@ public class TestFrontClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 		
 		connector.connect();
 
 		Session session = connector.getSession();
 		
-		NIOReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
+		BaseReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
 
 		future.write("你好！");
 

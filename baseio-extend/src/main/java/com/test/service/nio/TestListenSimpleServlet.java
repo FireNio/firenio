@@ -1,7 +1,7 @@
 package com.test.service.nio;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
@@ -10,7 +10,7 @@ public class TestListenSimpleServlet extends NIOFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 	
-	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
 
 		String test = future.getText();
 
@@ -24,7 +24,7 @@ public class TestListenSimpleServlet extends NIOFutureAcceptorService{
 		
 		for (int i = 0; i < 5; i++) {
 			
-			NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(),future.getFutureName());
+			BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),future.getFutureID(),future.getFutureName());
 			
 			f.write(test);
 			f.write("$");

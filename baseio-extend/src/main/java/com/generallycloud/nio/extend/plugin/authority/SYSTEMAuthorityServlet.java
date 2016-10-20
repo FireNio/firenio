@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend.plugin.authority;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
@@ -13,7 +13,7 @@ public class SYSTEMAuthorityServlet extends NIOFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 
-	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
 		
 		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();
 		

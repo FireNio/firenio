@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 import java.io.IOException;
 
 import com.generallycloud.nio.acceptor.ServerDPAcceptor;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -90,7 +90,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			session.setDatagramChannel(channel);
 			
-			ReadFuture future = new NIOReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
+			ReadFuture future = new BaseReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
 			
 			future.setIOEventHandle(session.getContext().getIOEventHandleAdaptor());
 			

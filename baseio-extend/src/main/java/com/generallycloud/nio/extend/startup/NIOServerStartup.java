@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.startup;
 
 import com.generallycloud.nio.acceptor.DatagramChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -54,7 +54,7 @@ public class NIOServerStartup {
 
 			context.addSessionEventListener(new ManagerSEListener());
 
-			context.setProtocolFactory(new NIOProtocolFactory());
+			context.setProtocolFactory(new BaseProtocolFactory());
 			
 			acceptor.setContext(context);
 

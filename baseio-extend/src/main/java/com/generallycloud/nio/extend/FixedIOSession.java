@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.TimeoutException;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
@@ -117,7 +117,7 @@ public class FixedIOSession implements FixedSession {
 
 			String paramString = JSONObject.toJSONString(param);
 
-			NIOReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+			BaseReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getText());
 
@@ -148,17 +148,17 @@ public class FixedIOSession implements FixedSession {
 		// TODO complete logout
 	}
 
-	public NIOReadFuture request(String serviceName, String content) throws IOException {
+	public BaseReadFuture request(String serviceName, String content) throws IOException {
 		return request(serviceName, content, null);
 	}
 
-	public NIOReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
+	public BaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = new NIOReadFutureImpl(session.getContext(),serviceName);
+		BaseReadFuture readFuture = new BaseReadFutureImpl(session.getContext(),serviceName);
 		
 		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
 		
@@ -182,7 +182,7 @@ public class FixedIOSession implements FixedSession {
 			throw new TimeoutException("timeout");
 		}
 
-		return (NIOReadFuture) onReadFuture.getReadFuture();
+		return (BaseReadFuture) onReadFuture.getReadFuture();
 	}
 
 	public void setAuthority(Authority authority) {
@@ -225,7 +225,7 @@ public class FixedIOSession implements FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		NIOReadFuture readFuture = new NIOReadFutureImpl(session.getContext(),serviceName);
+		BaseReadFuture readFuture = new BaseReadFutureImpl(session.getContext(),serviceName);
 		
 		readFuture.setIOEventHandle(context.getIOEventHandleAdaptor());
 		

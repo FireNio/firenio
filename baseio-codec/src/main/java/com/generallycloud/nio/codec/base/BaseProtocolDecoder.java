@@ -1,10 +1,10 @@
-package com.generallycloud.nio.codec.nio;
+package com.generallycloud.nio.codec.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -32,7 +32,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  * 
  * </pre>
  */
-public class NIOProtocolDecoder implements ProtocolDecoder {
+public class BaseProtocolDecoder implements ProtocolDecoder {
 
 	public static final byte	PROTOCOL_PING				= 2;
 	public static final byte	PROTOCOL_PONG				= 3;
@@ -53,12 +53,12 @@ public class NIOProtocolDecoder implements ProtocolDecoder {
 		int type = (_type & 0xff) >> 6;
 
 		if (type == PROTOCOL_PING) {
-			return new NIOReadFutureImpl(session.getContext()).setPING();
+			return new BaseReadFutureImpl(session.getContext()).setPING();
 		} else if (type == PROTOCOL_PONG) {
-			return new NIOReadFutureImpl(session.getContext()).setPONG();
+			return new BaseReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		return new NIOReadFutureImpl(session, buf);
+		return new BaseReadFutureImpl(session, buf);
 	}
 
 }

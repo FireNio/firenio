@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.component.Session;
 
@@ -31,7 +31,7 @@ public class FileSendUtil {
 			
 			FileUtil.readFromtInputStream(inputStream, cache);
 			
-			NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),serviceName);
+			BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),serviceName);
 			
 			f.write(jsonString);
 			
@@ -44,7 +44,7 @@ public class FileSendUtil {
 		
 		json.put(FileReceiveUtil.IS_END, true);
 		
-		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),serviceName);
+		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),serviceName);
 		
 		f.write(json.toJSONString());
 		

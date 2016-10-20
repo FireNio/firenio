@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -55,7 +55,7 @@ public class TestLoadClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
 		Session session = connector.connect();
 
@@ -65,7 +65,7 @@ public class TestLoadClient {
 
 		for (int i = 0; i < time; i++) {
 			
-			NIOReadFuture future = ReadFutureFactory.create(session, "test",eventHandleAdaptor );
+			BaseReadFuture future = ReadFutureFactory.create(session, "test",eventHandleAdaptor );
 
 			future.write("hello server !");
 

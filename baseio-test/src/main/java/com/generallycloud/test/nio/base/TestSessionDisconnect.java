@@ -1,42 +1,47 @@
-package com.generallycloud.test.nio.nio;
+package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.OnReadFuture;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
+import com.generallycloud.nio.protocol.ReadFuture;
 
-public class TestShowMemory {
+public class TestSessionDisconnect {
 
-	
 	public static void main(String[] args) throws Exception {
 		
 		SharedBundle.instance().loadAllProperties("nio");
+
+		String serviceName = "TestSessionDisconnectServlet";
 		
-		String serviceKey = SYSTEMShowMemoryServlet.SERVICE_NAME;
-		
-		String param = "{username:\"admin\",password:\"admin100\"}";
-		
+		String param = "ttt";
+
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
-		
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
 
 		FixedSession session = eventHandle.getFixedSession();
 
 		connector.connect();
 
 		session.login("admin", "admin100");
-		
-		NIOReadFuture future = session.request(serviceKey, param);
+
+		BaseReadFuture future = session.request(serviceName, param);
 		System.out.println(future.getText());
-		
-		CloseUtil.close(connector);
-		
+
+		session.listen(serviceName, new OnReadFuture() {
+			public void onResponse(Session session, ReadFuture future) {
+				
+				BaseReadFuture f = (BaseReadFuture) future;
+				System.out.println(f.getText());
+			}
+		});
+
+		session.write(serviceName, param);
+
 	}
 }

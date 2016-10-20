@@ -1,9 +1,9 @@
-package com.generallycloud.nio.codec.nio;
+package com.generallycloud.nio.codec.base;
 
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
@@ -14,24 +14,24 @@ import com.generallycloud.nio.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class NIOProtocolEncoder implements ProtocolEncoder {
+public class BaseProtocolEncoder implements ProtocolEncoder {
 
-	private final int	PROTOCOL_HADER		= NIOProtocolDecoder.PROTOCOL_HADER;
+	private final int	PROTOCOL_HADER		= BaseProtocolDecoder.PROTOCOL_HADER;
 
 	private void calc_text(byte[] header, int text_length) {
-		MathUtil.intTo2Byte(header, text_length, NIOProtocolDecoder.TEXT_BEGIN_INDEX);
+		MathUtil.intTo2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {
-		MathUtil.int2Byte(header, future_id, NIOProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
+		MathUtil.int2Byte(header, future_id, BaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
 	}
 
 	private void calc_binary(byte[] header, int binary_length) {
-		MathUtil.int2Byte(header, binary_length, NIOProtocolDecoder.BINARY_BEGIN_INDEX);
+		MathUtil.int2Byte(header, binary_length, BaseProtocolDecoder.BINARY_BEGIN_INDEX);
 	}
 	
 	private void calc_hash(byte[] header, int hash) {
-		MathUtil.int2Byte(header, hash, NIOProtocolDecoder.HASH_BEGIN_INDEX);
+		MathUtil.int2Byte(header, hash, BaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 	
 	public IOWriteFuture encode(IOSession session,IOReadFuture readFuture) throws IOException {
@@ -41,8 +41,8 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 			byte [] array = new byte[1];
 
 			array [0] = (byte)(readFuture.isPING() 
-					? NIOProtocolDecoder.PROTOCOL_PING : 
-						NIOProtocolDecoder.PROTOCOL_PONG 
+					? BaseProtocolDecoder.PROTOCOL_PING : 
+						BaseProtocolDecoder.PROTOCOL_PONG 
 						<< 6);
 			
 			ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(1);
@@ -54,7 +54,7 @@ public class NIOProtocolEncoder implements ProtocolEncoder {
 			return new IOWriteFutureImpl(session, readFuture, buffer);
 		}
 		
-		NIOReadFuture f = (NIOReadFuture) readFuture;
+		BaseReadFuture f = (BaseReadFuture) readFuture;
 		
 		Integer future_id = f.getFutureID();
 		String future_name = f.getFutureName();

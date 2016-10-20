@@ -3,7 +3,7 @@ package com.likemessage.server;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
@@ -27,7 +27,7 @@ public class ContactServlet extends LMServlet {
 		return new ContactService(context);
 	}
 
-	protected void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future, AbstractService _service) throws Exception {
 
 		ContactService service = (ContactService) _service;
 

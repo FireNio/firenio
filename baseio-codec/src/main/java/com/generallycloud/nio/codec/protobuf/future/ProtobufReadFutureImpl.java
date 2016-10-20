@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.NIOContext;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
-public class ProtobufReadFutureImpl extends NIOReadFutureImpl implements ProtobufReadFuture {
+public class ProtobufReadFutureImpl extends BaseReadFutureImpl implements ProtobufReadFuture {
 
 	private MessageLite		message;
 

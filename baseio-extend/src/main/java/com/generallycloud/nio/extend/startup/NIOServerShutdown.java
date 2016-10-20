@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.startup;
 import java.io.IOException;
 import java.util.Scanner;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.DefaultNIOContext;
 import com.generallycloud.nio.component.LoggerSEListener;
@@ -70,7 +70,7 @@ public class NIOServerShutdown {
 		
 		session.login(username, password);
 		
-		NIOReadFuture future = session.request(serviceName, null);
+		BaseReadFuture future = session.request(serviceName, null);
 
 		System.out.println(future.getText());
 

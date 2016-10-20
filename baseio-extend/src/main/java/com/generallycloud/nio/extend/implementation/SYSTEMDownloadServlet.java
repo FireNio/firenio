@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.implementation;
 import java.io.File;
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
@@ -19,7 +19,7 @@ public class SYSTEMDownloadServlet extends NIOFutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMDownloadServlet.class);
 
-	public void doAccept(Session session, NIOReadFuture future) throws Exception {
+	public void doAccept(Session session, BaseReadFuture future) throws Exception {
 
 		FileSendUtil fileSendUtil = new FileSendUtil();
 

@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.NIOContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.ReadFutureAcceptor;
@@ -13,9 +13,9 @@ public interface FixedSession extends ReadFutureAcceptor {
 
 	public abstract void logout();
 
-	public abstract NIOReadFuture request(String serviceName, String content) throws IOException;
+	public abstract BaseReadFuture request(String serviceName, String content) throws IOException;
 
-	public abstract NIOReadFuture request(String serviceName, String content, byte[] binary) throws IOException;
+	public abstract BaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException;
 
 	public abstract void write(String serviceName, String content) throws IOException;
 

@@ -1,7 +1,7 @@
-package com.generallycloud.test.nio.nio;
+package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -29,20 +29,20 @@ public class TestSimple {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 		
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
 		FixedSession session = eventHandle.getFixedSession();
 		connector.connect();
 		session.login("admin", "admin100");
 		
-		NIOReadFuture future = session.request(serviceKey, param);
+		BaseReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
 		session.listen(serviceKey, new OnReadFuture() {
 			
 			public void onResponse(Session session, ReadFuture future) {
 				
-				NIOReadFuture f = (NIOReadFuture) future;
+				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println(f.getText());
 			}
 		});

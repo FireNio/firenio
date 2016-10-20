@@ -1,8 +1,8 @@
-package com.generallycloud.test.nio.nio;
+package com.generallycloud.test.nio.base;
 
 import java.io.File;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -31,7 +31,7 @@ public class TestSimpleBigParam {
 			builder.append("\n");
 			builder.append(temp);
 		}
-		NIOReadFuture future = session.request(serviceKey, builder.toString());
+		BaseReadFuture future = session.request(serviceKey, builder.toString());
 		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getText());
 		System.out.println("处理完成");
 		

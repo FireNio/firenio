@@ -1,8 +1,8 @@
 package com.generallycloud.test.nio.front;
 
 import com.generallycloud.nio.balance.FrontContext;
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -21,7 +21,7 @@ public class TestFrontLoad {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
-				NIOReadFuture readFuture = (NIOReadFuture)future;
+				BaseReadFuture readFuture = (BaseReadFuture)future;
 				
 				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getFutureName())) {
 					System.out.println("客户端已下线：" + readFuture.getText());
@@ -41,7 +41,7 @@ public class TestFrontLoad {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 		
 		connector.connect();
 	}

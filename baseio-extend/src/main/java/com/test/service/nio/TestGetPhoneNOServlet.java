@@ -1,6 +1,6 @@
 package com.test.service.nio;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
 
@@ -12,7 +12,7 @@ public class TestGetPhoneNOServlet extends NIOFutureAcceptorService {
 	
 	private int index = 0;
 
-	protected void doAccept(Session session, NIOReadFuture future) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
 
 		String phone = NOS[index++];
 		

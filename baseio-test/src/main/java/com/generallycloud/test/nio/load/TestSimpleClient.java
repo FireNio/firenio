@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.load;
 
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -26,7 +26,7 @@ public class TestSimpleClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
-		connector.getContext().setProtocolFactory(new NIOProtocolFactory());
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 		
 		connector.connect();
 

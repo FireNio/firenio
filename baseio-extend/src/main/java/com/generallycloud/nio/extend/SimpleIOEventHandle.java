@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -19,7 +19,7 @@ public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
 		try {
 
-			fixedSession.accept(session, (NIOReadFuture) future);
+			fixedSession.accept(session, (BaseReadFuture) future);
 
 		} catch (Exception e) {
 

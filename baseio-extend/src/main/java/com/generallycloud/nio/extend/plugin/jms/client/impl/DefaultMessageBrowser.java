@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.plugin.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
@@ -30,7 +30,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("messageID", messageID);
 		param.put("cmd", MQBrowserServlet.BROWSER);
 
-		NIOReadFuture future;
+		BaseReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
@@ -43,7 +43,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 	public int size() throws MQException {
 		String param = "{cmd:\"0\"}";
 
-		NIOReadFuture future;
+		BaseReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param);
 		} catch (IOException e) {
@@ -58,7 +58,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("queueName", queueName);
 		param.put("cmd", MQBrowserServlet.ONLINE);
 
-		NIOReadFuture future;
+		BaseReadFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {

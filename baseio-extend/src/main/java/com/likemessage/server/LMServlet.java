@@ -3,7 +3,7 @@ package com.likemessage.server;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.RESMessage;
@@ -16,7 +16,7 @@ public abstract class LMServlet extends NIOFutureAcceptorService {
 
 	protected abstract AbstractService getAbstractService(DataBaseContext context) throws SQLException;
 
-	public void doAccept(Session session, NIOReadFuture future) throws Exception {
+	public void doAccept(Session session, BaseReadFuture future) throws Exception {
 		AbstractService service = getAbstractService(DataBaseUtil.getDataBaseContext());
 
 		try {
@@ -31,7 +31,7 @@ public abstract class LMServlet extends NIOFutureAcceptorService {
 
 	}
 
-	protected abstract void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception;
+	protected abstract void doAccept(Session session, BaseReadFuture future, AbstractService _service) throws Exception;
 
 	protected void actionNotFound(Session session, ReadFuture future, AbstractService _service) throws IOException {
 

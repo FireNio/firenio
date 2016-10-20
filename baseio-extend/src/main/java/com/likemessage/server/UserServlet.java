@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import com.alibaba.fastjson.JSONArray;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Parameters;
@@ -23,7 +23,7 @@ public class UserServlet extends LMServlet {
 		return new UserService(context);
 	}
 
-	protected void doAccept(Session session, NIOReadFuture future, AbstractService _service) throws Exception {
+	protected void doAccept(Session session, BaseReadFuture future, AbstractService _service) throws Exception {
 
 		UserService service = (UserService) _service;
 
@@ -38,7 +38,7 @@ public class UserServlet extends LMServlet {
 		}
 	}
 
-	private void regist(Session session, NIOReadFuture future, Parameters parameters, UserService service)
+	private void regist(Session session, BaseReadFuture future, Parameters parameters, UserService service)
 			throws Exception {
 
 		RESMessage message = service.regist(session, future, parameters);

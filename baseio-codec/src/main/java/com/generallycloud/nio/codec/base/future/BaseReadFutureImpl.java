@@ -1,4 +1,4 @@
-package com.generallycloud.nio.codec.nio.future;
+package com.generallycloud.nio.codec.base.future;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.nio.NIOProtocolDecoder;
+import com.generallycloud.nio.codec.base.BaseProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
@@ -22,7 +22,7 @@ import com.generallycloud.nio.protocol.IOWriteFuture;
 /**
  *
  */
-public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFuture {
+public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseReadFuture {
 
 	private byte[]			binary;
 	private int				binaryLength;
@@ -40,17 +40,17 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	private BufferedOutputStream	writeBinaryBuffer;
 
 	// for ping & pong
-	public NIOReadFutureImpl(NIOContext context) {
+	public BaseReadFutureImpl(NIOContext context) {
 		super(context);
 	}
 
-	public NIOReadFutureImpl(NIOContext context,Integer futureID, String futureName) {
+	public BaseReadFutureImpl(NIOContext context,Integer futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
-	public NIOReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
+	public BaseReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
 		super(session.getContext());
 		this.buf = buf;
 		if (!buf.hasRemaining()) {
@@ -58,7 +58,7 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 		}
 	}
 
-	public NIOReadFutureImpl(NIOContext context,String futureName) {
+	public BaseReadFutureImpl(NIOContext context,String futureName) {
 		super(context);
 		this.futureName = futureName;
 	}
@@ -150,19 +150,19 @@ public class NIOReadFutureImpl extends AbstractIOReadFuture implements NIOReadFu
 	}
 
 	private int gainBinaryLength(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + NIOProtocolDecoder.BINARY_BEGIN_INDEX);
+		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.BINARY_BEGIN_INDEX);
 	}
 
 	private int gainFutureID(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + NIOProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
+		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
 	}
 	
 	private int gainHashCode(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + NIOProtocolDecoder.HASH_BEGIN_INDEX);
+		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 
 	private int gainTextLength(byte[] header, int offset) {
-		return MathUtil.byte2IntFrom2Byte(header, offset + NIOProtocolDecoder.TEXT_BEGIN_INDEX);
+		return MathUtil.byte2IntFrom2Byte(header, offset + BaseProtocolDecoder.TEXT_BEGIN_INDEX);
 	}
 
 	public byte[] getBinary() {

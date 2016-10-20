@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.util.Map;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
@@ -91,16 +91,16 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		messageIDs.remove(message.getMsgID());
 	}
 
-	public Message parse(NIOReadFuture future) throws MQException {
+	public Message parse(BaseReadFuture future) throws MQException {
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(Session session, NIOReadFuture future, MQSessionAttachment attachment) {
+	public void subscribeMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}

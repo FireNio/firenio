@@ -2,8 +2,8 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
-import com.generallycloud.nio.codec.nio.future.NIOReadFutureImpl;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.plugin.jms.BytedMessage;
 import com.generallycloud.nio.extend.plugin.jms.Message;
@@ -14,10 +14,10 @@ public class Consumer {
 	private MQSessionAttachment	attachment	;
 	private ConsumerQueue		consumerQueue	;
 	private Session			session		;
-	private NIOReadFuture			future		;
+	private BaseReadFuture			future		;
 	private Message			message		;
 
-	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, NIOReadFuture future,
+	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, BaseReadFuture future,
 			String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
@@ -51,7 +51,7 @@ public class Consumer {
 
 		Session session = this.session;
 
-		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
+		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
 
 		f.attach(this);
 		
@@ -80,7 +80,7 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		NIOReadFuture f = new NIOReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
+		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

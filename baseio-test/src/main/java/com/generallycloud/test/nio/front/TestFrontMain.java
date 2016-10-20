@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.balance.FrontServerBootStrap;
 import com.generallycloud.nio.balance.router.HashedFrontRouter;
-import com.generallycloud.nio.codec.nio.NIOProtocolFactory;
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class TestFrontMain {
@@ -13,8 +13,8 @@ public class TestFrontMain {
 
 		FrontServerBootStrap f = new FrontServerBootStrap();
 		
-		f.setFrontProtocolFactory(new NIOProtocolFactory());
-		f.setFrontReverseProtocolFactory(new NIOProtocolFactory());
+		f.setFrontProtocolFactory(new BaseProtocolFactory());
+		f.setFrontReverseProtocolFactory(new BaseProtocolFactory());
 		
 		
 		ServerConfiguration fc = new ServerConfiguration();

@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.implementation;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -15,7 +15,7 @@ public class SYSTEMStopServerServlet extends NIOFutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
-	public void doAccept(Session session, NIOReadFuture future) throws Exception {
+	public void doAccept(Session session, BaseReadFuture future) throws Exception {
 		
 		NIOContext context = session.getContext();
 		

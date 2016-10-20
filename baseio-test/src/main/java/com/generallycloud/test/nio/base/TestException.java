@@ -1,6 +1,6 @@
-package com.generallycloud.test.nio.nio;
+package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.nio.future.NIOReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -23,7 +23,7 @@ public class TestException {
 
 		connector.connect();
 
-		NIOReadFuture future = session.request(serviceKey, param);
+		BaseReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getText());
 		
 		CloseUtil.close(connector);
