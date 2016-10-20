@@ -11,13 +11,20 @@ import com.generallycloud.nio.component.concurrent.Waiter;
 //FIXME check null
 public class RedisClient {
 
-	private BaseContext	context;
+	private BaseContext			context;
 
-	private Session	session;
-	
-	private RedisIOEventHandle ioEventHandle;
+	private Session			session;
+
+	private RedisIOEventHandle	ioEventHandle;
+
+	private long				timeout;
 
 	public RedisClient(Session session) {
+		this(session, 3000);
+	}
+
+	public RedisClient(Session session, long timeout) {
+		this.timeout = timeout;
 		this.session = session;
 		this.context = session.getContext();
 		this.ioEventHandle = (RedisIOEventHandle) context.getIOEventHandleAdaptor();
@@ -28,17 +35,17 @@ public class RedisClient {
 		RedisReadFuture future = new RedisCmdFuture(context);
 
 		future.writeCommand(command, args);
-		
+
 		Waiter<RedisNode> waiter = new Waiter<RedisNode>();
 
 		ioEventHandle.setWaiter(waiter);
-		
+
 		session.flush(future);
-		
-		if(waiter.await(3000)){
+
+		if (waiter.await(timeout)) {
 			throw new TimeoutException("timeout");
 		}
-		
+
 		return waiter.getPayload();
 	}
 
@@ -58,7 +65,7 @@ public class RedisClient {
 		RedisNode node = sendCommand(RedisCommand.GET, _key);
 		return (String) node.getValue();
 	}
-	
+
 	public String ping() throws IOException {
 		RedisNode node = sendCommand(RedisCommand.PING);
 		return (String) node.getValue();

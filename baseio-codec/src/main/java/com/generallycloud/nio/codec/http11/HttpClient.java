@@ -4,41 +4,42 @@ import java.io.IOException;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.WaiterOnReadFuture;
-import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.nio.component.concurrent.Waiter;
 
 public class HttpClient {
 
-	protected HttpClient(SocketChannelConnector connector) {
-		this.connector = connector;
+	private BaseContext			context;
+
+	private Session			session;
+
+	private HttpIOEventHandle	ioEventHandle;
+
+	public HttpClient(Session session) {
+		this.session = session;
+		this.context = session.getContext();
+		this.ioEventHandle = (HttpIOEventHandle) context.getIOEventHandleAdaptor();
 	}
+	
+	public synchronized HttpReadFuture request(HttpReadFuture future,long timeout) throws IOException {
+		
+		Waiter<HttpReadFuture> waiter = new Waiter<HttpReadFuture>();
 
-	private SocketChannelConnector	connector;
-
-	private WaiterOnReadFuture		listener	= null;
-
-	public HttpReadFuture request(Session session, HttpReadFuture future, long timeout) throws IOException {
-
-		this.listener = new WaiterOnReadFuture();
+		ioEventHandle.setWaiter(waiter);
 
 		session.flush(future);
 
-		// FIXME 连接丢失时叫醒我
-		if (!listener.await(timeout)) {
-
-			return (HttpReadFuture) listener.getReadFuture();
+		if (waiter.await(timeout)) {
+			throw new TimeoutException("timeout");
 		}
 
-		CloseUtil.close(connector);
-
-		throw new TimeoutException("timeout");
-
+		return waiter.getPayload();
 	}
 
-	public WaiterOnReadFuture getListener() {
-		return listener;
+	public synchronized HttpReadFuture request(HttpReadFuture future) throws IOException {
+
+		return request(future, 3000);
 	}
 
 }

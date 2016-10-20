@@ -21,19 +21,15 @@ public class TestSimpleHttpClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
-		eventHandleAdaptor.setSocketChannelConnector(connector);
-
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 
-		connector.connect();
+		Session session =  connector.connect();
 
-		Session session = connector.getSession();
-
-		HttpClient client = eventHandleAdaptor.getHttpClient();
+		HttpClient client = new HttpClient(session);
 
 		HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 
-		HttpReadFuture res = client.request(session, future, 3000);
+		HttpReadFuture res = client.request(future);
 		System.out.println();
 		System.out.println(new String(res.getBodyContent()));
 		System.out.println();

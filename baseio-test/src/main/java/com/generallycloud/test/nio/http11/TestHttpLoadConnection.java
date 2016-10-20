@@ -37,8 +37,6 @@ public class TestHttpLoadConnection {
 				
 				SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
 				
-				eventHandleAdaptor.setSocketChannelConnector(connector);
-
 				connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 				
 				connector.connect();

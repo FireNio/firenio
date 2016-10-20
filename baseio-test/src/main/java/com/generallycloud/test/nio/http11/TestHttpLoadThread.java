@@ -17,27 +17,28 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestHttpLoadThread extends ITestThread {
 
-	HttpIOEventHandle	eventHandleAdaptor	= new HttpIOEventHandle();
+	HttpIOEventHandle		eventHandleAdaptor	= new HttpIOEventHandle();
 
-	SocketChannelConnector		connector			;
+	SocketChannelConnector	connector;
 
-	Session			session;
+	Session				session;
 
-	HttpClient		client;
+	HttpClient			client;
 
 	public void run() {
-		
+
 		int time = getTime();
-		
+
 		for (int i = 0; i < time; i++) {
-			
+
 			HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 
 			try {
-				client.request(session, future, 10000);
-				
+
+				client.request(future, 10000);
+
 				getLatch().countDown();
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -45,32 +46,28 @@ public class TestHttpLoadThread extends ITestThread {
 	}
 
 	public void prepare() throws Exception {
-		
+
 		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
-		
+
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 
-		eventHandleAdaptor.setSocketChannelConnector(connector);
+		session = connector.connect();
 		
-		client = eventHandleAdaptor.getHttpClient();
-
-		connector.connect();
-		
-		session = connector.getSession();
+		client = new HttpClient(session);
 	}
 
 	public void stop() {
 		CloseUtil.close(connector);
 	}
-	
+
 	public static void main(String[] args) throws IOException {
-		
+
 		SharedBundle.instance().loadAllProperties("http");
-		
-		int	time		= 5120000;
-		
+
+		int time = 5120000;
+
 		int core_size = 256;
-		
+
 		ITestThreadHandle.doTest(TestHttpLoadThread.class, core_size, time / core_size);
 	}
 

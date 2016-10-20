@@ -23,15 +23,11 @@ public class TestHttpLoad {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
-		eventHandleAdaptor.setSocketChannelConnector(connector);
-
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 		
-		connector.connect();
+		final Session session = connector.connect();
 
-		final Session session = connector.getSession();
-
-		final HttpClient client = eventHandleAdaptor.getHttpClient();
+		final HttpClient client = new HttpClient(session);
 		
 		ITestHandle.doTest(new ITest() {
 			
@@ -39,11 +35,10 @@ public class TestHttpLoad {
 				
 				HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 				
-				client.request(session, future, 3000);
+				client.request(future);
 				
 			}
 		}, 100000, "test-http");
-		
 
 		CloseUtil.close(connector);
 

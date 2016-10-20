@@ -1,35 +1,30 @@
 package com.generallycloud.nio.codec.http11;
 
-import com.generallycloud.nio.common.LifeCycleUtil;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-//FIXME 参考redis client
 public class HttpIOEventHandle extends IOEventHandleAdaptor{
 	
-	private HttpClient httpClient;
-	
-	private HttpContext context = new HttpContext();
+	private Waiter<HttpReadFuture> waiter;
 
 	public void accept(Session session, ReadFuture future) throws Exception {
-		httpClient.getListener().onResponse(session, future);
+		
+		HttpReadFuture f = (HttpReadFuture) future;
+		
+		Waiter<HttpReadFuture> waiter = this.waiter;
+		
+		if (waiter != null) {
+			
+			this.waiter = null;
+			
+			waiter.setPayload(f);
+		}
 	}
 
-	public HttpClient getHttpClient() {
-		return httpClient;
-	}
-	
-	public void setSocketChannelConnector(SocketChannelConnector connector){
-		this.httpClient = new HttpClient(connector);
-	}
-
-	protected void doStart() throws Exception {
-		context.start();
-	}
-
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(context);
+	public void setWaiter(Waiter<HttpReadFuture> waiter) {
+		this.waiter = waiter;
 	}
 }
