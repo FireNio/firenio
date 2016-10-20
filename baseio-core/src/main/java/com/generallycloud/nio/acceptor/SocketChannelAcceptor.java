@@ -79,7 +79,7 @@ public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 	}
 	
 	protected void setChannelService(NIOContext context) {
-		context.setDatagramChannelService(this);
+		context.setSocketChannelService(this);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
