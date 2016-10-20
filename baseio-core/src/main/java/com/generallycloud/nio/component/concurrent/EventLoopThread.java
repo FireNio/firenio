@@ -8,13 +8,13 @@ import com.generallycloud.nio.common.LoggerFactory;
 
 public class EventLoopThread implements Looper {
 
-	private boolean		running		= false;
+	private volatile boolean	running		= false;
 	private AtomicBoolean	initialized	= new AtomicBoolean();
 	private Logger			logger		= LoggerFactory.getLogger(EventLoopThread.class);
 	private Looper			looper;
 	private Thread			monitor;
 	private String			threadName;
-	
+
 	public EventLoopThread(Looper looper, String threadName) {
 		this.looper = looper;
 		this.threadName = threadName;
@@ -42,12 +42,16 @@ public class EventLoopThread implements Looper {
 
 		Looper _looper = looper;
 
-		for (; running;) {
+		for (;;) {
 
 			try {
 				_looper.loop();
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
+			}
+
+			if (!running) {
+				break;
 			}
 		}
 	}
@@ -55,19 +59,19 @@ public class EventLoopThread implements Looper {
 	public void stop() {
 
 		this.looper.stop();
-		
+
 		this.running = false;
 	}
 
 	public boolean isMonitor(Thread thread) {
 		return monitor == thread;
 	}
-	
+
 	public String toString() {
 		return threadName;
 	}
-	
-	public Thread getMonitor(){
+
+	public Thread getMonitor() {
 		return monitor;
 	}
 }
