@@ -3,9 +3,9 @@ package com.generallycloud.nio.extend.implementation;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.RESMessage;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
-public class ErrorServlet extends NIOFutureAcceptorService{
+public class ErrorServlet extends BaseFutureAcceptorService{
 	
 	public ErrorServlet(Throwable exception) {
 		this.exception = exception;

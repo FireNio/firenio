@@ -2,9 +2,9 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
-public abstract class RTPServlet extends NIOFutureAcceptorService {
+public abstract class RTPServlet extends BaseFutureAcceptorService {
 
 	private RTPContext	context	= RTPContext.getInstance();
 

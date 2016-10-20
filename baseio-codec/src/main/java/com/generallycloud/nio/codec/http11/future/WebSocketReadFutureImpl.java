@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
@@ -49,7 +49,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		}
 	}
 	
-	public WebSocketReadFutureImpl(NIOContext context) {
+	public WebSocketReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 	

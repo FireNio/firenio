@@ -13,17 +13,17 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
-	private NIOContext	context		;
+	private BaseContext	context		;
 	private ByteBuffer	cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private Logger		logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
 
-	public DatagramChannelSelectionReader(NIOContext context) {
+	public DatagramChannelSelectionReader(BaseContext context) {
 		this.context = context;
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		NIOContext context = this.context;
+		BaseContext context = this.context;
 
 		ByteBuffer cacheBuffer = this.cacheBuffer;
 

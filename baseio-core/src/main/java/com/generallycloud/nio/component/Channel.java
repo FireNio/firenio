@@ -24,7 +24,7 @@ public interface Channel extends Closeable{
 	
 	public abstract void physicalClose() throws IOException;
 
-	public abstract NIOContext getContext();
+	public abstract BaseContext getContext();
 	
 	public abstract void setAttachment(Object attachment);
 

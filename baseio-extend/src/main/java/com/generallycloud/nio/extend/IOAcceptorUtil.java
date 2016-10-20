@@ -4,10 +4,10 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -32,7 +32,7 @@ public class IOAcceptorUtil {
 
 		try {
 			
-			NIOContext context = new DefaultNIOContext(configuration);
+			BaseContext context = new BaseContextImpl(configuration);
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 

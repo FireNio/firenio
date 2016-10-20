@@ -29,7 +29,7 @@ public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 
 			public void run() {
 
-				NIOContext context = session.getContext();
+				BaseContext context = session.getContext();
 
 				IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
 
@@ -53,7 +53,7 @@ public class IOReadFutureDispatcher implements IOReadFutureAcceptor {
 
 			logger.info("收到心跳请求!来自：{}", session);
 			
-			NIOContext context = session.getContext();
+			BaseContext context = session.getContext();
 
 			BeatFutureFactory factory = context.getBeatFutureFactory();
 

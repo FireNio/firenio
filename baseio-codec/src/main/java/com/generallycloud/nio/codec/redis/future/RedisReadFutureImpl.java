@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 
 //FIXME 完善心跳
 public class RedisReadFutureImpl extends AbstractRedisReadFuture implements RedisReadFuture {
@@ -17,7 +17,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture implements Redi
 
 	private boolean		complete		= false;
 
-	public RedisReadFutureImpl(NIOContext context) {
+	public RedisReadFutureImpl(BaseContext context) {
 		super(context);
 //		this.currentLine 	= new StringBuilder();
 //		this.rootNode		= new RedisNode(0);

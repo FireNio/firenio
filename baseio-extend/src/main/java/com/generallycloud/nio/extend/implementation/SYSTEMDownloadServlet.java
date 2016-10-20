@@ -10,10 +10,10 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.FileReceiveUtil;
 import com.generallycloud.nio.extend.FileSendUtil;
 import com.generallycloud.nio.extend.RESMessage;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SYSTEMDownloadServlet extends NIOFutureAcceptorService {
+public class SYSTEMDownloadServlet extends BaseFutureAcceptorService {
 
 	public static final String	SERVICE_NAME	= SYSTEMDownloadServlet.class.getSimpleName();
 

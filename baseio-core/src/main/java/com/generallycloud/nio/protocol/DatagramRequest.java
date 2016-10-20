@@ -1,7 +1,7 @@
 package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.component.DefaultParameters;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Parameters;
 
 public class DatagramRequest {
@@ -23,7 +23,7 @@ public class DatagramRequest {
 		return parameters;
 	}
 	
-	public static DatagramRequest create(DatagramPacket packet,NIOContext context){
+	public static DatagramRequest create(DatagramPacket packet,BaseContext context){
 		if (packet.getTimestamp() == 0) {
 			String param = new String(packet.getData(),context.getEncoding());
 			

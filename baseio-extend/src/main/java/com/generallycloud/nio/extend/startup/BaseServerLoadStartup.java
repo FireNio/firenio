@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.IOAcceptorUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class NIOServerLoadStartup {
+public class BaseServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
 		

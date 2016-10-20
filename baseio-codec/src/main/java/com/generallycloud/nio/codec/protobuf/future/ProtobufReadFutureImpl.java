@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
@@ -18,15 +18,15 @@ public class ProtobufReadFutureImpl extends BaseReadFutureImpl implements Protob
 	private boolean		writed;
 
 	// for ping & pong
-	public ProtobufReadFutureImpl(NIOContext context) {
+	public ProtobufReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 	
-	public ProtobufReadFutureImpl(NIOContext context,String futureName) {
+	public ProtobufReadFutureImpl(BaseContext context,String futureName) {
 		super(context, futureName);
 	}
 
-	public ProtobufReadFutureImpl(NIOContext context,Integer futureID, String futureName) {
+	public ProtobufReadFutureImpl(BaseContext context,Integer futureID, String futureName) {
 		super(context, futureID, futureName);
 	}
 	

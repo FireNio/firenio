@@ -5,10 +5,10 @@ import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
 import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -37,7 +37,7 @@ public class TestLineBasedClient {
 		configuration.setSERVER_HOST("localhost");
 		configuration.setSERVER_TCP_PORT(18300);
 		
-		NIOContext context = new DefaultNIOContext(configuration);
+		BaseContext context = new BaseContextImpl(configuration);
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		

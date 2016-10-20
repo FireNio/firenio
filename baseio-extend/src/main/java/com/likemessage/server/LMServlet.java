@@ -7,10 +7,10 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.database.DataBaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.RESMessage;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class LMServlet extends NIOFutureAcceptorService {
+public abstract class LMServlet extends BaseFutureAcceptorService {
 
 	public static final String	ACTION	= "ACTION";
 

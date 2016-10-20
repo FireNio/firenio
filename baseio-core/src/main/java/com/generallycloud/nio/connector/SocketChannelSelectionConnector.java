@@ -5,16 +5,16 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketChannel;
 
 public class SocketChannelSelectionConnector extends AbstractTCPSelectionAlpha {
 
 	private Selector		selector;
 	private SocketChannelConnector	connector;
-	private NIOContext		context;
+	private BaseContext		context;
 
-	public SocketChannelSelectionConnector(NIOContext context, SocketChannelConnector connector) {
+	public SocketChannelSelectionConnector(BaseContext context, SocketChannelConnector connector) {
 		super(context);
 		this.connector = connector;
 		this.context = context;

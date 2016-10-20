@@ -10,7 +10,7 @@ import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public interface NIOContext extends Attributes, LifeCycle {
+public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract Charset getEncoding();
 

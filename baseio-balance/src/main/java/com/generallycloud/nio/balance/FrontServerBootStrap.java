@@ -7,8 +7,8 @@ import java.util.List;
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.balance.router.SimpleNextRouter;
 import com.generallycloud.nio.component.BeatFutureFactory;
-import com.generallycloud.nio.component.DefaultNIOContext;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -35,18 +35,18 @@ public class FrontServerBootStrap {
 
 		FrontContext frontContext = new FrontContext(frontFacadeAcceptor,frontRouter);
 
-		NIOContext frontNIOContext = getFrontNIOContext(frontContext, frontServerConfiguration, frontProtocolFactory);
+		BaseContext frontBaseContext = getFrontBaseContext(frontContext, frontServerConfiguration, frontProtocolFactory);
 
-		NIOContext frontReverseNIOContext = getFrontReverseNIOContext(frontContext, frontReverseServerConfiguration,
+		BaseContext frontReverseBaseContext = getFrontReverseBaseContext(frontContext, frontReverseServerConfiguration,
 				frontReverseProtocolFactory);
 
-		frontFacadeAcceptor.start(frontContext, frontNIOContext, frontReverseNIOContext);
+		frontFacadeAcceptor.start(frontContext, frontBaseContext, frontReverseBaseContext);
 	}
 
-	private NIOContext getFrontNIOContext(FrontContext frontContext, ServerConfiguration configuration,
+	private BaseContext getFrontBaseContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		NIOContext context = new DefaultNIOContext(configuration);
+		BaseContext context = new BaseContextImpl(configuration);
 
 		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
@@ -63,10 +63,10 @@ public class FrontServerBootStrap {
 		return context;
 	}
 
-	private NIOContext getFrontReverseNIOContext(FrontContext frontContext, ServerConfiguration configuration,
+	private BaseContext getFrontReverseBaseContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		NIOContext context = new DefaultNIOContext(configuration);
+		BaseContext context = new BaseContextImpl(configuration);
 
 		context.setIOEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 
@@ -129,7 +129,7 @@ public class FrontServerBootStrap {
 		frontReverseSessionEventListeners.add(listener);
 	}
 
-	private void addSessionEventListener2Context(NIOContext context, List<SessionEventListener> listeners) {
+	private void addSessionEventListener2Context(BaseContext context, List<SessionEventListener> listeners) {
 		for (SessionEventListener l : listeners) {
 			context.addSessionEventListener(l);
 		}

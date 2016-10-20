@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.NioDatagramChannel;
 
 public class DatagramChannelFactory {
 
 	private Map<SocketAddress, DatagramChannel>	channels	= new HashMap<SocketAddress, DatagramChannel>();
 
-	public DatagramChannel getDatagramChannel(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote)
+	public DatagramChannel getDatagramChannel(BaseContext context, SelectionKey selectionKey, InetSocketAddress remote)
 			throws SocketException {
 
 		DatagramChannel channel = channels.get(remote);

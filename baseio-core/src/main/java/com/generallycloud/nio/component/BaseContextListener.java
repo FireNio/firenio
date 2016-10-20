@@ -11,9 +11,9 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public class NIOContextListener extends AbstractLifeCycleListener implements LifeCycleListener {
+public class BaseContextListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
-	private Logger		logger		= LoggerFactory.getLogger(NIOContextListener.class);
+	private Logger		logger		= LoggerFactory.getLogger(BaseContextListener.class);
 
 	public int lifeCycleListenerSortIndex() {
 		return 999;
@@ -33,7 +33,7 @@ public class NIOContextListener extends AbstractLifeCycleListener implements Lif
 	}
 
 	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		NIOContext context = (NIOContext) lifeCycle;
+		BaseContext context = (BaseContext) lifeCycle;
 		
 		if (context == null) {
 			LoggerUtil.prettyNIOServerLog(logger, "服务启动失败，正在停止...");

@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -18,7 +18,7 @@ public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
 	private DatagramChannel		channel			;
 	private DatagramSocket		serverSocket		;
 
-	protected void bind(NIOContext context,InetSocketAddress socketAddress) throws IOException {
+	protected void bind(BaseContext context,InetSocketAddress socketAddress) throws IOException {
 		
 		// 打开服务器套接字通道
 		this.channel = DatagramChannel.open();
@@ -46,12 +46,12 @@ public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
 		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
 	}
 
-	protected void unbind(NIOContext context) {
+	protected void unbind(BaseContext context) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
 	}
 	
-	protected void setChannelService(NIOContext context) {
+	protected void setChannelService(BaseContext context) {
 		context.setDatagramChannelService(this);
 	}
 

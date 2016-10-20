@@ -24,7 +24,7 @@ public class IOSessionImpl implements UnsafeSession {
 	private static final Logger		logger		= LoggerFactory.getLogger(IOSessionImpl.class);
 
 	private Object					attachment;
-	private NIOContext				context;
+	private BaseContext				context;
 	private SocketChannel			channel;
 	private Integer				sessionID;
 	private DatagramChannel			datagramChannel;
@@ -189,7 +189,7 @@ public class IOSessionImpl implements UnsafeSession {
 		return attributes;
 	}
 
-	public NIOContext getContext() {
+	public BaseContext getContext() {
 		return context;
 	}
 

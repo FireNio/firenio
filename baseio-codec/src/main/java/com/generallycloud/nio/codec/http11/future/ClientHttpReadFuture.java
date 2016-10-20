@@ -5,11 +5,11 @@ import java.util.Map;
 
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ClientHttpReadFuture(NIOContext context, String url, String method) {
+	public ClientHttpReadFuture(BaseContext context, String url, String method) {
 		super(context);
 		this.method = method;
 		this.setRequestURL(url);

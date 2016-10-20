@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
@@ -54,7 +54,7 @@ public class DatagramChannelConnector extends AbstractIOConnector {
 		}
 	}
 
-	protected void setChannelService(NIOContext context) {
+	protected void setChannelService(BaseContext context) {
 		context.setDatagramChannelService(this);
 	}
 
@@ -86,7 +86,7 @@ public class DatagramChannelConnector extends AbstractIOConnector {
 		buffer.flip();
 	}
 
-	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
+	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
 		java.nio.channels.DatagramChannel datagramChannel = java.nio.channels.DatagramChannel.open();
 

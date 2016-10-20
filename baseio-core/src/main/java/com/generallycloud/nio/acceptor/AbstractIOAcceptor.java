@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -63,7 +63,7 @@ public abstract class AbstractIOAcceptor extends AbstractChannelService implemen
 		}
 	}
 
-	protected abstract void bind(NIOContext context, InetSocketAddress socketAddress) throws IOException;
+	protected abstract void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException;
 
 	public void broadcast(final ReadFuture future) {
 
@@ -159,6 +159,6 @@ public abstract class AbstractIOAcceptor extends AbstractChannelService implemen
 		}
 	}
 
-	protected abstract void unbind(NIOContext context);
+	protected abstract void unbind(BaseContext context);
 
 }

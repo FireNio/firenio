@@ -7,9 +7,9 @@ import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.LoginCenter;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.security.Authority;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
-public class SYSTEMAuthorityServlet extends NIOFutureAcceptorService{
+public class SYSTEMAuthorityServlet extends BaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMAuthorityServlet.class.getSimpleName();
 

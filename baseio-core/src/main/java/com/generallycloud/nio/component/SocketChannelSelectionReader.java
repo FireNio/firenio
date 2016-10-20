@@ -13,7 +13,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	private IOReadFutureAcceptor	ioReadFutureAcceptor;
 	
-	public SocketChannelSelectionReader(NIOContext context) {
+	public SocketChannelSelectionReader(BaseContext context) {
 		this.ioReadFutureAcceptor = context.getIOReadFutureAcceptor();
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
 //		this.buffer = ByteBuffer.allocateDirect(readBuffer);

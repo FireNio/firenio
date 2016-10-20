@@ -5,19 +5,19 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
-	protected NIOContext	context	;
+	protected BaseContext	context	;
 
-	public NIOContext getContext() {
+	public BaseContext getContext() {
 		return context;
 	}
 
-	public void setContext(NIOContext context) {
+	public void setContext(BaseContext context) {
 		this.context = context;
 	}
 
 	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
 	
-	protected abstract void setChannelService(NIOContext context);
+	protected abstract void setChannelService(BaseContext context);
 	
 	protected String getSERVER_HOST(ServerConfiguration configuration){
 		return configuration.getSERVER_HOST();

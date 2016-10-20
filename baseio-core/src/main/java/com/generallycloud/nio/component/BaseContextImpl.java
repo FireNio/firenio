@@ -20,7 +20,7 @@ import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
+public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
 	private Sequence					sequence		= new Sequence();
@@ -28,7 +28,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 	private Charset					encoding;
 	private IOEventHandleAdaptor			ioEventHandleAdaptor;
 	private SessionEventListenerWrapper	lastSessionEventListener;
-	private Logger						logger		= LoggerFactory.getLogger(DefaultNIOContext.class);
+	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
 	private IOReadFutureAcceptor			ioReadFutureAcceptor;
 	private ServerConfiguration			serverConfiguration;
 	private SessionEventListenerWrapper	sessionEventListenerStub;
@@ -71,7 +71,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 		this.beatFutureFactory = beatFutureFactory;
 	}
 
-	public DefaultNIOContext(ServerConfiguration configuration) {
+	public BaseContextImpl(ServerConfiguration configuration) {
 
 		if (configuration == null) {
 			throw new IllegalArgumentException("null configuration");
@@ -87,10 +87,10 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.eventLoopGroup = eventLoopGroup;
 
-		this.addLifeCycleListener(new NIOContextListener());
+		this.addLifeCycleListener(new BaseContextListener());
 	}
 
-	public DefaultNIOContext(ServerConfiguration configuration, EventLoopGroup eventLoopGroup) {
+	public BaseContextImpl(ServerConfiguration configuration, EventLoopGroup eventLoopGroup) {
 
 		if (configuration == null) {
 			throw new IllegalArgumentException("null configuration");
@@ -104,7 +104,7 @@ public class DefaultNIOContext extends AbstractLifeCycle implements NIOContext {
 
 		this.eventLoopGroup = eventLoopGroup;
 
-		this.addLifeCycleListener(new NIOContextListener());
+		this.addLifeCycleListener(new BaseContextListener());
 	}
 
 	public void addSessionEventListener(SessionEventListener listener) {

@@ -8,21 +8,21 @@ import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.MessageFormatter;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-//FIXME 重连的时候不需要重新加载NIOContext
+//FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractIOConnector {
 
 	private SocketChannelSelectorLoop	selectorLoop;
 	private EventLoopThread	selectorLoopThread;
 	private Waiter<Object>	waiter	= new Waiter<Object>();
 
-	protected void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException {
+	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
 		SocketChannel channel = SocketChannel.open();
 
@@ -88,7 +88,7 @@ public class SocketChannelConnector extends AbstractIOConnector {
 		return configuration.getSERVER_TCP_PORT();
 	}
 	
-	protected void setChannelService(NIOContext context) {
+	protected void setChannelService(BaseContext context) {
 		context.setSocketChannelService(this);
 	}
 

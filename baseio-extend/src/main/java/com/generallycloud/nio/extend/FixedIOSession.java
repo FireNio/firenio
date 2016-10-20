@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
@@ -27,7 +27,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 public class FixedIOSession implements FixedSession {
 
 	private Authority						authority;
-	private NIOContext						context;
+	private BaseContext						context;
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 	private AtomicBoolean					logined	= new AtomicBoolean(false);
 	private Session						session;
@@ -61,7 +61,7 @@ public class FixedIOSession implements FixedSession {
 		return authority;
 	}
 
-	public NIOContext getContext() {
+	public BaseContext getContext() {
 		return context;
 	}
 

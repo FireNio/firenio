@@ -13,7 +13,7 @@ import com.generallycloud.nio.component.concurrent.ReentrantMap;
 //所有涉及操作全部session的操作放在此队列中做
 public class SessionFactory extends AbstractLooper {
 
-	private NIOContext					context;
+	private BaseContext					context;
 	private long						next_idle_time	= System.currentTimeMillis();
 	private long						current_idle_time;
 	private long						last_idle_time ;
@@ -21,7 +21,7 @@ public class SessionFactory extends AbstractLooper {
 	private ListQueue<SessionMEvent>		events		= new ListQueueABQ<SessionMEvent>(512);
 	private Logger						logger		= LoggerFactory.getLogger(SessionFactory.class);
 
-	protected SessionFactory(NIOContext context) {
+	protected SessionFactory(BaseContext context) {
 		this.context = context;
 	}
 

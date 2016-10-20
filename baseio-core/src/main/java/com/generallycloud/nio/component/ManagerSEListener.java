@@ -5,7 +5,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 	
 	public void sessionOpened(Session session) {
 
-		NIOContext context = session.getContext();
+		BaseContext context = session.getContext();
 		
 		SessionFactory factory = context.getSessionFactory();
 
@@ -14,7 +14,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 
 	public void sessionClosed(Session session) {
 		
-		NIOContext context = session.getContext();
+		BaseContext context = session.getContext();
 		
 		SessionFactory factory = context.getSessionFactory();
 

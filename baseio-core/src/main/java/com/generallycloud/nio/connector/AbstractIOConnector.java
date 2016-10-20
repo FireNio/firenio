@@ -11,7 +11,7 @@ import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -114,7 +114,7 @@ public abstract class AbstractIOConnector extends AbstractChannelService impleme
 		}
 	}
 
-	protected abstract void connect(NIOContext context, InetSocketAddress socketAddress) throws IOException;
+	protected abstract void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException;
 
 	public Session getSession() {
 		return session;

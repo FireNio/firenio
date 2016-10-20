@@ -7,7 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
@@ -15,11 +15,11 @@ public class ClientUDPSelectorLoop extends DatagramChannelSelectorLoop {
 
 	private DatagramChannel	datagramChannel;
 
-	public ClientUDPSelectorLoop(NIOContext context) {
+	public ClientUDPSelectorLoop(BaseContext context) {
 		super(context);
 	}
 
-	public void register(NIOContext context, SelectableChannel channel) throws IOException {
+	public void register(BaseContext context, SelectableChannel channel) throws IOException {
 
 		channel.configureBlocking(false);
 

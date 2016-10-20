@@ -8,7 +8,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
@@ -37,7 +37,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		}
 	}
 
-	public FixedLengthReadFutureImpl(NIOContext context) {
+	public FixedLengthReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 

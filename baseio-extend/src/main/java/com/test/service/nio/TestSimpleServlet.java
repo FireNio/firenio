@@ -3,9 +3,9 @@ package com.test.service.nio;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
-public class TestSimpleServlet extends NIOFutureAcceptorService{
+public class TestSimpleServlet extends BaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
 	

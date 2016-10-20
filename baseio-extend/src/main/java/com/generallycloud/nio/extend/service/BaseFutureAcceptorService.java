@@ -7,9 +7,9 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.implementation.ErrorServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class NIOFutureAcceptorService extends FutureAcceptorService{
+public abstract class BaseFutureAcceptorService extends FutureAcceptorService{
 	
-	private Logger logger = LoggerFactory.getLogger(NIOFutureAcceptorService.class);
+	private Logger logger = LoggerFactory.getLogger(BaseFutureAcceptorService.class);
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 		this.doAccept(session, (BaseReadFuture) future);

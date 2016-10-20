@@ -7,5 +7,5 @@ import com.generallycloud.nio.Looper;
 
 public interface SelectorLoop extends SelectionAcceptor, Looper {
 
-	public abstract void register(NIOContext context, SelectableChannel channel) throws IOException;
+	public abstract void register(BaseContext context, SelectableChannel channel) throws IOException;
 }

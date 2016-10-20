@@ -5,9 +5,9 @@ import com.generallycloud.nio.codec.redis.future.RedisClient;
 import com.generallycloud.nio.codec.redis.future.RedisIOEventHandle;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -24,7 +24,7 @@ public class TestRedisClient {
 		configuration.setSERVER_HOST("localhost");
 		configuration.setSERVER_TCP_PORT(6379);
 
-		NIOContext context = new DefaultNIOContext(configuration);
+		BaseContext context = new BaseContextImpl(configuration);
 
 		context.setIOEventHandleAdaptor(new RedisIOEventHandle());
 

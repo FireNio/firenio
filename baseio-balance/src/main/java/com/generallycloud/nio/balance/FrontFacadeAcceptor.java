@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 
 public class FrontFacadeAcceptor {
 
@@ -15,7 +15,7 @@ public class FrontFacadeAcceptor {
 	private FrontContext			frontContext;
 	private FrontReverseAcceptor		frontReverseAcceptor	= new FrontReverseAcceptor();
 
-	public void start(FrontContext frontContext, NIOContext frontNIOContext, NIOContext frontReverseNIOContext)
+	public void start(FrontContext frontContext, BaseContext frontBaseContext, BaseContext frontReverseBaseContext)
 			throws IOException {
 
 		if (frontContext == null) {
@@ -28,9 +28,9 @@ public class FrontFacadeAcceptor {
 
 		this.frontContext = frontContext;
 
-		this.frontReverseAcceptor.start(frontReverseNIOContext);
+		this.frontReverseAcceptor.start(frontReverseBaseContext);
 
-		this.acceptor.setContext(frontNIOContext);
+		this.acceptor.setContext(frontBaseContext);
 
 		this.acceptor.bind();
 

@@ -4,14 +4,14 @@ import java.io.IOException;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.redis.future.RedisReadFuture.RedisCommand;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {
 
-	private NIOContext	context;
+	private BaseContext	context;
 
 	private Session	session;
 	

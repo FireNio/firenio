@@ -8,7 +8,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.Waiter;
@@ -36,7 +36,7 @@ public class RTPClient {
 
 	private DatagramChannelConnector		connector		;
 	private FixedMessageConsumer	consumer		;
-	private NIOContext			context		;
+	private BaseContext			context		;
 	private String				inviteUsername	;
 	private MessageProducer		producer		;
 	private String				roomID		;
@@ -121,7 +121,7 @@ public class RTPClient {
 		return true;
 	}
 
-	protected NIOContext getContext() {
+	protected BaseContext getContext() {
 		return context;
 	}
 

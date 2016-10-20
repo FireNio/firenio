@@ -13,7 +13,7 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
@@ -40,11 +40,11 @@ public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseRead
 	private BufferedOutputStream	writeBinaryBuffer;
 
 	// for ping & pong
-	public BaseReadFutureImpl(NIOContext context) {
+	public BaseReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 
-	public BaseReadFutureImpl(NIOContext context,Integer futureID, String futureName) {
+	public BaseReadFutureImpl(BaseContext context,Integer futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
@@ -58,7 +58,7 @@ public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseRead
 		}
 	}
 
-	public BaseReadFutureImpl(NIOContext context,String futureName) {
+	public BaseReadFutureImpl(BaseContext context,String futureName) {
 		super(context);
 		this.futureName = futureName;
 	}

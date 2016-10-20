@@ -10,7 +10,7 @@ public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 	private Logger				logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor;
 
-	public DatagramChannelSelectorLoop(NIOContext context) {
+	public DatagramChannelSelectorLoop(BaseContext context) {
 		this._read_acceptor = new DatagramChannelSelectionReader(context);
 	}
 

@@ -8,13 +8,13 @@ import com.generallycloud.nio.common.StringUtil;
 public abstract class AbstractChannel implements Channel {
 
 	private Object				attachment;
-	private NIOContext			context;
+	private BaseContext			context;
 	private String 			edp_description;
 	private Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	
-	public AbstractChannel(NIOContext context) {
+	public AbstractChannel(BaseContext context) {
 		this.context = context;
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
@@ -23,7 +23,7 @@ public abstract class AbstractChannel implements Channel {
 		return attachment;
 	}
 
-	public NIOContext getContext() {
+	public BaseContext getContext() {
 		return context;
 	}
 

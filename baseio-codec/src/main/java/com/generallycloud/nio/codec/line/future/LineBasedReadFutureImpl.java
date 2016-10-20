@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
 public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements LineBasedReadFuture {
@@ -19,7 +19,7 @@ public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements Lin
 
 	private BufferedOutputStream	cache	= new BufferedOutputStream();
 
-	public LineBasedReadFutureImpl(NIOContext context) {
+	public LineBasedReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 

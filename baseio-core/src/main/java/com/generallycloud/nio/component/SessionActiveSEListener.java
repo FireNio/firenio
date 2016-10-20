@@ -19,7 +19,7 @@ public class SessionActiveSEListener extends SEListenerAdapter {
 
 		} else {
 
-			NIOContext context = session.getContext();
+			BaseContext context = session.getContext();
 
 			BeatFutureFactory factory = context.getBeatFutureFactory();
 

@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend;
 import java.io.IOException;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.ReadFutureAcceptor;
 import com.generallycloud.nio.component.Session;
@@ -33,7 +33,7 @@ public interface FixedSession extends ReadFutureAcceptor {
 
 	public abstract boolean login(String username, String password);
 
-	public abstract NIOContext getContext();
+	public abstract BaseContext getContext();
 
 	public abstract Authority getAuthority();
 

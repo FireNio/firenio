@@ -8,7 +8,7 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.ChannelFlusher;
 import com.generallycloud.nio.component.ChannelFlusherImpl;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
@@ -18,14 +18,14 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 
 	private EventLoopThread	channelFlushThread	= null;
 
-	public ClientTCPSelectorLoop(NIOContext context, SocketChannelConnector connector) {
+	public ClientTCPSelectorLoop(BaseContext context, SocketChannelConnector connector) {
 
 		super(context);
 
 		this._alpha_acceptor = new SocketChannelSelectionConnector(context, connector);
 	}
 
-	public void register(NIOContext context, SelectableChannel channel) throws IOException {
+	public void register(BaseContext context, SelectableChannel channel) throws IOException {
 
 		this.selector = Selector.open();
 

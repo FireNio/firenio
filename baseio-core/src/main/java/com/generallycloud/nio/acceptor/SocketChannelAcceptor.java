@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -19,7 +19,7 @@ public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 	private ServerSocket		serverSocket			;
 	
 
-	protected void bind(NIOContext context,InetSocketAddress socketAddress) throws IOException {
+	protected void bind(BaseContext context,InetSocketAddress socketAddress) throws IOException {
 		
 		// 打开服务器套接字通道
 		this.channel = ServerSocketChannel.open();
@@ -66,7 +66,7 @@ public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
 	}
 
-	protected void unbind(NIOContext context) {
+	protected void unbind(BaseContext context) {
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		
@@ -78,7 +78,7 @@ public final class SocketChannelAcceptor extends AbstractIOAcceptor {
 		}
 	}
 	
-	protected void setChannelService(NIOContext context) {
+	protected void setChannelService(BaseContext context) {
 		context.setSocketChannelService(this);
 	}
 

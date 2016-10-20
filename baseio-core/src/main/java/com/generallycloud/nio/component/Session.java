@@ -29,7 +29,7 @@ public interface Session extends Closeable{
 	
 	public abstract Map<Object, Object> getAttributes() ;
 
-	public abstract NIOContext getContext();
+	public abstract BaseContext getContext();
 
 	public abstract long getCreationTime();
 

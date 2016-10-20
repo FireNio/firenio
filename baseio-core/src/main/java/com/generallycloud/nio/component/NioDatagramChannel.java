@@ -22,11 +22,11 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private IOSession			session;
 	private DatagramSocket		socket;
 
-	public NioDatagramChannel(NIOContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
+	public NioDatagramChannel(BaseContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
 		this(context,(DatagramChannel) selectionKey.channel(),remote);
 	}
 	
-	public NioDatagramChannel(NIOContext context, DatagramChannel channel, InetSocketAddress remote)
+	public NioDatagramChannel(BaseContext context, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
 		super(context);
 		this.channel = channel;

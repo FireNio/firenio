@@ -41,7 +41,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(NIOContext context, SelectionKey selectionKey, ChannelFlusher channelFlusher)
+	public NioSocketChannel(BaseContext context, SelectionKey selectionKey, ChannelFlusher channelFlusher)
 			throws SocketException {
 		super(context);
 		this.selectionKey = selectionKey;

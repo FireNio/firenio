@@ -7,9 +7,9 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
-import com.generallycloud.nio.component.DefaultNIOContext;
+import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.ConnectorCloseSEListener;
@@ -61,15 +61,15 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-			NIOContext nioContext = new DefaultNIOContext(configuration);
+			BaseContext baseContext = new BaseContextImpl(configuration);
 			
-			nioContext.setIOEventHandleAdaptor(eventHandle);
+			baseContext.setIOEventHandleAdaptor(eventHandle);
 
-			nioContext.addSessionEventListener(new LoggerSEListener());
+			baseContext.addSessionEventListener(new LoggerSEListener());
 
-			nioContext.addSessionEventListener(new ConnectorCloseSEListener(connector));
+			baseContext.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
-			connector.setContext(nioContext);
+			connector.setContext(baseContext);
 
 			FixedSession session = eventHandle.getFixedSession();
 			

@@ -4,16 +4,16 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandle;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
 	protected BufferedOutputStream	writeBuffer	= new BufferedOutputStream();
 	protected IOEventHandle			ioEventHandle;
 	protected boolean				flushed;
-	protected NIOContext			context;
+	protected BaseContext			context;
 
-	protected AbstractReadFuture(NIOContext context) {
+	protected AbstractReadFuture(BaseContext context) {
 		this.context = context;
 	}
 

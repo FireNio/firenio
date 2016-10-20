@@ -18,9 +18,9 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 
 	private ReentrantList<ChannelFlusherEvent>	events		= new ReentrantList<ChannelFlusherEvent>();
 
-	private NIOContext						context		= null;
+	private BaseContext						context		= null;
 	
-	public ChannelFlusherImpl(NIOContext context) {
+	public ChannelFlusherImpl(BaseContext context) {
 		this.context = context;
 	}
 

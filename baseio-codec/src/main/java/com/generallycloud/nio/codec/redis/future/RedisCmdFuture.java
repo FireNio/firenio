@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 
 public class RedisCmdFuture extends AbstractRedisReadFuture implements RedisReadFuture {
 
-	protected RedisCmdFuture(NIOContext context) {
+	protected RedisCmdFuture(BaseContext context) {
 		super(context);
 	}
 

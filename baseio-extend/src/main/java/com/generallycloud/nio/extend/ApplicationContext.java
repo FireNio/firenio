@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
@@ -40,7 +40,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Sequence						sequence			= new Sequence();
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
-	private NIOContext						context;
+	private BaseContext						context;
 	private Charset						encoding			;
 	private FutureAcceptor					filterService;
 	private Logger							logger			= LoggerFactory
@@ -124,7 +124,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return configuration;
 	}
 
-	public NIOContext getContext() {
+	public BaseContext getContext() {
 		return context;
 	}
 
@@ -205,7 +205,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return redeployed;
 	}
 
-	public void setContext(NIOContext context) {
+	public void setContext(BaseContext context) {
 		this.context = context;
 	}
 

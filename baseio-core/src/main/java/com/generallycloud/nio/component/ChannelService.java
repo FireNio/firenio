@@ -5,9 +5,9 @@ import java.net.InetSocketAddress;
 
 public interface ChannelService{
 
-	public abstract NIOContext getContext() ;
+	public abstract BaseContext getContext() ;
 
-	public abstract void setContext(NIOContext context);
+	public abstract void setContext(BaseContext context);
 	
 	public abstract InetSocketAddress getServerSocketAddress();
 	

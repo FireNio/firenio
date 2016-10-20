@@ -16,7 +16,7 @@ import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -57,7 +57,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected List<String>			headerLines		= new ArrayList<String>();
 	protected StringBuilder			currentHeaderLine	= new StringBuilder();
 
-	public AbstractHttpReadFuture(NIOContext context) {
+	public AbstractHttpReadFuture(BaseContext context) {
 		super(context);
 	}
 

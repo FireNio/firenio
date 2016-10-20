@@ -5,11 +5,11 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.service.NIOFutureAcceptorService;
+import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
-public class SYSTEMStopServerServlet extends NIOFutureAcceptorService {
+public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 
 	public static final String	SERVICE_NAME	= SYSTEMStopServerServlet.class.getSimpleName();
 
@@ -17,7 +17,7 @@ public class SYSTEMStopServerServlet extends NIOFutureAcceptorService {
 
 	public void doAccept(Session session, BaseReadFuture future) throws Exception {
 		
-		NIOContext context = session.getContext();
+		BaseContext context = session.getContext();
 		
 		new Thread(new StopServer(context)).start();
 		
@@ -28,9 +28,9 @@ public class SYSTEMStopServerServlet extends NIOFutureAcceptorService {
 
 	private class StopServer implements Runnable {
 		
-		private NIOContext context = null;
+		private BaseContext context = null;
 
-		public StopServer(NIOContext context) {
+		public StopServer(BaseContext context) {
 			this.context = context;
 		}
 

@@ -7,19 +7,19 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
-import com.generallycloud.nio.component.NIOContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketChannel;
 
 public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
 	private Selector				selector;
-	private NIOContext				context			;
+	private BaseContext				context			;
 	private int					this_core_index	;
 	private int					next_core_index	;
 	private CoreProcessors			processors		;
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public SocketChannelSelectionAcceptor(NIOContext context,CoreProcessors processors) {
+	public SocketChannelSelectionAcceptor(BaseContext context,CoreProcessors processors) {
 		
 		super(context);
 		
