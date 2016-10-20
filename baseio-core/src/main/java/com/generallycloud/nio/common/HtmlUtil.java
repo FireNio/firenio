@@ -15,7 +15,7 @@ public class HtmlUtil {
 		builder.append("	<head>\n");
 		builder.append("		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
 		builder.append("		<meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no\">\n");
-		builder.append("		<title>nimbleio</title>\n");
+		builder.append("		<title>baseio</title>\n");
 		builder.append("		<style type=\"text/css\"> \n");
 		builder.append("			p {margin:15px;}\n");
 		builder.append("			a:link { color:#F94F4F;  }");

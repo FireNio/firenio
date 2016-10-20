@@ -3,17 +3,17 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
-	<artifactId>nimbleio</artifactId>
+	<artifactId>baseio</artifactId>
 	<version>3.1.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>nimbleio</name>
+	<name>baseio</name>
 
 	<modules>
-		<module>../nimbleio-all</module>
-		<module>../nimbleio-balance</module>
-		<module>../nimbleio-codec</module>
-		<module>../nimbleio-core</module>
-		<module>../nimbleio-extend</module>
+		<module>../baseio-all</module>
+		<module>../baseio-balance</module>
+		<module>../baseio-codec</module>
+		<module>../baseio-core</module>
+		<module>../baseio-extend</module>
 	</modules>
 	
 	<build>

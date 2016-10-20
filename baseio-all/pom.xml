@@ -3,17 +3,17 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
-	<artifactId>nimbleio-all</artifactId>
+	<artifactId>baseio-all</artifactId>
 	<version>3.1.6-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The all in one project of nimbleio</description>  
+	<description>The all in one project of baseio</description>  
 
 	<parent>
 		<groupId>com.generallycloud</groupId>
-		<artifactId>nimbleio</artifactId>
+		<artifactId>baseio</artifactId>
 		<version>3.1.6-SNAPSHOT</version>
-		<relativePath>../nimbleio/pom.xml</relativePath>
+		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 	
 	<build>
@@ -64,10 +64,10 @@
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
 							<artifactSet>
 								<includes>
-									<include>com.generallycloud:nimbleio-balance</include>
-									<include>com.generallycloud:nimbleio-codec</include>
-								    <include>com.generallycloud:nimbleio-core</include>
-									<include>com.generallycloud:nimbleio-extend</include>
+									<include>com.generallycloud:baseio-balance</include>
+									<include>com.generallycloud:baseio-codec</include>
+								    <include>com.generallycloud:baseio-core</include>
+									<include>com.generallycloud:baseio-extend</include>
 								</includes>
 							</artifactSet>
 						</configuration>
@@ -90,13 +90,13 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-core</artifactId>
+			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>nimbleio-extend</artifactId>
+			<artifactId>baseio-extend</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		

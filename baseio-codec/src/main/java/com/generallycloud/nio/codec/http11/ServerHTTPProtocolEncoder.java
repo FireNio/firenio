@@ -29,7 +29,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		h.append("HTTP/1.1 ");
 		h.append(future.getStatus().getHeaderText());
 		h.append("\r\n");
-		h.append("Server: nimbleio/0.0.1\r\n");
+		h.append("Server: baseio/0.0.1\r\n");
 		h.append("Content-Length:");
 		h.append(o.size());
 		h.append("\r\n");

@@ -7,19 +7,19 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>../nimbleio-balance/src/main/java</directory>
+            <directory>../baseio-balance/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>../nimbleio-codec/src/main/java</directory>
+            <directory>../baseio-codec/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>../nimbleio-core/src/main/java</directory>
+            <directory>../baseio-core/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>../nimbleio-extend/src/main/java</directory>
+            <directory>../baseio-extend/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
     </fileSets>

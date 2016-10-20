@@ -1,10 +1,10 @@
 
 call cmd /c build-package.bat
 
-cd ..\nimbleio-all
+cd ..\baseio-all
 call cmd /c build-assembly.bat
 
-cd ..\nimbleio
+cd ..\baseio
 call cmd /c .\move-resources.bat 
 
 call cmd /c .\install-source.bat 
