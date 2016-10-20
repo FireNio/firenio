@@ -1,7 +1,7 @@
 
 # BaseIO Project
 
-NimbleIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
+BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
 
 ## 项目特色
 
