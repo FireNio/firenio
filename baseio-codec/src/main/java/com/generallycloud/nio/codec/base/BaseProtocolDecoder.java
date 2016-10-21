@@ -11,43 +11,49 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 /**
  * <pre>
- *  B0 - B10:
  * 
  *  B0：
- *  +-----------------------------------+
- *  |                 B0                |
- *  +   -   -   -   -   -   -   -   -   +
- *  |   0   1   2   3   4   5   6   7   | 
- *  |   -   -   -   -   -   -   -   -   + 
- *  |  T Y P E|      Service  Name      |
- *  +-----------------------------------+
+ *  +-------------------------------------------------+
+ *  |                              B0                 |
+ *  +   -     -     -     -     -     -     -     -   +
+ *  |   0     1     2     3     4     5     6     7   | 
+ *  +   -     -     -     -     -     -     -     -   +
+ *  |   Message  |  P U S H  |                        |
+ *  |   T Y P E  |  T Y P E  |                        |
+ *  +-------------------------------------------------+
  *  
- *  Type:高两位，类型 [0=RESERVED，1=RESERVED，2=BEAT.PING, 3=BEAT.PONG]
- *  ServiceName:低六位，service name的长度
- *  
- *  B1  - B4 ：future id
- *  B5  - B8 : hash code
- *  B9  - B10 ：text content的长度
- *  B11 - B14 ：binary content的长度
+ *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]
+ *  B0:2  	: 推送类型 [0=PUSH,1=BRODCAST]
+ *  B0:3-7	: 预留
+ *  B1		: service name  length
+ *  B2  - B5 	: future  id
+ *  B6  - B9 	: session id
+ *  B10 - B13 	: hash    code
+ *  B14 - B15 	：text          length
+ *  B16 - B19 	：binary        length
  * 
  * </pre>
  */
 public class BaseProtocolDecoder implements ProtocolDecoder {
+	
+	public static final int	PROTOCOL_HADER			= 20;
 
-	public static final byte	PROTOCOL_PING				= 2;
-	public static final byte	PROTOCOL_PONG				= 3;
-	public static final int	PROTOCOL_HADER			= 15;
-	public static final int	FUTURE_ID_BEGIN_INDEX		= 1;
-	public static final int	BINARY_BEGIN_INDEX		= 11;
-	public static final int	TEXT_BEGIN_INDEX			= 9;
-	public static final int	HASH_BEGIN_INDEX			= 5;
+	public static final int	PROTOCOL_PACKET			= 1;
+	public static final int	PROTOCOL_PING				= 2;
+	public static final int	PROTOCOL_PONG				= 3;
+
+	public static final int	FUTURE_ID_BEGIN_INDEX		= 2;
+	public static final int	SESSION_ID_BEGIN_INDEX		= 6;
+	public static final int	HASH_BEGIN_INDEX			= 10;
+	public static final int	TEXT_BEGIN_INDEX			= 14;
+	public static final int	BINARY_BEGIN_INDEX		= 16;
 
 	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
-		
+
 		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HADER);
-		
+
 		buf.read(buffer);
-		
+
 		byte _type = buffer.get(0);
 
 		int type = (_type & 0xff) >> 6;

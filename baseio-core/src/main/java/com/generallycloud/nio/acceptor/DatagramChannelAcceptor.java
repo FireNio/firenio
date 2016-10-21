@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public final class DatagramChannelAcceptor extends AbstractIOAcceptor {
+public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	
 	private DatagramChannelSelectorLoop		selectorLoop		;
 	private EventLoopThread		selectorLoopThread	;

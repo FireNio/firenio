@@ -25,7 +25,7 @@ public class TestFrontMain {
 		
 		f.setFrontServerConfiguration(fc);
 		f.setFrontReverseServerConfiguration(frc);
-		f.setFrontRouter(new HashedFrontRouter(1024));
+		f.setFrontRouter(new HashedFrontRouter(10240));
 		
 		f.startup();
 	}

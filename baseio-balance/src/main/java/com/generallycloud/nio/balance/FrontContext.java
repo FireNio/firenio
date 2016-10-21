@@ -19,6 +19,7 @@ public class FrontContext {
 	protected FrontContext(FrontFacadeAcceptor facadeAcceptor,FrontRouter frontRouter) {
 		this.frontFacadeAcceptor = facadeAcceptor;
 		this.frontRouter = frontRouter;
+		this.frontReverseAcceptor = new FrontReverseAcceptor();
 		this.frontFacadeAcceptorSEListener = new FrontFacadeAcceptorSEListener(this);
 		this.frontReverseAcceptorSEListener = new FrontReverseAcceptorSEListener(this);
 		this.frontFacadeAcceptorHandler = new FrontFacadeAcceptorHandler(this);

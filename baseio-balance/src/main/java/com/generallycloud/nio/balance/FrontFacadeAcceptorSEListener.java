@@ -16,21 +16,26 @@ public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
 
 	private FrontContext	frontContext;
 
+	private FrontRouter		frontRouter;
+
 	public FrontFacadeAcceptorSEListener(FrontContext frontContext) {
 		this.frontContext = frontContext;
+		this.frontRouter = frontContext.getFrontRouter();
 	}
 
 	public void sessionOpened(Session session) {
+		frontRouter.addClientSession((IOSession) session);
 		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
 	}
 
 	public void sessionClosed(Session session) {
 
+		frontRouter.removeClientSession((IOSession) session);
+
 		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已断开连接.");
 
-		
 		FrontRouter frontRouter = frontContext.getFrontRouter();
-		
+
 		IOSession router = frontRouter.getRouterSession((IOSession) session);
 
 		if (router == null) {

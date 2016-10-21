@@ -4,7 +4,7 @@ import com.generallycloud.nio.balance.HashedBalanceReadFuture;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class HashedFrontRouter implements FrontRouter {
+public class HashedFrontRouter extends AbstractFrontRouter {
 
 	public HashedFrontRouter(int maxNode) {
 		this.nodeGroup = new NodeGroup(maxNode);

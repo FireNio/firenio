@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SimpleNextRouter implements FrontRouter {
+public class SimpleNextRouter extends AbstractFrontRouter{
 
 	private int			index			= 0;
 	private List<IOSession>	routerList		= new ArrayList<IOSession>();

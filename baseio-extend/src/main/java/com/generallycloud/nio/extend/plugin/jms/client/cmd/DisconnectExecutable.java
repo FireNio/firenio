@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
-import com.generallycloud.nio.connector.IOConnector;
+import com.generallycloud.nio.connector.ChannelConnector;
 
 @Deprecated
 public class DisconnectExecutable extends MQCommandExecutor {
@@ -14,7 +14,7 @@ public class DisconnectExecutable extends MQCommandExecutor {
 
 		CmdResponse response = new CmdResponse();
 
-		IOConnector connector = getClientConnector(context);
+		ChannelConnector connector = getClientConnector(context);
 		
 		if (connector == null) {
 			response.setResponse("请先登录！");

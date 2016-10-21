@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
-public class DatagramChannelConnector extends AbstractIOConnector {
+public class DatagramChannelConnector extends AbstractChannelConnector {
 
 	private DatagramChannel		datagramChannel;
 	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);

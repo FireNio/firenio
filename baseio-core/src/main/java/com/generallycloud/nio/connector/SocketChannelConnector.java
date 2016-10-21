@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 //FIXME 重连的时候不需要重新加载BaseContext
-public class SocketChannelConnector extends AbstractIOConnector {
+public class SocketChannelConnector extends AbstractChannelConnector {
 
 	private SocketChannelSelectorLoop	selectorLoop;
 	private EventLoopThread	selectorLoopThread;

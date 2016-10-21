@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
+import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -19,9 +20,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
 	private FrontContext	frontContext;
+	private FrontRouter		frontRouter;
 
 	public FrontReverseAcceptorHandler(FrontContext frontContext) {
 		this.frontContext = frontContext;
+		this.frontRouter = frontContext.getFrontRouter();
 	}
 
 	private void broadcast(final BalanceReadFuture future) {
@@ -102,15 +105,15 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		Object sessionID = f.getFutureID();
+		int sessionID = f.getSessionID();
 
-		IOSession response = (IOSession) session.removeAttribute(sessionID);
+		IOSession response = frontRouter.getClientSession(sessionID);
 
 		if (response != null) {
 
 			if (response.isClosed()) {
 
-				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", session, f);
+				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", sessionID, f);
 
 				return;
 			}
@@ -119,11 +122,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 			response.flush(writeFuture);
 
-			logger.info("回复报文到客户端");
+			logger.info("回复报文到客户端,{}",response);
 
 			return;
 		}
 
-		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", session, f);
+		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", sessionID, f);
 	}
 }

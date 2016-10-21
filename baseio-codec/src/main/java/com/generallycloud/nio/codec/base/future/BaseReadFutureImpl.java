@@ -4,25 +4,25 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
 import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.BaseProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 
 /**
  *
  */
-public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseReadFuture {
+public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements BaseReadFuture {
 
 	private byte[]			binary;
 	private int				binaryLength;
@@ -101,24 +101,22 @@ public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseRead
 		byte[] header_array = buf.array();
 
 		int offset = buf.offset();
+		
+		this.service_name_length = header_array[offset + 1] & 0xff;
 
-		int service_name_length = (header_array[offset] & 0x3f);
+		this.textLength = gainTextLength(header_array, offset);
 
-		int textLength = gainTextLength(header_array, offset);
-
-		int binaryLength = gainBinaryLength(header_array, offset);
-
-		int all_length = service_name_length + textLength + binaryLength;
-
-		this.service_name_length = service_name_length;
-
-		this.textLength = textLength;
-
-		this.binaryLength = binaryLength;
+		this.binaryLength = gainBinaryLength(header_array, offset);
+		
+		this.isBroadcast = gainBroadcast(header_array, offset);
 
 		this.futureID = gainFutureID(header_array, offset);
 		
+		this.sessionID = gainSessionID(header_array, offset);
+		
 		this.hashCode = gainHashCode(header_array, offset);
+		
+		int all_length = service_name_length + textLength + binaryLength;
 
 		if (buf.capacity() >= all_length) {
 
@@ -148,13 +146,21 @@ public class BaseReadFutureImpl extends AbstractIOReadFuture implements BaseRead
 
 		System.arraycopy(array, offset + buffer.limit() - binaryLength, binary, 0, binaryLength);
 	}
-
+	
 	private int gainBinaryLength(byte[] header, int offset) {
 		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.BINARY_BEGIN_INDEX);
 	}
 
 	private int gainFutureID(byte[] header, int offset) {
 		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
+	}
+	
+	private int gainSessionID(byte[] header, int offset) {
+		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.SESSION_ID_BEGIN_INDEX);
+	}
+	
+	private boolean gainBroadcast(byte[] header, int offset){
+		return (header[offset] & 0x20) == 0x20;
 	}
 	
 	private int gainHashCode(byte[] header, int offset) {

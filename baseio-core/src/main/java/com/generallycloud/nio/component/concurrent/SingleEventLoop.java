@@ -41,6 +41,8 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 	public String toString() {
 		return thread.toString();
 	}
+	
+//	AtomicInteger integer = new AtomicInteger();
 
 	class SingleEventLoopWorker implements Looper {
 
@@ -53,7 +55,9 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 		private ArrayBlockingQueue<Runnable>	jobs;
 
 		public void dispatch(Runnable job) {
-
+			
+//			logger.debug("dispatch {}",integer.incrementAndGet());
+			
 			if (stoped || !jobs.offer(job)) {
 				throw new RejectedExecutionException();
 			}

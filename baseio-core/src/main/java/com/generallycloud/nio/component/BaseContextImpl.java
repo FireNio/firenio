@@ -187,10 +187,10 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	}
 
 	protected void doStop() throws Exception {
+		
+		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
-
-		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(sessionFactoryThread);
 

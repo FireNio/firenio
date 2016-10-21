@@ -1,11 +1,12 @@
 package com.generallycloud.test.nio.front;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DateUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
@@ -21,6 +22,8 @@ public class TestFrontClient {
 	public static void main(String[] args) throws Exception {
 		
 		SharedBundle.instance().loadAllProperties("nio");
+		
+		final AtomicInteger res = new AtomicInteger();
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
@@ -28,7 +31,9 @@ public class TestFrontClient {
 				
 				BaseReadFuture f = (BaseReadFuture)future;
 				
-				System.out.println(f.getText());
+				System.out.println(f.getText()+"______"+DateUtil.now());
+				
+				res.incrementAndGet();
 			}
 		};
 
@@ -44,17 +49,11 @@ public class TestFrontClient {
 
 		Session session = connector.getSession();
 		
-		BaseReadFuture future = ReadFutureFactory.create(session,new Random().nextInt(), FrontContext.FRONT_RECEIVE_BROADCAST);
-
-		future.write("你好！");
-
-		session.flush(future);
-
 		for (int i = 0; i < 100; i++) {
 
 			int fid = Math.abs(new Random().nextInt());
 			
-			future = ReadFutureFactory.create(session,fid, "service-name");
+			BaseReadFuture future = ReadFutureFactory.create(session,fid, "service-name");
 
 			future.write("你好！");
 			
@@ -62,10 +61,12 @@ public class TestFrontClient {
 
 			session.flush(future);
 		}
-
+		
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
+		
+		System.out.println("=========="+res.get());
 	}
 
 }

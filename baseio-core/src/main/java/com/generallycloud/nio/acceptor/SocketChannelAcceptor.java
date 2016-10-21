@@ -11,10 +11,10 @@ import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public final class SocketChannelAcceptor extends AbstractIOAcceptor {
+public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 	private SelectorLoop []		selectorLoops			;
-	private EventLoopThread []		selectorLoopThreads		;
+	private EventLoopThread []	selectorLoopThreads		;
 	private ServerSocketChannel	channel				;
 	private ServerSocket		serverSocket			;
 	

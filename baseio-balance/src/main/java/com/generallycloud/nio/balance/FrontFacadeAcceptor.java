@@ -13,7 +13,6 @@ public class FrontFacadeAcceptor {
 	private AtomicBoolean			started				= new AtomicBoolean(false);
 	private SocketChannelAcceptor		acceptor				= new SocketChannelAcceptor();
 	private FrontContext			frontContext;
-	private FrontReverseAcceptor		frontReverseAcceptor	= new FrontReverseAcceptor();
 
 	public void start(FrontContext frontContext, BaseContext frontBaseContext, BaseContext frontReverseBaseContext)
 			throws IOException {
@@ -28,7 +27,7 @@ public class FrontFacadeAcceptor {
 
 		this.frontContext = frontContext;
 
-		this.frontReverseAcceptor.start(frontReverseBaseContext);
+		this.frontContext.getFrontReverseAcceptor().start(frontReverseBaseContext);
 
 		this.acceptor.setContext(frontBaseContext);
 
@@ -44,7 +43,7 @@ public class FrontFacadeAcceptor {
 		}
 		this.acceptor.unbind();
 
-		this.frontReverseAcceptor.stop();
+		this.frontContext.getFrontReverseAcceptor().stop();
 	}
 
 	public FrontContext getFrontContext() {

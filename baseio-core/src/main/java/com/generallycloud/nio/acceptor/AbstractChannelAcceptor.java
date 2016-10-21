@@ -21,11 +21,11 @@ import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class AbstractIOAcceptor extends AbstractChannelService implements ChannelAcceptor {
+public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor {
 
 	protected boolean		active		= false;
 	protected ReentrantLock	activeLock	= new ReentrantLock();
-	private Logger			logger		= LoggerFactory.getLogger(AbstractIOAcceptor.class);
+	private Logger			logger		= LoggerFactory.getLogger(AbstractChannelAcceptor.class);
 
 	public void bind() throws IOException {
 

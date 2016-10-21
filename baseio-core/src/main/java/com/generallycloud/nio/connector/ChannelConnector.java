@@ -6,7 +6,7 @@ import com.generallycloud.nio.component.Connectable;
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.Session;
 
-public interface IOConnector extends ChannelService, Connectable, Closeable {
+public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 
 	public abstract Session getSession();
 	

@@ -16,7 +16,7 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public abstract class AbstractIOConnector extends AbstractChannelService implements IOConnector {
+public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
 
 	protected boolean			active		= false;
 	protected ReentrantLock		activeLock	= new ReentrantLock();
@@ -24,7 +24,7 @@ public abstract class AbstractIOConnector extends AbstractChannelService impleme
 	protected Session			session;
 	protected long			timeout		= 3000;
 	
-	private Logger 			logger 		= LoggerFactory.getLogger(AbstractIOConnector.class);
+	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
 
 	protected abstract EventLoopThread getSelectorLoopThread();
 
@@ -35,7 +35,7 @@ public abstract class AbstractIOConnector extends AbstractChannelService impleme
 		EventLoopThread loopThread = getSelectorLoopThread();
 
 		if ((loopThread != null && loopThread.isMonitor(thread)) 
-				|| session.getEventLoop().inEventLoop(thread)) {
+				|| (session != null && session.getEventLoop().inEventLoop(thread))) {
 			ThreadUtil.execute(new Runnable() {
 				
 				public void run() {

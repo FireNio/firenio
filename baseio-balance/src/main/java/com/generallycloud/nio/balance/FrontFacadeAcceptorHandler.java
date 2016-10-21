@@ -23,9 +23,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
-		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
-
-		IOSession routerSession = frontRouter.getRouterSession((IOSession) session, f);
+		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), f);
 
 		//FIXME 是否需要设置取消接收广播
 		if (f.isReceiveBroadcast()) {
@@ -33,15 +31,14 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		if (routerSession == null) {
+		IOSession routerSession = frontRouter.getRouterSession((IOSession) session, f);
 
-			logger.info("未发现负载节点，报文分发失败：{} ", future);
+		if (routerSession == null) {
+			logger.info("未发现负载节点，报文分发失败：{} ", f);
 			return;
 		}
-
-		synchronized (routerSession) {
-			routerSession.setAttribute(f.getFutureID(), session);
-		}
+		
+		f.setSessionID(session.getSessionID());
 
 		IOWriteFuture writeFuture = f.translate(routerSession);
 

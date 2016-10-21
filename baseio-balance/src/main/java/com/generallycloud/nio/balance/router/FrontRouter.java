@@ -5,12 +5,18 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface FrontRouter {
 
+	public abstract void addClientSession(IOSession session);
+
 	public abstract void addRouterSession(IOSession session);
-
-	public abstract void removeRouterSession(IOSession session);
-
-	public abstract IOSession getRouterSession(IOSession session, ReadFuture future);
+	
+	public abstract IOSession getClientSession(Integer sessionID);
 
 	public abstract IOSession getRouterSession(IOSession session);
+	
+	public abstract IOSession getRouterSession(IOSession session, ReadFuture future);
+
+	public abstract void removeClientSession(IOSession session);
+
+	public abstract void removeRouterSession(IOSession session);
 
 }
