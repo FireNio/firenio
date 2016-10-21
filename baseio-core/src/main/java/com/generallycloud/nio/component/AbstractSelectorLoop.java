@@ -61,6 +61,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		}
 	}
 
+	//FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
+	//执行stop的时候如果确保不会再有数据进来
 	public void stop() {
 		
 		this.shutdown = true;

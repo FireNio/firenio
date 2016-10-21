@@ -62,7 +62,7 @@ public class TestFrontClient {
 			session.flush(future);
 		}
 		
-		ThreadUtil.sleep(100);
+		ThreadUtil.sleep(500);
 
 		CloseUtil.close(connector);
 		
