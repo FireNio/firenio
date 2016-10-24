@@ -5,11 +5,13 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
@@ -36,8 +38,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private long					next_network_weak	= Long.MAX_VALUE;
 	
 	//FIXME 这里最好不要用ABQ，使用链式可增可减
-	private ListQueue<IOWriteFuture>	futures			= new ListQueueLink<IOWriteFuture>();
-//	private ListQueue<IOWriteFuture>	futures			= new ListQueueABQ<IOWriteFuture>(1024 * 10);
+	private ListQueue<IOWriteFuture>	writeFutures			= new ListQueueLink<IOWriteFuture>();
+//	private ListQueue<IOWriteFuture>	writeFutures			= new ListQueueABQ<IOWriteFuture>(1024 * 10);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -63,7 +65,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public boolean flush() throws IOException {
 
 		if (currentWriteFuture == null) {
-			currentWriteFuture = futures.poll();
+			currentWriteFuture = writeFutures.poll();
 		}
 
 		if (currentWriteFuture == null) {
@@ -128,7 +130,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	public int getWriteFutureSize() {
-		return futures.size();
+		return writeFutures.size();
 	}
 
 	private void interestWrite() {
@@ -150,7 +152,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public void offer(IOWriteFuture future) {
 
-		if(!futures.offer(future)){
+		if (!isOpened()) {
+			
+			future.onException(new ClosedChannelException());
+			
+			return;
+		}
+		
+		if(!writeFutures.offer(future)){
 			
 			future.onException(new RejectedExecutionException());
 			
@@ -159,10 +168,30 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		channelFlusher.offer(this);
 	}
-
+	
+	
+	private void releaseWriteFutures(){
+		
+		ReleaseUtil.release(currentWriteFuture);
+		
+		ListQueue<IOWriteFuture> writeFutures = this.writeFutures;
+		
+		IOWriteFuture f = writeFutures.poll();
+		
+		for(; f != null;){
+			
+			ReleaseUtil.release(f);
+			
+			f = writeFutures.poll();
+		}
+		
+	}
+	
 	public void physicalClose() throws IOException {
-
+		
 		this.opened = false;
+		
+		this.releaseWriteFutures();
 
 		this.selectionKey.attach(null);
 
