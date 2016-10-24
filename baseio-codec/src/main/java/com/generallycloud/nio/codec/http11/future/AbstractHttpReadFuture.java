@@ -36,6 +36,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	
 	protected boolean				body_complete;
 	protected String				boundary;
+	protected int					headerLength;
+	protected int					headerLimit;
 	protected int					contentLength;
 	protected String				contentType;
 	protected List<Cookie>			cookieList;
@@ -64,6 +66,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public AbstractHttpReadFuture(IOSession session, ByteBuffer readBuffer) {
 		super(session.getContext());
 		this.session = session;
+		this.headerLimit = 1024 * 8;
 		this.cookies = new HashMap<String, String>();
 		this.request_headers = new HashMap<String, String>();
 	}
@@ -79,6 +82,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	protected void decodeBody() {
 
+		body_complete = true;
+		
 		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 			// FIXME encoding
 			String paramString = new String(bodyContent.array(), 0, bodyContent.position(), session.getContext()
@@ -89,7 +94,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			// FIXME 解析BODY中的内容
 		}
 
-		body_complete = true;
 	}
 
 	public String getBoundary() {
@@ -263,6 +267,11 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		if (!header_complete) {
 
 			for (; buffer.hasRemaining();) {
+				
+				if (++headerLength > headerLimit) {
+					throw new IOException("max http header length "+ headerLimit);
+				}
+				
 				byte b = buffer.get();
 				if (b == '\n') {
 					if (currentHeaderLine.length() == 0) {

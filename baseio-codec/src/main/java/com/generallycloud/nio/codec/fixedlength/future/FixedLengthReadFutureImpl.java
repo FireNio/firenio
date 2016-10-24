@@ -27,14 +27,16 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	private byte[]	byteArray;
 
-	private int		limit	= 1024 * 1024;
+	private int		limit;
 
 	public FixedLengthReadFutureImpl(IOSession session, ByteBuf buf) {
+		this(session, buf, 1024 * 1024);
+	}
+	
+	public FixedLengthReadFutureImpl(IOSession session, ByteBuf buf,int limit) {
 		super(session.getContext());
 		this.buf = buf;
-		if (isHeaderReadComplete(buf)) {
-			doHeaderComplete(session, buf);
-		}
+		this.limit = limit;
 	}
 
 	public FixedLengthReadFutureImpl(BaseContext context) {
@@ -75,15 +77,13 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 		} else if (length > limit) {
 
-			ReleaseUtil.release(buf);
-
-			throw new ProtocolException("max 1M ,length:" + length);
+			throw new ProtocolException("max "+limit+" ,length:" + length);
 
 		} else if (length > buf.capacity()) {
 
 			ReleaseUtil.release(buf);
 
-			this.buf = session.getContext().getHeapByteBufferPool().allocate(length);
+			this.buf = allocate(length);
 
 		} else {
 

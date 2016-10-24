@@ -14,12 +14,12 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  * 
  *  B0：
  *  +-------------------------------------------------+
- *  |                              B0                 |
+ *  |                      B0                         |
  *  +   -     -     -     -     -     -     -     -   +
  *  |   0     1     2     3     4     5     6     7   | 
  *  +   -     -     -     -     -     -     -     -   +
- *  |   Message  |  P U S H  |                        |
- *  |   T Y P E  |  T Y P E  |                        |
+ *  |   Message  | PUSH|                              |
+ *  |   T Y P E  | TYPE|                              |
  *  +-------------------------------------------------+
  *  
  *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]

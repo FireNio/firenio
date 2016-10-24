@@ -1,5 +1,6 @@
 package com.generallycloud.nio.protocol;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BaseContext;
 
 
@@ -41,5 +42,9 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		this.isPONG = true;
 		this.isHeartbeat = true;
 		return this;
+	}
+	
+	protected ByteBuf allocate(int capacity){
+		return context.getHeapByteBufferPool().allocate(capacity);
 	}
 }

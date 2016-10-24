@@ -204,7 +204,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		ReleaseUtil.release(buffer);
 		
-		this.buf = session.getContext().getHeapByteBufferPool().allocate(length);
+		this.buf = allocate(length);
 	}
 	
 	public String getFutureName() {

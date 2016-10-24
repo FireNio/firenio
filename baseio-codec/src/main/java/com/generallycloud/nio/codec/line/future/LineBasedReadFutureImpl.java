@@ -15,17 +15,17 @@ public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements Lin
 
 	private boolean			complete;
 
-	private int				limit	= 1024 * 1024;
+	private int				limit;
 
 	private BufferedOutputStream	cache	= new BufferedOutputStream();
 
 	public LineBasedReadFutureImpl(BaseContext context) {
 		super(context);
+		this.limit = 1024 * 1024;
 	}
 
 	private void doBodyComplete() {
 		complete = true;
-
 	}
 
 	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {

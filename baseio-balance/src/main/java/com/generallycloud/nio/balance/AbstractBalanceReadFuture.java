@@ -31,5 +31,5 @@ public abstract class AbstractBalanceReadFuture extends AbstractIOReadFuture imp
 	public void setBroadcast(boolean isBroadcast) {
 		this.isBroadcast = isBroadcast;
 	}
-
+	
 }

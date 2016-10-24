@@ -37,6 +37,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	private String				text;
 	private int				textLength;
 	private boolean			translated;
+	private int 				binaryLimit;
 	private BufferedOutputStream	writeBinaryBuffer;
 
 	// for ping & pong
@@ -51,11 +52,13 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	}
 
 	public BaseReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
+		this(session, buf, 1024 * 1024 * 2);
+	}
+	
+	public BaseReadFutureImpl(IOSession session, ByteBuf buf,int binaryLimit) throws IOException {
 		super(session.getContext());
 		this.buf = buf;
-		if (!buf.hasRemaining()) {
-			doHeaderComplete(session,buf);
-		}
+		this.binaryLimit = binaryLimit;
 	}
 
 	public BaseReadFutureImpl(BaseContext context,String futureName) {
@@ -116,6 +119,11 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		
 		this.hashCode = gainHashCode(header_array, offset);
 		
+		if (binaryLength > binaryLimit) {
+			
+			throw new IOException("max length "+binaryLimit+",length=" + binaryLength);
+		}
+		
 		int all_length = service_name_length + textLength + binaryLength;
 
 		if (buf.capacity() >= all_length) {
@@ -126,11 +134,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 			ReleaseUtil.release(buf);
 
-			if (all_length > 1024 * 1024 * 2) {
-				throw new IOException("max length 1024 * 1024 * 2,length=" + all_length);
-			}
-
-			this.buf = session.getContext().getHeapByteBufferPool().allocate(all_length);
+			this.buf = allocate(all_length);
 		}
 	}
 
