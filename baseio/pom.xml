@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio</artifactId>
-	<version>3.1.6-SNAPSHOT</version>
+	<version>3.1.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>baseio</name>
 
@@ -48,7 +48,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.version>3.1.6-SNAPSHOT</project.version>
+		<project.version>3.1.8-SNAPSHOT</project.version>
 	</properties>
 	<dependencies>
 	
