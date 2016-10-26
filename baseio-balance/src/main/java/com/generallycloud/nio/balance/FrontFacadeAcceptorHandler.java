@@ -40,7 +40,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 		
 		f.setSessionID(session.getSessionID());
 
-		IOWriteFuture writeFuture = f.translate(routerSession);
+		IOWriteFuture writeFuture = f.translate();
 
 		routerSession.flush(writeFuture);
 

@@ -9,8 +9,8 @@ import java.util.Set;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -18,7 +18,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(IOSession session, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture future = (ServerHttpReadFuture) readFuture;
 
@@ -60,9 +60,9 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		int size = o.size();
 		
-		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(h.length() + size);
+		ByteBuf buffer = context.getHeapByteBufferPool().allocate(h.length() + size);
 		
-		buffer.put(h.toString().getBytes(session.getContext().getEncoding()));
+		buffer.put(h.toString().getBytes(context.getEncoding()));
 		
 		if (size != 0) {
 			buffer.put(o.toByteArray(), 0, o.size());
@@ -70,7 +70,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(session, readFuture, buffer);
+		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(readFuture, buffer);
 
 		return textWriteFuture;
 	}

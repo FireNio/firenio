@@ -1,7 +1,8 @@
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
+import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -9,9 +10,17 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public interface IOSession extends Session{
 	
+	public abstract boolean enableSSL();
+	
+	public abstract SSLEngine getSSLEngine();
+	
+	public abstract void setSSLEngine(SSLEngine engine);
+	
+	public abstract SslHandler getSslHandler();
+	
 	public abstract void fireOpend();
 
-	public abstract void flush(IOWriteFuture future) throws IOException;
+	public abstract void flush(IOWriteFuture future);
 
 	public abstract ProtocolDecoder getProtocolDecoder() ;
 

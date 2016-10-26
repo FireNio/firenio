@@ -11,7 +11,7 @@ public abstract class IOEventHandleAdaptor extends AbstractLifeCycle implements 
 	private Logger		logger	= LoggerFactory.getLogger(IOEventHandleAdaptor.class);
 
 	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
-		logger.info("exception, {}", cause);
+		logger.error(cause.getMessage(),cause);
 	}
 
 	public void futureSent(Session session, ReadFuture future) {

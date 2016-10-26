@@ -15,6 +15,8 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	protected boolean	isPING;
 
 	protected boolean	isPONG;
+	
+	protected boolean isSilent;
 
 	public void flush() {
 		flushed = true;
@@ -44,6 +46,14 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		return this;
 	}
 	
+	public boolean isSilent() {
+		return isSilent;
+	}
+
+	public void setSilent(boolean isSilent) {
+		this.isSilent = isSilent;
+	}
+
 	protected ByteBuf allocate(int capacity){
 		return context.getHeapByteBufferPool().allocate(capacity);
 	}

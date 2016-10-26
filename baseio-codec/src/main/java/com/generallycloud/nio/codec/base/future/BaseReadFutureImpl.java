@@ -274,7 +274,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return futureName + "@" + getText();
 	}
 
-	public IOWriteFuture translate(IOSession session) throws IOException {
+	public IOWriteFuture translate() throws IOException {
 
 		if (!translated) {
 			translated = true;
@@ -282,7 +282,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 			this.writeBinary(binary);
 		}
 
-		return session.getProtocolEncoder().encode(session, this);
+		return context.getProtocolEncoder().encode(context, this);
 	}
 
 	public void writeBinary(byte b) {

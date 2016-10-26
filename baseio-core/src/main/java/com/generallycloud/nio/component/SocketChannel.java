@@ -23,8 +23,10 @@ public interface SocketChannel extends DuplexChannel {
 
 	public abstract boolean isNetworkWeak();
 
-	public abstract void updateNetworkState(int length);
-
+	public abstract void upNetworkState();
+	
+	public abstract void downNetworkState();
+	
 	public abstract void wakeup() throws IOException;
 
 	public abstract IOReadFuture getReadFuture();

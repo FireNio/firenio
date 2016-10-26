@@ -6,8 +6,8 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -38,7 +38,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		MathUtil.int2Byte(header, hash, BaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 
-	public IOWriteFuture encode(IOSession session, IOReadFuture readFuture) throws IOException {
+	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
 
 		if (readFuture.isHeartbeat()) {
 
@@ -47,13 +47,13 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			array[0] = (byte) (readFuture.isPING() ? BaseProtocolDecoder.PROTOCOL_PING
 					: BaseProtocolDecoder.PROTOCOL_PONG << 6);
 
-			ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(1);
+			ByteBuf buffer = context.getHeapByteBufferPool().allocate(1);
 
 			buffer.put(array);
 
 			buffer.flip();
 
-			return new IOWriteFutureImpl(session, readFuture, buffer);
+			return new IOWriteFutureImpl(readFuture, buffer);
 		}
 
 		BaseReadFuture f = (BaseReadFuture) readFuture;
@@ -68,7 +68,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			throw new ProtocolException("future name is empty");
 		}
 
-		byte[] future_name_array = future_name.getBytes(session.getContext().getEncoding());
+		byte[] future_name_array = future_name.getBytes(context.getEncoding());
 
 		int service_name_length = future_name_array.length;
 		int text_length = textOPS.size();
@@ -98,7 +98,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = session.getContext().getHeapByteBufferPool().allocate(all_length);
+		ByteBuf buffer = context.getHeapByteBufferPool().allocate(all_length);
 
 		buffer.put(header);
 		buffer.put(future_name_array);
@@ -113,7 +113,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		return new IOWriteFutureImpl(session, readFuture, buffer);
+		return new IOWriteFutureImpl(readFuture, buffer);
 	}
 
 }

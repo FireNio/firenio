@@ -16,7 +16,7 @@ public class SessionFactory extends AbstractLooper {
 	private BaseContext					context;
 	private long						next_idle_time	= System.currentTimeMillis();
 	private long						current_idle_time;
-	private long						last_idle_time ;
+	private long						last_idle_time;
 	private ReentrantMap<Integer, Session>	sessions		= new ReentrantMap<Integer, Session>();
 	private ListQueue<SessionMEvent>		events		= new ListQueueABQ<SessionMEvent>(512);
 	private Logger						logger		= LoggerFactory.getLogger(SessionFactory.class);
@@ -35,7 +35,11 @@ public class SessionFactory extends AbstractLooper {
 		SessionMEvent event = this.events.poll(16);
 
 		if (event != null) {
-			event.handle(sessions.getSnapshot());
+			try {
+				event.fire(context, sessions.getSnapshot());
+			} catch (Throwable e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 
 		long current_time = System.currentTimeMillis();
@@ -43,12 +47,12 @@ public class SessionFactory extends AbstractLooper {
 		if (next_idle_time > current_time) {
 			return;
 		}
-		
+
 		this.last_idle_time = this.current_idle_time;
-		
+
 		this.current_idle_time = current_time;
-		
-		this.next_idle_time = current_idle_time + context.getSessionIdleTime(); 
+
+		this.next_idle_time = current_idle_time + context.getSessionIdleTime();
 
 		Map<Integer, Session> map = this.sessions.getSnapshot();
 
@@ -95,8 +99,8 @@ public class SessionFactory extends AbstractLooper {
 		// throw
 		this.events.offer(event);
 	}
-	
-	public int getManagedSessionSize(){
+
+	public int getManagedSessionSize() {
 		return sessions.size();
 	}
 

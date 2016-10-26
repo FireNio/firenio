@@ -3,9 +3,12 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+
 public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
-//	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
+	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
 
 	private MemoryUnitV3[]	memoryUnits;
 
@@ -39,12 +42,14 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 	}
 
 	public ByteBuf allocate(int capacity) {
-
+		
 		int size = (capacity + unitMemorySize - 1) / unitMemorySize;
 
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
+		
+		logger.info("allocate : {}",capacity);
 
 		try {
 
@@ -75,6 +80,8 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 			if (!unit.free) {
 
 				start = unit.blockEnd;
+				
+				freeSize = 0;
 
 				continue;
 			}
@@ -121,6 +128,8 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 		lock.lock();
 
 		try {
+			
+			logger.info("release : {}",memoryBlock.capacity());
 
 			MemoryUnitV3 memoryStart = block.memoryStart;
 			MemoryUnitV3 memoryEnd = block.memoryEnd;

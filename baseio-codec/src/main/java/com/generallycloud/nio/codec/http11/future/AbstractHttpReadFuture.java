@@ -7,16 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.BASE64Util;
 import com.generallycloud.nio.common.ByteBufferUtil;
 import com.generallycloud.nio.common.KMPByteUtil;
 import com.generallycloud.nio.common.KMPUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -32,8 +36,8 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implements HttpReadFuture {
 
 	protected static final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
-	protected static final KMPUtil		KMP_BOUNDARY		= new KMPUtil("boundary=");
-	
+	protected static final KMPUtil	KMP_BOUNDARY		= new KMPUtil("boundary=");
+
 	protected boolean				body_complete;
 	protected String				boundary;
 	protected int					headerLength;
@@ -41,20 +45,20 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected int					contentLength;
 	protected String				contentType;
 	protected List<Cookie>			cookieList;
-	protected Map<String, String>	cookies;
+	protected Map<String, String>		cookies;
 	protected boolean				header_complete;
 	protected String				host;
 	protected String				method;
 	protected ByteBuffer			bodyContent;
-	protected Map<String, String>	params;
-	protected Map<String, String>	request_headers;
+	protected Map<String, String>		params;
+	protected Map<String, String>		request_headers;
 	protected String				requestURI;
 	protected String				requestURL;
-	protected Map<String, String>	response_headers;
+	protected Map<String, String>		response_headers;
 
 	protected String				version;
 	protected boolean				hasBodyContent;
-	protected IOSession			session;
+	protected IOSession				session;
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected List<String>			headerLines		= new ArrayList<String>();
 	protected StringBuilder			currentHeaderLine	= new StringBuilder();
@@ -83,7 +87,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected void decodeBody() {
 
 		body_complete = true;
-		
+
 		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 			// FIXME encoding
 			String paramString = new String(bodyContent.array(), 0, bodyContent.position(), session.getContext()
@@ -155,7 +159,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	public String getVersion() {
 		return version;
 	}
-	
+
 	private void parse_cookies(String line, Map<String, String> cookies) {
 		StringLexer l = new StringLexer(0, line.toCharArray());
 		StringBuilder value = new StringBuilder();
@@ -195,34 +199,34 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 		cookies.put(k, value.toString());
 	}
-	
-	protected abstract void parseFirstLine(String line) ;
-	
+
+	protected abstract void parseFirstLine(String line);
+
 	public void parseHeader(List<String> headerLines) {
-		
+
 		parseFirstLine(headerLines.get(0));
-		
+
 		for (int i = 1; i < headerLines.size(); i++) {
-			
+
 			String l = headerLines.get(i);
-			
+
 			int p = l.indexOf(":");
-			
+
 			if (p == -1) {
 				setRequestHeader(l, null);
 				continue;
 			}
-			
-			String name = l.substring(0,p).trim();
-			
-			String value = l.substring(p+1).trim();
-			
+
+			String name = l.substring(0, p).trim();
+
+			String value = l.substring(p + 1).trim();
+
 			setRequestHeader(name, value);
 		}
 	}
-	
+
 	protected abstract void parseContentType(String contentType);
-	
+
 	private void doAfterParseHeader() throws IOException {
 
 		host = getRequestHeader("Host");
@@ -230,14 +234,14 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		String _contentLength = getRequestHeader("Content-Length");
 
 		int contentLength = 0;
-		
+
 		if (!StringUtil.isNullOrBlank(_contentLength)) {
 			contentLength = Integer.parseInt(_contentLength);
 			this.contentLength = contentLength;
 		}
 
 		String contentType = getRequestHeader("Content-Type");
-		
+
 		parseContentType(contentType);
 
 		String cookie = getRequestHeader("Cookie");
@@ -245,7 +249,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		if (!StringUtil.isNullOrBlank(cookie)) {
 			parse_cookies(cookie, cookies);
 		}
-		
+
 		if (contentLength < 1) {
 
 			body_complete = true;
@@ -256,8 +260,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 			bodyContent = ByteBuffer.allocate(contentLength);
 		} else {
-			//FIXME 写入临时文件
-			throw new IOException("max content 1024 * 1024,content "+contentLength);
+			// FIXME 写入临时文件
+			throw new IOException("max content 1024 * 1024,content " + contentLength);
 		}
 	}
 
@@ -266,54 +270,86 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 		if (!header_complete) {
 
-			for (; buffer.hasRemaining();) {
-				
-				if (++headerLength > headerLimit) {
-					throw new IOException("max http header length "+ headerLimit);
-				}
-				
-				byte b = buffer.get();
-				if (b == '\n') {
-					if (currentHeaderLine.length() == 0) {
-						
-						header_complete = true;
-						
-						break;
-					} else {
-						headerLines.add(currentHeaderLine.toString());
-						currentHeaderLine.setLength(0);
-					}
-					continue;
-				} else if (b == '\r') {
-					continue;
+			if (session.enableSSL()) {
+
+				SslHandler handler = session.getSslHandler();
+
+				ByteBuf buf = handler.unwrap(session, buffer);
+
+				if (buf == null) {
+
+					setSilent(true);
+					
 				} else {
-					currentHeaderLine.append((char) b);
+
+					String headers = StringUtil.decode(Encoding.UTF8, buf.getMemory());
+					
+					ReleaseUtil.release(buf);
+
+					String[] lines = headers.split("\n");
+
+					for (String l : lines) {
+						headerLines.add(l.replace("\r", ""));
+					}
+					
+					
+					
+					header_complete = true;
+				}
+
+			} else {
+
+				for (; buffer.hasRemaining();) {
+
+					if (++headerLength > headerLimit) {
+						throw new IOException("max http header length " + headerLimit);
+					}
+
+					byte b = buffer.get();
+					if (b == '\n') {
+						if (currentHeaderLine.length() == 0) {
+
+							header_complete = true;
+
+							break;
+						} else {
+							headerLines.add(currentHeaderLine.toString());
+							currentHeaderLine.setLength(0);
+						}
+						continue;
+					} else if (b == '\r') {
+						continue;
+					} else {
+						currentHeaderLine.append((char) b);
+					}
 				}
 			}
-			
+
 			if (!header_complete) {
 				return false;
 			}
+			
+			setSilent(false);
 
 			parseHeader(headerLines);
 
-			doAfterParseHeader();			
-			
+			doAfterParseHeader();
+
 		}
 
 		if (!body_complete) {
-			
+
 			if (bodyContent.hasRemaining()) {
-				
+
 				ByteBufferUtil.read(bodyContent, buffer);
 			}
-			
+
 			if (bodyContent.hasRemaining()) {
 				return false;
 			}
-			
+
 			decodeBody();
-			
+
 		}
 
 		return true;

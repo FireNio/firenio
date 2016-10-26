@@ -9,6 +9,7 @@ import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.Session;
@@ -35,7 +36,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		acceptor.offerSessionMEvent(new SessionMEvent() {
 
-			public void handle(Map<Integer, Session> sessions) {
+			public void fire(BaseContext context, Map<Integer, Session> sessions) {
 
 				if (sessions == null || sessions.size() == 0) {
 					return;
@@ -43,16 +44,9 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				Iterator<Session> ss = sessions.values().iterator();
 
-				if (!ss.hasNext()) {
-					return;
-				}
-
-				IOSession _s = (IOSession) ss.next();
-
 				IOWriteFuture writeFuture;
-
 				try {
-					writeFuture = future.translate(_s);
+					writeFuture = future.translate();
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 					return;
@@ -62,30 +56,24 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 					IOSession s = (IOSession) ss.next();
 
-					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
+					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) == null) {
 
-						IOWriteFuture copy = writeFuture.duplicate(s);
-
-						try {
-
-							s.flush(copy);
-
-						} catch (Exception e) {
-
-							logger.error(e.getMessage(), e);
-						}
+						continue;
 					}
-				}
 
-				if (_s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) != null) {
+					IOWriteFuture copy = writeFuture.duplicate();
+
 					try {
-						_s.flush(writeFuture);
-					} catch (IOException e) {
+
+						s.flush(copy);
+
+					} catch (Exception e) {
+
 						logger.error(e.getMessage(), e);
 					}
-				} else {
-					ReleaseUtil.release(writeFuture);
 				}
+
+				ReleaseUtil.release(writeFuture);
 			}
 		});
 	}
@@ -118,11 +106,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 				return;
 			}
 
-			IOWriteFuture writeFuture = f.translate(response);
+			IOWriteFuture writeFuture = f.translate();
 
 			response.flush(writeFuture);
 
-			logger.info("回复报文到客户端,{}",response);
+			logger.info("回复报文到客户端,{}", response);
 
 			return;
 		}

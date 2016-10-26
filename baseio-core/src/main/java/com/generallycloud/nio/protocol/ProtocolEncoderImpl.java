@@ -3,16 +3,12 @@ package com.generallycloud.nio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.IOSession;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ProtocolEncoderImpl implements ProtocolEncoder {
 
-	public IOWriteFuture encode(IOSession session, IOReadFuture future) throws IOException {
+	public IOWriteFuture encode(BaseContext context, IOReadFuture future) throws IOException {
 
 		BufferedOutputStream os = future.getWriteBuffer();
 
@@ -20,12 +16,12 @@ public class ProtocolEncoderImpl implements ProtocolEncoder {
 
 		byte[] array = os.array();
 
-		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(size);
+		ByteBuf buf = context.getHeapByteBufferPool().allocate(size);
 
 		buf.put(array, 0, size);
 
 		buf.flip();
 
-		return new IOWriteFutureImpl(session, future, buf);
+		return new IOWriteFutureImpl(future, buf);
 	}
 }

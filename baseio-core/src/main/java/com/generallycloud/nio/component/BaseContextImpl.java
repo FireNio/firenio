@@ -14,10 +14,12 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
@@ -29,7 +31,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private IOEventHandleAdaptor			ioEventHandleAdaptor;
 	private SessionEventListenerWrapper	lastSessionEventListener;
 	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
-	private IOReadFutureAcceptor			ioReadFutureAcceptor;
 	private ServerConfiguration			serverConfiguration;
 	private SessionEventListenerWrapper	sessionEventListenerStub;
 	private SessionFactory				sessionFactory;
@@ -44,6 +45,9 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private long						startupTime	= System.currentTimeMillis();
 	private EventLoopGroup				eventLoopGroup;
 	private ByteBufferPool				heapByteBufferPool;
+	private ProtocolEncoder				protocolEncoder;
+	private SslContext					sslContext;
+	private boolean 					enableSSL;
 
 	// private ByteBufferPool directByteBufferPool;
 
@@ -69,6 +73,10 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
+	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return protocolEncoder;
 	}
 
 	public BaseContextImpl(ServerConfiguration configuration) {
@@ -144,9 +152,9 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		this.ioReadFutureAcceptor = new IOReadFutureDispatcher();
 		this.datagramChannelFactory = new DatagramChannelFactory();
-
+		this.protocolEncoder = protocolFactory.getProtocolEncoder();
+		
 		this.heapByteBufferPool = new HeapMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 		// this.directByteBufferPool = new
 		// DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
@@ -221,10 +229,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public IOEventHandleAdaptor getIOEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
-	}
-
-	public IOReadFutureAcceptor getIOReadFutureAcceptor() {
-		return ioReadFutureAcceptor;
 	}
 
 	public ServerConfiguration getServerConfiguration() {
@@ -311,4 +315,21 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return startupTime;
 	}
 
+	public SslContext getSslContext() {
+		return sslContext;
+	}
+
+	public void setSslContext(SslContext sslContext) {
+		if (sslContext == null) {
+			throw new IllegalArgumentException("null sslContext");
+		}
+		this.sslContext = sslContext;
+		this.enableSSL = true;
+		this.sslContext.initialize(this);
+	}
+
+	public boolean isEnableSSL() {
+		return enableSSL;
+	}
+	
 }

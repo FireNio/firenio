@@ -274,7 +274,14 @@ public class MemoryBlockV3 implements ByteBuf {
 		int length = channel.write(memory);
 
 		if (length > 0) {
+			
 			position += length;
+			
+			channel.upNetworkState();
+			
+		}else{
+			
+			channel.downNetworkState();
 		}
 
 		return length;

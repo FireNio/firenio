@@ -9,6 +9,8 @@ import com.generallycloud.nio.component.SocketChannel;
 public interface ByteBuf extends Releasable {
 
 	public static final int	UNIT_CAPACITY	= 12;
+	
+	public static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
 
 	public abstract ByteBuf duplicate();
 

@@ -6,10 +6,13 @@ import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
+import javax.net.ssl.SSLEngine;
+
 import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.IOReadFuture;
@@ -32,6 +35,7 @@ public class IOSessionImpl implements UnsafeSession {
 	private EventLoop				eventLoop;
 	private long					creationTime	= System.currentTimeMillis();
 	private long					lastAccess;
+	private SSLEngine				sslEngine;
 	private HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
 
 	public IOSessionImpl(SocketChannel channel, Integer sessionID) {
@@ -42,7 +46,24 @@ public class IOSessionImpl implements UnsafeSession {
 		// 这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.eventLoop = context.getEventLoopGroup().getNext();
+		if (context.isEnableSSL()) {
+			this.sslEngine = context.getSslContext().newEngine();
+		}
 	}
+
+	public boolean enableSSL() {
+		return context.isEnableSSL();
+	}
+
+	public SSLEngine getSSLEngine() {
+		return sslEngine;
+	}
+
+	public void setSSLEngine(SSLEngine engine) {
+		this.sslEngine = engine;
+	}
+
+
 
 	public void clearAttributes() {
 		attributes.clear();
@@ -132,13 +153,11 @@ public class IOSessionImpl implements UnsafeSession {
 
 			IOReadFuture ioReadFuture = (IOReadFuture) future;
 			
-//			ioReadFuture.update(this);
-			
-			writeFuture = encoder.encode(this, ioReadFuture);
+			writeFuture = encoder.encode(context, ioReadFuture);
 
 			ioReadFuture.flush();
 
-			socketChannel.offer(writeFuture);
+			flush(writeFuture);
 
 		} catch (Exception e) {
 
@@ -152,9 +171,13 @@ public class IOSessionImpl implements UnsafeSession {
 		}
 	}
 
-	public void flush(IOWriteFuture future) throws IOException {
+	public void flush(IOWriteFuture future) {
 
 		try {
+			
+			if (enableSSL()) {
+				future.wrapSSL(sslEngine, context.getSslContext().getSslHandler());
+			}
 
 			channel.offer(future);
 
@@ -335,6 +358,10 @@ public class IOSessionImpl implements UnsafeSession {
 
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		channel.setProtocolFactory(protocolFactory);
+	}
+
+	public SslHandler getSslHandler() {
+		return context.getSslContext().getSslHandler();
 	}
 
 }

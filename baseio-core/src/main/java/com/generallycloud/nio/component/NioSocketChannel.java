@@ -72,11 +72,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			return true;
 		}
 
-		if (!currentWriteFuture.write()) {
+		if (!currentWriteFuture.write(this)) {
 			return false;
 		}
 
-		currentWriteFuture.onSuccess();
+		currentWriteFuture.onSuccess(session);
 
 		currentWriteFuture = null;
 
@@ -154,14 +154,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		if (!isOpened()) {
 			
-			future.onException(new ClosedChannelException());
+			future.onException(session,new ClosedChannelException());
 			
 			return;
 		}
 		
 		if(!writeFutures.offer(future)){
 			
-			future.onException(new RejectedExecutionException());
+			future.onException(session,new RejectedExecutionException());
 			
 			return;
 		}
@@ -220,6 +220,37 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public void setReadFuture(IOReadFuture readFuture) {
 		this.readFuture = readFuture;
+	}
+	
+	public void upNetworkState() {
+		
+		if (next_network_weak != Long.MAX_VALUE) {
+
+			next_network_weak = Long.MAX_VALUE;
+
+			networkWeak = false;
+		}
+		
+	}
+
+	public void downNetworkState() {
+		
+		if (next_network_weak < Long.MAX_VALUE) {
+
+			if (System.currentTimeMillis() > next_network_weak) {
+
+				if (!networkWeak) {
+
+					networkWeak = true;
+
+					interestWrite();
+				}
+			}
+			
+		} else {
+
+			next_network_weak = System.currentTimeMillis() + 64;
+		}
 	}
 
 	public void updateNetworkState(int length) {

@@ -7,9 +7,11 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.common.ssl.SSLUtil;
+import com.generallycloud.nio.common.ssl.SslContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -43,6 +45,8 @@ public class HttpServerStartup {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
 		try {
+			
+			SslContext sslContext = SSLUtil.init();
 
 			applicationContext
 					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
@@ -58,6 +62,8 @@ public class HttpServerStartup {
 //			context.addSessionEventListener(new SessionActiveSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
+			
+			context.setSslContext(sslContext);
 			
 			acceptor.setContext(context);
 

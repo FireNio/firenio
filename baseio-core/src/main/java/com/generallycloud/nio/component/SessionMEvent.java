@@ -5,5 +5,5 @@ import java.util.Map;
 //session manager event
 public interface SessionMEvent {
 
-	public abstract void handle(Map<Integer, Session> sessions);
+	public abstract void fire(BaseContext context, Map<Integer, Session> sessions);
 }

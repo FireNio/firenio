@@ -10,6 +10,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.component.BaseContext;
@@ -69,34 +70,31 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 		offerSessionMEvent(new SessionMEvent() {
 
-			public void handle(Map<Integer, Session> sessions) {
+			public void fire(BaseContext context, Map<Integer, Session> sessions) {
 
-				Iterator<Session> ss = sessions.values().iterator();
-				
-				if (!ss.hasNext()) {
+				if (sessions.size() == 0) {
 					return;
 				}
 				
-				IOSession _s = (IOSession) ss.next();
-				
 				IOReadFuture ioReadFuture = (IOReadFuture) future;
 				
-				ProtocolEncoder encoder = _s.getProtocolEncoder();
+				ProtocolEncoder encoder = context.getProtocolEncoder();
 				
 				IOWriteFuture writeFuture;
-				
 				try {
-					writeFuture = encoder.encode(_s, ioReadFuture);
+					writeFuture = encoder.encode(context, ioReadFuture);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;
 				}
+
+				Iterator<Session> ss = sessions.values().iterator();
 				
 				for (; ss.hasNext();) {
 
 					IOSession s = (IOSession) ss.next();
 
-					IOWriteFuture copy = writeFuture.duplicate(s);
+					IOWriteFuture copy = writeFuture.duplicate();
 
 					try {
 
@@ -108,11 +106,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 					}
 				}
 				
-				try {
-					_s.flush(writeFuture);
-				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
-				}
+				ReleaseUtil.release(writeFuture);
 			}
 		});
 	}
