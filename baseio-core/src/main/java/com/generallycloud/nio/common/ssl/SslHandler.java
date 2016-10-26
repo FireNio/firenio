@@ -128,7 +128,6 @@ public class SslHandler {
 
 				SSLEngineResult result = sslEngine.unwrap(packet, buf.getMemory());
 
-				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
 				Status status = result.getStatus();
@@ -190,13 +189,7 @@ public class SslHandler {
 					sslEngine.closeOutbound();
 					CloseUtil.close(session);
 				}
-
-				if (bytesConsumed == 0) {
-					break;
-				}
 			}
-
-			return null;
 
 		} finally {
 

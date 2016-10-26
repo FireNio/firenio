@@ -25,12 +25,17 @@ public class SSLUtil {
 
 	private static void doInit() {
 		try {
-			SelfSignedCertificate ssc = new SelfSignedCertificate();
-			sslContext = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+//			SelfSignedCertificate ssc = new SelfSignedCertificate();
+//			sslContext = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
 			
-//			File certificate = SharedBundle.instance().loadFile("http/conf/2_generallycloud.com.crt");
-//			File privateKey = SharedBundle.instance().loadFile("http/conf/1_root_bundle.crt");
-//			sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
+			File certificate = SharedBundle.instance().loadFile("http/conf/generallycloud.com.crt");
+			File privateKey = SharedBundle.instance().loadFile("http/conf/generallycloud.com.key");
+			
+
+//			File certificate = SharedBundle.instance().loadFile("http/conf/keyutil_example.com1.crt");
+//			File privateKey = SharedBundle.instance().loadFile("http/conf/keyutil_example.com1.key");
+//			
+			sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
