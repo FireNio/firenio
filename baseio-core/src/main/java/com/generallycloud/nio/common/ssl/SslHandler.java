@@ -9,6 +9,7 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -30,85 +31,29 @@ public class SslHandler {
 		this.context = context;
 	}
 
-	private void wrapNonAppData(IOSession session, SSLEngine engine) throws IOException {
-
-		ByteBuffer buffer = ByteBuf.EMPTY_BUFFER;
-
-		ByteBuf buf = allocate(102400);
-
-		try {
-			for (;;) {
-
-				SSLEngineResult result = engine.wrap(buffer, buf.getMemory());
-
-				Status status = result.getStatus();
-				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-
-				logger.info("_________________________wrapNonAppData");
-				logger.info("_________________________" + status.name());
-				logger.info("_________________________" + handshakeStatus.name());
-
-				switch (handshakeStatus) {
-				case NEED_UNWRAP:
-					break;
-				case NEED_WRAP:
-					break;
-				case NEED_TASK:
-					runDelegatedTasks(engine);
-					break;
-				case FINISHED:
-					break;
-				case NOT_HANDSHAKING:
-					break;
-				default:
-
-				}
-
-				int bytesProduced = result.bytesProduced();
-
-				if (bytesProduced == 0) {
-					break;
-				} else {
-
-					buf.position(buf.position() + bytesProduced);
-				}
-			}
-		} catch (Throwable e) {
-			
-			ReleaseUtil.release(buf);
-			
-			if (e instanceof IOException) {
-				
-				throw (IOException)e;
-			}
-			
-			throw new IOException(e);
-		}
-
-		buf.flip();
-
-		ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
-
-		IOWriteFuture f = new IOWriteFutureImpl(future, buf, false);
-
-		session.flush(f);
-	}
-
 	private ByteBuf allocate(int capacity) {
 		return context.getHeapByteBufferPool().allocate(capacity);
 	}
 
 	public ByteBuf wrap(SSLEngine engine, ByteBuf buf) throws IOException {
-		ByteBuf out = allocate(buf.limit() * 100);
+		
+		ByteBuf out;
+		
+		if (buf.capacity() == 0) {
+			
+			out = allocate(102400);
+		}else{
+			
+			out = allocate(buf.limit() * 100);
+		}
+		
 		try {
+			
 			for (;;) {
 
 				SSLEngineResult result = engine.wrap(buf.getMemory(), out.getMemory());
 
 				if (result.getStatus() == Status.CLOSED) {
-					// SSLEngine has been closed already.
-					// Any further write attempts should be denied.
-					// pendingUnencryptedWrites.removeAndFailAll(SSLENGINE_CLOSED);
 					return null;
 				} else {
 
@@ -119,14 +64,23 @@ public class SslHandler {
 					case FINISHED:
 						// deliberate fall-through
 					case NOT_HANDSHAKING:
+						break;
+					case NEED_WRAP:
+						break;
+					case NEED_UNWRAP:
+						break;
+					default:
+						throw new IllegalStateException("Unknown handshake status: "
+								+ result.getHandshakeStatus());
+					}
+					
+					int bytesProduced = result.bytesProduced();
 
-						int capacity = result.bytesProduced();
-
-						out.position(out.position() + capacity);
-
+					if (bytesProduced == 0) {
+						
 						out.flip();
 
-						ByteBuf out2 = allocate(capacity);
+						ByteBuf out2 = allocate(out.limit());
 
 						out2.read(out.getMemory());
 
@@ -135,14 +89,10 @@ public class SslHandler {
 						out2.flip();
 
 						return out2;
+						
+					} else {
 
-					case NEED_WRAP:
-						break;
-					case NEED_UNWRAP:
-						return null;
-					default:
-						throw new IllegalStateException("Unknown handshake status: "
-								+ result.getHandshakeStatus());
+						out.position(out.position() + bytesProduced);
 					}
 				}
 			}
@@ -204,7 +154,12 @@ public class SslHandler {
 					break;
 				case NEED_WRAP:
 
-					wrapNonAppData(session, sslEngine);
+//					wrapNonAppData(session, sslEngine);
+					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+
+					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+
+					session.flush(f);
 
 					return null;
 				case NEED_TASK:

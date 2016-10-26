@@ -19,18 +19,13 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	protected ReadFuture		readFuture;
 	protected ByteBuf			buf;
 	protected IOWriteFuture		next;
-	protected boolean			wrap;
 
 	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
-		this(readFuture, buf, true);
-	}
 
-	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf, boolean wrap) {
+	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
 		this.buf = buf;
-		this.wrap = wrap;
 	}
 
 	public void onException(IOSession session, Exception e) {
@@ -102,15 +97,19 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	public void wrapSSL(SSLEngine engine, SslHandler handler) throws IOException {
 
-		if (wrap) {
+		ByteBuf old = this.buf;
 
-			ByteBuf old = this.buf;
-
-			try {
-				this.buf = handler.wrap(engine, buf);
-			} finally {
-				ReleaseUtil.release(old);
+		try {
+			
+			ByteBuf _buf = handler.wrap(engine, buf);
+			
+			if (_buf == null) {
+				throw new IOException("closed ssl");
 			}
+			
+			this.buf = _buf;
+		} finally {
+			ReleaseUtil.release(old);
 		}
 	}
 
