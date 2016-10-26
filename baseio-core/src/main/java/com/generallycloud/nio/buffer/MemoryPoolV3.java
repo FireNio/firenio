@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 
 public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
-	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
+//	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
 
 	private MemoryUnitV3[]	memoryUnits;
 
@@ -49,7 +49,7 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 		lock.lock();
 		
-		logger.info("allocate : {}",capacity);
+//		logger.info("allocate : {}",capacity);
 
 		try {
 
@@ -129,7 +129,7 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 		try {
 			
-			logger.info("release : {}",memoryBlock.capacity());
+//			logger.info("release : {}",memoryBlock.capacity());
 
 			MemoryUnitV3 memoryStart = block.memoryStart;
 			MemoryUnitV3 memoryEnd = block.memoryEnd;

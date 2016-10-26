@@ -51,7 +51,7 @@ public class IOSessionImpl implements UnsafeSession {
 		}
 	}
 
-	public boolean enableSSL() {
+	public boolean isEnableSSL() {
 		return context.isEnableSSL();
 	}
 
@@ -175,7 +175,7 @@ public class IOSessionImpl implements UnsafeSession {
 
 		try {
 			
-			if (enableSSL()) {
+			if (isEnableSSL()) {
 				future.wrapSSL(sslEngine, context.getSslContext().getSslHandler());
 			}
 

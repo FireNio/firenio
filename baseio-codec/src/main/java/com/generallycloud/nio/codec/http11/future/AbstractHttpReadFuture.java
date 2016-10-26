@@ -7,18 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.Encoding;
-import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.BASE64Util;
 import com.generallycloud.nio.common.ByteBufferUtil;
 import com.generallycloud.nio.common.KMPByteUtil;
 import com.generallycloud.nio.common.KMPUtil;
-import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IOSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
@@ -270,65 +266,35 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 		if (!header_complete) {
 
-			if (session.enableSSL()) {
+			for (; buffer.hasRemaining();) {
 
-				SslHandler handler = session.getSslHandler();
-
-				ByteBuf buf = handler.unwrap(session, buffer);
-
-				if (buf == null) {
-
-					setSilent(true);
-					
-				} else {
-
-					String headers = StringUtil.decode(Encoding.UTF8, buf.getMemory());
-					
-					ReleaseUtil.release(buf);
-
-					String[] lines = headers.split("\n");
-
-					for (String l : lines) {
-						headerLines.add(l.replace("\r", ""));
-					}
-					
-					
-					
-					header_complete = true;
+				if (++headerLength > headerLimit) {
+					throw new IOException("max http header length " + headerLimit);
 				}
 
-			} else {
+				byte b = buffer.get();
+				if (b == '\n') {
+					if (currentHeaderLine.length() == 0) {
 
-				for (; buffer.hasRemaining();) {
+						header_complete = true;
 
-					if (++headerLength > headerLimit) {
-						throw new IOException("max http header length " + headerLimit);
-					}
-
-					byte b = buffer.get();
-					if (b == '\n') {
-						if (currentHeaderLine.length() == 0) {
-
-							header_complete = true;
-
-							break;
-						} else {
-							headerLines.add(currentHeaderLine.toString());
-							currentHeaderLine.setLength(0);
-						}
-						continue;
-					} else if (b == '\r') {
-						continue;
+						break;
 					} else {
-						currentHeaderLine.append((char) b);
+						headerLines.add(currentHeaderLine.toString());
+						currentHeaderLine.setLength(0);
 					}
+					continue;
+				} else if (b == '\r') {
+					continue;
+				} else {
+					currentHeaderLine.append((char) b);
 				}
 			}
 
 			if (!header_complete) {
 				return false;
 			}
-			
+
 			setSilent(false);
 
 			parseHeader(headerLines);

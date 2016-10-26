@@ -17,9 +17,9 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 //下次循环时检测是否收到心跳
 public interface SocketChannel extends DuplexChannel {
 
-	public abstract void setCurrentWriteFuture(IOWriteFuture future);
+	public abstract void setWriteFuture(IOWriteFuture future);
 
-	public abstract IOWriteFuture getCurrentWriteFuture();
+	public abstract IOWriteFuture getWriteFuture();
 
 	public abstract boolean isNetworkWeak();
 

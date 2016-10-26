@@ -33,7 +33,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolDecoder			protocolDecoder;
 	private ProtocolEncoder			protocolEncoder;
 	private ProtocolFactory			protocolFactory;
-	private IOWriteFuture			currentWriteFuture;
+	private IOWriteFuture			writeFuture;
 	private boolean				opened			= true;
 	private long					next_network_weak	= Long.MAX_VALUE;
 	
@@ -64,27 +64,27 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public boolean flush() throws IOException {
 
-		if (currentWriteFuture == null) {
-			currentWriteFuture = writeFutures.poll();
+		if (writeFuture == null) {
+			writeFuture = writeFutures.poll();
 		}
 
-		if (currentWriteFuture == null) {
+		if (writeFuture == null) {
 			return true;
 		}
 
-		if (!currentWriteFuture.write(this)) {
+		if (!writeFuture.write(this)) {
 			return false;
 		}
 
-		currentWriteFuture.onSuccess(session);
+		writeFuture.onSuccess(session);
 
-		currentWriteFuture = null;
+		writeFuture = null;
 
 		return true;
 	}
 
-	public IOWriteFuture getCurrentWriteFuture() {
-		return currentWriteFuture;
+	public IOWriteFuture getWriteFuture() {
+		return writeFuture;
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
@@ -172,7 +172,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	
 	private void releaseWriteFutures(){
 		
-		ReleaseUtil.release(currentWriteFuture);
+		ReleaseUtil.release(writeFuture);
 		
 		ListQueue<IOWriteFuture> writeFutures = this.writeFutures;
 		
@@ -202,8 +202,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return this.channel.read(buffer);
 	}
 
-	public void setCurrentWriteFuture(IOWriteFuture future) {
-		this.currentWriteFuture = future;
+	public void setWriteFuture(IOWriteFuture future) {
+		this.writeFuture = future;
 	}
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {

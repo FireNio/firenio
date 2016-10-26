@@ -10,7 +10,7 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public interface IOSession extends Session{
 	
-	public abstract boolean enableSSL();
+	public abstract boolean isEnableSSL();
 	
 	public abstract SSLEngine getSSLEngine();
 	
