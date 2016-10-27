@@ -93,10 +93,10 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 	}
 
 	protected void doClose() {
+		
+		CloseUtil.close(session);
 
 		LifeCycleUtil.stop(selectorLoopThread);
-
-		CloseUtil.close(session);
 	}
 
 	public String getServiceDescription() {

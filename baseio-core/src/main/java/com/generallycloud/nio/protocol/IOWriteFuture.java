@@ -2,7 +2,6 @@ package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
@@ -20,5 +19,5 @@ public interface IOWriteFuture extends WriteFuture, Linkable<IOWriteFuture> {
 
 	public abstract void onSuccess(IOSession session);
 
-	public abstract void wrapSSL(SSLEngine engine, SslHandler handler) throws SSLException, IOException;
+	public abstract void wrapSSL(IOSession session, SslHandler handler) throws SSLException, IOException;
 }

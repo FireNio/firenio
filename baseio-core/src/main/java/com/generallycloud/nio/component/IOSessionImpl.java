@@ -11,12 +11,14 @@ import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
@@ -41,6 +43,7 @@ public class IOSessionImpl implements UnsafeSession {
 	private long					lastAccess;
 	private SSLEngine				sslEngine;
 	private HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
+	private SslHandler				sslHandler;
 
 	public IOSessionImpl(SocketChannel channel, Integer sessionID) {
 		this.context = channel.getContext();
@@ -51,6 +54,7 @@ public class IOSessionImpl implements UnsafeSession {
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.eventLoop = context.getEventLoopGroup().getNext();
 		if (context.isEnableSSL()) {
+			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
 		}
 	}
@@ -98,7 +102,7 @@ public class IOSessionImpl implements UnsafeSession {
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
-				
+
 				if (context.getSslContext().isClient()) {
 					
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
@@ -113,6 +117,7 @@ public class IOSessionImpl implements UnsafeSession {
 				} catch (SSLException e) {
 					logger.error(e.getMessage(), e);
 				}
+				
 			}
 
 			physicalClose(datagramChannel);
@@ -202,7 +207,7 @@ public class IOSessionImpl implements UnsafeSession {
 		try {
 
 			if (isEnableSSL()) {
-				future.wrapSSL(sslEngine, context.getSslContext().getSslHandler());
+				future.wrapSSL(this, sslHandler);
 			}
 
 			channel.offer(future);
@@ -351,7 +356,13 @@ public class IOSessionImpl implements UnsafeSession {
 	public ProtocolEncoder getProtocolEncoder() {
 		return channel.getProtocolEncoder();
 	}
-
+	
+	public void finishHandshake(Exception e){
+		handshakeWaiter.setPayload(e);
+	}
+	
+	private Waiter<Exception> handshakeWaiter = new Waiter<Exception>();
+	
 	public void fireOpend() {
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
@@ -361,6 +372,19 @@ public class IOSessionImpl implements UnsafeSession {
 			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
 
 			flush(f);
+			
+			// wait 
+			
+			if(handshakeWaiter.await(3000)){
+				CloseUtil.close(this);
+				throw new RuntimeException("hands shake failed");
+			}
+			
+			if (handshakeWaiter.getPayload() != null) {
+				throw new RuntimeException(handshakeWaiter.getPayload());
+			}
+			
+			// success
 		}
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();

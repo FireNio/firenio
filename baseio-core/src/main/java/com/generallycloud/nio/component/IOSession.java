@@ -19,6 +19,8 @@ public interface IOSession extends Session{
 	public abstract SslHandler getSslHandler();
 	
 	public abstract void fireOpend();
+	
+	public abstract void finishHandshake(Exception e);
 
 	public abstract void flush(IOWriteFuture future);
 

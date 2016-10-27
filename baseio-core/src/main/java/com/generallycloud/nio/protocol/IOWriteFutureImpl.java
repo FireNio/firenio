@@ -2,8 +2,6 @@ package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
 
-import javax.net.ssl.SSLEngine;
-
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -95,13 +93,13 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		this.next = future;
 	}
 
-	public void wrapSSL(SSLEngine engine, SslHandler handler) throws IOException {
+	public void wrapSSL(IOSession session, SslHandler handler) throws IOException {
 
 		ByteBuf old = this.buf;
 
 		try {
 			
-			ByteBuf _buf = handler.wrap(engine, buf);
+			ByteBuf _buf = handler.wrap(session, buf);
 			
 			if (_buf == null) {
 				throw new IOException("closed ssl");
@@ -112,5 +110,4 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 			ReleaseUtil.release(old);
 		}
 	}
-
 }

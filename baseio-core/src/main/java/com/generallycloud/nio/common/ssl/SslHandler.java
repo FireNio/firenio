@@ -33,8 +33,10 @@ public class SslHandler {
 		return context.getHeapByteBufferPool().allocate(capacity);
 	}
 
-	public ByteBuf wrap(SSLEngine engine, ByteBuf buf) throws IOException {
-
+	public ByteBuf wrap(IOSession session,ByteBuf buf) throws IOException {
+		
+		SSLEngine engine = session.getSSLEngine();
+		
 		ByteBuf out = allocate(engine.getSession().getPacketBufferSize() * 2);
 
 		try {
@@ -64,7 +66,7 @@ public class SslHandler {
 				}
 
 				if (status == Status.CLOSED) {
-					return null;
+					return gc(out);
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
@@ -73,6 +75,9 @@ public class SslHandler {
 						return gc(out);
 					case NEED_TASK:
 						runDelegatedTasks(engine);
+						break;
+					case FINISHED:
+						session.finishHandshake(null);
 						break;
 					default:
 						// throw new
@@ -170,6 +175,7 @@ public class SslHandler {
 					runDelegatedTasks(sslEngine);
 					continue;
 				case FINISHED:
+					session.finishHandshake(null);
 					return null;
 				case NOT_HANDSHAKING:
 
