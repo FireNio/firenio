@@ -137,6 +137,7 @@ public abstract class SslContext {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	static SslContext newClientContextInternal(SslProvider provider, X509Certificate[] trustCert,
 			TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
 			String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,

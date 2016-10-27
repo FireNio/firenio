@@ -15,8 +15,8 @@ public class ServerConfiguration {
 	private boolean	SERVER_DEBUG				= false;
 	private int		SERVER_CHANNEL_QUEUE_SIZE	= 1024 * 512;
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
-	private int		SERVER_MEMORY_POOL_UNIT		= 1024;
-	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024;
+	private int		SERVER_MEMORY_POOL_UNIT		= 256;
+	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024 * 64;
 	private int		SERVER_READ_BUFFER			= 1024 * 100;
 
 	public int getSERVER_CHANNEL_QUEUE_SIZE() {

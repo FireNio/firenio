@@ -7,16 +7,20 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.DisconnectException;
+import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -63,8 +67,6 @@ public class IOSessionImpl implements UnsafeSession {
 		this.sslEngine = engine;
 	}
 
-
-
 	public void clearAttributes() {
 		attributes.clear();
 	}
@@ -89,15 +91,39 @@ public class IOSessionImpl implements UnsafeSession {
 				return;
 			}
 
+			if (isEnableSSL()) {
+
+				try {
+					sslEngine.closeOutbound();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+				
+				if (context.getSslContext().isClient()) {
+					
+					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+
+					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+
+					flush(f);
+				}
+
+				try {
+					sslEngine.closeInbound();
+				} catch (SSLException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+
 			physicalClose(datagramChannel);
 
 			physicalClose(channel);
 		}
-		
+
 		fireClosed();
 	}
-	
-	private void fireClosed(){
+
+	private void fireClosed() {
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 
@@ -141,7 +167,7 @@ public class IOSessionImpl implements UnsafeSession {
 			IOEventHandle handle = future.getIOEventHandle();
 
 			handle.exceptionCaught(this, future, new DisconnectException("disconnected"), IOEventState.WRITE);
-			
+
 			return;
 		}
 
@@ -152,7 +178,7 @@ public class IOSessionImpl implements UnsafeSession {
 			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
 
 			IOReadFuture ioReadFuture = (IOReadFuture) future;
-			
+
 			writeFuture = encoder.encode(context, ioReadFuture);
 
 			ioReadFuture.flush();
@@ -174,7 +200,7 @@ public class IOSessionImpl implements UnsafeSession {
 	public void flush(IOWriteFuture future) {
 
 		try {
-			
+
 			if (isEnableSSL()) {
 				future.wrapSSL(sslEngine, context.getSslContext().getSslHandler());
 			}
@@ -309,7 +335,7 @@ public class IOSessionImpl implements UnsafeSession {
 	public long getLastAccessTime() {
 		return lastAccess;
 	}
-	
+
 	public boolean isOpened() {
 		return channel.isOpened();
 	}
@@ -317,7 +343,7 @@ public class IOSessionImpl implements UnsafeSession {
 	public String toString() {
 		return channel.toString();
 	}
-	
+
 	public Charset getEncoding() {
 		return context.getEncoding();
 	}
@@ -327,6 +353,15 @@ public class IOSessionImpl implements UnsafeSession {
 	}
 
 	public void fireOpend() {
+
+		if (isEnableSSL() && context.getSslContext().isClient()) {
+
+			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+
+			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+
+			flush(f);
+		}
 
 		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
 

@@ -6,6 +6,8 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.common.ssl.SSLUtil;
+import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
@@ -31,6 +33,8 @@ public class TestFIxedLengthClient {
 				System.out.println();
 			}
 		};
+		
+		SslContext sslContext = SSLUtil.initClient();
 
 		SocketChannelConnector connector = new SocketChannelConnector();
 		
@@ -38,6 +42,7 @@ public class TestFIxedLengthClient {
 		
 		configuration.setSERVER_HOST("localhost");
 		configuration.setSERVER_TCP_PORT(18300);
+		configuration.setSERVER_SESSION_IDLE_TIME(1800000);
 		
 		BaseContext context = new BaseContextImpl(configuration);
 
@@ -52,6 +57,8 @@ public class TestFIxedLengthClient {
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		context.setSslContext(sslContext);
 		
 		connector.setContext(context);
 		

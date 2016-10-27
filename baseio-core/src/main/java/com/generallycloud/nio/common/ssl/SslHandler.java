@@ -9,7 +9,6 @@ import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -36,38 +35,30 @@ public class SslHandler {
 
 	public ByteBuf wrap(SSLEngine engine, ByteBuf buf) throws IOException {
 
-		ByteBuf out;
-
-		if (buf.capacity() == 0) {
-
-			out = allocate(102400);
-		} else {
-
-			out = allocate(buf.limit() * 100);
-		}
+		ByteBuf out = allocate(engine.getSession().getPacketBufferSize() * 2);
 
 		try {
 
 			for (;;) {
 
 				SSLEngineResult result = engine.wrap(buf.getMemory(), out.getMemory());
-				
+
 				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-				
+
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
-				
+
 				logger.info("_________________________wrap");
 				logger.info("_________________________bytesConsumed:" + bytesConsumed);
 				logger.info("_________________________bytesProduced:" + bytesProduced);
 				logger.info("_________________________" + status.name());
 				logger.info("_________________________" + handshakeStatus.name());
-				
+
 				if (bytesConsumed > 0) {
 					buf.position(buf.position() + bytesConsumed);
 				}
-				
+
 				if (bytesProduced > 0) {
 					out.position(out.position() + bytesProduced);
 				}
@@ -75,37 +66,19 @@ public class SslHandler {
 				if (status == Status.CLOSED) {
 					return null;
 				} else {
-
 					switch (handshakeStatus) {
+					case NEED_UNWRAP:
+						return gc(out);
+					case NOT_HANDSHAKING:
+						return gc(out);
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
-					case FINISHED:
-						// deliberate fall-through
-					case NOT_HANDSHAKING:
-						break;
-					case NEED_WRAP:
-						break;
-					case NEED_UNWRAP:
-						break;
 					default:
-						throw new IllegalStateException("Unknown handshake status: "
-								+ result.getHandshakeStatus());
-					}
-
-					if (bytesProduced == 0) {
-
-						out.flip();
-
-						ByteBuf out2 = allocate(out.limit());
-
-						out2.read(out.getMemory());
-
-						ReleaseUtil.release(out);
-
-						out2.flip();
-
-						return out2;
+						// throw new
+						// IllegalStateException("unknown handshake status: "
+						// + handshakeStatus);
+						break;
 					}
 				}
 			}
@@ -122,6 +95,30 @@ public class SslHandler {
 		}
 	}
 
+	private ByteBuf gc(ByteBuf out) throws IOException {
+
+		out.flip();
+
+		ByteBuf out2 = allocate(out.limit());
+
+		try {
+
+			out2.read(out.getMemory());
+
+		} catch (IOException e) {
+
+			ReleaseUtil.release(out2);
+
+			throw e;
+		}
+
+		ReleaseUtil.release(out);
+
+		out2.flip();
+
+		return out2;
+	}
+
 	public ByteBuf unwrap(IOSession session, ByteBuf packet) throws IOException {
 
 		logger.info("__________________________________________________start");
@@ -132,13 +129,11 @@ public class SslHandler {
 
 		SSLEngine sslEngine = session.getSSLEngine();
 
-		boolean notifyClosure = false;
-
 		try {
 			for (;;) {
 
 				SSLEngineResult result = sslEngine.unwrap(packet.getMemory(), buf.getMemory());
-				
+
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
@@ -150,25 +145,13 @@ public class SslHandler {
 				logger.info("_________________________bytesProduced:" + bytesProduced);
 				logger.info("_________________________" + status.name());
 				logger.info("_________________________" + handshakeStatus.name());
-				
+
 				if (bytesConsumed > 0) {
 					packet.position(packet.position() + bytesConsumed);
 				}
-				
+
 				if (bytesProduced > 0) {
 					buf.position(buf.position() + bytesProduced);
-				}
-
-
-				switch (status) {
-				case BUFFER_OVERFLOW:
-					logger.error("buffer overflow");
-					return null;
-				case CLOSED:
-					notifyClosure = true;
-					break;
-				default:
-					break;
 				}
 
 				switch (handshakeStatus) {
@@ -176,7 +159,6 @@ public class SslHandler {
 					return null;
 				case NEED_WRAP:
 
-					// wrapNonAppData(session, sslEngine);
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
 					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
@@ -186,33 +168,19 @@ public class SslHandler {
 					return null;
 				case NEED_TASK:
 					runDelegatedTasks(sslEngine);
-					break;
+					continue;
 				case FINISHED:
 					return null;
 				case NOT_HANDSHAKING:
 
-					if (bytesProduced > 0) {
+					release = false;
 
-						release = false;
+					buf.flip();
 
-						buf.flip();
+					return buf;
 
-						return buf;
-					}
-
-					return null;
 				default:
 					throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
-				}
-
-				if (notifyClosure) {
-					sslEngine.closeInbound();
-					sslEngine.closeOutbound();
-					CloseUtil.close(session);
-				}
-				
-				if (result.bytesConsumed() ==0 && handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
-					return null;
 				}
 			}
 

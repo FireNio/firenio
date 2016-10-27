@@ -58,6 +58,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 		session.active();
 
+		//FIXME extend class
 		if (context.isEnableSSL()) {
 			
 			for (;;) {

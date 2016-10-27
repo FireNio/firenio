@@ -42,8 +42,6 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 		int length = SslUtils.getEncryptedPacketLength(buf.array(), buf.offset());
 		
-		System.out.println("******************"+length);
-
 		if (length < 1) {
 
 			throw new ProtocolException("illegal length:" + length);

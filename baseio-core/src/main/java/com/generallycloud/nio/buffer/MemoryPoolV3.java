@@ -3,9 +3,6 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-
 public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 //	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);

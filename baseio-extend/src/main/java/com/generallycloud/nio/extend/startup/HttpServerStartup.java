@@ -46,7 +46,7 @@ public class HttpServerStartup {
 
 		try {
 			
-			SslContext sslContext = SSLUtil.init();
+			SslContext sslContext = SSLUtil.initServer(base);
 
 			applicationContext
 					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
