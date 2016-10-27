@@ -166,6 +166,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "协议名称           ：{ {} }", protocolFactory.getProtocolID());
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "启用SSL加密        ：{ {} }", isEnableSSL());
 		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
 				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());

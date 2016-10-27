@@ -97,11 +97,7 @@ public class IOSessionImpl implements UnsafeSession {
 
 			if (isEnableSSL()) {
 
-				try {
-					sslEngine.closeOutbound();
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
+				sslEngine.closeOutbound();
 
 				if (context.getSslContext().isClient()) {
 					
@@ -115,7 +111,8 @@ public class IOSessionImpl implements UnsafeSession {
 				try {
 					sslEngine.closeInbound();
 				} catch (SSLException e) {
-					logger.error(e.getMessage(), e);
+					//ignore
+//					logger.error(e.getMessage(), e);
 				}
 				
 			}

@@ -33,14 +33,13 @@
 		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
 				<configuration>
-					<compilerVersion>1.6</compilerVersion>
-					<fork>1.6</fork>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
-					<attach>true</attach>
 				</configuration>
 			</plugin>
 		</plugins>
