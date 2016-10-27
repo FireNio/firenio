@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
@@ -29,11 +29,11 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 
 	private int		limit;
 
-	public FixedLengthReadFutureImpl(IOSession session, ByteBuf buf) {
+	public FixedLengthReadFutureImpl(SocketSession session, ByteBuf buf) {
 		this(session, buf, 1024 * 1024);
 	}
 	
-	public FixedLengthReadFutureImpl(IOSession session, ByteBuf buf,int limit) {
+	public FixedLengthReadFutureImpl(SocketSession session, ByteBuf buf,int limit) {
 		super(session.getContext());
 		this.buf = buf;
 		this.limit = limit;
@@ -91,7 +91,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		}
 	}
 
-	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 

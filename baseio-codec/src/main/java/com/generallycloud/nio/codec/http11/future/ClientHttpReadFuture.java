@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
@@ -15,7 +15,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		this.setRequestURL(url);
 	}
 
-	public ClientHttpReadFuture(IOSession session, ByteBuffer readBuffer) {
+	public ClientHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
 		super(session, readBuffer);
 	}
 

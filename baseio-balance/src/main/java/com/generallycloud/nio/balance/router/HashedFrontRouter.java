@@ -1,7 +1,7 @@
 package com.generallycloud.nio.balance.router;
 
 import com.generallycloud.nio.balance.HashedBalanceReadFuture;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class HashedFrontRouter extends AbstractFrontRouter {
@@ -12,12 +12,12 @@ public class HashedFrontRouter extends AbstractFrontRouter {
 
 	private NodeGroup	nodeGroup;
 
-	public void addRouterSession(IOSession session) {
+	public void addRouterSession(SocketSession session) {
 		Machine machine = new Machine(session);
 		nodeGroup.addMachine(machine);
 	}
 
-	public void removeRouterSession(IOSession session) {
+	public void removeRouterSession(SocketSession session) {
 		Machine machine = (Machine) session.getAttachment();
 		if (machine == null) {
 			return;
@@ -25,14 +25,14 @@ public class HashedFrontRouter extends AbstractFrontRouter {
 		nodeGroup.removeMachine(machine);
 	}
 
-	public IOSession getRouterSession(IOSession session, ReadFuture future) {
+	public SocketSession getRouterSession(SocketSession session, ReadFuture future) {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
 
 		return nodeGroup.getMachine(f.getHashCode()).session;
 	}
 
-	public IOSession getRouterSession(IOSession session) {
+	public SocketSession getRouterSession(SocketSession session) {
 
 		Machine machine = (Machine) session.getAttachment();
 

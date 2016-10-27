@@ -11,7 +11,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.protocol.IOWriteFuture;
@@ -54,7 +54,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				for (; ss.hasNext();) {
 
-					IOSession s = (IOSession) ss.next();
+					SocketSession s = (SocketSession) ss.next();
 
 					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) == null) {
 
@@ -95,7 +95,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		int sessionID = f.getSessionID();
 
-		IOSession response = frontRouter.getClientSession(sessionID);
+		SocketSession response = frontRouter.getClientSession(sessionID);
 
 		if (response != null) {
 

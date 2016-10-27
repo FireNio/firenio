@@ -6,13 +6,13 @@ import java.nio.ByteBuffer;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.BaseProtocolDecoder;
 import com.generallycloud.nio.codec.protobuf.future.ProtobufReadFutureImpl;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
-	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
+	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
 		
 		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(BaseProtocolDecoder.PROTOCOL_HADER);
 

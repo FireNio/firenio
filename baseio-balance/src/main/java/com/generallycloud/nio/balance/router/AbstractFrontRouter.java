@@ -1,21 +1,21 @@
 package com.generallycloud.nio.balance.router;
 
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 public abstract class AbstractFrontRouter implements FrontRouter{
 
-	private ReentrantMap<Integer, IOSession> clients = new ReentrantMap<Integer, IOSession>();
+	private ReentrantMap<Integer, SocketSession> clients = new ReentrantMap<Integer, SocketSession>();
 
-	public void addClientSession(IOSession session) {
+	public void addClientSession(SocketSession session) {
 		this.clients.put(session.getSessionID(), session);
 	}
 
-	public IOSession getClientSession(Integer sessionID) {
+	public SocketSession getClientSession(Integer sessionID) {
 		return clients.get(sessionID);
 	}
 
-	public void removeClientSession(IOSession session) {
+	public void removeClientSession(SocketSession session) {
 		this.clients.remove(session.getSessionID());
 	}
 }

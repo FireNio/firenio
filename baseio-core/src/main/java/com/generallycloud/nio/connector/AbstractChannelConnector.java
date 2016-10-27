@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
@@ -102,7 +102,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			
 			LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServiceDescription());
 			
-			((IOSession)this.getSession()).fireOpend();
+			((SocketSession)this.getSession()).fireOpend();
 
 			active = true;
 			

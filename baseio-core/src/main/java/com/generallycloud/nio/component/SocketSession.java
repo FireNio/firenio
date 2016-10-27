@@ -8,7 +8,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public interface IOSession extends Session{
+public interface SocketSession extends Session{
 	
 	public abstract boolean isEnableSSL();
 	

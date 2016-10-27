@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -30,7 +30,7 @@ public class ProtobufReadFutureImpl extends BaseReadFutureImpl implements Protob
 		super(context, futureID, futureName);
 	}
 	
-	public ProtobufReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
+	public ProtobufReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
 		super(session, buf);
 	}
 

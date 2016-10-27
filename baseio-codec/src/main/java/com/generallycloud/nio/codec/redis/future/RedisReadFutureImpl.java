@@ -3,7 +3,7 @@ package com.generallycloud.nio.codec.redis.future;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 
 //FIXME 完善心跳
@@ -26,7 +26,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture implements Redi
 //		this.complete		= false;
 	}
 
-	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
 
 		if (complete) {
 			return true;

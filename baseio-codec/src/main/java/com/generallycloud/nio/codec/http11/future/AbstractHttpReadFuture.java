@@ -16,7 +16,7 @@ import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -54,7 +54,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 	protected String				version;
 	protected boolean				hasBodyContent;
-	protected IOSession				session;
+	protected SocketSession				session;
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected List<String>			headerLines		= new ArrayList<String>();
 	protected StringBuilder			currentHeaderLine	= new StringBuilder();
@@ -63,7 +63,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		super(context);
 	}
 
-	public AbstractHttpReadFuture(IOSession session, ByteBuffer readBuffer) {
+	public AbstractHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
 		super(session.getContext());
 		this.session = session;
 		this.headerLimit = 1024 * 8;
@@ -262,7 +262,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	}
 
 	// FIXME 是否会出现第一次读到\r\n结束，下一次loop开头读到\r\n的情况
-	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
 
 		if (!header_complete) {
 

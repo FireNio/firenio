@@ -28,9 +28,9 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class IOSessionImpl implements UnsafeSession {
+public class UnsafeSessionImpl implements UnsafeSession {
 
-	private static final Logger		logger		= LoggerFactory.getLogger(IOSessionImpl.class);
+	private static final Logger		logger		= LoggerFactory.getLogger(UnsafeSessionImpl.class);
 
 	private Object					attachment;
 	private BaseContext				context;
@@ -45,7 +45,7 @@ public class IOSessionImpl implements UnsafeSession {
 	private HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
 	private SslHandler				sslHandler;
 
-	public IOSessionImpl(SocketChannel channel, Integer sessionID) {
+	public UnsafeSessionImpl(SocketChannel channel, Integer sessionID) {
 		this.context = channel.getContext();
 		this.channel = channel;
 		this.sessionID = sessionID;

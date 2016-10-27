@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
@@ -92,7 +92,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 				
 				for (; ss.hasNext();) {
 
-					IOSession s = (IOSession) ss.next();
+					SocketSession s = (SocketSession) ss.next();
 
 					IOWriteFuture copy = writeFuture.duplicate();
 

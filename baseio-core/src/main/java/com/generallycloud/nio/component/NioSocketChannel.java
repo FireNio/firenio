@@ -25,7 +25,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	private Socket					socket;
 	private SocketChannel			channel;
-	private IOSession				session;
+	private SocketSession				session;
 	private IOReadFuture			readFuture;
 	private SelectionKey			selectionKey;
 	private ChannelFlusher			channelFlusher;
@@ -55,7 +55,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			throw new SocketException("socket is empty");
 		}
 
-		this.session = new IOSessionImpl(this, getChannelID());
+		this.session = new UnsafeSessionImpl(this, getChannelID());
 	}
 
 	public void close() throws IOException {
@@ -125,7 +125,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return remote;
 	}
 
-	public IOSession getSession() {
+	public SocketSession getSession() {
 		return session;
 	}
 

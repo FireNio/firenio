@@ -54,7 +54,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 		buffer.flip();
 
-		IOSession session = channel.getSession();
+		SocketSession session = channel.getSession();
 
 		session.active();
 
@@ -122,7 +122,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	}
 
-	private void read(SocketChannel channel, IOSession session, ByteBuffer buffer) throws Exception {
+	private void read(SocketChannel channel, SocketSession session, ByteBuffer buffer) throws Exception {
 
 		for (;;) {
 

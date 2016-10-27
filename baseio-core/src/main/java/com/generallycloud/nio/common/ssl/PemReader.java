@@ -5,13 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.KeyException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.generallycloud.nio.Encoding;
@@ -61,26 +59,25 @@ final class PemReader {
 		} catch (IOException e) {
 			throw new CertificateException("failed to read certificate input stream", e);
 		}
-
-		List<byte[]> certs = new ArrayList<byte[]>();
-		Matcher m = CERT_PATTERN.matcher(content);
-		int start = 0;
-		for (;;) {
-			if (!m.find(start)) {
-				break;
+		
+		String [] ls = content.split("\n");
+		
+		StringBuilder b = new StringBuilder();
+		
+		for(String s : ls){
+			if (s.startsWith("----")) {
+				continue;
 			}
-
-			String c = m.group(1);
-			
-			c = c.replace("\n", "");
-
-			byte[] data = BASE64Util.base64ToByteArray(c);
-
-			certs.add(data);
-
-			start = m.end();
+			b.append(s);
 		}
 
+
+		List<byte[]> certs = new ArrayList<byte[]>();
+		
+		byte[] data = BASE64Util.base64ToByteArray(b.toString());
+		
+		certs.add(data);
+		
 		if (certs.isEmpty()) {
 			throw new CertificateException("found no certificates in input stream");
 		}

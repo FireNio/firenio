@@ -5,25 +5,25 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SimpleNextRouter extends AbstractFrontRouter{
 
 	private int			index			= 0;
-	private List<IOSession>	routerList		= new ArrayList<IOSession>();
+	private List<SocketSession>	routerList		= new ArrayList<SocketSession>();
 	private ReentrantLock	lock				= new ReentrantLock();
 	private String			SESSION_ID_ROUTER	= "_SESSION_ID_ROUTER";
 
-	private IOSession getNextRouterSession() {
+	private SocketSession getNextRouterSession() {
 
-		List<IOSession> list = this.routerList;
+		List<SocketSession> list = this.routerList;
 
 		if (list.isEmpty()) {
 			return null;
 		}
 
-		IOSession session;
+		SocketSession session;
 
 		if (index < list.size()) {
 
@@ -38,7 +38,7 @@ public class SimpleNextRouter extends AbstractFrontRouter{
 		return session;
 	}
 
-	public void addRouterSession(IOSession session) {
+	public void addRouterSession(SocketSession session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -49,7 +49,7 @@ public class SimpleNextRouter extends AbstractFrontRouter{
 		lock.unlock();
 	}
 
-	public void removeRouterSession(IOSession session) {
+	public void removeRouterSession(SocketSession session) {
 
 		ReentrantLock lock = this.lock;
 
@@ -60,9 +60,9 @@ public class SimpleNextRouter extends AbstractFrontRouter{
 		lock.unlock();
 	}
 
-	public IOSession getRouterSession(IOSession session,ReadFuture future) {
+	public SocketSession getRouterSession(SocketSession session,ReadFuture future) {
 
-		IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
+		SocketSession router_session = (SocketSession) session.getAttribute(SESSION_ID_ROUTER);
 
 		if (router_session == null) {
 
@@ -77,12 +77,12 @@ public class SimpleNextRouter extends AbstractFrontRouter{
 		return router_session;
 	}
 	
-	public IOSession getRouterSession(IOSession session) {
+	public SocketSession getRouterSession(SocketSession session) {
 
-		return (IOSession) session.getAttribute(SESSION_ID_ROUTER);
+		return (SocketSession) session.getAttribute(SESSION_ID_ROUTER);
 	}
 
-	private IOSession getRouterSessionFresh(IOSession session) {
+	private SocketSession getRouterSessionFresh(SocketSession session) {
 		
 		ReentrantLock lock = this.lock;
 
@@ -90,7 +90,7 @@ public class SimpleNextRouter extends AbstractFrontRouter{
 
 		try {
 			
-			IOSession router_session = (IOSession) session.getAttribute(SESSION_ID_ROUTER);
+			SocketSession router_session = (SocketSession) session.getAttribute(SESSION_ID_ROUTER);
 			
 			if (router_session != null && router_session.isOpened()) {
 				return router_session;

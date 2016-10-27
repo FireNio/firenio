@@ -11,7 +11,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.IOWriteFutureImpl;
@@ -31,7 +31,7 @@ public class SslHandler {
 		return context.getHeapByteBufferPool().allocate(capacity);
 	}
 
-	public ByteBuf wrap(IOSession session,ByteBuf buf) throws IOException {
+	public ByteBuf wrap(SocketSession session,ByteBuf buf) throws IOException {
 		
 		SSLEngine engine = session.getSSLEngine();
 		
@@ -122,7 +122,7 @@ public class SslHandler {
 		return out2;
 	}
 
-	public ByteBuf unwrap(IOSession session, ByteBuf packet) throws IOException {
+	public ByteBuf unwrap(SocketSession session, ByteBuf packet) throws IOException {
 
 //		logger.info("__________________________________________________start");
 

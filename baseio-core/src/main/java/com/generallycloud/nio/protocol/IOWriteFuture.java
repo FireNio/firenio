@@ -6,7 +6,7 @@ import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.ssl.SslHandler;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 
 public interface IOWriteFuture extends WriteFuture, Linkable<IOWriteFuture> {
@@ -15,9 +15,9 @@ public interface IOWriteFuture extends WriteFuture, Linkable<IOWriteFuture> {
 
 	public IOWriteFuture duplicate();
 
-	public abstract void onException(IOSession session, Exception e);
+	public abstract void onException(SocketSession session, Exception e);
 
-	public abstract void onSuccess(IOSession session);
+	public abstract void onSuccess(SocketSession session);
 
-	public abstract void wrapSSL(IOSession session, SslHandler handler) throws SSLException, IOException;
+	public abstract void wrapSSL(SocketSession session, SslHandler handler) throws SSLException, IOException;
 }

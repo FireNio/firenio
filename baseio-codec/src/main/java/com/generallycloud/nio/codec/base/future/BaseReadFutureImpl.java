@@ -14,7 +14,7 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.IOWriteFuture;
@@ -51,11 +51,11 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		this.futureID = futureID;
 	}
 
-	public BaseReadFutureImpl(IOSession session, ByteBuf buf) throws IOException {
+	public BaseReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
 		this(session, buf, 1024 * 1024 * 2);
 	}
 	
-	public BaseReadFutureImpl(IOSession session, ByteBuf buf,int binaryLimit) throws IOException {
+	public BaseReadFutureImpl(SocketSession session, ByteBuf buf,int binaryLimit) throws IOException {
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;
@@ -229,7 +229,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
-	public boolean read(IOSession session,ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session,ByteBuffer buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 

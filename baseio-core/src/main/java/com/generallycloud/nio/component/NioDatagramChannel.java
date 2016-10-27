@@ -19,7 +19,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(NioDatagramChannel.class);
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
-	private IOSession			session;
+	private SocketSession			session;
 	private DatagramSocket		socket;
 
 	public NioDatagramChannel(BaseContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
@@ -73,7 +73,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		return remote;
 	}
 
-	public IOSession getSession() {
+	public SocketSession getSession() {
 		return session;
 	}
 
@@ -88,7 +88,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	public void setSession(Session session) {
-		this.session = (IOSession) session;
+		this.session = (SocketSession) session;
 	}
 
 	public boolean isOpened() {

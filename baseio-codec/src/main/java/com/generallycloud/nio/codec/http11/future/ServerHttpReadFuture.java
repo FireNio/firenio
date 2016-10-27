@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ServerHttpReadFuture(IOSession session, ByteBuffer readBuffer) {
+	public ServerHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
 		super(session, readBuffer);
 		this.params = new HashMap<String, String>();
 	}

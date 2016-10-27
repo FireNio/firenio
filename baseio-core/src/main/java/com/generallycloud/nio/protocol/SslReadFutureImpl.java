@@ -7,7 +7,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.common.ssl.SslUtils;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
 
 public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFuture {
@@ -22,11 +22,11 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 	private int		limit;
 
-	public SslReadFutureImpl(IOSession session, ByteBuf buf) {
+	public SslReadFutureImpl(SocketSession session, ByteBuf buf) {
 		this(session, buf, 1024 * 1024);
 	}
 
-	public SslReadFutureImpl(IOSession session, ByteBuf buf, int limit) {
+	public SslReadFutureImpl(SocketSession session, ByteBuf buf, int limit) {
 		super(session.getContext());
 		this.buf = buf;
 		this.limit = limit;
@@ -73,7 +73,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 		this.length = length;
 	}
 
-	public boolean read(IOSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
 
 		if (!header_complete) {
 			
@@ -104,7 +104,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 		return true;
 	}
 
-	private void doBodyComplete(IOSession session, ByteBuf buf) throws IOException {
+	private void doBodyComplete(SocketSession session, ByteBuf buf) throws IOException {
 
 		body_complete = true;
 

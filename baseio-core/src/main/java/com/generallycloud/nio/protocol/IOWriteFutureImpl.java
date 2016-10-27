@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IOEventHandle;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 
 public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
@@ -26,7 +26,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		this.buf = buf;
 	}
 
-	public void onException(IOSession session, Exception e) {
+	public void onException(SocketSession session, Exception e) {
 
 		ReadFuture readFuture = this.getReadFuture();
 
@@ -41,7 +41,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		}
 	}
 
-	public void onSuccess(IOSession session) {
+	public void onSuccess(SocketSession session) {
 
 		ReadFuture readFuture = this.getReadFuture();
 
@@ -93,7 +93,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		this.next = future;
 	}
 
-	public void wrapSSL(IOSession session, SslHandler handler) throws IOException {
+	public void wrapSSL(SocketSession session, SslHandler handler) throws IOException {
 
 		ByteBuf old = this.buf;
 

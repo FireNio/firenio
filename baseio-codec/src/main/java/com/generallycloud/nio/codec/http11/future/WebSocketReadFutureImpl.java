@@ -8,7 +8,7 @@ import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
@@ -37,7 +37,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	
 	private String serviceName;
 	
-	public WebSocketReadFutureImpl(IOSession session,ByteBuf buf) {
+	public WebSocketReadFutureImpl(SocketSession session,ByteBuf buf) {
 		super(session.getContext());
 		
 		this.buf = buf;
@@ -103,7 +103,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 	}
 	
-	private void doRemainHeaderComplete(IOSession session,ByteBuf buffer) throws IOException{
+	private void doRemainHeaderComplete(SocketSession session,ByteBuf buffer) throws IOException{
 		
 		remain_header_complete = true;
 		
@@ -133,7 +133,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		doLengthComplete(session,buffer,length);
 	}
 
-	public boolean read(IOSession session,ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session,ByteBuffer buffer) throws IOException {
 		
 		ByteBuf buf = this.buf;
 		
@@ -191,7 +191,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		return true;
 	}
 	
-	private void doLengthComplete(IOSession session,ByteBuf buffer,int length){
+	private void doLengthComplete(SocketSession session,ByteBuf buffer,int length){
 		
 		if (length > 1024 * 8) {
 			throw new ProtocolException("max 8KB ,length:" + length);

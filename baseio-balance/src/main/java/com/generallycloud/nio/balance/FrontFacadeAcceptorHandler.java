@@ -4,7 +4,7 @@ import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -31,7 +31,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 			return;
 		}
 
-		IOSession routerSession = frontRouter.getRouterSession((IOSession) session, f);
+		SocketSession routerSession = frontRouter.getRouterSession((SocketSession) session, f);
 
 		if (routerSession == null) {
 			logger.info("未发现负载节点，报文分发失败：{} ", f);

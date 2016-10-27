@@ -32,7 +32,7 @@ public interface Channel extends Closeable{
 	
 	public abstract InetSocketAddress getLocalSocketAddress() ;
 	
-	public abstract IOSession getSession();
+	public abstract SocketSession getSession();
 
 	public abstract Integer getChannelID();
 	

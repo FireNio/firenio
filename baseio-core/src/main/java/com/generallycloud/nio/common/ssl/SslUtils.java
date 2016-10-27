@@ -4,7 +4,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 
 /**
  * Constants for SSL packets.
@@ -110,7 +110,7 @@ public final class SslUtils {
         return packetLength;
     }
 
-    public static  void notifyHandshakeFailure(IOSession session, Throwable cause) {
+    public static  void notifyHandshakeFailure(SocketSession session, Throwable cause) {
        logger.error(cause.getMessage(),cause);
     }
 

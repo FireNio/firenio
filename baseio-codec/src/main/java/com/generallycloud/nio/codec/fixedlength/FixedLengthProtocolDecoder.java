@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
-import com.generallycloud.nio.component.IOSession;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 
@@ -36,7 +36,7 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_PONG		= -2;
 
-	public IOReadFuture decode(IOSession session, ByteBuffer buffer) throws IOException {
+	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
 		
 		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HADER);
 		
