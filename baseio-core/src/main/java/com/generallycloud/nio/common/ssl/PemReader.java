@@ -68,7 +68,7 @@ final class PemReader {
 			if (s.startsWith("----")) {
 				continue;
 			}
-			b.append(s);
+			b.append(s.trim().replace("\r", ""));
 		}
 
 
@@ -120,7 +120,7 @@ final class PemReader {
 			if (s.startsWith("-----")) {
 				continue;
 			}
-			b.append(s);
+			b.append(s.trim().replace("\r", ""));
 		}
 		
 		byte[] der = BASE64Util.base64ToByteArray(b.toString());
