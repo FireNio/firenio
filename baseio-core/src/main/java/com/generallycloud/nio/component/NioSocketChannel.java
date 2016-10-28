@@ -25,7 +25,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	private Socket					socket;
 	private SocketChannel			channel;
-	private SocketSession				session;
+	private UnsafeSession			session;
 	private IOReadFuture			readFuture;
 	private SelectionKey			selectionKey;
 	private ChannelFlusher			channelFlusher;
@@ -36,10 +36,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private IOWriteFuture			writeFuture;
 	private boolean				opened			= true;
 	private long					next_network_weak	= Long.MAX_VALUE;
-	
-	//FIXME 这里最好不要用ABQ，使用链式可增可减
-	private ListQueue<IOWriteFuture>	writeFutures			= new ListQueueLink<IOWriteFuture>();
-//	private ListQueue<IOWriteFuture>	writeFutures			= new ListQueueABQ<IOWriteFuture>(1024 * 10);
+
+	// FIXME 这里最好不要用ABQ，使用链式可增可减
+	private ListQueue<IOWriteFuture>	writeFutures		= new ListQueueLink<IOWriteFuture>();
+
+	// private ListQueue<IOWriteFuture> writeFutures = new ListQueueABQ<IOWriteFuture>(1024 * 10);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -125,7 +126,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return remote;
 	}
 
-	public SocketSession getSession() {
+	public UnsafeSession getSession() {
 		return session;
 	}
 
@@ -153,44 +154,49 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void offer(IOWriteFuture future) {
 
 		if (!isOpened()) {
-			
-			future.onException(session,new ClosedChannelException());
-			
+
+			future.onException(session, new ClosedChannelException());
+
 			return;
 		}
-		
-		if(!writeFutures.offer(future)){
-			
-			future.onException(session,new RejectedExecutionException());
-			
+
+		if (!writeFutures.offer(future)) {
+
+			future.onException(session, new RejectedExecutionException());
+
 			return;
 		}
 
 		channelFlusher.offer(this);
 	}
-	
-	
-	private void releaseWriteFutures(){
-		
+
+	private void releaseWriteFutures() {
+
 		ReleaseUtil.release(writeFuture);
-		
+
 		ListQueue<IOWriteFuture> writeFutures = this.writeFutures;
-		
+
 		IOWriteFuture f = writeFutures.poll();
-		
-		for(; f != null;){
-			
+
+		ClosedChannelException e = new ClosedChannelException();
+
+		UnsafeSession session = this.session;
+
+		for (; f != null;) {
+
+			f.onException(session, e);
+
 			ReleaseUtil.release(f);
-			
+
 			f = writeFutures.poll();
 		}
-		
+
 	}
-	
+
 	public void physicalClose() throws IOException {
-		
+
 		this.opened = false;
-		
+
 		this.releaseWriteFutures();
 
 		this.selectionKey.attach(null);
@@ -221,20 +227,19 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void setReadFuture(IOReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
-	
+
 	public void upNetworkState() {
-		
+
 		if (next_network_weak != Long.MAX_VALUE) {
 
 			next_network_weak = Long.MAX_VALUE;
 
 			networkWeak = false;
 		}
-		
 	}
 
 	public void downNetworkState() {
-		
+
 		if (next_network_weak < Long.MAX_VALUE) {
 
 			if (System.currentTimeMillis() > next_network_weak) {
@@ -246,39 +251,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 					interestWrite();
 				}
 			}
-			
+
 		} else {
 
 			next_network_weak = System.currentTimeMillis() + 64;
-		}
-	}
-
-	public void updateNetworkState(int length) {
-
-		if (length == 0) {
-			if (next_network_weak < Long.MAX_VALUE) {
-
-				if (System.currentTimeMillis() > next_network_weak) {
-
-					if (!networkWeak) {
-
-						networkWeak = true;
-
-						interestWrite();
-					}
-				}
-			} else {
-
-				next_network_weak = System.currentTimeMillis() + 64;
-			}
-		} else {
-
-			if (next_network_weak != Long.MAX_VALUE) {
-
-				next_network_weak = Long.MAX_VALUE;
-
-				networkWeak = false;
-			}
 		}
 	}
 
@@ -290,7 +266,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 				NioSocketChannel channel = NioSocketChannel.this;
 
-				channel.updateNetworkState(1);
+				channel.upNetworkState();
 
 				flusher.wekeupSocketChannel(channel);
 			}
