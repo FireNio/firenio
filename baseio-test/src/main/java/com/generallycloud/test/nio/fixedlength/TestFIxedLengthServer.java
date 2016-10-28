@@ -1,9 +1,12 @@
 package com.generallycloud.test.nio.fixedlength;
 
+import java.io.File;
+
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BaseContextImpl;
@@ -29,8 +32,6 @@ public class TestFIxedLengthServer {
 			}
 		};
 		
-		SslContext sslContext = SSLUtil.initServer("nio");
-
 		ServerConfiguration configuration = new ServerConfiguration();
 		
 		configuration.setSERVER_TCP_PORT(18300);
@@ -51,6 +52,11 @@ public class TestFIxedLengthServer {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
+		File certificate = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.crt");
+		File privateKey = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.key");
+
+		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
+		
 		context.setSslContext(sslContext);
 		
 		acceptor.setContext(context);

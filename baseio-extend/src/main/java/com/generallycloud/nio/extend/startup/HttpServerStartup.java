@@ -1,5 +1,7 @@
 package com.generallycloud.nio.extend.startup;
 
+import java.io.File;
+
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.WebSocketBeatFutureFactory;
@@ -46,8 +48,6 @@ public class HttpServerStartup {
 
 		try {
 			
-			SslContext sslContext = SSLUtil.initServer(base);
-
 			applicationContext
 					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
 			
@@ -62,6 +62,11 @@ public class HttpServerStartup {
 //			context.addSessionEventListener(new SessionActiveSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
+			
+			File certificate = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.crt");
+			File privateKey = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.key");
+
+			SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 			
 			context.setSslContext(sslContext);
 			
