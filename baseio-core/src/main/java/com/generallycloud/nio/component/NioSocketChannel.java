@@ -20,6 +20,7 @@ import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.SslReadFuture;
 
 public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
 
@@ -27,6 +28,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private SocketChannel			channel;
 	private UnsafeSession			session;
 	private IOReadFuture			readFuture;
+	private SslReadFuture			sslReadFuture;
 	private SelectionKey			selectionKey;
 	private ChannelFlusher			channelFlusher;
 	private boolean				networkWeak;
@@ -278,4 +280,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
+
+	public SslReadFuture getSslReadFuture() {
+		return sslReadFuture;
+	}
+
+	public void setSslReadFuture(SslReadFuture future) {
+		this.sslReadFuture = future;
+	}
+	
 }

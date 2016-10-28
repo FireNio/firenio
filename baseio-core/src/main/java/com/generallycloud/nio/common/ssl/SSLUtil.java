@@ -47,4 +47,8 @@ public class SSLUtil {
 		return sslContext.newEngine();
 	}
 
+	public static SslContext getSslContext() {
+		return sslContext;
+	}
+
 }

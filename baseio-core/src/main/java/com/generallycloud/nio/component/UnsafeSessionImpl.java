@@ -203,6 +203,7 @@ public class UnsafeSessionImpl implements UnsafeSession {
 
 		try {
 
+			//FIXME 部分情况下可以不在业务线程做wrapssl
 			if (isEnableSSL()) {
 				future.wrapSSL(this, sslHandler);
 			}
@@ -355,7 +356,10 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	}
 	
 	public void finishHandshake(Exception e){
-		handshakeWaiter.setPayload(e);
+		
+		logger.debug("finishHandshake session:{}",this);
+
+		this.handshakeWaiter.setPayload(e);
 	}
 	
 	private Waiter<Exception> handshakeWaiter = new Waiter<Exception>();
@@ -380,7 +384,6 @@ public class UnsafeSessionImpl implements UnsafeSession {
 			if (handshakeWaiter.getPayload() != null) {
 				throw new RuntimeException(handshakeWaiter.getPayload());
 			}
-			
 			// success
 		}
 
@@ -419,5 +422,5 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	public SslHandler getSslHandler() {
 		return context.getSslContext().getSslHandler();
 	}
-
+	
 }

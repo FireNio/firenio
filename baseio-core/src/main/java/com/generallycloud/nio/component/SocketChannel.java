@@ -8,6 +8,7 @@ import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.SslReadFuture;
 
 //FIXME 有的连接会断掉，但是没有执行session close，这些连接莫名其妙断掉的，
 //发送消息后服务端收不到，也不会回复
@@ -30,8 +31,12 @@ public interface SocketChannel extends DuplexChannel {
 	public abstract void wakeup() throws IOException;
 
 	public abstract IOReadFuture getReadFuture();
+	
+	public abstract SslReadFuture getSslReadFuture();
 
 	public abstract void setReadFuture(IOReadFuture future);
+	
+	public abstract void setSslReadFuture(SslReadFuture future);
 
 	public abstract int read(ByteBuffer buffer) throws IOException;
 

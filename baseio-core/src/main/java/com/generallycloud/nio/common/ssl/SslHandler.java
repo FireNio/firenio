@@ -98,6 +98,7 @@ public class SslHandler {
 		}
 	}
 
+	//FIXME 部分buf不需要gc
 	private ByteBuf gc(ByteBuf out) throws IOException {
 
 		out.flip();

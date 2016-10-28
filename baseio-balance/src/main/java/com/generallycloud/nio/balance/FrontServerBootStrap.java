@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.balance.router.SimpleNextRouter;
+import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.BaseContext;
@@ -24,6 +25,7 @@ public class FrontServerBootStrap {
 	private BeatFutureFactory		frontBeatFutureFactory;
 	private BeatFutureFactory		frontReverseBeatFutureFactory;
 	private FrontRouter				frontRouter;
+	private SslContext				sslContext;
 
 	public void startup() throws IOException {
 
@@ -58,6 +60,10 @@ public class FrontServerBootStrap {
 
 		if (frontSessionEventListeners != null) {
 			addSessionEventListener2Context(context, frontSessionEventListeners);
+		}
+		
+		if (sslContext != null) {
+			context.setSslContext(sslContext);
 		}
 
 		return context;
@@ -157,5 +163,13 @@ public class FrontServerBootStrap {
 
 	public FrontRouter getFrontRouter() {
 		return frontRouter;
+	}
+
+	public SslContext getSslContext() {
+		return sslContext;
+	}
+
+	public void setSslContext(SslContext sslContext) {
+		this.sslContext = sslContext;
 	}
 }

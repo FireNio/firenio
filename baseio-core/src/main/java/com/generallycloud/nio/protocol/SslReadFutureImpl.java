@@ -160,11 +160,11 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 	}
 
 	public ByteBuffer getMemory() {
-
+		
 		if (buf == null) {
 			return null;
 		}
-
+		
 		return buf.getMemory();
 	}
 

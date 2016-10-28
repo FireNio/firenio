@@ -288,6 +288,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 					continue;
 				} else {
 					currentHeaderLine.append((char) b);
+					System.out.println("___________________"+currentHeaderLine);
 				}
 			}
 

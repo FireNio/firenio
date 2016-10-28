@@ -67,7 +67,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 					return;
 				}
 
-				IOReadFuture future = channel.getReadFuture();
+				SslReadFuture future = channel.getSslReadFuture();
 
 				if (future == null) {
 					
@@ -75,7 +75,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 					future = new SslReadFutureImpl(session,buf);
 
-					channel.setReadFuture(future);
+					channel.setSslReadFuture(future);
 				}
 
 				try {
@@ -87,6 +87,8 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 				} catch (Throwable e) {
 
+					channel.setSslReadFuture(null);
+					
 					ReleaseUtil.release(future);
 
 					if (e instanceof IOException) {
@@ -97,23 +99,22 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 							+ e.getMessage(), e);
 				}
 
-				channel.setReadFuture(null);
-
-				SslReadFuture sslReadFuture = (SslReadFuture) future;
-
-				ByteBuffer sslBuffer = sslReadFuture.getMemory();
+				channel.setSslReadFuture(null);
+				
+				//FIXME 不友好
+				ByteBuffer sslBuffer = future.getMemory();
 				
 				if (sslBuffer == null) {
 					continue;
 				}
-
+				
 				try {
 					
 					read(channel, session, sslBuffer);
 				
 				} finally {
 					
-					ReleaseUtil.release(sslReadFuture);
+					ReleaseUtil.release(future);
 				}
 			}
 		}

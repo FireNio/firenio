@@ -21,7 +21,7 @@ public interface SocketSession extends Session{
 	public abstract void fireOpend();
 	
 	public abstract void finishHandshake(Exception e);
-
+	
 	public abstract void flush(IOWriteFuture future);
 
 	public abstract ProtocolDecoder getProtocolDecoder() ;
