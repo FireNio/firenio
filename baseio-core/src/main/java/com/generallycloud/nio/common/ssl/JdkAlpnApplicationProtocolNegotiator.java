@@ -2,10 +2,6 @@ package com.generallycloud.nio.common.ssl;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.nio.common.ssl.JdkApplicationProtocolNegotiator.ProtocolSelectionListenerFactory;
-import com.generallycloud.nio.common.ssl.JdkApplicationProtocolNegotiator.ProtocolSelectorFactory;
-import com.generallycloud.nio.common.ssl.JdkApplicationProtocolNegotiator.SslEngineWrapperFactory;
-
 /**
  * The {@link JdkApplicationProtocolNegotiator} to use if you need ALPN and are using {@link SslProvider#JDK}.
  */

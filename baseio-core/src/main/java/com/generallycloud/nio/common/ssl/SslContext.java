@@ -27,7 +27,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSessionContext;
@@ -39,31 +38,6 @@ import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.SelectorFailu
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.ByteArrayInputStream;
 
-/**
- * A secure socket protocol implementation which acts as a factory for
- * {@link SSLEngine} and {@link SslHandler}. Internally, it is implemented via
- * JDK's {@link SSLContext} or OpenSSL's {@code SSL_CTX}.
- *
- * <h3>Making your server support SSL/TLS</h3>
- * 
- * <pre>
- * // In your {@link ChannelInitializer}:
- * {@link ChannelPipeline} p = channel.pipeline();
- * {@link SslContext} sslCtx = {@link SslContextBuilder#forServer(File, File) SslContextBuilder.forServer(...)}.build();
- * p.addLast("ssl", {@link #newHandler(ByteBufAllocator) sslCtx.newHandler(channel.alloc())});
- * ...
- * </pre>
- *
- * <h3>Making your client support SSL/TLS</h3>
- * 
- * <pre>
- * // In your {@link ChannelInitializer}:
- * {@link ChannelPipeline} p = channel.pipeline();
- * {@link SslContext} sslCtx = {@link SslContextBuilder#forClient() SslContextBuilder.forClient()}.build();
- * p.addLast("ssl", {@link #newHandler(ByteBufAllocator, String, int) sslCtx.newHandler(channel.alloc(), host, port)});
- * ...
- * </pre>
- */
 public abstract class SslContext {
 	static final CertificateFactory	X509_CERT_FACTORY;
 	static {
@@ -74,8 +48,6 @@ public abstract class SslContext {
 		}
 	}
 
-	private BaseContext	 context;
-	
 	private SslHandler sslHandler;
 
 	/**
@@ -109,7 +81,6 @@ public abstract class SslContext {
 	}
 
 	public void initialize(BaseContext context){
-		this.context = context;
 		this.sslHandler = new SslHandler(context);
 	}
 	

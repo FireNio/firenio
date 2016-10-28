@@ -234,6 +234,8 @@ public class JdkSslContext extends SslContext {
 			case REQUIRE:
 				engine.setNeedClientAuth(true);
 				break;
+			default:
+				break;
 			}
 		}
 		return apn.wrapperFactory().wrapSslEngine(engine, apn, isServer());

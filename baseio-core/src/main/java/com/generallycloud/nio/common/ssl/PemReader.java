@@ -6,37 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyException;
-import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.BASE64Util;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 
-/**
- * Reads a PEM file and converts it into a list of DERs so that they are
- * imported into a {@link KeyStore} easily.
- */
 final class PemReader {
-
-	private static final Logger	logger		= LoggerFactory.getLogger(PemReader.class);
-
-	private static final Pattern	CERT_PATTERN	= Pattern.compile("-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-												"([a-z0-9+/=\\r\\n]+)" + // Base64
-																	// text
-												"-+END\\s+.*CERTIFICATE[^-]*-+", // Footer
-												Pattern.CASE_INSENSITIVE);
-	private static final Pattern	KEY_PATTERN	= Pattern.compile(
-												"-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-														"([a-z0-9+/=\\r\\n]+)" + // Base64
-																			// text
-														"-+END\\s+.*PRIVATE\\s+KEY[^-]*-+", // Footer
-												Pattern.CASE_INSENSITIVE);
 
 	static byte[][] readCertificates(File file) throws CertificateException {
 		try {
@@ -45,7 +24,7 @@ final class PemReader {
 			try {
 				return readCertificates(in);
 			} finally {
-				safeClose(in);
+				CloseUtil.close(in);
 			}
 		} catch (FileNotFoundException e) {
 			throw new CertificateException("could not find certificate file: " + file);
@@ -55,34 +34,33 @@ final class PemReader {
 	static byte[][] readCertificates(InputStream in) throws CertificateException {
 		String content;
 		try {
-			content = readContent(in);
+			content = FileUtil.input2String(in, Encoding.UTF8);
 		} catch (IOException e) {
 			throw new CertificateException("failed to read certificate input stream", e);
 		}
-		
-		String [] ls = content.split("\n");
-		
+
+		String[] ls = content.split("\n");
+
 		StringBuilder b = new StringBuilder();
-		
-		for(String s : ls){
+
+		for (String s : ls) {
 			if (s.startsWith("----")) {
 				continue;
 			}
 			b.append(s.trim().replace("\r", ""));
 		}
 
-
 		List<byte[]> certs = new ArrayList<byte[]>();
-		
+
 		byte[] data = BASE64Util.base64ToByteArray(b.toString());
-		
+
 		certs.add(data);
-		
+
 		if (certs.isEmpty()) {
 			throw new CertificateException("found no certificates in input stream");
 		}
 
-		return certs.toArray(new byte[][]{});
+		return certs.toArray(new byte[][] {});
 	}
 
 	static byte[] readPrivateKey(File file) throws KeyException {
@@ -92,7 +70,7 @@ final class PemReader {
 			try {
 				return readPrivateKey(in);
 			} finally {
-				safeClose(in);
+				CloseUtil.close(in);
 			}
 		} catch (FileNotFoundException e) {
 			throw new KeyException("could not fine key file: " + file);
@@ -102,41 +80,24 @@ final class PemReader {
 	static byte[] readPrivateKey(InputStream in) throws KeyException {
 		String content;
 		try {
-			content = readContent(in);
+			content = FileUtil.input2String(in, Encoding.UTF8);
 		} catch (IOException e) {
 			throw new KeyException("failed to read key input stream", e);
 		}
 
-//		Matcher m = KEY_PATTERN.matcher(content);
-//		if (!m.find()) {
-//			throw new KeyException("could not find a PKCS #8 private key in input stream");
-//		}
+		String[] ls = content.split("\n");
 
-		String [] ls = content.split("\n");
-		
 		StringBuilder b = new StringBuilder();
-		
-		for(String s : ls){
+
+		for (String s : ls) {
 			if (s.startsWith("-----")) {
 				continue;
 			}
 			b.append(s.trim().replace("\r", ""));
 		}
-		
+
 		byte[] der = BASE64Util.base64ToByteArray(b.toString());
 		return der;
-	}
-
-	private static String readContent(InputStream in) throws IOException {
-		return FileUtil.input2String(in, Encoding.UTF8);
-	}
-
-	private static void safeClose(InputStream in) {
-		try {
-			in.close();
-		} catch (IOException e) {
-			logger.error("Failed to close a stream.", e);
-		}
 	}
 
 	private PemReader() {

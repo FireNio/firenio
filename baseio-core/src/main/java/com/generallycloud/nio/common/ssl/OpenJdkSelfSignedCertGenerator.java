@@ -1,5 +1,13 @@
 package com.generallycloud.nio.common.ssl;
 
+import java.io.File;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.util.Date;
+
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateIssuerName;
@@ -12,17 +20,10 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
-import java.util.Date;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-
 @SuppressWarnings("restriction")
 final class OpenJdkSelfSignedCertGenerator {
 
-	static String[] generate(String fqdn, KeyPair keypair, SecureRandom random, Date notBefore, Date notAfter)
+	static File[] generate(String fileRoot,String fqdn, KeyPair keypair, SecureRandom random, Date notBefore, Date notAfter)
 			throws Exception {
 		PrivateKey key = keypair.getPrivate();
 
@@ -57,7 +58,7 @@ final class OpenJdkSelfSignedCertGenerator {
 		cert.sign(key, "SHA1withRSA");
 		cert.verify(keypair.getPublic());
 
-		return SelfSignedCertificate.newSelfSignedCertificate(fqdn, key, cert);
+		return SelfSignedCertificate.newSelfSignedCertificate(fileRoot,fqdn, key, cert);
 	}
 
 	private OpenJdkSelfSignedCertGenerator() {

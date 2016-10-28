@@ -2,9 +2,8 @@ package com.generallycloud.nio.common.ssl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -18,8 +17,10 @@ import java.util.Date;
 
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.BASE64Util;
+import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.StringUtil;
 
 public final class SelfSignedCertificate {
 
@@ -38,11 +39,15 @@ public final class SelfSignedCertificate {
 	private final X509Certificate	cert;
 	private final PrivateKey		key;
 
+	public SelfSignedCertificate() throws CertificateException {
+		this(null, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
+	}
+
 	/**
 	 * Creates a new instance.
 	 */
-	public SelfSignedCertificate() throws CertificateException {
-		this(DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
+	public SelfSignedCertificate(String fileRoot) throws CertificateException {
+		this(fileRoot, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
 	/**
@@ -53,8 +58,8 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(Date notBefore, Date notAfter) throws CertificateException {
-		this("example.com", notBefore, notAfter);
+	public SelfSignedCertificate(String fileRoot, Date notBefore, Date notAfter) throws CertificateException {
+		this(fileRoot, "example.com", notBefore, notAfter);
 	}
 
 	/**
@@ -63,8 +68,8 @@ public final class SelfSignedCertificate {
 	 * @param fqdn
 	 *             a fully qualified domain name
 	 */
-	public SelfSignedCertificate(String fqdn) throws CertificateException {
-		this(fqdn, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
+	public SelfSignedCertificate(String fileRoot, String fqdn) throws CertificateException {
+		this(fileRoot, fqdn, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
 	/**
@@ -77,11 +82,12 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(String fqdn, Date notBefore, Date notAfter) throws CertificateException {
+	public SelfSignedCertificate(String fileRoot, String fqdn, Date notBefore, Date notAfter)
+			throws CertificateException {
 		// Bypass entrophy collection by using insecure random generator.
 		// We just want to generate it without any delay because it's for
 		// testing purposes only.
-		this(fqdn, new SecureRandom(), 1024, notBefore, notAfter);
+		this(fileRoot, fqdn, new SecureRandom(), 1024, notBefore, notAfter);
 	}
 
 	/**
@@ -94,8 +100,9 @@ public final class SelfSignedCertificate {
 	 * @param bits
 	 *             the number of bits of the generated private key
 	 */
-	public SelfSignedCertificate(String fqdn, SecureRandom random, int bits) throws CertificateException {
-		this(fqdn, random, bits, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
+	public SelfSignedCertificate(String fileRoot, String fqdn, SecureRandom random, int bits)
+			throws CertificateException {
+		this(fileRoot, fqdn, random, bits, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
 	/**
@@ -112,8 +119,8 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(String fqdn, SecureRandom random, int bits, Date notBefore, Date notAfter)
-			throws CertificateException {
+	public SelfSignedCertificate(String fileRoot, String fqdn, SecureRandom random, int bits, Date notBefore,
+			Date notAfter) throws CertificateException {
 		// Generate an RSA key pair.
 		final KeyPair keypair;
 		try {
@@ -126,10 +133,10 @@ public final class SelfSignedCertificate {
 			throw new Error(e);
 		}
 
-		String[] paths;
+		File[] files;
 		try {
 			// Try the OpenJDK's proprietary implementation.
-			paths = OpenJdkSelfSignedCertGenerator.generate(fqdn, keypair, random, notBefore, notAfter);
+			files = OpenJdkSelfSignedCertGenerator.generate(fileRoot, fqdn, keypair, random, notBefore, notAfter);
 		} catch (Exception t) {
 
 			logger.debug("Failed to generate a self-signed X.509 certificate using sun.security.x509:", t);
@@ -137,8 +144,8 @@ public final class SelfSignedCertificate {
 			throw new Error(t);
 		}
 
-		certificate = new File(paths[0]);
-		privateKey = new File(paths[1]);
+		certificate = files[0];
+		privateKey = files[1];
 		key = keypair.getPrivate();
 		FileInputStream certificateInput = null;
 		try {
@@ -185,16 +192,8 @@ public final class SelfSignedCertificate {
 		return key;
 	}
 
-	/**
-	 * Deletes the generated X.509 certificate file and RSA private key file.
-	 */
-	public void delete() {
-		safeDelete(certificate);
-		safeDelete(privateKey);
-	}
-
-	static String[] newSelfSignedCertificate(String fqdn, PrivateKey key, X509Certificate cert) throws IOException,
-			CertificateEncodingException {
+	static File[] newSelfSignedCertificate(String fileRoot, String fqdn, PrivateKey key, X509Certificate cert)
+			throws IOException, CertificateEncodingException {
 		// Encode the private key into a file.
 		byte keyArray[] = key.getEncoded();
 
@@ -202,20 +201,7 @@ public final class SelfSignedCertificate {
 
 		keyText = "-----BEGIN PRIVATE KEY-----\n" + keyText + "\n-----END PRIVATE KEY-----\n";
 
-		File keyFile = File.createTempFile("keyutil_" + fqdn + '_', ".key");
-		keyFile.deleteOnExit();
-
-		OutputStream keyOut = new FileOutputStream(keyFile);
-		try {
-			keyOut.write(keyText.getBytes(Encoding.UTF8));
-			keyOut.close();
-			keyOut = null;
-		} finally {
-			if (keyOut != null) {
-				safeClose(keyFile, keyOut);
-				safeDelete(keyFile);
-			}
-		}
+		File keyFile = write2file(fileRoot, "keyutil_" + fqdn + '_', ".key", keyText, Encoding.UTF8);
 
 		byte certArray[] = cert.getEncoded();
 
@@ -223,37 +209,30 @@ public final class SelfSignedCertificate {
 
 		certText = "-----BEGIN CERTIFICATE-----\n" + certText + "\n-----END CERTIFICATE-----\n";
 
-		File certFile = File.createTempFile("keyutil_" + fqdn + '_', ".crt");
+		File certFile = write2file(fileRoot, "keyutil_" + fqdn + '_', ".crt", certText, Encoding.UTF8);
 
-		certFile.deleteOnExit();
+		return new File[] { certFile, keyFile };
+	}
 
-		OutputStream certOut = new FileOutputStream(certFile);
-		try {
-			certOut.write(certText.getBytes(Encoding.UTF8));
-			certOut.close();
-			certOut = null;
-		} finally {
-			if (certOut != null) {
-				safeClose(certFile, certOut);
-				safeDelete(certFile);
-				safeDelete(keyFile);
-			}
+	private static File write2file(String fileRoot, String name, String subfix, String text, Charset charset)
+			throws IOException {
+		File file;
+		if (StringUtil.isNullOrBlank(fileRoot)) {
+			file = File.createTempFile(name, subfix);
+		} else {
+			file = new File(fileRoot + name + subfix);
 		}
+		
+		safeDelete(file);
+		
+		FileUtil.write(file, text.getBytes(charset));
+		return file;
 
-		return new String[] { certFile.getPath(), keyFile.getPath() };
 	}
 
 	private static void safeDelete(File certFile) {
 		if (!certFile.delete()) {
 			logger.error("Failed to delete a file: " + certFile);
-		}
-	}
-
-	private static void safeClose(File keyFile, OutputStream keyOut) {
-		try {
-			keyOut.close();
-		} catch (IOException e) {
-			logger.error("Failed to close a file: " + keyFile, e);
 		}
 	}
 }
