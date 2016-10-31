@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
@@ -23,7 +25,7 @@ public class TestLoadServer {
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
-				BaseReadFuture f = (BaseReadFuture)future;
+				FixedLengthReadFuture f = (FixedLengthReadFuture)future;
 				String res = "yes server already accept your message" + f.getText();
 				future.write(res);
 				session.flush(future);
@@ -39,7 +41,7 @@ public class TestLoadServer {
 
 		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 		
-		acceptor.getContext().setProtocolFactory(new BaseProtocolFactory());
+		acceptor.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 
 		acceptor.bind();
 	}

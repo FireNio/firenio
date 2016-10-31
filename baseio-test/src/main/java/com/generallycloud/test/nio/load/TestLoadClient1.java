@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
@@ -65,7 +65,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		configuration.setSERVER_CORE_SIZE(1);
 
-		context.setProtocolFactory(new BaseProtocolFactory());
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
 		session = connector.connect();
 	}
@@ -78,7 +78,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 2560000;
+		int time = 1280000;
 
 		int core_size = 8;
 

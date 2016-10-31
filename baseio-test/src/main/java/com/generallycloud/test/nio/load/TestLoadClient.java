@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -55,7 +55,7 @@ public class TestLoadClient {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
-		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 		
 		connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
 
