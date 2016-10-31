@@ -38,13 +38,7 @@ public class TestFIxedLengthClient {
 
 		SocketChannelConnector connector = new SocketChannelConnector();
 		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_TCP_PORT(18300);
-		configuration.setSERVER_SESSION_IDLE_TIME(1800000);
-		
-		BaseContext context = new BaseContextImpl(configuration);
+		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		

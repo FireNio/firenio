@@ -9,6 +9,7 @@ import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
@@ -24,6 +25,14 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		
 		MemoryPoolV3 heap = (MemoryPoolV3) context.getHeapByteBufferPool();
 		
+		ServerConfiguration configuration = context.getServerConfiguration();
+		
+		int SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY();
+		int SERVER_MEMORY_POOL_UNIT = configuration.getSERVER_MEMORY_POOL_UNIT();
+		
+		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
+				new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();
 		StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
@@ -36,6 +45,8 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append((runtime.totalMemory() - runtime.freeMemory()) / M);
 		builder.append("M;\n</BR>空闲内存：");
 		builder.append(runtime.freeMemory() / M);
+		builder.append("M;\n</BR>内存池大小：");
+		builder.append(MEMORY_POOL_SIZE);
 		builder.append("M;\n</BR>内存池状态（Heap）：");
 		builder.append(heap.toSimpleString());
 		builder.append(";\n</BR>服务器当前连接数（io-session）：");

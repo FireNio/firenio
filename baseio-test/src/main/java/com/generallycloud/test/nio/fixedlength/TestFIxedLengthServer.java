@@ -32,15 +32,9 @@ public class TestFIxedLengthServer {
 			}
 		};
 		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_TCP_PORT(18300);
-		
-		configuration.setSERVER_SESSION_IDLE_TIME(1800000);
-
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
-		BaseContext context = new BaseContextImpl(configuration);
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
