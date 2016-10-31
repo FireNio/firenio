@@ -27,13 +27,13 @@ public class TestLoadServer {
 				String res = "yes server already accept your message" + f.getText();
 				future.write(res);
 				session.flush(future);
-				System.out.println("req======================"+req.getAndIncrement());
+//				System.out.println("req======================"+req.getAndIncrement());
 			}
 			
 			public void futureSent(Session session, ReadFuture future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());
-				System.out.println("res==========="+res.getAndIncrement());
+//				System.out.println("res==========="+res.getAndIncrement());
 			}
 		};
 

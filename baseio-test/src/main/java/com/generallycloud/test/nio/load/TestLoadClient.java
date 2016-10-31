@@ -19,7 +19,7 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient {
 
-	final static int	time	= 6400;
+	final static int	time	= 500000;
 
 	public static void main(String[] args) throws Exception {
 
@@ -42,13 +42,13 @@ public class TestLoadClient {
 //						logger.info("************************================" + count);
 //					}
 //				}
-				System.out.println("res==========="+res.getAndIncrement());
+//				logger.info("res==========={}",res.getAndIncrement());
 			}
 			
 			public void futureSent(Session session, ReadFuture future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());
-				System.out.println("req======================"+req.getAndIncrement());
+//				System.out.println("req======================"+req.getAndIncrement());
 				
 			}
 		};
@@ -56,6 +56,8 @@ public class TestLoadClient {
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		
+		connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
 
 		Session session = connector.connect();
 
@@ -71,14 +73,9 @@ public class TestLoadClient {
 
 			session.flush(future);
 			
-			
 		}
 
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		latch.await();
 
 		long spend = (System.currentTimeMillis() - old);
 		System.out.println("## Execute Time:" + time);
