@@ -1,4 +1,4 @@
-package com.test.service.nio;
+package com.generallycloud.nio.extend.example.baseio;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;

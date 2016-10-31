@@ -1,4 +1,4 @@
-package com.test.service.http;
+package com.generallycloud.nio.extend.example.http;
 
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;

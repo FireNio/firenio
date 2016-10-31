@@ -12,8 +12,8 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.nio.extend.example.baseio.TestSimpleServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.test.service.nio.TestSimpleServlet;
 
 public class TestBeat {
 	

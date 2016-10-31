@@ -1,4 +1,4 @@
-package com.test.service.http;
+package com.generallycloud.nio.extend.example.http;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;

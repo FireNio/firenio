@@ -1,4 +1,4 @@
-package com.test.service.http;
+package com.generallycloud.nio.extend.example.http;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
