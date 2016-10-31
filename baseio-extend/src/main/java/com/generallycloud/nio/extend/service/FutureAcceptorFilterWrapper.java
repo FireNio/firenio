@@ -1,15 +1,16 @@
 package com.generallycloud.nio.extend.service;
 
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
+public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements Linkable<FutureAcceptorFilter> {
 
-	private FutureAcceptorFilter		filter		;
-	private FutureAcceptorFilterWrapper	nextFilter	;
+	private FutureAcceptorFilter			filter;
+	private Linkable<FutureAcceptorFilter>	nextFilter;
 
 	public FutureAcceptorFilterWrapper(ApplicationContext context, FutureAcceptorFilter filter, Configuration config) {
 		this.filter = filter;
@@ -17,9 +18,9 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 	}
 
 	public void accept(Session session, ReadFuture future) throws Exception {
-		this.filter.accept(session,future);
+		this.filter.accept(session, future);
 	}
-	
+
 	protected void accept(Session session, NamedReadFuture future) throws Exception {
 		this.filter.accept(session, future);
 	}
@@ -40,25 +41,28 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter {
 		this.filter.initialize(context, config);
 	}
 
-	public FutureAcceptorFilterWrapper nextFilter() {
-		return nextFilter;
-	}
-
-	public void setNextFilter(FutureAcceptorFilterWrapper filter) {
-		this.nextFilter = filter;
-	}
-
 	public String toString() {
 		return "Warpper(" + this.filter.toString() + ")";
 	}
-	
+
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 		filter.prepare(context, config);
 	}
 
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 		filter.unload(context, config);
-		
+	}
+
+	public Linkable<FutureAcceptorFilter> getNext() {
+		return nextFilter;
+	}
+
+	public void setNext(Linkable<FutureAcceptorFilter> next) {
+		this.nextFilter = next;
+	}
+
+	public FutureAcceptorFilter getValue() {
+		return this;
 	}
 
 }

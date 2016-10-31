@@ -10,9 +10,9 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 
 	private int			size;
 
-	private T				head	= null;
+	private Linkable<T>			head	= null;
 
-	private T				tail	= null;
+	private Linkable<T>			tail	= null;
 
 	public boolean offer(T object) {
 
@@ -48,8 +48,8 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 				return null;
 			}
 
-			T t = head;
-			T next = t.getNext();
+			Linkable<T> t = head;
+			Linkable<T> next = t.getNext();
 
 			if (next == null) {
 				head = tail = null;
@@ -58,7 +58,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 			}
 
 			size--;
-			return t;
+			return t.getValue();
 
 		} finally {
 			lock.unlock();

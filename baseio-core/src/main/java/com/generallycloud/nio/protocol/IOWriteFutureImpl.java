@@ -2,6 +2,7 @@ package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -14,12 +15,11 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
-	protected ReadFuture		readFuture;
-	protected ByteBuf			buf;
-	protected IOWriteFuture		next;
+	protected ReadFuture			readFuture;
+	protected ByteBuf				buf;
+	protected Linkable<IOWriteFuture>	next;
 
-	private static final Logger	logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
-
+	private static final Logger		logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
 
 	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
@@ -85,12 +85,16 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		return new IOWriteFutureImpl(readFuture, buf.duplicate());
 	}
 
-	public IOWriteFuture getNext() {
+	public Linkable<IOWriteFuture> getNext() {
 		return next;
 	}
 
-	public void setNext(IOWriteFuture future) {
-		this.next = future;
+	public void setNext(Linkable<IOWriteFuture> next) {
+		this.next = next;
+	}
+
+	public IOWriteFuture getValue() {
+		return this;
 	}
 
 	public void wrapSSL(SocketSession session, SslHandler handler) throws IOException {
@@ -98,13 +102,13 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		ByteBuf old = this.buf;
 
 		try {
-			
+
 			ByteBuf _buf = handler.wrap(session, buf);
-			
+
 			if (_buf == null) {
 				throw new IOException("closed ssl");
 			}
-			
+
 			this.buf = _buf;
 		} finally {
 			ReleaseUtil.release(old);

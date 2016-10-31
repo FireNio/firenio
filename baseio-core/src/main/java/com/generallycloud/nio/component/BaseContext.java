@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Attributes;
 import com.generallycloud.nio.LifeCycle;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.common.ssl.SslContext;
@@ -60,7 +61,7 @@ public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);
 
-	public abstract SessionEventListenerWrapper getSessionEventListenerStub();
+	public abstract Linkable<SessionEventListener> getSessionEventListenerLink();
 	
 	public abstract ProtocolFactory getProtocolFactory();
 	

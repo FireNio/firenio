@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.concurrent.ListQueue;
@@ -38,7 +39,7 @@ public class SessionFactory extends AbstractLooper {
 			try {
 				event.fire(context, sessions.getSnapshot());
 			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 
@@ -73,15 +74,18 @@ public class SessionFactory extends AbstractLooper {
 	// FIXME 优化这个方法
 	private void sessionIdle(Session session, long lastIdleTime, long currentTime) {
 
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 
-		for (; listenerWrapper != null;) {
+		for (; linkable != null;) {
+
 			try {
-				listenerWrapper.sessionIdled(session, lastIdleTime, currentTime);
+
+				linkable.getValue().sessionIdled(session, lastIdleTime, currentTime);
+
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			listenerWrapper = listenerWrapper.nextListener();
+			linkable = linkable.getNext();
 		}
 	}
 

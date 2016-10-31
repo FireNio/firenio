@@ -7,8 +7,8 @@
 	<version>3.1.8-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The test of baseio</description>  
-	
+	<description>The test of baseio</description>
+
 	<parent>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio</artifactId>
@@ -47,13 +47,19 @@
 	</build>
 
 	<dependencies>
+	
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-all</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 		<dependency>
-		    <groupId>com.google.protobuf</groupId>
-		    <artifactId>protobuf-java</artifactId>
-		    <version>3.1.0</version>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.1.0</version>
 		</dependency>
-			
+
 	</dependencies>
 
 </project>

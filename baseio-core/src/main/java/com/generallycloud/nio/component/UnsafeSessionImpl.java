@@ -10,6 +10,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.DisconnectException;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
@@ -100,7 +101,7 @@ public class UnsafeSessionImpl implements UnsafeSession {
 				sslEngine.closeOutbound();
 
 				if (context.getSslContext().isClient()) {
-					
+
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
 					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
@@ -111,10 +112,10 @@ public class UnsafeSessionImpl implements UnsafeSession {
 				try {
 					sslEngine.closeInbound();
 				} catch (SSLException e) {
-					//ignore
-//					logger.error(e.getMessage(), e);
+					// ignore
+					// logger.error(e.getMessage(), e);
 				}
-				
+
 			}
 
 			physicalClose(datagramChannel);
@@ -127,15 +128,18 @@ public class UnsafeSessionImpl implements UnsafeSession {
 
 	private void fireClosed() {
 
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 
-		for (; listenerWrapper != null;) {
+		for (; linkable != null;) {
+
 			try {
-				listenerWrapper.sessionClosed(this);
-			} catch (Throwable e) {
+
+				linkable.getValue().sessionClosed(this);
+
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			listenerWrapper = listenerWrapper.nextListener();
+			linkable = linkable.getNext();
 		}
 	}
 
@@ -203,7 +207,7 @@ public class UnsafeSessionImpl implements UnsafeSession {
 
 		try {
 
-			//FIXME 部分情况下可以不在业务线程做wrapssl
+			// FIXME 部分情况下可以不在业务线程做wrapssl
 			if (isEnableSSL()) {
 				future.wrapSSL(this, sslHandler);
 			}
@@ -354,14 +358,14 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	public ProtocolEncoder getProtocolEncoder() {
 		return channel.getProtocolEncoder();
 	}
-	
-	public void finishHandshake(Exception e){
-		
+
+	public void finishHandshake(Exception e) {
+
 		this.handshakeWaiter.setPayload(e);
 	}
-	
-	private Waiter<Exception> handshakeWaiter = new Waiter<Exception>();
-	
+
+	private Waiter<Exception>	handshakeWaiter	= new Waiter<Exception>();
+
 	public void fireOpend() {
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
@@ -371,29 +375,32 @@ public class UnsafeSessionImpl implements UnsafeSession {
 			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
 
 			flush(f);
-			
-			// wait 
-			
-			if(handshakeWaiter.await(3000)){
+
+			// wait
+
+			if (handshakeWaiter.await(3000)) {
 				CloseUtil.close(this);
 				throw new RuntimeException("hands shake failed");
 			}
-			
+
 			if (handshakeWaiter.getPayload() != null) {
 				throw new RuntimeException(handshakeWaiter.getPayload());
 			}
 			// success
 		}
 
-		SessionEventListenerWrapper listenerWrapper = context.getSessionEventListenerStub();
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 
-		for (; listenerWrapper != null;) {
+		for (; linkable != null;) {
+
 			try {
-				listenerWrapper.sessionOpened(this);
+
+				linkable.getValue().sessionOpened(this);
+
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			listenerWrapper = listenerWrapper.nextListener();
+			linkable = linkable.getNext();
 		}
 	}
 
@@ -420,5 +427,5 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	public SslHandler getSslHandler() {
 		return context.getSslContext().getSslHandler();
 	}
-	
+
 }

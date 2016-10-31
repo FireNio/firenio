@@ -2,8 +2,10 @@ package com.generallycloud.nio;
 
 public interface Linkable<T> {
 
-	public abstract T getNext();
+	public abstract Linkable<T> getNext();
 	
-	public abstract void setNext(T next);
+	public abstract void setNext(Linkable<T> next);
+	
+	public abstract T getValue();
 	
 }

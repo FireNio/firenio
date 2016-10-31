@@ -8,12 +8,12 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SimpleNextRouter extends AbstractFrontRouter{
+public class SimpleNextRouter extends AbstractFrontRouter {
 
-	private int			index			= 0;
+	private int			index				= 0;
+	private ReentrantLock	lock					= new ReentrantLock();
+	private String			SESSION_ID_ROUTER		= "_SESSION_ID_ROUTER";
 	private List<SocketSession>	routerList		= new ArrayList<SocketSession>();
-	private ReentrantLock	lock				= new ReentrantLock();
-	private String			SESSION_ID_ROUTER	= "_SESSION_ID_ROUTER";
 
 	private SocketSession getNextRouterSession() {
 

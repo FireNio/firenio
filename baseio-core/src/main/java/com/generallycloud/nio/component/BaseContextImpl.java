@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
@@ -24,15 +25,12 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
-	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
-	private Sequence					sequence		= new Sequence();
 	private DatagramPacketAcceptor		datagramPacketAcceptor;
 	private Charset					encoding;
 	private IOEventHandleAdaptor			ioEventHandleAdaptor;
-	private SessionEventListenerWrapper	lastSessionEventListener;
-	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
+	private Linkable<SessionEventListener>	lastSessionEventListener;
 	private ServerConfiguration			serverConfiguration;
-	private SessionEventListenerWrapper	sessionEventListenerStub;
+	private Linkable<SessionEventListener>	sessionEventListenerLink;
 	private SessionFactory				sessionFactory;
 	private ChannelService				socketChannelService;
 	private DatagramChannelFactory		datagramChannelFactory;
@@ -42,12 +40,15 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private long						sessionIdleTime;
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
-	private long						startupTime	= System.currentTimeMillis();
 	private EventLoopGroup				eventLoopGroup;
 	private ByteBufferPool				heapByteBufferPool;
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
-	private boolean 					enableSSL;
+	private boolean					enableSSL;
+	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
+	private long						startupTime	= System.currentTimeMillis();
+	private Sequence					sequence		= new Sequence();
+	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
 
 	// private ByteBufferPool directByteBufferPool;
 
@@ -116,12 +117,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	}
 
 	public void addSessionEventListener(SessionEventListener listener) {
-		if (this.sessionEventListenerStub == null) {
-			this.sessionEventListenerStub = new SessionEventListenerWrapper(listener);
-			this.lastSessionEventListener = this.sessionEventListenerStub;
+		if (this.sessionEventListenerLink == null) {
+			this.sessionEventListenerLink = new SessionEventListenerWrapper(listener);
+			this.lastSessionEventListener = this.sessionEventListenerLink;
 		} else {
 			this.lastSessionEventListener.setNext(new SessionEventListenerWrapper(listener));
-			this.lastSessionEventListener = this.lastSessionEventListener.nextListener();
+			this.lastSessionEventListener = this.lastSessionEventListener.getNext();
 		}
 	}
 
@@ -154,7 +155,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
-		
+
 		this.heapByteBufferPool = new HeapMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 		// this.directByteBufferPool = new
 		// DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
@@ -196,7 +197,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	}
 
 	protected void doStop() throws Exception {
-		
+
 		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
@@ -236,8 +237,8 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return serverConfiguration;
 	}
 
-	public SessionEventListenerWrapper getSessionEventListenerStub() {
-		return sessionEventListenerStub;
+	public Linkable<SessionEventListener> getSessionEventListenerLink() {
+		return sessionEventListenerLink;
 	}
 
 	public SessionFactory getSessionFactory() {
@@ -332,5 +333,5 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	public boolean isEnableSSL() {
 		return enableSSL;
 	}
-	
+
 }

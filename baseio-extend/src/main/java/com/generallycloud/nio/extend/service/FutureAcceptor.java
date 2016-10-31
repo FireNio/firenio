@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.LifeCycle;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -25,7 +26,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private FutureAcceptorFilterLoader		filterLoader	;
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptor.class);
 	private PluginLoader				pluginLoader	;
-	private FutureAcceptorFilterWrapper	rootFilter	;
+	private Linkable<FutureAcceptorFilter>	rootFilter	;
 	private FutureAcceptorServiceFilter	serviceFilter	;
 	
 	public FutureAcceptor(ApplicationContext context, DynamicClassLoader classLoader,FutureAcceptorServiceFilter	serviceFilter) {
@@ -37,15 +38,17 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		this.serviceFilter = serviceFilter;
 	}
 
-	private boolean accept(FutureAcceptorFilterWrapper filter, Session session, ReadFuture future) {
+	private boolean accept(Linkable<FutureAcceptorFilter> filter, Session session, ReadFuture future) {
 
 		for (; filter != null;) {
 
 			try {
 				
-				future.setIOEventHandle(filter);
+				FutureAcceptorFilter acceptorFilter = filter.getValue();
 				
-				filter.accept(session, future);
+				future.setIOEventHandle(acceptorFilter);
+				
+				acceptorFilter.accept(session, future);
 				
 			} catch (Exception e) {
 				
@@ -63,7 +66,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 				return true;
 			}
 
-			filter = filter.nextFilter();
+			filter = filter.getNext();
 		}
 		return true;
 	}

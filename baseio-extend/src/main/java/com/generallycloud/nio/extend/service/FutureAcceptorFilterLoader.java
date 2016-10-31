@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.LifeCycle;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -20,7 +21,7 @@ import com.generallycloud.nio.extend.configuration.FiltersConfiguration;
 public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
 
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
-	private FutureAcceptorFilterWrapper	rootFilter	;
+	private Linkable<FutureAcceptorFilter>	rootFilter	;
 	private ApplicationContext			context		;
 	private DynamicClassLoader			classLoader	;
 	private FiltersConfiguration			configuration	;
@@ -37,7 +38,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		return serviceFilter.getFutureAcceptorServiceLoader();
 	}
 
-	private FutureAcceptorFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
+	private Linkable<FutureAcceptorFilter> loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
 			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		List<Configuration> filterConfigurations = configuration.getFilters();
@@ -51,9 +52,9 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 			filterConfigurations = new ArrayList<Configuration>();
 		}
 
-		FutureAcceptorFilterWrapper rootFilter = null;
+		Linkable<FutureAcceptorFilter> rootFilter = null;
 
-		FutureAcceptorFilterWrapper last = null;
+		Linkable<FutureAcceptorFilter> last = null;
 
 		for (int i = 0; i < filterConfigurations.size(); i++) {
 
@@ -93,7 +94,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 			FutureAcceptorFilter filter = filters.get(i);
 
-			FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter,
+			Linkable<FutureAcceptorFilter> _filter = new FutureAcceptorFilterWrapper(context, filter,
 					filter.getConfig());
 
 			if (last == null) {
@@ -103,7 +104,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 				rootFilter = _filter;
 			} else {
 
-				last.setNextFilter(_filter);
+				last.setNext(_filter);
 
 				last = _filter;
 			}
@@ -112,7 +113,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		return rootFilter;
 	}
 
-	public FutureAcceptorFilterWrapper getRootFilter() {
+	public Linkable<FutureAcceptorFilter> getRootFilter() {
 		return rootFilter;
 	}
 
@@ -123,32 +124,38 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		this.initializeFilters(rootFilter);
 	}
 
-	private void initializeFilters(FutureAcceptorFilterWrapper filter) throws Exception {
+	private void initializeFilters(Linkable<FutureAcceptorFilter> filter) throws Exception {
 
 		for (; filter != null;) {
 
-			filter.initialize(context, filter.getConfig());
+			FutureAcceptorFilter acceptorFilter = filter.getValue();
+			
+			acceptorFilter.initialize(context, acceptorFilter.getConfig());
 
 			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ] ", filter);
 
-			filter = filter.nextFilter();
-
+			filter = filter.getNext();
 		}
+		
 	}
 
-	private void destroyFilters(FutureAcceptorFilterWrapper filter) {
+	private void destroyFilters(Linkable<FutureAcceptorFilter> filter) {
 
 		for (; filter != null;) {
 
 			try {
-				filter.destroy(context, filter.getConfig());
+				
+				FutureAcceptorFilter acceptorFilter = filter.getValue();
+				
+				acceptorFilter.destroy(context, acceptorFilter.getConfig());
+				
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 
 			LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ] ", filter);
 
-			filter = filter.nextFilter();
+			filter = filter.getNext();
 
 		}
 	}
@@ -157,15 +164,17 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 		this.destroyFilters(rootFilter);
 	}
 
-	private void prepare(FutureAcceptorFilterWrapper filter) throws Exception {
+	private void prepare(Linkable<FutureAcceptorFilter> filter) throws Exception {
 
 		for (; filter != null;) {
 
-			filter.prepare(context, filter.getConfig());
+			FutureAcceptorFilter acceptorFilter = filter.getValue();
+			
+			acceptorFilter.prepare(context, acceptorFilter.getConfig());
 
 			LoggerUtil.prettyNIOServerLog(logger, "新的Filter  [ {} ] Prepare完成", filter);
 
-			filter = filter.nextFilter();
+			filter = filter.getNext();
 		}
 	}
 
@@ -184,12 +193,15 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
-		FutureAcceptorFilterWrapper filter = rootFilter;
+		Linkable<FutureAcceptorFilter> filter = rootFilter;
 
 		for (; filter != null;) {
 
 			try {
-				filter.unload(context, filter.getConfig());
+				
+				FutureAcceptorFilter acceptorFilter = filter.getValue();
+				
+				acceptorFilter.unload(context, acceptorFilter.getConfig());
 
 				LoggerUtil.prettyNIOServerLog(logger, "旧的Filter  [ {} ] Unload完成", filter);
 
@@ -199,7 +211,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 				logger.error(e.getMessage(), e);
 			}
 
-			filter = filter.nextFilter();
+			filter = filter.getNext();
 
 		}
 	}

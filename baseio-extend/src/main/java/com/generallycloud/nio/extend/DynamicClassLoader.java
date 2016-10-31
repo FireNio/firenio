@@ -230,7 +230,7 @@ public class DynamicClassLoader extends ClassLoader {
 		System.gc();
 	}
 
-	private void unloadClass(Class clazz) {
+	private void unloadClass(Class<?> clazz) {
 		Field []fields = clazz.getDeclaredFields();
 		for(Field field:fields){
 			if (Modifier.isStatic(field.getModifiers())) {
