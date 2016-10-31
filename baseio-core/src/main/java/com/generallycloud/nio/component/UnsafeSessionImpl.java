@@ -357,8 +357,6 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	
 	public void finishHandshake(Exception e){
 		
-		logger.debug("finishHandshake session:{}",this);
-
 		this.handshakeWaiter.setPayload(e);
 	}
 	
