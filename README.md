@@ -29,7 +29,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 ```Java
 
-public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
@@ -40,10 +40,10 @@ public static void main(String[] args) throws Exception {
 				session.flush(future);
 			}
 		};
-
+		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
-		NIOContext context = new DefaultNIOContext(new ServerConfiguration(18300));
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
@@ -54,7 +54,7 @@ public static void main(String[] args) throws Exception {
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
-
+		
 		acceptor.setContext(context);
 
 		acceptor.bind();
@@ -66,7 +66,7 @@ public static void main(String[] args) throws Exception {
 
 ```Java
 
-public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 
@@ -78,10 +78,10 @@ public static void main(String[] args) throws Exception {
 				System.out.println();
 			}
 		};
-
+		
 		SocketChannelConnector connector = new SocketChannelConnector();
-
-		NIOContext context = new DefaultNIOContext(new ServerConfiguration("localhost",18300));
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		
@@ -99,7 +99,7 @@ public static void main(String[] args) throws Exception {
 		
 		Session session = connector.connect();
 
-		ReadFuture future = new FixedLengthReadFutureImpl();
+		ReadFuture future = new FixedLengthReadFutureImpl(context);
 
 		future.write("hello server !");
 
@@ -108,6 +108,7 @@ public static void main(String[] args) throws Exception {
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
+
 	}
 
 ```
