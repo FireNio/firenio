@@ -19,6 +19,18 @@ public class ServerConfiguration {
 	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024 * 64;
 	private int		SERVER_READ_BUFFER			= 1024 * 100;
 
+	public ServerConfiguration() {
+	}
+
+	public ServerConfiguration(int SERVER_TCP_PORT) {
+		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+	}
+
+	public ServerConfiguration(String SERVER_HOST,int SERVER_TCP_PORT) {
+		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+		this.SERVER_HOST = SERVER_HOST;
+	}
+
 	public int getSERVER_CHANNEL_QUEUE_SIZE() {
 		return SERVER_CHANNEL_QUEUE_SIZE;
 	}

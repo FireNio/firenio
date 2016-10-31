@@ -40,18 +40,9 @@ public static void main(String[] args) throws Exception {
 			}
 		};
 
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_TCP_PORT(18300);
-
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-				"IOEvent",
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
-				configuration.getSERVER_CORE_SIZE());
-
-		NIOContext context = new DefaultNIOContext(configuration, eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(new ServerConfiguration(18300));
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
@@ -88,18 +79,8 @@ public static void main(String[] args) throws Exception {
 		};
 
 		SocketChannelConnector connector = new SocketChannelConnector();
-		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_TCP_PORT(18300);
-		
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup(
-				"IOEvent", 
-				configuration.getSERVER_CHANNEL_QUEUE_SIZE(),
-				1);
 
-		NIOContext context = new DefaultNIOContext(configuration,eventLoopGroup);
+		NIOContext context = new DefaultNIOContext(new ServerConfiguration("localhost",18300));
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		
@@ -115,9 +96,7 @@ public static void main(String[] args) throws Exception {
 		
 		connector.setContext(context);
 		
-		connector.connect();
-
-		Session session = connector.getSession();
+		Session session = connector.connect();
 
 		ReadFuture future = new FixedLengthReadFutureImpl();
 
