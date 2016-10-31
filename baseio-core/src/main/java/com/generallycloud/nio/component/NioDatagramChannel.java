@@ -19,13 +19,14 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(NioDatagramChannel.class);
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
-	private SocketSession			session;
+	private UnsafeSession		session;
 	private DatagramSocket		socket;
 
-	public NioDatagramChannel(BaseContext context, SelectionKey selectionKey, InetSocketAddress remote) throws SocketException{
-		this(context,(DatagramChannel) selectionKey.channel(),remote);
+	public NioDatagramChannel(BaseContext context, SelectionKey selectionKey, InetSocketAddress remote)
+			throws SocketException {
+		this(context, (DatagramChannel) selectionKey.channel(), remote);
 	}
-	
+
 	public NioDatagramChannel(BaseContext context, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
 		super(context);
@@ -42,16 +43,16 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	public void physicalClose() throws IOException {
-		
+
 		if (_closed.compareAndSet(false, true)) {
 
 			DatagramChannelFactory factory = getContext().getDatagramChannelFactory();
 
 			factory.removeDatagramChannel(this);
-			
+
 			LOGGER.debug(">>>> rm {}", this.toString());
 		}
-		
+
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
@@ -73,7 +74,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		return remote;
 	}
 
-	public SocketSession getSession() {
+	public UnsafeSession getSession() {
 		return session;
 	}
 
@@ -88,7 +89,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	public void setSession(Session session) {
-		this.session = (SocketSession) session;
+		this.session = (UnsafeSession) session;
 	}
 
 	public boolean isOpened() {

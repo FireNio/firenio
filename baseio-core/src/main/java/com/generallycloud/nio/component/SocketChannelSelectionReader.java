@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
-import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -14,23 +14,21 @@ import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.IOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.SslReadFuture;
-import com.generallycloud.nio.protocol.SslReadFutureImpl;
 
 public class SocketChannelSelectionReader implements SelectionAcceptor {
 
-	private Logger		logger	= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
+	protected ByteBuffer		buffer		= null;
 
-	private BaseContext	context;
+	protected ByteBufferPool	byteBufferPool	= null;
+	
+	private Logger				logger		= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
 
 	public SocketChannelSelectionReader(BaseContext context) {
-		this.context = context;
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
-		// this.buffer = ByteBuffer.allocateDirect(readBuffer);
+		this.byteBufferPool = context.getHeapByteBufferPool();
 		this.buffer = ByteBuffer.allocate(readBuffer);// FIXME 使用direct
+		// this.buffer = ByteBuffer.allocateDirect(readBuffer);
 	}
-
-	private ByteBuffer	buffer;
 
 	public void accept(SelectionKey selectionKey) throws Exception {
 
@@ -54,76 +52,52 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 		buffer.flip();
 
-		SocketSession session = channel.getSession();
+		UnsafeSession session = channel.getSession();
 
 		session.active();
 
-		//FIXME extend class
-		if (context.isEnableSSL()) {
-			
-			for (;;) {
-
-				if (!buffer.hasRemaining()) {
-					return;
-				}
-
-				SslReadFuture future = channel.getSslReadFuture();
-
-				if (future == null) {
-					
-					ByteBuf buf = context.getHeapByteBufferPool().allocate(5);
-
-					future = new SslReadFutureImpl(session,buf);
-
-					channel.setSslReadFuture(future);
-				}
-
-				try {
-
-					if (!future.read(session, buffer)) {
-
-						return;
-					}
-
-				} catch (Throwable e) {
-
-					channel.setSslReadFuture(null);
-					
-					ReleaseUtil.release(future);
-
-					if (e instanceof IOException) {
-						throw (IOException) e;
-					}
-
-					throw new IOException("exception occurred when read from channel,the nested exception is,"
-							+ e.getMessage(), e);
-				}
-
-				channel.setSslReadFuture(null);
-				
-				//FIXME 不友好
-				ByteBuffer sslBuffer = future.getMemory();
-				
-				if (sslBuffer == null) {
-					continue;
-				}
-				
-				try {
-					
-					read(channel, session, sslBuffer);
-				
-				} finally {
-					
-					ReleaseUtil.release(future);
-				}
-			}
-		}
-
-		read(channel, session, buffer);
-
+		accept(channel, session, buffer);
+		
 	}
 
-	private void read(SocketChannel channel, SocketSession session, ByteBuffer buffer) throws Exception {
+	private void accept(final Session session, final IOReadFuture future) throws Exception {
+
+		if (future.isSilent()) {
+			return;
+		}
+
+		if (future.isHeartbeat()) {
+
+			acceptHeartBeat(session, future);
+
+			return;
+		}
+
+		EventLoop eventLoop = session.getEventLoop();
+
+		eventLoop.dispatch(new Runnable() {
+
+			public void run() {
+
+				BaseContext context = session.getContext();
+
+				IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
+
+				try {
+
+					eventHandle.accept(session, future);
+
+				} catch (Exception e) {
+
+					logger.error(e.getMessage(), e);
+
+					eventHandle.exceptionCaught(session, future, e, IOEventState.HANDLE);
+				}
+			}
+		});
+	}
+
+	protected void accept(SocketChannel channel, UnsafeSession session, ByteBuffer buffer) throws Exception {
 
 		for (;;) {
 
@@ -173,43 +147,6 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 			accept(session, future);
 
 		}
-	}
-
-	private void accept(final Session session, final IOReadFuture future) throws Exception {
-
-		if (future.isSilent()) {
-			return;
-		}
-
-		if (future.isHeartbeat()) {
-
-			acceptHeartBeat(session, future);
-
-			return;
-		}
-
-		EventLoop eventLoop = session.getEventLoop();
-
-		eventLoop.dispatch(new Runnable() {
-
-			public void run() {
-
-				BaseContext context = session.getContext();
-
-				IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
-
-				try {
-
-					eventHandle.accept(session, future);
-
-				} catch (Exception e) {
-
-					logger.error(e.getMessage(), e);
-
-					eventHandle.exceptionCaught(session, future, e, IOEventState.HANDLE);
-				}
-			}
-		});
 	}
 
 	private void acceptHeartBeat(final Session session, final IOReadFuture future) {

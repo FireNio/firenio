@@ -204,6 +204,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.selectionKey.attach(null);
 
 		this.channel.close();
+		
+		this.selectionKey.cancel();
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {

@@ -9,40 +9,45 @@ import com.generallycloud.nio.common.LoggerFactory;
 
 public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
-	private Logger				logger	= LoggerFactory.getLogger(SocketChannelSelectorLoop.class);
-	protected SelectionAcceptor	_read_acceptor;
-	protected SelectionAcceptor	_write_acceptor;
+	private Logger						logger	= LoggerFactory.getLogger(SocketChannelSelectorLoop.class);
+
+	protected SelectionAcceptor			_read_acceptor;
+
+	protected SelectionAcceptor			_write_acceptor;
+
 	protected SocketChannelSelectionAlpha	_alpha_acceptor;
 
 	public SocketChannelSelectorLoop(BaseContext context) {
+
 		this._write_acceptor = new SocketChannelSelectionWriter();
-		this._read_acceptor = new SocketChannelSelectionReader(context);
+
+		this._read_acceptor = createSocketChannelSelectionReader(context);
 	}
-	
+
 	public void accept(SelectionKey selectionKey) throws IOException {
-		
+
 		if (!selectionKey.isValid()) {
 			return;
 		}
 
 		try {
+
 			if (selectionKey.isReadable()) {
+
 				_read_acceptor.accept(selectionKey);
 			} else if (selectionKey.isWritable()) {
+
 				_write_acceptor.accept(selectionKey);
 			} else {
+
 				_alpha_acceptor.accept(selectionKey);
 			}
-			
-//			else if (selectionKey.isAcceptable()) {
-//				_alpha_acceptor.accept(selectionKey);
-//			} else if (selectionKey.isConnectable()) {
-//				_alpha_acceptor.accept(selectionKey);
-//			}
 
 		} catch (Throwable e) {
+
 			acceptException(selectionKey, e);
 		}
+		
 	}
 
 	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
@@ -54,17 +59,27 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 			CloseUtil.close(((SocketChannel) attachment));
 		}
 
-		selectionKey.cancel();
-
 		logger.error(exception.getMessage(), exception);
 	}
 
 	private boolean isSocketChannel(Object object) {
-		return object != null && (object.getClass() == NioSocketChannel.class || object instanceof SocketChannel);
+		return object instanceof SocketChannel;
 	}
 
 	public String toString() {
 		return "TCP:Selector@" + String.valueOf(selector.toString());
 	}
 
+	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
+		
+		if (context.isEnableSSL()) {
+			
+			return new SslSocketChannelSelectionReader(context);
+			
+		} else {
+			
+			return new SocketChannelSelectionReader(context);
+		}
+	}
+	
 }
