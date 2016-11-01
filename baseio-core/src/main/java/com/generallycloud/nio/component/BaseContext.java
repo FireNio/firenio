@@ -21,7 +21,7 @@ public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract ServerConfiguration getServerConfiguration();
 
-	public abstract SessionFactory getSessionFactory();
+	public abstract SessionManager getSessionManager();
 
 	public abstract ChannelService getSocketChannelService();
 
@@ -40,6 +40,8 @@ public interface BaseContext extends Attributes, LifeCycle {
 	public abstract int getSessionAttachmentSize();
 	
 	public abstract void setSessionAttachmentSize(int sessionAttachmentSize);
+	
+	public abstract void setSessionManager(SessionManager sessionManager) ;
 
 	public abstract BeatFutureFactory getBeatFutureFactory();
 
@@ -56,8 +58,6 @@ public interface BaseContext extends Attributes, LifeCycle {
 	public abstract void setDatagramChannelFactory(DatagramChannelFactory datagramChannelFactory);
 
 	public abstract DatagramPacketAcceptor getDatagramPacketAcceptor();
-
-	public abstract void setSessionFactory(SessionFactory sessionFactory);
 
 	public abstract void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor);
 
@@ -78,5 +78,9 @@ public interface BaseContext extends Attributes, LifeCycle {
 	public abstract void setSslContext(SslContext sslContext) ;
 
 	public abstract boolean isEnableSSL() ;
+	
+	public abstract SessionFactory getSessionFactory() ;
+
+	public abstract void setSessionFactory(SessionFactory sessionFactory) ;
 
 }

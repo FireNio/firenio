@@ -51,9 +51,9 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 		builder.append("M;\n</BR>内存池状态（Heap）：");
 		builder.append(heap.toSimpleString());
 		builder.append(";\n</BR>服务器当前连接数（io-session）：");
-		builder.append(context.getSessionFactory().getManagedSessionSize());
+		builder.append(context.getSessionManager().getManagedSessionSize());
 		builder.append(";\n</BR>服务器当前会话数（http-session）：");
-		builder.append(httpContext.getHttpSessionFactory().getManagedSessionSize());
+		builder.append(httpContext.getHttpSessionManager().getManagedSessionSize());
 		builder.append(";\n</BR>服务运行时间：");
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");

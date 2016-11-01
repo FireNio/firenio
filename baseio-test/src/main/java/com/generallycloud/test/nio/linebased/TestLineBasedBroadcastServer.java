@@ -31,7 +31,7 @@ public class TestLineBasedBroadcastServer {
 				
 				long now = System.currentTimeMillis();
 				
-				System.out.println("广播花费时间："+(now - old)+",连接数："+session.getContext().getSessionFactory().getManagedSessionSize());
+				System.out.println("广播花费时间："+(now - old)+",连接数："+session.getContext().getSessionManager().getManagedSessionSize());
 			}
 		};
 

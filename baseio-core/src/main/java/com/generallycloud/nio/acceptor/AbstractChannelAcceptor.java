@@ -122,11 +122,11 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	}
 
 	public void offerSessionMEvent(SessionMEvent event) {
-		context.getSessionFactory().offerSessionMEvent(event);
+		context.getSessionManager().offerSessionMEvent(event);
 	}
 	
 	public int getManagedSessionSize() {
-		return context.getSessionFactory().getManagedSessionSize();
+		return context.getSessionManager().getManagedSessionSize();
 	}
 
 	public void unbind() {

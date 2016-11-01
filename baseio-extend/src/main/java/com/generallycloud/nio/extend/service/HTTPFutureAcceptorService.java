@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
-import com.generallycloud.nio.codec.http11.HttpSessionFactory;
+import com.generallycloud.nio.codec.http11.HttpSessionManager;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.HttpStatus;
 import com.generallycloud.nio.common.Logger;
@@ -20,11 +20,11 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 
 	public void accept(Session session, ReadFuture future) throws Exception {
 
-		HttpSessionFactory factory = context.getHttpSessionFactory();
+		HttpSessionManager manager = context.getHttpSessionManager();
 
 		HttpReadFuture httpReadFuture = (HttpReadFuture) future;
 
-		HttpSession httpSession = factory.getHttpSession(context,session, httpReadFuture);
+		HttpSession httpSession = manager.getHttpSession(context,session, httpReadFuture);
 
 		this.doAccept(httpSession, httpReadFuture);
 	}

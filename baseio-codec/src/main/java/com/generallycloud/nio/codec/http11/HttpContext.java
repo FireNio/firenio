@@ -8,7 +8,7 @@ public class HttpContext extends AbstractLifeCycle {
 
 	private static HttpContext	instance;
 
-	private HttpSessionFactory	httpSessionFactory	= new HttpSessionFactory();
+	private HttpSessionManager	httpSessionManager	= new HttpSessionManager();
 
 	private EventLoopThread		taskExecutorThread;
 
@@ -17,7 +17,7 @@ public class HttpContext extends AbstractLifeCycle {
 	}
 
 	protected void doStart() throws Exception {
-		this.taskExecutorThread = new EventLoopThread(httpSessionFactory, "HTTPSession-Manager");
+		this.taskExecutorThread = new EventLoopThread(httpSessionManager, "HTTPSession-Manager");
 
 		this.taskExecutorThread.start();
 
@@ -28,9 +28,8 @@ public class HttpContext extends AbstractLifeCycle {
 		LifeCycleUtil.stop(taskExecutorThread);
 	}
 
-
-	public HttpSessionFactory getHttpSessionFactory() {
-		return httpSessionFactory;
+	public HttpSessionManager getHttpSessionManager() {
+		return httpSessionManager;
 	}
 
 }

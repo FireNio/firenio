@@ -7,18 +7,18 @@ public class ManagerSEListener extends SEListenerAdapter{
 
 		BaseContext context = session.getContext();
 		
-		SessionFactory factory = context.getSessionFactory();
+		SessionManager manager = context.getSessionManager();
 
-		factory.putSession(session);
+		manager.putSession(session);
 	}
 
 	public void sessionClosed(Session session) {
 		
 		BaseContext context = session.getContext();
 		
-		SessionFactory factory = context.getSessionFactory();
+		SessionManager manager = context.getSessionManager();
 
-		factory.removeSession(session);
+		manager.removeSession(session);
 	}
 	
 }

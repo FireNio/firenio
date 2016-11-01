@@ -148,7 +148,7 @@ public class MathUtil {
 
 	}
 	
-	public static String getHexString(byte [] array){
+	public static String bytes2HexString(byte [] array){
 		
 		if (array == null || array.length == 0) {
 			return null;
@@ -251,7 +251,7 @@ public class MathUtil {
 	
 		System.out.println(byte2Long(bb, 0));
 		
-		System.out.println(getHexString(new byte[]{125,-22,-25,89,19,90}));
+		System.out.println(bytes2HexString(new byte[]{125,-22,-25,89,19,90}));
 		
 		System.out.println(byte2BinaryString((byte)-127));
 		System.out.println(byte2BinaryString((byte)-128));

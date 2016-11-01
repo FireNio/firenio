@@ -2,12 +2,12 @@ package com.generallycloud.nio.extend;
 
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SessionFactory;
+import com.generallycloud.nio.component.SessionManagerImpl;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
-public class FixedSessionFactory extends SessionFactory {
+public class FixedSessionManager extends SessionManagerImpl {
 
-	protected FixedSessionFactory(BaseContext context) {
+	protected FixedSessionManager(BaseContext context) {
 		super(context);
 	}
 

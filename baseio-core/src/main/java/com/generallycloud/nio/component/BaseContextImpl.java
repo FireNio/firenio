@@ -31,12 +31,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private Linkable<SessionEventListener>	lastSessionEventListener;
 	private ServerConfiguration			serverConfiguration;
 	private Linkable<SessionEventListener>	sessionEventListenerLink;
-	private SessionFactory				sessionFactory;
+	private SessionManager				sessionManager;
 	private ChannelService				socketChannelService;
 	private DatagramChannelFactory		datagramChannelFactory;
 	private ChannelService				datagramChannelService;
 	private ProtocolFactory				protocolFactory;
-	private EventLoopThread				sessionFactoryThread;
+	private EventLoopThread				sessionManagerThread;
 	private long						sessionIdleTime;
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
@@ -45,6 +45,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
+	private SessionFactory				sessionFactory;
 	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
 	private long						startupTime	= System.currentTimeMillis();
 	private Sequence					sequence		= new Sequence();
@@ -173,8 +174,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 
+		if (sessionManager == null) {
+			sessionManager = new SessionManagerImpl(this);
+		}
+		
 		if (sessionFactory == null) {
-			sessionFactory = new SessionFactory(this);
+			sessionFactory = new SessionFactoryImpl();
 		}
 		
 		if (eventLoopGroup == null) {
@@ -192,9 +197,9 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		// this.directByteBufferPool.start();
 
-		this.sessionFactoryThread = new EventLoopThread(sessionFactory, "session-manager");
+		this.sessionManagerThread = new EventLoopThread(sessionManager, "session-manager");
 
-		this.sessionFactoryThread.start();
+		this.sessionManagerThread.start();
 
 		this.eventLoopGroup.start();
 	}
@@ -205,7 +210,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
-		LifeCycleUtil.stop(sessionFactoryThread);
+		LifeCycleUtil.stop(sessionManagerThread);
 
 		LifeCycleUtil.stop(heapByteBufferPool);
 
@@ -244,12 +249,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return sessionEventListenerLink;
 	}
 
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
+	public SessionManager getSessionManager() {
+		return sessionManager;
 	}
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 
 	public ChannelService getTCPService() {
@@ -335,6 +340,14 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public boolean isEnableSSL() {
 		return enableSSL;
+	}
+
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
 }

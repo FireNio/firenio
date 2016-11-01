@@ -12,7 +12,7 @@ import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
-import com.generallycloud.nio.extend.FixedSessionFactory;
+import com.generallycloud.nio.extend.FixedSessionManager;
 import com.generallycloud.nio.extend.LoginCenter;
 import com.generallycloud.nio.extend.security.AuthorityManager;
 import com.generallycloud.nio.protocol.DatagramPacket;
@@ -76,7 +76,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 				return;
 			}
 			
-			FixedSessionFactory factory = context.getSessionFactory();
+			FixedSessionManager factory = context.getSessionFactory();
 			
 			String username = parameters.getParameter("username");
 			

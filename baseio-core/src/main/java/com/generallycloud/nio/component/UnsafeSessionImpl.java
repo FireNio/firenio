@@ -34,16 +34,18 @@ public class UnsafeSessionImpl implements UnsafeSession {
 	private static final Logger		logger		= LoggerFactory.getLogger(UnsafeSessionImpl.class);
 
 	private Object					attachment;
-	private BaseContext				context;
-	private SocketChannel			channel;
-	private Integer				sessionID;
-	private DatagramChannel			datagramChannel;
 	private Object[]				attachments;
-	private EventLoop				eventLoop;
-	private long					creationTime	= System.currentTimeMillis();
-	private long					lastAccess;
-	private SSLEngine				sslEngine;
 	private HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
+	private SocketChannel			channel;
+	private BaseContext				context;
+	private long					creationTime	= System.currentTimeMillis();
+	private DatagramChannel			datagramChannel;
+	private EventLoop				eventLoop;
+	private Waiter<Exception>		handshakeWaiter;
+	private long					lastAccess;
+	private Integer				sessionID;
+	private SSLEngine				sslEngine;
+
 	private SslHandler				sslHandler;
 
 	public UnsafeSessionImpl(SocketChannel channel, Integer sessionID) {
@@ -60,28 +62,12 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		}
 	}
 
-	public boolean isEnableSSL() {
-		return context.isEnableSSL();
-	}
-
-	public SSLEngine getSSLEngine() {
-		return sslEngine;
+	public void active() {
+		this.lastAccess = System.currentTimeMillis();
 	}
 
 	public void clearAttributes() {
 		attributes.clear();
-	}
-
-	public boolean isClosed() {
-		return !isOpened();
-	}
-
-	public EventLoop getEventLoop() {
-		return eventLoop;
-	}
-
-	public String getProtocolID() {
-		return channel.getProtocolFactory().getProtocolID();
 	}
 
 	public void close() {
@@ -122,6 +108,13 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		fireClosed();
 	}
 
+	public void finishHandshake(Exception e) {
+		
+		if (context.getSslContext().isClient()) {
+			this.handshakeWaiter.setPayload(e);
+		}
+	}
+
 	private void fireClosed() {
 
 		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
@@ -139,16 +132,68 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		}
 	}
 
-	private void physicalClose(Channel channel) {
+	public void fireOpend() {
 
-		if (channel == null) {
-			return;
+		if (isEnableSSL() && context.getSslContext().isClient()) {
+			
+			handshakeWaiter	= new Waiter<Exception>();
+
+			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+
+			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+
+			flush(f);
+
+			// wait
+
+			if (handshakeWaiter.await(3000)) {
+				CloseUtil.close(this);
+				throw new RuntimeException("hands shake failed");
+			}
+
+			if (handshakeWaiter.getPayload() != null) {
+				throw new RuntimeException(handshakeWaiter.getPayload());
+			}
+			// success
 		}
 
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionOpened(this);
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
+	}
+
+	public void flush(IOWriteFuture future) {
+
 		try {
-			channel.physicalClose();
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
+
+			// FIXME 部分情况下可以不在业务线程做wrapssl
+			if (isEnableSSL()) {
+				future.wrapSSL(this, sslHandler);
+			}
+
+			channel.offer(future);
+
+		} catch (Exception e) {
+
+			ReleaseUtil.release(future);
+
+			ReadFuture readFuture = future.getReadFuture();
+
+			logger.debug(e.getMessage(), e);
+
+			IOEventHandle handle = readFuture.getIOEventHandle();
+
+			handle.exceptionCaught(this, readFuture, e, IOEventState.WRITE);
 		}
 	}
 
@@ -199,31 +244,6 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		}
 	}
 
-	public void flush(IOWriteFuture future) {
-
-		try {
-
-			// FIXME 部分情况下可以不在业务线程做wrapssl
-			if (isEnableSSL()) {
-				future.wrapSSL(this, sslHandler);
-			}
-
-			channel.offer(future);
-
-		} catch (Exception e) {
-
-			ReleaseUtil.release(future);
-
-			ReadFuture readFuture = future.getReadFuture();
-
-			logger.debug(e.getMessage(), e);
-
-			IOEventHandle handle = readFuture.getIOEventHandle();
-
-			handle.exceptionCaught(this, readFuture, e, IOEventState.WRITE);
-		}
-	}
-
 	public Object getAttachment() {
 		return attachment;
 	}
@@ -249,6 +269,22 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		return this.creationTime;
 	}
 
+	public DatagramChannel getDatagramChannel() {
+		return datagramChannel;
+	}
+
+	public Charset getEncoding() {
+		return context.getEncoding();
+	}
+
+	public EventLoop getEventLoop() {
+		return eventLoop;
+	}
+
+	public long getLastAccessTime() {
+		return lastAccess;
+	}
+
 	public String getLocalAddr() {
 		return channel.getLocalAddr();
 	}
@@ -267,6 +303,22 @@ public class UnsafeSessionImpl implements UnsafeSession {
 
 	public int getMaxIdleTime() throws SocketException {
 		return channel.getMaxIdleTime();
+	}
+
+	public ProtocolDecoder getProtocolDecoder() {
+		return channel.getProtocolDecoder();
+	}
+
+	public ProtocolEncoder getProtocolEncoder() {
+		return channel.getProtocolEncoder();
+	}
+
+	public ProtocolFactory getProtocolFactory() {
+		return channel.getProtocolFactory();
+	}
+
+	public String getProtocolID() {
+		return channel.getProtocolFactory().getProtocolID();
 	}
 
 	public String getRemoteAddr() {
@@ -293,20 +345,45 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		return channel;
 	}
 
-	public DatagramChannel getDatagramChannel() {
-		return datagramChannel;
+	public SSLEngine getSSLEngine() {
+		return sslEngine;
+	}
+
+	public SslHandler getSslHandler() {
+		return context.getSslContext().getSslHandler();
 	}
 
 	public boolean isBlocking() {
 		return channel.isBlocking();
 	}
 
-	public Object removeAttribute(Object key) {
-		return attributes.remove(key);
+	public boolean isClosed() {
+		return !isOpened();
 	}
 
-	public void setAttachment(Object attachment) {
-		this.attachment = attachment;
+	public boolean isEnableSSL() {
+		return context.isEnableSSL();
+	}
+
+	public boolean isOpened() {
+		return channel.isOpened();
+	}
+
+	private void physicalClose(Channel channel) {
+
+		if (channel == null) {
+			return;
+		}
+
+		try {
+			channel.physicalClose();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public Object removeAttribute(Object key) {
+		return attributes.remove(key);
 	}
 
 	public void setAttachment(int index, Object attachment) {
@@ -314,12 +391,12 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		this.attachments[index] = attachment;
 	}
 
-	public void setAttribute(Object key, Object value) {
-		attributes.put(key, value);
+	public void setAttachment(Object attachment) {
+		this.attachment = attachment;
 	}
 
-	public void setSessionID(Integer sessionID) {
-		this.sessionID = sessionID;
+	public void setAttribute(Object key, Object value) {
+		attributes.put(key, value);
 	}
 
 	public void setDatagramChannel(DatagramChannel datagramChannel) {
@@ -329,83 +406,6 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		}
 
 		this.datagramChannel = datagramChannel;
-	}
-
-	public void active() {
-		this.lastAccess = System.currentTimeMillis();
-	}
-
-	public long getLastAccessTime() {
-		return lastAccess;
-	}
-
-	public boolean isOpened() {
-		return channel.isOpened();
-	}
-
-	public String toString() {
-		return channel.toString();
-	}
-
-	public Charset getEncoding() {
-		return context.getEncoding();
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return channel.getProtocolEncoder();
-	}
-
-	public void finishHandshake(Exception e) {
-
-		this.handshakeWaiter.setPayload(e);
-	}
-
-	private Waiter<Exception>	handshakeWaiter	= new Waiter<Exception>();
-
-	public void fireOpend() {
-
-		if (isEnableSSL() && context.getSslContext().isClient()) {
-
-			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
-
-			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
-
-			flush(f);
-
-			// wait
-
-			if (handshakeWaiter.await(3000)) {
-				CloseUtil.close(this);
-				throw new RuntimeException("hands shake failed");
-			}
-
-			if (handshakeWaiter.getPayload() != null) {
-				throw new RuntimeException(handshakeWaiter.getPayload());
-			}
-			// success
-		}
-
-		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionOpened(this);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
-		}
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return channel.getProtocolDecoder();
-	}
-
-	public ProtocolFactory getProtocolFactory() {
-		return channel.getProtocolFactory();
 	}
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
@@ -420,8 +420,12 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		channel.setProtocolFactory(protocolFactory);
 	}
 
-	public SslHandler getSslHandler() {
-		return context.getSslContext().getSslHandler();
+	public void setSessionID(Integer sessionID) {
+		this.sessionID = sessionID;
+	}
+
+	public String toString() {
+		return channel.toString();
 	}
 
 }

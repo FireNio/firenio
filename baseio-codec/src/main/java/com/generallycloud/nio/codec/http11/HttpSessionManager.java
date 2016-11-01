@@ -13,7 +13,7 @@ import com.generallycloud.nio.component.AbstractLooper;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
-public class HttpSessionFactory extends AbstractLooper{
+public class HttpSessionManager extends AbstractLooper{
 	
 	private static final String COOKIE_NAME_SESSIONID = "BSESSIONID";
 
