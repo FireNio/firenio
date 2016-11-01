@@ -86,15 +86,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 			throw new IllegalArgumentException("null configuration");
 		}
 
-		int eventQueueSize = configuration.getSERVER_CHANNEL_QUEUE_SIZE();
-
-		int eventLoopSize = configuration.getSERVER_CORE_SIZE();
-
-		EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
-
 		this.serverConfiguration = configuration;
-
-		this.eventLoopGroup = eventLoopGroup;
 
 		this.addLifeCycleListener(new BaseContextListener());
 	}
@@ -183,6 +175,17 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		if (sessionFactory == null) {
 			sessionFactory = new SessionFactory(this);
+		}
+		
+		if (eventLoopGroup == null) {
+
+			int eventQueueSize = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
+
+			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
+			
+			this.eventLoopGroup = eventLoopGroup;
 		}
 
 		this.heapByteBufferPool.start();
