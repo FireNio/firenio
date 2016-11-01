@@ -14,6 +14,7 @@ import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestShowMemoryServlet extends HTTPFutureAcceptorService{
 	
+	// FIXME 检查为部分情况获取到的free memory不等于all memory
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
 		BaseContext context = session.getIOSession().getContext();

@@ -9,6 +9,9 @@ import javax.net.ssl.SSLException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.Protocol;
+import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 
 public class SSLUtil {
 
@@ -39,7 +42,17 @@ public class SSLUtil {
 		LoggerUtil.prettyNIOServerLog(logger, "加载证书公钥：{}", certificate.getCanonicalPath());
 		LoggerUtil.prettyNIOServerLog(logger, "加载证书私钥：{}", privateKey.getCanonicalPath());
 
-		sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
+		sslContext = SslContextBuilder.forServer(certificate, privateKey).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
+									// NO_ADVERTISE is currently the
+									// only mode supported by both
+									// OpenSsl and JDK providers.
+									SelectorFailureBehavior.NO_ADVERTISE,
+									// ACCEPT is currently the only
+									// mode supported by both OpenSsl
+									// and JDK providers.
+									SelectedListenerFailureBehavior.ACCEPT, 
+									ApplicationProtocolNames.HTTP_2,
+									ApplicationProtocolNames.HTTP_1_1)).build();
 
 	}
 

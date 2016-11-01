@@ -14,8 +14,6 @@ public interface SocketSession extends Session{
 	
 	public abstract SSLEngine getSSLEngine();
 	
-	public abstract void setSSLEngine(SSLEngine engine);
-	
 	public abstract SslHandler getSslHandler();
 	
 	public abstract void fireOpend();

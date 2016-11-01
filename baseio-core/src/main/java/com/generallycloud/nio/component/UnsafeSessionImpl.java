@@ -68,10 +68,6 @@ public class UnsafeSessionImpl implements UnsafeSession {
 		return sslEngine;
 	}
 
-	public void setSSLEngine(SSLEngine engine) {
-		this.sslEngine = engine;
-	}
-
 	public void clearAttributes() {
 		attributes.clear();
 	}
