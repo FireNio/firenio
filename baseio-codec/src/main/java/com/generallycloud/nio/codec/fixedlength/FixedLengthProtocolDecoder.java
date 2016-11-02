@@ -30,7 +30,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  */
 public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HADER	= 4;
+	public static final int	PROTOCOL_HEADER	= 4;
 
 	public static final int	PROTOCOL_PING		= -1;
 
@@ -38,7 +38,7 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
 	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
 		
-		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HADER);
+		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HEADER);
 		
 		buf.read(buffer);
 		

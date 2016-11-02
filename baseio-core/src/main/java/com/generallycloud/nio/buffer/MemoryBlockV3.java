@@ -9,9 +9,7 @@ import com.generallycloud.nio.component.SocketChannel;
 public class MemoryBlockV3 implements ByteBuf {
 
 	private int			capacity;
-	public MemoryUnitV3		memoryEnd;
 	private int			limit;
-	private ReentrantLock	lock	= new ReentrantLock();
 	private ByteBuffer		memory;
 	private ByteBufferPool	memoryPool;
 	private int			offset;
@@ -19,17 +17,26 @@ public class MemoryBlockV3 implements ByteBuf {
 	private ReferenceCount	referenceCount;
 	private boolean		released;
 	private int			size;
-	public MemoryUnitV3		memoryStart;
+	private ReentrantLock	lock;
+	
+	protected MemoryUnitV3		memoryStart;
+	protected MemoryUnitV3		memoryEnd;
+	
+	protected MemoryBlockV3(ByteBuffer memory) {
+		this.memory = memory;
+		this.capacity = memory.capacity();
+		this.limit = memory.limit();
+		this.position = memory.position();
+	}
 
 	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory) {
-		this.memory = memory;
-		this.memoryPool = byteBufferPool;
-		this.referenceCount = new ReferenceCount();
+		this(byteBufferPool, memory, new ReferenceCount());
 	}
 
 	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory, ReferenceCount referenceCount) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
+		this.lock = new ReentrantLock();
 		this.referenceCount = referenceCount;
 	}
 
@@ -127,7 +134,7 @@ public class MemoryBlockV3 implements ByteBuf {
 		return memory.getLong(offset + index);
 	}
 
-	public int getSize() {
+	protected int getSize() {
 		return size;
 	}
 
@@ -262,7 +269,7 @@ public class MemoryBlockV3 implements ByteBuf {
 		return b.toString();
 	}
 
-	public ByteBuf use() {
+	protected ByteBuf use() {
 		this.offset = memoryStart.index * memoryPool.getUnitMemorySize();
 		this.capacity = size * memoryPool.getUnitMemorySize();
 		this.limit = this.capacity;

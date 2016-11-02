@@ -4,7 +4,7 @@ import com.generallycloud.nio.Releasable;
 
 public class ReleaseUtil {
 	
-	public static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
 
 	public static void release(Releasable releasable){
 		

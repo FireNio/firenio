@@ -16,7 +16,7 @@ import com.generallycloud.nio.protocol.ProtocolException;
 
 public class BaseProtocolEncoder implements ProtocolEncoder {
 
-	private final int	PROTOCOL_HADER	= BaseProtocolDecoder.PROTOCOL_HADER;
+	private final int	PROTOCOL_HEADER	= BaseProtocolDecoder.PROTOCOL_HEADER;
 
 	private void calc_text(byte[] header, int text_length) {
 		MathUtil.intTo2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
@@ -82,9 +82,9 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			binary_length = binaryOPS.size();
 		}
 
-		int all_length = PROTOCOL_HADER + service_name_length + text_length + binary_length;
+		int all_length = PROTOCOL_HEADER + service_name_length + text_length + binary_length;
 
-		byte[] header = new byte[PROTOCOL_HADER];
+		byte[] header = new byte[PROTOCOL_HEADER];
 
 		if (f.isBroadcast()) {
 			header[0] = 0x20;

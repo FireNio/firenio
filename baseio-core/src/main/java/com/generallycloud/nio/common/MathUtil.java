@@ -1,7 +1,5 @@
 package com.generallycloud.nio.common;
 
-import com.generallycloud.nio.common.test.ITest;
-import com.generallycloud.nio.common.test.ITestHandle;
 
 
 public class MathUtil {
@@ -22,6 +20,18 @@ public class MathUtil {
 		int v1 = (bytes[offset + 2] & 0xff) << 8*1;
 		int v2 = (bytes[offset + 1] & 0xff) << 8*2;
 		int v3 = (bytes[offset + 0] & 0xff) << 8*3;
+		return v0 | v1 | v2 | v3;
+
+	}
+	
+	public static int byte2Int31(byte[] bytes, int offset) {
+
+		checkLength(bytes, 4, offset);
+
+		int v0 = (bytes[offset + 3] & 0xff);
+		int v1 = (bytes[offset + 2] & 0xff) << 8*1;
+		int v2 = (bytes[offset + 1] & 0xff) << 8*2;
+		int v3 = (bytes[offset + 0] & 0x7f) << 8*3;
 		return v0 | v1 | v2 | v3;
 
 	}
@@ -232,31 +242,4 @@ public class MathUtil {
 		return byte2HexString(b);
 	}
 	
-	public static void main(String[] args) {
-
-		int time = 999999;
-		
-		final byte [] bb = new byte[10];
-		
-		long value = 11111111112L;
-		
-		long2Byte(bb, value, 0);
-
-		ITestHandle.doTest(new ITest() {
-			public void test(int i) throws Exception {
-				MathUtil.byte2Long(bb, i);
-			}
-		}, time, "Byte2Long");
-
-	
-		System.out.println(byte2Long(bb, 0));
-		
-		System.out.println(bytes2HexString(new byte[]{125,-22,-25,89,19,90}));
-		
-		System.out.println(byte2BinaryString((byte)-127));
-		System.out.println(byte2BinaryString((byte)-128));
-		System.out.println(byte2BinaryString((byte)-2));
-		System.out.println(byte2BinaryString((byte)-1));
-	}
-
 }
