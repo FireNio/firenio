@@ -8,11 +8,9 @@ import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.codec.http2.hpack.Decoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2HeadersFrame {
+public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
 	private ByteBuf	buf;
 
@@ -26,30 +24,30 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 
 	private int		weight;
 
-	private byte[]	fragment;
+	private boolean endStream;
 	
 	private static Decoder decoder = new Decoder();
 
-	public Http2HeadersFrameImpl(BaseContext context, ByteBuf buf) {
-		super(context);
+	public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf) {
+		super(session);
 		this.buf = buf;
 	}
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		isComplete = true;
+		this.isComplete = true;
 		
 		buf.flip();
 
-		Http2FrameHeader header = session.getLastReadFrameHeader();
-		
-		byte flags = header.getFlags();
+		byte flags = this.flags;
 		
 		int offset = buf.offset();
 
 		byte[] array = buf.array();
 		
 		int readIndex = offset;
+		
+		this.endStream = (flags & FLAG_END_STREAM) > 0;
 		
 		if ((flags & FLAG_PADDED)  > 0) {
 			padLength = array[readIndex++];
@@ -64,16 +62,9 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 		
 		buf.skipBytes(readIndex - offset);
 		
-		decoder.decode(header.getStreamIdentifier(), buf, session.getHttp2Headers());
+		decoder.decode(streamDependency, buf, session.getHttp2Headers());
 		
-//		int fragmentLength = buf.position() - (readIndex - offset) - padLength;
-//		
-//		this.fragment = new byte[fragmentLength];
-		
-//		System.arraycopy(array, readIndex+1, fragment, 0, fragmentLength);
-
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
-
 	}
 
 	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
@@ -99,7 +90,7 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 	}
 
 	public boolean isSilent() {
-		return true;
+		return !endStream;
 	}
 
 	public Http2FrameType getHttp2FrameType() {
@@ -118,8 +109,8 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 		return weight;
 	}
 
-	public byte[] getFragment() {
-		return fragment;
+	public byte getPadLength() {
+		return padLength;
 	}
-
+	
 }

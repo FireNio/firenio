@@ -5,7 +5,10 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.future.Http2Frame;
 import com.generallycloud.nio.codec.http2.future.Http2FrameType;
+import com.generallycloud.nio.codec.http2.future.Http2HeadersFrame;
 import com.generallycloud.nio.codec.http2.future.Http2SettingsFrame;
+import com.generallycloud.nio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
+import com.generallycloud.nio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.IOReadFuture;
@@ -14,6 +17,8 @@ import com.generallycloud.nio.protocol.IOWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class Http2ProtocolEncoder implements ProtocolEncoder {
+	
+	private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
 	public IOWriteFuture encode(BaseContext context, IOReadFuture future) throws IOException {
 		
@@ -38,6 +43,13 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 			break;
 		case FRAME_TYPE_HEADERS:
 
+			Http2HeadersFrame hf = (Http2HeadersFrame) frame;
+			
+			
+//			http2HeadersEncoder.encodeHeaders(headers, buffer);
+			
+			
+			
 			break;
 		case FRAME_TYPE_PING:
 
@@ -55,9 +67,9 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 			break;
 		case FRAME_TYPE_SETTINGS:
 
-			Http2SettingsFrame f = (Http2SettingsFrame) frame;
+			Http2SettingsFrame sf = (Http2SettingsFrame) frame;
 			
-			long [] settings = f.getSettings();
+			long [] settings = sf.getSettings();
 			
 			payload = new byte[6 * settings.length];
 			
@@ -91,7 +103,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		array[offset + 0] = (byte) ((length >> 8*2) & 0xff);
 		array[offset + 3] = frameType.getByteValue();
 		
-		MathUtil.int2Byte(array, 0, 5);
+		MathUtil.int2Byte(array, frame.getStreamIdentifier(), 5);
 		
 		buffer.position(9);
 		

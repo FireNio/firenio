@@ -7,11 +7,9 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-public class Http2WindowUpdateFrameImpl extends AbstractIOReadFuture implements Http2WindowUpdateFrame {
+public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Http2WindowUpdateFrame {
 
 	private ByteBuf	buf;
 
@@ -19,8 +17,8 @@ public class Http2WindowUpdateFrameImpl extends AbstractIOReadFuture implements 
 
 	private int		updateValue;
 
-	public Http2WindowUpdateFrameImpl(BaseContext context, ByteBuf buf) {
-		super(context);
+	public Http2WindowUpdateFrameImpl(Http2SocketSession session, ByteBuf buf) {
+		super(session);
 		this.buf = buf;
 	}
 

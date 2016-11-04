@@ -11,9 +11,6 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-/**
- *
- */
 public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2FrameHeader {
 
 	private ByteBuf	buf;
@@ -45,18 +42,18 @@ public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2F
 
 		int offset = buf.offset();
 
-		this.length =  ((array[offset + 0] & 0xff) << 8 * 2) 
-				   | ((array[offset + 1] & 0xff) << 8 * 1)
-				   | ((array[offset + 2] & 0xff) << 8 * 0);
+		this.length = ((array[offset + 0] & 0xff) << 8 * 2) 
+				| ((array[offset + 1] & 0xff) << 8 * 1)
+				| ((array[offset + 2] & 0xff) << 8 * 0);
 
 		this.type = array[offset + 3] & 0xff;
 
 		this.flags = array[offset + 4];
 
 		this.streamIdentifier = MathUtil.byte2Int31(array, offset + 5);
-		
+
 		session.setLastReadFrameHeader(this);
-		
+
 		session.setFrameWillBeRead(type);
 	}
 
@@ -90,10 +87,6 @@ public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2F
 		return flags;
 	}
 
-	public int getStreamIdentifier() {
-		return streamIdentifier;
-	}
-
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
@@ -105,5 +98,9 @@ public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2F
 	public Http2FrameType getHttp2FrameType() {
 		return Http2FrameType.FRAME_TYPE_FRAME_HEADER;
 	}
-	
+
+	public int getStreamIdentifier() {
+		return streamIdentifier;
+	}
+
 }

@@ -107,7 +107,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 			break;
 		case FRAME_TYPE_HEADERS:
-			return new Http2HeadersFrameImpl(context, allocate(context, http2UnsafeSession));
+			return new Http2HeadersFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
 		case FRAME_TYPE_PING:
 
 			break;
@@ -123,9 +123,9 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 			break;
 		case FRAME_TYPE_SETTINGS:
-			return new Http2SettingsFrameImpl(context, allocate(context, http2UnsafeSession));
+			return new Http2SettingsFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
 		case FRAME_TYPE_WINDOW_UPDATE:
-			return new Http2WindowUpdateFrameImpl(context, allocate(context, http2UnsafeSession));
+			return new Http2WindowUpdateFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
 		default:
 			break;
 		}

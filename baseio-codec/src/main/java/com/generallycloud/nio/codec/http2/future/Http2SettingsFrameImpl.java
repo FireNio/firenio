@@ -7,11 +7,9 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-public class Http2SettingsFrameImpl extends AbstractIOReadFuture implements Http2SettingsFrame {
+public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
 
 	private ByteBuf	buf;
 
@@ -19,8 +17,8 @@ public class Http2SettingsFrameImpl extends AbstractIOReadFuture implements Http
 
 	private long[]		settings;
 
-	public Http2SettingsFrameImpl(BaseContext context, ByteBuf buf) {
-		super(context);
+	public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf) {
+		super(session);
 		this.buf = buf;
 	}
 

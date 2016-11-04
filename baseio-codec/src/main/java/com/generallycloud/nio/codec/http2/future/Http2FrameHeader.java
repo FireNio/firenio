@@ -1,6 +1,8 @@
 package com.generallycloud.nio.codec.http2.future;
 
-public interface Http2FrameHeader extends Http2Frame{
+import com.generallycloud.nio.protocol.IOReadFuture;
+
+public interface Http2FrameHeader extends IOReadFuture {
 
 	public abstract int getLength();
 
