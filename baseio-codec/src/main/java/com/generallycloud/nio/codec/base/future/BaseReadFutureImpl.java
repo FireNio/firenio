@@ -14,9 +14,9 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.IOWriteFuture;
 
 /**
@@ -76,7 +76,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 		int offset = buf.offset();
 
-		ByteBuffer memory = buf.getMemory();
+		ByteBuffer memory = buf.nioBuffer();
 
 		int src_pos = memory.position();
 
@@ -229,7 +229,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
-	public boolean read(SocketSession session,ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session,ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 

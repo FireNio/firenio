@@ -1,12 +1,11 @@
 package com.generallycloud.nio.codec.http2;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.codec.http2.future.Http2FrameHeaderImpl;
 import com.generallycloud.nio.codec.http2.future.Http2HeadersFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2PrefaceReadFuture;
-import com.generallycloud.nio.codec.http2.future.Http2FrameHeaderImpl;
 import com.generallycloud.nio.codec.http2.future.Http2SettingsFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2WindowUpdateFrameImpl;
 import com.generallycloud.nio.component.BaseContext;
@@ -88,7 +87,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_PONG			= -2;
 
-	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
+	public IOReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
 

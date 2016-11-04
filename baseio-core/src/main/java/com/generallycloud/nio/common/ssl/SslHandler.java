@@ -8,7 +8,9 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV4;
+import com.generallycloud.nio.buffer.EmptyMemoryBlock;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -21,7 +23,7 @@ public class SslHandler {
 
 	private BaseContext	context	= null;
 
-//	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
+	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
 
 	public SslHandler(BaseContext context) {
 		this.context = context;
@@ -41,7 +43,7 @@ public class SslHandler {
 
 			for (;;) {
 
-				SSLEngineResult result = engine.wrap(buf.getMemory(), out.getMemory());
+				SSLEngineResult result = engine.wrap(buf.nioBuffer(), out.nioBuffer());
 
 				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
@@ -49,18 +51,18 @@ public class SslHandler {
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
-//				logger.info("_________________________wrap");
-//				logger.info("_________________________bytesConsumed:" + bytesConsumed);
-//				logger.info("_________________________bytesProduced:" + bytesProduced);
-//				logger.info("_________________________" + status.name());
-//				logger.info("_________________________" + handshakeStatus.name());
+				logger.info("_________________________wrap");
+				logger.info("_________________________bytesConsumed:" + bytesConsumed);
+				logger.info("_________________________bytesProduced:" + bytesProduced);
+				logger.info("_________________________" + status.name());
+				logger.info("_________________________" + handshakeStatus.name());
 
 				if (bytesConsumed > 0) {
-					buf.position(buf.position() + bytesConsumed);
+					buf.skipBytes(bytesConsumed);
 				}
 
 				if (bytesProduced > 0) {
-					out.position(out.position() + bytesProduced);
+					out.skipBytes(bytesProduced);
 				}
 
 				if (status == Status.CLOSED) {
@@ -107,7 +109,7 @@ public class SslHandler {
 
 		try {
 
-			out2.read(out.getMemory());
+			out2.read(out);
 
 		} catch (IOException e) {
 
@@ -125,7 +127,7 @@ public class SslHandler {
 
 	public ByteBuf unwrap(SocketSession session, ByteBuf packet) throws IOException {
 
-//		logger.info("__________________________________________________start");
+		logger.info("__________________________________________________start");
 
 		ByteBuf buf = allocate(packet.capacity() * 2);
 
@@ -136,19 +138,19 @@ public class SslHandler {
 		try {
 			for (;;) {
 
-				SSLEngineResult result = sslEngine.unwrap(packet.getMemory(), buf.getMemory());
+				SSLEngineResult result = sslEngine.unwrap(packet.nioBuffer(), buf.nioBuffer());
 
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
-//				Status status = result.getStatus();
+				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
-//				logger.info("_________________________unwrap");
-//				logger.info("_________________________bytesConsumed:" + bytesConsumed);
-//				logger.info("_________________________bytesProduced:" + bytesProduced);
-//				logger.info("_________________________" + status.name());
-//				logger.info("_________________________" + handshakeStatus.name());
+				logger.info("_________________________unwrap");
+				logger.info("_________________________bytesConsumed:" + bytesConsumed);
+				logger.info("_________________________bytesProduced:" + bytesProduced);
+				logger.info("_________________________" + status.name());
+				logger.info("_________________________" + handshakeStatus.name());
 
 				if (bytesConsumed > 0) {
 					packet.position(packet.position() + bytesConsumed);
@@ -165,7 +167,7 @@ public class SslHandler {
 
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV4.EMPTY_BYTEBUF);
+					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
 					session.flush(f);
 

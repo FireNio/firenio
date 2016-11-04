@@ -1,8 +1,8 @@
 package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.SocketSession;
 
 public interface IOReadFuture extends ReadFuture {
@@ -17,7 +17,7 @@ public interface IOReadFuture extends ReadFuture {
 
 	public abstract boolean isPONG();
 
-	public abstract boolean read(SocketSession session, ByteBuffer buffer) throws IOException;
+	public abstract boolean read(SocketSession session, ByteBuf buf) throws IOException;
 
 	public abstract IOReadFuture setPING();
 

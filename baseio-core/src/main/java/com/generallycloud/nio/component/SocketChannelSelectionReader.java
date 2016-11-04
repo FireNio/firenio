@@ -1,10 +1,11 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.buffer.UnpooledMemoryPool;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -17,7 +18,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SocketChannelSelectionReader implements SelectionAcceptor {
 
-	protected ByteBuffer		buffer		= null;
+	protected ByteBuf		buf		= null;
 
 	protected ByteBufferPool	byteBufferPool	= null;
 	
@@ -26,7 +27,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 	public SocketChannelSelectionReader(BaseContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
 		this.byteBufferPool = context.getHeapByteBufferPool();
-		this.buffer = ByteBuffer.allocate(readBuffer);// FIXME 使用direct
+		this.buf = UnpooledMemoryPool.allocate(readBuffer);// FIXME 使用direct
 		// this.buffer = ByteBuffer.allocateDirect(readBuffer);
 	}
 
@@ -39,24 +40,24 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 			return;
 		}
 
-		ByteBuffer buffer = this.buffer;
+		ByteBuf buf = this.buf;
 
-		buffer.clear();
+		buf.clear();
 
-		int length = channel.read(buffer);
+		int length = buf.read(channel);
 
 		if (length == -1) {
 			CloseUtil.close(channel);
 			return;
 		}
 
-		buffer.flip();
+		buf.flip();
 
 		UnsafeSession session = channel.getSession();
 
 		session.active();
 
-		accept(channel, session, buffer);
+		accept(channel, session, buf);
 		
 	}
 
@@ -97,11 +98,11 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		});
 	}
 
-	protected void accept(SocketChannel channel, UnsafeSession session, ByteBuffer buffer) throws Exception {
+	protected void accept(SocketChannel channel, UnsafeSession session, ByteBuf buf) throws Exception {
 
 		for (;;) {
 
-			if (!buffer.hasRemaining()) {
+			if (!buf.hasRemaining()) {
 				return;
 			}
 
@@ -111,7 +112,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 				ProtocolDecoder decoder = channel.getProtocolDecoder();
 
-				future = decoder.decode(session, buffer);
+				future = decoder.decode(session, buf);
 
 				if (future == null) {
 					CloseUtil.close(channel);
@@ -123,7 +124,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 			try {
 
-				if (!future.read(session, buffer)) {
+				if (!future.read(session, buf)) {
 
 					return;
 				}

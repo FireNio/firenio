@@ -10,7 +10,7 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.v4.HeapMemoryPoolV4;
+import com.generallycloud.nio.buffer.v5.HeapMemoryPoolV5;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -149,7 +149,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
-		this.heapByteBufferPool = new HeapMemoryPoolV4(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
+		this.heapByteBufferPool = new HeapMemoryPoolV5(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 		// this.directByteBufferPool = new
 		// DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 

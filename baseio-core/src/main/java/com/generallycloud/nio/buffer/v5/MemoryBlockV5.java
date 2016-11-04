@@ -1,4 +1,4 @@
-package com.generallycloud.nio.buffer.v4;
+package com.generallycloud.nio.buffer.v5;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -9,13 +9,14 @@ import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.ByteProcessor;
 import com.generallycloud.nio.buffer.ReferenceCount;
 import com.generallycloud.nio.buffer.ReleasedException;
+import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class MemoryBlockV4 implements ByteBuf {
+public class MemoryBlockV5 implements ByteBuf {
 
 	private int			capacity;
 	private int			limit;
-	private ByteBuffer		memory;
+	private byte[]		array;
 	private ByteBufferPool	memoryPool;
 	private int			offset;
 	private int			position;
@@ -23,30 +24,33 @@ public class MemoryBlockV4 implements ByteBuf {
 	private boolean		released;
 	private int			size;
 	private ReentrantLock	lock;
+	private ByteBuffer		nioBuffer;
 
-	protected MemoryUnitV4	memoryStart;
-	protected MemoryUnitV4	memoryEnd;
+	protected MemoryUnitV5	memoryStart;
+	protected MemoryUnitV5	memoryEnd;
 
-	protected MemoryBlockV4(ByteBuffer memory) {
-		this.memory = memory;
+	protected MemoryBlockV5(ByteBuffer memory) {
+		this.nioBuffer = memory;
+		this.array = memory.array();
 		this.capacity = memory.capacity();
-		this.limit = memory.limit();
-		this.position = memory.position();
+		this.limit = capacity;
+		this.position = 0;
 	}
 
-	public MemoryBlockV4(ByteBufferPool byteBufferPool, ByteBuffer memory) {
+	public MemoryBlockV5(ByteBufferPool byteBufferPool, ByteBuffer memory) {
 		this(byteBufferPool, memory, new ReferenceCount());
 	}
 
-	public MemoryBlockV4(ByteBufferPool byteBufferPool, ByteBuffer memory, ReferenceCount referenceCount) {
-		this.memory = memory;
+	public MemoryBlockV5(ByteBufferPool byteBufferPool, ByteBuffer memory, ReferenceCount referenceCount) {
+		this.nioBuffer = memory;
+		this.array = memory.array();
 		this.memoryPool = byteBufferPool;
 		this.lock = new ReentrantLock();
 		this.referenceCount = referenceCount;
 	}
 
 	public byte[] array() {
-		return memory.array();
+		return array;
 	}
 
 	public int capacity() {
@@ -56,7 +60,6 @@ public class MemoryBlockV4 implements ByteBuf {
 	public ByteBuf clear() {
 		this.position = 0;
 		this.limit = capacity;
-		memory.position(offset).limit(limit);
 		return this;
 	}
 
@@ -72,9 +75,7 @@ public class MemoryBlockV4 implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV4 block = new MemoryBlockV4(memoryPool
-					, memory.duplicate()
-					, referenceCount);
+			MemoryBlockV5 block = new MemoryBlockV5(memoryPool, nioBuffer, referenceCount);
 
 			block.referenceCount.increament();
 			block.capacity = capacity;
@@ -93,8 +94,6 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public ByteBuf flip() {
-		this.memory.limit(ix(position));
-		this.memory.position(offset);
 		this.limit = position;
 		this.position = 0;
 		return this;
@@ -105,11 +104,7 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public byte get(int index) {
-		return memory.get(index);
-	}
-
-	public ByteBuffer nioBuffer(){
-		return (ByteBuffer) memory.limit(ix(limit)).position(ix(position));
+		return array[ix(index)];
 	}
 
 	public byte[] getBytes() {
@@ -126,32 +121,32 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public void get(byte[] dst, int offset, int length) {
-		this.memory.get(dst, offset, length);
+		System.arraycopy(array, ix(position), dst, offset, length);
 		this.position += length;
 	}
 
 	public int getInt() {
-		int v = memory.getInt();
+		int v = MathUtil.byte2Int(array, ix(position));
 		this.position += 4;
 		return v;
 	}
 
 	public int getInt(int index) {
-		return memory.getInt(index);
+		return MathUtil.byte2Int(array, ix(index));
 	}
 
 	public long getLong() {
-		long v = memory.getLong();
+		long v = MathUtil.byte2Long(array, ix(position));
 		this.position += 8;
 		return v;
 	}
 
 	public long getLong(int index) {
-		return memory.getLong(index);
+		return MathUtil.byte2Long(array, ix(index));
 	}
 
 	public boolean hasArray() {
-		return memory.hasArray();
+		return true;
 	}
 
 	public boolean hasRemaining() {
@@ -166,8 +161,6 @@ public class MemoryBlockV4 implements ByteBuf {
 	 * 注意，该方法会重置position
 	 */
 	public ByteBuf limit(int limit) {
-		this.memory.limit(ix(limit));
-		this.memory.position(offset);
 		this.limit = limit;
 		this.position = 0;
 		return this;
@@ -178,7 +171,6 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public ByteBuf position(int position) {
-		this.memory.position(ix(position));
 		this.position = position;
 		return this;
 	}
@@ -188,21 +180,26 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public void put(byte[] src, int offset, int length) {
-		this.memory.put(src, offset, length);
+		System.arraycopy(src, offset, array, ix(position), length);;
 		this.position += length;
+	}
+	
+	public ByteBuffer nioBuffer(){
+		return (ByteBuffer) nioBuffer.limit(ix(limit)).position(ix(position));
 	}
 
 	public int read(SocketChannel channel) throws IOException {
 
-		int length = channel.read(memory);
+		int length = channel.read(nioBuffer());
 
 		if (length > 0) {
 			position += length;
 		}
 
 		return length;
-
 	}
+	
+	
 
 	public void release() {
 
@@ -249,14 +246,14 @@ public class MemoryBlockV4 implements ByteBuf {
 
 		if (remaining <= srcRemaining) {
 
-			buffer.get(this.memory.array(), offset + position, remaining);
+			buffer.get(array, ix(position), remaining);
 
 			this.position(this.limit);
 
 			return remaining;
 		} else {
 
-			buffer.get(this.memory.array(), offset + position, srcRemaining);
+			buffer.get(array, ix(position), srcRemaining);
 
 			this.position(this.position + srcRemaining);
 
@@ -264,7 +261,7 @@ public class MemoryBlockV4 implements ByteBuf {
 		}
 	}
 
-	public void setMemory(MemoryUnitV4 memoryStart, MemoryUnitV4 memoryEnd) {
+	public void setMemory(MemoryUnitV5 memoryStart, MemoryUnitV5 memoryEnd) {
 		this.memoryStart = memoryStart;
 		this.memoryEnd = memoryEnd;
 		this.size = memoryStart.blockEnd - memoryStart.index;
@@ -289,14 +286,12 @@ public class MemoryBlockV4 implements ByteBuf {
 		this.offset = memoryStart.index * memoryPool.getUnitMemorySize();
 		this.capacity = size * memoryPool.getUnitMemorySize();
 		this.limit = newLimit;
-		this.memory.limit(offset + newLimit);
-		this.memory.position(offset);
 		return this;
 	}
 
 	public int write(SocketChannel channel) throws IOException {
 
-		int length = channel.write(memory);
+		int length = channel.write(nioBuffer());
 
 		if (length > 0) {
 
@@ -313,12 +308,7 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public byte get() {
-
-		byte b = memory.get();
-
-		position++;
-
-		return b;
+		return array[ix(position++)];
 	}
 
 	public int forEachByte(ByteProcessor processor) {
@@ -384,8 +374,7 @@ public class MemoryBlockV4 implements ByteBuf {
 	}
 
 	public void put(byte b) {
-		memory.put(b);
-		position++;
+		array[ix(position++)] = b;
 	}
 
 	public int read(ByteBuf buf) throws IOException {
@@ -400,14 +389,14 @@ public class MemoryBlockV4 implements ByteBuf {
 
 		if (remaining <= srcRemaining) {
 
-			buf.get(array(), ix(position), remaining);
+			buf.get(array, ix(position), remaining);
 
 			position(limit);
 
 			return remaining;
 		} else {
 
-			buf.get(array(), ix(position), srcRemaining);
+			buf.get(array, ix(position), srcRemaining);
 
 			position(position + srcRemaining);
 

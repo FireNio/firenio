@@ -1,11 +1,11 @@
 package com.generallycloud.nio.codec.http11.future;
 
-import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketSession;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
@@ -15,7 +15,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		this.setRequestURL(url);
 	}
 
-	public ClientHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
+	public ClientHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
 		super(session, readBuffer);
 	}
 

@@ -1,15 +1,14 @@
 package com.generallycloud.nio.codec.fixedlength.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
@@ -91,7 +90,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		}
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 

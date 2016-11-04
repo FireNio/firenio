@@ -1,6 +1,6 @@
 package com.generallycloud.nio.protocol;
 
-import java.nio.ByteBuffer;
+import com.generallycloud.nio.buffer.ByteBuf;
 
 public interface SslReadFuture extends IOReadFuture{
 
@@ -14,6 +14,6 @@ public interface SslReadFuture extends IOReadFuture{
 
 	public static final int	SSL_RECORD_HEADER_LENGTH				= 5;
 
-	public ByteBuffer getMemory();
+	public ByteBuf getProduct();
 	
 }

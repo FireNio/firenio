@@ -1,7 +1,6 @@
 package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
@@ -69,7 +68,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 				buf.flip();
 
-				this.buf.read(buf.getMemory());
+				this.buf.read(buf);
 
 				ReleaseUtil.release(buf);
 
@@ -149,20 +148,15 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 		return length;
 	}
 
-	public ByteBuffer getMemory() {
-		
-		if (buf == null) {
-			return null;
-		}
-		
-		return buf.getMemory();
+	public ByteBuf getProduct() {
+		return buf;
 	}
 
 	private boolean isHeaderReadComplete(ByteBuf buf) {
 		return !buf.hasRemaining();
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!header_complete) {
 

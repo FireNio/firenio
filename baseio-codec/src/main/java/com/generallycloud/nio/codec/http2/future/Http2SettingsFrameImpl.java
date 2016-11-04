@@ -1,7 +1,6 @@
 package com.generallycloud.nio.codec.http2.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
@@ -49,7 +48,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!isComplete) {
 

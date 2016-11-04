@@ -168,4 +168,12 @@ public abstract class SimulateByteBuf implements ByteBuf {
 
 	}
 
+	public int read(ByteBuf buf) throws IOException {
+		return 0;
+	}
+
+	public ByteBuffer nioBuffer() {
+		return null;
+	}
+
 }

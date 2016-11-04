@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV4;
+import com.generallycloud.nio.buffer.EmptyMemoryBlock;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -54,7 +54,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV4.EMPTY_BYTEBUF);
+			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
 			flush(f);
 

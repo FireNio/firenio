@@ -4,13 +4,13 @@ import static com.generallycloud.nio.codec.http2.hpack.Http2Error.COMPRESSION_ER
 import static com.generallycloud.nio.codec.http2.hpack.Http2Exception.connectionError;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.v4.UnpooledMemoryPoolV4;
+import com.generallycloud.nio.buffer.UnpooledMemoryPool;
 
 public class DefaultHttp2HeadersEncoder implements Http2HeadersEncoder, Http2HeadersEncoder.Configuration {
 	    private final Encoder encoder;
 	    private final SensitivityDetector sensitivityDetector;
 	    private final Http2HeaderTable headerTable;
-	    private final ByteBuf tableSizeChangeOutput = UnpooledMemoryPoolV4.allocate(1024 * 8);
+	    private final ByteBuf tableSizeChangeOutput = UnpooledMemoryPool.allocate(1024 * 8);
 
 	    public DefaultHttp2HeadersEncoder() {
 	        this(NEVER_SENSITIVE);
@@ -45,7 +45,7 @@ public class DefaultHttp2HeadersEncoder implements Http2HeadersEncoder, Http2Hea
 	            // If there was a change in the table size, serialize the output from the encoder
 	            // resulting from that change.
 	            if (tableSizeChangeOutput.hasRemaining()) {
-	                buffer.read(tableSizeChangeOutput.getMemory());
+	                buffer.read(tableSizeChangeOutput);
 	                tableSizeChangeOutput.clear();
 	            }
 

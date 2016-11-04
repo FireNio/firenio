@@ -1,12 +1,12 @@
 package com.generallycloud.nio.codec.line.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
 public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements LineBasedReadFuture {
@@ -28,7 +28,7 @@ public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements Lin
 		complete = true;
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (complete) {
 			return true;

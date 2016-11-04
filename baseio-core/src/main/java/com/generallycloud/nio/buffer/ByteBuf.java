@@ -10,8 +10,6 @@ public interface ByteBuf extends Releasable {
 
 	public static final int			UNIT_CAPACITY	= 12;
 
-	public static final ByteBuffer	EMPTY_BUFFER	= ByteBuffer.allocate(0);
-
 	public abstract ByteBuf duplicate();
 
 	public abstract int remaining();
@@ -52,10 +50,10 @@ public interface ByteBuf extends Releasable {
 
 	public abstract byte[] getBytes();
 
-	public abstract ByteBuffer getMemory();
-
 	public abstract void get(byte[] dst, int offset, int length);
 
+	public abstract ByteBuffer nioBuffer();
+	
 	public abstract void put(byte[] src);
 
 	public abstract void put(byte[] src, int offset, int length);
@@ -67,6 +65,8 @@ public interface ByteBuf extends Releasable {
 	public abstract int write(SocketChannel channel) throws IOException;
 
 	public abstract int read(ByteBuffer buffer) throws IOException;
+	
+	public abstract int read(ByteBuf buf) throws IOException;
 
 	public abstract byte get();
 

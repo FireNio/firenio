@@ -1,15 +1,15 @@
 package com.generallycloud.nio.codec.http11.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.UnpooledMemoryPool;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.BASE64Util;
-import com.generallycloud.nio.common.ByteBufferUtil;
 import com.generallycloud.nio.common.KMPByteUtil;
 import com.generallycloud.nio.common.KMPUtil;
 import com.generallycloud.nio.common.SHA1Util;
@@ -44,7 +44,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected boolean				header_complete;
 	protected String				host;
 	protected String				method;
-	protected ByteBuffer			bodyContent;
+	protected ByteBuf				bodyContent;
 	protected Map<String, String>		params;
 	protected Map<String, String>		request_headers;
 	protected String				requestURI;
@@ -62,7 +62,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		super(context);
 	}
 
-	public AbstractHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
+	public AbstractHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
 		super(session.getContext());
 		this.session = session;
 		this.headerLimit = 1024 * 8;
@@ -253,14 +253,14 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 			hasBodyContent = true;
 
-			bodyContent = ByteBuffer.allocate(contentLength);
+			bodyContent = UnpooledMemoryPool.allocate(contentLength);
 		} else {
 			// FIXME 写入临时文件
 			throw new IOException("max content 1024 * 1024,content " + contentLength);
 		}
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!header_complete) {
 
@@ -305,7 +305,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 			if (bodyContent.hasRemaining()) {
 
-				ByteBufferUtil.read(bodyContent, buffer);
+				bodyContent.read(buffer);
 			}
 
 			if (bodyContent.hasRemaining()) {

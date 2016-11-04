@@ -1,7 +1,6 @@
 package com.generallycloud.nio.codec.base;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
@@ -48,7 +47,7 @@ public class BaseProtocolDecoder implements ProtocolDecoder {
 	public static final int	TEXT_BEGIN_INDEX			= 14;
 	public static final int	BINARY_BEGIN_INDEX		= 16;
 
-	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
+	public IOReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HEADER);
 

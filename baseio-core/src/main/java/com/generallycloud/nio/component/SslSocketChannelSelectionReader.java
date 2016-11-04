@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -14,7 +13,7 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 		super(context);
 	}
 	
-	protected void accept(SocketChannel channel,UnsafeSession session, ByteBuffer buffer) throws Exception {
+	protected void accept(SocketChannel channel,UnsafeSession session, ByteBuf buffer) throws Exception {
 		
 		for (;;) {
 
@@ -57,15 +56,15 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 			channel.setSslReadFuture(null);
 
 			// FIXME 不友好
-			ByteBuffer sslBuffer = future.getMemory();
+			ByteBuf product = future.getProduct();
 
-			if (sslBuffer == null) {
+			if (product == null) {
 				continue;
 			}
 
 			try {
 
-				super.accept(channel, session, sslBuffer);
+				super.accept(channel, session, product);
 
 			} finally {
 

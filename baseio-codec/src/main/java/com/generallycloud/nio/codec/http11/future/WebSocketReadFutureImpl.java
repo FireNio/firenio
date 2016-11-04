@@ -1,15 +1,14 @@
 package com.generallycloud.nio.codec.http11.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
@@ -133,7 +132,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		doLengthComplete(session,buffer,length);
 	}
 
-	public boolean read(SocketSession session,ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session,ByteBuf buffer) throws IOException {
 		
 		ByteBuf buf = this.buf;
 		

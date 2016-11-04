@@ -1,7 +1,6 @@
 package com.generallycloud.nio.codec.http2.future;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
@@ -67,7 +66,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 	}
 
-	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!isComplete) {
 

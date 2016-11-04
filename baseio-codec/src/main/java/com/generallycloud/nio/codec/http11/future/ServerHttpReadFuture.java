@@ -1,15 +1,15 @@
 package com.generallycloud.nio.codec.http11.future;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ServerHttpReadFuture(SocketSession session, ByteBuffer readBuffer) {
+	public ServerHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
 		super(session, readBuffer);
 		this.params = new HashMap<String, String>();
 	}

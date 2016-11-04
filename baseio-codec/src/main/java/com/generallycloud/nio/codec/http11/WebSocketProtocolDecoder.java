@@ -1,7 +1,6 @@
 package com.generallycloud.nio.codec.http11;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
@@ -45,13 +44,9 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	public static final int	TYPE_PONG		= 10;
 
 	@Override
-	public IOReadFuture decode(SocketSession session, ByteBuffer buffer) throws IOException {
+	public IOReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(2);
-
-		buf.read(buffer);
-
-		return new WebSocketReadFutureImpl(session, buf);
+		return new WebSocketReadFutureImpl(session, session.getContext().getHeapByteBufferPool().allocate(2));
 	}
 
 }
