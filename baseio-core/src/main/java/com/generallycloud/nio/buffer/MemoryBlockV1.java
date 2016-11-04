@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class MemoryBlockV1 implements PooledByteBuf {
+public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 
 	private PooledByteBuf	previous;
 
@@ -39,10 +39,6 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		return size;
 	}
 	
-	public byte get(int index) {
-		return 0;
-	}
-
 	public MemoryUnitV1 getEnd() {
 		return end;
 	}
@@ -67,10 +63,6 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		this.next = next;
 	}
 	
-	public byte[] getBytes() {
-		return null;
-	}
-
 	public PooledByteBuf use() {
 		this.start.setUsing(true);
 		this.end.setUsing(true);
@@ -260,11 +252,4 @@ public class MemoryBlockV1 implements PooledByteBuf {
 		return memory.array();
 	}
 
-	public int offset() {
-		return 0;
-	}
-
-	public int read(ByteBuffer buffer) throws IOException {
-		return 0;
-	}
 }

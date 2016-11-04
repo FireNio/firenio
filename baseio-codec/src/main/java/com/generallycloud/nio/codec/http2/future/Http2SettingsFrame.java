@@ -10,6 +10,6 @@ public interface Http2SettingsFrame extends Http2Frame {
 	public static final int	SETTINGS_MAX_FRAME_SIZE			= 0x5;
 	public static final int	SETTINGS_MAX_HEADER_LIST_SIZE		= 0x6;
 	
-	public abstract int[] getSettings() ;
+	public abstract long[] getSettings() ;
 
 }

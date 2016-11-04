@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class MemoryBlockV2 implements ByteBuf {
+public class MemoryBlockV2 extends SimulateByteBuf implements ByteBuf {
 
 	private int			capacity;
 	private int			end;
@@ -261,8 +261,4 @@ public class MemoryBlockV2 implements ByteBuf {
 		return length;
 	}
 
-	public int read(ByteBuffer buffer) throws IOException {
-		return 0;
-	}
-	
 }

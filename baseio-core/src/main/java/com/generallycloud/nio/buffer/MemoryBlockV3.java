@@ -18,10 +18,10 @@ public class MemoryBlockV3 implements ByteBuf {
 	private boolean		released;
 	private int			size;
 	private ReentrantLock	lock;
-	
-	protected MemoryUnitV3		memoryStart;
-	protected MemoryUnitV3		memoryEnd;
-	
+
+	protected MemoryUnitV3	memoryStart;
+	protected MemoryUnitV3	memoryEnd;
+
 	protected MemoryBlockV3(ByteBuffer memory) {
 		this.memory = memory;
 		this.capacity = memory.capacity();
@@ -67,7 +67,9 @@ public class MemoryBlockV3 implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV3 block = new MemoryBlockV3(memoryPool, memory.duplicate(), referenceCount);
+			MemoryBlockV3 block = new MemoryBlockV3(memoryPool
+					, memory.duplicate()
+					, referenceCount);
 
 			block.referenceCount.increament();
 			block.capacity = capacity;
@@ -86,14 +88,18 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public ByteBuf flip() {
-		memory.limit(offset + position).position(offset);
+		memory.flip();
 		limit = position;
 		position = 0;
 		return this;
 	}
+	
+	private int ix(int index){
+		return offset + index;
+	}
 
 	public byte get(int index) {
-		return memory.get(offset + index);
+		return memory.get(index);
 	}
 
 	public ByteBuffer getMemory() {
@@ -119,23 +125,23 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public int getInt() {
-		return memory.getInt(offset);
+		int v = memory.getInt();
+		this.position += 4;
+		return v;
 	}
 
 	public int getInt(int index) {
-		return memory.getInt(offset + index);
+		return memory.getInt(index);
 	}
 
 	public long getLong() {
-		return memory.getLong(offset);
+		long v = memory.getLong();
+		this.position += 8;
+		return v;
 	}
 
 	public long getLong(int index) {
-		return memory.getLong(offset + index);
-	}
-
-	protected int getSize() {
-		return size;
+		return memory.getLong(index);
 	}
 
 	public boolean hasArray() {
@@ -143,7 +149,7 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public boolean hasRemaining() {
-		return remaining() > 0;
+		return position < limit;
 	}
 
 	public int limit() {
@@ -151,9 +157,9 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public ByteBuf limit(int limit) {
+		memory.limit(ix(limit)).position(offset);
 		this.limit = limit;
 		this.position = 0;
-		memory.limit(offset + limit).position(offset);
 		return this;
 	}
 
@@ -162,8 +168,8 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public ByteBuf position(int position) {
+		this.memory.position(ix(position));
 		this.position = position;
-		this.memory.position(offset + position);
 		return this;
 	}
 
@@ -220,30 +226,30 @@ public class MemoryBlockV3 implements ByteBuf {
 	public int remaining() {
 		return limit - position;
 	}
-	
+
 	public int read(ByteBuffer buffer) throws IOException {
-		
+
 		int srcRemaining = buffer.remaining();
 
 		if (srcRemaining == 0) {
 			return 0;
 		}
-		
+
 		int remaining = this.remaining();
-		
+
 		if (remaining <= srcRemaining) {
-			
-			buffer.get(this.memory.array(),offset + position,remaining);
-			
+
+			buffer.get(this.memory.array(), offset + position, remaining);
+
 			this.position(this.limit);
-			
+
 			return remaining;
-		}else{
-			
-			buffer.get(this.memory.array(),offset + position,srcRemaining);
-			
+		} else {
+
+			buffer.get(this.memory.array(), offset + position, srcRemaining);
+
 			this.position(this.position + srcRemaining);
-			
+
 			return srcRemaining;
 		}
 	}
@@ -281,17 +287,93 @@ public class MemoryBlockV3 implements ByteBuf {
 		int length = channel.write(memory);
 
 		if (length > 0) {
-			
+
 			position += length;
-			
+
 			channel.upNetworkState();
-			
-		}else{
-			
+
+		} else {
+
 			channel.downNetworkState();
 		}
 
 		return length;
+	}
+
+	public byte get() {
+
+		byte b = memory.get();
+
+		position++;
+
+		return b;
+	}
+
+	public int forEachByte(ByteProcessor processor) {
+		return forEachByte(position, limit, processor);
+	}
+
+	public int forEachByte(int index, int length, ByteProcessor processor) {
+		
+		byte [] array = this.array();
+		
+		int start = ix(index);
+		
+		int end = start + length;
+
+		try {
+			
+			for (int i = start; i < end; i++) {
+				
+				if (processor.process(array[i])) {
+					
+					return i - start;
+				}
+				
+			}
+			
+		} catch (Exception e) {
+		}
+		
+		return -1;
+	}
+
+	public int forEachByteDesc(ByteProcessor processor) {
+		return forEachByteDesc(position, limit, processor);
+	}
+
+	public int forEachByteDesc(int index, int length, ByteProcessor processor) {
+
+		byte [] array = this.array();
+		
+		int start = ix(index);
+		
+		int end = start + length;
+
+		try {
+			
+			for (int i = end; i >= start; i--) {
+				
+				if (processor.process(array[i])) {
+					
+					return i - start;
+				}
+				
+			}
+			
+		} catch (Exception e) {
+		}
+		
+		return -1;
+	}
+
+	public void skipBytes(int length) {
+		this.position(position + length);
+	}
+
+	public void put(byte b) {
+		memory.put(b);
+		position++;
 	}
 
 }

@@ -69,7 +69,7 @@ public class Http2ServerStartup {
 			File certificate = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.crt");
 			File privateKey = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.key");
 
-			SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
+			SslContext sslContext = SSLUtil.initServerHttp2(privateKey,certificate);
 			
 			context.setSslContext(sslContext);
 			

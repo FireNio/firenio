@@ -10,7 +10,7 @@ import com.generallycloud.nio.component.SocketChannel;
 // 请勿对duplicate出来的buffer做写入操作
 
 @Deprecated
-public class PooledByteBuffer implements ByteBuf {
+public class PooledByteBuffer extends SimulateByteBuf implements ByteBuf {
 
 	private ByteBuffer		memory;
 
@@ -63,14 +63,10 @@ public class PooledByteBuffer implements ByteBuf {
 		}
 	}
 	
-	public int offset() {
-		return 0;
-	}
-	
 	public ByteBuffer getMemory() {
 		return memory;
 	}
-
+	
 	public ByteBuf duplicate() {
 
 		ReentrantLock lock = this.lock;
@@ -192,13 +188,4 @@ public class PooledByteBuffer implements ByteBuf {
 	public String toString() {
 		return memory.toString();
 	}
-
-	public byte get(int index) {
-		return 0;
-	}
-
-	public int read(ByteBuffer buffer) throws IOException {
-		return 0;
-	}
-	
 }

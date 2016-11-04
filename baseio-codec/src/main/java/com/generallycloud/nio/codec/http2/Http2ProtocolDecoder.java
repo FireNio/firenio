@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.codec.http2.future.Http2HeadersFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2PrefaceReadFuture;
 import com.generallycloud.nio.codec.http2.future.Http2FrameHeaderImpl;
 import com.generallycloud.nio.codec.http2.future.Http2SettingsFrameImpl;
@@ -106,8 +107,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 			break;
 		case FRAME_TYPE_HEADERS:
-
-			break;
+			return new Http2HeadersFrameImpl(context, allocate(context, http2UnsafeSession));
 		case FRAME_TYPE_PING:
 
 			break;

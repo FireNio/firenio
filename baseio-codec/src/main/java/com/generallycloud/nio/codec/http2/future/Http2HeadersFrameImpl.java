@@ -11,15 +11,23 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
-public class Http2SettingsFrameImpl extends AbstractIOReadFuture implements Http2SettingsFrame {
+public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2HeadersFrame {
 
 	private ByteBuf	buf;
 
 	private boolean	isComplete;
 
-	private long[]		settings;
+	private byte		padLength;
 
-	public Http2SettingsFrameImpl(BaseContext context, ByteBuf buf) {
+	private boolean	e;
+
+	private int		streamDependency;
+
+	private int		weight;
+
+	private byte[]	fragment;
+
+	public Http2HeadersFrameImpl(BaseContext context, ByteBuf buf) {
 		super(context);
 		this.buf = buf;
 	}
@@ -28,26 +36,34 @@ public class Http2SettingsFrameImpl extends AbstractIOReadFuture implements Http
 
 		isComplete = true;
 
-		int offset = buf.offset(); 
+		Http2FrameHeader header = session.getLastReadFrameHeader();
+		
+		byte flags = header.getFlags();
+		
+		int offset = buf.offset();
 
 		byte[] array = buf.array();
-
-		int settings = buf.limit() / 6;
-
-		for (int i = 0; i < settings; i++) {
-
-			int _offset = i * 6;
-			int key = MathUtil.byte2IntFrom2Byte(array, offset + _offset);
-			int value = MathUtil.byte2Int(array, offset + _offset + 2);
-
-			session.setSettings(key, value);
+		
+		int readIndex = offset;
+		
+		if ((flags & FLAG_PADDED)  > 0) {
+			padLength = array[readIndex++];
 		}
-
-		this.settings = session.getSettings();
+		
+		if((flags & FLAG_PRIORITY) > 0){
+			e = (array[readIndex] & 0x80) > 0;
+			streamDependency = MathUtil.byte2Int31(array, readIndex);
+			readIndex+=4;
+			weight = array[readIndex];
+		}
+		
+		int fragmentLength = buf.position() - (readIndex - offset) - padLength;
+		
+		this.fragment = new byte[fragmentLength];
+		
+		System.arraycopy(array, readIndex+1, fragment, 0, fragmentLength);
 
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
-		
-		session.flush(this);
 
 	}
 
@@ -78,10 +94,23 @@ public class Http2SettingsFrameImpl extends AbstractIOReadFuture implements Http
 	}
 
 	public Http2FrameType getHttp2FrameType() {
-		return Http2FrameType.FRAME_TYPE_SETTINGS;
+		return Http2FrameType.FRAME_TYPE_HEADERS;
 	}
 
-	public long[] getSettings() {
-		return settings;
+	public boolean isE() {
+		return e;
 	}
+
+	public int getStreamDependency() {
+		return streamDependency;
+	}
+
+	public int getWeight() {
+		return weight;
+	}
+
+	public byte[] getFragment() {
+		return fragment;
+	}
+
 }

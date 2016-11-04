@@ -6,11 +6,11 @@ import com.generallycloud.nio.component.SocketSession;
 
 public interface Http2SocketSession extends SocketSession {
 
-	public abstract int getSettings(int i);
+	public abstract long getSettings(int i);
 
-	public abstract int[] getSettings();
+	public abstract long[] getSettings();
 
-	public abstract void setSettings(int key, int value);
+	public abstract void setSettings(int key, long value);
 
 	public abstract Http2FrameHeader getLastReadFrameHeader();
 

@@ -21,7 +21,6 @@ import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
-//FIXME 解析BODY中的内容
 //FIXME 改进header parser
 /**
  * 
@@ -261,7 +260,6 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		}
 	}
 
-	// FIXME 是否会出现第一次读到\r\n结束，下一次loop开头读到\r\n的情况
 	public boolean read(SocketSession session, ByteBuffer buffer) throws IOException {
 
 		if (!header_complete) {

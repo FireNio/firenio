@@ -57,7 +57,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 
 			Http2SettingsFrame f = (Http2SettingsFrame) frame;
 			
-			int [] settings = f.getSettings();
+			long [] settings = f.getSettings();
 			
 			payload = new byte[6 * settings.length];
 			
@@ -66,7 +66,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 				int offset = i * 6;
 				
 				MathUtil.intTo2Byte(payload, i, offset);
-				MathUtil.int2Byte(payload, settings[i], offset + 2);
+				MathUtil.longTo4Byte(payload, settings[i], offset + 2);
 				
 			}
 			

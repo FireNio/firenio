@@ -13,7 +13,7 @@ public class Http2SocketSessionImpl extends UnsafeSessionImpl implements Http2So
 
 	private Http2FrameHeader	lastReadFrameHeader;
 
-	private int[]			settings			= new int[] { 0, 4096, 1, 128, 65535, 16384, 0 };
+	private long[]			settings		= new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
 
 	private Http2FrameType	frameWillBeRead	= Http2FrameType.FRAME_TYPE_PREFACE;
 
@@ -37,15 +37,15 @@ public class Http2SocketSessionImpl extends UnsafeSessionImpl implements Http2So
 		this.frameWillBeRead = Http2FrameType.getValue(frameWillBeRead);
 	}
 
-	public int getSettings(int i) {
+	public long getSettings(int i) {
 		return settings[i];
 	}
 
-	public void setSettings(int key, int value) {
+	public void setSettings(int key, long value) {
 		settings[key] = value;
 	}
 
-	public int[] getSettings() {
+	public long[] getSettings() {
 		return settings;
 	}
 

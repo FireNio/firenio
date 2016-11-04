@@ -8,9 +8,9 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public interface ByteBuf extends Releasable {
 
-	public static final int	UNIT_CAPACITY	= 12;
-	
-	public static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
+	public static final int			UNIT_CAPACITY	= 12;
+
+	public static final ByteBuffer	EMPTY_BUFFER	= ByteBuffer.allocate(0);
 
 	public abstract ByteBuf duplicate();
 
@@ -67,5 +67,55 @@ public interface ByteBuf extends Releasable {
 	public abstract int write(SocketChannel channel) throws IOException;
 
 	public abstract int read(ByteBuffer buffer) throws IOException;
+
+	public abstract byte get();
+
+	/**
+	 * Iterates over the readable bytes of this buffer with the specified
+	 * {@code processor} in ascending order.
+	 *
+	 * @return {@code -1} if the processor iterated to or beyond the end of the
+	 *         readable bytes. The last-visited index If the
+	 *         {@link ByteProcessor#process(byte)} returned {@code false}.
+	 */
+	public abstract int forEachByte(ByteProcessor processor);
+
+	/**
+	 * Iterates over the specified area of this buffer with the specified
+	 * {@code processor} in ascending order. (i.e. {@code index},
+	 * {@code (index + 1)}, .. {@code (index + length - 1)})
+	 *
+	 * @return {@code -1} if the processor iterated to or beyond the end of the
+	 *         specified area. The last-visited index If the
+	 *         {@link ByteProcessor#process(byte)} returned {@code false}.
+	 */
+	public abstract int forEachByte(int index, int length, ByteProcessor processor);
+
+	/**
+	 * Iterates over the readable bytes of this buffer with the specified
+	 * {@code processor} in descending order.
+	 *
+	 * @return {@code -1} if the processor iterated to or beyond the beginning
+	 *         of the readable bytes. The last-visited index If the
+	 *         {@link ByteProcessor#process(byte)} returned {@code false}.
+	 */
+	public abstract int forEachByteDesc(ByteProcessor processor);
+
+	/**
+	 * Iterates over the specified area of this buffer with the specified
+	 * {@code processor} in descending order. (i.e.
+	 * {@code (index + length - 1)}, {@code (index + length - 2)}, ...
+	 * {@code index})
+	 *
+	 *
+	 * @return {@code -1} if the processor iterated to or beyond the beginning
+	 *         of the specified area. The last-visited index If the
+	 *         {@link ByteProcessor#process(byte)} returned {@code false}.
+	 */
+	public abstract int forEachByteDesc(int index, int length, ByteProcessor processor);
+
+	public abstract void skipBytes(int length);
+	
+	public abstract void put(byte b);
 
 }

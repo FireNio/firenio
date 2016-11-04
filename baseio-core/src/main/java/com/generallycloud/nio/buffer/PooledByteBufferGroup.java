@@ -8,14 +8,14 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class PooledByteBufferGroup implements ByteBuf {
+public class PooledByteBufferGroup extends SimulateByteBuf implements ByteBuf {
 
 	private ByteBuf[]		bufs;
 
 	private ByteBuf		currentBuf;
 
 	private ByteBuf		tailBuf;
-	
+
 	private ByteBuf		headBuf;
 
 	private int			capacity;
@@ -27,9 +27,9 @@ public class PooledByteBufferGroup implements ByteBuf {
 	private boolean		released;
 
 	private ReferenceCount	referenceCount;
-	
-	private int bufIndex = 0;
-	
+
+	private int			bufIndex	= 0;
+
 	public byte[] getBytes() {
 		return null;
 	}
@@ -56,7 +56,7 @@ public class PooledByteBufferGroup implements ByteBuf {
 
 	PooledByteBufferGroup() {
 	}
-	
+
 	public int offset() {
 		return 0;
 	}
@@ -89,34 +89,34 @@ public class PooledByteBufferGroup implements ByteBuf {
 	}
 
 	public int read(SocketChannel channel) throws IOException {
-		
+
 		ByteBuf buf = findBuf();
-		
+
 		int read = buf.read(channel);
-		
+
 		position += read;
-		
+
 		return read;
 	}
-	
+
 	public ByteBuffer getMemory() {
 		return null;
 	}
 
 	private ByteBuf findBuf() {
-		
+
 		ByteBuf buf = currentBuf;
-		
+
 		if (!buf.hasRemaining()) {
-			
+
 			bufIndex++;
-			
+
 			if (bufIndex < bufs.length) {
-				
+
 				buf = currentBuf = bufs[bufIndex];
-				
-			}else{
-				
+
+			} else {
+
 				throw new BufferException("no buf available");
 			}
 		}
@@ -124,13 +124,13 @@ public class PooledByteBufferGroup implements ByteBuf {
 	}
 
 	public int write(SocketChannel channel) throws IOException {
-		
+
 		ByteBuf buf = findBuf();
-		
+
 		int read = buf.write(channel);
-		
+
 		position += read;
-		
+
 		return read;
 	}
 
@@ -139,28 +139,28 @@ public class PooledByteBufferGroup implements ByteBuf {
 	}
 
 	public void get(byte[] dst, int offset, int length) {
-		
+
 		if (offset != 0) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		int unit_capacity = ByteBuf.UNIT_CAPACITY;
-		
+
 		if (length < unit_capacity) {
-			
+
 			headBuf.get(dst, offset, length);
 			return;
 		}
-		
+
 		int size = length / unit_capacity;
-		
+
 		for (int i = 0; i < size; i++) {
-			
+
 			bufs[i].get(dst, unit_capacity * i, unit_capacity);
 		}
-		
+
 		int remain = length % unit_capacity;
-		
+
 		if (remain > 0) {
 			bufs[size].get(dst, size * unit_capacity, remain);
 		}
@@ -171,43 +171,43 @@ public class PooledByteBufferGroup implements ByteBuf {
 	}
 
 	public void put(byte[] src, int offset, int length) {
-		
+
 		if (offset != 0) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		int unit_capacity = ByteBuf.UNIT_CAPACITY;
-		
+
 		if (length < unit_capacity) {
-			
+
 			headBuf.put(src, offset, length);
 			return;
 		}
-		
+
 		int size = length / unit_capacity;
-		
+
 		for (int i = 0; i < size; i++) {
-			
+
 			bufs[i].put(src, unit_capacity * i, unit_capacity);
 		}
-		
+
 		int remain = length % unit_capacity;
-		
+
 		if (remain > 0) {
-			bufs[size+1].put(src, size * unit_capacity, remain);
+			bufs[size + 1].put(src, size * unit_capacity, remain);
 		}
 	}
-	
-	public ByteBuf flip(){
+
+	public ByteBuf flip() {
 		limit = position;
 		position = 0;
-		
+
 		int size = (limit + ByteBuf.UNIT_CAPACITY - 1) / ByteBuf.UNIT_CAPACITY;
-		
+
 		for (int i = 0; i < size; i++) {
 			bufs[i].flip();
 		}
-		
+
 		return this;
 	}
 
@@ -267,17 +267,17 @@ public class PooledByteBufferGroup implements ByteBuf {
 	}
 
 	public ByteBuf limit(int limit) {
-		
+
 		this.limit = limit;
-		
+
 		int _limit = limit % ByteBuf.UNIT_CAPACITY;
-		
+
 		if (_limit == 0) {
 			_limit = ByteBuf.UNIT_CAPACITY;
 		}
-		
+
 		tailBuf.limit(_limit);
-		
+
 		return this;
 	}
 
@@ -306,10 +306,6 @@ public class PooledByteBufferGroup implements ByteBuf {
 		}
 		return this;
 	}
-	
-	public void touch() {
-		
-	}
 
 	public int getInt() {
 		return currentBuf.getInt();
@@ -318,8 +314,8 @@ public class PooledByteBufferGroup implements ByteBuf {
 	public long getLong() {
 		return currentBuf.getLong();
 	}
-	
-	private ByteBuf findBuf(int offset){
+
+	private ByteBuf findBuf(int offset) {
 		int bufIndex = offset / ByteBuf.UNIT_CAPACITY;
 		return bufs[bufIndex];
 	}
@@ -336,12 +332,4 @@ public class PooledByteBufferGroup implements ByteBuf {
 		return bufs[0].array();
 	}
 
-	public byte get(int index) {
-		return 0;
-	}
-
-	public int read(ByteBuffer buffer) throws IOException {
-		return 0;
-	}
-	
 }

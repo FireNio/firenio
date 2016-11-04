@@ -25,6 +25,13 @@ public class SSLUtil {
 		}
 		return sslContext;
 	}
+	
+	public synchronized static SslContext initServerHttp2(File privateKey, File certificate) throws IOException {
+		if (sslContext == null) {
+			doInitHttp2(privateKey, certificate);
+		}
+		return sslContext;
+	}
 
 	public synchronized static SslContext initClient() {
 		if (sslContext == null) {
@@ -38,6 +45,14 @@ public class SSLUtil {
 	}
 
 	private static void doInit(File privateKey, File certificate) throws IOException {
+
+		LoggerUtil.prettyNIOServerLog(logger, "加载证书公钥：{}", certificate.getCanonicalPath());
+		LoggerUtil.prettyNIOServerLog(logger, "加载证书私钥：{}", privateKey.getCanonicalPath());
+
+		sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
+	}
+	
+	private static void doInitHttp2(File privateKey, File certificate) throws IOException {
 
 		LoggerUtil.prettyNIOServerLog(logger, "加载证书公钥：{}", certificate.getCanonicalPath());
 		LoggerUtil.prettyNIOServerLog(logger, "加载证书私钥：{}", privateKey.getCanonicalPath());
