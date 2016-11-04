@@ -2,6 +2,8 @@ package com.generallycloud.nio.codec.http2;
 
 import com.generallycloud.nio.codec.http2.future.Http2FrameHeader;
 import com.generallycloud.nio.codec.http2.future.Http2FrameType;
+import com.generallycloud.nio.codec.http2.hpack.Http2Headers;
+import com.generallycloud.nio.codec.http2.hpack.Http2HeadersImpl;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.UnsafeSessionImpl;
 
@@ -13,9 +15,11 @@ public class Http2SocketSessionImpl extends UnsafeSessionImpl implements Http2So
 
 	private Http2FrameHeader	lastReadFrameHeader;
 
-	private long[]			settings		= new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
+	private long[]			settings			= new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
 
 	private Http2FrameType	frameWillBeRead	= Http2FrameType.FRAME_TYPE_PREFACE;
+
+	private Http2Headers	http2Headers		= new Http2HeadersImpl();
 
 	public Http2FrameHeader getLastReadFrameHeader() {
 		return lastReadFrameHeader;
@@ -47,6 +51,10 @@ public class Http2SocketSessionImpl extends UnsafeSessionImpl implements Http2So
 
 	public long[] getSettings() {
 		return settings;
+	}
+
+	public Http2Headers getHttp2Headers() {
+		return http2Headers;
 	}
 
 }

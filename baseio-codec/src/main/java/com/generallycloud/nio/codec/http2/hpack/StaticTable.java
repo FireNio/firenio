@@ -14,6 +14,7 @@ final class StaticTable {
 	private static Map<String, Http2Header> STATIC_MAP = new HashMap<String, Http2Header>();
 
 	static {
+		STATIC_HEADER_TABLE.add(new Http2Header(0, ":error", ""));
 		STATIC_HEADER_TABLE.add(new Http2Header(1, ":authority", ""));
 		STATIC_HEADER_TABLE.add(new Http2Header(2, ":method", "GET"));
 		STATIC_HEADER_TABLE.add(new Http2Header(3, ":method", "POST"));

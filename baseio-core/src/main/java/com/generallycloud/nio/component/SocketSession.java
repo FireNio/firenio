@@ -3,7 +3,6 @@ package com.generallycloud.nio.component;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.common.ssl.SslHandler;
-import com.generallycloud.nio.protocol.IOWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -19,8 +18,6 @@ public interface SocketSession extends Session{
 	public abstract void fireOpend();
 	
 	public abstract void finishHandshake(Exception e);
-	
-	public abstract void flush(IOWriteFuture future);
 
 	public abstract ProtocolDecoder getProtocolDecoder() ;
 

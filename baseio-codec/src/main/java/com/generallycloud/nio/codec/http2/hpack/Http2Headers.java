@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * A collection of headers sent or received via HTTP/2.
  */
-public interface Http2Headers extends Headers<String, String, Http2Headers> {
+public interface Http2Headers extends Iterable<Entry<String, String>>{
 
 	/**
 	 * HTTP/2 pseudo-headers names.
@@ -70,7 +70,6 @@ public interface Http2Headers extends Headers<String, String, Http2Headers> {
 	 * follows: 1. All pseudo headers (order not specified). 2. All non-pseudo
 	 * headers (in insertion order).
 	 */
-	@Override
 	Iterator<Entry<String, String>> iterator();
 
 	/**
@@ -132,4 +131,6 @@ public interface Http2Headers extends Headers<String, String, Http2Headers> {
 	 * is no such header
 	 */
 	String status();
+
+	void add(String name, String value);
 }

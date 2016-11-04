@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
+import com.generallycloud.nio.codec.http2.hpack.Decoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
@@ -26,6 +27,8 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 	private int		weight;
 
 	private byte[]	fragment;
+	
+	private static Decoder decoder = new Decoder();
 
 	public Http2HeadersFrameImpl(BaseContext context, ByteBuf buf) {
 		super(context);
@@ -35,6 +38,8 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
 		isComplete = true;
+		
+		buf.flip();
 
 		Http2FrameHeader header = session.getLastReadFrameHeader();
 		
@@ -54,14 +59,18 @@ public class Http2HeadersFrameImpl extends AbstractIOReadFuture implements Http2
 			e = (array[readIndex] & 0x80) > 0;
 			streamDependency = MathUtil.byte2Int31(array, readIndex);
 			readIndex+=4;
-			weight = array[readIndex];
+			weight = array[readIndex++];
 		}
 		
-		int fragmentLength = buf.position() - (readIndex - offset) - padLength;
+		buf.skipBytes(readIndex - offset);
 		
-		this.fragment = new byte[fragmentLength];
+		decoder.decode(header.getStreamIdentifier(), buf, session.getHttp2Headers());
 		
-		System.arraycopy(array, readIndex+1, fragment, 0, fragmentLength);
+//		int fragmentLength = buf.position() - (readIndex - offset) - padLength;
+//		
+//		this.fragment = new byte[fragmentLength];
+		
+//		System.arraycopy(array, readIndex+1, fragment, 0, fragmentLength);
 
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 

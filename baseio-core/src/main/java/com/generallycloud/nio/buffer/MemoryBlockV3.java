@@ -88,9 +88,10 @@ public class MemoryBlockV3 implements ByteBuf {
 	}
 
 	public ByteBuf flip() {
-		memory.flip();
-		limit = position;
-		position = 0;
+		this.memory.limit(ix(position));
+		this.memory.position(offset);
+		this.limit = position;
+		this.position = 0;
 		return this;
 	}
 	
@@ -156,8 +157,12 @@ public class MemoryBlockV3 implements ByteBuf {
 		return limit;
 	}
 
+	/**
+	 * 注意，该方法会重置position
+	 */
 	public ByteBuf limit(int limit) {
-		memory.limit(ix(limit)).position(offset);
+		this.memory.limit(ix(limit));
+		this.memory.position(offset);
 		this.limit = limit;
 		this.position = 0;
 		return this;
@@ -275,10 +280,12 @@ public class MemoryBlockV3 implements ByteBuf {
 		return b.toString();
 	}
 
-	protected ByteBuf use() {
+	protected ByteBuf produce(int newLimit) {
 		this.offset = memoryStart.index * memoryPool.getUnitMemorySize();
 		this.capacity = size * memoryPool.getUnitMemorySize();
-		this.limit = this.capacity;
+		this.limit = newLimit;
+		this.memory.limit(offset + newLimit);
+		this.memory.position(offset);
 		return this;
 	}
 
@@ -325,7 +332,7 @@ public class MemoryBlockV3 implements ByteBuf {
 			
 			for (int i = start; i < end; i++) {
 				
-				if (processor.process(array[i])) {
+				if (!processor.process(array[i])) {
 					
 					return i - start;
 				}
@@ -354,7 +361,7 @@ public class MemoryBlockV3 implements ByteBuf {
 			
 			for (int i = end; i >= start; i--) {
 				
-				if (processor.process(array[i])) {
+				if (!processor.process(array[i])) {
 					
 					return i - start;
 				}

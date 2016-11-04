@@ -1,10 +1,11 @@
 package com.generallycloud.nio.codec.http2.hpack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Http2Exception extends Exception{
+public class Http2Exception extends IOException{
 
 	private static final long serialVersionUID = -6941186345430164209L;
 	    private final Http2Error error;

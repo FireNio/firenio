@@ -99,7 +99,7 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 				mask = blockEnd;
 
-				return memoryBlock.use().limit(capacity);
+				return memoryBlock.produce(capacity);
 			}
 
 			start++;
