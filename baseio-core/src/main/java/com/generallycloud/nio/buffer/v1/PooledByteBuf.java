@@ -1,4 +1,7 @@
-package com.generallycloud.nio.buffer;
+package com.generallycloud.nio.buffer.v1;
+
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.v2.MemoryUnitV1;
 
 @Deprecated
 public interface PooledByteBuf extends ByteBuf {

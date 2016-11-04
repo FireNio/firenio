@@ -1,6 +1,8 @@
-package com.generallycloud.nio.buffer;
+package com.generallycloud.nio.buffer.v2;
 
 import java.nio.ByteBuffer;
+
+import com.generallycloud.nio.buffer.v1.MemoryPoolV0;
 
 @Deprecated
 public class HeapMemoryPoolV1 extends MemoryPoolV0{

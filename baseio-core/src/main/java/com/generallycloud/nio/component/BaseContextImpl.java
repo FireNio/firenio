@@ -10,7 +10,7 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.HeapMemoryPoolV3;
+import com.generallycloud.nio.buffer.v4.HeapMemoryPoolV3;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;

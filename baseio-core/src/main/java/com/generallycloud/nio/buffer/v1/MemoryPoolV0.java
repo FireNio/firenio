@@ -1,9 +1,12 @@
-package com.generallycloud.nio.buffer;
+package com.generallycloud.nio.buffer.v1;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.buffer.AbstractMemoryPool;
+import com.generallycloud.nio.buffer.BufferException;
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 
 @Deprecated

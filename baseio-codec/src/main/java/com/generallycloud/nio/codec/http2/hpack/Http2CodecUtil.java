@@ -4,7 +4,7 @@ import static com.generallycloud.nio.codec.http2.hpack.Http2Error.PROTOCOL_ERROR
 import static com.generallycloud.nio.codec.http2.hpack.Http2Exception.streamError;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
+import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.ssl.ApplicationProtocolNames;
 
 public final class Http2CodecUtil {

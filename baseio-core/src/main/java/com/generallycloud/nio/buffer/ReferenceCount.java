@@ -1,18 +1,18 @@
 package com.generallycloud.nio.buffer;
 
-class ReferenceCount {
+public class ReferenceCount {
 
-	protected int	referenceCount = 1;
+	private int	referenceCount = 1;
 
-	protected int increament() {
+	public int increament() {
 		return ++referenceCount;
 	}
 
-	protected int deincreament() {
+	public int deincreament() {
 		return --referenceCount;
 	}
 
-	protected int getReferenceCount() {
+	public int getReferenceCount() {
 		return referenceCount;
 	}
 }

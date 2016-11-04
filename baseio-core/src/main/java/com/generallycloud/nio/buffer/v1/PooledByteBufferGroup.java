@@ -1,9 +1,14 @@
-package com.generallycloud.nio.buffer;
+package com.generallycloud.nio.buffer.v1;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.buffer.BufferException;
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ReferenceCount;
+import com.generallycloud.nio.buffer.ReleasedException;
+import com.generallycloud.nio.buffer.SimulateByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketChannel;
 

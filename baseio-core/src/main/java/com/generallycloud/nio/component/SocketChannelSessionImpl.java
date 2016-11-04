@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.EmptyMemoryBlockV3;
+import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV3;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
