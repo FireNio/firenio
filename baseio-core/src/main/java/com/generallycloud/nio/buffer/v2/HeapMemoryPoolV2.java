@@ -2,12 +2,12 @@ package com.generallycloud.nio.buffer.v2;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.buffer.v1.MemoryPoolV0;
+import com.generallycloud.nio.buffer.v1.MemoryPoolV1;
 
 @Deprecated
-public class HeapMemoryPoolV1 extends MemoryPoolV0{
+public class HeapMemoryPoolV2 extends MemoryPoolV1{
 
-	public HeapMemoryPoolV1(int capacity) {
+	public HeapMemoryPoolV2(int capacity) {
 		super(capacity);
 	}
 

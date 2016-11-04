@@ -13,7 +13,7 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class PooledByteBufferGroup extends SimulateByteBuf implements ByteBuf {
+public class PooledByteBufferGroupV1 extends SimulateByteBuf implements ByteBuf {
 
 	private ByteBuf[]		bufs;
 
@@ -41,7 +41,7 @@ public class PooledByteBufferGroup extends SimulateByteBuf implements ByteBuf {
 
 	private ReentrantLock	lock	= new ReentrantLock();
 
-	public PooledByteBufferGroup(ByteBuf[] bufs, int capacity, int limit) {
+	public PooledByteBufferGroupV1(ByteBuf[] bufs, int capacity, int limit) {
 		this.bufs = bufs;
 		this.capacity = capacity;
 		this.limit = limit;
@@ -59,7 +59,7 @@ public class PooledByteBufferGroup extends SimulateByteBuf implements ByteBuf {
 		lastBuf.limit(_limit);
 	}
 
-	PooledByteBufferGroup() {
+	PooledByteBufferGroupV1() {
 	}
 
 	public int offset() {
@@ -228,7 +228,7 @@ public class PooledByteBufferGroup extends SimulateByteBuf implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			PooledByteBufferGroup group = new PooledByteBufferGroup();
+			PooledByteBufferGroupV1 group = new PooledByteBufferGroupV1();
 
 			group.bufs = copyBufs();
 			group.referenceCount = referenceCount;

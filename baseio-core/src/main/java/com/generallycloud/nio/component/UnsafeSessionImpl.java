@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV3;
+import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV4;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
@@ -47,7 +47,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-				IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+				IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV4.EMPTY_BYTEBUF);
 
 				flush(f);
 			}

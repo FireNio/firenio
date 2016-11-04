@@ -7,7 +7,7 @@ import com.generallycloud.nio.buffer.AbstractMemoryPool;
 import com.generallycloud.nio.buffer.ByteBuf;
 
 @Deprecated
-public abstract class MemoryPoolV2 extends AbstractMemoryPool {
+public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 //	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV2.class);
 
@@ -80,7 +80,7 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool {
 
 				setFree(start, _end, false);
 
-				MemoryBlockV2 memoryBlock = new MemoryBlockV2(this, memory.duplicate());
+				MemoryBlockV3 memoryBlock = new MemoryBlockV3(this, memory.duplicate());
 
 				memoryBlock.setMemory(start, _end);
 
@@ -95,17 +95,17 @@ public abstract class MemoryPoolV2 extends AbstractMemoryPool {
 		return null;
 	}
 
-	public MemoryPoolV2(int capacity) {
+	public MemoryPoolV3(int capacity) {
 		this(capacity, 1024);
 	}
 
-	public MemoryPoolV2(int capacity, int unitMemorySize) {
+	public MemoryPoolV3(int capacity, int unitMemorySize) {
 		super(capacity, unitMemorySize);
 	}
 
 	public void release(ByteBuf memoryBlock) {
 
-		MemoryBlockV2 block = (MemoryBlockV2) memoryBlock;
+		MemoryBlockV3 block = (MemoryBlockV3) memoryBlock;
 
 		ReentrantLock lock = this.lock;
 

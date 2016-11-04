@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufferPool;
 
-public class UnpooledMemoryPoolV3 {
+public class UnpooledMemoryPoolV4 {
 
 	public static ByteBuf allocate(int capacity) {
 		return new UnpooledMemoryBlockV3(ByteBuffer.allocate(capacity));
@@ -19,7 +19,7 @@ public class UnpooledMemoryPoolV3 {
 		return new UnpooledMemoryBlockV3(ByteBuffer.allocateDirect(capacity));
 	}
 
-	static class UnpooledMemoryBlockV3 extends MemoryBlockV3 {
+	static class UnpooledMemoryBlockV3 extends MemoryBlockV4 {
 
 		private UnpooledMemoryBlockV3(ByteBuffer memory) {
 			super(memory);

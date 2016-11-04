@@ -12,7 +12,7 @@ import com.generallycloud.nio.buffer.SimulateByteBuf;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class MemoryBlockV2 extends SimulateByteBuf implements ByteBuf {
+public class MemoryBlockV3 extends SimulateByteBuf implements ByteBuf {
 
 	private int			capacity;
 	private int			end;
@@ -27,13 +27,13 @@ public class MemoryBlockV2 extends SimulateByteBuf implements ByteBuf {
 	private int			size;
 	private int			start;
 
-	public MemoryBlockV2(ByteBufferPool byteBufferPool, ByteBuffer memory) {
+	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
 		this.referenceCount = new ReferenceCount();
 	}
 	
-	public MemoryBlockV2(ByteBufferPool byteBufferPool, ByteBuffer memory,ReferenceCount referenceCount) {
+	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory,ReferenceCount referenceCount) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
 		this.referenceCount = referenceCount;
@@ -66,7 +66,7 @@ public class MemoryBlockV2 extends SimulateByteBuf implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV2 block = new MemoryBlockV2(memoryPool, memory.duplicate(),referenceCount);
+			MemoryBlockV3 block = new MemoryBlockV3(memoryPool, memory.duplicate(),referenceCount);
 
 			block.referenceCount.increament();
 			block.capacity = capacity;

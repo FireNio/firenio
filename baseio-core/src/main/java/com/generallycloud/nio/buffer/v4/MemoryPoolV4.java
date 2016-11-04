@@ -6,11 +6,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.buffer.AbstractMemoryPool;
 import com.generallycloud.nio.buffer.ByteBuf;
 
-public abstract class MemoryPoolV3 extends AbstractMemoryPool {
+public abstract class MemoryPoolV4 extends AbstractMemoryPool {
 
 //	private Logger			logger	= LoggerFactory.getLogger(MemoryPoolV3.class);
 
-	private MemoryUnitV3[]	memoryUnits;
+	private MemoryUnitV4[]	memoryUnits;
 
 	private int			mask;
 
@@ -22,17 +22,17 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 		this.memory = allocateMemory(capacity * unitMemorySize);
 
-		this.memoryUnits = new MemoryUnitV3[capacity];
+		this.memoryUnits = new MemoryUnitV4[capacity];
 
 		for (int i = 0; i < capacity; i++) {
-			MemoryUnitV3 unit = new MemoryUnitV3();
+			MemoryUnitV4 unit = new MemoryUnitV4();
 			unit.free = true;
 			unit.index = i;
 			memoryUnits[i] = unit;
 		}
 	}
 
-	public void setEmploy(MemoryUnitV3 memoryStart, MemoryUnitV3 memoryEnd,int blockEnd) {
+	public void setEmploy(MemoryUnitV4 memoryStart, MemoryUnitV4 memoryEnd,int blockEnd) {
 //		logger.debug("setEmploy,start={},end={}", memoryStart.index, memoryEnd.index);
 		// new Exception().printStackTrace();
 
@@ -69,13 +69,13 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 	private ByteBuf allocate(int capacity, int start, int end, int size) {
 
-		MemoryUnitV3[] memoryUnits = this.memoryUnits;
+		MemoryUnitV4[] memoryUnits = this.memoryUnits;
 
 		int freeSize = 0;
 
 		for (; start < end;) {
 
-			MemoryUnitV3 unit = memoryUnits[start];
+			MemoryUnitV4 unit = memoryUnits[start];
 
 			if (!unit.free) {
 
@@ -91,12 +91,12 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 				int blockEnd = unit.index + 1;
 				start = blockEnd - size;
 
-				MemoryUnitV3 memoryStart = memoryUnits[start];
-				MemoryUnitV3 memoryEnd = unit;
+				MemoryUnitV4 memoryStart = memoryUnits[start];
+				MemoryUnitV4 memoryEnd = unit;
 				
 				setEmploy(memoryStart, memoryEnd,blockEnd);
 
-				MemoryBlockV3 memoryBlock = new MemoryBlockV3(this, memory.duplicate());
+				MemoryBlockV4 memoryBlock = new MemoryBlockV4(this, memory.duplicate());
 
 				memoryBlock.setMemory(memoryStart, memoryEnd);
 
@@ -111,17 +111,17 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 		return null;
 	}
 
-	public MemoryPoolV3(int capacity) {
+	public MemoryPoolV4(int capacity) {
 		this(capacity, 1024);
 	}
 
-	public MemoryPoolV3(int capacity, int unitMemorySize) {
+	public MemoryPoolV4(int capacity, int unitMemorySize) {
 		super(capacity, unitMemorySize);
 	}
 
 	public void release(ByteBuf memoryBlock) {
 
-		MemoryBlockV3 block = (MemoryBlockV3) memoryBlock;
+		MemoryBlockV4 block = (MemoryBlockV4) memoryBlock;
 
 		ReentrantLock lock = this.lock;
 
@@ -131,8 +131,8 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 			
 //			logger.info("release : {}",memoryBlock.capacity());
 
-			MemoryUnitV3 memoryStart = block.memoryStart;
-			MemoryUnitV3 memoryEnd = block.memoryEnd;
+			MemoryUnitV4 memoryStart = block.memoryStart;
+			MemoryUnitV4 memoryEnd = block.memoryEnd;
 
 //			logger.debug("setFree,start={},end={}", memoryStart.index, memoryEnd.index );
 			// new Exception().printStackTrace();
@@ -148,11 +148,11 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 	public String toString() {
 
-		MemoryUnitV3[] memoryUnits = this.memoryUnits;
+		MemoryUnitV4[] memoryUnits = this.memoryUnits;
 
 		int free = 0;
 
-		for (MemoryUnitV3 b : memoryUnits) {
+		for (MemoryUnitV4 b : memoryUnits) {
 
 			if (b.free) {
 				free++;
@@ -172,11 +172,11 @@ public abstract class MemoryPoolV3 extends AbstractMemoryPool {
 
 	public String toSimpleString() {
 
-		MemoryUnitV3[] memoryUnits = this.memoryUnits;
+		MemoryUnitV4[] memoryUnits = this.memoryUnits;
 
 		int free = 0;
 
-		for (MemoryUnitV3 b : memoryUnits) {
+		for (MemoryUnitV4 b : memoryUnits) {
 
 			if (b.free) {
 				free++;

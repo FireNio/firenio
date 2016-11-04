@@ -2,25 +2,25 @@ package com.generallycloud.nio.buffer.v2;
 
 
 @Deprecated
-public class MemoryUnitV1 {
+public class MemoryUnitV2 {
 
-	private MemoryUnitV1	previous;
+	private MemoryUnitV2	previous;
 
 	private int			index;
 
 	private boolean		using;
 
-	private MemoryUnitV1	next;
+	private MemoryUnitV2	next;
 
-	public MemoryUnitV1(int index) {
+	public MemoryUnitV2(int index) {
 		this.index = index;
 	}
 
-	public MemoryUnitV1 getPrevious() {
+	public MemoryUnitV2 getPrevious() {
 		return previous;
 	}
 
-	public void setPrevious(MemoryUnitV1 previous) {
+	public void setPrevious(MemoryUnitV2 previous) {
 		this.previous = previous;
 	}
 
@@ -28,11 +28,11 @@ public class MemoryUnitV1 {
 		return index;
 	}
 
-	public MemoryUnitV1 getNext() {
+	public MemoryUnitV2 getNext() {
 		return next;
 	}
 
-	public void setNext(MemoryUnitV1 next) {
+	public void setNext(MemoryUnitV2 next) {
 		this.next = next;
 	}
 
@@ -44,7 +44,7 @@ public class MemoryUnitV1 {
 		this.using = using;
 	}
 
-	protected MemoryUnitV1() {
+	protected MemoryUnitV2() {
 
 	}
 	

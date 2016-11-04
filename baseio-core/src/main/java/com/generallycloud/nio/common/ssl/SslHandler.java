@@ -8,7 +8,7 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV3;
+import com.generallycloud.nio.buffer.v4.EmptyMemoryBlockV4;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -165,7 +165,7 @@ public class SslHandler {
 
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV3.EMPTY_BYTEBUF);
+					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlockV4.EMPTY_BYTEBUF);
 
 					session.flush(f);
 

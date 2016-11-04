@@ -2,13 +2,13 @@ package com.generallycloud.nio.buffer.v4;
 
 import java.nio.ByteBuffer;
 
-public class HeapMemoryPoolV3 extends MemoryPoolV3{
+public class HeapMemoryPoolV4 extends MemoryPoolV4{
 
-	public HeapMemoryPoolV3(int capacity) {
+	public HeapMemoryPoolV4(int capacity) {
 		super(capacity);
 	}
 	
-	public HeapMemoryPoolV3(int capacity,int unitMemorySize) {
+	public HeapMemoryPoolV4(int capacity,int unitMemorySize) {
 		super(capacity,unitMemorySize);
 	}
 

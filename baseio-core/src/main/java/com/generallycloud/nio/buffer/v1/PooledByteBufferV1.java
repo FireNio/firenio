@@ -14,7 +14,7 @@ import com.generallycloud.nio.component.SocketChannel;
 // 请勿对duplicate出来的buffer做写入操作
 
 @Deprecated
-public class PooledByteBuffer extends SimulateByteBuf implements ByteBuf {
+public class PooledByteBufferV1 extends SimulateByteBuf implements ByteBuf {
 
 	private ByteBuffer		memory;
 
@@ -24,11 +24,11 @@ public class PooledByteBuffer extends SimulateByteBuf implements ByteBuf {
 
 	private ByteBufferPool	byteBufferPool	= null;
 
-	protected PooledByteBuffer() {
+	protected PooledByteBufferV1() {
 
 	}
 
-	public PooledByteBuffer(ByteBufferPool byteBufferPool, ByteBuffer memory) {
+	public PooledByteBufferV1(ByteBufferPool byteBufferPool, ByteBuffer memory) {
 		// this.referenceCount = new ReferenceCount();
 		this.byteBufferPool = byteBufferPool;
 		this.memory = memory;
@@ -83,7 +83,7 @@ public class PooledByteBuffer extends SimulateByteBuf implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			PooledByteBuffer byteBuffer = new PooledByteBuffer();
+			PooledByteBufferV1 byteBuffer = new PooledByteBufferV1();
 
 			byteBuffer.memory = memory.duplicate();
 			byteBuffer.byteBufferPool = byteBufferPool;

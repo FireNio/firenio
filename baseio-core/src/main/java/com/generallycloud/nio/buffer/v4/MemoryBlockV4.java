@@ -11,7 +11,7 @@ import com.generallycloud.nio.buffer.ReferenceCount;
 import com.generallycloud.nio.buffer.ReleasedException;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class MemoryBlockV3 implements ByteBuf {
+public class MemoryBlockV4 implements ByteBuf {
 
 	private int			capacity;
 	private int			limit;
@@ -24,21 +24,21 @@ public class MemoryBlockV3 implements ByteBuf {
 	private int			size;
 	private ReentrantLock	lock;
 
-	protected MemoryUnitV3	memoryStart;
-	protected MemoryUnitV3	memoryEnd;
+	protected MemoryUnitV4	memoryStart;
+	protected MemoryUnitV4	memoryEnd;
 
-	protected MemoryBlockV3(ByteBuffer memory) {
+	protected MemoryBlockV4(ByteBuffer memory) {
 		this.memory = memory;
 		this.capacity = memory.capacity();
 		this.limit = memory.limit();
 		this.position = memory.position();
 	}
 
-	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory) {
+	public MemoryBlockV4(ByteBufferPool byteBufferPool, ByteBuffer memory) {
 		this(byteBufferPool, memory, new ReferenceCount());
 	}
 
-	public MemoryBlockV3(ByteBufferPool byteBufferPool, ByteBuffer memory, ReferenceCount referenceCount) {
+	public MemoryBlockV4(ByteBufferPool byteBufferPool, ByteBuffer memory, ReferenceCount referenceCount) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
 		this.lock = new ReentrantLock();
@@ -72,7 +72,7 @@ public class MemoryBlockV3 implements ByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV3 block = new MemoryBlockV3(memoryPool
+			MemoryBlockV4 block = new MemoryBlockV4(memoryPool
 					, memory.duplicate()
 					, referenceCount);
 
@@ -264,7 +264,7 @@ public class MemoryBlockV3 implements ByteBuf {
 		}
 	}
 
-	public void setMemory(MemoryUnitV3 memoryStart, MemoryUnitV3 memoryEnd) {
+	public void setMemory(MemoryUnitV4 memoryStart, MemoryUnitV4 memoryEnd) {
 		this.memoryStart = memoryStart;
 		this.memoryEnd = memoryEnd;
 		this.size = memoryStart.blockEnd - memoryStart.index;

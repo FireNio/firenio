@@ -4,13 +4,13 @@ import static com.generallycloud.nio.codec.http2.hpack.Http2Error.COMPRESSION_ER
 import static com.generallycloud.nio.codec.http2.hpack.Http2Exception.connectionError;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.v4.UnpooledMemoryPoolV3;
+import com.generallycloud.nio.buffer.v4.UnpooledMemoryPoolV4;
 
 public class DefaultHttp2HeadersEncoder implements Http2HeadersEncoder, Http2HeadersEncoder.Configuration {
 	    private final Encoder encoder;
 	    private final SensitivityDetector sensitivityDetector;
 	    private final Http2HeaderTable headerTable;
-	    private final ByteBuf tableSizeChangeOutput = UnpooledMemoryPoolV3.allocate(1024 * 8);
+	    private final ByteBuf tableSizeChangeOutput = UnpooledMemoryPoolV4.allocate(1024 * 8);
 
 	    public DefaultHttp2HeadersEncoder() {
 	        this(NEVER_SENSITIVE);

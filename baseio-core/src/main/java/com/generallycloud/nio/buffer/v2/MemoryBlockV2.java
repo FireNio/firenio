@@ -8,21 +8,21 @@ import com.generallycloud.nio.buffer.ByteBufferPool;
 import com.generallycloud.nio.buffer.ReferenceCount;
 import com.generallycloud.nio.buffer.ReleasedException;
 import com.generallycloud.nio.buffer.SimulateByteBuf;
-import com.generallycloud.nio.buffer.v1.PooledByteBuf;
+import com.generallycloud.nio.buffer.v1.PooledByteBufV1;
 import com.generallycloud.nio.component.SocketChannel;
 
 @Deprecated
-public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
+public class MemoryBlockV2 extends SimulateByteBuf implements PooledByteBufV1 {
 
-	private PooledByteBuf	previous;
+	private PooledByteBufV1	previous;
 
-	private PooledByteBuf	next;
+	private PooledByteBufV1	next;
 
-	private MemoryUnitV1	start;
+	private MemoryUnitV2	start;
 
 	private int		size;
 
-	private MemoryUnitV1	end;
+	private MemoryUnitV2	end;
 
 	private ByteBufferPool	memoryPool;
 
@@ -30,13 +30,13 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 
 	private int		offset;
 
-	public void setMemory(MemoryUnitV1 start, MemoryUnitV1 end) {
+	public void setMemory(MemoryUnitV2 start, MemoryUnitV2 end) {
 		this.start = start;
 		this.end = end;
 		this.size = end.getIndex() - start.getIndex() + 1;
 	}
 
-	public MemoryUnitV1 getStart() {
+	public MemoryUnitV2 getStart() {
 		return start;
 	}
 
@@ -44,11 +44,11 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return size;
 	}
 	
-	public MemoryUnitV1 getEnd() {
+	public MemoryUnitV2 getEnd() {
 		return end;
 	}
 
-	public PooledByteBuf getPrevious() {
+	public PooledByteBufV1 getPrevious() {
 		return previous;
 	}
 	
@@ -56,19 +56,19 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return memory;
 	}
 
-	public void setPrevious(PooledByteBuf previous) {
+	public void setPrevious(PooledByteBufV1 previous) {
 		this.previous = previous;
 	}
 
-	public PooledByteBuf getNext() {
+	public PooledByteBufV1 getNext() {
 		return next;
 	}
 
-	public void setNext(PooledByteBuf next) {
+	public void setNext(PooledByteBufV1 next) {
 		this.next = next;
 	}
 	
-	public PooledByteBuf use() {
+	public PooledByteBufV1 use() {
 		this.start.setUsing(true);
 		this.end.setUsing(true);
 		this.offset = start.getIndex() * memoryPool.getUnitMemorySize();
@@ -77,7 +77,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return this;
 	}
 
-	public PooledByteBuf free() {
+	public PooledByteBufV1 free() {
 		this.start.setUsing(false);
 		this.end.setUsing(false);
 		return this;
@@ -99,7 +99,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 
 	private ReentrantLock	lock	= new ReentrantLock();
 
-	public MemoryBlockV1(ByteBufferPool byteBufferPool,ByteBuffer memory) {
+	public MemoryBlockV2(ByteBufferPool byteBufferPool,ByteBuffer memory) {
 		this.memory = memory;
 		this.memoryPool = byteBufferPool;
 		this.referenceCount = new ReferenceCount();
@@ -164,14 +164,14 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		memory.put(src, offset, length);
 	}
 
-	public PooledByteBuf flip() {
+	public PooledByteBufV1 flip() {
 		memory.limit(offset + position).position(offset);
 		limit = position;
 		position = offset;
 		return this;
 	}
 
-	public PooledByteBuf duplicate() {
+	public PooledByteBufV1 duplicate() {
 
 		ReentrantLock lock = this.lock;
 
@@ -183,7 +183,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 				throw new ReleasedException("released");
 			}
 
-			MemoryBlockV1 block = new MemoryBlockV1(memoryPool,memory.duplicate());
+			MemoryBlockV2 block = new MemoryBlockV2(memoryPool,memory.duplicate());
 
 			block.referenceCount = referenceCount;
 			block.referenceCount.increament();
@@ -203,7 +203,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return position;
 	}
 
-	public PooledByteBuf position(int position) {
+	public PooledByteBufV1 position(int position) {
 		this.position = position;
 		return this;
 	}
@@ -212,7 +212,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return limit;
 	}
 
-	public PooledByteBuf limit(int limit) {
+	public PooledByteBufV1 limit(int limit) {
 		this.limit = limit;
 		memory.limit(offset + limit).position(offset);
 		return this;
@@ -230,7 +230,7 @@ public class MemoryBlockV1 extends SimulateByteBuf implements PooledByteBuf {
 		return memory.hasArray();
 	}
 
-	public PooledByteBuf clear() {
+	public PooledByteBufV1 clear() {
 		this.position = 0;
 		this.limit = capacity;
 		memory.position(offset).limit(limit);

@@ -10,13 +10,13 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 
 @Deprecated
-public abstract class MemoryPoolV0 extends AbstractMemoryPool {
+public abstract class MemoryPoolV1 extends AbstractMemoryPool {
 
 	protected int						size		= 0;
 	protected ArrayBlockingQueue<ByteBuf>	buffers	= null;
 	protected ReentrantLock				lock		= new ReentrantLock();
 
-	public MemoryPoolV0(int capacity) {
+	public MemoryPoolV1(int capacity) {
 		super(capacity);
 		this.buffers = new ArrayBlockingQueue<ByteBuf>(capacity);
 	}
@@ -41,7 +41,7 @@ public abstract class MemoryPoolV0 extends AbstractMemoryPool {
 
 			ByteBuffer memory = allocateMemory(ByteBuf.UNIT_CAPACITY);
 
-			return new PooledByteBuffer(this, memory);
+			return new PooledByteBufferV1(this, memory);
 
 		} finally {
 
@@ -90,7 +90,7 @@ public abstract class MemoryPoolV0 extends AbstractMemoryPool {
 			bufs[i] = buf;
 		}
 
-		return new PooledByteBufferGroup(bufs, bufsSize * ByteBuf.UNIT_CAPACITY, capacity);
+		return new PooledByteBufferGroupV1(bufs, bufsSize * ByteBuf.UNIT_CAPACITY, capacity);
 	}
 
 }

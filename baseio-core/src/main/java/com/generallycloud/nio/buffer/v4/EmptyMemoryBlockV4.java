@@ -8,13 +8,13 @@ import com.generallycloud.nio.buffer.ByteProcessor;
 import com.generallycloud.nio.component.SocketChannel;
 
 //FIXME throw
-public class EmptyMemoryBlockV3 implements ByteBuf{
+public class EmptyMemoryBlockV4 implements ByteBuf{
 	
-	public static EmptyMemoryBlockV3 EMPTY_BYTEBUF = new EmptyMemoryBlockV3();
+	public static EmptyMemoryBlockV4 EMPTY_BYTEBUF = new EmptyMemoryBlockV4();
 	
 	private ByteBuffer memory = ByteBuffer.allocate(0);
 	
-	private EmptyMemoryBlockV3(){}
+	private EmptyMemoryBlockV4(){}
 
 	public void release() {
 		
