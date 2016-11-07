@@ -1,6 +1,8 @@
 package com.generallycloud.nio.buffer.v5;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.AbstractMemoryPool;
@@ -145,8 +147,12 @@ public abstract class MemoryPoolV5 extends AbstractMemoryPool {
 			lock.unlock();
 		}
 	}
+	
+	private List<MemoryUnitV5> busyUnit = new ArrayList<MemoryUnitV5>();
 
 	public String toString() {
+		
+		busyUnit.clear();
 
 		MemoryUnitV5[] memoryUnits = this.memoryUnits;
 
@@ -156,34 +162,13 @@ public abstract class MemoryPoolV5 extends AbstractMemoryPool {
 
 			if (b.free) {
 				free++;
+			}else{
+				busyUnit.add(b);
 			}
 		}
 
 		StringBuilder b = new StringBuilder();
-//		b.append(this.getClass().getSimpleName());
-		b.append("[free=");
-		b.append(free);
-		b.append(",memory=");
-		b.append(capacity);
-		b.append("]");
-
-		return b.toString();
-	}
-
-	public String toSimpleString() {
-
-		MemoryUnitV5[] memoryUnits = this.memoryUnits;
-
-		int free = 0;
-
-		for (MemoryUnitV5 b : memoryUnits) {
-
-			if (b.free) {
-				free++;
-			}
-		}
-
-		StringBuilder b = new StringBuilder();
+		b.append(this.getClass().getSimpleName());
 		b.append("[free=");
 		b.append(free);
 		b.append(",memory=");
