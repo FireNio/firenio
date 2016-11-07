@@ -44,11 +44,7 @@ public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
 		
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 
-		int offset = buf.offset();
-		
-		byte [] array = buf.array();
-		
-		if (!isPreface(array, offset)) {
+		if (!isPreface(buf)) {
 			throw new IOException("not http2 preface");
 		}
 		
@@ -57,15 +53,15 @@ public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
 		session.flush(f);
 	}
 	
-	private boolean isPreface(byte [] array,int offset){
+	private boolean isPreface(ByteBuf buf){
 		
-		if(offset + PREFACE_BINARY.length > array.length){
+		if(PREFACE_BINARY.length > buf.remaining()){
 			return false;
 		}
 		
 		for (int i = 0; i < PREFACE_BINARY.length; i++) {
 			
-			if(PREFACE_BINARY[i] != array[i + offset]){
+			if(PREFACE_BINARY[i] != buf.getByte()){
 				return false;
 			}
 		}

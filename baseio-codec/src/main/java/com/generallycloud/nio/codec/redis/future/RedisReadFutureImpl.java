@@ -34,7 +34,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture implements Redi
 
 		for (; buffer.hasRemaining();) {
 
-			byte b = buffer.get();
+			byte b = buffer.getByte();
 
 			if (b == '\n') {
 

@@ -46,7 +46,6 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		}
 		
 		ByteBuf buffer = context.getHeapByteBufferPool().allocate(header.length + size);
-//		ByteBuf buffer = channel.getContext().getHeapByteBufferPool().allocate(header.length + size);
 		
 		buffer.put(header);
 		
@@ -57,55 +56,55 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		return new IOWriteFutureImpl(readFuture, buffer);
 	}
 	
-	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {
-		
-		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
-
-		BufferedOutputStream o = future.getWriteBuffer();
-
-		byte [] header;
-		
-		int size = o.size();
-		
-		byte header0 = (byte) (0x8f & (future.getType() | 0xf0));
-		
-		if (size < 126) {
-			header = new byte[2];
-			header[0] = header0;
-			header[1] = (byte)(size | 0x80);
-		}else if(size < ((1 << 16) -1)){
-			header = new byte[4];
-			header[0] = header0;
-			header[1] = (byte) (126 | 0xff);
-			header[3] = (byte)(size & 0xff);
-			header[2] = (byte)((size >> 8) & 0x80);
-		}else{
-			header = new byte[6];
-			header[0] = header0;
-			header[1] = (byte) (127 | 0x80);
-			MathUtil.int2Byte(header, size, 2);
-		}
-		
-		ByteBuf buffer = context.getHeapByteBufferPool().allocate(header.length + size + 4);
-		
-		buffer.put(header);
-		
-		byte [] array = o.array();
-		
-		byte [] mask = MathUtil.int2Byte(size);
-		
-		for (int i = 0; i < size; i++) {
-			
-			array[i] = (byte)(array[i] ^ mask[i % 4]);
-		}
-		
-		buffer.put(mask);
-		
-		buffer.put(array,0,size);
-		
-		buffer.flip();
-
-		return new IOWriteFutureImpl(readFuture, buffer);
-	}
+//	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {
+//		
+//		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
+//
+//		BufferedOutputStream o = future.getWriteBuffer();
+//
+//		byte [] header;
+//		
+//		int size = o.size();
+//		
+//		byte header0 = (byte) (0x8f & (future.getType() | 0xf0));
+//		
+//		if (size < 126) {
+//			header = new byte[2];
+//			header[0] = header0;
+//			header[1] = (byte)(size | 0x80);
+//		}else if(size < ((1 << 16) -1)){
+//			header = new byte[4];
+//			header[0] = header0;
+//			header[1] = (byte) (126 | 0xff);
+//			header[3] = (byte)(size & 0xff);
+//			header[2] = (byte)((size >> 8) & 0x80);
+//		}else{
+//			header = new byte[6];
+//			header[0] = header0;
+//			header[1] = (byte) (127 | 0x80);
+//			MathUtil.int2Byte(header, size, 2);
+//		}
+//		
+//		ByteBuf buffer = context.getHeapByteBufferPool().allocate(header.length + size + 4);
+//		
+//		buffer.put(header);
+//		
+//		byte [] array = o.array();
+//		
+//		byte [] mask = MathUtil.int2Byte(size);
+//		
+//		for (int i = 0; i < size; i++) {
+//			
+//			array[i] = (byte)(array[i] ^ mask[i % 4]);
+//		}
+//		
+//		buffer.put(mask);
+//		
+//		buffer.put(array,0,size);
+//		
+//		buffer.flip();
+//
+//		return new IOWriteFutureImpl(readFuture, buffer);
+//	}
 
 }

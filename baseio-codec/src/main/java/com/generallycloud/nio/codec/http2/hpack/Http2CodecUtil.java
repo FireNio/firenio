@@ -126,26 +126,25 @@ public final class Http2CodecUtil {
 	     * Reads a big-endian (31-bit) integer from the buffer.
 	     */
 	    public static int readUnsignedInt(ByteBuf buf) {
-	        return (buf.get() & 0x7F) << 24 | (buf.get() & 0xFF) << 16
-	                | (buf.get() & 0xFF) << 8 | buf.get() & 0xFF;
+	        return buf.getInt() & 0x7fffffff;
 	    }
 
 	    /**
 	     * Writes a big-endian (32-bit) unsigned integer to the buffer.
 	     */
 	    public static void writeUnsignedInt(long value, ByteBuf out) {
-	        out.put((byte) (value >> 24 & 0xFF));
-	        out.put((byte) (value >> 16 & 0xFF));
-	        out.put((byte) (value >> 8 & 0xFF));
-	        out.put((byte) (value & 0xFF));
+	        out.putByte((byte) (value >> 24 & 0xFF));
+	        out.putByte((byte) (value >> 16 & 0xFF));
+	        out.putByte((byte) (value >> 8 & 0xFF));
+	        out.putByte((byte) (value & 0xFF));
 	    }
 
 	    /**
 	     * Writes a big-endian (16-bit) unsigned integer to the buffer.
 	     */
 	    public static void writeUnsignedShort(int value, ByteBuf out) {
-	        out.put((byte)(value >> 8 & 0xFF));
-	        out.put((byte)(value & 0xFF));
+	        out.putByte((byte)(value >> 8 & 0xFF));
+	        out.putByte((byte)(value & 0xFF));
 	    }
 
 	    public static void headerListSizeExceeded(int streamId, long maxHeaderListSize) throws Http2Exception {

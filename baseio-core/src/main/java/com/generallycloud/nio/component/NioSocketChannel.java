@@ -5,11 +5,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.RejectedExecutionException;
 
+import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
@@ -157,7 +157,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		if (!isOpened()) {
 
-			future.onException(session, new ClosedChannelException());
+			future.onException(session, new ClosedChannelException(session.toString()));
 
 			return;
 		}
@@ -180,9 +180,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		IOWriteFuture f = writeFutures.poll();
 
-		ClosedChannelException e = new ClosedChannelException();
-
 		UnsafeSession session = this.session;
+
+		ClosedChannelException e = new ClosedChannelException(session.toString());
 
 		for (; f != null;) {
 

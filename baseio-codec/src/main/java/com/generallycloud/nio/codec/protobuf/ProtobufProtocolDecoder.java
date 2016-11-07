@@ -17,7 +17,7 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
 		buf.read(buffer);
 
-		byte _type = buffer.get(0);
+		byte _type = buffer.getByte(0);
 
 		int type = (_type & 0xff) >> 6;
 

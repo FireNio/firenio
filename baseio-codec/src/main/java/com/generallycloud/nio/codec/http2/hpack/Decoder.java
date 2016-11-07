@@ -89,7 +89,7 @@ public final class Decoder {
         while (in.hasRemaining()) {
             switch (state) {
                 case READ_HEADER_REPRESENTATION:
-                    byte b = in.get();
+                    byte b = in.getByte();
                     if (maxDynamicTableSizeChangeRequired && (b & 0xE0) != 0x20) {
                         // Encoder MUST signal maximum dynamic table size change
                         throw MAX_DYNAMIC_TABLE_SIZE_CHANGE_REQUIRED;
@@ -167,7 +167,7 @@ public final class Decoder {
                     break;
 
                 case READ_LITERAL_HEADER_NAME_LENGTH_PREFIX:
-                    b = in.get();
+                    b = in.getByte();
                     huffmanEncoded = (b & 0x80) == 0x80;
                     index = b & 0x7F;
                     if (index == 0x7f) {
@@ -203,7 +203,7 @@ public final class Decoder {
                     break;
 
                 case READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX:
-                    b = in.get();
+                    b = in.getByte();
                     huffmanEncoded = (b & 0x80) == 0x80;
                     index = b & 0x7F;
                     switch (index) {
@@ -395,7 +395,7 @@ public final class Decoder {
         final int writerIndex = in.limit();
         for (int readerIndex = in.position(), shift = 0;
              readerIndex < writerIndex; ++readerIndex, shift += 7) {
-            byte b = in.get(readerIndex);
+            byte b = in.getByte(readerIndex);
             if (shift == 28 && ((b & 0x80) != 0 || b > 6)) {
                 // the maximum value that can be represented by a signed 32 bit number is:
                 // 0x7f + 0x7f + (0x7f << 7) + (0x7f << 14) + (0x7f << 21) + (0x6 << 28)

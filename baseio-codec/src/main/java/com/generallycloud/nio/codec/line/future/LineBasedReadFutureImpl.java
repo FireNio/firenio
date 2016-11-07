@@ -38,7 +38,7 @@ public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements Lin
 
 		for (; buffer.hasRemaining();) {
 
-			byte b = buffer.get();
+			byte b = buffer.getByte();
 
 			if (b == LINE_BASE) {
 				doBodyComplete();

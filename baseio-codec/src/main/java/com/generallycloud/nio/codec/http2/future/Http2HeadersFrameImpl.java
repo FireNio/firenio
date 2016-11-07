@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.codec.http2.hpack.Decoder;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketSession;
 
@@ -40,26 +39,24 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
 		byte flags = this.flags;
 		
-		int offset = buf.offset();
-
-		byte[] array = buf.array();
-		
-		int readIndex = offset;
-		
 		this.endStream = (flags & FLAG_END_STREAM) > 0;
 		
 		if ((flags & FLAG_PADDED)  > 0) {
-			padLength = array[readIndex++];
+			padLength = buf.getByte();
 		}
 		
 		if((flags & FLAG_PRIORITY) > 0){
-			e = (array[readIndex] & 0x80) > 0;
-			streamDependency = MathUtil.byte2Int31(array, readIndex);
-			readIndex+=4;
-			weight = array[readIndex++];
+			
+			streamDependency = buf.getInt();
+			
+			e = streamDependency < 0;
+			
+			if (e) {
+				streamDependency = streamDependency & 0x7FFFFFFF;
+			}
+			
+			weight = buf.getByte();
 		}
-		
-		buf.skipBytes(readIndex - offset);
 		
 		decoder.decode(streamDependency, buf, session.getHttp2Headers());
 		

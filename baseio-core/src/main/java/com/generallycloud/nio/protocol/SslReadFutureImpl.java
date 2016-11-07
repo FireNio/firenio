@@ -3,7 +3,6 @@ package com.generallycloud.nio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.Session;
@@ -11,15 +10,15 @@ import com.generallycloud.nio.component.SocketSession;
 
 public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFuture {
 
-	private boolean		body_complete;
+	private boolean	body_complete;
 
-	private ByteBuf		buf;
+	private ByteBuf	buf;
 
-	private boolean		header_complete;
+	private boolean	header_complete;
 
-	private int			length;
+	private int		length;
 
-	private int			limit;
+	private int		limit;
 
 	public SslReadFutureImpl(SocketSession session, ByteBuf buf) {
 		this(session, buf, 1024 * 1024);
@@ -54,7 +53,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 		header_complete = true;
 
-		int length = getEncryptedPacketLength(buf.array(), buf.offset());
+		int length = getEncryptedPacketLength(buf);
 
 		if (length < 1) {
 
@@ -74,9 +73,9 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 			} else {
 
-				int pos = buf.position();
+				int skip = buf.position();
 
-				buf.limit(length).position(pos);
+				buf.limit(length).skipBytes(skip);
 			}
 
 		} else {
@@ -87,15 +86,14 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 		this.length = length;
 	}
 
-	private int getEncryptedPacketLength(byte[] data, int offset) {
+	int getEncryptedPacketLength(ByteBuf buffer) {
 		int packetLength = 0;
+		int offset = 0;
+		//FIXME offset
 
 		// SSLv3 or TLS - Check ContentType
-
-		int h1 = data[offset] & 0xff;
-
 		boolean tls;
-		switch (h1) {
+		switch (buffer.getUnsignedByte(offset)) {
 		case SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC:
 		case SSL_CONTENT_TYPE_ALERT:
 		case SSL_CONTENT_TYPE_HANDSHAKE:
@@ -109,10 +107,10 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 		if (tls) {
 			// SSLv3 or TLS - Check ProtocolVersion
-			int majorVersion = data[offset + 1] & 0xff;
+			int majorVersion = buffer.getUnsignedByte(offset + 1);
 			if (majorVersion == 3) {
 				// SSLv3 or TLS
-				packetLength = MathUtil.byte2IntFrom2Byte(data, offset + 3) + SSL_RECORD_HEADER_LENGTH;
+				packetLength = buffer.getUnsignedShort(offset + 3) + SSL_RECORD_HEADER_LENGTH;
 				if (packetLength <= SSL_RECORD_HEADER_LENGTH) {
 					// Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
 					tls = false;
@@ -125,14 +123,14 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 		if (!tls) {
 			// SSLv2 or bad data - Check the version
-			int headerLength = (data[offset + 4] & 0x80) != 0 ? 2 : 3;
-			int majorVersion = data[offset + headerLength + 5 + 1];
+			int headerLength = (buffer.getUnsignedByte(offset) & 0x80) != 0 ? 2 : 3;
+			int majorVersion = buffer.getUnsignedByte(offset + headerLength + 1);
 			if (majorVersion == 2 || majorVersion == 3) {
 				// SSLv2
 				if (headerLength == 2) {
-					packetLength = (MathUtil.byte2IntFrom2Byte(data, offset + 6) & 0x7FFF) + 2;
+					packetLength = (buffer.getShort(offset) & 0x7FFF) + 2;
 				} else {
-					packetLength = (MathUtil.byte2IntFrom2Byte(data, offset + 6) & 0x3FFF) + 3;
+					packetLength = (buffer.getShort(offset) & 0x3FFF) + 3;
 				}
 				if (packetLength <= headerLength) {
 					return -1;

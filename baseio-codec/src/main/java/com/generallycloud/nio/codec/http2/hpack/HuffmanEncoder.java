@@ -50,14 +50,14 @@ final class HuffmanEncoder {
 
             while (n >= 8) {
                 n -= 8;
-                out.put((byte) (current >> n));
+                out.putByte((byte) (current >> n));
             }
         }
 
         if (n > 0) {
             current <<= 8 - n;
             current |= 0xFF >>> n; // this should be EOS symbol
-            out.put((byte) current);
+            out.putByte((byte) current);
         }
     }
 
@@ -95,7 +95,7 @@ final class HuffmanEncoder {
 
             while (n >= 8) {
                 n -= 8;
-                out.put((byte) (current >> n));
+                out.putByte((byte) (current >> n));
             }
             return true;
         }
@@ -105,7 +105,7 @@ final class HuffmanEncoder {
                 if (n > 0) {
                     current <<= 8 - n;
                     current |= 0xFF >>> n; // this should be EOS symbol
-                    out.put((byte) current);
+                    out.putByte((byte) current);
                 }
             } finally {
                 out = null;

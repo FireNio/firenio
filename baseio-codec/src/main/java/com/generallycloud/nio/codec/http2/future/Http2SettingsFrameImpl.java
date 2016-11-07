@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketSession;
 
@@ -25,17 +24,12 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 		isComplete = true;
 
-		int offset = buf.offset(); 
-
-		byte[] array = buf.array();
-
 		int settings = buf.limit() / 6;
 
 		for (int i = 0; i < settings; i++) {
 
-			int _offset = i * 6;
-			int key = MathUtil.byte2IntFrom2Byte(array, offset + _offset);
-			int value = MathUtil.byte2Int(array, offset + _offset + 2);
+			int key = buf.getShort();
+			int value = buf.getInt();
 
 			session.setSettings(key, value);
 		}

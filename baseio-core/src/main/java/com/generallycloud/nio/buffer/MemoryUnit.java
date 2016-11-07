@@ -1,6 +1,6 @@
-package com.generallycloud.nio.buffer.v5;
+package com.generallycloud.nio.buffer;
 
-public class MemoryUnitV5 {
+public class MemoryUnit {
 
 	public int			index;
 

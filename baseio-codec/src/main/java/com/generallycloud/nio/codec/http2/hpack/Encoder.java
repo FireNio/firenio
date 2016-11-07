@@ -235,14 +235,14 @@ public final class Encoder {
 		assert n >= 0 && n <= 8 : "N: " + n;
 		int nbits = 0xFF >>> (8 - n);
 		if (i < nbits) {
-			out.put((byte) (mask | i));
+			out.putByte((byte) (mask | i));
 		} else {
-			out.put((byte) (mask | nbits));
+			out.putByte((byte) (mask | nbits));
 			int length = i - nbits;
 			for (; (length & ~0x7F) != 0; length >>>= 7) {
-				out.put((byte) ((length & 0x7F) | 0x80));
+				out.putByte((byte) ((length & 0x7F) | 0x80));
 			}
-			out.put((byte) length);
+			out.putByte((byte) length);
 		}
 	}
 

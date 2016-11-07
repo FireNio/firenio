@@ -77,9 +77,8 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 				
 				int offset = i * 6;
 				
-				MathUtil.intTo2Byte(payload, i, offset);
-				MathUtil.longTo4Byte(payload, settings[i], offset + 2);
-				
+				MathUtil.unsignedShort2Byte(payload, i, offset);
+				MathUtil.unsignedInt2Byte(payload, settings[i], offset + 2);
 			}
 			
 			break;
@@ -92,11 +91,11 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		int length = payload.length;
 		
-		ByteBuf buffer = context.getHeapByteBufferPool().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
+		ByteBuf buf = context.getHeapByteBufferPool().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
 		
-		int offset = buffer.offset();
+		int offset = buf.offset();
 		
-		byte [] array = buffer.array();
+		byte [] array = buf.array();
 		
 		array[offset + 2] = (byte) ((length & 0xff));
 		array[offset + 1] = (byte) ((length >> 8*1) & 0xff);
@@ -105,12 +104,12 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		MathUtil.int2Byte(array, frame.getStreamIdentifier(), 5);
 		
-		buffer.position(9);
+		buf.position(9);
 		
-		buffer.put(payload);
+		buf.put(payload);
 		
-		buffer.flip();
+		buf.flip();
 		
-		return new IOWriteFutureImpl(future, buffer);
+		return new IOWriteFutureImpl(future, buf);
 	}
 }

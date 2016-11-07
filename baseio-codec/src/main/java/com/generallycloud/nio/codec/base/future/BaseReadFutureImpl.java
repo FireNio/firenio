@@ -7,8 +7,6 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
 import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.base.BaseProtocolDecoder;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
@@ -78,10 +76,6 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 		ByteBuffer memory = buf.nioBuffer();
 
-		int src_pos = memory.position();
-
-		int src_limit = memory.limit();
-
 		memory.limit(offset + service_name_length);
 
 		futureName = StringUtil.decode(charset, memory);
@@ -89,11 +83,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		memory.limit(memory.position() + textLength);
 
 		text = StringUtil.decode(charset, memory);
-
-		memory.position(src_pos);
-
-		memory.limit(src_limit);
-
+		
 		this.gainBinary(buf, offset);
 	}
 
@@ -101,23 +91,17 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 		header_complete = true;
 
-		byte[] header_array = buf.array();
+		this.service_name_length = buf.getUnsignedByte();
 
-		int offset = buf.offset();
+		this.futureID = buf.getInt();
 		
-		this.service_name_length = header_array[offset + 1] & 0xff;
-
-		this.textLength = gainTextLength(header_array, offset);
-
-		this.binaryLength = gainBinaryLength(header_array, offset);
+		this.sessionID = buf.getInt();
 		
-		this.isBroadcast = gainBroadcast(header_array, offset);
-
-		this.futureID = gainFutureID(header_array, offset);
+		this.hashCode = buf.getInt();
 		
-		this.sessionID = gainSessionID(header_array, offset);
+		this.textLength = buf.getUnsignedShort();
 		
-		this.hashCode = gainHashCode(header_array, offset);
+		this.binaryLength = buf.getInt();
 		
 		if (binaryLength > binaryLimit) {
 			
@@ -138,43 +122,19 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		}
 	}
 
-	private void gainBinary(ByteBuf buffer, int offset) {
+	private void gainBinary(ByteBuf buf, int offset) {
 
 		if (binaryLength < 1) {
 			return;
 		}
+		
+		buf.skipBytes(service_name_length + textLength);
 
-		byte[] array = buffer.array();
-
-		this.binary = new byte[binaryLength];
-
-		System.arraycopy(array, offset + buffer.limit() - binaryLength, binary, 0, binaryLength);
+		binary = new byte[binaryLength];
+		
+		buf.get(binary);
 	}
 	
-	private int gainBinaryLength(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.BINARY_BEGIN_INDEX);
-	}
-
-	private int gainFutureID(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
-	}
-	
-	private int gainSessionID(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.SESSION_ID_BEGIN_INDEX);
-	}
-	
-	private boolean gainBroadcast(byte[] header, int offset){
-		return (header[offset] & 0x20) == 0x20;
-	}
-	
-	private int gainHashCode(byte[] header, int offset) {
-		return MathUtil.byte2Int(header, offset + BaseProtocolDecoder.HASH_BEGIN_INDEX);
-	}
-
-	private int gainTextLength(byte[] header, int offset) {
-		return MathUtil.byte2IntFrom2Byte(header, offset + BaseProtocolDecoder.TEXT_BEGIN_INDEX);
-	}
-
 	public byte[] getBinary() {
 		return binary;
 	}

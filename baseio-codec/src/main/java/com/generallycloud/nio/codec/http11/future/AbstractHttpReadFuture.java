@@ -45,6 +45,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected String				host;
 	protected String				method;
 	protected ByteBuf				bodyContent;
+	protected byte []				bodyArray;
 	protected Map<String, String>		params;
 	protected Map<String, String>		request_headers;
 	protected String				requestURI;
@@ -82,11 +83,14 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected void decodeBody() {
 
 		body_complete = true;
-
+		
+		bodyContent.flip();
+		
+		bodyArray = bodyContent.getBytes();
+		
 		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 			// FIXME encoding
-			String paramString = new String(bodyContent.array(), 0, bodyContent.position(), session.getContext()
-					.getEncoding());
+			String paramString = new String(bodyArray, session.getEncoding());
 
 			parseParamString(paramString);
 		} else {
@@ -124,7 +128,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	}
 
 	public byte[] getBodyContent() {
-		return bodyContent.array();
+		return bodyArray;
 	}
 
 	public boolean hasBodyContent() {
@@ -270,7 +274,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 					throw new IOException("max http header length " + headerLimit);
 				}
 
-				byte b = buffer.get();
+				byte b = buffer.getByte();
 				if (b == '\n') {
 					if (currentHeaderLine.length() == 0) {
 
@@ -302,11 +306,8 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 		}
 
 		if (!body_complete) {
-
-			if (bodyContent.hasRemaining()) {
-
-				bodyContent.read(buffer);
-			}
+			
+			bodyContent.read(buffer);
 
 			if (bodyContent.hasRemaining()) {
 				return false;

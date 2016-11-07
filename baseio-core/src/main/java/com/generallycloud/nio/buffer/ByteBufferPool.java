@@ -4,7 +4,7 @@ import com.generallycloud.nio.LifeCycle;
 
 public interface ByteBufferPool extends LifeCycle{
 
-	public abstract void release(ByteBuf buffer);
+	public abstract void release(ByteBuf buf);
 
 	public abstract ByteBuf allocate(int capacity);
 	

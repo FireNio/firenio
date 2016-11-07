@@ -19,7 +19,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 	private final int	PROTOCOL_HEADER	= BaseProtocolDecoder.PROTOCOL_HEADER;
 
 	private void calc_text(byte[] header, int text_length) {
-		MathUtil.intTo2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
+		MathUtil.unsignedShort2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {

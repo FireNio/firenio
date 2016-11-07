@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
@@ -102,27 +101,24 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		remain_header_complete = true;
 		
-		byte [] array = buf.array();
-		int offset = buf.offset();
 		if(length < 126){
 			
 		}else if (length == 126) {
 			
-			length = MathUtil.byte2IntFrom2Byte(array, offset);
+			length = buf.getUnsignedShort();
 			
 		}else{
+
+			length = (int) buf.getUnsignedInt();
 			
-			if ((array[offset] >> 7) == -1) {
-				// 欺负java没有无符号整型?
-				throw new IOException("illegal data length ,unsigned integer");
+			if (length < 0) {
+				throw new IOException("too long data length");
 			}
-			
-			length = MathUtil.byte2Int(array,offset);
 		}
 		
 		mask = new byte[4];
 		
-		System.arraycopy(array, offset + buf.limit() - 4, mask, 0, 4);
+		buf.get(mask);
 		
 		doLengthComplete(session,buf,length);
 	}

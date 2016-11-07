@@ -2,32 +2,28 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.v5.MemoryBlockV5;
-
 public class UnpooledMemoryPool {
 
 	public static ByteBuf allocate(int capacity) {
-		return new UnpooledMemoryBlock(ByteBuffer.allocate(capacity));
+		return new UnpooledHeapByteBuf(new byte[capacity]);
 	}
-	
+
 	public static ByteBuf wrap(ByteBuffer buffer) {
-		return new UnpooledMemoryBlock(buffer);
+		if (buffer.isDirect()) {
+			return new UnpooledDirectByteBuf(buffer);
+		}
+
+		return new UnpooledHeapByteBuf(buffer.array());
 	}
 
 	public static ByteBuf allocateDirect(int capacity) {
-		return new UnpooledMemoryBlock(ByteBuffer.allocateDirect(capacity));
+		return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
 	}
 
-	static class UnpooledMemoryBlock extends MemoryBlockV5 {
+	static class UnpooledHeapByteBuf extends HeapByteBuf {
 
-		private UnpooledMemoryBlock(ByteBuffer memory) {
+		protected UnpooledHeapByteBuf(byte[] memory) {
 			super(memory);
-		}
-
-		private UnpooledMemoryBlock(ByteBufferPool byteBufferPool, ByteBuffer memory) {
-			super(byteBufferPool, memory);
 		}
 
 		public void release() {
@@ -35,7 +31,22 @@ public class UnpooledMemoryPool {
 		}
 
 		public ByteBuf duplicate() {
-			return new UnpooledMemoryBlock(nioBuffer().duplicate());
+			return new UnpooledHeapByteBuf(array());
+		}
+	}
+
+	static class UnpooledDirectByteBuf extends DirectByteBuf {
+
+		protected UnpooledDirectByteBuf(ByteBuffer memory) {
+			super(memory);
+		}
+
+		public void release() {
+
+		}
+
+		public ByteBuf duplicate() {
+			return new UnpooledDirectByteBuf(nioBuffer);
 		}
 	}
 

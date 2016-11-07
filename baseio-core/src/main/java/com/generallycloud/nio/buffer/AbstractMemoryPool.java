@@ -1,18 +1,21 @@
 package com.generallycloud.nio.buffer;
 
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 
 public abstract class AbstractMemoryPool extends AbstractLifeCycle implements ByteBufferPool {
 
+	protected MemoryUnit[]	memoryUnits;
+
 	protected int			capacity;
 
 	protected ReentrantLock	lock	= new ReentrantLock();
 
 	protected int			unitMemorySize;
-	
+
 	public AbstractMemoryPool(int capacity) {
 		this(capacity, 1024);
 	}
@@ -33,7 +36,35 @@ public abstract class AbstractMemoryPool extends AbstractLifeCycle implements By
 	protected void doStop() throws Exception {
 		this.freeMemory();
 	}
-	
-	protected abstract ByteBuffer allocateMemory(int capacity);
-	
+
+	private List<MemoryUnit>	busyUnit	= new ArrayList<MemoryUnit>();
+
+	public String toString() {
+
+		busyUnit.clear();
+
+		MemoryUnit[] memoryUnits = this.memoryUnits;
+
+		int free = 0;
+
+		for (MemoryUnit b : memoryUnits) {
+
+			if (b.free) {
+				free++;
+			} else {
+				busyUnit.add(b);
+			}
+		}
+
+		StringBuilder b = new StringBuilder();
+		b.append(this.getClass().getSimpleName());
+		b.append("[free=");
+		b.append(free);
+		b.append(",memory=");
+		b.append(capacity);
+		b.append("]");
+
+		return b.toString();
+	}
+
 }
