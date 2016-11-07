@@ -190,7 +190,7 @@ public class MemoryBlockV5 implements ByteBuf {
 
 	public int read(SocketChannel channel) throws IOException {
 
-		int length = channel.read(nioBuffer());
+		int length = channel.read(nioBuffer);
 
 		if (length > 0) {
 			position += length;
@@ -291,7 +291,7 @@ public class MemoryBlockV5 implements ByteBuf {
 
 	public int write(SocketChannel channel) throws IOException {
 
-		int length = channel.write(nioBuffer());
+		int length = channel.write(nioBuffer);
 
 		if (length > 0) {
 

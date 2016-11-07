@@ -2,6 +2,7 @@ package com.generallycloud.nio.common;
 
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class ByteBufferUtil {
 
 	public static void read(ByteBuffer dest, ByteBuffer src) {

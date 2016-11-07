@@ -55,16 +55,15 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 
 			channel.setSslReadFuture(null);
 
-			// FIXME 不友好
-			ByteBuf product = future.getProduct();
+			ByteBuf produce = future.getProduce();
 
-			if (product == null) {
+			if (produce == null) {
 				continue;
 			}
 
 			try {
 
-				super.accept(channel, session, product);
+				super.accept(channel, session, produce);
 
 			} finally {
 

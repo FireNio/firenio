@@ -148,7 +148,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 		return length;
 	}
 
-	public ByteBuf getProduct() {
+	public ByteBuf getProduce() {
 		return buf;
 	}
 

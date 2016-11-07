@@ -14,6 +14,6 @@ public interface SslReadFuture extends IOReadFuture{
 
 	public static final int	SSL_RECORD_HEADER_LENGTH				= 5;
 
-	public ByteBuf getProduct();
+	public ByteBuf getProduce();
 	
 }

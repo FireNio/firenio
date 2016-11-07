@@ -24,6 +24,7 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
 		this.buf = buf;
+		this.buf.nioBuffer();
 	}
 
 	public void onException(SocketSession session, Exception e) {
@@ -103,13 +104,16 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 		try {
 
-			ByteBuf _buf = handler.wrap(session, buf);
+			ByteBuf _buf = handler.wrap(session, old);
 
 			if (_buf == null) {
 				throw new IOException("closed ssl");
 			}
 
 			this.buf = _buf;
+			
+			this.buf.nioBuffer();
+			
 		} finally {
 			ReleaseUtil.release(old);
 		}

@@ -42,25 +42,21 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		this.buf = buf;
 		
 		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
-		
-		if (!buf.hasRemaining()) {
-			doHeaderComplete(buf);
-		}
 	}
 	
 	public WebSocketReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 	
-	private void doHeaderComplete(ByteBuf buffer){
+	private void doHeaderComplete(ByteBuf buf){
 		
 		headerComplete = true;
 		
-		int offset = buffer.offset();
+		int offset = buf.offset();
 		
 		int remain_header_size = 0;
 		
-		byte [] array = buffer.array();
+		byte [] array = buf.array();
 		
 		byte b = array[offset + 0];
 		
@@ -98,18 +94,17 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			remain_header_size += 4;
 		}
 		
-		buffer.limit(remain_header_size);
+		buf.limit(remain_header_size);
 		
 	}
 	
-	private void doRemainHeaderComplete(SocketSession session,ByteBuf buffer) throws IOException{
+	private void doRemainHeaderComplete(SocketSession session,ByteBuf buf) throws IOException{
 		
 		remain_header_complete = true;
 		
-		byte [] array = buffer.array();
-		int offset = buffer.offset();
+		byte [] array = buf.array();
+		int offset = buf.offset();
 		if(length < 126){
-			
 			
 		}else if (length == 126) {
 			
@@ -127,9 +122,9 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		mask = new byte[4];
 		
-		System.arraycopy(array, offset + buffer.limit() - 4, mask, 0, 4);
+		System.arraycopy(array, offset + buf.limit() - 4, mask, 0, 4);
 		
-		doLengthComplete(session,buffer,length);
+		doLengthComplete(session,buf,length);
 	}
 
 	public boolean read(SocketSession session,ByteBuf buffer) throws IOException {
@@ -190,18 +185,18 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		return true;
 	}
 	
-	private void doLengthComplete(SocketSession session,ByteBuf buffer,int length){
+	private void doLengthComplete(SocketSession session,ByteBuf buf,int length){
 		
 		if (length > 1024 * 8) {
 			throw new ProtocolException("max 8KB ,length:" + length);
 		}
 		
-		if (buffer.capacity() >= length) {
-			buffer.limit(length);
+		if (buf.capacity() >= length) {
+			buf.limit(length);
 			return;
 		}
 		
-		ReleaseUtil.release(buffer);
+		ReleaseUtil.release(buf);
 		
 		this.buf = allocate(length);
 	}

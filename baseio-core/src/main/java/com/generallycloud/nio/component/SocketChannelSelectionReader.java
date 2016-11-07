@@ -43,6 +43,8 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		ByteBuf buf = this.buf;
 
 		buf.clear();
+		
+		buf.nioBuffer();
 
 		int length = buf.read(channel);
 
@@ -52,7 +54,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		}
 
 		buf.flip();
-
+		
 		UnsafeSession session = channel.getSession();
 
 		session.active();
