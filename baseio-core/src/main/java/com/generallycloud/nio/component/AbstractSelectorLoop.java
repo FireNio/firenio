@@ -19,7 +19,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	private Logger				logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean			working			= false;
-	private boolean			shutdown			= false;
+	private volatile boolean			shutdown			= false;
 
 	protected Selector			selector			= null;
 	protected BaseContext		context			= null;
@@ -56,11 +56,20 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			if (selected < 1) {
 				
-				if (System.currentTimeMillis() == last_select) {
+				if(System.currentTimeMillis() - last_select < 64){
+					
+					if (shutdown == true) {
+						
+						working = false;
+
+						return;
+					}
+					
 					//JDK bug fired
 					this.selector = rebuildSelector();
+					logger.error("JDK bug fired="+selector.toString());
 				}
-
+				
 				working = false;
 
 				return;

@@ -19,6 +19,7 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 	public void register(SelectableChannel channel) throws IOException {
 	}
 
+	//FIXME open channel
 	public Selector buildSelector(SelectableChannel channel) throws IOException {
 		
 		Selector selector = Selector.open();
