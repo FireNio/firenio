@@ -19,17 +19,13 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient1 extends ITestThread {
 
-	private IOEventHandleAdaptor		eventHandleAdaptor	= null;
-
 	private SocketChannelConnector	connector			= null;
-
-	private Session				session			= null;
-
-	private BaseContext				context			= null;
 
 	public void run() {
 
 		int time1 = getTime();
+
+		Session session = connector.getSession();
 
 		for (int i = 0; i < time1; i++) {
 			ReadFuture future = ReadFutureFactory.create(session, "test", session.getContext()
@@ -47,7 +43,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 			public void accept(Session session, ReadFuture future) throws Exception {
 				CountDownLatch latch = getLatch();
 
@@ -59,17 +55,17 @@ public class TestLoadClient1 extends ITestThread {
 
 		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
-		context = connector.getContext();
+		BaseContext context = connector.getContext();
 
 		ServerConfiguration configuration = context.getServerConfiguration();
 
 		configuration.setSERVER_CORE_SIZE(1);
-		
+
 		configuration.setSERVER_HOST("192.168.0.180");
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		session = connector.connect();
+		connector.connect();
 	}
 
 	public void stop() {
@@ -80,7 +76,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 512 * 10000;
+		int time = 1024 * 10000;
 
 		int core_size = 4;
 
