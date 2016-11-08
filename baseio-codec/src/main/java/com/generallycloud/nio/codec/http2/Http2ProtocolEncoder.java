@@ -11,16 +11,16 @@ import com.generallycloud.nio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.nio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class Http2ProtocolEncoder implements ProtocolEncoder {
 	
 	private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture future) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture future) throws IOException {
 		
 		Http2Frame frame = (Http2Frame) future;
 		
@@ -110,6 +110,6 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		buf.flip();
 		
-		return new IOWriteFutureImpl(future, buf);
+		return new ChannelWriteFutureImpl(future, buf);
 	}
 }

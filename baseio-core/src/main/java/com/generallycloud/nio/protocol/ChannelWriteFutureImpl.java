@@ -13,15 +13,15 @@ import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
+public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFuture {
 
-	protected ReadFuture			readFuture;
-	protected ByteBuf				buf;
-	protected Linkable<IOWriteFuture>	next;
+	protected ReadFuture				readFuture;
+	protected ByteBuf					buf;
+	protected Linkable<ChannelWriteFuture>	next;
 
-	private static final Logger		logger	= LoggerFactory.getLogger(IOWriteFutureImpl.class);
+	private static final Logger			logger	= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
 
-	public IOWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
+	public ChannelWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
 		this.buf = buf;
 		this.buf.nioBuffer();
@@ -59,11 +59,11 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 
 	public boolean write(SocketChannel channel) throws IOException {
 
-		ByteBuf buffer = this.buf;
+		ByteBuf buf = this.buf;
 
-		buffer.write(channel);
+		buf.write(channel);
 
-		return !buffer.hasRemaining();
+		return !buf.hasRemaining();
 	}
 
 	public ReadFuture getReadFuture() {
@@ -85,19 +85,19 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 		ReleaseUtil.release(buf);
 	}
 
-	public IOWriteFuture duplicate() {
-		return new IOWriteFutureImpl(readFuture, buf.duplicate());
+	public ChannelWriteFuture duplicate() {
+		return new ChannelWriteFutureImpl(readFuture, buf.duplicate());
 	}
 
-	public Linkable<IOWriteFuture> getNext() {
+	public Linkable<ChannelWriteFuture> getNext() {
 		return next;
 	}
 
-	public void setNext(Linkable<IOWriteFuture> next) {
+	public void setNext(Linkable<ChannelWriteFuture> next) {
 		this.next = next;
 	}
 
-	public IOWriteFuture getValue() {
+	public ChannelWriteFuture getValue() {
 		return this;
 	}
 
@@ -114,9 +114,9 @@ public class IOWriteFutureImpl extends FutureImpl implements IOWriteFuture {
 			}
 
 			this.buf = _buf;
-			
+
 			this.buf.nioBuffer();
-			
+
 		} finally {
 			ReleaseUtil.release(old);
 		}

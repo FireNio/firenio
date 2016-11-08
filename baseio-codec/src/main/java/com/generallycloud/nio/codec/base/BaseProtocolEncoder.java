@@ -8,9 +8,9 @@ import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolException;
 
@@ -38,7 +38,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		MathUtil.int2Byte(header, hash, BaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
 
 		if (readFuture.isHeartbeat()) {
 
@@ -53,7 +53,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 
 			buffer.flip();
 
-			return new IOWriteFutureImpl(readFuture, buffer);
+			return new ChannelWriteFutureImpl(readFuture, buffer);
 		}
 
 		BaseReadFuture f = (BaseReadFuture) readFuture;
@@ -113,7 +113,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		return new IOWriteFutureImpl(readFuture, buffer);
+		return new ChannelWriteFutureImpl(readFuture, buffer);
 	}
 
 }

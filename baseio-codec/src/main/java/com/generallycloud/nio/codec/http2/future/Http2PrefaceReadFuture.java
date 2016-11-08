@@ -10,8 +10,8 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 
 public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
 
@@ -48,7 +48,7 @@ public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
 			throw new IOException("not http2 preface");
 		}
 		
-		IOWriteFuture f = new IOWriteFutureImpl(this, PREFACE_BUF.duplicate());
+		ChannelWriteFuture f = new ChannelWriteFutureImpl(this, PREFACE_BUF.duplicate());
 		
 		session.flush(f);
 	}

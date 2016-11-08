@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.BufferedOutputStream;
 
 public class ProtocolEncoderImpl implements ProtocolEncoder {
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture future) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture future) throws IOException {
 
 		BufferedOutputStream os = future.getWriteBuffer();
 
@@ -22,6 +22,6 @@ public class ProtocolEncoderImpl implements ProtocolEncoder {
 
 		buf.flip();
 
-		return new IOWriteFutureImpl(future, buf);
+		return new ChannelWriteFutureImpl(future, buf);
 	}
 }

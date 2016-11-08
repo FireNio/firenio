@@ -1,8 +1,8 @@
 package com.generallycloud.nio.codec.http2.future;
 
-import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 
-public interface Http2Frame extends IOReadFuture{
+public interface Http2Frame extends ChannelReadFuture{
 	
 	public abstract byte getFlags();
 

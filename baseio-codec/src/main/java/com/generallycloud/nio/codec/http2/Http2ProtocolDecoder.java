@@ -10,7 +10,7 @@ import com.generallycloud.nio.codec.http2.future.Http2SettingsFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2WindowUpdateFrameImpl;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 /**
@@ -87,7 +87,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_PONG			= -2;
 
-	public IOReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
 

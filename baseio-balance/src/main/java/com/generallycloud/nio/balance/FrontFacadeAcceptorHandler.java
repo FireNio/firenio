@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
@@ -40,7 +40,7 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 		
 		f.setSessionID(session.getSessionID());
 
-		IOWriteFuture writeFuture = f.translate();
+		ChannelWriteFuture writeFuture = f.translate();
 
 		routerSession.flush(writeFuture);
 

@@ -17,8 +17,8 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -76,11 +76,11 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 					return;
 				}
 				
-				IOReadFuture ioReadFuture = (IOReadFuture) future;
+				ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
 				
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 				
-				IOWriteFuture writeFuture;
+				ChannelWriteFuture writeFuture;
 				try {
 					writeFuture = encoder.encode(context, ioReadFuture);
 				} catch (IOException e) {
@@ -94,7 +94,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 					SocketSession s = (SocketSession) ss.next();
 
-					IOWriteFuture copy = writeFuture.duplicate();
+					ChannelWriteFuture copy = writeFuture.duplicate();
 
 					try {
 

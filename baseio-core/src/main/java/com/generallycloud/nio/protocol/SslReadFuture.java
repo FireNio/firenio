@@ -2,7 +2,7 @@ package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 
-public interface SslReadFuture extends IOReadFuture{
+public interface SslReadFuture extends ChannelReadFuture{
 
 	public static final int	SSL_CONTENT_TYPE_ALERT					= 21;
 

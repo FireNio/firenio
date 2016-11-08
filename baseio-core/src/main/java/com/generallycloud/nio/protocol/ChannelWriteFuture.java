@@ -9,11 +9,11 @@ import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 
-public interface IOWriteFuture extends WriteFuture, Linkable<IOWriteFuture> {
+public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFuture> {
 
 	public abstract boolean write(SocketChannel channel) throws IOException;
 
-	public IOWriteFuture duplicate();
+	public ChannelWriteFuture duplicate();
 
 	public abstract void onException(SocketSession session, Exception e);
 

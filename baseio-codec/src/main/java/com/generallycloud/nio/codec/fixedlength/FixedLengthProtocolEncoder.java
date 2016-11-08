@@ -6,14 +6,14 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture future) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture future) throws IOException {
 
 		if (future.isHeartbeat()) {
 
@@ -30,7 +30,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 			buffer.flip();
 
-			return new IOWriteFutureImpl(future, buffer);
+			return new ChannelWriteFutureImpl(future, buffer);
 		}
 
 		BufferedOutputStream outputStream = future.getWriteBuffer();
@@ -49,6 +49,6 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		return new IOWriteFutureImpl(future, buffer);
+		return new ChannelWriteFutureImpl(future, buffer);
 	}
 }

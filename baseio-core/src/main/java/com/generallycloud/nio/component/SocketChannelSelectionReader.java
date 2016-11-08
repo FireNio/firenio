@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -63,7 +63,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		
 	}
 
-	private void accept(final Session session, final IOReadFuture future) throws Exception {
+	private void accept(final Session session, final ChannelReadFuture future) throws Exception {
 
 		if (future.isSilent()) {
 			return;
@@ -108,7 +108,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 				return;
 			}
 
-			IOReadFuture future = channel.getReadFuture();
+			ChannelReadFuture future = channel.getReadFuture();
 
 			if (future == null) {
 
@@ -152,7 +152,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		}
 	}
 
-	private void acceptHeartBeat(final Session session, final IOReadFuture future) {
+	private void acceptHeartBeat(final Session session, final ChannelReadFuture future) {
 
 		if (future.isPING()) {
 

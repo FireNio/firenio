@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.IOReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 //FIXME 心跳貌似由服务端发起
@@ -44,7 +44,7 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	public static final int	TYPE_PONG		= 10;
 
 	@Override
-	public IOReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		return new WebSocketReadFutureImpl(session, session.getContext().getHeapByteBufferPool().allocate(2));
 	}

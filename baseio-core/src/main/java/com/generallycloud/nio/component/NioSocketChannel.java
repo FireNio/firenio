@@ -17,8 +17,8 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -29,7 +29,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private Socket					socket;
 	private SocketChannel			channel;
 	private UnsafeSession			session;
-	private IOReadFuture			readFuture;
+	private ChannelReadFuture			readFuture;
 	private SslReadFuture			sslReadFuture;
 	private SelectionKey			selectionKey;
 	private ChannelFlusher			channelFlusher;
@@ -37,13 +37,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolDecoder			protocolDecoder;
 	private ProtocolEncoder			protocolEncoder;
 	private ProtocolFactory			protocolFactory;
-	private IOWriteFuture			writeFuture;
+	private ChannelWriteFuture			writeFuture;
 	private boolean				opened			= true;
 	private long					next_network_weak	= Long.MAX_VALUE;
 	private boolean 				enableInbound		= true;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
-	private ListQueue<IOWriteFuture>	writeFutures		= new ListQueueLink<IOWriteFuture>();
+	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
 
 	// private ListQueue<IOWriteFuture> writeFutures = new
 	// ListQueueABQ<IOWriteFuture>(1024 * 10);
@@ -90,7 +90,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return true;
 	}
 
-	public IOWriteFuture getWriteFuture() {
+	public ChannelWriteFuture getWriteFuture() {
 		return writeFuture;
 	}
 
@@ -121,7 +121,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return protocolFactory;
 	}
 
-	public IOReadFuture getReadFuture() {
+	public ChannelReadFuture getReadFuture() {
 		return readFuture;
 	}
 
@@ -157,7 +157,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return opened;
 	}
 
-	public void offer(IOWriteFuture future) {
+	public void offer(ChannelWriteFuture future) {
 
 		ReentrantLock lock = channelLock;
 
@@ -196,13 +196,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		ReleaseUtil.release(writeFuture);
 		
-		ListQueue<IOWriteFuture> writeFutures = this.writeFutures;
+		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
 
 		if (writeFutures.size() == 0) {
 			return;
 		}
 		
-		IOWriteFuture f = writeFutures.poll();
+		ChannelWriteFuture f = writeFutures.poll();
 
 		UnsafeSession session = this.session;
 
@@ -245,7 +245,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return this.channel.read(buffer);
 	}
 
-	public void setWriteFuture(IOWriteFuture future) {
+	public void setWriteFuture(ChannelWriteFuture future) {
 		this.writeFuture = future;
 	}
 
@@ -261,7 +261,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.protocolFactory = protocolFactory;
 	}
 
-	public void setReadFuture(IOReadFuture readFuture) {
+	public void setReadFuture(ChannelReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
 

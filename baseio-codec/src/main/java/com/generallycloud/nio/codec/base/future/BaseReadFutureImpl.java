@@ -15,7 +15,7 @@ import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 
 /**
  *
@@ -234,7 +234,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return futureName + "@" + getText();
 	}
 
-	public IOWriteFuture translate() throws IOException {
+	public ChannelWriteFuture translate() throws IOException {
 
 		if (!translated) {
 			translated = true;

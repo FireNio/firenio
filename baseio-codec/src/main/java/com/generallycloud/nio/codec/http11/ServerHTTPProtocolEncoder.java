@@ -11,14 +11,14 @@ import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture future = (ServerHttpReadFuture) readFuture;
 
@@ -70,7 +70,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(readFuture, buffer);
+		ChannelWriteFutureImpl textWriteFuture = new ChannelWriteFutureImpl(readFuture, buffer);
 
 		return textWriteFuture;
 	}

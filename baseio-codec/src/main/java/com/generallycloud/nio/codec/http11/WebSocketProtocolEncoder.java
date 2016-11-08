@@ -7,16 +7,16 @@ import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 //WebSocket规定服务端不准向客户端发送mask过的数据
 //A server MUST NOT mask any frames that it sends to the client.
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
@@ -53,7 +53,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buffer.flip();
 
-		return new IOWriteFutureImpl(readFuture, buffer);
+		return new ChannelWriteFutureImpl(readFuture, buffer);
 	}
 	
 //	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

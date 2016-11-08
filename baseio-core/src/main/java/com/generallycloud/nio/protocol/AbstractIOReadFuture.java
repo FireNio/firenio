@@ -4,7 +4,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BaseContext;
 
 
-public abstract class AbstractIOReadFuture extends AbstractReadFuture implements IOReadFuture {
+public abstract class AbstractIOReadFuture extends AbstractReadFuture implements ChannelReadFuture {
 
 	protected AbstractIOReadFuture(BaseContext context) {
 		super(context);
@@ -34,13 +34,13 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		return isHeartbeat && isPONG;
 	}
 
-	public IOReadFuture setPING() {
+	public ChannelReadFuture setPING() {
 		this.isPING = true;
 		this.isHeartbeat = true;
 		return this;
 	}
 
-	public IOReadFuture setPONG() {
+	public ChannelReadFuture setPONG() {
 		this.isPONG = true;
 		this.isHeartbeat = true;
 		return this;

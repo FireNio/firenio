@@ -12,8 +12,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -71,13 +71,13 @@ public abstract class SessionImpl implements Session {
 			return;
 		}
 
-		IOWriteFuture writeFuture = null;
+		ChannelWriteFuture writeFuture = null;
 
 		try {
 
 			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
 
-			IOReadFuture ioReadFuture = (IOReadFuture) future;
+			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
 
 			writeFuture = encoder.encode(context, ioReadFuture);
 

@@ -13,8 +13,8 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SslHandler {
@@ -165,7 +165,7 @@ public class SslHandler {
 
 					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-					IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
+					ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
 					session.flush(f);
 

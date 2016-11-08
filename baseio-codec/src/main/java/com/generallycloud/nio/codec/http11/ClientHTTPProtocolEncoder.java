@@ -10,15 +10,15 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 //FIXME jinji
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public IOWriteFuture encode(BaseContext context, IOReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
 
 		HttpReadFuture future = (HttpReadFuture) readFuture;
 
@@ -59,7 +59,7 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 		buffer.flip();
 
-		IOWriteFutureImpl textWriteFuture = new IOWriteFutureImpl(readFuture, buffer);
+		ChannelWriteFutureImpl textWriteFuture = new ChannelWriteFutureImpl(readFuture, buffer);
 
 		return textWriteFuture;
 	}

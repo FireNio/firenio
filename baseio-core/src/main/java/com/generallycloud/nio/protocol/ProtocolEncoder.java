@@ -13,6 +13,6 @@ public interface ProtocolEncoder {
 	 * @return
 	 * @throws IOException
 	 */
-	public abstract IOWriteFuture encode(BaseContext context,IOReadFuture future) throws IOException;
+	public abstract ChannelWriteFuture encode(BaseContext context,ChannelReadFuture future) throws IOException;
 
 }

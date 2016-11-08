@@ -1,5 +1,6 @@
 package com.generallycloud.nio.protocol;
 
+@SuppressWarnings("serial")
 public class ProtocolException extends RuntimeException{
 
 	public ProtocolException(String message, Exception cause) {

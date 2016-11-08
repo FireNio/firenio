@@ -9,8 +9,8 @@ import com.generallycloud.nio.buffer.EmptyMemoryBlock;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
-import com.generallycloud.nio.protocol.IOWriteFutureImpl;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class UnsafeSessionImpl extends SocketChannelSessionImpl implements UnsafeSession {
@@ -57,7 +57,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-				IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
+				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
 				flush(f);
 				

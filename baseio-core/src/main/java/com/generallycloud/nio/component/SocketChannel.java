@@ -3,8 +3,8 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.protocol.IOReadFuture;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -18,9 +18,9 @@ import com.generallycloud.nio.protocol.SslReadFuture;
 //下次循环时检测是否收到心跳
 public interface SocketChannel extends DuplexChannel {
 
-	public abstract void setWriteFuture(IOWriteFuture future);
+	public abstract void setWriteFuture(ChannelWriteFuture future);
 
-	public abstract IOWriteFuture getWriteFuture();
+	public abstract ChannelWriteFuture getWriteFuture();
 
 	public abstract boolean isNetworkWeak();
 
@@ -30,11 +30,11 @@ public interface SocketChannel extends DuplexChannel {
 	
 	public abstract void wakeup() throws IOException;
 
-	public abstract IOReadFuture getReadFuture();
+	public abstract ChannelReadFuture getReadFuture();
 	
 	public abstract SslReadFuture getSslReadFuture();
 
-	public abstract void setReadFuture(IOReadFuture future);
+	public abstract void setReadFuture(ChannelReadFuture future);
 	
 	public abstract void setSslReadFuture(SslReadFuture future);
 
@@ -42,7 +42,7 @@ public interface SocketChannel extends DuplexChannel {
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
 
-	public abstract void offer(IOWriteFuture future);
+	public abstract void offer(ChannelWriteFuture future);
 
 	public abstract boolean isBlocking();
 	

@@ -15,7 +15,7 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
@@ -45,7 +45,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 				Iterator<Session> ss = sessions.values().iterator();
 
-				IOWriteFuture writeFuture;
+				ChannelWriteFuture writeFuture;
 				try {
 					writeFuture = future.translate();
 				} catch (IOException e) {
@@ -62,7 +62,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 						continue;
 					}
 
-					IOWriteFuture copy = writeFuture.duplicate();
+					ChannelWriteFuture copy = writeFuture.duplicate();
 
 					try {
 
@@ -107,7 +107,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 				return;
 			}
 
-			IOWriteFuture writeFuture = f.translate();
+			ChannelWriteFuture writeFuture = f.translate();
 
 			response.flush(writeFuture);
 

@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.IOWriteFuture;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -22,7 +22,7 @@ public interface Session extends Closeable{
 
 	public abstract void flush(ReadFuture future) throws IOException;
 	
-	public abstract void flush(IOWriteFuture future);
+	public abstract void flush(ChannelWriteFuture future);
 
 	public abstract Object getAttachment();
 
