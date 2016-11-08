@@ -9,30 +9,22 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectionAlpha {
 
-	private ChannelFlusher	channelFlusher;
-	
-	private ProtocolFactory protocolFactory;
-	
-	private ProtocolDecoder protocolDecoder;
-	
-	private ProtocolEncoder protocolEncoder;
-	
-	protected AbstractTCPSelectionAlpha(BaseContext context) {
+	protected SelectorLoop		selectorLoop;
+
+	protected ProtocolFactory	protocolFactory;
+
+	protected ProtocolDecoder	protocolDecoder;
+
+	protected ProtocolEncoder	protocolEncoder;
+
+	protected AbstractTCPSelectionAlpha(BaseContext context,SelectorLoop selectorLoop) {
+		this.selectorLoop = selectorLoop;
 		this.protocolFactory = context.getProtocolFactory();
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 	}
 
-	public ChannelFlusher getChannelFlusher() {
-		return channelFlusher;
-	}
-
-	public void setChannelFlusher(ChannelFlusher channelFlusher) {
-		this.channelFlusher = channelFlusher;
-	}
-
-	protected SocketChannel attachSocketChannel(BaseContext context, ChannelFlusher channelFlusher, SelectionKey selectionKey)
-			throws SocketException {
+	protected SocketChannel attachSocketChannel(SelectionKey selectionKey) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
@@ -40,17 +32,22 @@ public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectio
 
 			return channel;
 		}
+		
+		BaseContext context = selectorLoop.getContext();
+		
+		ChannelFlusher channelFlusher = selectorLoop.getChannelFlusher();
 
 		channel = new NioSocketChannel(context, selectionKey, channelFlusher);
 
 		channel.setProtocolDecoder(protocolDecoder);
 
 		channel.setProtocolEncoder(protocolEncoder);
-		
+
 		channel.setProtocolFactory(protocolFactory);
-		
+
 		selectionKey.attach(channel);
 
 		return channel;
 	}
+
 }

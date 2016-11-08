@@ -1,11 +1,13 @@
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.configuration.ServerConfiguration;
+import java.nio.channels.SelectableChannel;
 
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
-	protected BaseContext	context	;
+	protected BaseContext		context;
+	protected SelectableChannel	selectableChannel;
 
 	public BaseContext getContext() {
 		return context;
@@ -16,10 +18,15 @@ public abstract class AbstractChannelService implements ChannelService {
 	}
 
 	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
-	
+
 	protected abstract void setChannelService(BaseContext context);
-	
-	protected String getSERVER_HOST(ServerConfiguration configuration){
+
+	protected String getSERVER_HOST(ServerConfiguration configuration) {
 		return configuration.getSERVER_HOST();
 	}
+
+	public SelectableChannel getSelectableChannel() {
+		return selectableChannel;
+	}
+
 }

@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.concurrent.BufferedArrayList;
-import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 
 public class ChannelFlusherImpl implements ChannelFlusher {

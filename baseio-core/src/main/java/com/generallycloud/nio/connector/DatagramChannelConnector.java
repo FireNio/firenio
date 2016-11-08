@@ -18,7 +18,6 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelConnector extends AbstractChannelConnector {
 
-	private DatagramChannel		datagramChannel;
 	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
 	private ClientUDPSelectorLoop	selectorLoop;
@@ -36,9 +35,15 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 	public String getServiceDescription() {
 		return "UDP:" + getServerSocketAddress();
 	}
+	
+	
 
 	public InetSocketAddress getServerSocketAddress() {
-		return datagramChannel.getLocalSocketAddress();
+		return datagramChannel().getLocalSocketAddress();
+	}
+
+	private DatagramChannel datagramChannel() {
+		return selectorLoop.getDatagramChannel();
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) {
@@ -46,7 +51,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 		allocate(cacheBuffer, packet);
 
 		try {
-			datagramChannel.sendPacket(cacheBuffer, serverAddress);
+			datagramChannel().sendPacket(cacheBuffer, serverAddress);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 
@@ -88,17 +93,16 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
-		java.nio.channels.DatagramChannel datagramChannel = java.nio.channels.DatagramChannel.open();
+		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 
-		this.selectorLoop = new ClientUDPSelectorLoop(context);
+		this.selectorLoop = new ClientUDPSelectorLoop(context,selectableChannel);
 
-		this.selectorLoop.register(context, datagramChannel);
+		this.selectorLoop.startup();
 
-		datagramChannel.connect(socketAddress);
+		((java.nio.channels.DatagramChannel)this.selectableChannel).connect(socketAddress);
 
-		this.datagramChannel = selectorLoop.getDatagramChannel();
-
-		this.datagramChannel.setSession(session);
+		// FIXME rebuild selector
+		this.datagramChannel().setSession(session);
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
@@ -106,6 +110,8 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 
 	protected void doPhysicalClose0() {
+		
+		DatagramChannel datagramChannel = datagramChannel();
 
 		if (datagramChannel != null && datagramChannel.isOpened()) {
 			CloseUtil.close(datagramChannel);

@@ -1,7 +1,5 @@
 package com.generallycloud.nio.component;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.Linkable;
@@ -13,9 +11,9 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IOEventHandle.IOEventState;
 import com.generallycloud.nio.component.concurrent.Waiter;
-import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;

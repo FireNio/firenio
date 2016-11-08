@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component;
 
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
 import com.generallycloud.nio.common.Logger;
@@ -10,7 +11,8 @@ public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 	private Logger				logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
 	private SelectionAcceptor	_read_acceptor;
 
-	public DatagramChannelSelectorLoop(BaseContext context) {
+	public DatagramChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+		super(context,selectableChannel);
 		this._read_acceptor = new DatagramChannelSelectionReader(context);
 	}
 

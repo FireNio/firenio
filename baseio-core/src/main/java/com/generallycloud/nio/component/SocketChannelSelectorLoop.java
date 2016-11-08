@@ -1,6 +1,7 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
 import com.generallycloud.nio.common.CloseUtil;
@@ -17,7 +18,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	protected SocketChannelSelectionAlpha	_alpha_acceptor;
 
-	public SocketChannelSelectorLoop(BaseContext context) {
+	public SocketChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+		super(context,selectableChannel);
 
 		this._write_acceptor = new SocketChannelSelectionWriter();
 

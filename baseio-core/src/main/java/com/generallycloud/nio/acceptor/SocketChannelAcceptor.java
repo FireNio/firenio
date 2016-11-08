@@ -13,83 +13,81 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
-	private SelectorLoop []		selectorLoops			;
-	private EventLoopThread []	selectorLoopThreads		;
-	private ServerSocketChannel	channel				;
-	private ServerSocket		serverSocket			;
-	
+	private SelectorLoop[]		selectorLoops;
+	private EventLoopThread[]	selectorLoopThreads;
+	private ServerSocket		serverSocket;
 
-	protected void bind(BaseContext context,InetSocketAddress socketAddress) throws IOException {
-		
+	protected void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException {
+
 		// 打开服务器套接字通道
-		this.channel = ServerSocketChannel.open();
+		this.selectableChannel = ServerSocketChannel.open();
 		// 服务器配置为非阻塞
-		this.channel.configureBlocking(false);
+		this.selectableChannel.configureBlocking(false);
 		// 检索与此通道关联的服务器套接字
-		this.serverSocket = channel.socket();
+		this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
 		// 进行服务的绑定
 		this.serverSocket.bind(socketAddress, 50);
-		
+
 		ServerConfiguration configuration = context.getServerConfiguration();
-		
+
 		int core_size = configuration.getSERVER_CORE_SIZE();
-		
+
 		CoreProcessors processors = new CoreProcessors(core_size);
-		
+
 		this.selectorLoops = new SelectorLoop[core_size];
-		
+
 		for (int i = 0; i < core_size; i++) {
-			selectorLoops[i] = new ServerTCPSelectorLoop(context,processors);
+			selectorLoops[i] = new ServerTCPSelectorLoop(context, selectableChannel, processors);
 		}
-		
+
 		for (int i = 0; i < core_size; i++) {
-			selectorLoops[i].register(context, channel);
+			selectorLoops[i].startup();
 		}
-		
+
 		selectorLoopThreads = new EventLoopThread[core_size];
-		
+
 		for (int i = 0; i < core_size; i++) {
-			
+
 			SelectorLoop selectorLoop = selectorLoops[i];
-			
+
 			selectorLoopThreads[i] = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
-			
+
 			selectorLoopThreads[i].start();
 		}
 	}
 
-	public String getServiceDescription(){
+	public String getServiceDescription() {
 		return "TCP:" + getServerSocketAddress();
 	}
-	
-	public InetSocketAddress getServerSocketAddress(){
+
+	public InetSocketAddress getServerSocketAddress() {
 		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
 	}
 
 	protected void unbind(BaseContext context) {
-		
+
 		ServerConfiguration configuration = context.getServerConfiguration();
-		
+
 		int core_size = configuration.getSERVER_CORE_SIZE();
-		
+
 		for (int i = 0; i < core_size; i++) {
-			
+
 			LifeCycleUtil.stop(selectorLoopThreads[i]);
 		}
 	}
-	
+
 	protected void setChannelService(BaseContext context) {
 		context.setSocketChannelService(this);
 	}
 
 	protected int getSERVER_PORT(ServerConfiguration configuration) {
-		
+
 		int SERVER_PORT = configuration.getSERVER_TCP_PORT();
 
 		if (SERVER_PORT < 1) {
 			throw new IllegalArgumentException("SERVER.TCP_PORT 参数错误");
 		}
-		
+
 		return SERVER_PORT;
 	}
 

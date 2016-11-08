@@ -24,15 +24,15 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
-		SocketChannel channel = SocketChannel.open();
+		this.selectableChannel = SocketChannel.open();
 
-		channel.configureBlocking(false);
+		this.selectableChannel.configureBlocking(false);
 
-		this.selectorLoop = new ClientTCPSelectorLoop(context, this);
+		this.selectorLoop = new ClientTCPSelectorLoop(this);
 
-		this.selectorLoop.register(context, channel);
+		this.selectorLoop.startup();
 
-		channel.connect(socketAddress);
+		((SocketChannel)this.selectableChannel).connect(socketAddress);
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 

@@ -10,16 +10,22 @@ import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
 public class ServerUDPSelectorLoop extends DatagramChannelSelectorLoop {
 
-	public ServerUDPSelectorLoop(BaseContext context) {
-		super(context);
-
+	public ServerUDPSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+		super(context,selectableChannel);
 	}
 
-	public void register(BaseContext context, SelectableChannel channel) throws IOException {
+	public void register(SelectableChannel channel) throws IOException {
+	}
+
+	public Selector buildSelector(SelectableChannel channel) throws IOException {
 		// 打开selector
-		this.selector = Selector.open();
+		Selector selector = Selector.open();
 		// 注册监听事件到该selector
 		channel.register(selector, SelectionKey.OP_READ);
+		
+		return selector;
 	}
 
+	
+	
 }

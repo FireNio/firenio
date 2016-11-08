@@ -15,26 +15,26 @@ public class ClientUDPSelectorLoop extends DatagramChannelSelectorLoop {
 
 	private DatagramChannel	datagramChannel;
 
-	public ClientUDPSelectorLoop(BaseContext context) {
-		super(context);
+	public ClientUDPSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+		super(context,selectableChannel);
 	}
-
-	public void register(BaseContext context, SelectableChannel channel) throws IOException {
-
+	
+	public Selector buildSelector(SelectableChannel channel) throws IOException {
 		channel.configureBlocking(false);
-
-		this.selector = Selector.open();
-
+		
+		Selector selector = Selector.open();
+		
 		SelectionKey selectionKey = channel.register(selector, SelectionKey.OP_READ);
-
+		
 		DatagramChannelFactory factory = context.getDatagramChannelFactory();
-
+		
 		java.nio.channels.DatagramChannel ch = (java.nio.channels.DatagramChannel) channel;
-
+		
 		InetSocketAddress socketAddress = (InetSocketAddress) ch.socket().getLocalSocketAddress();
-
+		
 		this.datagramChannel = factory.getDatagramChannel(context, selectionKey, socketAddress);
-
+		
+		return selector;
 	}
 
 	public DatagramChannel getDatagramChannel() {

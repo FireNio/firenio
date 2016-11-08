@@ -2,28 +2,23 @@ package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.SocketChannel;
 
 public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
-	private Selector				selector;
-	private BaseContext				context			;
 	private int					this_core_index	;
 	private int					next_core_index	;
 	private CoreProcessors			processors		;
 //	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
 
-	public SocketChannelSelectionAcceptor(BaseContext context,CoreProcessors processors) {
+	public SocketChannelSelectionAcceptor(SelectorLoop selectorLoop,CoreProcessors processors) {
 		
-		super(context);
-		
-		this.context = context;
+		super(selectorLoop.getContext(),selectorLoop);
 		
 		this.processors = processors;
 		
@@ -72,8 +67,6 @@ public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 			// 前面已经有人获取到channel，而且把core_index+1，
 			//这里虽然匹配到core，但是是拿不到channel的，有待改进
 			if (channel == null) {
-//				System.out.println(core_index);
-//				System.out.println(this_core_index);
 //				Exception e = new Exception("core_index error");
 //				logger.error(e.getMessage(), e);
 				return;
@@ -89,17 +82,13 @@ public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		// 注册到selector，等待连接
-		SelectionKey sk = channel.register(selector, SelectionKey.OP_READ);
+		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = attachSocketChannel(context, getChannelFlusher(), sk);
-		
-		//
+		SocketChannel socketChannel = attachSocketChannel(sk);
+
+		// fire session open event
 		socketChannel.getSession().fireOpend();
 		// logger.debug("__________________chanel____gen____{}", channel);
-	}
-
-	protected void setSelector(Selector selector) {
-		this.selector = selector;
 	}
 
 }
