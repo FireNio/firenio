@@ -64,6 +64,8 @@ public class TestLoadClient1 extends ITestThread {
 		ServerConfiguration configuration = context.getServerConfiguration();
 
 		configuration.setSERVER_CORE_SIZE(1);
+		
+		configuration.setSERVER_HOST("192.168.0.180");
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
@@ -78,9 +80,9 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 1280000;
+		int time = 512 * 10000;
 
-		int core_size = 8;
+		int core_size = 4;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

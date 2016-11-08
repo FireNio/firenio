@@ -5,12 +5,11 @@ import java.util.Scanner;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.implementation.SYSTEMStopServerServlet;
@@ -59,8 +58,6 @@ public class BaseServerShutdown {
 		context.setIOEventHandleAdaptor(eventHandle);
 
 		context.addSessionEventListener(new LoggerSEListener());
-
-		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
 		connector.setContext(context);
 

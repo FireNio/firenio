@@ -11,7 +11,6 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 
 public class TestRedisClient {
 
@@ -29,8 +28,6 @@ public class TestRedisClient {
 		context.setIOEventHandleAdaptor(new RedisIOEventHandle());
 
 		context.addSessionEventListener(new LoggerSEListener());
-
-		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
 		context.setProtocolFactory(new RedisProtocolFactory());
 

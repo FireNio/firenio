@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLException;
@@ -8,6 +9,7 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.EmptyMemoryBlock;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.connector.ChannelConnector;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -48,7 +50,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 	}
 
 	private void doClose() {
-
+		
 		if (isEnableSSL()) {
 
 			sslEngine.closeOutbound();
@@ -69,12 +71,23 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 				// ignore
 				// logger.error(e.getMessage(), e);
 			}
-
 		}
 
 		physicalClose(datagramChannel);
 
 		physicalClose(socketChannel);
+
+		ChannelService service = context.getSocketChannelService();
+		
+		if (service instanceof ChannelConnector) {
+			
+			try {
+				((ChannelConnector) service).physicalClose();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		
 	}
 
 	private void physicalClose(Channel channel) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -29,7 +30,11 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	protected abstract EventLoopThread getSelectorLoopThread();
 
 	public void close() throws IOException {
-
+		CloseUtil.close(session);
+	}
+	
+	public void physicalClose() throws IOException {
+		
 		Thread thread = Thread.currentThread();
 
 		EventLoopThread loopThread = getSelectorLoopThread();
@@ -39,16 +44,16 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			ThreadUtil.execute(new Runnable() {
 				
 				public void run() {
-					close0();
+					doPhysicalClose();
 				}
 			});
 			return;
 		}
 		
-		close0();
+		doPhysicalClose();
 	}
-	
-	protected void close0(){
+
+	private void doPhysicalClose(){
 
 		ReentrantLock lock = this.activeLock;
 
@@ -56,7 +61,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 
 		try {
 
-			doClose();
+			doPhysicalClose0();
 
 		} finally {
 
@@ -68,7 +73,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		}
 	}
 
-	protected abstract void doClose();
+	protected abstract void doPhysicalClose0();
 
 	public Session connect() throws IOException {
 

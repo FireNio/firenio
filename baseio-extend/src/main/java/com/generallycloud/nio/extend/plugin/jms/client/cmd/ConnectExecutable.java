@@ -7,12 +7,11 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.ConnectorCloseSEListener;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
@@ -66,8 +65,6 @@ public class ConnectExecutable extends MQCommandExecutor {
 			baseContext.setIOEventHandleAdaptor(eventHandle);
 
 			baseContext.addSessionEventListener(new LoggerSEListener());
-
-			baseContext.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
 			connector.setContext(baseContext);
 

@@ -92,10 +92,8 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		context.setSocketChannelService(this);
 	}
 
-	protected void doClose() {
+	protected void doPhysicalClose0() {
 		
-		CloseUtil.close(session);
-
 		LifeCycleUtil.stop(selectorLoopThread);
 	}
 

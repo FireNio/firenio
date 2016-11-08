@@ -105,7 +105,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 		this.selectorLoopThread.start();
 	}
 
-	protected void doClose() {
+	protected void doPhysicalClose0() {
 
 		if (datagramChannel != null && datagramChannel.isOpened()) {
 			CloseUtil.close(datagramChannel);
