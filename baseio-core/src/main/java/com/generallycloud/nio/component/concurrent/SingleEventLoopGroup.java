@@ -31,7 +31,7 @@ public class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoop
 		eventLoopArray = new EventLoop[eventLoopSize]; 
 		
 		for (int i = 0; i < eventLoopArray.length; i++) {
-			eventLoopArray[i] = new SingleEventLoop(eventLoopName + "-" + i, eventQueueSize);
+			eventLoopArray[i] = new SingleEventLoop(eventLoopName + "-" + i+"(max:"+eventQueueSize+")", eventQueueSize);
 		}
 		
 		for(EventLoop el : eventLoopArray){

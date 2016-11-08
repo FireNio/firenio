@@ -24,7 +24,6 @@ public class TestHttpLoadConnection {
 		
 		configuration.setSERVER_HOST("www.generallycloud.com");
 		configuration.setSERVER_TCP_PORT(80);
-		configuration.setSERVER_CHANNEL_QUEUE_SIZE(4);
 		
 		try {
 			for (int i = 0; i < 999; i++) {

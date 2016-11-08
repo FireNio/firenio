@@ -1,8 +1,6 @@
 package com.generallycloud.nio.component.concurrent;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Looper;
@@ -49,10 +47,10 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 		private boolean	stoped	= false;
 
 		protected SingleEventLoopWorker(int queueSize) {
-			this.jobs = new ArrayBlockingQueue<Runnable>(queueSize);
+			this.jobs = new ListQueueABQ<Runnable>(queueSize);
 		}
 
-		private ArrayBlockingQueue<Runnable>	jobs;
+		private ListQueue<Runnable>	jobs;
 
 		public void dispatch(Runnable job) {
 			
@@ -67,7 +65,7 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 
 			try {
 
-				Runnable runnable = jobs.poll(32, TimeUnit.MILLISECONDS);
+				Runnable runnable = jobs.poll(32);
 
 				if (runnable == null) {
 					return;

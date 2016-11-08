@@ -135,8 +135,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
-		int SERVER_CHANNEL_QUEUE_SIZE = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
-
 		int SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY();
 		int SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 
@@ -167,8 +165,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
 			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
 		}
-		LoggerUtil.prettyNIOServerLog(logger, "写入缓冲区         ：{ {} * {} }", SERVER_CHANNEL_QUEUE_SIZE,
-				SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", new Object[] {
 				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
@@ -184,7 +180,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		
 		if (eventLoopGroup == null) {
 
-			int eventQueueSize = serverConfiguration.getSERVER_CHANNEL_QUEUE_SIZE();
+			int eventQueueSize = (int) (MEMORY_POOL_SIZE * 1000);
 
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 

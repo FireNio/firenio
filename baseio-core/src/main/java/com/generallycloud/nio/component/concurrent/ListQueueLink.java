@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component.concurrent;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.Linkable;
@@ -7,6 +9,8 @@ import com.generallycloud.nio.Linkable;
 public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 
 	private ReentrantLock	lock	= new ReentrantLock();
+	
+	private Condition empty = lock.newCondition();
 
 	private int			size;
 
@@ -24,6 +28,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 
 			if (size == 0) {
 				head = tail = object;
+				empty.signal();
 			} else {
 				tail.setNext(object);
 				tail = object;
@@ -48,25 +53,57 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 				return null;
 			}
 
-			Linkable<T> t = head;
-			Linkable<T> next = t.getNext();
-
-			if (next == null) {
-				head = tail = null;
-			} else {
-				head = next;
-			}
-
-			size--;
-			return t.getValue();
-
+			return get();
+			
 		} finally {
 			lock.unlock();
 		}
 	}
 
 	public T poll(long timeout) {
-		throw new UnsupportedOperationException();
+		
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			if (size == 0) {
+				
+				try {
+					empty.await(timeout, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					empty.signal();
+				}
+				
+				if (size == 0) {
+					return null;
+				}
+				
+				return get();
+			}
+
+			return get();
+
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	private T get(){
+		
+		Linkable<T> t = head;
+		Linkable<T> next = t.getNext();
+
+		if (next == null) {
+			head = tail = null;
+		} else {
+			head = next;
+		}
+
+		size--;
+		return t.getValue();
+		
 	}
 
 	public int size() {
