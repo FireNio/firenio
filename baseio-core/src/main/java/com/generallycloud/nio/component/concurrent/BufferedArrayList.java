@@ -14,7 +14,7 @@ public class BufferedArrayList<T> {
 	
 	private List<T>		buffer	= list1;
 	
-	public void safeAdd(T t) {
+	public void offer(T t) {
 
 		ReentrantLock lock = this.lock;
 
@@ -28,11 +28,6 @@ public class BufferedArrayList<T> {
 
 			lock.unlock();
 		}
-	}
-	
-	public void add(T t) {
-
-		buffer.add(t);
 	}
 	
 	public ReentrantLock getReentrantLock(){
@@ -70,7 +65,7 @@ public class BufferedArrayList<T> {
 	}
 	
 	public int getBufferSize(){
-		return buffer == list1 ? list2.size() : list1.size();
+		return list1.size() + list2.size();
 	}
 	
 }

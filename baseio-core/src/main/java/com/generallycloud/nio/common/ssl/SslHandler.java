@@ -9,8 +9,6 @@ import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyMemoryBlock;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -23,7 +21,7 @@ public class SslHandler {
 
 	private BaseContext	context	= null;
 
-	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
+//	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
 
 	public SslHandler(BaseContext context) {
 		this.context = context;
@@ -51,11 +49,11 @@ public class SslHandler {
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
-				logger.info("_________________________wrap");
-				logger.info("_________________________bytesConsumed:" + bytesConsumed);
-				logger.info("_________________________bytesProduced:" + bytesProduced);
-				logger.info("_________________________" + status.name());
-				logger.info("_________________________" + handshakeStatus.name());
+//				logger.debug("_________________________wrap");
+//				logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
+//				logger.debug("_________________________bytesProduced:{}" , bytesProduced);
+//				logger.debug("_________________________,{}" , status.name());
+//				logger.debug("_________________________,{}" , handshakeStatus.name());
 
 				if (bytesConsumed > 0) {
 					buf.skipBytes(bytesConsumed);
@@ -127,7 +125,7 @@ public class SslHandler {
 
 	public ByteBuf unwrap(SocketSession session, ByteBuf packet) throws IOException {
 
-		logger.info("__________________________________________________start");
+//		logger.debug("__________________________________________________start");
 
 		ByteBuf buf = allocate(packet.capacity() * 2);
 
@@ -143,14 +141,14 @@ public class SslHandler {
 				int bytesConsumed = result.bytesConsumed();
 				int bytesProduced = result.bytesProduced();
 
-				Status status = result.getStatus();
+//				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
-				logger.info("_________________________unwrap");
-				logger.info("_________________________bytesConsumed:" + bytesConsumed);
-				logger.info("_________________________bytesProduced:" + bytesProduced);
-				logger.info("_________________________" + status.name());
-				logger.info("_________________________" + handshakeStatus.name());
+//				logger.debug("_________________________unwrap");
+//				logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
+//				logger.debug("_________________________bytesProduced:{}" , bytesProduced);
+//				logger.debug("_________________________,{}" , status.name());
+//				logger.debug("_________________________,{}" , handshakeStatus.name());
 
 				if (bytesConsumed > 0) {
 					packet.position(packet.position() + bytesConsumed);

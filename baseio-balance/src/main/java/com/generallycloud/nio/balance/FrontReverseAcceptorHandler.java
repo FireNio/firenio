@@ -10,6 +10,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
@@ -117,4 +118,20 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", sessionID, f);
 	}
+
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+		
+		BufferedOutputStream os = future.getWriteBuffer();
+		
+		String msg;
+		
+		if (os.size() > 120) {
+			msg = new String(os.array(),0,120);
+		}else{
+			msg = os.toString(session.getEncoding());
+		}
+		
+		logger.error("exceptionCaught,msg="+msg,cause);
+	}
+	
 }

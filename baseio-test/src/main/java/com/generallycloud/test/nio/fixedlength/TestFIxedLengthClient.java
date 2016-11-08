@@ -46,7 +46,7 @@ public class TestFIxedLengthClient {
 
 		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
 
-		context.addSessionEventListener(new SessionActiveSEListener());
+//		context.addSessionEventListener(new SessionActiveSEListener());
 		
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
 

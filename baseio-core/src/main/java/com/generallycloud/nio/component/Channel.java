@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.concurrent.locks.ReentrantLock;
 
 //FIXME 扩展更多Channel
 public interface Channel extends Closeable{
@@ -39,5 +40,7 @@ public interface Channel extends Closeable{
 	public abstract InetSocketAddress getRemoteSocketAddress();
 
 	public abstract int getMaxIdleTime() throws SocketException;
+	
+	public ReentrantLock getChannelLock() ;
 	
 }

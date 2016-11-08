@@ -38,7 +38,7 @@ public class TestFIxedLengthServer {
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
-		context.addSessionEventListener(new SessionAliveSEListener());
+//		context.addSessionEventListener(new SessionAliveSEListener());
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		

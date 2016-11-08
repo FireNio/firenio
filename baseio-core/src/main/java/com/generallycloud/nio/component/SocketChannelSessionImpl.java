@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.Linkable;
@@ -21,11 +23,11 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class SocketChannelSessionImpl extends SessionImpl implements SocketSession {
 
-	private static final Logger		logger		= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
+	private static final Logger	logger	= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
 
-	protected Waiter<Exception>			handshakeWaiter;
-	protected SSLEngine				sslEngine;
-	protected SslHandler				sslHandler;
+	protected Waiter<Exception>	handshakeWaiter;
+	protected SSLEngine			sslEngine;
+	protected SslHandler		sslHandler;
 
 	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(channel, sessionID);
@@ -41,49 +43,61 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 			this.handshakeWaiter.setPayload(e);
 		}
 	}
-	
+
 	public boolean isEnableSSL() {
 		return context.isEnableSSL();
 	}
 
 	public void fireOpend() {
 
-		if (isEnableSSL() && context.getSslContext().isClient()) {
+//		ReentrantLock lock = socketChannel.getChannelLock();
+//
+//		lock.lock();
 
-			handshakeWaiter = new Waiter<Exception>();
+//		try {
 
-			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+			if (isEnableSSL() && context.getSslContext().isClient()) {
 
-			IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
+				handshakeWaiter = new Waiter<Exception>();
 
-			flush(f);
+				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-			// wait
+				IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
-			if (handshakeWaiter.await(3000)) {
-				CloseUtil.close(this);
-				throw new RuntimeException("hands shake failed");
+				flush(f);
+
+				// wait
+
+				if (handshakeWaiter.await(3000000)) {//FIXME test
+					CloseUtil.close(this);
+					throw new RuntimeException("hands shake failed");
+				}
+
+				if (handshakeWaiter.getPayload() != null) {
+					throw new RuntimeException(handshakeWaiter.getPayload());
+				}
+				// success
 			}
 
-			if (handshakeWaiter.getPayload() != null) {
-				throw new RuntimeException(handshakeWaiter.getPayload());
+			Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+
+			for (; linkable != null;) {
+
+				try {
+
+					linkable.getValue().sessionOpened(this);
+
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+				linkable = linkable.getNext();
 			}
-			// success
-		}
 
-		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+//		} finally {
+//
+//			lock.unlock();
+//		}
 
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionOpened(this);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
-		}
 	}
 
 	public void flush(IOWriteFuture future) {

@@ -78,7 +78,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 1280000;
+		int time = 128000;
 
 		int core_size = 8;
 

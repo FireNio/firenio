@@ -85,14 +85,16 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			if (context == null) {
 				throw new IllegalArgumentException("null nio context");
 			}
+			
+			ServerConfiguration configuration = context.getServerConfiguration();
+			
+			configuration.setSERVER_CORE_SIZE(1);
+			
+			String SERVER_HOST = getSERVER_HOST(configuration);
+			
+			int SERVER_PORT = getSERVER_PORT(configuration);
 
 			LifeCycleUtil.start(context);
-
-			ServerConfiguration configuration = context.getServerConfiguration();
-
-			String SERVER_HOST = getSERVER_HOST(configuration);
-
-			int SERVER_PORT = getSERVER_PORT(configuration);
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 

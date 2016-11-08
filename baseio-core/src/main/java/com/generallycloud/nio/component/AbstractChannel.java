@@ -2,18 +2,20 @@ package com.generallycloud.nio.component;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.StringUtil;
 
 public abstract class AbstractChannel implements Channel {
 
-	private Object				attachment;
-	private BaseContext			context;
-	private String 			edp_description;
-	private Integer			channelID;
+	protected Object			attachment;
+	protected BaseContext		context;
+	protected String			edp_description;
+	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-	
+	protected ReentrantLock		channelLock	= new ReentrantLock();
+
 	public AbstractChannel(BaseContext context) {
 		this.context = context;
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
@@ -65,9 +67,10 @@ public abstract class AbstractChannel implements Channel {
 
 		return address.getAddress().getHostAddress();
 	}
-	
+
 	/**
 	 * 请勿使用,可能出现阻塞
+	 * 
 	 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
 	 */
 	@Deprecated
@@ -121,6 +124,10 @@ public abstract class AbstractChannel implements Channel {
 		String id = Long.toHexString(channelID);
 
 		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
+	}
+
+	public ReentrantLock getChannelLock() {
+		return channelLock;
 	}
 
 }

@@ -8,10 +8,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
@@ -38,11 +40,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private IOWriteFuture			writeFuture;
 	private boolean				opened			= true;
 	private long					next_network_weak	= Long.MAX_VALUE;
+	private boolean 				enableInbound		= true;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<IOWriteFuture>	writeFutures		= new ListQueueLink<IOWriteFuture>();
 
-	// private ListQueue<IOWriteFuture> writeFutures = new ListQueueABQ<IOWriteFuture>(1024 * 10);
+	// private ListQueue<IOWriteFuture> writeFutures = new
+	// ListQueueABQ<IOWriteFuture>(1024 * 10);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -155,29 +159,49 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public void offer(IOWriteFuture future) {
 
-		if (!isOpened()) {
+		ReentrantLock lock = channelLock;
 
-			future.onException(session, new ClosedChannelException(session.toString()));
+		lock.lock();
 
-			return;
+		try {
+
+			if (!enableInbound) {
+
+				future.onException(session, new ClosedChannelException(session.toString()));
+
+				return;
+			}
+
+			if (!writeFutures.offer(future)) {
+
+				future.onException(session, new RejectedExecutionException());
+
+				return;
+			}
+
+			if (writeFutures.size() > 1) {
+
+				return;
+			}
+
+			channelFlusher.offer(this);
+
+		} finally {
+
+			lock.unlock();
 		}
-
-		if (!writeFutures.offer(future)) {
-
-			future.onException(session, new RejectedExecutionException());
-
-			return;
-		}
-
-		channelFlusher.offer(this);
 	}
 
 	private void releaseWriteFutures() {
 
 		ReleaseUtil.release(writeFuture);
-
+		
 		ListQueue<IOWriteFuture> writeFutures = this.writeFutures;
 
+		if (writeFutures.size() == 0) {
+			return;
+		}
+		
 		IOWriteFuture f = writeFutures.poll();
 
 		UnsafeSession session = this.session;
@@ -192,10 +216,19 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 			f = writeFutures.poll();
 		}
-
 	}
 
 	public void physicalClose() throws IOException {
+
+		enableInbound = false;
+		
+		//FIXME 这里有问题
+		for (;;) {
+			if (!channel.isOpen() || !needFlush()) {
+				break;
+			}
+			ThreadUtil.sleep(8);
+		}
 
 		this.opened = false;
 
@@ -204,7 +237,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.selectionKey.attach(null);
 
 		this.channel.close();
-		
+
 		this.selectionKey.cancel();
 	}
 
@@ -290,5 +323,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void setSslReadFuture(SslReadFuture future) {
 		this.sslReadFuture = future;
 	}
-	
+
+	public boolean needFlush() {
+		return writeFuture != null || writeFutures.size() > 0;
+	}
+
 }

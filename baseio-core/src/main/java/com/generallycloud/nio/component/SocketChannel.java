@@ -61,4 +61,6 @@ public interface SocketChannel extends DuplexChannel {
 	public abstract boolean flush() throws IOException;
 	
 	public abstract int getWriteFutureSize();
+	
+	public abstract boolean needFlush();
 }

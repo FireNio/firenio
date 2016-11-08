@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
@@ -25,15 +27,23 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 	public void close() {
 
-		synchronized (this) {
-
+		ReentrantLock lock = socketChannel.getChannelLock();
+		
+		lock.lock();
+		
+		try{
+			
 			if (isClosed()) {
 				return;
 			}
 
 			doClose();
+			
+		}finally{
+			
+			lock.unlock();
 		}
-
+		
 		fireClosed();
 	}
 
@@ -50,6 +60,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 				IOWriteFuture f = new IOWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
 
 				flush(f);
+				
 			}
 
 			try {

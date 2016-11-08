@@ -19,7 +19,7 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient {
 
-	final static int	time	= 500000;
+	final static int	time	= 50000;
 
 	public static void main(String[] args) throws Exception {
 
