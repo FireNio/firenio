@@ -3,6 +3,7 @@ package com.generallycloud.nio.extend.startup;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.IOAcceptorUtil;
@@ -11,6 +12,8 @@ import com.generallycloud.nio.protocol.ReadFuture;
 public class BaseServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
+		
+		SharedBundle.instance().loadAllProperties("nio");
 		
 		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
 

@@ -29,6 +29,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	public void accept(SelectionKey selectionKey) throws IOException {
 
 		if (!selectionKey.isValid()) {
+			logger.info("isValid selection key={}",selectionKey);
 			return;
 		}
 

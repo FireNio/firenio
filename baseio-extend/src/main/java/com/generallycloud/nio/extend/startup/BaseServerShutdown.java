@@ -33,6 +33,8 @@ public class BaseServerShutdown {
 			Scanner scanner = new Scanner(System.in);
 
 			scanner.nextLine();
+			
+			CloseUtil.close(scanner);
 
 			return;
 		}
@@ -78,6 +80,8 @@ public class BaseServerShutdown {
 		Scanner scanner = new Scanner(System.in);
 
 		scanner.nextLine();
+		
+		CloseUtil.close(scanner);
 	}
 
 }

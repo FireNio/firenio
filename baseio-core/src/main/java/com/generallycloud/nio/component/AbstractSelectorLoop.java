@@ -58,7 +58,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 				
 				if(System.currentTimeMillis() - last_select < 64){
 					
-					if (shutdown == true) {
+					if (shutdown) {
 						
 						working = false;
 

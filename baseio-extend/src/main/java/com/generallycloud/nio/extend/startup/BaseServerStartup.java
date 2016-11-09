@@ -76,10 +76,4 @@ public class BaseServerStartup {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		BaseServerStartup launcher = new BaseServerStartup();
-
-		launcher.launch("");
-	}
 }

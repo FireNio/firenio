@@ -21,19 +21,20 @@ public class DynamicClassLoader extends ClassLoader {
 
 	private Logger					logger		= LoggerFactory.getLogger(DynamicClassLoader.class);
 	private Map<String, ClassEntry>	clazzEntries	= new HashMap<String, ClassEntry>();
-	private ClassLoader				parent		;
-
-	public void setParent(ClassLoader parent) {
-		this.parent = parent;
-	}
+	private ClassLoader				parent;
+	private ClassLoader				systemClassLoader;
 
 	public DynamicClassLoader() {
+
 		ClassLoader parent = getParent();
+
 		if (parent == null) {
 			parent = getSystemClassLoader();
 		}
-		this.setParent(parent);
 
+		this.parent = parent;
+
+		this.systemClassLoader = this.getClass().getClassLoader();
 	}
 
 	private Class<?> findLoadedClass0(String name) throws ClassNotFoundException {
@@ -60,7 +61,12 @@ public class DynamicClassLoader extends ClassLoader {
 			clazz = defineClass(name);
 
 			if (clazz == null) {
-				return this.parent.loadClass(name);
+
+				try {
+					return parent.loadClass(name);
+				} catch (Exception e) {
+					return systemClassLoader.loadClass(name);
+				}
 			}
 		}
 
@@ -127,7 +133,7 @@ public class DynamicClassLoader extends ClassLoader {
 				}
 			}
 		} finally {
-			
+
 			file.close();
 		}
 	}
@@ -206,11 +212,11 @@ public class DynamicClassLoader extends ClassLoader {
 
 	class ClassEntry {
 
-		private String		className		;
+		private String		className;
 
-		private byte[]	binaryContent	;
+		private byte[]		binaryContent;
 
-		private Class<?>	loadedClass	;
+		private Class<?>	loadedClass;
 
 	}
 
@@ -231,8 +237,8 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void unloadClass(Class<?> clazz) {
-		Field []fields = clazz.getDeclaredFields();
-		for(Field field:fields){
+		Field[] fields = clazz.getDeclaredFields();
+		for (Field field : fields) {
 			if (Modifier.isStatic(field.getModifiers())) {
 				try {
 					if (!field.isAccessible()) {
@@ -245,5 +251,5 @@ public class DynamicClassLoader extends ClassLoader {
 			}
 		}
 	}
-	
+
 }

@@ -36,6 +36,8 @@ public class HttpServerStartup {
 
 		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
 		
+		logger.info("=================================================================");
+		
 		ApplicationContext applicationContext = new ApplicationContext(ac,base);
 		
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
@@ -83,11 +85,5 @@ public class HttpServerStartup {
 			acceptor.unbind();
 		}
 	}
-
-	public static void main(String[] args) throws Exception {
-		
-		HttpServerStartup launcher = new HttpServerStartup();
-
-		launcher.launch("");
-	}
+	
 }

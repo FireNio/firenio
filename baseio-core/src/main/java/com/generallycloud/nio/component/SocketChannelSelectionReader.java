@@ -36,6 +36,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
 		if (channel == null || !channel.isOpened()) {
+			logger.info("closed selection key={}",selectionKey);
 			// 该channel已经被关闭
 			return;
 		}
@@ -50,6 +51,9 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 		if (length == -1) {
 			CloseUtil.close(channel);
+			return;
+		}else if(length == 0){
+			logger.info("read length 0, selection key={}",selectionKey);
 			return;
 		}
 

@@ -87,10 +87,4 @@ public class Http2ServerStartup {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		Http2ServerStartup launcher = new Http2ServerStartup();
-
-		launcher.launch("http");
-	}
 }
