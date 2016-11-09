@@ -87,8 +87,6 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 		
 		context.addSessionEventListener(new LoggerSEListener());
 
-		context.addSessionEventListener(new ConnectorCloseSEListener(connector));
-
 		context.addSessionEventListener(new SessionActiveSEListener());
 		
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
