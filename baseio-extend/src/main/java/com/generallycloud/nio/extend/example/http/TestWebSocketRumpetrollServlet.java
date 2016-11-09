@@ -116,7 +116,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 		msgAdapterThread = new EventLoopThread(msgAdapter, "WebSocketRumpetroll");
 
-		msgAdapterThread.start();
+		msgAdapterThread.startup();
 
 		super.initialize(context, config);
 	}

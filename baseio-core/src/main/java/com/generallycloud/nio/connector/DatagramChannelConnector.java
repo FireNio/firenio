@@ -106,7 +106,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
-		this.selectorLoopThread.start();
+		this.selectorLoopThread.startup();
 	}
 
 	protected void doPhysicalClose0() {

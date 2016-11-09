@@ -195,7 +195,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		this.sessionManagerThread = new EventLoopThread(sessionManager, "session-manager");
 
-		this.sessionManagerThread.start();
+		this.sessionManagerThread.startup();
 
 		this.eventLoopGroup.start();
 	}

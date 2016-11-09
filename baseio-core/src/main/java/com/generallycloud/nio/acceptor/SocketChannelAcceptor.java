@@ -52,7 +52,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 			selectorLoopThreads[i] = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
-			selectorLoopThreads[i].start();
+			selectorLoopThreads[i].startup();
 		}
 	}
 

@@ -142,7 +142,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 
 		msgAdapterThread = new EventLoopThread(msgAdapter, "WebSocketChat");
 
-		msgAdapterThread.start();
+		msgAdapterThread.startup();
 
 		super.initialize(context, config);
 	}

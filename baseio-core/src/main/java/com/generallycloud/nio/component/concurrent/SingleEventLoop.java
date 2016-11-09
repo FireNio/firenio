@@ -29,7 +29,7 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 	}
 
 	protected void doStart() throws Exception {
-		thread.start();
+		thread.startup();
 	}
 
 	protected void doStop() throws Exception {
@@ -84,6 +84,10 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 			for (; jobs.size() > 0;) {
 				ThreadUtil.sleep(8);
 			}
+		}
+
+		public void startup() throws Exception {
+			
 		}
 	}
 

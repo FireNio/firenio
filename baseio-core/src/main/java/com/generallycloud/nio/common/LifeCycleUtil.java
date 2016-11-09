@@ -1,7 +1,7 @@
 package com.generallycloud.nio.common;
 
 import com.generallycloud.nio.LifeCycle;
-import com.generallycloud.nio.Stopable;
+import com.generallycloud.nio.Looper;
 
 public class LifeCycleUtil {
 
@@ -37,12 +37,12 @@ public class LifeCycleUtil {
 		}
 	}
 	
-	public static void stop(Stopable stopable){
-		if (stopable == null) {
+	public static void stop(Looper looper){
+		if (looper == null) {
 			return;
 		}
 		try {
-			stopable.stop();
+			looper.stop();
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}

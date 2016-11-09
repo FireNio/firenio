@@ -21,18 +21,18 @@ public abstract class AbstractProductLine implements MessageQueue, Looper {
 	private Logger						logger	= LoggerFactory.getLogger(AbstractProductLine.class);
 
 	public AbstractProductLine(MQContext context) {
+		
 		this.context = context;
-		this.initialize();
-	}
-
-	private void initialize() {
-
+		
 		this.storage = new MessageStorage();
 
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
 
 		this.dueTime = context.getMessageDueTime();
-
+	}
+	
+	public void startup() throws Exception {
+		
 	}
 
 	// TODO 处理剩下的message 和 receiver

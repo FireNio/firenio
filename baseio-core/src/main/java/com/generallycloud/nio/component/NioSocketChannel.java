@@ -198,7 +198,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		
 		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
 
-		if (writeFutures.size() == 0) {
+		if (writeFutures.size() != -1) {
 			return;
 		}
 		
@@ -222,12 +222,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		enableInbound = false;
 		
+		int tryTime = 5;
+		
 		//FIXME 这里有问题
 		for (;;) {
-			if (!channel.isOpen() || !needFlush()) {
+			if (!needFlush() || tryTime-- == 0) {
 				break;
 			}
-			ThreadUtil.sleep(8);
+			ThreadUtil.sleep(6);
 		}
 
 		this.opened = false;

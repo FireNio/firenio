@@ -181,6 +181,10 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 //		channels.offer(channel);
 		channels.offer(channel);
 	}
+	
+	public void startup() throws Exception {
+		
+	}
 
 	public String toString() {
 

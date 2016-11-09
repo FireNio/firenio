@@ -93,4 +93,5 @@ public class HttpSessionManager extends AbstractLooper{
 	public int getManagedSessionSize(){
 		return sessions.size();
 	}
+	
 }

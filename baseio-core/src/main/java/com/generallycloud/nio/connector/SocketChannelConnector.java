@@ -36,7 +36,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
 
-		this.selectorLoopThread.start();
+		this.selectorLoopThread.startup();
 
 		if (waiter.await(getTimeout())) {
 

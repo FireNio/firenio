@@ -20,7 +20,7 @@ public class EventLoopThread implements Looper {
 		this.threadName = threadName;
 	}
 
-	public void start() {
+	public void startup() {
 
 		if (!initialized.compareAndSet(false, true)) {
 			return;

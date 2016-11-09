@@ -107,5 +107,5 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 	public int getManagedSessionSize() {
 		return sessions.size();
 	}
-
+	
 }

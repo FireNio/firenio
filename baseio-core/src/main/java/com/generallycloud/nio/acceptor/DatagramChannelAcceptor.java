@@ -34,7 +34,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 		
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription()+"(selector)");
 
-		this.selectorLoopThread.start();
+		this.selectorLoopThread.startup();
 	}
 	
 	public String getServiceDescription() {

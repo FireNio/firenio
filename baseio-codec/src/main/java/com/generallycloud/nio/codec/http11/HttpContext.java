@@ -19,7 +19,7 @@ public class HttpContext extends AbstractLifeCycle {
 	protected void doStart() throws Exception {
 		this.taskExecutorThread = new EventLoopThread(httpSessionManager, "HTTPSession-Manager");
 
-		this.taskExecutorThread.start();
+		this.taskExecutorThread.startup();
 
 		instance = this;
 	}

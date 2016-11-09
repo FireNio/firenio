@@ -19,7 +19,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	private Logger				logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean			working			= false;
-	private volatile boolean			shutdown			= false;
+	private boolean			shutdown			= false;
 
 	protected Selector			selector			= null;
 	protected BaseContext		context			= null;
@@ -147,7 +147,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	public void startup() throws IOException {
 
-		this.channelFlushThread.start();
+		this.channelFlushThread.startup();
 
 		this.selector = buildSelector(selectableChannel);
 	}

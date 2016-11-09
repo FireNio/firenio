@@ -25,6 +25,10 @@ public class WebSocketMsgAdapter implements Looper {
 	public void stop() {
 
 	}
+	
+	public void startup() throws Exception {
+		
+	}
 
 	public synchronized void addClient(Session session) {
 

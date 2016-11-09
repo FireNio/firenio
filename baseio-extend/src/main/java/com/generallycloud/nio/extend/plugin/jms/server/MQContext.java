@@ -51,8 +51,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		subThread = new EventLoopThread(subProductLine, "MQ-SUB-ProductLine");
 
-		p2pThread.start();
-		subThread.start();
+		p2pThread.startup();
+		subThread.startup();
 
 		context.addSessionEventListener(new MQSessionEventListener());
 
@@ -148,8 +148,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 		subThread = new EventLoopThread(subProductLine, "MQ-SUB-ProductLine");
 
-		p2pThread.start();
-		subThread.start();
+		p2pThread.startup();
+		subThread.startup();
 
 		instance = this;
 	}

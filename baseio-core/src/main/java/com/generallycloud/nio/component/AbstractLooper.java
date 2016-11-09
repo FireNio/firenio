@@ -43,4 +43,8 @@ public abstract class AbstractLooper implements Looper {
 		lock.unlock();
 	}
 
+	public void startup() throws Exception {
+		
+	}
+
 }
