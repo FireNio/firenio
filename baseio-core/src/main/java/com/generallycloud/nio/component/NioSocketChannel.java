@@ -218,13 +218,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 
+	//FIXME 这里有问题
 	public void physicalClose() throws IOException {
 
 		enableInbound = false;
 		
 		int tryTime = 5;
 		
-		//FIXME 这里有问题
+		if (channel.isOpen()) {
+			tryTime <<= 3;
+		}
+		
+		// FIXME condition instead?
 		for (;;) {
 			if (!needFlush() || tryTime-- == 0) {
 				break;
