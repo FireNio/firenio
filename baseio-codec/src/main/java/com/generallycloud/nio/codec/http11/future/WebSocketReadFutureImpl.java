@@ -116,20 +116,20 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			}
 		}
 		
-		mask = new byte[4];
+		buf.flip();
 		
-		buf.get(mask);
+		mask = buf.getBytes();
 		
 		doLengthComplete(session,buf,length);
 	}
 
-	public boolean read(SocketSession session,ByteBuf buffer) throws IOException {
+	public boolean read(SocketSession session,ByteBuf src) throws IOException {
 		
 		ByteBuf buf = this.buf;
 		
 		if (!headerComplete) {
 			
-			buf.read(buffer);
+			buf.read(src);
 			
 			if (buf.hasRemaining()) {
 				return false;
@@ -140,7 +140,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		if (!remain_header_complete) {
 			
-			buf.read(buffer);
+			buf.read(src);
 			
 			if (buf.hasRemaining()) {
 				return false;
@@ -151,7 +151,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		if (!dataComplete) {
 			
-			buf.read(buffer);
+			buf.read(src);
 			
 			if (buf.hasRemaining()) {
 				return false;
