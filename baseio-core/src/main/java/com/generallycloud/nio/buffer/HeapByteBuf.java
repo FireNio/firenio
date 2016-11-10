@@ -2,7 +2,6 @@ package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.SocketChannel;
@@ -16,12 +15,12 @@ public class HeapByteBuf extends AbstractByteBuf {
 		this.memory = memory;
 	}
 
-	public HeapByteBuf(ByteBufferPool byteBufferPool, byte[] memory) {
-		this(byteBufferPool, memory, new ReferenceCount());
+	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+		this(allocator, memory, new ReferenceCount());
 	}
 
-	public HeapByteBuf(ByteBufferPool byteBufferPool, byte[] memory, ReferenceCount referenceCount) {
-		super(byteBufferPool, referenceCount);
+	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory, ReferenceCount referenceCount) {
+		super(allocator, referenceCount);
 		this.memory = memory;
 	}
 
@@ -29,34 +28,8 @@ public class HeapByteBuf extends AbstractByteBuf {
 		return memory;
 	}
 
-	public ByteBuf duplicate() {
-
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
-
-			if (released) {
-				throw new ReleasedException("released");
-			}
-
-			HeapByteBuf buf = new HeapByteBuf(memoryPool, memory, referenceCount);
-
-			buf.referenceCount.increament();
-			buf.capacity = capacity;
-			buf.memoryEnd = memoryEnd;
-			buf.limit = limit;
-			buf.offset = offset;
-			buf.position = position;
-			buf.size = size;
-			buf.memoryStart = memoryStart;
-
-			return buf;
-
-		} finally {
-			lock.unlock();
-		}
+	protected AbstractByteBuf newByteBuf() {
+		return new HeapByteBuf(allocator, memory, referenceCount);
 	}
 
 	public byte getByte(int index) {

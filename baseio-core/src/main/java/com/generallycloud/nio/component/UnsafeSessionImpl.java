@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.EmptyMemoryBlock;
+import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.connector.ChannelConnector;
@@ -59,7 +59,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyMemoryBlock.EMPTY_BYTEBUF);
+				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
 
 				flush(f);
 				

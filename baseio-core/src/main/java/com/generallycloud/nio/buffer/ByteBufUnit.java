@@ -1,6 +1,6 @@
 package com.generallycloud.nio.buffer;
 
-public class MemoryUnit {
+public class ByteBufUnit {
 
 	public int			index;
 

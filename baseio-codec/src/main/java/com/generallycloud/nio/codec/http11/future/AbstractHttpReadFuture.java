@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.UnpooledMemoryPool;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.BASE64Util;
 import com.generallycloud.nio.common.KMPByteUtil;
@@ -257,7 +257,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 
 			hasBodyContent = true;
 
-			bodyContent = UnpooledMemoryPool.allocate(contentLength);
+			bodyContent = UnpooledByteBufAllocator.allocate(contentLength);
 		} else {
 			// FIXME 写入临时文件
 			throw new IOException("max content 1024 * 1024,content " + contentLength);

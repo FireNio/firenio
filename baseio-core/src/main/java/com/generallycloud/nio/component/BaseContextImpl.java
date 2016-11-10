@@ -9,8 +9,8 @@ import java.util.Set;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
-import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.HeapByteBufPool;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.HeapByteBufAllocator;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -41,7 +41,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
 	private EventLoopGroup				eventLoopGroup;
-	private ByteBufferPool				heapByteBufferPool;
+	private ByteBufAllocator				heapByteBufferPool;
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
@@ -65,7 +65,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return beatFutureFactory;
 	}
 
-	public ByteBufferPool getHeapByteBufferPool() {
+	public ByteBufAllocator getHeapByteBufferPool() {
 		return heapByteBufferPool;
 	}
 
@@ -132,6 +132,8 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		if (protocolFactory == null) {
 			throw new IllegalArgumentException("null protocolFactory");
 		}
+		
+		serverConfiguration.initializeDefault(this);
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
@@ -147,7 +149,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
-		this.heapByteBufferPool = new HeapByteBufPool(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
+		this.heapByteBufferPool = new HeapByteBufAllocator(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 		// this.directByteBufferPool = new
 		// DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
 
@@ -184,10 +186,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 			
-			if (eventQueueSize == 0) {
-				eventQueueSize = (int) (MEMORY_POOL_SIZE * 2048);
-			}
-
 			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
 			
 			this.eventLoopGroup = eventLoopGroup;

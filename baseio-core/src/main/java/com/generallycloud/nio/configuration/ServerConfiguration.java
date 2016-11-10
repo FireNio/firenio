@@ -1,22 +1,25 @@
 package com.generallycloud.nio.configuration;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.component.BaseContext;
 
 //FIXME 校验参数
 public class ServerConfiguration {
 
 	private int		SERVER_TCP_PORT;
 	private int		SERVER_UDP_PORT;
-	private String		SERVER_HOST				= "localhost";
-	private int		SERVER_CORE_SIZE			= Runtime.getRuntime().availableProcessors();
-	private Charset	SERVER_ENCODING			= Encoding.UTF8;
-	private int		SERVER_IO_EVENT_QUEUE		= 0;
-	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
-	private int		SERVER_MEMORY_POOL_UNIT		= 256;
-	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024 * 64;
-	private int		SERVER_READ_BUFFER			= 1024 * 100;
+	private String		SERVER_HOST					= "localhost";
+	private int		SERVER_CORE_SIZE				= Runtime.getRuntime().availableProcessors();
+	private Charset	SERVER_ENCODING				= Encoding.UTF8;
+	private int		SERVER_IO_EVENT_QUEUE			= 0;
+	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
+	private int		SERVER_MEMORY_POOL_UNIT;
+	private int		SERVER_MEMORY_POOL_CAPACITY;
+	private int		SERVER_READ_BUFFER				= 1024 * 100;
+	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
 
 	public ServerConfiguration() {
 	}
@@ -25,7 +28,7 @@ public class ServerConfiguration {
 		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
 	}
 
-	public ServerConfiguration(String SERVER_HOST,int SERVER_TCP_PORT) {
+	public ServerConfiguration(String SERVER_HOST, int SERVER_TCP_PORT) {
 		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
 		this.SERVER_HOST = SERVER_HOST;
 	}
@@ -95,11 +98,11 @@ public class ServerConfiguration {
 	}
 
 	public void setSERVER_SESSION_IDLE_TIME(long SERVER_SESSION_IDLE_TIME) {
-		
+
 		if (SERVER_SESSION_IDLE_TIME == 0) {
 			return;
 		}
-		
+
 		this.SERVER_SESSION_IDLE_TIME = SERVER_SESSION_IDLE_TIME;
 	}
 
@@ -135,5 +138,37 @@ public class ServerConfiguration {
 		}
 		this.SERVER_READ_BUFFER = SERVER_READ_BUFFER;
 	}
-	
+
+	public double getSERVER_MEMORY_POOL_CAPACITY_RATE() {
+		return SERVER_MEMORY_POOL_CAPACITY_RATE;
+	}
+
+	public void setSERVER_MEMORY_POOL_CAPACITY_RATE(double SERVER_MEMORY_POOL_CAPACITY_RATE) {
+		this.SERVER_MEMORY_POOL_CAPACITY_RATE = SERVER_MEMORY_POOL_CAPACITY_RATE;
+	}
+
+	public void initializeDefault(BaseContext context) {
+
+		if (SERVER_MEMORY_POOL_UNIT == 0) {
+			SERVER_MEMORY_POOL_UNIT = 256;
+		}
+
+		if (SERVER_MEMORY_POOL_CAPACITY == 0) {
+
+			long total = Runtime.getRuntime().maxMemory();
+
+			SERVER_MEMORY_POOL_CAPACITY = (int) (total / (SERVER_MEMORY_POOL_UNIT * SERVER_CORE_SIZE * 4));
+
+			SERVER_MEMORY_POOL_CAPACITY *= SERVER_MEMORY_POOL_CAPACITY_RATE;
+		}
+
+		if (SERVER_IO_EVENT_QUEUE == 0) {
+
+			double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
+					new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+			SERVER_IO_EVENT_QUEUE = (int) (MEMORY_POOL_SIZE * 4096);
+		}
+	}
+
 }

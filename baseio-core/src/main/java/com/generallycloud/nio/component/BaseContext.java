@@ -6,7 +6,7 @@ import com.generallycloud.nio.Attributes;
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
-import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -67,7 +67,7 @@ public interface BaseContext extends Attributes, LifeCycle {
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
 	
-	public abstract ByteBufferPool getHeapByteBufferPool();
+	public abstract ByteBufAllocator getHeapByteBufferPool();
 	
 //	public abstract ByteBufferPool getDirectByteBufferPool();
 

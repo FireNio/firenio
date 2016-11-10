@@ -8,37 +8,68 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractByteBuf implements ByteBuf {
 
-	protected int			capacity;
-	protected int			limit;
-	protected ByteBufferPool	memoryPool;
-	protected int			offset;
-	protected int			position;
+	protected ByteBufAllocator	allocator;
+	protected int				capacity;
+	protected int				limit;
+	protected ReentrantLock		lock;
+	protected ByteBufUnit		memoryEnd;
+	protected ByteBufUnit		memoryStart;
+	protected ByteBuffer		nioBuffer;
+	protected int				offset;
+	protected int				position;
 	protected ReferenceCount	referenceCount;
-	protected boolean		released;
-	protected int			size;
-	protected ReentrantLock	lock;
-	protected ByteBuffer	nioBuffer;
+	protected boolean			released;
+	protected int				size;
 
-	protected MemoryUnit	memoryStart;
-	protected MemoryUnit	memoryEnd;
+	protected AbstractByteBuf(ByteBufAllocator byteBufferPool) {
+		this(byteBufferPool, new ReferenceCount());
+	}
+
+	protected AbstractByteBuf(ByteBufAllocator allocator, ReferenceCount referenceCount) {
+		this.limit = capacity;
+		this.position = 0;
+		this.allocator = allocator;
+		this.lock = new ReentrantLock();
+		this.referenceCount = referenceCount;
+	}
 
 	protected AbstractByteBuf(int capacity) {
 		this.capacity = capacity;
 		this.limit = capacity;
 		this.position = 0;
 	}
+	
+	public ByteBuf duplicate() {
 
-	protected AbstractByteBuf(ByteBufferPool byteBufferPool) {
-		this(byteBufferPool, new ReferenceCount());
-	}
+		ReentrantLock lock = this.lock;
 
-	protected AbstractByteBuf(ByteBufferPool byteBufferPool, ReferenceCount referenceCount) {
-		this.limit = capacity;
-		this.position = 0;
-		this.memoryPool = byteBufferPool;
-		this.lock = new ReentrantLock();
-		this.referenceCount = referenceCount;
+		lock.lock();
+
+		try {
+
+			if (released) {
+				throw new ReleasedException("released");
+			}
+
+			AbstractByteBuf buf = newByteBuf();
+
+			buf.referenceCount.increament();
+			buf.capacity = capacity;
+			buf.memoryEnd = memoryEnd;
+			buf.limit = limit;
+			buf.offset = offset;
+			buf.position = position;
+			buf.size = size;
+			buf.memoryStart = memoryStart;
+
+			return buf;
+
+		} finally {
+			lock.unlock();
+		}
 	}
+	
+	protected abstract AbstractByteBuf newByteBuf();
 
 	public int capacity() {
 		return capacity;
@@ -56,8 +87,16 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return this;
 	}
 
-	protected int ix(int index) {
-		return offset + index;
+	public int forEachByte(ByteProcessor processor) {
+		return forEachByte(position, limit, processor);
+	}
+
+	public int forEachByteDesc(ByteProcessor processor) {
+		return forEachByteDesc(position, limit, processor);
+	}
+
+	public void get(byte[] dst) {
+		get(dst, 0, dst.length);
 	}
 
 	public byte[] getBytes() {
@@ -69,12 +108,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return bytes;
 	}
 
-	public void get(byte[] dst) {
-		get(dst, 0, dst.length);
-	}
+	protected abstract ByteBuffer getNioBuffer();
 
 	public boolean hasRemaining() {
 		return position < limit;
+	}
+
+	protected int ix(int index) {
+		return offset + index;
 	}
 
 	public int limit() {
@@ -90,6 +131,15 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return this;
 	}
 
+	public ByteBuffer nioBuffer() {
+		ByteBuffer buffer = getNioBuffer();
+		return (ByteBuffer) buffer.limit(ix(limit)).position(ix(position));
+	}
+
+	public int offset() {
+		return offset;
+	}
+
 	public int position() {
 		return position;
 	}
@@ -99,16 +149,16 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return this;
 	}
 
+	protected ByteBuf produce(int newLimit) {
+		this.offset = memoryStart.index * allocator.getUnitMemorySize();
+		this.capacity = size * allocator.getUnitMemorySize();
+		this.limit = newLimit;
+		return this;
+	}
+
 	public void put(byte[] src) {
 		put(src, 0, src.length);
 	}
-
-	public ByteBuffer nioBuffer() {
-		ByteBuffer buffer = getNioBuffer();
-		return (ByteBuffer) buffer.limit(ix(limit)).position(ix(position));
-	}
-
-	protected abstract ByteBuffer getNioBuffer();
 
 	public int read(SocketChannel channel) throws IOException {
 
@@ -139,25 +189,25 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 			released = true;
 
-			memoryPool.release(this);
+			allocator.release(this);
 
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	public int offset() {
-		return offset;
-	}
-
 	public int remaining() {
 		return limit - position;
 	}
 
-	protected void setMemory(MemoryUnit memoryStart, MemoryUnit memoryEnd) {
+	protected void setMemory(ByteBufUnit memoryStart, ByteBufUnit memoryEnd) {
 		this.memoryStart = memoryStart;
 		this.memoryEnd = memoryEnd;
 		this.size = memoryStart.blockEnd - memoryStart.index;
+	}
+
+	public void skipBytes(int length) {
+		this.position(position + length);
 	}
 
 	public String toString() {
@@ -173,25 +223,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		b.append(remaining());
 		b.append("]");
 		return b.toString();
-	}
-
-	protected ByteBuf produce(int newLimit) {
-		this.offset = memoryStart.index * memoryPool.getUnitMemorySize();
-		this.capacity = size * memoryPool.getUnitMemorySize();
-		this.limit = newLimit;
-		return this;
-	}
-
-	public int forEachByte(ByteProcessor processor) {
-		return forEachByte(position, limit, processor);
-	}
-
-	public int forEachByteDesc(ByteProcessor processor) {
-		return forEachByteDesc(position, limit, processor);
-	}
-
-	public void skipBytes(int length) {
-		this.position(position + length);
 	}
 
 }

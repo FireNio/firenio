@@ -49,7 +49,7 @@ public class TestLoadClient1 extends ITestThread {
 
 				latch.countDown();
 
-				// System.out.println("__________________________"+getLatch().getCount());
+				 System.out.println("__________________________"+getLatch().getCount());
 			}
 		};
 
@@ -60,8 +60,10 @@ public class TestLoadClient1 extends ITestThread {
 		ServerConfiguration configuration = context.getServerConfiguration();
 
 		configuration.setSERVER_CORE_SIZE(1);
-
-		configuration.setSERVER_HOST("192.168.0.180");
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.2);
+		
+//		configuration.setSERVER_HOST("192.168.0.180");
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
@@ -76,7 +78,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 1024 * 10000;
+		int time = 4 * 10000;
 
 		int core_size = 4;
 

@@ -4,7 +4,7 @@ import static com.generallycloud.nio.codec.http2.hpack.Http2Error.PROTOCOL_ERROR
 import static com.generallycloud.nio.codec.http2.hpack.Http2Exception.streamError;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.EmptyMemoryBlock;
+import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.ssl.ApplicationProtocolNames;
 
 public final class Http2CodecUtil {
@@ -105,7 +105,7 @@ public final class Http2CodecUtil {
 	     */
 	    public static ByteBuf emptyPingBuf() {
 	        // Return a duplicate so that modifications to the reader index will not affect the original buffer.
-	        return EmptyMemoryBlock.EMPTY_BYTEBUF.duplicate();
+	        return EmptyByteBuf.EMPTY_BYTEBUF.duplicate();
 	    }
 
 	    /**

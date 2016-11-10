@@ -2,7 +2,7 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class UnpooledMemoryPool {
+public class UnpooledByteBufAllocator {
 
 	public static ByteBuf allocate(int capacity) {
 		return new UnpooledHeapByteBuf(new byte[capacity]);

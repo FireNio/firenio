@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.example.http;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.generallycloud.nio.buffer.ByteBufferPool;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -14,7 +14,6 @@ import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 
-	// FIXME 检查为部分情况获取到的free memory不等于all memory
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		BaseContext context = session.getIOSession().getContext();
@@ -24,11 +23,11 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-		ByteBufferPool pool = context.getHeapByteBufferPool();
+		ByteBufAllocator allocator = context.getHeapByteBufferPool();
 		
-		String poolDes = pool.toString();
+		String allocatorDes = allocator.toString();
 		
-		poolDes = poolDes.substring(poolDes.indexOf("["));
+		allocatorDes = allocatorDes.substring(allocatorDes.indexOf("["));
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 
@@ -53,7 +52,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		builder.append("M;\n</BR>内存池大小：");
 		builder.append(MEMORY_POOL_SIZE);
 		builder.append("M;\n</BR>内存池状态（Heap）：");
-		builder.append(poolDes);
+		builder.append(allocatorDes);
 		builder.append(";\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionManager().getManagedSessionSize());
 		builder.append(";\n</BR>服务器当前会话数（http-session）：");

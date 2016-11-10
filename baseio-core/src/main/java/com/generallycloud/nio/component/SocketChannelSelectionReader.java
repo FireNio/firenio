@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufferPool;
-import com.generallycloud.nio.buffer.UnpooledMemoryPool;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -20,14 +20,14 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	protected ByteBuf		buf		= null;
 
-	protected ByteBufferPool	byteBufferPool	= null;
+	protected ByteBufAllocator	byteBufferPool	= null;
 	
 	private Logger				logger		= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
 
 	public SocketChannelSelectionReader(BaseContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
 		this.byteBufferPool = context.getHeapByteBufferPool();
-		this.buf = UnpooledMemoryPool.allocate(readBuffer);// FIXME 使用direct
+		this.buf = UnpooledByteBufAllocator.allocate(readBuffer);// FIXME 使用direct
 		// this.buffer = ByteBuffer.allocateDirect(readBuffer);
 	}
 
