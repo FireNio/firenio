@@ -16,31 +16,35 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class FrontServerBootStrap {
 
-	private ProtocolFactory			frontProtocolFactory;
-	private ProtocolFactory			frontReverseProtocolFactory;
-	private ServerConfiguration		frontServerConfiguration;
-	private ServerConfiguration		frontReverseServerConfiguration;
-	private List<SessionEventListener>	frontSessionEventListeners;
-	private List<SessionEventListener>	frontReverseSessionEventListeners;
-	private BeatFutureFactory		frontBeatFutureFactory;
-	private BeatFutureFactory		frontReverseBeatFutureFactory;
-	private FrontRouter				frontRouter;
-	private SslContext				sslContext;
+	private ProtocolFactory				frontProtocolFactory;
+	private ProtocolFactory				frontReverseProtocolFactory;
+	private ServerConfiguration			frontServerConfiguration;
+	private ServerConfiguration			frontReverseServerConfiguration;
+	private List<SessionEventListener>		frontSessionEventListeners;
+	private List<SessionEventListener>		frontReverseSessionEventListeners;
+	private BeatFutureFactory			frontBeatFutureFactory;
+	private BeatFutureFactory			frontReverseBeatFutureFactory;
+	private ChannelLostReadFutureFactory	channelLostReadFutureFactory;
+	private FrontRouter					frontRouter;
+	private SslContext					sslContext;
 
 	public void startup() throws IOException {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = new FrontFacadeAcceptor();
-		
+
 		if (frontRouter == null) {
 			frontRouter = new SimpleNextRouter();
 		}
 
-		FrontContext frontContext = new FrontContext(frontFacadeAcceptor,frontRouter);
+		FrontContext frontContext = new FrontContext(frontFacadeAcceptor, frontRouter);
 
-		BaseContext frontBaseContext = getFrontBaseContext(frontContext, frontServerConfiguration, frontProtocolFactory);
+		BaseContext frontBaseContext = getFrontBaseContext(frontContext, frontServerConfiguration,
+				frontProtocolFactory);
 
-		BaseContext frontReverseBaseContext = getFrontReverseBaseContext(frontContext, frontReverseServerConfiguration,
-				frontReverseProtocolFactory);
+		BaseContext frontReverseBaseContext = getFrontReverseBaseContext(frontContext,
+				frontReverseServerConfiguration, frontReverseProtocolFactory);
+		
+		frontContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 
 		frontFacadeAcceptor.start(frontContext, frontBaseContext, frontReverseBaseContext);
 	}
@@ -61,7 +65,7 @@ public class FrontServerBootStrap {
 		if (frontSessionEventListeners != null) {
 			addSessionEventListener2Context(context, frontSessionEventListeners);
 		}
-		
+
 		if (sslContext != null) {
 			context.setSslContext(sslContext);
 		}
@@ -172,4 +176,13 @@ public class FrontServerBootStrap {
 	public void setSslContext(SslContext sslContext) {
 		this.sslContext = sslContext;
 	}
+
+	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
+		return channelLostReadFutureFactory;
+	}
+
+	public void setChannelLostReadFutureFactory(ChannelLostReadFutureFactory channelLostReadFutureFactory) {
+		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+	}
+	
 }
