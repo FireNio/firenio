@@ -180,9 +180,13 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		
 		if (eventLoopGroup == null) {
 
-			int eventQueueSize = (int) (MEMORY_POOL_SIZE * 1000);
+			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
 
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+			
+			if (eventQueueSize == 0) {
+				eventQueueSize = (int) (MEMORY_POOL_SIZE * 2048);
+			}
 
 			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
 			

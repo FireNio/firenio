@@ -12,7 +12,7 @@ public class ServerConfiguration {
 	private String		SERVER_HOST				= "localhost";
 	private int		SERVER_CORE_SIZE			= Runtime.getRuntime().availableProcessors();
 	private Charset	SERVER_ENCODING			= Encoding.UTF8;
-	private boolean	SERVER_DEBUG				= false;
+	private int		SERVER_IO_EVENT_QUEUE		= 0;
 	private long		SERVER_SESSION_IDLE_TIME		= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT		= 256;
 	private int		SERVER_MEMORY_POOL_CAPACITY	= 1024 * 64;
@@ -71,12 +71,15 @@ public class ServerConfiguration {
 		this.SERVER_ENCODING = SERVER_ENCODING;
 	}
 
-	public boolean isSERVER_DEBUG() {
-		return SERVER_DEBUG;
+	public int getSERVER_IO_EVENT_QUEUE() {
+		return SERVER_IO_EVENT_QUEUE;
 	}
 
-	public void setSERVER_DEBUG(boolean SERVER_DEBUG) {
-		this.SERVER_DEBUG = SERVER_DEBUG;
+	public void setSERVER_IO_EVENT_QUEUE(int SERVER_IO_EVENT_QUEUE) {
+		if (SERVER_IO_EVENT_QUEUE == 0) {
+			return;
+		}
+		this.SERVER_IO_EVENT_QUEUE = SERVER_IO_EVENT_QUEUE;
 	}
 
 	public String getSERVER_HOST() {

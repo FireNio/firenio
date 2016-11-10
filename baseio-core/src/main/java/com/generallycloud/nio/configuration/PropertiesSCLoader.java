@@ -13,7 +13,7 @@ public class PropertiesSCLoader implements ServerConfigurationLoader{
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 
 		cfg.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
-		cfg.setSERVER_DEBUG(bundle.getBooleanProperty("SERVER.DEBUG"));
+		cfg.setSERVER_IO_EVENT_QUEUE(bundle.getIntegerProperty("SERVER_IO_EVENT_QUEUE"));
 		cfg.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
 		cfg.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
 		cfg.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
