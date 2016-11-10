@@ -43,8 +43,6 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 					return;
 				}
 
-				Iterator<Session> ss = sessions.values().iterator();
-
 				ChannelWriteFuture writeFuture;
 				try {
 					writeFuture = future.translate();
@@ -52,6 +50,8 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 					logger.error(e.getMessage(), e);
 					return;
 				}
+				
+				Iterator<Session> ss = sessions.values().iterator();
 
 				for (; ss.hasNext();) {
 
