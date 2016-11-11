@@ -66,8 +66,9 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 					}
 					
 					//JDK bug fired
+					IOException e = new IOException("JDK bug fired");
+					logger.error(e.getMessage(),e);
 					this.selector = rebuildSelector();
-					logger.error("JDK bug fired="+selector.toString());
 				}
 				
 				working = false;
