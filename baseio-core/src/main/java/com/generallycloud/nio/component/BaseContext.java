@@ -67,10 +67,8 @@ public interface BaseContext extends Attributes, LifeCycle {
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
 	
-	public abstract ByteBufAllocator getHeapByteBufferPool();
+	public abstract ByteBufAllocator getByteBufAllocator();
 	
-//	public abstract ByteBufferPool getDirectByteBufferPool();
-
 	public abstract void addSessionEventListener(SessionEventListener listener);
 	
 	public abstract SslContext getSslContext() ;

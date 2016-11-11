@@ -190,24 +190,37 @@ public class DirectByteBuf extends AbstractByteBuf {
 		int remaining = this.remaining();
 
 		if (remaining <= srcRemaining) {
+			
+			if (buf.hasArray()) {
+				
+				this.put(buf.array(), buf.offset() + buf.position(), remaining);
+			}else{
 
-			ByteBuffer _this = this.memory;
+				ByteBuffer _this = this.memory;
+				
+				for (int i = 0; i < remaining; i++) {
 
-			for (int i = 0; i < remaining; i++) {
-
-				_this.put(buf.getByte());
+					_this.put(buf.getByte());
+				}
 			}
-
+			
 			this.position(this.limit);
 
 			return remaining;
 		} else {
-
-			ByteBuffer _this = this.memory;
-
-			for (int i = 0; i < srcRemaining; i++) {
-
-				_this.put(buf.getByte());
+			
+			if (buf.hasArray()) {
+				
+				this.put(buf.array(), buf.offset() + buf.position(), srcRemaining);
+				
+			}else{
+				
+				ByteBuffer _this = this.memory;
+				
+				for (int i = 0; i < srcRemaining; i++) {
+					
+					_this.put(buf.getByte());
+				}
 			}
 
 			this.skipBytes(srcRemaining);

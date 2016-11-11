@@ -46,7 +46,7 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new WebSocketReadFutureImpl(session, session.getContext().getHeapByteBufferPool().allocate(2));
+		return new WebSocketReadFutureImpl(session, session.getContext().getByteBufAllocator().allocate(2));
 	}
 
 }

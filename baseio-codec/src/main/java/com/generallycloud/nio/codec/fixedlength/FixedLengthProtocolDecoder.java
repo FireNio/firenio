@@ -37,7 +37,7 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 		
-		return new FixedLengthReadFutureImpl(session,session.getContext().getHeapByteBufferPool().allocate(PROTOCOL_HEADER));
+		return new FixedLengthReadFutureImpl(session,session.getContext().getByteBufAllocator().allocate(PROTOCOL_HEADER));
 	}
 
 }

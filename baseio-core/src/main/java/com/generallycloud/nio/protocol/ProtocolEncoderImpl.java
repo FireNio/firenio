@@ -16,7 +16,7 @@ public class ProtocolEncoderImpl implements ProtocolEncoder {
 
 		byte[] array = os.array();
 
-		ByteBuf buf = context.getHeapByteBufferPool().allocate(size);
+		ByteBuf buf = context.getByteBufAllocator().allocate(size);
 
 		buf.put(array, 0, size);
 

@@ -18,17 +18,16 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SocketChannelSelectionReader implements SelectionAcceptor {
 
-	protected ByteBuf		buf		= null;
+	protected ByteBuf			buf				= null;
 
-	protected ByteBufAllocator	byteBufferPool	= null;
-	
-	private Logger				logger		= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
+	protected ByteBufAllocator	byteBufAllocator	= null;
+
+	private Logger				logger			= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
 
 	public SocketChannelSelectionReader(BaseContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
-		this.byteBufferPool = context.getHeapByteBufferPool();
+		this.byteBufAllocator = context.getByteBufAllocator();
 		this.buf = UnpooledByteBufAllocator.allocate(readBuffer);// FIXME 使用direct
-		// this.buffer = ByteBuffer.allocateDirect(readBuffer);
 	}
 
 	public void accept(SelectionKey selectionKey) throws Exception {
@@ -36,7 +35,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
 		if (channel == null || !channel.isOpened()) {
-			logger.info("closed selection key={}",selectionKey);
+			logger.info("closed selection key={}", selectionKey);
 			// 该channel已经被关闭
 			return;
 		}
@@ -44,7 +43,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		ByteBuf buf = this.buf;
 
 		buf.clear();
-		
+
 		buf.nioBuffer();
 
 		int length = buf.read(channel);
@@ -52,19 +51,19 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		if (length == -1) {
 			CloseUtil.close(channel);
 			return;
-		}else if(length == 0){
-			logger.info("read length 0, selection key={}",selectionKey);
+		} else if (length == 0) {
+			logger.info("read length 0, selection key={}", selectionKey);
 			return;
 		}
 
 		buf.flip();
-		
+
 		UnsafeSession session = channel.getSession();
 
 		session.active();
 
 		accept(channel, session, buf);
-		
+
 	}
 
 	private void accept(final Session session, final ChannelReadFuture future) throws Exception {

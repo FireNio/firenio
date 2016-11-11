@@ -55,6 +55,6 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 	}
 
 	protected ByteBuf allocate(int capacity){
-		return context.getHeapByteBufferPool().allocate(capacity);
+		return context.getByteBufAllocator().allocate(capacity);
 	}
 }

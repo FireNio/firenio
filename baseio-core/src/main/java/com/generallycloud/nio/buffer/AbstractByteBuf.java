@@ -21,8 +21,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected boolean			released;
 	protected int				size;
 
-	protected AbstractByteBuf(ByteBufAllocator byteBufferPool) {
-		this(byteBufferPool, new ReferenceCount());
+	protected AbstractByteBuf(ByteBufAllocator allocator) {
+		this(allocator, new ReferenceCount());
 	}
 
 	protected AbstractByteBuf(ByteBufAllocator allocator, ReferenceCount referenceCount) {

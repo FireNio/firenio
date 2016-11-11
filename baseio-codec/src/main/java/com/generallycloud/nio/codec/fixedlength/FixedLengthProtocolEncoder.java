@@ -24,7 +24,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 			MathUtil.int2Byte(array, value, 0);
 
-			ByteBuf buffer = context.getHeapByteBufferPool().allocate(4);
+			ByteBuf buffer = context.getByteBufAllocator().allocate(4);
 
 			buffer.put(array);
 
@@ -37,7 +37,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 		int size = outputStream.size();
 
-		ByteBuf buffer = context.getHeapByteBufferPool().allocate(size + 4);
+		ByteBuf buffer = context.getByteBufAllocator().allocate(size + 4);
 
 		byte[] size_array = new byte[4];
 

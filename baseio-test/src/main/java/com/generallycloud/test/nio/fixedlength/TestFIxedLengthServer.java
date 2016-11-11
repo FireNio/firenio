@@ -9,12 +9,11 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -33,8 +32,12 @@ public class TestFIxedLengthServer {
 		};
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+		
+		ServerConfiguration configuration = new ServerConfiguration(18300);
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.2);
 
-		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
+		BaseContext context = new BaseContextImpl(configuration);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		

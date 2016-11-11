@@ -45,15 +45,15 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buffer = context.getHeapByteBufferPool().allocate(header.length + size);
+		ByteBuf buf = context.getByteBufAllocator().allocate(header.length + size);
 		
-		buffer.put(header);
+		buf.put(header);
 		
-		buffer.put(o.array(),0,size);
+		buf.put(o.array(),0,size);
 		
-		buffer.flip();
+		buf.flip();
 
-		return new ChannelWriteFutureImpl(readFuture, buffer);
+		return new ChannelWriteFutureImpl(readFuture, buf);
 	}
 	
 //	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

@@ -91,7 +91,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		int length = payload.length;
 		
-		ByteBuf buf = context.getHeapByteBufferPool().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
+		ByteBuf buf = context.getByteBufAllocator().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
 		
 		int offset = buf.offset();
 		

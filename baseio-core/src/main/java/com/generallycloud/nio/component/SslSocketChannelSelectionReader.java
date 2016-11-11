@@ -25,7 +25,7 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 
 			if (future == null) {
 
-				ByteBuf buf = byteBufferPool.allocate(SslReadFuture.SSL_RECORD_HEADER_LENGTH);
+				ByteBuf buf = byteBufAllocator.allocate(SslReadFuture.SSL_RECORD_HEADER_LENGTH);
 
 				future = new SslReadFutureImpl(session, buf);
 

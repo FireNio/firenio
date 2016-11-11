@@ -23,7 +23,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-		ByteBufAllocator allocator = context.getHeapByteBufferPool();
+		ByteBufAllocator allocator = context.getByteBufAllocator();
 		
 		String allocatorDes = allocator.toString();
 		

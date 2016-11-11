@@ -41,7 +41,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
 	private EventLoopGroup				eventLoopGroup;
-	private ByteBufAllocator				heapByteBufferPool;
+	private ByteBufAllocator				byteBufAllocator;
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
@@ -50,8 +50,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private long						startupTime	= System.currentTimeMillis();
 	private Sequence					sequence		= new Sequence();
 	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
-
-	// private ByteBufferPool directByteBufferPool;
 
 	public int getSessionAttachmentSize() {
 		return sessionAttachmentSize;
@@ -65,13 +63,9 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return beatFutureFactory;
 	}
 
-	public ByteBufAllocator getHeapByteBufferPool() {
-		return heapByteBufferPool;
+	public ByteBufAllocator getByteBufAllocator() {
+		return byteBufAllocator;
 	}
-
-	// public ByteBufferPool getDirectByteBufferPool() {
-	// return directByteBufferPool;
-	// }
 
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
@@ -149,9 +143,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
-		this.heapByteBufferPool = new HeapByteBufAllocator(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
-		// this.directByteBufferPool = new
-		// DirectMemoryPoolV3(SERVER_MEMORY_POOL_CAPACITY,SERVER_MEMORY_POOL_UNIT);
+		this.byteBufAllocator = new HeapByteBufAllocator(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 
 		this.addSessionEventListener(new ManagerSEListener());
 
@@ -191,7 +183,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 			this.eventLoopGroup = eventLoopGroup;
 		}
 
-		this.heapByteBufferPool.start();
+		this.byteBufAllocator.start();
 
 		// this.directByteBufferPool.start();
 
@@ -210,7 +202,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.stop(sessionManagerThread);
 
-		LifeCycleUtil.stop(heapByteBufferPool);
+		LifeCycleUtil.stop(byteBufAllocator);
 
 		// LifeCycleUtil.stop(directByteBufferPool);
 	}

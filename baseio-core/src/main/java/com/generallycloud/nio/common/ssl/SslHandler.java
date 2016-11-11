@@ -28,7 +28,7 @@ public class SslHandler {
 	}
 
 	private ByteBuf allocate(int capacity) {
-		return context.getHeapByteBufferPool().allocate(capacity);
+		return context.getByteBufAllocator().allocate(capacity);
 	}
 
 	public ByteBuf wrap(SocketSession session,ByteBuf buf) throws IOException {

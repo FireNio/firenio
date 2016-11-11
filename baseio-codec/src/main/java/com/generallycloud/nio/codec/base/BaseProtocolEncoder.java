@@ -47,7 +47,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			array[0] = (byte) (readFuture.isPING() ? BaseProtocolDecoder.PROTOCOL_PING
 					: BaseProtocolDecoder.PROTOCOL_PONG << 6);
 
-			ByteBuf buffer = context.getHeapByteBufferPool().allocate(1);
+			ByteBuf buffer = context.getByteBufAllocator().allocate(1);
 
 			buffer.put(array);
 
@@ -98,7 +98,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = context.getHeapByteBufferPool().allocate(all_length);
+		ByteBuf buffer = context.getByteBufAllocator().allocate(all_length);
 
 		buffer.put(header);
 		buffer.put(future_name_array);

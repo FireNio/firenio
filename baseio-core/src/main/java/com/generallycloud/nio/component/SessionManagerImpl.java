@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.nio.Linkable;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.concurrent.ListQueue;
@@ -28,7 +29,16 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 
 	public void putSession(Session session) {
 
-		sessions.put(session.getSessionID(), session);
+		Integer sessionID = session.getSessionID();
+		
+		Session old = sessions.get(sessionID);
+		
+		if (old != null) {
+			CloseUtil.close(old);
+			removeSession(old);
+		}
+		
+		sessions.put(sessionID, session);
 	}
 
 	public void loop() {
@@ -100,7 +110,7 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 	}
 
 	public void offerSessionMEvent(SessionMEvent event) {
-		// throw
+		// FIXME throw
 		this.events.offer(event);
 	}
 

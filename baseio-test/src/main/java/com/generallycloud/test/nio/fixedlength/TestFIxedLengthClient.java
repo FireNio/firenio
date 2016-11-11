@@ -36,7 +36,11 @@ public class TestFIxedLengthClient {
 
 		SocketChannelConnector connector = new SocketChannelConnector();
 		
-		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
+		ServerConfiguration configuration = new ServerConfiguration("localhost", 18300);
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.1);
+		
+		BaseContext context = new BaseContextImpl(configuration);
 
 		context.setIOEventHandleAdaptor(eventHandleAdaptor);
 		

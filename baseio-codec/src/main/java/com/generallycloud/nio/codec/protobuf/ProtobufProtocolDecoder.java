@@ -13,7 +13,7 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 		
-		ByteBuf buf = session.getContext().getHeapByteBufferPool().allocate(BaseProtocolDecoder.PROTOCOL_HEADER);
+		ByteBuf buf = session.getContext().getByteBufAllocator().allocate(BaseProtocolDecoder.PROTOCOL_HEADER);
 
 		buf.read(buffer);
 

@@ -132,10 +132,10 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 	}
 
 	private ByteBuf allocate(BaseContext context, int capacity) {
-		return context.getHeapByteBufferPool().allocate(capacity);
+		return context.getByteBufAllocator().allocate(capacity);
 	}
 	
 	private ByteBuf allocate(BaseContext context,Http2SocketSession session) {
-		return context.getHeapByteBufferPool().allocate(session.getLastReadFrameHeader().getLength());
+		return context.getByteBufAllocator().allocate(session.getLastReadFrameHeader().getLength());
 	}
 }
