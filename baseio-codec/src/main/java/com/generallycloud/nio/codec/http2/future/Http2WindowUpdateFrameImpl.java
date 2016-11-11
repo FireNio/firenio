@@ -24,15 +24,12 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
 		isComplete = true;
-
-		int offset = buf.offset();
-
-		byte[] array = buf.array();
-
-		this.updateValue = MathUtil.byte2Int31(array, offset);
+		
+		buf.flip();
+		
+		this.updateValue = MathUtil.int2int31(buf.getInt());
 
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
-
 	}
 
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {

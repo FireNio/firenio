@@ -51,18 +51,15 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		
 		headerComplete = true;
 		
-		int offset = buf.offset();
+		buf.flip();
 		
 		int remain_header_size = 0;
 		
-		byte [] array = buf.array();
-		
-		byte b = array[offset + 0];
+		byte b = buf.getByte();
 		
 		eof = ((b & 0xFF) >> 7) == 1;
 		
 		type = (b & 0xF); 
-		
 		
 		if (type == WebSocketProtocolDecoder.TYPE_PING) {
 			setPING();
@@ -70,7 +67,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 			setPONG();
 		}
 		
-		b = array[offset + 1];
+		b = buf.getByte();
 		
 		hasMask = ((b & 0xFF) >> 7) == 1;
 		

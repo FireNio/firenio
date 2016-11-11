@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public class HeapByteBuf extends AbstractByteBuf {
 
-	private byte[]	memory;
+	protected byte[]	memory;
 
 	protected HeapByteBuf(byte[] memory) {
 		super(memory.length);
@@ -122,7 +122,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	public int forEachByte(int index, int length, ByteProcessor processor) {
 
-		byte[] array = this.array();
+		byte[] array = memory;
 
 		int start = ix(index);
 
@@ -147,7 +147,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	public int forEachByteDesc(int index, int length, ByteProcessor processor) {
 
-		byte[] array = this.array();
+		byte[] array = memory;
 
 		int start = ix(index);
 
@@ -296,4 +296,54 @@ public class HeapByteBuf extends AbstractByteBuf {
 		return nioBuffer;
 	}
 
+	public void putShort(short value) {
+		MathUtil.short2Byte(memory, value, ix(position));
+		position +=2;
+	}
+
+	public void putShortLE(short value) {
+		MathUtil.short2ByteLE(memory, value, ix(position));
+		position +=2;
+	}
+
+	public void putUnsignedShort(int value) {
+		MathUtil.unsignedShort2Byte(memory, value, ix(position));
+		position +=2;
+	}
+
+	public void putUnsignedShortLE(int value) {
+		MathUtil.unsignedShort2ByteLE(memory, value, ix(position));
+		position +=2;
+	}
+
+	public void putInt(int value) {
+		MathUtil.int2Byte(memory, value, ix(position));
+		position +=4;
+	}
+
+	public void putIntLE(int value) {
+		MathUtil.int2ByteLE(memory, value, ix(position));
+		position +=4;
+	}
+
+	public void putUnsignedInt(long value) {
+		MathUtil.unsignedInt2Byte(memory, value, ix(position));
+		position +=4;
+	}
+
+	public void putUnsignedIntLE(long value) {
+		MathUtil.unsignedInt2ByteLE(memory, value, ix(position));
+		position +=4;
+	}
+
+	public void putLong(long value) {
+		MathUtil.long2Byte(memory, value, ix(position));
+		position +=8;
+	}
+
+	public void putLongLE(long value) {
+		MathUtil.long2ByteLE(memory, value, ix(position));
+		position +=8;
+	}
+	
 }

@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public class DirectByteBuf extends AbstractByteBuf {
 
-	private ByteBuffer	memory;
+	protected ByteBuffer	memory;
 
 	protected DirectByteBuf(ByteBuffer memory) {
 		super(memory.capacity());
@@ -190,35 +190,35 @@ public class DirectByteBuf extends AbstractByteBuf {
 		int remaining = this.remaining();
 
 		if (remaining <= srcRemaining) {
-			
+
 			if (buf.hasArray()) {
-				
+
 				this.put(buf.array(), buf.offset() + buf.position(), remaining);
-			}else{
+			} else {
 
 				ByteBuffer _this = this.memory;
-				
+
 				for (int i = 0; i < remaining; i++) {
 
 					_this.put(buf.getByte());
 				}
 			}
-			
+
 			this.position(this.limit);
 
 			return remaining;
 		} else {
-			
+
 			if (buf.hasArray()) {
-				
+
 				this.put(buf.array(), buf.offset() + buf.position(), srcRemaining);
-				
-			}else{
-				
+
+			} else {
+
 				ByteBuffer _this = this.memory;
-				
+
 				for (int i = 0; i < srcRemaining; i++) {
-					
+
 					_this.put(buf.getByte());
 				}
 			}
@@ -351,6 +351,82 @@ public class DirectByteBuf extends AbstractByteBuf {
 
 	protected ByteBuffer getNioBuffer() {
 		return nioBuffer;
+	}
+
+	public void putShort(short value) {
+		memory.putShort(value);
+		position += 2;
+	}
+
+	public void putShortLE(short value) {
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putShort(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 2;
+	}
+
+	public void putUnsignedShort(int value) {
+		byte b1 = (byte) (value & 0xff);
+		byte b0 = (byte) (value >> 8 * 1);
+		memory.put(b0);
+		memory.put(b1);
+		position += 2;
+	}
+
+	public void putUnsignedShortLE(int value) {
+		byte b0 = (byte) (value & 0xff);
+		byte b1 = (byte) (value >> 8 * 1);
+		memory.put(b0);
+		memory.put(b1);
+		position += 2;
+	}
+
+	public void putInt(int value) {
+		memory.putInt(value);
+		position += 4;
+	}
+
+	public void putIntLE(int value) {
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putInt(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 4;
+	}
+
+	public void putUnsignedInt(long value) {
+		byte b3 = (byte) ((value & 0xff));
+		byte b2 = (byte) ((value >> 8 * 1) & 0xff);
+		byte b1 = (byte) ((value >> 8 * 2) & 0xff);
+		byte b0 = (byte) ((value >> 8 * 3));
+		memory.put(b0);
+		memory.put(b1);
+		memory.put(b2);
+		memory.put(b3);
+		position += 4;
+	}
+
+	public void putUnsignedIntLE(long value) {
+		byte b0 = (byte) ((value & 0xff));
+		byte b1 = (byte) ((value >> 8 * 1) & 0xff);
+		byte b2 = (byte) ((value >> 8 * 2) & 0xff);
+		byte b3 = (byte) ((value >> 8 * 3));
+		memory.put(b0);
+		memory.put(b1);
+		memory.put(b2);
+		memory.put(b3);
+		position += 4;
+	}
+
+	public void putLong(long value) {
+		memory.putLong(value);
+		position += 8;
+	}
+
+	public void putLongLE(long value) {
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putLong(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 8;
 	}
 
 }

@@ -36,8 +36,6 @@ public class HttpServerStartup {
 
 		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
 		
-		logger.info("=================================================================");
-		
 		ApplicationContext applicationContext = new ApplicationContext(ac,base);
 		
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();

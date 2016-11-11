@@ -93,18 +93,17 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		ByteBuf buf = context.getByteBufAllocator().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
 		
-		int offset = buf.offset();
+		byte b2 = (byte) ((length & 0xff));
+		byte b1 = (byte) ((length >> 8*1) & 0xff);
+		byte b0 = (byte) ((length >> 8*2) & 0xff);
+		byte b3 = frameType.getByteValue();
 		
-		byte [] array = buf.array();
+		buf.putByte(b0);
+		buf.putByte(b1);
+		buf.putByte(b2);
+		buf.putByte(b3);
 		
-		array[offset + 2] = (byte) ((length & 0xff));
-		array[offset + 1] = (byte) ((length >> 8*1) & 0xff);
-		array[offset + 0] = (byte) ((length >> 8*2) & 0xff);
-		array[offset + 3] = frameType.getByteValue();
-		
-		MathUtil.int2Byte(array, frame.getStreamIdentifier(), 5);
-		
-		buf.position(9);
+		buf.putInt(frame.getStreamIdentifier());
 		
 		buf.put(payload);
 		

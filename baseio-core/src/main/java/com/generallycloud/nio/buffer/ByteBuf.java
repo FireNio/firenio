@@ -102,6 +102,26 @@ public interface ByteBuf extends Releasable {
 
 	public abstract void put(byte[] src, int offset, int length);
 
+	public abstract void putShort(short value);
+	
+	public abstract void putShortLE(short value);
+	
+	public abstract void putUnsignedShort(int value);
+	
+	public abstract void putUnsignedShortLE(int value);
+	
+	public abstract void putInt(int value);
+	
+	public abstract void putIntLE(int value);
+	
+	public abstract void putUnsignedInt(long value);
+	
+	public abstract void putUnsignedIntLE(long value);
+
+	public abstract void putLong(long value);
+	
+	public abstract void putLongLE(long value);
+	
 	public abstract int read(ByteBuf buf) throws IOException;
 
 	public abstract int read(ByteBuffer buffer) throws IOException;

@@ -36,20 +36,22 @@ public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2F
 	private void doHeaderComplete(Http2SocketSession session, ByteBuf buf) {
 
 		header_complete = true;
+		
+		buf.flip();
+		
+		byte b0 = buf.getByte();
+		byte b1 = buf.getByte();
+		byte b2 = buf.getByte();
 
-		byte[] array = buf.array();
+		this.length = ((b0 & 0xff) << 8 * 2) 
+				| ((b1 & 0xff) << 8 * 1)
+				| ((b2 & 0xff) << 8 * 0);
 
-		int offset = buf.offset();
+		this.type = buf.getUnsignedByte();
 
-		this.length = ((array[offset + 0] & 0xff) << 8 * 2) 
-				| ((array[offset + 1] & 0xff) << 8 * 1)
-				| ((array[offset + 2] & 0xff) << 8 * 0);
+		this.flags = buf.getByte();
 
-		this.type = array[offset + 3] & 0xff;
-
-		this.flags = array[offset + 4];
-
-		this.streamIdentifier = MathUtil.byte2Int31(array, offset + 5);
+		this.streamIdentifier = MathUtil.int2int31(buf.getInt());
 
 		session.setLastReadFrameHeader(this);
 

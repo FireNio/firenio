@@ -360,5 +360,12 @@ public class MathUtil {
 		bytes[offset + 0] = (byte) (value & 0xff);
 		bytes[offset + 1] = (byte) (value >> 8 * 1);
 	}
+	
+	public static int int2int31(int value){
+		if (value < 0) {
+			return value & 0x7FFFFFFF;
+		}
+		return value;
+	}
 
 }

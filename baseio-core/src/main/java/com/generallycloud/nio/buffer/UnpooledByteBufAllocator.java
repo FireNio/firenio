@@ -31,7 +31,7 @@ public class UnpooledByteBufAllocator {
 		}
 
 		public ByteBuf duplicate() {
-			return new UnpooledHeapByteBuf(array());
+			return new UnpooledHeapByteBuf(memory);
 		}
 	}
 
