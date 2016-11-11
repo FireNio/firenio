@@ -1,6 +1,7 @@
 package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
@@ -25,8 +26,12 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		this.selectableChannel.configureBlocking(false);
 		// 检索与此通道关联的服务器套接字
 		this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
-		// 进行服务的绑定
-		this.serverSocket.bind(socketAddress, 50);
+		try {
+			// 进行服务的绑定
+			this.serverSocket.bind(socketAddress, 50);
+		} catch (BindException e) {
+			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
+		}
 
 		ServerConfiguration configuration = context.getServerConfiguration();
 

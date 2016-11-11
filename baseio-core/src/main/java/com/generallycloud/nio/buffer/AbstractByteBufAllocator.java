@@ -100,10 +100,14 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 			ByteBuf buf = allocate(capacity, mask, this.capacity - size, size);
 
 			if (buf == null) {
-
-				return allocate(capacity, 0, mask - size, size);
+				
+				buf = allocate(capacity, 0, mask - size, size);
+				
+				if (buf == null) {
+					return UnpooledByteBufAllocator.allocate(capacity);
+				}
 			}
-
+			
 			return buf;
 
 		} finally {

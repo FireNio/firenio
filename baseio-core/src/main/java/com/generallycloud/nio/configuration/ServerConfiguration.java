@@ -167,7 +167,7 @@ public class ServerConfiguration {
 			double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
 					new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-			SERVER_IO_EVENT_QUEUE = (int) (MEMORY_POOL_SIZE * 4096);
+			SERVER_IO_EVENT_QUEUE = (int) (MEMORY_POOL_SIZE * 1024 * 4);
 		}
 	}
 
