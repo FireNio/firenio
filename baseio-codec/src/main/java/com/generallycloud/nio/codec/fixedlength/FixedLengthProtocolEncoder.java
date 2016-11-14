@@ -24,9 +24,7 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 			buffer.putInt(value);
 
-			buffer.flip();
-
-			return new ChannelWriteFutureImpl(future, buffer);
+			return new ChannelWriteFutureImpl(future, buffer.flip());
 		}
 		
 		FixedLengthReadFuture f = (FixedLengthReadFuture) future;

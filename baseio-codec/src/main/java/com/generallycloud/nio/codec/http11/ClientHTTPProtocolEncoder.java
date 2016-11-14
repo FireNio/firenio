@@ -53,15 +53,11 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 		h.append("\r\n");
 
-		ByteBuf buffer = context.getByteBufAllocator().allocate(h.length());
+		ByteBuf buf = context.getByteBufAllocator().allocate(h.length());
 
-		buffer.put(h.toString().getBytes(context.getEncoding()));
+		buf.put(h.toString().getBytes(context.getEncoding()));
 
-		buffer.flip();
-
-		ChannelWriteFutureImpl textWriteFuture = new ChannelWriteFutureImpl(readFuture, buffer);
-
-		return textWriteFuture;
+		return new ChannelWriteFutureImpl(readFuture, buf.flip());
 	}
 
 	private String getRequestURI(HttpReadFuture future) {

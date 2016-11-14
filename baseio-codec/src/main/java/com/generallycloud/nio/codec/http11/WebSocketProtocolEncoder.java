@@ -52,9 +52,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(data,0,size);
 		
-		buf.flip();
-
-		return new ChannelWriteFutureImpl(readFuture, buf);
+		return new ChannelWriteFutureImpl(readFuture, buf.flip());
 	}
 	
 //	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

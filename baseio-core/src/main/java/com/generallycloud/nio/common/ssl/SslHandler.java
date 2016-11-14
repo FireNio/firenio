@@ -151,11 +151,11 @@ public class SslHandler {
 //				logger.debug("_________________________,{}" , handshakeStatus.name());
 
 				if (bytesConsumed > 0) {
-					packet.position(packet.position() + bytesConsumed);
+					packet.skipBytes(bytesConsumed);
 				}
 
 				if (bytesProduced > 0) {
-					buf.position(buf.position() + bytesProduced);
+					buf.skipBytes(bytesProduced);
 				}
 
 				switch (handshakeStatus) {

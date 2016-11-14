@@ -1,11 +1,18 @@
 package com.generallycloud.nio.buffer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.AbstractLifeCycle;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 
+//FIXME 考虑每个selector持有一个allocator，失败时从下一个selector获取
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
 	protected ByteBufUnit[]	memoryUnits;
@@ -17,6 +24,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	protected int			unitMemorySize;
 
 	protected int			mask;
+	
+	private Logger logger = LoggerFactory.getLogger(AbstractByteBufAllocator.class);
 
 	public AbstractByteBufAllocator(int capacity) {
 		this(capacity, 1024);
@@ -35,9 +44,9 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		return capacity;
 	}
 	
-	public void release(ByteBuf memoryBlock) {
+	public void release(ByteBuf buf) {
 
-		AbstractByteBuf block = (AbstractByteBuf) memoryBlock;
+		AbstractByteBuf _buf = (AbstractByteBuf) buf;
 
 		ReentrantLock lock = this.lock;
 
@@ -47,16 +56,18 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 			// logger.info("release : {}",memoryBlock.capacity());
 
-			ByteBufUnit memoryStart = block.memoryStart;
-			ByteBufUnit memoryEnd = block.memoryEnd;
+			ByteBufUnit memoryStart = _buf.memoryStart;
+			ByteBufUnit memoryEnd = _buf.memoryEnd;
 
 			// logger.debug("setFree,start={},end={}", memoryStart.index,
 			// memoryEnd.index );
 			// new Exception().printStackTrace();
 
 			memoryStart.free = true;
-			memoryStart.blockEnd = -1;
+//			memoryStart.blockEnd = -1;//FIXME 考虑不去重置
 			memoryEnd.free = true;
+			
+			busyBuf.remove(buf);
 
 		} finally {
 			lock.unlock();
@@ -107,6 +118,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 					return UnpooledByteBufAllocator.allocate(capacity);
 				}
 			}
+			
+			busyBuf.put(buf, new RuntimeException(String.valueOf(capacity)));
 			
 			return buf;
 
@@ -172,6 +185,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	protected abstract AbstractByteBuf newByteBuf();
 
 	private List<ByteBufUnit>	busyUnit	= new ArrayList<ByteBufUnit>();
+	
+	private Map<ByteBuf, Exception> busyBuf = new HashMap<ByteBuf, Exception>();
 
 	public String toString() {
 
@@ -197,8 +212,38 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		b.append(",memory=");
 		b.append(capacity);
 		b.append("]");
+		
+		printBusy();
 
 		return b.toString();
 	}
+	
+	private void printBusy(){
+		
+		if (busyBuf.size() == 0) {
+			
+			return;
+		}
+		
+		ReentrantLock lock = this.lock;
+		
+		lock.lock();
+		
+		try{
 
+			Set<Entry<ByteBuf, Exception>> es = busyBuf.entrySet();
+			
+			for(Entry<ByteBuf, Exception> e :es){
+				
+				Exception ex = e.getValue();
+				
+				logger.error(ex.getMessage(),ex);
+			}
+			
+		}finally{
+			
+			lock.unlock();
+		}
+		
+	}
 }

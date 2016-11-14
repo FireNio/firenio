@@ -107,8 +107,6 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(payload);
 		
-		buf.flip();
-		
-		return new ChannelWriteFutureImpl(future, buf);
+		return new ChannelWriteFutureImpl(future, buf.flip());
 	}
 }

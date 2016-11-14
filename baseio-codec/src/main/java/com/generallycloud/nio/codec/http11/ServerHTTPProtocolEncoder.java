@@ -107,9 +107,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 			buf.put(text_array, 0, length);
 		}
 		
-		buf.flip();
-
-		return new ChannelWriteFutureImpl(readFuture, buf);
+		return new ChannelWriteFutureImpl(readFuture, buf.flip());
 	}
 
 }

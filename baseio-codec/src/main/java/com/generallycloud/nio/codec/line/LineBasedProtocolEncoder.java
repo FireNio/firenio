@@ -35,9 +35,7 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 		buf.putByte(lineBase);
 
-		buf.flip();
-
-		return new ChannelWriteFutureImpl(future, buf);
+		return new ChannelWriteFutureImpl(future, buf.flip());
 	}
 
 }

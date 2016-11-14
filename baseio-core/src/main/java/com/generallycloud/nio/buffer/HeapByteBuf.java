@@ -67,7 +67,6 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	public void put(byte[] src, int offset, int length) {
 		System.arraycopy(src, offset, memory, ix(position), length);
-		;
 		this.position += length;
 	}
 

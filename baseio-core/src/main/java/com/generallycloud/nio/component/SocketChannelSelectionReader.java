@@ -48,11 +48,9 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 			return;
 		}
 
-		buf.flip();
-
 		channel.active();
 
-		byteBufReader.accept(channel, buf);
+		byteBufReader.accept(channel, buf.flip());
 
 	}
 
