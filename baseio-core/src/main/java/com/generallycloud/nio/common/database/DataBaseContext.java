@@ -79,12 +79,12 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 	public void registBean(String className) throws ClassNotFoundException {
 
-		Class clazz = ClassUtil.forName(className);
+		Class<?> clazz = ClassUtil.forName(className);
 		
 		this.fieldMappings.put(className, new FieldMapping(clazz));
 	}
 	
-	public void registBean(Class clazz){
+	public void registBean(Class<?> clazz){
 		if (clazz == null) {
 			return;
 		}

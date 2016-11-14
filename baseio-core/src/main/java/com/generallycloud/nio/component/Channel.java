@@ -8,6 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 //FIXME 扩展更多Channel
 public interface Channel extends Closeable{
+	
+	public abstract void active();
+
+	public abstract long getCreationTime();
+
+	public abstract long getLastAccessTime();
 
 	public abstract String getLocalAddr();
 

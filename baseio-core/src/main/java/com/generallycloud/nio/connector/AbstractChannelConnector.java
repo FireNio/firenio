@@ -30,6 +30,10 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	protected abstract EventLoopThread getSelectorLoopThread();
 
 	public void close() throws IOException {
+		if (session == null) {
+			physicalClose();
+			return;
+		}
 		CloseUtil.close(session);
 	}
 	

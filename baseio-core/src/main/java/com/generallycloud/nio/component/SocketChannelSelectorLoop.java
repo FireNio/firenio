@@ -75,14 +75,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
 		
-		if (context.isEnableSSL()) {
-			
-			return new SslSocketChannelSelectionReader(context);
-			
-		} else {
-			
-			return new SocketChannelSelectionReader(context);
-		}
+		return new SocketChannelSelectionReader(context);
 	}
 	
 }

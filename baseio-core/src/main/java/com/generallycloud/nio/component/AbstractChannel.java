@@ -14,10 +14,14 @@ public abstract class AbstractChannel implements Channel {
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
+	protected long				lastAccess;
+	protected long				creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 
 	public AbstractChannel(BaseContext context) {
 		this.context = context;
+		// 这里认为在第一次Idle之前，连接都是畅通的
+		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
 
@@ -103,24 +107,18 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	public String toString() {
-		
+
 		if (edp_description == null) {
-			edp_description = new StringBuilder("[")
-			.append(getMarkPrefix())
-			.append("(id:")
-			.append(getIdHexString(channelID))
-			.append(") remote /")
-			.append(this.getRemoteAddr())
-			.append(":")
-			.append(this.getRemotePort())
-			.append("]").toString();
+			edp_description = new StringBuilder("[").append(getMarkPrefix()).append("(id:")
+					.append(getIdHexString(channelID)).append(") remote /").append(this.getRemoteAddr())
+					.append(":").append(this.getRemotePort()).append("]").toString();
 		}
-		
+
 		return edp_description;
 	}
-	
+
 	private String getIdHexString(Integer channelID) {
-		
+
 		String id = Long.toHexString(channelID);
 
 		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
@@ -128,6 +126,18 @@ public abstract class AbstractChannel implements Channel {
 
 	public ReentrantLock getChannelLock() {
 		return channelLock;
+	}
+
+	public void active() {
+		this.lastAccess = System.currentTimeMillis();
+	}
+
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	public long getLastAccessTime() {
+		return lastAccess;
 	}
 
 }

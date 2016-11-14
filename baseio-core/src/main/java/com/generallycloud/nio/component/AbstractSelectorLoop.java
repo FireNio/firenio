@@ -56,22 +56,19 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			if (selected < 1) {
 				
-				long now_select = System.currentTimeMillis();
+				long past = System.currentTimeMillis() - last_select;
 				
-				//FIXME < 0
-				if(now_select - last_select < 64){
+				if (past < 64) {
 					
-					if (shutdown) {
-						
+					if (shutdown || past < 0) {
 						working = false;
-
 						return;
 					}
 					
-					//JDK bug fired
-					IOException e = new IOException("JDK bug fired");
+					//JDK bug fired ?
+					IOException e = new IOException("JDK bug fired ?");
 					logger.error(e.getMessage(),e);
-					logger.debug("last={},now={}",last_select,now_select);
+					logger.debug("last={},past={}",last_select,past);
 					this.selector = rebuildSelector();
 				}
 				
@@ -114,7 +111,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		
 		Selector old = this.selector;
 		
-		Set<SelectionKey> sks = old.selectedKeys();
+		Set<SelectionKey> sks = old.keys();
 		
 		if (sks.size() == 0) {
 			logger.debug("sk size 0");

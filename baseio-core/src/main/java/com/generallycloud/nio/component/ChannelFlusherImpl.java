@@ -15,13 +15,11 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 	private Map<Integer, SocketChannel>		sleepChannels	= new HashMap<Integer, SocketChannel>();
 
 	private BufferedArrayList<SocketChannel>	channels		= new BufferedArrayList<SocketChannel>();
-	
-//	private ListQueue<SocketChannel>	channels		= new ListQueueABQ<SocketChannel>(9999);
 
 	private ReentrantList<ChannelFlusherEvent>	events		= new ReentrantList<ChannelFlusherEvent>();
 
 	private BaseContext						context		= null;
-	
+
 	public ChannelFlusherImpl(BaseContext context) {
 		this.context = context;
 	}
@@ -35,56 +33,13 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 			fireEvents(events);
 		}
 
-//		doLoop(channels.poll(16));
-		
+		// doLoop(channels.poll(16));
+
 		doLoop(channels);
 	}
-	
-	private void doLoop(SocketChannel ch){
-		
-		if (ch == null) {
-			return;
-		}
-		
-		if (!ch.isOpened()) {
-			return;
-		}
 
-		boolean flush;
+	private void doLoop(BufferedArrayList<SocketChannel> channels) {
 
-		try {
-
-			flush = ch.flush();
-
-		} catch (IOException e) {
-
-			CloseUtil.close(ch);
-
-			return;
-		}
-
-		if (!flush) {
-
-			if (ch.isNetworkWeak()) {
-
-				sleepChannels.put(ch.getChannelID(), ch);
-
-				return;
-			}
-
-			channels.offer(ch);
-
-			return;
-		}
-
-		if (ch.getWriteFutureSize() > 0) {
-			channels.offer(ch);
-		}
-		
-	}
-	
-	private void doLoop(BufferedArrayList<SocketChannel>	channels){
-		
 		List<SocketChannel> chs = channels.getBuffer();
 
 		if (chs.size() == 0) {
@@ -98,7 +53,7 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 			if (ch == null) {
 				System.out.println(chs.size());
 			}
-			
+
 			if (!ch.isOpened()) {
 				continue;
 			}
@@ -130,20 +85,9 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 				continue;
 			}
 
-//			ReentrantLock lock = ch.getChannelLock();
-//			
-//			lock.lock();
-//			
-//			try{
-				
 			if (ch.needFlush()) {
 				channels.offer(ch);
 			}
-				
-//			}finally{
-//				
-//				lock.unlock();
-//			}
 		}
 	}
 
@@ -161,10 +105,10 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 		for (; channels.getBufferSize() > 0;) {
 			ThreadUtil.sleep(8);
 		}
-		
-//		for (; channels.size() > 0;) {
-//			ThreadUtil.sleep(8);
-//		}
+
+		// for (; channels.size() > 0;) {
+		// ThreadUtil.sleep(8);
+		// }
 	}
 
 	public void fire(ChannelFlusherEvent event) {
@@ -172,18 +116,18 @@ public class ChannelFlusherImpl implements ChannelFlusher {
 	}
 
 	public void offer(SocketChannel channel) {
-//		channels.offer(channel);
+		// channels.offer(channel);
 		channels.offer(channel);
 	}
 
 	public void wekeupSocketChannel(SocketChannel channel) {
 		sleepChannels.remove(channel.getChannelID());
-//		channels.offer(channel);
+		// channels.offer(channel);
 		channels.offer(channel);
 	}
-	
+
 	public void startup() throws Exception {
-		
+
 	}
 
 	public String toString() {

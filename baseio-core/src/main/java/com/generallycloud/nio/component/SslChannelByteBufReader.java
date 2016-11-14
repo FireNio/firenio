@@ -7,14 +7,16 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.protocol.SslReadFuture;
 import com.generallycloud.nio.protocol.SslReadFutureImpl;
 
-public class SslSocketChannelSelectionReader extends SocketChannelSelectionReader{
+public class SslChannelByteBufReader extends TransparentByteBufReader{
 
-	public SslSocketChannelSelectionReader(BaseContext context) {
+	public SslChannelByteBufReader(BaseContext context) {
 		super(context);
 	}
-	
-	protected void accept(SocketChannel channel,UnsafeSession session, ByteBuf buffer) throws Exception {
-		
+
+	public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
+
+		UnsafeSession session = channel.getSession();
+
 		for (;;) {
 
 			if (!buffer.hasRemaining()) {
@@ -63,7 +65,7 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 
 			try {
 
-				super.accept(channel, session, produce);
+				super.accept(channel, produce);
 
 			} finally {
 
@@ -71,4 +73,5 @@ public class SslSocketChannelSelectionReader extends SocketChannelSelectionReade
 			}
 		}
 	}
+	
 }

@@ -3,6 +3,8 @@ package com.generallycloud.nio.common.cmd;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import com.generallycloud.nio.common.CloseUtil;
+
 public abstract class Command {
 
 	private boolean					CONTINUE	= true;
@@ -34,6 +36,8 @@ public abstract class Command {
 			Scanner scanner = new Scanner(System.in);
 
 			String content = scanner.nextLine();
+			
+			CloseUtil.close(scanner);
 
 			CmdRequest request = parse(context,content);
 

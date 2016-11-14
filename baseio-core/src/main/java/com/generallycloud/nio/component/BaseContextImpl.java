@@ -45,6 +45,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
+	private ChannelByteBufReader			channelByteBufReader;
 	private SessionFactory				sessionFactory;
 	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
 	private long						startupTime	= System.currentTimeMillis();
@@ -146,6 +147,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.byteBufAllocator = new HeapByteBufAllocator(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
 
 		this.addSessionEventListener(new ManagerSEListener());
+		
+		if (enableSSL) {
+			this.channelByteBufReader = new SslChannelByteBufReader(this);
+		}else{
+			this.channelByteBufReader = new TransparentByteBufReader(this);
+		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -338,6 +345,10 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	public ChannelByteBufReader getChannelByteBufReader() {
+		return channelByteBufReader;
 	}
 
 }

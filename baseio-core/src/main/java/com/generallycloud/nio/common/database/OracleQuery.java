@@ -31,9 +31,10 @@ public class OracleQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@SuppressWarnings({"serial" })
 	void setSys_fields() {
-		sys_fields = new HashMap() {
-			private final int temp = 0;
+		sys_fields = new HashMap<String,String>() {
+			private final String temp = "";
 			{
 				put("ALL", temp);
 				put("ALTER", temp);

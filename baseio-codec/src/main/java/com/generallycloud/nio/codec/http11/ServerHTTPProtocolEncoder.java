@@ -99,19 +99,17 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuf buffer = context.getByteBufAllocator().allocate(h.length() + length);
+		ByteBuf buf = context.getByteBufAllocator().allocate(h.length() + length);
 		
-		buffer.put(h.toString().getBytes(context.getEncoding()));
+		buf.put(h.toString().getBytes(context.getEncoding()));
 		
 		if (length != 0) {
-			buffer.put(text_array, 0, length);
+			buf.put(text_array, 0, length);
 		}
 		
-		buffer.flip();
+		buf.flip();
 
-		ChannelWriteFutureImpl textWriteFuture = new ChannelWriteFutureImpl(readFuture, buffer);
-
-		return textWriteFuture;
+		return new ChannelWriteFutureImpl(readFuture, buf);
 	}
 
 }

@@ -24,26 +24,22 @@ public abstract class SessionImpl implements Session {
 	protected Object					attachment;
 	protected Object[]					attachments;
 	protected BaseContext				context;
-	protected long					lastAccess;
 	protected Integer					sessionID;
 	protected EventLoop				eventLoop;
 	protected SocketChannel				socketChannel;
 	protected DatagramChannel			datagramChannel;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
-	protected long					creationTime	= System.currentTimeMillis();
 
 	public SessionImpl(SocketChannel channel, Integer sessionID) {
 		this.context = channel.getContext();
 		this.socketChannel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
-		// 这里认为在第一次Idle之前，连接都是畅通的
-		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 
 	public void active() {
-		this.lastAccess = System.currentTimeMillis();
+		socketChannel.active();
 	}
 
 	public void clearAttributes() {
@@ -119,7 +115,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getCreationTime() {
-		return this.creationTime;
+		return socketChannel.getCreationTime();
 	}
 
 	public DatagramChannel getDatagramChannel() {
@@ -135,7 +131,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getLastAccessTime() {
-		return lastAccess;
+		return socketChannel.getLastAccessTime();
 	}
 
 	public String getLocalAddr() {

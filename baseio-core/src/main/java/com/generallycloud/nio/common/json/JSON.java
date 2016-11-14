@@ -253,7 +253,7 @@ public class JSON {
 		if (lexer.current() != JSONToken.ARRAY_START) {
 			throw new JSONSyntaxException("except token [ at index 0");
 		}
-		List list = parseArray(lexer);
+		List<?> list = parseArray(lexer);
 		if (!lexer.complate()) {
 			throw new JSONSyntaxException("EOF");
 		}

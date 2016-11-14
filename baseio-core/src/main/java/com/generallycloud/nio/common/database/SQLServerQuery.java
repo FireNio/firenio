@@ -16,6 +16,7 @@ public class SQLServerQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@SuppressWarnings("serial")
 	void setSys_fields() {
 		sys_fields = new HashMap<String, String>() {
 			{

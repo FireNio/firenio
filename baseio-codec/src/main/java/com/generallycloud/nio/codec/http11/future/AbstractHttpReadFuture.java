@@ -299,8 +299,6 @@ public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture impl
 				return false;
 			}
 
-			setSilent(false);
-
 			parseHeader(headerLines);
 
 			doAfterParseHeader();

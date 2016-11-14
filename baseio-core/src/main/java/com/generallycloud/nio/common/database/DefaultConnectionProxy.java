@@ -177,6 +177,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return count;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List<T> fillData(DataBaseContext context, ResultSet resultSet, Class clazz) throws SQLException {
 		if (clazz == null) {
 			return resultSetHandle.fillData(context, resultSet);

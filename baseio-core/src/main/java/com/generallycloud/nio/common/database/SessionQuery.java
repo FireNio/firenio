@@ -33,7 +33,7 @@ public class SessionQuery extends DefaultConnectionProxy {
 		return query(sql, params);
 	}
 
-	public List<?> top(String sql, Object[] params, Class clazz,int limit) throws SQLException {
+	public <T> List<T> top(String sql, Object[] params, Class<T> clazz,int limit) throws SQLException {
 		sql = dataBaseQuery.getTopSQL(sql);
 		
 		params = queryParamUtil.top(limit, params);
@@ -50,7 +50,7 @@ public class SessionQuery extends DefaultConnectionProxy {
 		return query(sql, params);
 	}
 
-	public List<?> page(String sql, Object[] params, Class clazz,int offset, int size) throws SQLException {
+	public <T> List<T> page(String sql, Object[] params, Class<T> clazz,int offset, int size) throws SQLException {
 		sql = dataBaseQuery.getPagingSQL(sql);
 		
 		params = queryParamUtil.page(offset, size, params);
