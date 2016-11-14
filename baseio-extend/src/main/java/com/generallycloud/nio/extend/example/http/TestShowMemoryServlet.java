@@ -62,7 +62,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		builder.append("		</div>\n");
 		builder.append("		<hr>\n");
 
-		builder.append("<p>");
+		builder.append("<p style=\"color: #FDA58C\">");
 		builder.append("	Powered by baseio@");
 		builder.append("	<a style=\"color:#F94F4F;\" href=\"https://github.com/generallycloud/baseio#readme\">");
 		builder.append("		https://github.com/generallycloud/baseio");

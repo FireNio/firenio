@@ -29,7 +29,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  *  B6  - B9 	: session id
  *  B10 - B13 	: hash    code
  *  B14 - B15 	：text          length
- *  B16 - B19 	：binary        length
+ *  B16 - B19 	：binary        length //FIXME 是否应该设置为两字节？
  * 
  * </pre>
  */
