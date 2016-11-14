@@ -19,8 +19,8 @@ public class BaseServerLoadStartup {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture)future;
-				String res = "yes server already accept your message" + f.getText();
-				future.write(res);
+				String res = "yes server already accept your message" + f.getReadText();
+				f.write(res);
 				session.flush(future);
 			}
 		};

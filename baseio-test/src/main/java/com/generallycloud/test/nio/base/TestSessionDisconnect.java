@@ -31,13 +31,13 @@ public class TestSessionDisconnect {
 		session.login("admin", "admin100");
 
 		BaseReadFuture future = session.request(serviceName, param);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 
 		session.listen(serviceName, new OnReadFuture() {
 			public void onResponse(Session session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println(f.getText());
+				System.out.println(f.getWriteText());
 			}
 		});
 

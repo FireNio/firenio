@@ -24,7 +24,7 @@ public class TestException {
 		connector.connect();
 
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 		
 		CloseUtil.close(connector);
 	}

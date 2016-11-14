@@ -20,8 +20,8 @@ public class TestLineBasedServer {
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
 				LineBasedReadFuture f = (LineBasedReadFuture) future;
-				String res = "yes server already accept your message:" + f.getText();
-				future.write(res);
+				String res = "yes server already accept your message:" + f.getReadText();
+				f.write(res);
 				session.flush(future);
 			}
 		};

@@ -3,9 +3,9 @@ package com.generallycloud.nio.codec.fixedlength;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.MathUtil;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -20,35 +20,35 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 			int value = future.isPING() ? FixedLengthProtocolDecoder.PROTOCOL_PING
 					: FixedLengthProtocolDecoder.PROTOCOL_PONG;
 
-			byte[] array = new byte[4];
-
-			MathUtil.int2Byte(array, value, 0);
-
 			ByteBuf buffer = context.getByteBufAllocator().allocate(4);
 
-			buffer.put(array);
+			buffer.putInt(value);
 
 			buffer.flip();
 
 			return new ChannelWriteFutureImpl(future, buffer);
 		}
+		
+		FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 
-		BufferedOutputStream outputStream = future.getWriteBuffer();
+		String write_text = f.getWriteText();
+		
+		if (StringUtil.isNullOrBlank(write_text)) {
+			throw new IOException("null write text");
+		}
+		
+		byte [] text_array = write_text.getBytes(context.getEncoding());
 
-		int size = outputStream.size();
+		int size = text_array.length;
 
-		ByteBuf buffer = context.getByteBufAllocator().allocate(size + 4);
+		ByteBuf buf = context.getByteBufAllocator().allocate(size + 4);
 
-		byte[] size_array = new byte[4];
+		buf.putInt(size);
 
-		MathUtil.int2Byte(size_array, size, 0);
+		buf.put(text_array, 0, size);
 
-		buffer.put(size_array);
+		buf.flip();
 
-		buffer.put(outputStream.array(), 0, size);
-
-		buffer.flip();
-
-		return new ChannelWriteFutureImpl(future, buffer);
+		return new ChannelWriteFutureImpl(future, buf);
 	}
 }

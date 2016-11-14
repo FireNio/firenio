@@ -26,7 +26,7 @@ public class Test404 {
 
 		BaseReadFuture future = session.request(serviceKey, null);
 
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 
 		CloseUtil.close(connector);
 	}

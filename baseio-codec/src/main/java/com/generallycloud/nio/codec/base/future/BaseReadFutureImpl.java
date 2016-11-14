@@ -22,8 +22,9 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
  */
 public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements BaseReadFuture {
 
-	private byte[]			binary;
+	private byte[]				binary;
 	private int				binaryLength;
+	private int				binaryLimit;
 	private boolean			body_complete;
 	private ByteBuf			buf;
 	private Integer			futureID;
@@ -31,40 +32,42 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	private int				hashCode;
 	private boolean			header_complete;
 	private Parameters			parameters;
+	protected String			readText;
 	private int				service_name_length;
-	private String				text;
 	private int				textLength;
 	private boolean			translated;
-	private int 				binaryLimit;
+
 	private BufferedOutputStream	writeBinaryBuffer;
+
+	protected StringBuilder		writeTextBuffer	= new StringBuilder();
 
 	// for ping & pong
 	public BaseReadFutureImpl(BaseContext context) {
 		super(context);
 	}
 
-	public BaseReadFutureImpl(BaseContext context,Integer futureID, String futureName) {
+	public BaseReadFutureImpl(BaseContext context, Integer futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
+	public BaseReadFutureImpl(BaseContext context, String futureName) {
+		super(context);
+		this.futureName = futureName;
+	}
+
 	public BaseReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
 		this(session, buf, 1024 * 1024 * 2);
 	}
-	
-	public BaseReadFutureImpl(SocketSession session, ByteBuf buf,int binaryLimit) throws IOException {
+
+	public BaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;
 	}
 
-	public BaseReadFutureImpl(BaseContext context,String futureName) {
-		super(context);
-		this.futureName = futureName;
-	}
-
-	private void doBodyComplete(Session session,ByteBuf buf) {
+	private void doBodyComplete(Session session, ByteBuf buf) {
 
 		body_complete = true;
 
@@ -82,32 +85,32 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 		memory.limit(memory.position() + textLength);
 
-		text = StringUtil.decode(charset, memory);
-		
+		readText = StringUtil.decode(charset, memory);
+
 		this.gainBinary(buf, offset);
 	}
 
-	private void doHeaderComplete(Session session,ByteBuf buf) throws IOException {
+	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
 
 		header_complete = true;
 
 		this.service_name_length = buf.getUnsignedByte();
 
 		this.futureID = buf.getInt();
-		
+
 		this.sessionID = buf.getInt();
-		
+
 		this.hashCode = buf.getInt();
-		
+
 		this.textLength = buf.getUnsignedShort();
-		
+
 		this.binaryLength = buf.getInt();
-		
+
 		if (binaryLength > binaryLimit) {
-			
-			throw new IOException("max length "+binaryLimit+",length=" + binaryLength);
+
+			throw new IOException("max length " + binaryLimit + ",length=" + binaryLength);
 		}
-		
+
 		int all_length = service_name_length + textLength + binaryLength;
 
 		if (buf.capacity() >= all_length) {
@@ -127,14 +130,14 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		if (binaryLength < 1) {
 			return;
 		}
-		
+
 		buf.skipBytes(service_name_length + textLength);
 
 		binary = new byte[binaryLength];
-		
+
 		buf.get(binary);
 	}
-	
+
 	public byte[] getBinary() {
 		return binary;
 	}
@@ -165,8 +168,12 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return parameters;
 	}
 
+	public String getReadText() {
+		return readText;
+	}
+
 	public String getText() {
-		return text;
+		return readText;
 	}
 
 	public int getTextLength() {
@@ -175,6 +182,14 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 	public BufferedOutputStream getWriteBinaryBuffer() {
 		return writeBinaryBuffer;
+	}
+
+	public String getWriteText() {
+		return writeTextBuffer.toString();
+	}
+
+	public StringBuilder getWriteTextBuffer() {
+		return writeTextBuffer;
 	}
 
 	public boolean hasBinary() {
@@ -189,7 +204,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
-	public boolean read(SocketSession session,ByteBuf buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 
@@ -201,7 +216,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 				return false;
 			}
 
-			doHeaderComplete(session,buf);
+			doHeaderComplete(session, buf);
 		}
 
 		if (!body_complete) {
@@ -212,7 +227,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 				return false;
 			}
 
-			doBodyComplete(session,buf);
+			doBodyComplete(session, buf);
 		}
 
 		return true;
@@ -238,11 +253,35 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 		if (!translated) {
 			translated = true;
-			this.write(text);
+			this.write(readText);
 			this.writeBinary(binary);
 		}
 
 		return context.getProtocolEncoder().encode(context, this);
+	}
+
+	public void write(boolean b) {
+		writeTextBuffer.append(b);
+	}
+
+	public void write(char c) {
+		writeTextBuffer.append(c);
+	}
+
+	public void write(double d) {
+		writeTextBuffer.append(d);
+	}
+
+	public void write(int i) {
+		writeTextBuffer.append(i);
+	}
+
+	public void write(long l) {
+		writeTextBuffer.append(l);
+	}
+
+	public void write(String text) {
+		writeTextBuffer.append(text);
 	}
 
 	public void writeBinary(byte b) {

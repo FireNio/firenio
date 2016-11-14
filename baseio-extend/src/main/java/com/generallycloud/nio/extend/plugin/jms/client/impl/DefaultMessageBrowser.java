@@ -49,7 +49,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		} catch (IOException e) {
 			throw new MQException(e.getMessage(), e);
 		}
-		return Integer.parseInt(future.getText());
+		return Integer.parseInt(future.getReadText());
 	}
 
 	public boolean isOnline(String queueName) throws MQException {
@@ -65,6 +65,6 @@ public class DefaultMessageBrowser implements MessageBrowser {
 			throw new MQException(e.getMessage(), e);
 		}
 
-		return ByteUtil.isTrue(future.getText());
+		return ByteUtil.isTrue(future.getReadText());
 	}
 }

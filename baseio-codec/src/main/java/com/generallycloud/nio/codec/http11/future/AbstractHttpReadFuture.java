@@ -16,8 +16,9 @@ import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractTextReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
@@ -28,7 +29,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implements HttpReadFuture {
+public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture implements HttpReadFuture {
 
 	protected static final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
 	protected static final KMPUtil	KMP_BOUNDARY		= new KMPUtil("boundary=");
@@ -58,6 +59,7 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 	protected HttpStatus			status			= HttpStatus.C200;
 	protected List<String>			headerLines		= new ArrayList<String>();
 	protected StringBuilder			currentHeaderLine	= new StringBuilder();
+	protected BufferedOutputStream	binaryBuffer;
 
 	public AbstractHttpReadFuture(BaseContext context) {
 		super(context);
@@ -487,6 +489,18 @@ public abstract class AbstractHttpReadFuture extends AbstractIOReadFuture implem
 			String value = unitArray[1];
 			params.put(key, value);
 		}
+	}
+
+	public void writeBinary(byte[] binary) {
+		if (binaryBuffer == null) {
+			binaryBuffer = new BufferedOutputStream(binary);
+			return;
+		}
+		binaryBuffer.write(binary);
+	}
+
+	public BufferedOutputStream getBinaryBuffer() {
+		return binaryBuffer;
 	}
 
 }

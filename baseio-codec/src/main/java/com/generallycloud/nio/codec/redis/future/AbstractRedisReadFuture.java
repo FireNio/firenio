@@ -1,6 +1,7 @@
 package com.generallycloud.nio.codec.redis.future;
 
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.AbstractIOReadFuture;
 
 public abstract class AbstractRedisReadFuture extends AbstractIOReadFuture implements RedisReadFuture{
@@ -8,6 +9,8 @@ public abstract class AbstractRedisReadFuture extends AbstractIOReadFuture imple
 	protected AbstractRedisReadFuture(BaseContext context) {
 		super(context);
 	}
+	
+	private BufferedOutputStream outputStream = new BufferedOutputStream();
 
 	public void writeCommand(byte[] command, byte[]... args) {
 
@@ -27,6 +30,18 @@ public abstract class AbstractRedisReadFuture extends AbstractIOReadFuture imple
 			this.write(arg);
 			this.write(RedisReadFuture.CRLF_BYTES);
 		}
+	}
+
+	private void write(byte[] bytes) {
+		outputStream.write(bytes);
+	}
+
+	private void write(String value) {
+		outputStream.write(value.getBytes());
+	}
+
+	private void write(byte b) {
+		outputStream.write(b);
 	}
 	
 }

@@ -3,6 +3,7 @@ package com.generallycloud.test.nio.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
@@ -28,7 +29,7 @@ public class TestLoadClient1 extends ITestThread {
 		Session session = connector.getSession();
 
 		for (int i = 0; i < time1; i++) {
-			ReadFuture future = ReadFutureFactory.create(session, "test", session.getContext()
+			BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext()
 					.getIOEventHandleAdaptor());
 			future.write("hello server !");
 			try {

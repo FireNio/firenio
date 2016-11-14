@@ -1,12 +1,13 @@
 package com.generallycloud.nio.common;
 
+//FIXME char util ?
 public class ByteUtil {
 	
 	
-	public static byte			FALSE		= 'F';
-	public static byte			TRUE			= 'T';
+	public static char			FALSE		= 'F';
+	public static char			TRUE			= 'T';
 	
-	public static byte getByte(boolean bool){
+	public static char getByte(boolean bool){
 		return bool ? TRUE :FALSE;
 	}
 

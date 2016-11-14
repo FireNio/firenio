@@ -58,7 +58,7 @@ public class ProtobufReadFutureImpl extends BaseReadFutureImpl implements Protob
 			throw new InvalidProtocolBufferException("writed");
 		}
 
-		super.write(parserName.getBytes(context.getEncoding()));
+		super.write(parserName);
 
 		//FIXME 判断array是否过大
 		byte [] array = messageLite.toByteArray();

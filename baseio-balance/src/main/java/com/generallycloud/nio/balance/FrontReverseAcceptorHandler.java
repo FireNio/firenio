@@ -10,11 +10,10 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -121,14 +120,10 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
 		
-		BufferedOutputStream os = future.getWriteBuffer();
+		String msg = future.toString();
 		
-		String msg;
-		
-		if (os.size() > 120) {
-			msg = new String(os.array(),0,120);
-		}else{
-			msg = os.toString(session.getEncoding());
+		if (msg.length() > 100) {
+			msg = msg.substring(0,100);
 		}
 		
 		logger.error("exceptionCaught,msg="+msg,cause);

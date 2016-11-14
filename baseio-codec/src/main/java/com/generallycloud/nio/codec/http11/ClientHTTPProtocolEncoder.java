@@ -15,7 +15,7 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
-//FIXME jinji
+//FIXME post
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {

@@ -19,7 +19,7 @@ public class TestSimpleServlet extends BaseFutureAcceptorService{
 
 //		accept.getAndIncrement();
 		
-		String test = future.getText();
+		String test = future.getReadText();
 
 		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";

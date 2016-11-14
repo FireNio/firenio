@@ -1,6 +1,7 @@
 package com.generallycloud.test.nio.load;
 
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -32,7 +33,7 @@ public class TestSimpleClient {
 
 		Session session = connector.getSession();
 
-		ReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIOEventHandleAdaptor());
+		BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIOEventHandleAdaptor());
 
 		future.write("hello server !");
 

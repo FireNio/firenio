@@ -1,7 +1,6 @@
 package com.generallycloud.nio.codec.fixedlength.future;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
@@ -9,14 +8,12 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractTextReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements FixedLengthReadFuture {
+public class FixedLengthReadFutureImpl extends AbstractTextReadFuture implements FixedLengthReadFuture {
 
 	private ByteBuf	buf;
-
-	private String		text;
 
 	private int		length;
 
@@ -119,6 +116,7 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		return true;
 	}
 
+	//FIXME decode
 	private void doBodyComplete(ByteBuf buf) {
 
 		body_complete = true;
@@ -128,24 +126,12 @@ public class FixedLengthReadFutureImpl extends AbstractIOReadFuture implements F
 		buf.flip();
 
 		buf.get(byteArray);
+		
+		readText = new String(byteArray, context.getEncoding());
 	}
 
 	public String getFutureName() {
 		return null;
-	}
-
-	public String getText() {
-
-		return getText(context.getEncoding());
-	}
-
-	public String getText(Charset encoding) {
-
-		if (text == null) {
-			text = new String(byteArray, encoding);
-		}
-
-		return text;
 	}
 
 	public int getLength() {

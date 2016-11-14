@@ -21,15 +21,15 @@ public class TestFrontLoad {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
-				BaseReadFuture readFuture = (BaseReadFuture)future;
+				BaseReadFuture f = (BaseReadFuture)future;
 				
-				if (FrontContext.FRONT_CHANNEL_LOST.equals(readFuture.getFutureName())) {
-					System.out.println("客户端已下线：" + readFuture.getText());
+				if (FrontContext.FRONT_CHANNEL_LOST.equals(f.getFutureName())) {
+					System.out.println("客户端已下线：" + f.getWriteText());
 				} else {
 					System.out.println("收到报文：" + future.toString());
-					String res = "_____________" + readFuture.getText();
+					String res = "_____________" + f.getWriteText();
 					System.out.println("处理报文：" + res);
-					future.write(res);
+					f.write(res);
 					session.flush(future);
 				}
 			}

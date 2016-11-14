@@ -39,7 +39,7 @@ public class TestSimpleWebSocketClient {
 					System.out.println(f.getRequestHeaders());
 				} else {
 					WebSocketReadFuture f = (WebSocketReadFuture) future;
-					System.out.println(f.getData().toString());
+					System.out.println(f.getReadText());
 				}
 			}
 		};

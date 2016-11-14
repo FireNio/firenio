@@ -36,21 +36,21 @@ public class TestSimple {
 		session.login("admin", "admin100");
 		
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 		
 		session.listen(serviceKey, new OnReadFuture() {
 			
 			public void onResponse(Session session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println(f.getText());
+				System.out.println(f.getWriteText());
 			}
 		});
 		
 		session.write(serviceKey, param);
 		
 		future = session.request(SYSTEMShowMemoryServlet.SERVICE_NAME, param);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 		System.out.println("__________"+session.getSession().getSessionID());
 		
 //		response = session.request(serviceKey, param);

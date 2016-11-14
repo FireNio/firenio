@@ -24,7 +24,7 @@ public class TestStopServer {
 		session.login("admin", "admin100");
 
 		BaseReadFuture future = session.request(serviceKey, null);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 
 		CloseUtil.close(connector);
 

@@ -6,7 +6,6 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -20,11 +19,13 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
-		BufferedOutputStream o = future.getWriteBuffer();
-
+		String o = future.getWriteText();
+		
 		byte [] header;
 		
-		int size = o.size();
+		byte [] data = o.getBytes(context.getEncoding());
+		
+		int size = data.length;
 		
 		byte header0 = (byte) (0x8f & (future.getType() | 0xf0));
 		
@@ -49,7 +50,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(header);
 		
-		buf.put(o.array(),0,size);
+		buf.put(data,0,size);
 		
 		buf.flip();
 

@@ -10,7 +10,7 @@ public class MQTransactionServlet extends MQServlet {
 
 	public void doAccept(Session session, BaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
-		String action = future.getText();
+		String action = future.getReadText();
 
 		TransactionSection section = attachment.getTransactionSection();
 

@@ -1,8 +1,10 @@
 package com.generallycloud.nio.codec.base;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
@@ -17,6 +19,8 @@ import com.generallycloud.nio.protocol.ProtocolException;
 public class BaseProtocolEncoder implements ProtocolEncoder {
 
 	private final int	PROTOCOL_HEADER	= BaseProtocolDecoder.PROTOCOL_HEADER;
+	
+	private static final byte [] EMPTY_ARRAY = EmptyByteBuf.EMPTY_BYTEBUF.array();
 
 	private void calc_text(byte[] header, int text_length) {
 		MathUtil.unsignedShort2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
@@ -61,17 +65,25 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		Integer future_id = f.getFutureID();
 		Integer session_id = f.getSessionID();
 		String future_name = f.getFutureName();
-		BufferedOutputStream textOPS = f.getWriteBuffer();
+		String writeText = f.getWriteText();
 		BufferedOutputStream binaryOPS = f.getWriteBinaryBuffer();
 
 		if (StringUtil.isNullOrBlank(future_name)) {
 			throw new ProtocolException("future name is empty");
 		}
+		
+		Charset charset = context.getEncoding();
 
-		byte[] future_name_array = future_name.getBytes(context.getEncoding());
+		byte[] future_name_array = future_name.getBytes(charset);
+		byte[] text_array;
+		if (StringUtil.isNullOrBlank(writeText)) {
+			text_array = EMPTY_ARRAY;
+		}else{
+			text_array = writeText.getBytes(charset);
+		}
 
 		int service_name_length = future_name_array.length;
-		int text_length = textOPS.size();
+		int text_length = text_array.length;
 		int binary_length = 0;
 
 		if (service_name_length > 255) {
@@ -98,22 +110,22 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buffer = context.getByteBufAllocator().allocate(all_length);
+		ByteBuf buf = context.getByteBufAllocator().allocate(all_length);
 
-		buffer.put(header);
-		buffer.put(future_name_array);
+		buf.put(header);
+		buf.put(future_name_array);
 
 		if (text_length > 0) {
-			buffer.put(textOPS.array(), 0, text_length);
+			buf.put(text_array, 0, text_length);
 		}
 
 		if (binary_length > 0) {
-			buffer.put(binaryOPS.array(), 0, binary_length);
+			buf.put(binaryOPS.array(), 0, binary_length);
 		}
 
-		buffer.flip();
+		buf.flip();
 
-		return new ChannelWriteFutureImpl(readFuture, buffer);
+		return new ChannelWriteFutureImpl(readFuture, buf);
 	}
 
 }

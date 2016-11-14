@@ -29,7 +29,7 @@ public class TestHttp2Server {
 				Http2FrameHeader f = (Http2FrameHeader) future;
 				System.out.println(f);
 				String res = "yes server already accept your message:";
-				future.write(res);
+//				future.write(res);
 				session.flush(future);
 			}
 		};

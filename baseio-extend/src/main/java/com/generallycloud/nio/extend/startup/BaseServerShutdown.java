@@ -71,7 +71,7 @@ public class BaseServerShutdown {
 		
 		BaseReadFuture future = session.request(serviceName, null);
 
-		System.out.println(future.getText());
+		System.out.println(future.getReadText());
 
 		CloseUtil.close(connector);
 

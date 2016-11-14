@@ -9,8 +9,6 @@ public interface ChannelReadFuture extends ReadFuture {
 
 	public abstract void flush();
 
-	// public abstract SocketChannel getSocketChannel();
-
 	public abstract boolean isHeartbeat();
 
 	public abstract boolean isPING();

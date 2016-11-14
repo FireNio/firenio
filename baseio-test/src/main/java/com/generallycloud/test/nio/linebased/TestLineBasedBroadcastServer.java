@@ -3,6 +3,7 @@ package com.generallycloud.test.nio.linebased;
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
+import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
@@ -19,11 +20,13 @@ public class TestLineBasedBroadcastServer {
 			
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
+				LineBasedReadFuture f = (LineBasedReadFuture) future;
+				
 				long old = System.currentTimeMillis();
 				
 				String res = "hello world!";
 				
-				future.write(res);
+				f.write(res);
 				
 				ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext().getSocketChannelService();
 				

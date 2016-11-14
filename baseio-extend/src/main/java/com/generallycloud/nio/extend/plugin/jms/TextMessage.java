@@ -12,7 +12,7 @@ public class TextMessage extends BasicMessage{
 		this.text = text;
 	}
 
-	public String getText() {
+	public String getReadText() {
 		return text;
 	}
 

@@ -27,7 +27,7 @@ public class TestRedeploy {
 		session.login("admin", "admin100");
 
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getText());
+		System.out.println(future.getWriteText());
 		
 		for (int i = 0; i < 0; i++) {
 			

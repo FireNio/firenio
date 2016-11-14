@@ -6,12 +6,11 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractTextReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements WebSocketReadFuture{
+public class WebSocketReadFutureImpl extends AbstractTextReadFuture implements WebSocketReadFuture{
 	
 	protected int type;
 
@@ -31,7 +30,7 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 	
 	private boolean dataComplete;
 	
-	private BufferedOutputStream data;
+	private byte []byteArray;
 	
 	private String serviceName;
 	
@@ -168,7 +167,10 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 				}
 			}
 			
-			this.data = new BufferedOutputStream(array);
+			this.byteArray = array;
+			
+			//FIXME 部分数据不是string的
+			this.readText = new String(array,context.getEncoding());
 			
 			dataComplete = true;
 			
@@ -214,8 +216,8 @@ public class WebSocketReadFutureImpl extends AbstractIOReadFuture implements Web
 		ReleaseUtil.release(buf);
 	}
 
-	public BufferedOutputStream getData() {
-		return data;
+	public byte[] getByteArray() {
+		return byteArray;
 	}
 	
 }

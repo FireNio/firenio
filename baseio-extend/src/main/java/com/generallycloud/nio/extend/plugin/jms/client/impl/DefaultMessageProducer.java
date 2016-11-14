@@ -52,7 +52,7 @@ public class DefaultMessageProducer implements MessageProducer {
 			throw new MQException(e.getMessage(), e);
 		}
 		
-		String result = future.getText();
+		String result = future.getReadText();
 
 		if (result.length() == 1) {
 			return "T".equals(result);

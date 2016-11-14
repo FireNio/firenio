@@ -10,6 +10,7 @@ import com.generallycloud.nio.extend.security.Authority;
 import com.generallycloud.nio.extend.security.AuthorityManager;
 import com.generallycloud.nio.extend.service.FutureAcceptorFilter;
 import com.generallycloud.nio.protocol.NamedReadFuture;
+import com.generallycloud.nio.protocol.TextReadFuture;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 
@@ -34,9 +35,12 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 		
 		if (!authorityManager.isInvokeApproved(future.getFutureName())) {
 			
-			future.write("forbidden");
-			
-			session.flush(future);
+			if (future instanceof TextReadFuture) {
+				
+				((TextReadFuture) future).write("forbidden");
+				
+				session.flush(future);
+			}
 			
 			logger.debug("已拒绝非法请求，请求IP：{}，服务名称：{}，请求内容：{}", new String[] { 
 						session.getRemoteAddr(), 

@@ -34,10 +34,6 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 	public int size() {
 		return count;
 	}
-
-	public byte [] toByteArray() {
-		return count > 0 ? Arrays.copyOf(cache, count) : null;
-	}
 	
 	public byte [] array(){
 		return cache;

@@ -11,6 +11,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.TextReadFuture;
 
 public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 	
@@ -39,8 +40,8 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 				((HttpReadFuture)future).setStatus(HttpStatus.C500);
 			}
 			
-			future.write("server error:"+cause.getMessage());
-			
+			((TextReadFuture) future).write("server error:"+cause.getMessage());
+
 			try {
 				session.flush(future);
 			} catch (IOException e) {

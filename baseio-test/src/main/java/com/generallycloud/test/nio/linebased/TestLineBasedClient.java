@@ -1,5 +1,6 @@
 package com.generallycloud.test.nio.linebased;
 
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
 import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
@@ -24,7 +25,7 @@ public class TestLineBasedClient {
 
 				LineBasedReadFuture f = (LineBasedReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getText());
+				System.out.println("____________________"+f.getReadText());
 				System.out.println();
 			}
 		};
@@ -48,7 +49,7 @@ public class TestLineBasedClient {
 		
 		Session session = connector.connect();
 
-		ReadFuture future = new FixedLengthReadFutureImpl(context);
+		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 
 		future.write("hello server !");
 

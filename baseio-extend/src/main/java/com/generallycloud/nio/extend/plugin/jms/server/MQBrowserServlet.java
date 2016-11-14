@@ -72,9 +72,7 @@ public class MQBrowserServlet extends MQServlet {
 
 				boolean bool = context.isOnLine(param.getParameter("queueName"));
 
-				byte result = ByteUtil.getByte(bool);
-
-				future.write(result);
+				future.write(String.valueOf(bool));
 			}
 		}
 

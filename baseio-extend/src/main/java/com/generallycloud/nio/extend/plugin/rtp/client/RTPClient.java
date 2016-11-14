@@ -108,7 +108,7 @@ public class RTPClient {
 			throw new RTPException(e.getMessage(), e);
 		}
 
-		String roomID = future.getText();
+		String roomID = future.getReadText();
 
 		if ("-1".equals(roomID)) {
 			throw new RTPException("create room failed");
@@ -181,7 +181,7 @@ public class RTPClient {
 
 			BaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
-			return ByteUtil.isTrue(future.getText());
+			return ByteUtil.isTrue(future.getReadText());
 		} catch (IOException e) {
 			throw new RTPException(e.getMessage(), e);
 		}
@@ -200,7 +200,7 @@ public class RTPClient {
 
 			this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
-			return ByteUtil.isTrue(future.getText());
+			return ByteUtil.isTrue(future.getReadText());
 		} catch (IOException e) {
 			throw new RTPException(e.getMessage(), e);
 		}

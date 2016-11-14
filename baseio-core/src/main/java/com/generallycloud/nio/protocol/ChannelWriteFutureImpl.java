@@ -75,10 +75,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	}
 
 	public String toString() {
-		if (readFuture.getWriteBuffer().size() == 0) {
-			return "empty";
-		}
-		return readFuture.getWriteBuffer().toString();
+		return readFuture.toString();
 	}
 
 	public void release() {

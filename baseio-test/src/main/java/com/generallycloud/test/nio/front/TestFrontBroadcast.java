@@ -23,12 +23,12 @@ public class TestFrontBroadcast {
 				BaseReadFuture f = (BaseReadFuture) future;
 				
 				if (FrontContext.FRONT_CHANNEL_LOST.equals(f.getFutureName())) {
-					System.out.println("客户端已下线：" + f.getText());
+					System.out.println("客户端已下线：" + f.getWriteText());
 				} else {
 					System.out.println("~~~~~~收到报文：" + future.toString());
-					String res = "(***" + f.getText() + "***)";
+					String res = "(***" + f.getWriteText() + "***)";
 					System.out.println("~~~~~~处理报文：" + res);
-					future.write(res);
+					f.write(res);
 					session.flush(future);
 				}
 			}
@@ -48,7 +48,7 @@ public class TestFrontBroadcast {
 
 		for (;;) {
 
-			ReadFuture future = ReadFutureFactory.create(session, "broadcast");
+			BaseReadFuture future = ReadFutureFactory.create(session, "broadcast");
 
 			future.write("broadcast msg");
 

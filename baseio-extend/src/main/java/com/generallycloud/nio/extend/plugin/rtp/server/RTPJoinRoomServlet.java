@@ -13,7 +13,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 		RTPContext context = getRTPContext();
 
-		Integer roomID = Integer.valueOf(future.getText());
+		Integer roomID = Integer.valueOf(future.getReadText());
 
 		RTPRoomFactory roomFactory = context.getRTPRoomFactory();
 

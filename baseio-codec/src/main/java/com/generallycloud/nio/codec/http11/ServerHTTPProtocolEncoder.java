@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -20,21 +22,60 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
 	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
 		
-		ServerHttpReadFuture future = (ServerHttpReadFuture) readFuture;
+		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
 
-		BufferedOutputStream o = readFuture.getWriteBuffer();
-
+		String write_text = f.getWriteText();
+		
+		byte [] text_array;
+		
+		BufferedOutputStream os = f.getBinaryBuffer();
+		
+		int length;
+		
+		if (StringUtil.isNullOrBlank(write_text)) {
+			
+			text_array = EmptyByteBuf.EMPTY_BYTEBUF.array();
+			
+			length = 0;
+			
+			if (os != null) {
+				
+				length = os.size();
+				
+				text_array = os.array();
+			}
+			
+		}else{
+			
+			text_array = write_text.getBytes(context.getEncoding());
+			
+			length = text_array.length;
+			
+			if (os != null) {
+				
+				int size = os.size();
+				int newLength = length + size;
+				
+				byte [] newArray = new byte[newLength];
+				System.arraycopy(text_array, 0, newArray, 0, length);
+				System.arraycopy(os.array(), 0, newArray, length, size);
+				
+				text_array = newArray;
+				length = newLength;
+			}
+		}
+		
 		StringBuilder h = new StringBuilder();
 
 		h.append("HTTP/1.1 ");
-		h.append(future.getStatus().getHeaderText());
+		h.append(f.getStatus().getHeaderText());
 		h.append("\r\n");
 		h.append("Server: baseio/0.0.1\r\n");
 		h.append("Content-Length:");
-		h.append(o.size());
+		h.append(length);
 		h.append("\r\n");
 		
-		Map<String,String> headers = future.getResponseHeaders();
+		Map<String,String> headers = f.getResponseHeaders();
 		
 		if (headers != null) {
 			Set<Entry<String, String>> hs = headers.entrySet();
@@ -46,7 +87,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 			}
 		}
 
-		List<Cookie> cookieList = future.getCookieList();
+		List<Cookie> cookieList = f.getCookieList();
 		
 		if (cookieList != null) {
 			for(Cookie c : cookieList){
@@ -58,14 +99,12 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		int size = o.size();
-		
-		ByteBuf buffer = context.getByteBufAllocator().allocate(h.length() + size);
+		ByteBuf buffer = context.getByteBufAllocator().allocate(h.length() + length);
 		
 		buffer.put(h.toString().getBytes(context.getEncoding()));
 		
-		if (size != 0) {
-			buffer.put(o.toByteArray(), 0, o.size());
+		if (length != 0) {
+			buffer.put(text_array, 0, length);
 		}
 		
 		buffer.flip();

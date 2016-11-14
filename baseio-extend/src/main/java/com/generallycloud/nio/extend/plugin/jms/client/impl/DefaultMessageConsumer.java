@@ -44,7 +44,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 			
 			BaseReadFuture future = (BaseReadFuture) onReadFuture.getReadFuture();
 
-			RESMessage message = RESMessageDecoder.decode(future.getText());
+			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
 			if (message.getCode() == 0) {
 				return true;

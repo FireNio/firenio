@@ -15,7 +15,7 @@ public class TestSessionDisconnectServlet extends BaseFutureAcceptorService{
 
 	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
 
-		String test = future.getText();
+		String test = future.getReadText();
 
 		if (StringUtil.isNullOrBlank(test)) {
 			test = "test";

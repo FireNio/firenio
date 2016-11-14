@@ -3,9 +3,11 @@ package com.generallycloud.nio.codec.http11.future;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.NamedReadFuture;
+import com.generallycloud.nio.protocol.TextReadFuture;
 
-public abstract interface HttpReadFuture extends NamedReadFuture {
+public abstract interface HttpReadFuture extends NamedReadFuture ,TextReadFuture{
 	
 	public static final String	CONTENT_TYPE_MULTIPART					= "multipart/form-data";
 	public static final String	CONTENT_TYPE_TEXT_PLAIN				= "text/plain";
@@ -94,4 +96,8 @@ public abstract interface HttpReadFuture extends NamedReadFuture {
 	public abstract void addCookie(Cookie cookie);
 	
 	public abstract void updateWebSocketProtocol();
+	
+	public abstract void writeBinary(byte [] binary);
+	
+	public abstract BufferedOutputStream getBinaryBuffer() ;
 }

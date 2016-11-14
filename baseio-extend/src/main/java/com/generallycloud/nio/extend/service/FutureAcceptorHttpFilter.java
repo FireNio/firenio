@@ -61,7 +61,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 		f.setResponseHeader("Content-Type", entity.contentType);
 
-		f.write(entity.array);
+		f.writeBinary(entity.array);
 
 		session.flush(f);
 	}

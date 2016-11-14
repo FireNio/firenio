@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
@@ -70,7 +69,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 					WebSocketReadFuture f = new WebSocketTextReadFutureImpl(s.getContext());
 
-					f.write(msg.getBytes(Encoding.UTF8));
+					f.write(msg);
 
 					try {
 						s.flush(f);

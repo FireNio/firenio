@@ -27,7 +27,7 @@ public class TestFIxedLengthClient {
 
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getText());
+				System.out.println("____________________"+f.getReadText());
 				System.out.println();
 			}
 		};
@@ -58,7 +58,7 @@ public class TestFIxedLengthClient {
 		
 		Session session = connector.connect();
 
-		ReadFuture future = new FixedLengthReadFutureImpl(context);
+		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 
 		future.write("hello server !");
 

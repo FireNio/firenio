@@ -1,13 +1,8 @@
 package com.generallycloud.nio.codec.fixedlength.future;
 
-import java.nio.charset.Charset;
+import com.generallycloud.nio.protocol.TextReadFuture;
 
-
-public interface FixedLengthReadFuture {
-
-	public abstract String getText();
-	
-	public abstract String getText(Charset encoding);
+public interface FixedLengthReadFuture extends TextReadFuture{
 
 	public abstract byte[] getByteArray();
 }

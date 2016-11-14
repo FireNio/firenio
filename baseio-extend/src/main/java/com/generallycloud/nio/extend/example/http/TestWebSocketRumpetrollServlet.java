@@ -1,7 +1,6 @@
 package com.generallycloud.nio.extend.example.http;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
@@ -69,7 +68,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 			logger.info("客户端主动关闭连接：{}", session);
 		} else {
 
-			String msg = f.getData().toString(Encoding.UTF8);
+			String msg = f.getReadText();
 
 			JSONObject o = JSONObject.parseObject(msg);
 

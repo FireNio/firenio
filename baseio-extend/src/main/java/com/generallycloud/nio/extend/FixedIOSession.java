@@ -119,7 +119,7 @@ public class FixedIOSession implements FixedSession {
 
 			BaseReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
 
-			RESMessage message = RESMessageDecoder.decode(future.getText());
+			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
 			if (message.getCode() == 0) {
 

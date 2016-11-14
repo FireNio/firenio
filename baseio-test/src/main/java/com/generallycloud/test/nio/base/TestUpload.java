@@ -29,7 +29,7 @@ public class TestUpload {
 			public void accept(Session session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println();
-				System.out.println(f.getText());
+				System.out.println(f.getWriteText());
 				System.out.println();
 				
 				CloseUtil.close(connector);
@@ -38,7 +38,7 @@ public class TestUpload {
 
 			public void futureSent(Session session, ReadFuture future) {
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println("报文已发送："+f.getWriteBuffer());
+				System.out.println("报文已发送："+f.getWriteText());
 			}
 		};
 

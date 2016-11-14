@@ -7,9 +7,9 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractTextReadFuture;
 
-public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements LineBasedReadFuture {
+public class LineBasedReadFutureImpl extends AbstractTextReadFuture implements LineBasedReadFuture {
 
 	private String				text;
 
@@ -68,11 +68,11 @@ public class LineBasedReadFutureImpl extends AbstractIOReadFuture implements Lin
 		return text;
 	}
 
-	public BufferedOutputStream getOutputStream() {
-		return cache;
+	public void release() {
 	}
 
-	public void release() {
+	public BufferedOutputStream getLineOutputStream() {
+		return cache;
 	}
 
 }

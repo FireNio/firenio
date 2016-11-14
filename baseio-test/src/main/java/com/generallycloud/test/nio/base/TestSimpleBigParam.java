@@ -32,7 +32,7 @@ public class TestSimpleBigParam {
 			builder.append(temp);
 		}
 		BaseReadFuture future = session.request(serviceKey, builder.toString());
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getText());
+		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getWriteText());
 		System.out.println("处理完成");
 		
 		CloseUtil.close(connector);
