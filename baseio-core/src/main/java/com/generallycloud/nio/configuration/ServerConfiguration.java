@@ -153,7 +153,7 @@ public class ServerConfiguration {
 	public void initializeDefault(BaseContext context) {
 
 		if (SERVER_MEMORY_POOL_UNIT == 0) {
-			SERVER_MEMORY_POOL_UNIT = 256;
+			SERVER_MEMORY_POOL_UNIT = 512;
 		}
 
 		if (SERVER_MEMORY_POOL_CAPACITY == 0) {

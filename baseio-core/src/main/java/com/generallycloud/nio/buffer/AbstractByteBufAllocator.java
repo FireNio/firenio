@@ -19,12 +19,12 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 	protected int				capacity;
 
-	protected ReentrantLock		lock		= new ReentrantLock();
-
 	protected int				unitMemorySize;
 
 	protected int				mask;
 
+	protected ReentrantLock		lock		= new ReentrantLock();
+	
 	private Logger				logger	= LoggerFactory.getLogger(AbstractByteBufAllocator.class);
 
 	public AbstractByteBufAllocator(int capacity) {
