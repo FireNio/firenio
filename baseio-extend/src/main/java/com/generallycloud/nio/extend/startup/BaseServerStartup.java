@@ -7,10 +7,9 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.ManagerSEListener;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -51,8 +50,6 @@ public class BaseServerStartup {
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
-
-			context.addSessionEventListener(new ManagerSEListener());
 
 			context.setProtocolFactory(new BaseProtocolFactory());
 			

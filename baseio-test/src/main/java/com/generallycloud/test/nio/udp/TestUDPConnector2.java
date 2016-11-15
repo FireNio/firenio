@@ -20,9 +20,7 @@ public class TestUDPConnector2 {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		session.login("udp2", "udp2");
 		

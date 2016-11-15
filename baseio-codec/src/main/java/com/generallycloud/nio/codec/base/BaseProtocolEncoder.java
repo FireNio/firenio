@@ -51,13 +51,11 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			array[0] = (byte) (readFuture.isPING() ? BaseProtocolDecoder.PROTOCOL_PING
 					: BaseProtocolDecoder.PROTOCOL_PONG << 6);
 
-			ByteBuf buffer = context.getByteBufAllocator().allocate(1);
+			ByteBuf buf = context.getByteBufAllocator().allocate(1);
 
-			buffer.put(array);
+			buf.put(array);
 
-			buffer.flip();
-
-			return new ChannelWriteFutureImpl(readFuture, buffer);
+			return new ChannelWriteFutureImpl(readFuture, buf.flip());
 		}
 
 		BaseReadFuture f = (BaseReadFuture) readFuture;
@@ -123,9 +121,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			buf.put(binaryOPS.array(), 0, binary_length);
 		}
 
-		buf.flip();
-
-		return new ChannelWriteFutureImpl(readFuture, buf);
+		return new ChannelWriteFutureImpl(readFuture, buf.flip());
 	}
 
 }

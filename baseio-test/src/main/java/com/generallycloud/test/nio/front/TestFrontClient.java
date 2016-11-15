@@ -31,7 +31,7 @@ public class TestFrontClient {
 				
 				BaseReadFuture f = (BaseReadFuture)future;
 				
-				System.out.println(f.getWriteText()+"______"+DateUtil.now());
+				System.out.println(f.getReadText()+"______"+DateUtil.now());
 				
 				res.incrementAndGet();
 			}

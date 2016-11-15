@@ -27,14 +27,12 @@ public class TestShowMemory {
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		session.login("admin", "admin100");
 		
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 		
 		CloseUtil.close(connector);
 		

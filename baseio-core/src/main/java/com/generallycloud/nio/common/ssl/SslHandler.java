@@ -31,46 +31,34 @@ public class SslHandler {
 		return context.getByteBufAllocator().allocate(capacity);
 	}
 
-	public ByteBuf wrap(SocketSession session,ByteBuf buf) throws IOException {
+	public ByteBuf wrap(SocketSession session,ByteBuf src) throws IOException {
 		
 		SSLEngine engine = session.getSSLEngine();
 		
-		ByteBuf out = allocate(engine.getSession().getPacketBufferSize() * 2);
+		ByteBuf dst = allocate(engine.getSession().getPacketBufferSize() * 2);
 
 		try {
 
 			for (;;) {
 
-				SSLEngineResult result = engine.wrap(buf.nioBuffer(), out.nioBuffer());
+				SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
 
 				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
-				int bytesConsumed = result.bytesConsumed();
-				int bytesProduced = result.bytesProduced();
-
 //				logger.debug("_________________________wrap");
-//				logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
-//				logger.debug("_________________________bytesProduced:{}" , bytesProduced);
 //				logger.debug("_________________________,{}" , status.name());
 //				logger.debug("_________________________,{}" , handshakeStatus.name());
-
-				if (bytesConsumed > 0) {
-					buf.skipBytes(bytesConsumed);
-				}
-
-				if (bytesProduced > 0) {
-					out.skipBytes(bytesProduced);
-				}
+				
+				synchByteBuf(result, src, dst);
 
 				if (status == Status.CLOSED) {
-					return gc(out);
+					return gc(dst);
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
-						return gc(out);
 					case NOT_HANDSHAKING:
-						return gc(out);
+						return gc(dst);
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
@@ -87,7 +75,7 @@ public class SslHandler {
 			}
 		} catch (Throwable e) {
 
-			ReleaseUtil.release(out);
+			ReleaseUtil.release(dst);
 
 			if (e instanceof IOException) {
 
@@ -99,35 +87,35 @@ public class SslHandler {
 	}
 
 	//FIXME 部分buf不需要gc
-	private ByteBuf gc(ByteBuf out) throws IOException {
+	private ByteBuf gc(ByteBuf buf) throws IOException {
 
-		out.flip();
+		buf.flip();
 
-		ByteBuf out2 = allocate(out.limit());
+		ByteBuf out = allocate(buf.limit());
 
 		try {
 
-			out2.read(out);
+			out.read(buf);
 
 		} catch (IOException e) {
 
-			ReleaseUtil.release(out2);
+			ReleaseUtil.release(out);
 
 			throw e;
 		}
 
-		ReleaseUtil.release(out);
+		ReleaseUtil.release(buf);
 
-		out2.flip();
+		out.flip();
 
-		return out2;
+		return out;
 	}
 
-	public ByteBuf unwrap(SocketSession session, ByteBuf packet) throws IOException {
+	public ByteBuf unwrap(SocketSession session, ByteBuf src) throws IOException {
 
 //		logger.debug("__________________________________________________start");
 
-		ByteBuf buf = allocate(packet.capacity() * 2);
+		ByteBuf dst = allocate(src.capacity() * 2);
 
 		boolean release = true;
 
@@ -136,27 +124,16 @@ public class SslHandler {
 		try {
 			for (;;) {
 
-				SSLEngineResult result = sslEngine.unwrap(packet.nioBuffer(), buf.nioBuffer());
-
-				int bytesConsumed = result.bytesConsumed();
-				int bytesProduced = result.bytesProduced();
-
+				SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
+				
 //				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
 //				logger.debug("_________________________unwrap");
-//				logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
-//				logger.debug("_________________________bytesProduced:{}" , bytesProduced);
 //				logger.debug("_________________________,{}" , status.name());
 //				logger.debug("_________________________,{}" , handshakeStatus.name());
-
-				if (bytesConsumed > 0) {
-					packet.skipBytes(bytesConsumed);
-				}
-
-				if (bytesProduced > 0) {
-					buf.skipBytes(bytesProduced);
-				}
+				
+				synchByteBuf(result, src, dst);
 
 				switch (handshakeStatus) {
 				case NEED_UNWRAP:
@@ -180,9 +157,9 @@ public class SslHandler {
 
 					release = false;
 
-					buf.flip();
+					dst.flip();
 
-					return buf;
+					return dst;
 
 				default:
 					throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
@@ -192,10 +169,29 @@ public class SslHandler {
 		} finally {
 
 			if (release) {
-				ReleaseUtil.release(buf);
+				ReleaseUtil.release(dst);
 			}
 		}
 	}
+	
+	private void synchByteBuf(SSLEngineResult result,ByteBuf src,ByteBuf dst){
+		
+		int bytesConsumed = result.bytesConsumed();
+		int bytesProduced = result.bytesProduced();
+		
+		if (bytesConsumed > 0) {
+			src.skipBytes(bytesConsumed);
+		}
+
+		if (bytesProduced > 0) {
+			dst.skipBytes(bytesProduced);
+		}
+
+//		logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
+//		logger.debug("_________________________bytesProduced:{}" , bytesProduced);
+		
+	}
+	
 
 	private void runDelegatedTasks(SSLEngine engine) {
 

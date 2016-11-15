@@ -144,6 +144,9 @@ public class ServerConfiguration {
 	}
 
 	public void setSERVER_MEMORY_POOL_CAPACITY_RATE(double SERVER_MEMORY_POOL_CAPACITY_RATE) {
+		if (SERVER_MEMORY_POOL_CAPACITY_RATE == 0) {
+			return;
+		}
 		this.SERVER_MEMORY_POOL_CAPACITY_RATE = SERVER_MEMORY_POOL_CAPACITY_RATE;
 	}
 

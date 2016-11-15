@@ -35,13 +35,6 @@ public class IOConnectorUtil {
 
 			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
 			
-			if (ioEventHandleAdaptor instanceof SimpleIOEventHandle) {
-				
-				SimpleIOEventHandle eventHandle = (SimpleIOEventHandle)ioEventHandleAdaptor;
-				
-				context.addSessionEventListener(new UpdateFixedSessionSEListener(eventHandle.getFixedSession()));
-			}
-
 			context.addSessionEventListener(new LoggerSEListener());
 
 			connector.setContext(context);

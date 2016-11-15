@@ -68,7 +68,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			connector.setContext(baseContext);
 
-			FixedSession session = eventHandle.getFixedSession();
+			FixedSession session = new FixedSession(connector.connect());
 			
 			//FIXME denglu cuowu 
 			session.login(username, password);

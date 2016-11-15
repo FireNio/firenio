@@ -24,20 +24,18 @@ public class TestSessionDisconnect {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		session.login("admin", "admin100");
 
 		BaseReadFuture future = session.request(serviceName, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 
 		session.listen(serviceName, new OnReadFuture() {
 			public void onResponse(Session session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println(f.getWriteText());
+				System.out.println(f.getReadText());
 			}
 		});
 

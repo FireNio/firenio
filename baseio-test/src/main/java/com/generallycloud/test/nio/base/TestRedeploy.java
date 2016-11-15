@@ -20,14 +20,12 @@ public class TestRedeploy {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		session.login("admin", "admin100");
 
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 		
 		for (int i = 0; i < 0; i++) {
 			

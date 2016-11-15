@@ -20,9 +20,7 @@ public class TestTeller {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 		
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		boolean b = session.login("wk", "wk");
 		

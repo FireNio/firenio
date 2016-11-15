@@ -19,9 +19,7 @@ public class TestListenerCallBack {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		session.login("admin", "admin100");
 		

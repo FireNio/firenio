@@ -31,26 +31,27 @@ public class TestSimple {
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		FixedSession session = eventHandle.getFixedSession();
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
+		
 		session.login("admin", "admin100");
 		
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getWriteText());
+		
+		System.out.println(future.getReadText());
 		
 		session.listen(serviceKey, new OnReadFuture() {
 			
 			public void onResponse(Session session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println(f.getWriteText());
+				System.out.println(f.getReadText());
 			}
 		});
 		
 		session.write(serviceKey, param);
 		
 		future = session.request(SYSTEMShowMemoryServlet.SERVICE_NAME, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 		System.out.println("__________"+session.getSession().getSessionID());
 		
 //		response = session.request(serviceKey, param);

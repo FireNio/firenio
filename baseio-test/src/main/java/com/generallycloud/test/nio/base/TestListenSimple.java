@@ -25,18 +25,16 @@ public class TestListenSimple {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 		
 		session.listen(serviceKey,new OnReadFuture() {
 			
 			public void onResponse(Session session, ReadFuture future) {
 				BaseReadFuture f = (BaseReadFuture) future;
-				System.out.println(f.getWriteText());
+				System.out.println(f.getReadText());
 			}
 		});
 		

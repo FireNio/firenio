@@ -65,6 +65,9 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;
+		if (!buf.hasRemaining()) {
+			doHeaderComplete(session, buf);
+		}
 	}
 
 	private void doBodyComplete(Session session, ByteBuf buf) {
@@ -93,6 +96,10 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
 
 		header_complete = true;
+		
+		buf.flip();
+		
+		buf.skipBytes(1);
 
 		this.service_name_length = buf.getUnsignedByte();
 
@@ -281,6 +288,9 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	}
 
 	public void write(String text) {
+		if (StringUtil.isNullOrBlank(text)) {
+			return;
+		}
 		writeTextBuffer.append(text);
 	}
 

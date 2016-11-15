@@ -63,9 +63,7 @@ public class BaseServerShutdown {
 
 		connector.setContext(context);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 		
 		session.login(username, password);
 		

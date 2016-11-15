@@ -1,40 +1,58 @@
 package com.generallycloud.nio.extend;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.protocol.NamedReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.WriteFuture;
 
 public class SimpleIOEventHandle extends IOEventHandleAdaptor {
 
-	private Logger			logger		= LoggerFactory.getLogger(SimpleIOEventHandle.class);
-	private FixedSession	fixedSession	= new FixedIOSession();
+	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 
-	public void accept(Session session, ReadFuture future) {
+	public void accept(Session session, ReadFuture future) throws Exception {
 
-		FixedSession fixedSession = this.fixedSession;
+		NamedReadFuture f = (NamedReadFuture) future;
 
-		try {
+		OnReadFutureWrapper onReadFuture = listeners.get(f.getFutureName());
 
-			fixedSession.accept(session, (BaseReadFuture) future);
-
-		} catch (Exception e) {
-
-			logger.error(e.getMessage(), e);
-
-			exceptionCaught(session, future, e, IOEventState.HANDLE);
+		if (onReadFuture != null) {
+			onReadFuture.onResponse(session, f);
 		}
 	}
+	
+	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
 
-	public void futureSent(Session session, WriteFuture future) {
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
 
+		OnReadFutureWrapper wrapper = listeners.get(serviceName);
+
+		if (wrapper == null) {
+
+			wrapper = new OnReadFutureWrapper();
+
+			listeners.put(serviceName, wrapper);
+		}
+
+		if (onReadFuture == null) {
+			return;
+		}
+
+		wrapper.setListener(onReadFuture);
 	}
-
-	public FixedSession getFixedSession() {
-		return fixedSession;
+	
+	public OnReadFutureWrapper getOnReadFutureWrapper(String serviceName){
+		return listeners.get(serviceName);
 	}
-
+	
+	public void putOnReadFutureWrapper(String serviceName,OnReadFutureWrapper wrapper){
+		listeners.put(serviceName, wrapper);
+	}
 }

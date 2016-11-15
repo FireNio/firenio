@@ -1,5 +1,6 @@
 package com.generallycloud.test.nio.base;
 
+import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
@@ -19,14 +20,16 @@ public class Test404 {
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		connector.getContext().getServerConfiguration().setSERVER_MEMORY_POOL_CAPACITY_RATE(0.1);
+		
+		FixedSession session = new FixedSession(connector.connect());
 
 		BaseReadFuture future = session.request(serviceKey, null);
 
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 
 		CloseUtil.close(connector);
 	}

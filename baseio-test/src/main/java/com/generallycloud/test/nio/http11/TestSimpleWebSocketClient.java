@@ -10,6 +10,7 @@ import com.generallycloud.nio.codec.http11.future.WebSocketUpgradeRequestFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -43,20 +44,24 @@ public class TestSimpleWebSocketClient {
 				}
 			}
 		};
+		
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(adaptor);
 		connector.getContext().setBeatFutureFactory(new WebSocketBeatFutureFactory());
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
+		connector.getContext().setSslContext(SSLUtil.initClient());
 		ServerConfiguration configuration = connector.getContext().getServerConfiguration();
-		configuration.setSERVER_HOST("120.76.222.210");
+		configuration.setSERVER_HOST("localhost");
+//		configuration.setSERVER_HOST("120.76.222.210");
 //		configuration.setSERVER_HOST("115.29.193.48");
 //		configuration.setSERVER_HOST("workerman.net");
-		configuration.setSERVER_TCP_PORT(30005);
+		configuration.setSERVER_TCP_PORT(443);
+//		configuration.setSERVER_TCP_PORT(30005);
 //		configuration.setSERVER_TCP_PORT(29000);
 //		configuration.setSERVER_TCP_PORT(8280);
 		Session session = connector.connect();
 		String url = "/web-socket-chat";
-		 url = "/";
+//		 url = "/";
 		HttpReadFuture future = new WebSocketUpgradeRequestFuture(session.getContext(),url);
 //		 future.setRequestURL("ws://120.76.222.210:30005/");
 //		future.setResponseHeader("Host", "120.76.222.210:30005");

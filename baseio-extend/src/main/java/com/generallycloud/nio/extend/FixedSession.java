@@ -1,45 +1,219 @@
 package com.generallycloud.nio.extend;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
+import com.generallycloud.nio.common.BeanUtil;
+import com.generallycloud.nio.common.ClassUtil;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.MD5Token;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.ReadFutureAcceptor;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.WaiterOnReadFuture;
+import com.generallycloud.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.generallycloud.nio.extend.security.Authority;
+import com.generallycloud.nio.protocol.ReadFuture;
 
-public interface FixedSession extends ReadFutureAcceptor {
+public class FixedSession {
 
-	public abstract void logout();
+	private Authority			authority		= null;
+	private BaseContext			context		= null;
+	private AtomicBoolean		logined		= new AtomicBoolean(false);
+	private Session			session		= null;
+	private long				timeout		= 50000;
+	private SimpleIOEventHandle	eventHandle	= null;
 
-	public abstract BaseReadFuture request(String serviceName, String content) throws IOException;
+	public FixedSession(Session session) {
+		update(session);
+	}
 
-	public abstract BaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException;
+	public void setTimeout(long timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("illegal argument timeout: " + timeout);
+		}
 
-	public abstract void write(String serviceName, String content) throws IOException;
+		this.timeout = timeout;
+	}
 
-	public abstract void write(String serviceName, String content, byte[] binary) throws IOException;
+	public long getTimeout() {
+		return timeout;
+	}
 
-	public abstract void listen(String serviceName, OnReadFuture onReadFuture) throws IOException;
+	public void accept(Session session, ReadFuture future) throws Exception {
 
-	public abstract void setAuthority(Authority authority);
+	}
 
-	public abstract Session getSession();
+	public Authority getAuthority() {
+		return authority;
+	}
 
-	public abstract void update(Session session);
+	public BaseContext getContext() {
+		return context;
+	}
 
-	public abstract RESMessage login4RES(String username, String password);
+	public Session getSession() {
+		return session;
+	}
 
-	public abstract boolean login(String username, String password);
+	public boolean isLogined() {
+		return logined.get();
+	}
 
-	public abstract BaseContext getContext();
+	public boolean login(String username, String password) {
 
-	public abstract Authority getAuthority();
+		RESMessage message = login4RES(username, password);
 
-	public abstract boolean isLogined();
+		return message.getCode() == 0;
+	}
 
-	public abstract long getTimeout();
+	public RESMessage login4RES(String username, String password) {
 
-	public abstract void setTimeout(long timeout);
+		if (!logined.compareAndSet(false, true)) {
+
+			return RESMessage.SUCCESS;
+		}
+
+		try {
+
+			Map<String, Object> param = new HashMap<String, Object>();
+			param.put("username", username);
+			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.UTF8));
+
+			String paramString = JSONObject.toJSONString(param);
+
+			BaseReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+
+			RESMessage message = RESMessageDecoder.decode(future.getReadText());
+
+			if (message.getCode() == 0) {
+
+				JSONObject o = (JSONObject) message.getData();
+
+				String className = o.getString("className");
+
+				Class<?> clazz = ClassUtil.forName(className);
+
+				Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
+
+				setAuthority(authority);
+
+			} else {
+				logined.compareAndSet(true, false);
+			}
+
+			return message;
+		} catch (Exception e) {
+			logined.compareAndSet(true, false);
+			return new RESMessage(400, e.getMessage());
+		}
+	}
+
+	public void logout() {
+		// TODO complete logout
+	}
+
+	public BaseReadFuture request(String serviceName, String content) throws IOException {
+		return request(serviceName, content, null);
+	}
+
+	public BaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		BaseReadFuture readFuture = new BaseReadFutureImpl(context, serviceName);
+
+		readFuture.setIOEventHandle(eventHandle);
+
+		readFuture.write(content);
+
+		if (binary != null) {
+			readFuture.writeBinary(binary);
+		}
+
+		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+
+		waiterListen(serviceName, onReadFuture);
+
+		session.flush(readFuture);
+
+		// FIXME 连接丢失时叫醒我
+		if (onReadFuture.await(timeout)) {
+
+			CloseUtil.close(session);
+
+			throw new TimeoutException("timeout");
+		}
+
+		return (BaseReadFuture) onReadFuture.getReadFuture();
+	}
+
+	public void setAuthority(Authority authority) {
+		this.authority = authority;
+	}
+
+	public void update(Session session) {
+		this.session = session;
+		this.context = session.getContext();
+		this.eventHandle = (SimpleIOEventHandle) context.getIOEventHandleAdaptor();
+	}
+
+	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
+
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		if (onReadFuture == null) {
+			throw new IOException("empty onReadFuture");
+		}
+
+		OnReadFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
+
+		if (wrapper == null) {
+
+			wrapper = new OnReadFutureWrapper();
+
+			eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
+		}
+
+		wrapper.listen(onReadFuture);
+	}
+
+	public void write(String serviceName, String content) throws IOException {
+		write(serviceName, content, null);
+	}
+
+	public void write(String serviceName, String content, byte[] binary) throws IOException {
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IOException("empty service name");
+		}
+
+		BaseReadFuture readFuture = new BaseReadFutureImpl(context, serviceName);
+
+		readFuture.setIOEventHandle(eventHandle);
+
+		readFuture.write(content);
+
+		if (binary != null) {
+			readFuture.writeBinary(binary);
+		}
+
+		session.flush(readFuture);
+	}
+
+	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
+		eventHandle.listen(serviceName, onReadFuture);
+	}
+
 }

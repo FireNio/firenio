@@ -32,9 +32,7 @@ public class TestDownload {
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 		
 		final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
 		

@@ -26,6 +26,7 @@ import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.LoggerUtil;
 
 /**
  * An {@link SslContext} which uses JDK's SSL/TLS implementation.
@@ -100,8 +101,8 @@ public class JdkSslContext extends SslContext {
 		}
 		DEFAULT_CIPHERS = Collections.unmodifiableList(ciphers);
 
-		logger.debug("Default protocols (JDK): {} ", Arrays.asList(PROTOCOLS));
-		logger.debug("Default cipher suites (JDK): {}", DEFAULT_CIPHERS);
+		LoggerUtil.prettyNIOServerLog(logger, "Default protocols (JDK): {} ", Arrays.asList(PROTOCOLS));
+		LoggerUtil.prettyNIOServerLog(logger, "Default cipher suites (JDK): {}", DEFAULT_CIPHERS);
 	}
 
 	private static void addIfSupported(Set<String> supported, List<String> enabled, String... names) {

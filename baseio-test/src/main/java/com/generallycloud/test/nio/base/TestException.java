@@ -19,12 +19,10 @@ public class TestException {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		BaseReadFuture future = session.request(serviceKey, param);
-		System.out.println(future.getWriteText());
+		System.out.println(future.getReadText());
 		
 		CloseUtil.close(connector);
 	}

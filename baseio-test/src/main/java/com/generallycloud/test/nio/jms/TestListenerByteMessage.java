@@ -23,9 +23,7 @@ public class TestListenerByteMessage {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 		
 		session.login("admin", "admin100");
 		

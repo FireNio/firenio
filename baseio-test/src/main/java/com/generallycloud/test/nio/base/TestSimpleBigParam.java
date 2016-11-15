@@ -21,9 +21,7 @@ public class TestSimpleBigParam {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
+		FixedSession session = new FixedSession(connector.connect());
 
 		String temp = "网易科技腾讯科技阿里巴巴";
 		StringBuilder builder = new StringBuilder(temp);
@@ -32,7 +30,7 @@ public class TestSimpleBigParam {
 			builder.append(temp);
 		}
 		BaseReadFuture future = session.request(serviceKey, builder.toString());
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getWriteText());
+		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getReadText());
 		System.out.println("处理完成");
 		
 		CloseUtil.close(connector);

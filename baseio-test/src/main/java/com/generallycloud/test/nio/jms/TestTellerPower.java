@@ -16,10 +16,8 @@ public class TestTellerPower {
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
 
-		FixedSession session = eventHandle.getFixedSession();
-
-		connector.connect();
-
+		FixedSession session = new FixedSession(connector.connect());
+		
 		session.login("admin", "admin100");
 
 		MessageProducer producer = new DefaultMessageProducer(session);
