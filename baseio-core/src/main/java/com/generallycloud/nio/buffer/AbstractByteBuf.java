@@ -145,6 +145,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		this.offset = index * allocator.getUnitMemorySize();
 		this.capacity = (blockEnd - index) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
+		this.position = 0;
+		this.released = false;
 		this.referenceCount.increament();
 		return this;
 	}

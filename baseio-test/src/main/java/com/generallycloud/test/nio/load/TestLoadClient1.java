@@ -3,8 +3,9 @@ package com.generallycloud.test.nio.load;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
@@ -16,7 +17,6 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient1 extends ITestThread {
 
@@ -29,8 +29,8 @@ public class TestLoadClient1 extends ITestThread {
 		Session session = connector.getSession();
 
 		for (int i = 0; i < time1; i++) {
-			BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext()
-					.getIOEventHandleAdaptor());
+			
+			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
 			
 			future.write("hello server !");
 			
@@ -48,7 +48,7 @@ public class TestLoadClient1 extends ITestThread {
 
 				latch.countDown();
 
-				 System.out.println("__________________________"+getLatch().getCount());
+//				 System.out.println("__________________________"+getLatch().getCount());
 			}
 		};
 
@@ -56,11 +56,11 @@ public class TestLoadClient1 extends ITestThread {
 
 		BaseContext context = connector.getContext();
 
-		ServerConfiguration configuration = context.getServerConfiguration();
+		ServerConfiguration c = context.getServerConfiguration();
 
-		configuration.setSERVER_CORE_SIZE(1);
-		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.2);
+		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+		c.setSERVER_MEMORY_POOL_UNIT(256);
+		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 		
 //		configuration.setSERVER_HOST("192.168.0.180");
 
@@ -77,9 +77,9 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 4 * 10000;
+		int time = 128 * 10000;
 
-		int core_size = 4;
+		int core_size = 8;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

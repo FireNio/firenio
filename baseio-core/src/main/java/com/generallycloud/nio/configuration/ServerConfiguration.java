@@ -1,6 +1,5 @@
 package com.generallycloud.nio.configuration;
 
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Encoding;
@@ -170,8 +169,11 @@ public class ServerConfiguration {
 			long total = Runtime.getRuntime().maxMemory();
 
 			SERVER_MEMORY_POOL_CAPACITY = (int) (total / (SERVER_MEMORY_POOL_UNIT * SERVER_CORE_SIZE * 4));
-
-			SERVER_MEMORY_POOL_CAPACITY *= SERVER_MEMORY_POOL_CAPACITY_RATE;
+		}
+		
+		SERVER_MEMORY_POOL_CAPACITY *= SERVER_MEMORY_POOL_CAPACITY_RATE;
+		
+		if (SERVER_IO_EVENT_QUEUE == 0) {
 			
 			SERVER_IO_EVENT_QUEUE = SERVER_MEMORY_POOL_CAPACITY * 2;
 		}

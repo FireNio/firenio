@@ -73,7 +73,7 @@ public class LinkAbleByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(allocator);
+		LifeCycleUtil.stop(unwrap());
 	}
 
 	protected boolean logger() {

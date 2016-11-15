@@ -127,7 +127,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			logger.debug("sk={},attachment={}", sk, sk.attachment());
 
-			if (!sk.isValid()) {
+			if (!sk.isValid() || sk.attachment() == null) {
 				cancelSelectionKey(sk);
 				continue;
 			}
