@@ -2,7 +2,6 @@ package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.SocketChannel;
 
@@ -11,15 +10,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected ByteBufAllocator	allocator;
 	protected int				capacity;
 	protected int				limit;
-	protected ReentrantLock		lock;
-	protected ByteBufUnit		memoryEnd;
-	protected ByteBufUnit		memoryStart;
 	protected ByteBuffer		nioBuffer;
 	protected int				offset;
 	protected int				position;
-	protected ReferenceCount	referenceCount;
 	protected boolean			released;
-	protected int				size;
+	protected int				index;
+	protected boolean			free;
+	protected int				blockEnd;
+	protected ReferenceCount	referenceCount;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
 		this(allocator, new ReferenceCount());
@@ -29,7 +27,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		this.limit = capacity;
 		this.position = 0;
 		this.allocator = allocator;
-		this.lock = new ReentrantLock();
 		this.referenceCount = referenceCount;
 	}
 
@@ -38,14 +35,10 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		this.limit = capacity;
 		this.position = 0;
 	}
-	
+
 	public ByteBuf duplicate() {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
+		synchronized (this) {
 
 			if (released) {
 				throw new ReleasedException("released");
@@ -54,21 +47,20 @@ public abstract class AbstractByteBuf implements ByteBuf {
 			AbstractByteBuf buf = newByteBuf();
 
 			buf.referenceCount.increament();
-			buf.capacity = capacity;
-			buf.memoryEnd = memoryEnd;
+			buf.blockEnd = blockEnd;
+			buf.free = free;
+			buf.index = index;
 			buf.limit = limit;
+			buf.nioBuffer = nioBuffer;
 			buf.offset = offset;
 			buf.position = position;
-			buf.size = size;
-			buf.memoryStart = memoryStart;
+			buf.released = released;
 
 			return buf;
 
-		} finally {
-			lock.unlock();
 		}
 	}
-	
+
 	protected abstract AbstractByteBuf newByteBuf();
 
 	public int capacity() {
@@ -150,9 +142,10 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	}
 
 	protected ByteBuf produce(int newLimit) {
-		this.offset = memoryStart.index * allocator.getUnitMemorySize();
-		this.capacity = size * allocator.getUnitMemorySize();
+		this.offset = index * allocator.getUnitMemorySize();
+		this.capacity = (blockEnd - index) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
+		this.referenceCount.increament();
 		return this;
 	}
 
@@ -173,17 +166,13 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	public void release() {
 
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
+		synchronized (this) {
 
 			if (released) {
 				return;
 			}
 
-			if (referenceCount.deincreament() > 0) {
+			if (referenceCount.deincreament() != 0) {
 				return;
 			}
 
@@ -191,19 +180,11 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 			allocator.release(this);
 
-		} finally {
-			lock.unlock();
 		}
 	}
 
 	public int remaining() {
 		return limit - position;
-	}
-
-	protected void setMemory(ByteBufUnit memoryStart, ByteBufUnit memoryEnd) {
-		this.memoryStart = memoryStart;
-		this.memoryEnd = memoryEnd;
-		this.size = memoryStart.blockEnd - memoryStart.index;
 	}
 
 	public void skipBytes(int length) {

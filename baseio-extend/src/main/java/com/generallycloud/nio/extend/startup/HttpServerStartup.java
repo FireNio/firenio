@@ -65,7 +65,10 @@ public class HttpServerStartup {
 			
 			File certificate = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.crt");
 			File privateKey = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.key");
-
+			
+//			File certificate = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.crt");
+//			File privateKey = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.key");
+			
 			SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 			
 			context.setSslContext(sslContext);

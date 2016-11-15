@@ -57,7 +57,7 @@ public final class SelfSignedCertificate {
 	private File				privateKey;
 	private SecureRandom		random;
 
-	public SelfSignedCertificate() throws CertificateException {
+	public SelfSignedCertificate() {
 		this(DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
@@ -69,7 +69,7 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(Date notBefore, Date notAfter) throws CertificateException {
+	public SelfSignedCertificate(Date notBefore, Date notAfter) {
 		this("example.com", notBefore, notAfter);
 	}
 
@@ -79,7 +79,7 @@ public final class SelfSignedCertificate {
 	 * @param fqdn
 	 *             a fully qualified domain name
 	 */
-	public SelfSignedCertificate(String fqdn) throws CertificateException {
+	public SelfSignedCertificate(String fqdn)  {
 		this(fqdn, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
@@ -93,7 +93,7 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(String fqdn, Date notBefore, Date notAfter) throws CertificateException {
+	public SelfSignedCertificate(String fqdn, Date notBefore, Date notAfter){
 		// Bypass entrophy collection by using insecure random generator.
 		// We just want to generate it without any delay because it's for
 		// testing purposes only.
@@ -110,7 +110,7 @@ public final class SelfSignedCertificate {
 	 * @param bits
 	 *             the number of bits of the generated private key
 	 */
-	public SelfSignedCertificate(String fqdn, SecureRandom random) throws CertificateException {
+	public SelfSignedCertificate(String fqdn, SecureRandom random) {
 		this(fqdn, random, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
 	}
 
@@ -128,8 +128,7 @@ public final class SelfSignedCertificate {
 	 * @param notAfter
 	 *             Certificate is not valid after this time
 	 */
-	public SelfSignedCertificate(String fqdn, SecureRandom random, Date notBefore, Date notAfter)
-			throws CertificateException {
+	public SelfSignedCertificate(String fqdn, SecureRandom random, Date notBefore, Date notAfter){
 		// Generate an RSA key pair.
 		this.random = random;
 		this.fqdn = fqdn;

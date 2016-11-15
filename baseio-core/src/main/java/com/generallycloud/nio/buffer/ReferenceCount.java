@@ -2,7 +2,7 @@ package com.generallycloud.nio.buffer;
 
 public class ReferenceCount {
 
-	private int	referenceCount = 1;
+	private int	referenceCount = 0;
 
 	public int increament() {
 		return ++referenceCount;
@@ -15,4 +15,10 @@ public class ReferenceCount {
 	public int getReferenceCount() {
 		return referenceCount;
 	}
+
+	public String toString() {
+		return "ref="+referenceCount;
+	}
+	
+	
 }
