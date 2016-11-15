@@ -49,7 +49,7 @@ public class BaseProtocolDecoder implements ProtocolDecoder {
 
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		ByteBuf buf = session.getContext().getByteBufAllocator().allocate(PROTOCOL_HEADER);
+		ByteBuf buf = session.getByteBufAllocator().allocate(PROTOCOL_HEADER);
 
 		buf.read(buffer);
 

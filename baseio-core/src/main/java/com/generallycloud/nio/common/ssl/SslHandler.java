@@ -11,6 +11,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -27,15 +28,15 @@ public class SslHandler {
 		this.context = context;
 	}
 
-	private ByteBuf allocate(int capacity) {
-		return context.getByteBufAllocator().allocate(capacity);
+	private ByteBuf allocate(Session session, int capacity) {
+		return session.getByteBufAllocator().allocate(capacity);
 	}
 
 	public ByteBuf wrap(SocketSession session,ByteBuf src) throws IOException {
 		
 		SSLEngine engine = session.getSSLEngine();
 		
-		ByteBuf dst = allocate(engine.getSession().getPacketBufferSize() * 2);
+		ByteBuf dst = allocate(session,engine.getSession().getPacketBufferSize() * 2);
 
 		try {
 
@@ -53,12 +54,12 @@ public class SslHandler {
 				synchByteBuf(result, src, dst);
 
 				if (status == Status.CLOSED) {
-					return gc(dst);
+					return gc(session,dst);
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
 					case NOT_HANDSHAKING:
-						return gc(dst);
+						return gc(session,dst);
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
@@ -87,11 +88,11 @@ public class SslHandler {
 	}
 
 	//FIXME 部分buf不需要gc
-	private ByteBuf gc(ByteBuf buf) throws IOException {
+	private ByteBuf gc(Session session,ByteBuf buf) throws IOException {
 
 		buf.flip();
 
-		ByteBuf out = allocate(buf.limit());
+		ByteBuf out = allocate(session,buf.limit());
 
 		try {
 
@@ -115,7 +116,7 @@ public class SslHandler {
 
 //		logger.debug("__________________________________________________start");
 
-		ByteBuf dst = allocate(src.capacity() * 2);
+		ByteBuf dst = allocate(session,src.capacity() * 2);
 
 		boolean release = true;
 

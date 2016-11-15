@@ -9,8 +9,7 @@ import java.util.Set;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.HeapByteBufAllocator;
+import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -41,7 +40,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
 	private EventLoopGroup				eventLoopGroup;
-	private ByteBufAllocator				byteBufAllocator;
+	private MCByteBufAllocator			mcByteBufAllocator;
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
@@ -64,8 +63,8 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return beatFutureFactory;
 	}
 
-	public ByteBufAllocator getByteBufAllocator() {
-		return byteBufAllocator;
+	public MCByteBufAllocator getMcByteBufAllocator() {
+		return mcByteBufAllocator;
 	}
 
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
@@ -132,7 +131,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
-		int SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY();
+		int SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY() * SERVER_CORE_SIZE;
 		int SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 
 		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
@@ -144,14 +143,14 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
-		this.byteBufAllocator = new HeapByteBufAllocator(SERVER_MEMORY_POOL_CAPACITY, SERVER_MEMORY_POOL_UNIT);
+		this.mcByteBufAllocator = new MCByteBufAllocator(this);
 
 		this.addSessionEventListener(new ManagerSEListener());
 		
 		if (enableSSL) {
-			this.channelByteBufReader = new SslChannelByteBufReader(this);
+			this.channelByteBufReader = new SslChannelByteBufReader();
 		}else{
-			this.channelByteBufReader = new TransparentByteBufReader(this);
+			this.channelByteBufReader = new TransparentByteBufReader();
 		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
@@ -190,7 +189,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 			this.eventLoopGroup = eventLoopGroup;
 		}
 
-		this.byteBufAllocator.start();
+		this.mcByteBufAllocator.start();
 
 		// this.directByteBufferPool.start();
 
@@ -209,7 +208,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.stop(sessionManagerThread);
 
-		LifeCycleUtil.stop(byteBufAllocator);
+		LifeCycleUtil.stop(mcByteBufAllocator);
 
 		// LifeCycleUtil.stop(directByteBufferPool);
 	}

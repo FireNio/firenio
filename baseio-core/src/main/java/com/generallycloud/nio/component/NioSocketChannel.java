@@ -11,6 +11,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.ClosedChannelException;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -26,21 +27,21 @@ import com.generallycloud.nio.protocol.SslReadFuture;
 
 public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
 
-	private Socket					socket;
-	private SocketChannel			channel;
-	private UnsafeSession			session;
+	private Socket						socket;
+	private SocketChannel				channel;
+	private UnsafeSession				session;
 	private ChannelReadFuture			readFuture;
-	private SslReadFuture			sslReadFuture;
-	private SelectionKey			selectionKey;
-	private ChannelFlusher			channelFlusher;
-	private boolean				networkWeak;
-	private ProtocolDecoder			protocolDecoder;
-	private ProtocolEncoder			protocolEncoder;
-	private ProtocolFactory			protocolFactory;
+	private SslReadFuture				sslReadFuture;
+	private SelectionKey				selectionKey;
+	private ChannelFlusher				channelFlusher;
+	private boolean					networkWeak;
+	private ProtocolDecoder				protocolDecoder;
+	private ProtocolEncoder				protocolEncoder;
+	private ProtocolFactory				protocolFactory;
 	private ChannelWriteFuture			writeFuture;
-	private boolean				opened			= true;
-	private long					next_network_weak	= Long.MAX_VALUE;
-	private boolean 				enableInbound		= true;
+	private boolean					opened			= true;
+	private long						next_network_weak	= Long.MAX_VALUE;
+	private boolean					enableInbound		= true;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
@@ -50,9 +51,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(BaseContext context, SelectionKey selectionKey, ChannelFlusher channelFlusher)
-			throws SocketException {
-		super(context);
+	public NioSocketChannel(BaseContext context, SelectionKey selectionKey, ByteBufAllocator allocator,
+			ChannelFlusher channelFlusher) throws SocketException {
+		super(context, allocator);
 		this.selectionKey = selectionKey;
 		this.channelFlusher = channelFlusher;
 		this.channel = (SocketChannel) selectionKey.channel();
@@ -195,13 +196,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private void releaseWriteFutures() {
 
 		ReleaseUtil.release(writeFuture);
-		
+
 		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
 
 		if (writeFutures.size() != -1) {
 			return;
 		}
-		
+
 		ChannelWriteFuture f = writeFutures.poll();
 
 		UnsafeSession session = this.session;
@@ -218,17 +219,17 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 
-	//FIXME 这里有问题
+	// FIXME 这里有问题
 	public void physicalClose() throws IOException {
 
 		enableInbound = false;
-		
+
 		int tryTime = 5;
-		
+
 		if (channel.isOpen()) {
 			tryTime <<= 3;
 		}
-		
+
 		// FIXME condition instead?
 		for (;;) {
 			if (!needFlush() || tryTime-- == 0) {

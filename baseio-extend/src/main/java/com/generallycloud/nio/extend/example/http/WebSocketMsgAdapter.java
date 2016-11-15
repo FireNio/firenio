@@ -1,6 +1,5 @@
 package com.generallycloud.nio.extend.example.http;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,11 +70,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 					f.write(msg);
 
-					try {
-						s.flush(f);
-					} catch (IOException e) {
-						logger.error(e.getMessage(),e);
-					}
+					s.flush(f);
 				} else {
 
 					removeClient(s);

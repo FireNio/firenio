@@ -2,6 +2,7 @@ package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.Session;
 
 
 public abstract class AbstractIOReadFuture extends AbstractReadFuture implements ChannelReadFuture {
@@ -54,7 +55,7 @@ public abstract class AbstractIOReadFuture extends AbstractReadFuture implements
 		this.isSilent = isSilent;
 	}
 
-	protected ByteBuf allocate(int capacity){
-		return context.getByteBufAllocator().allocate(capacity);
+	protected ByteBuf allocate(Session session,int capacity){
+		return session.getByteBufAllocator().allocate(capacity);
 	}
 }

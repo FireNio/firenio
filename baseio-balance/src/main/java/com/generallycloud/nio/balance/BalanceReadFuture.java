@@ -2,7 +2,6 @@ package com.generallycloud.nio.balance;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface BalanceReadFuture extends ReadFuture {
@@ -25,6 +24,6 @@ public interface BalanceReadFuture extends ReadFuture {
 
 	public abstract boolean isReceiveBroadcast();
 
-	public abstract ChannelWriteFuture translate() throws IOException;
+	public abstract BalanceReadFuture translate() throws IOException;
 
 }

@@ -15,6 +15,7 @@ import com.generallycloud.nio.component.concurrent.ReentrantMap;
 //所有涉及操作全部session的操作放在此队列中做
 public class SessionManagerImpl extends AbstractLooper implements SessionManager {
 
+	//FIXME last current next tailuan
 	private BaseContext					context;
 	private long						next_idle_time	= System.currentTimeMillis();
 	private long						current_idle_time;
@@ -43,11 +44,17 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 
 	public void loop() {
 
-		SessionMEvent event = this.events.poll(16);
+		SessionMEvent event = events.poll(16);
+
+		Map<Integer, Session> map = sessions.getSnapshot();
+
+		if (map.size() == 0) {
+			return;
+		}
 
 		if (event != null) {
 			try {
-				event.fire(context, sessions.getSnapshot());
+				event.fire(context, map);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -64,12 +71,6 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 		this.current_idle_time = current_time;
 
 		this.next_idle_time = current_idle_time + context.getSessionIdleTime();
-
-		Map<Integer, Session> map = this.sessions.getSnapshot();
-
-		if (map.size() == 0) {
-			return;
-		}
 
 		Set<Entry<Integer, Session>> es = map.entrySet();
 

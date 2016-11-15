@@ -11,8 +11,8 @@ import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -20,7 +20,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(Session session, ChannelReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
 
@@ -47,7 +47,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 			
 		}else{
 			
-			text_array = write_text.getBytes(context.getEncoding());
+			text_array = write_text.getBytes(session.getEncoding());
 			
 			length = text_array.length;
 			
@@ -99,9 +99,9 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuf buf = context.getByteBufAllocator().allocate(h.length() + length);
+		ByteBuf buf = session.getByteBufAllocator().allocate(h.length() + length);
 		
-		buf.put(h.toString().getBytes(context.getEncoding()));
+		buf.put(h.toString().getBytes(session.getEncoding()));
 		
 		if (length != 0) {
 			buf.put(text_array, 0, length);

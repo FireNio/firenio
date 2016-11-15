@@ -5,6 +5,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 
 public interface SelectorLoop extends SelectionAcceptor, Looper {
 
@@ -19,4 +20,6 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract void startup() throws IOException;
 	
 	public abstract SelectableChannel getSelectableChannel();
+	
+	public abstract ByteBufAllocator getByteBufAllocator();
 }

@@ -17,6 +17,7 @@ public class ServerConfiguration {
 	private int		SERVER_IO_EVENT_QUEUE			= 0;
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT;
+	private boolean	SERVER_MEMORY_POOL_DIRECT;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
 	private int		SERVER_READ_BUFFER				= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
@@ -118,7 +119,7 @@ public class ServerConfiguration {
 	}
 
 	public int getSERVER_MEMORY_POOL_CAPACITY() {
-		return SERVER_MEMORY_POOL_CAPACITY * getSERVER_CORE_SIZE();
+		return SERVER_MEMORY_POOL_CAPACITY;
 	}
 
 	public void setSERVER_MEMORY_POOL_CAPACITY(int SERVER_MEMORY_POOL_CAPACITY) {
@@ -150,6 +151,14 @@ public class ServerConfiguration {
 		this.SERVER_MEMORY_POOL_CAPACITY_RATE = SERVER_MEMORY_POOL_CAPACITY_RATE;
 	}
 
+	public boolean isSERVER_MEMORY_POOL_DIRECT() {
+		return SERVER_MEMORY_POOL_DIRECT;
+	}
+
+	public void setSERVER_MEMORY_POOL_DIRECT(boolean SERVER_MEMORY_POOL_DIRECT) {
+		this.SERVER_MEMORY_POOL_DIRECT = SERVER_MEMORY_POOL_DIRECT;
+	}
+
 	public void initializeDefault(BaseContext context) {
 
 		if (SERVER_MEMORY_POOL_UNIT == 0) {
@@ -163,15 +172,10 @@ public class ServerConfiguration {
 			SERVER_MEMORY_POOL_CAPACITY = (int) (total / (SERVER_MEMORY_POOL_UNIT * SERVER_CORE_SIZE * 4));
 
 			SERVER_MEMORY_POOL_CAPACITY *= SERVER_MEMORY_POOL_CAPACITY_RATE;
+			
+			SERVER_IO_EVENT_QUEUE = SERVER_MEMORY_POOL_CAPACITY * 2;
 		}
-
-		if (SERVER_IO_EVENT_QUEUE == 0) {
-
-			double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
-					new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
-			SERVER_IO_EVENT_QUEUE = (int) (MEMORY_POOL_SIZE * 1024 * 4);
-		}
+		
 	}
 
 }

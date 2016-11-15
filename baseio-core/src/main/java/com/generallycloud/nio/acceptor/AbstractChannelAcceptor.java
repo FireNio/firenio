@@ -12,7 +12,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
@@ -71,39 +70,36 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 		offerSessionMEvent(new SessionMEvent() {
 
 			public void fire(BaseContext context, Map<Integer, Session> sessions) {
-
-				if (sessions.size() == 0) {
+				
+				Iterator<Session> ss = sessions.values().iterator();
+				
+				Session session = ss.next();
+				
+				if (sessions.size() == 1) {
+					
+					session.flush(future);
+					
 					return;
 				}
-				
-				ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
 				
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 				
 				ChannelWriteFuture writeFuture;
 				try {
-					writeFuture = encoder.encode(context, ioReadFuture);
+					writeFuture = encoder.encode(session, (ChannelReadFuture) future);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;
 				}
-
-				Iterator<Session> ss = sessions.values().iterator();
 				
 				for (; ss.hasNext();) {
 
-					SocketSession s = (SocketSession) ss.next();
+					Session s = ss.next();
 
 					ChannelWriteFuture copy = writeFuture.duplicate();
 
-					try {
+					s.flush(copy);
 
-						s.flush(copy);
-
-					} catch (Exception e) {
-
-						logger.error(e.getMessage(), e);
-					}
 				}
 				
 				ReleaseUtil.release(writeFuture);

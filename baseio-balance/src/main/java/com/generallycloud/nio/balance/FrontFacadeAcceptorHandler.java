@@ -4,9 +4,8 @@ import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
@@ -40,9 +39,9 @@ public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
 		
 		f.setSessionID(session.getSessionID());
 
-		ChannelWriteFuture writeFuture = f.translate();
+		f = f.translate();
 
-		routerSession.flush(writeFuture);
+		routerSession.flush(f);
 
 		logger.info("分发请求到：[ {} ]", routerSession.getRemoteSocketAddress());
 	}

@@ -17,7 +17,7 @@ public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectio
 
 	protected ProtocolEncoder	protocolEncoder;
 
-	protected AbstractTCPSelectionAlpha(BaseContext context,SelectorLoop selectorLoop) {
+	protected AbstractTCPSelectionAlpha(BaseContext context, SelectorLoop selectorLoop) {
 		this.selectorLoop = selectorLoop;
 		this.protocolFactory = context.getProtocolFactory();
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
@@ -32,12 +32,12 @@ public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectio
 
 			return channel;
 		}
-		
+
 		BaseContext context = selectorLoop.getContext();
-		
+
 		ChannelFlusher channelFlusher = selectorLoop.getChannelFlusher();
 
-		channel = new NioSocketChannel(context, selectionKey, channelFlusher);
+		channel = new NioSocketChannel(context, selectionKey, selectorLoop.getByteBufAllocator(), channelFlusher);
 
 		channel.setProtocolDecoder(protocolDecoder);
 

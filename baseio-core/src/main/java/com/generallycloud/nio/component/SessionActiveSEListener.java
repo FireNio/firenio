@@ -1,7 +1,5 @@
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -41,13 +39,7 @@ public class SessionActiveSEListener extends SEListenerAdapter {
 				return;
 			}
 
-			try {
-				session.flush(future);
-			} catch (IOException e) {
-				CloseUtil.close(session);
-				logger.error(e.getMessage(), e);
-				return;
-			}
+			session.flush(future);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.generallycloud.nio.codec.redis.future;
 
 import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface RedisReadFuture extends ReadFuture {
@@ -20,7 +21,7 @@ public interface RedisReadFuture extends ReadFuture {
 	public static final String		CMD_PING				= "PING";
 	public static final String		CMD_PONG				= "PONG";
 
-	public static byte[]			CRLF_BYTES			= "\r\n".getBytes();
+	public static final byte[]		CRLF_BYTES			= "\r\n".getBytes();
 
 	public abstract RedisNode getRedisNode();
 
@@ -36,5 +37,7 @@ public interface RedisReadFuture extends ReadFuture {
 	}
 	
 	public abstract void writeCommand(byte[] command, byte[]... args) ;
+	
+	public abstract BufferedOutputStream getBufferedOutputStream();
 
 }

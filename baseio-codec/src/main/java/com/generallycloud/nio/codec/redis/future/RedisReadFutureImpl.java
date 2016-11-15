@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.SocketSession;
 
 //FIXME 完善心跳
 //FIXME limit
-public class RedisReadFutureImpl extends AbstractRedisReadFuture implements RedisReadFuture {
+public class RedisReadFutureImpl extends AbstractRedisReadFuture {
 
 	private StringBuilder	currentLine	= new StringBuilder();
 

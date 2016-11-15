@@ -63,7 +63,7 @@ public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFu
 
 			if (length > buf.capacity()) {
 
-				this.buf = allocate(length);
+				this.buf = allocate(session,length);
 
 				buf.flip();
 

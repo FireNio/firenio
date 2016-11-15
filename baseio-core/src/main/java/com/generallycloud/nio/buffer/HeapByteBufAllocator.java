@@ -1,12 +1,11 @@
 package com.generallycloud.nio.buffer;
 
-
 public class HeapByteBufAllocator extends AbstractByteBufAllocator {
 
-	private byte[]		memory;
+	private byte[]	memory;
 
 	public HeapByteBufAllocator(int capacity) {
-		this(capacity, 1024);
+		this(capacity, 512);
 	}
 
 	public HeapByteBufAllocator(int capacity, int unitMemorySize) {

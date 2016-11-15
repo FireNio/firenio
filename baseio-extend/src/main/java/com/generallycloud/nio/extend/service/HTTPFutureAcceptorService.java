@@ -1,7 +1,5 @@
 package com.generallycloud.nio.extend.service;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.HttpSessionManager;
@@ -42,12 +40,7 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 			
 			((TextReadFuture) future).write("server error:"+cause.getMessage());
 
-			try {
-				session.flush(future);
-			} catch (IOException e) {
-				logger.error(e.getMessage(),e);
-			}
+			session.flush(future);
 		}
-		
 	}
 }

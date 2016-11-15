@@ -1,13 +1,11 @@
 package com.generallycloud.nio.balance;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SEListenerAdapter;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
@@ -51,10 +49,6 @@ public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
 
 		ReadFuture future = factory.createChannelLostPacket(session);
 
-		try {
-			router.flush(future);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		router.flush(future);
 	}
 }

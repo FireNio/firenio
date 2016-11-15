@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -22,16 +23,15 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
+		
+		MCByteBufAllocator allocator = context.getMcByteBufAllocator();
 
-		ByteBufAllocator allocator = context.getByteBufAllocator();
-		
-		String allocatorDes = allocator.toString();
-		
-		allocatorDes = allocatorDes.substring(allocatorDes.indexOf("["));
+		String allocatorDes = allocator.toDebugString();
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
-
-		int SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY();
+		
+		int SERVER_CORE_SIZE = configuration.getSERVER_CORE_SIZE();
+		int SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY() * SERVER_CORE_SIZE;
 		int SERVER_MEMORY_POOL_UNIT = configuration.getSERVER_MEMORY_POOL_UNIT();
 
 		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(
@@ -53,7 +53,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 		builder.append(MEMORY_POOL_SIZE);
 		builder.append("M;\n</BR>内存池状态（Heap）：");
 		builder.append(allocatorDes);
-		builder.append(";\n</BR>服务器当前连接数（io-session）：");
+		builder.append("\n</BR>服务器当前连接数（io-session）：");
 		builder.append(context.getSessionManager().getManagedSessionSize());
 		builder.append(";\n</BR>服务器当前会话数（http-session）：");
 		builder.append(httpContext.getHttpSessionManager().getManagedSessionSize());

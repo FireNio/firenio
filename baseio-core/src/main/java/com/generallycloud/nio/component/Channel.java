@@ -6,6 +6,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.buffer.ByteBufAllocator;
+
 //FIXME 扩展更多Channel
 public interface Channel extends Closeable{
 	
@@ -47,6 +49,8 @@ public interface Channel extends Closeable{
 
 	public abstract int getMaxIdleTime() throws SocketException;
 	
-	public ReentrantLock getChannelLock() ;
+	public abstract ReentrantLock getChannelLock() ;
+	
+	public abstract ByteBufAllocator getByteBufAllocator();
 	
 }

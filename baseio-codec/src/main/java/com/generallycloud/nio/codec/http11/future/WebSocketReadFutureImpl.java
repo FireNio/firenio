@@ -193,7 +193,7 @@ public class WebSocketReadFutureImpl extends AbstractTextReadFuture implements W
 		
 		ReleaseUtil.release(buf);
 		
-		this.buf = allocate(length);
+		this.buf = allocate(session,length);
 	}
 	
 	public String getFutureName() {

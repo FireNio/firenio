@@ -9,10 +9,6 @@ import com.generallycloud.nio.protocol.SslReadFutureImpl;
 
 public class SslChannelByteBufReader extends TransparentByteBufReader{
 
-	public SslChannelByteBufReader(BaseContext context) {
-		super(context);
-	}
-
 	public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
 
 		UnsafeSession session = channel.getSession();
@@ -27,7 +23,7 @@ public class SslChannelByteBufReader extends TransparentByteBufReader{
 
 			if (future == null) {
 
-				ByteBuf buf = byteBufAllocator.allocate(SslReadFuture.SSL_RECORD_HEADER_LENGTH);
+				ByteBuf buf = allocate(session,SslReadFuture.SSL_RECORD_HEADER_LENGTH);
 
 				future = new SslReadFutureImpl(session, buf);
 

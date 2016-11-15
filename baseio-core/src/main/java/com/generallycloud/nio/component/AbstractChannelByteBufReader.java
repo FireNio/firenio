@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -15,12 +15,10 @@ public abstract class AbstractChannelByteBufReader implements ChannelByteBufRead
 
 	private Logger logger = LoggerFactory.getLogger(AbstractChannelByteBufReader.class);
 	
-	protected ByteBufAllocator	byteBufAllocator	= null;
-	
-	public AbstractChannelByteBufReader(BaseContext context) {
-		this.byteBufAllocator = context.getByteBufAllocator();
+	protected ByteBuf allocate(Session session,int capacity){
+		return session.getByteBufAllocator().allocate(capacity);
 	}
-
+	
 	protected void accept(final Session session, final ChannelReadFuture future) throws Exception {
 
 		if (future.isSilent()) {
@@ -81,13 +79,7 @@ public abstract class AbstractChannelByteBufReader implements ChannelByteBufRead
 
 			ReadFuture f = factory.createPONGPacket(session);
 
-			try {
-				session.flush(f);
-			} catch (IOException e) {
-				CloseUtil.close(session);
-				logger.error(e.getMessage(), e);
-				return;
-			}
+			session.flush(f);
 		} else {
 			logger.info("收到心跳回报!来自：{}", session);
 		}

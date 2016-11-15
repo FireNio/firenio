@@ -6,7 +6,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 
-public class RedisCmdFuture extends AbstractRedisReadFuture implements RedisReadFuture {
+public class RedisCmdFuture extends AbstractRedisReadFuture {
 
 	protected RedisCmdFuture(BaseContext context) {
 		super(context);
@@ -22,6 +22,5 @@ public class RedisCmdFuture extends AbstractRedisReadFuture implements RedisRead
 	public RedisNode getRedisNode() {
 		return null;
 	}
-
 
 }

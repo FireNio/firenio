@@ -10,10 +10,6 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends AbstractChannelByteBufReader{
 
-	public TransparentByteBufReader(BaseContext context) {
-		super(context);
-	}
-
 	public void accept(SocketChannel channel,ByteBuf buf) throws Exception {
 
 		UnsafeSession session = channel.getSession();

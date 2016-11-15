@@ -44,4 +44,8 @@ public abstract class AbstractRedisReadFuture extends AbstractIOReadFuture imple
 		outputStream.write(b);
 	}
 	
+	public BufferedOutputStream getBufferedOutputStream(){
+		return outputStream;
+	}
+	
 }

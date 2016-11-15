@@ -9,6 +9,7 @@ import com.generallycloud.nio.codec.http2.future.Http2PrefaceReadFuture;
 import com.generallycloud.nio.codec.http2.future.Http2SettingsFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2WindowUpdateFrameImpl;
 import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -101,17 +102,17 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 			break;
 		case FRAME_TYPE_FRAME_HEADER:
-			return new Http2FrameHeaderImpl(session, allocate(context, PROTOCOL_HEADER));
+			return new Http2FrameHeaderImpl(session, allocate(session, PROTOCOL_HEADER));
 		case FRAME_TYPE_GOAWAY:
 
 			break;
 		case FRAME_TYPE_HEADERS:
-			return new Http2HeadersFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
+			return new Http2HeadersFrameImpl(http2UnsafeSession, allocate(http2UnsafeSession));
 		case FRAME_TYPE_PING:
 
 			break;
 		case FRAME_TYPE_PREFACE:
-			return new Http2PrefaceReadFuture(context, allocate(context, PROTOCOL_PREFACE_HEADER));
+			return new Http2PrefaceReadFuture(context, allocate(session,PROTOCOL_PREFACE_HEADER));
 		case FRAME_TYPE_PRIORITY:
 
 			break;
@@ -122,20 +123,20 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 			break;
 		case FRAME_TYPE_SETTINGS:
-			return new Http2SettingsFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
+			return new Http2SettingsFrameImpl(http2UnsafeSession, allocate(http2UnsafeSession));
 		case FRAME_TYPE_WINDOW_UPDATE:
-			return new Http2WindowUpdateFrameImpl(http2UnsafeSession, allocate(context, http2UnsafeSession));
+			return new Http2WindowUpdateFrameImpl(http2UnsafeSession, allocate(http2UnsafeSession));
 		default:
 			break;
 		}
 		return null;
 	}
 
-	private ByteBuf allocate(BaseContext context, int capacity) {
-		return context.getByteBufAllocator().allocate(capacity);
+	private ByteBuf allocate(Session session, int capacity) {
+		return session.getByteBufAllocator().allocate(capacity);
 	}
 	
-	private ByteBuf allocate(BaseContext context,Http2SocketSession session) {
-		return context.getByteBufAllocator().allocate(session.getLastReadFrameHeader().getLength());
+	private ByteBuf allocate(Http2SocketSession session) {
+		return session.getByteBufAllocator().allocate(session.getLastReadFrameHeader().getLength());
 	}
 }

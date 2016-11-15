@@ -10,7 +10,7 @@ import com.generallycloud.nio.codec.http2.future.Http2SettingsFrame;
 import com.generallycloud.nio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.nio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.nio.common.MathUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -20,7 +20,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 	
 	private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
-	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture future) throws IOException {
+	public ChannelWriteFuture encode(Session session, ChannelReadFuture future) throws IOException {
 		
 		Http2Frame frame = (Http2Frame) future;
 		
@@ -91,7 +91,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		int length = payload.length;
 		
-		ByteBuf buf = context.getByteBufAllocator().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
+		ByteBuf buf = session.getByteBufAllocator().allocate(length + Http2ProtocolDecoder.PROTOCOL_HEADER);
 		
 		byte b2 = (byte) ((length & 0xff));
 		byte b1 = (byte) ((length >> 8*1) & 0xff);

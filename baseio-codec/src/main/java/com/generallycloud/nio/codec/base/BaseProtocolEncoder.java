@@ -8,8 +8,8 @@ import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -42,7 +42,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		MathUtil.int2Byte(header, hash, BaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 
-	public ChannelWriteFuture encode(BaseContext context, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(Session session, ChannelReadFuture readFuture) throws IOException {
 
 		if (readFuture.isHeartbeat()) {
 
@@ -51,7 +51,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			array[0] = (byte) (readFuture.isPING() ? BaseProtocolDecoder.PROTOCOL_PING
 					: BaseProtocolDecoder.PROTOCOL_PONG << 6);
 
-			ByteBuf buf = context.getByteBufAllocator().allocate(1);
+			ByteBuf buf = session.getByteBufAllocator().allocate(1);
 
 			buf.put(array);
 
@@ -70,7 +70,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			throw new ProtocolException("future name is empty");
 		}
 		
-		Charset charset = context.getEncoding();
+		Charset charset = session.getEncoding();
 
 		byte[] future_name_array = future_name.getBytes(charset);
 		byte[] text_array;
@@ -108,7 +108,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 		calc_text(header, text_length);
 		calc_binary(header, binary_length);
 
-		ByteBuf buf = context.getByteBufAllocator().allocate(all_length);
+		ByteBuf buf = session.getByteBufAllocator().allocate(all_length);
 
 		buf.put(header);
 		buf.put(future_name_array);

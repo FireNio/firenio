@@ -14,7 +14,9 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
+import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
@@ -38,19 +40,35 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 			public void fire(BaseContext context, Map<Integer, Session> sessions) {
 
-				if (sessions == null || sessions.size() == 0) {
-					return;
-				}
-
-				ChannelWriteFuture writeFuture;
+				BalanceReadFuture f ;
+				
 				try {
-					writeFuture = future.translate();
+					f = future.translate();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					logger.error(e.getMessage(),e);
 					return;
 				}
 				
 				Iterator<Session> ss = sessions.values().iterator();
+				
+				Session session = ss.next();
+				
+				if (sessions.size() == 1) {
+					
+					session.flush(f);
+					
+					return;
+				}
+				
+				ProtocolEncoder encoder = context.getProtocolEncoder();
+				
+				ChannelWriteFuture writeFuture;
+				try {
+					writeFuture = encoder.encode(session, (ChannelReadFuture) f);
+				} catch (IOException e) {
+					logger.error(e.getMessage(),e);
+					return;
+				}
 
 				for (; ss.hasNext();) {
 
@@ -106,9 +124,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 				return;
 			}
 
-			ChannelWriteFuture writeFuture = f.translate();
-
-			response.flush(writeFuture);
+			response.flush(f.translate());
 
 			logger.info("回复报文到客户端,{}", response);
 

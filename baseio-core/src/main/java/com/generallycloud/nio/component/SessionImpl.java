@@ -1,12 +1,12 @@
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import com.generallycloud.nio.DisconnectException;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -46,14 +46,10 @@ public abstract class SessionImpl implements Session {
 		attributes.clear();
 	}
 
-	public void flush(ReadFuture future) throws IOException {
+	public void flush(ReadFuture future) {
 
-		if (future == null) {
-			throw new IllegalStateException("null future");
-		}
-
-		if (future.flushed()) {
-			throw new IllegalStateException("flushed already");
+		if (future == null || future.flushed()) {
+			return;
 		}
 
 		SocketChannel socketChannel = this.socketChannel;
@@ -61,8 +57,8 @@ public abstract class SessionImpl implements Session {
 		if (!socketChannel.isOpened()) {
 
 			IOEventHandle handle = future.getIOEventHandle();
-
-			handle.exceptionCaught(this, future, new DisconnectException("disconnected"), IOEventState.WRITE);
+			
+			exceptionCaught(handle, future, new DisconnectException("disconnected"), IOEventState.WRITE);
 
 			return;
 		}
@@ -75,7 +71,7 @@ public abstract class SessionImpl implements Session {
 
 			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
 
-			writeFuture = encoder.encode(context, ioReadFuture);
+			writeFuture = encoder.encode(this, ioReadFuture);
 
 			ioReadFuture.flush();
 
@@ -89,7 +85,15 @@ public abstract class SessionImpl implements Session {
 
 			IOEventHandle handle = future.getIOEventHandle();
 
-			handle.exceptionCaught(this, future, e, IOEventState.WRITE);
+			exceptionCaught(handle, future, e, IOEventState.WRITE);
+		}
+	}
+	
+	private void exceptionCaught(IOEventHandle handle,ReadFuture future, Exception cause, IOEventState state){
+		try {
+			handle.exceptionCaught(this, future, cause, state);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
 		}
 	}
 
@@ -228,4 +232,8 @@ public abstract class SessionImpl implements Session {
 		return socketChannel.toString();
 	}
 
+	public ByteBufAllocator getByteBufAllocator() {
+		return socketChannel.getByteBufAllocator();
+	}
+	
 }

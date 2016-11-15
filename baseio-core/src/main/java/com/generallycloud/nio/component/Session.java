@@ -1,12 +1,12 @@
 package com.generallycloud.nio.component;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -20,7 +20,7 @@ public interface Session extends Closeable{
 
 	public abstract boolean isClosed();
 
-	public abstract void flush(ReadFuture future) throws IOException;
+	public abstract void flush(ReadFuture future) ;
 	
 	public abstract void flush(ChannelWriteFuture future);
 
@@ -83,5 +83,7 @@ public interface Session extends Closeable{
 	public abstract ProtocolEncoder getProtocolEncoder();
 
 	public abstract boolean isOpened();
+
+	public abstract ByteBufAllocator getByteBufAllocator();
 
 }

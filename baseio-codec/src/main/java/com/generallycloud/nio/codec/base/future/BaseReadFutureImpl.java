@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
+import com.generallycloud.nio.balance.BalanceReadFuture;
 import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -15,7 +16,6 @@ import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
 
 /**
  *
@@ -128,7 +128,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 			ReleaseUtil.release(buf);
 
-			this.buf = allocate(all_length);
+			this.buf = allocate(session,all_length);
 		}
 	}
 
@@ -256,7 +256,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return futureName + "@" + getText();
 	}
 
-	public ChannelWriteFuture translate() throws IOException {
+	public BalanceReadFuture translate() throws IOException {
 
 		if (!translated) {
 			translated = true;
@@ -264,7 +264,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 			this.writeBinary(binary);
 		}
 
-		return context.getProtocolEncoder().encode(context, this);
+		return this;
 	}
 
 	public void write(boolean b) {

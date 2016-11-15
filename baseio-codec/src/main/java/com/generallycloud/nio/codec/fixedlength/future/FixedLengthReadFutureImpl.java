@@ -79,7 +79,7 @@ public class FixedLengthReadFutureImpl extends AbstractTextReadFuture implements
 
 			ReleaseUtil.release(buf);
 
-			this.buf = allocate(length);
+			this.buf = allocate(session,length);
 
 		} else {
 

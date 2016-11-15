@@ -8,6 +8,7 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
@@ -26,8 +27,9 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	protected ChannelFlusher	channelFlusher		= null;
 	protected EventLoopThread	channelFlushThread	= null;
 	protected SelectableChannel	selectableChannel	= null;
+	protected ByteBufAllocator	byteBufAllocator	= null;
 
-	protected AbstractSelectorLoop(BaseContext context,SelectableChannel	selectableChannel) {
+	protected AbstractSelectorLoop(BaseContext context, SelectableChannel selectableChannel) {
 
 		this.context = context;
 
@@ -35,6 +37,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		
 		this.channelFlusher = new ChannelFlusherImpl(context);
 
+		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
+		
 		this.channelFlushThread = new EventLoopThread(channelFlusher, channelFlusher.toString());
 	}
 
@@ -55,23 +59,23 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			int selected = selector.select(64);
 
 			if (selected < 1) {
-				
+
 				long past = System.currentTimeMillis() - last_select;
-				
+
 				if (past < 64) {
-					
+
 					if (shutdown || past < 0) {
 						working = false;
 						return;
 					}
-					
-					//JDK bug fired ?
+
+					// JDK bug fired ?
 					IOException e = new IOException("JDK bug fired ?");
-					logger.error(e.getMessage(),e);
-					logger.debug("last={},past={}",last_select,past);
+					logger.error(e.getMessage(), e);
+					logger.debug("last={},past={}", last_select, past);
 					this.selector = rebuildSelector();
 				}
-				
+
 				working = false;
 
 				return;
@@ -99,30 +103,30 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			working = false;
 		}
 	}
-	
-	private Selector rebuildSelector(){
-		
+
+	private Selector rebuildSelector() {
+
 		Selector selector;
 		try {
-			 selector = buildSelector(selectableChannel);
+			selector = buildSelector(selectableChannel);
 		} catch (IOException e) {
 			throw new Error(e);
 		}
-		
+
 		Selector old = this.selector;
-		
+
 		Set<SelectionKey> sks = old.keys();
-		
+
 		if (sks.size() == 0) {
 			logger.debug("sk size 0");
 			CloseUtil.close(old);
 			return selector;
 		}
-		
+
 		for (SelectionKey sk : sks) {
-			
-			logger.debug("sk={},attachment={}",sk,sk.attachment());
-			
+
+			logger.debug("sk={},attachment={}", sk, sk.attachment());
+
 			if (!sk.isValid()) {
 				cancelSelectionKey(sk);
 				continue;
@@ -131,22 +135,22 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			try {
 				sk.channel().register(selector, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 				cancelSelectionKey(sk);
 			}
 		}
-		
+
 		CloseUtil.close(old);
-		
+
 		return selector;
 	}
-	
-	private void cancelSelectionKey(SelectionKey sk){
-		
+
+	private void cancelSelectionKey(SelectionKey sk) {
+
 		Object attachment = sk.attachment();
-		
+
 		if (attachment instanceof Channel) {
-			CloseUtil.close((Channel)attachment);
+			CloseUtil.close((Channel) attachment);
 		}
 	}
 
@@ -193,6 +197,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
+	}
+
+	public ByteBufAllocator getByteBufAllocator() {
+		return byteBufAllocator;
 	}
 
 }
