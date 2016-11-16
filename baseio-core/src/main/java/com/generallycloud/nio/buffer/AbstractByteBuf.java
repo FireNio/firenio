@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.SocketChannel;
 
-public abstract class AbstractByteBuf implements ByteBuf {
+public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 	protected ByteBufAllocator	allocator;
 	protected int				capacity;
@@ -14,10 +14,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected int				offset;
 	protected int				position;
 	protected boolean			released;
-	protected int				index;
-	protected boolean			free;
-	protected int				blockEnd;
-	protected int				blockBegin;
 	protected ReferenceCount	referenceCount;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
@@ -141,7 +137,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return this;
 	}
 
-	protected ByteBuf produce(int newLimit) {
+	public ByteBuf produce(int newLimit) {
 		this.offset = index * allocator.getUnitMemorySize();
 		this.capacity = (blockEnd - index) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
@@ -204,6 +200,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		b.append(capacity);
 		b.append(",remaining=");
 		b.append(remaining());
+		b.append(",index=");
+		b.append(index);
 		b.append("]");
 		return b.toString();
 	}
