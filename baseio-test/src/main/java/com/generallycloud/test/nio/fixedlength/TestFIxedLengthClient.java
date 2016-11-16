@@ -38,7 +38,7 @@ public class TestFIxedLengthClient {
 		
 		ServerConfiguration configuration = new ServerConfiguration("localhost", 18300);
 		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.1);
+		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.4);
 		
 		BaseContext context = new BaseContextImpl(configuration);
 

@@ -259,37 +259,37 @@ public class DirectByteBuf extends AbstractByteBuf {
 		return v;
 	}
 
-	public int getShort() {
-		int v = memory.getShort();
+	public short getShort() {
+		short v = memory.getShort();
 		this.position += 2;
 		return v;
 	}
 
-	public int getShort(int index) {
+	public short getShort(int index) {
 		return memory.getShort(ix(index));
 	}
 
-	public int getShortLE() {
+	public short getShortLE() {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
-		int v = memory.getShort();
+		short v = memory.getShort();
 		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 2;
 		return v;
 	}
 
-	public int getShortLE(int index) {
+	public short getShortLE(int index) {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
-		int v = memory.getShort(ix(index));
+		short v = memory.getShort(ix(index));
 		memory.order(ByteOrder.BIG_ENDIAN);
 		return v;
 	}
 
-	public int getUnsignedByte() {
-		return getByte() & 0xff;
+	public short getUnsignedByte() {
+		return (short) (getByte() & 0xff);
 	}
 
-	public int getUnsignedByte(int index) {
-		return getByte(index) & 0xff;
+	public short getUnsignedByte(int index) {
+		return (short) (getByte(index) & 0xff);
 	}
 
 	public long getUnsignedInt() {

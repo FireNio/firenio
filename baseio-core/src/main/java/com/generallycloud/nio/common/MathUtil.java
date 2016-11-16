@@ -120,7 +120,7 @@ public class MathUtil {
 		return (v0 | v1 | v2 | v3 | v4 | v5 | v6 | v7);
 	}
 	
-	public static int byte2Short(byte[] bytes, int offset) {
+	public static short byte2Short(byte[] bytes, int offset) {
 
 		checkLength(bytes, 2, offset);
 		
@@ -129,7 +129,7 @@ public class MathUtil {
 		return (short)(v0 | v1);
 	}
 
-	public static int byte2ShortLE(byte[] bytes, int offset) {
+	public static short byte2ShortLE(byte[] bytes, int offset) {
 
 		checkLength(bytes, 2, offset);
 

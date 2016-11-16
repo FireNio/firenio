@@ -3,7 +3,6 @@ package com.generallycloud.nio.extend.example.http;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;

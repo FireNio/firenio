@@ -60,7 +60,6 @@ public class TestLoadClient1 extends ITestThread {
 
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
-		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 		
 //		configuration.setSERVER_HOST("192.168.0.180");
 

@@ -220,32 +220,32 @@ public class HeapByteBuf extends AbstractByteBuf {
 		return MathUtil.byte2LongLE(memory, ix(index));
 	}
 
-	public int getShort() {
-		int v = MathUtil.byte2Short(memory, ix(position));
+	public short getShort() {
+		short v = MathUtil.byte2Short(memory, ix(position));
 		this.position += 2;
 		return v;
 	}
 
-	public int getShort(int index) {
+	public short getShort(int index) {
 		return MathUtil.byte2Short(memory, ix(index));
 	}
 
-	public int getShortLE() {
-		int v = MathUtil.byte2ShortLE(memory, ix(position));
+	public short getShortLE() {
+		short v = MathUtil.byte2ShortLE(memory, ix(position));
 		this.position += 2;
 		return v;
 	}
 
-	public int getShortLE(int index) {
+	public short getShortLE(int index) {
 		return MathUtil.byte2ShortLE(memory, ix(index));
 	}
 
-	public int getUnsignedByte() {
-		return getByte() & 0xff;
+	public short getUnsignedByte() {
+		return (short) (getByte() & 0xff);
 	}
 
-	public int getUnsignedByte(int index) {
-		return getByte(index) & 0xff;
+	public short getUnsignedByte(int index) {
+		return (short) (getByte(index) & 0xff);
 	}
 
 	public long getUnsignedInt() {

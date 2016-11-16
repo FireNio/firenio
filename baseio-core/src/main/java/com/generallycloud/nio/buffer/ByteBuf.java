@@ -52,17 +52,17 @@ public interface ByteBuf extends Releasable {
 	
 	public abstract long getLongLE(int index);
 	
-	public abstract int getShort();
+	public abstract short getShort();
 
-	public abstract int getShort(int index);
+	public abstract short getShort(int index);
 
-	public abstract int getShortLE();
+	public abstract short getShortLE();
 
-	public abstract int getShortLE(int index);
+	public abstract short getShortLE(int index);
 	
-	public abstract int getUnsignedByte();
+	public abstract short getUnsignedByte();
 	
-	public abstract int getUnsignedByte(int index);
+	public abstract short getUnsignedByte(int index);
 	
 	public abstract long getUnsignedInt();
 	

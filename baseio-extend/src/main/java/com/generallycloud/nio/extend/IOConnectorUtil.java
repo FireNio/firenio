@@ -25,6 +25,8 @@ public class IOConnectorUtil {
 			configuration = loader.loadConfiguration(SharedBundle.instance());
 		}
 		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+		
 		SocketChannelConnector connector = null;
 
 		try {

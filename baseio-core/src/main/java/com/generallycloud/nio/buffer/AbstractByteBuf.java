@@ -55,9 +55,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
 			buf.offset = offset;
 			buf.position = position;
 			buf.released = released;
-
-			return buf;
-
+			
+			return new DuplicateByteBuf(buf, this);
 		}
 	}
 

@@ -23,8 +23,6 @@ public class Test404 {
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		connector.getContext().getServerConfiguration().setSERVER_MEMORY_POOL_CAPACITY_RATE(0.1);
-		
 		FixedSession session = new FixedSession(connector.connect());
 
 		BaseReadFuture future = session.request(serviceKey, null);

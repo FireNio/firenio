@@ -35,8 +35,6 @@ public class TestFIxedLengthServer {
 		
 		ServerConfiguration configuration = new ServerConfiguration(18300);
 		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.2);
-
 		BaseContext context = new BaseContextImpl(configuration);
 		
 		context.addSessionEventListener(new LoggerSEListener());

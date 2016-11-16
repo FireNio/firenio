@@ -89,7 +89,9 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 				AbstractByteBuf memoryStart = memoryUnits[start];
 				AbstractByteBuf memoryEnd = unit;
 
-				setEmploy(memoryStart, memoryEnd, blockEnd);
+				memoryStart.free = false;
+				memoryStart.blockEnd = blockEnd;
+				memoryEnd.free = false;
 
 				mask = blockEnd;
 
