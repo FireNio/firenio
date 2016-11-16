@@ -16,11 +16,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 	}
 
 	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-		this(allocator, memory, new ReferenceCount());
-	}
-
-	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory, ReferenceCount referenceCount) {
-		super(allocator, referenceCount);
+		super(allocator);
 		this.memory = memory;
 	}
 
@@ -29,7 +25,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 	}
 
 	protected AbstractByteBuf newByteBuf() {
-		return new HeapByteBuf(allocator, memory, referenceCount);
+		return new HeapByteBuf(allocator, memory);
 	}
 
 	public byte getByte(int index) {

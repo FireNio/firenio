@@ -10,7 +10,7 @@ public class DirectByteBufFactory implements ByteBufFactory {
 		this.memory = ByteBuffer.allocateDirect(capacity);
 	}
 
-	public AbstractByteBuf newByteBuf(ByteBufAllocator allocator) {
+	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
 		return new DirectByteBuf(allocator, memory);
 	}
 

@@ -13,18 +13,12 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	protected ByteBuffer		nioBuffer;
 	protected int				offset;
 	protected int				position;
-	protected boolean			released;
-	protected ReferenceCount	referenceCount;
+	protected int				referenceCount = 0;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
-		this(allocator, new ReferenceCount());
-	}
-
-	protected AbstractByteBuf(ByteBufAllocator allocator, ReferenceCount referenceCount) {
 		this.limit = capacity;
 		this.position = 0;
 		this.allocator = allocator;
-		this.referenceCount = referenceCount;
 	}
 
 	protected AbstractByteBuf(int capacity) {
@@ -36,14 +30,11 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	public ByteBuf duplicate() {
 
 		synchronized (this) {
-
-			if (released) {
-				throw new ReleasedException("released");
-			}
+			
+			this.referenceCount++;
 
 			AbstractByteBuf buf = newByteBuf();
-
-			buf.referenceCount.increament();
+			
 			buf.blockEnd = blockEnd;
 			buf.free = free;
 			buf.index = index;
@@ -51,7 +42,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 			buf.nioBuffer = nioBuffer;
 			buf.offset = offset;
 			buf.position = position;
-			buf.released = released;
 			
 			return new DuplicateByteBuf(buf, this);
 		}
@@ -142,8 +132,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		this.capacity = (blockEnd - index) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
 		this.position = 0;
-		this.released = false;
-		this.referenceCount.increament();
+		this.referenceCount++;
 		return this;
 	}
 
@@ -166,18 +155,13 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 		synchronized (this) {
 
-			if (released) {
+			if (referenceCount != 1) {
 				return;
 			}
-
-			if (referenceCount.deincreament() != 0) {
-				return;
-			}
-
-			released = true;
+			
+			referenceCount = 0;
 
 			allocator.release(this);
-
 		}
 	}
 

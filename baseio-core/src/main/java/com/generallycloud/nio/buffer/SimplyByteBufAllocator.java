@@ -1,10 +1,9 @@
 package com.generallycloud.nio.buffer;
 
 
+public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 
-public class MarkByteBufAllocator extends AbstractByteBufAllocator {
-
-	public MarkByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
+	public SimplyByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(capacity, unitMemorySize, isDirect);
 	}
 

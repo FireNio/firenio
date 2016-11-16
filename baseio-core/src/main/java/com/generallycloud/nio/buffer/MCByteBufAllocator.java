@@ -58,7 +58,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		for (int i = 0; i < allocators.length; i++) {
 
-			ByteBufAllocator allocator = new MarkByteBufAllocator(capacity, unitMemorySize, direct);
+			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
 
 			allocators[i] = new LinkAbleByteBufAllocatorImpl(this,allocator, i);
 		}

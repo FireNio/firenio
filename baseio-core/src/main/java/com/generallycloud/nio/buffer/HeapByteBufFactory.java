@@ -12,7 +12,7 @@ public class HeapByteBufFactory implements ByteBufFactory {
 		this.memory = new byte[capacity];
 	}
 
-	public AbstractByteBuf newByteBuf(ByteBufAllocator allocator) {
+	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
 		return new HeapByteBuf(allocator, memory);
 	}
 

@@ -16,11 +16,7 @@ public class DirectByteBuf extends AbstractByteBuf {
 	}
 
 	public DirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-		this(allocator, memory, new ReferenceCount());
-	}
-
-	public DirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory, ReferenceCount referenceCount) {
-		super(allocator, referenceCount);
+		super(allocator);
 		this.memory = memory;
 	}
 
@@ -29,7 +25,7 @@ public class DirectByteBuf extends AbstractByteBuf {
 	}
 
 	protected AbstractByteBuf newByteBuf() {
-		return new DirectByteBuf(allocator, memory.duplicate(), referenceCount);
+		return new DirectByteBuf(allocator, memory.duplicate());
 	}
 
 	public byte getByte(int index) {

@@ -4,12 +4,12 @@ import java.util.Random;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.MarkByteBufAllocator;
+import com.generallycloud.nio.buffer.SimplyByteBufAllocator;
 import com.generallycloud.nio.common.ThreadUtil;
 
 public class TestMarkByteBufAllocator {
 
-	static ByteBufAllocator	allocator	= new MarkByteBufAllocator(20, 5, false);
+	static ByteBufAllocator	allocator	= new SimplyByteBufAllocator(20, 5, false);
 
 	public static void main(String[] args) throws Exception {
 
