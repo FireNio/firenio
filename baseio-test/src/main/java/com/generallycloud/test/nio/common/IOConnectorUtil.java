@@ -1,4 +1,4 @@
-package com.generallycloud.nio.extend;
+package com.generallycloud.test.nio.common;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LoggerFactory;
