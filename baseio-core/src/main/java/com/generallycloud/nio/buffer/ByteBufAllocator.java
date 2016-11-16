@@ -14,5 +14,7 @@ public interface ByteBufAllocator extends LifeCycle{
 	public abstract void freeMemory();
 	
 	public abstract int getCapacity();
+	
+	public abstract boolean isDirect();
 
 }

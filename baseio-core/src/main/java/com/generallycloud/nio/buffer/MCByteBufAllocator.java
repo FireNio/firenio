@@ -50,7 +50,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		int capacity = c.getSERVER_MEMORY_POOL_CAPACITY();
 
-		int unit = c.getSERVER_MEMORY_POOL_UNIT();
+		int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
 
 		boolean direct = c.isSERVER_MEMORY_POOL_DIRECT();
 
@@ -58,13 +58,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		for (int i = 0; i < allocators.length; i++) {
 
-			ByteBufAllocator allocator;
-
-			if (direct) {
-				allocator = new DirectByteBufAllocator(capacity, unit);
-			} else {
-				allocator = new HeapByteBufAllocator(capacity, unit);
-			}
+			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
 
 			allocators[i] = new LinkAbleByteBufAllocatorImpl(this,allocator, i);
 		}

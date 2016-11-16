@@ -83,5 +83,9 @@ public class LinkAbleByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	public String toString() {
 		return unwrap().toString();
 	}
+
+	public boolean isDirect() {
+		return unwrap().isDirect();
+	}
 	
 }

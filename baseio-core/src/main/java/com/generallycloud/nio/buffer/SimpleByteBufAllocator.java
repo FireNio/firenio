@@ -13,27 +13,36 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
 //FIXME 考虑每个selector持有一个allocator，失败时从下一个selector获取
-public abstract class AbstractByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
+public class SimpleByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
-	protected AbstractByteBuf[]				bufs;
+	private AbstractByteBuf[]		bufs;
 
-	protected int							capacity;
+	private int					capacity;
 
-	protected int							mask;
+	private int					mask;
 
-	protected int							unitMemorySize;
+	private int					unitMemorySize;
 
-	protected Map<ByteBuf, Exception>			busyBuf	= new HashMap<ByteBuf, Exception>();
+	private ReentrantLock			lock		= new ReentrantLock();
 
-	protected List<AbstractByteBuf>			busyUnit	= new ArrayList<AbstractByteBuf>();
+	private Map<ByteBuf, Exception>	busyBuf	= new HashMap<ByteBuf, Exception>();
 
-	protected ReentrantLock					lock		= new ReentrantLock();
+	private List<AbstractByteBuf>		busyUnit	= new ArrayList<AbstractByteBuf>();
 
-	private Logger							logger	= LoggerFactory.getLogger(AbstractByteBufAllocator.class);
+	private Logger					logger	= LoggerFactory.getLogger(SimpleByteBufAllocator.class);
 
-	public AbstractByteBufAllocator(int capacity, int unitMemorySize) {
+	private ByteBufFactory			bufFactory;
+
+	private boolean				isDirect;
+
+	public SimpleByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
+		this.isDirect = isDirect;
 		this.capacity = capacity;
 		this.unitMemorySize = unitMemorySize;
+	}
+
+	public boolean isDirect() {
+		return isDirect;
 	}
 
 	public ByteBuf allocate(int capacity) {
@@ -60,6 +69,10 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	public void freeMemory() {
+		bufFactory.freeMemory();
 	}
 
 	private ByteBuf allocate(int capacity, int start, int end, int size) {
@@ -106,6 +119,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 	protected void doStart() throws Exception {
 
+		bufFactory = createBufFactory();
+
 		int capacity = this.capacity;
 
 		initializeMemory(capacity * unitMemorySize);
@@ -113,13 +128,20 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		AbstractByteBuf[] bufs = new AbstractByteBuf[capacity];
 
 		for (int i = 0; i < capacity; i++) {
-			AbstractByteBuf buf = newByteBuf();
+			AbstractByteBuf buf = bufFactory.newByteBuf(this);
 			buf.free = true;
 			buf.index = i;
 			bufs[i] = buf;
 		}
 
 		this.bufs = bufs;
+	}
+
+	private ByteBufFactory createBufFactory() {
+		if (isDirect) {
+			return new DirectByteBufFactory();
+		}
+		return new HeapByteBufFactory();
 	}
 
 	protected void doStop() throws Exception {
@@ -134,9 +156,9 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		return unitMemorySize;
 	}
 
-	protected abstract void initializeMemory(int capacity);
-
-	protected abstract AbstractByteBuf newByteBuf();
+	protected void initializeMemory(int capacity) {
+		bufFactory.initializeMemory(capacity);
+	}
 
 	private void printBusy() {
 
@@ -187,12 +209,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		} finally {
 			lock.unlock();
 		}
-	}
-
-	private void setEmploy(AbstractByteBuf memoryStart, AbstractByteBuf memoryEnd, int blockEnd) {
-		memoryStart.free = false;
-		memoryStart.blockEnd = blockEnd;
-		memoryEnd.free = false;
 	}
 
 	public String toString() {

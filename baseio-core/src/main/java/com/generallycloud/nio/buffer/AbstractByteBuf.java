@@ -17,6 +17,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected int				index;
 	protected boolean			free;
 	protected int				blockEnd;
+	protected int				blockBegin;
 	protected ReferenceCount	referenceCount;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
