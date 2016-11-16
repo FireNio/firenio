@@ -6,9 +6,9 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.DatagramChannelConnector;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.rtp.client.RTPClient;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestUDPConnector2 {
 

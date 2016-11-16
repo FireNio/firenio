@@ -6,8 +6,8 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.IOAcceptorUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.test.nio.common.IOAcceptorUtil;
 
 public class TestSimpleHttpServer {
 

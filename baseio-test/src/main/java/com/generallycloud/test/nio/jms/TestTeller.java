@@ -3,12 +3,12 @@ package com.generallycloud.test.nio.jms;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
 import com.generallycloud.nio.extend.plugin.jms.TextMessage;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageProducer;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestTeller {
 

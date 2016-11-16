@@ -2,6 +2,7 @@ package com.generallycloud.nio.buffer;
 
 import com.generallycloud.nio.LifeCycle;
 
+//FIXME 考虑加入free链表
 public interface ByteBufAllocator extends LifeCycle{
 
 	public abstract void release(ByteBuf buf);

@@ -4,9 +4,13 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.IOAcceptorUtil;
+import com.generallycloud.nio.configuration.PropertiesSCLoader;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class BaseServerLoadStartup {
@@ -19,16 +23,37 @@ public class BaseServerLoadStartup {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture)future;
-				String res = "yes server already accept your message" + f.getReadText();
-				f.write(res);
+				f.write("yes server already accept your message");
+				f.write(f.getReadText());
 				session.flush(future);
 			}
 		};
 
-		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
-		
-		acceptor.getContext().setProtocolFactory(new BaseProtocolFactory());
+		PropertiesSCLoader loader = new PropertiesSCLoader();
+		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
 
-		acceptor.bind();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+
+		try {
+
+			BaseContext context = new BaseContextImpl(configuration);
+
+			context.setIOEventHandleAdaptor(eventHandleAdaptor);
+
+			context.addSessionEventListener(new LoggerSEListener());
+
+			acceptor.setContext(context);
+			
+			acceptor.getContext().setProtocolFactory(new BaseProtocolFactory());
+
+			acceptor.bind();
+
+		} catch (Throwable e) {
+
+			acceptor.unbind();
+
+			throw new RuntimeException(e);
+		}
 	}
+	
 }

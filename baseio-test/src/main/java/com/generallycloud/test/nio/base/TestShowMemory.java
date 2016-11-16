@@ -6,9 +6,9 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestShowMemory {
 

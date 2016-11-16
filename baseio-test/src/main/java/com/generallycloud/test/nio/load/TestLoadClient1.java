@@ -15,8 +15,8 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestLoadClient1 extends ITestThread {
 
@@ -76,9 +76,9 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 128 * 10000;
+		int time = 32 * 10000;
 
-		int core_size = 8;
+		int core_size = 4;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

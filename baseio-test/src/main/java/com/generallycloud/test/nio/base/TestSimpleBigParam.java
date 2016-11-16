@@ -7,8 +7,8 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestSimpleBigParam {
 	

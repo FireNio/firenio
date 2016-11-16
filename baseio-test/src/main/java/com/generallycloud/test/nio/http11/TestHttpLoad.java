@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.test.ITest;
 import com.generallycloud.nio.common.test.ITestHandle;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestHttpLoad {

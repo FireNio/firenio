@@ -4,13 +4,13 @@ import java.io.IOException;
 
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageConsumer;
 import com.generallycloud.nio.extend.plugin.jms.client.OnMessage;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestSubscribe {
 

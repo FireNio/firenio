@@ -10,9 +10,9 @@ import com.generallycloud.nio.component.IOEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FileSendUtil;
-import com.generallycloud.nio.extend.IOConnectorUtil;
 import com.generallycloud.nio.extend.example.baseio.TestUploadServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.test.nio.common.IOConnectorUtil;
 
 public class TestUpload {
 
