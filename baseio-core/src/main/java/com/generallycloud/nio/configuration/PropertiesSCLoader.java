@@ -21,6 +21,7 @@ public class PropertiesSCLoader implements ServerConfigurationLoader{
 		cfg.setSERVER_SESSION_IDLE_TIME(bundle.getLongProperty("SERVER.SESSION_IDLE_TIME"));
 		cfg.setSERVER_MEMORY_POOL_UNIT(bundle.getIntegerProperty("SERVER.MEMORY_POOL_UNIT"));
 		cfg.setSERVER_MEMORY_POOL_DIRECT(bundle.getBooleanProperty("SERVER.MEMORY_POOL_DIRECT"));
+		cfg.setSERVER_ENABLE_SSL(bundle.getBooleanProperty("SERVER.ENABLE_SSL"));
 		cfg.setSERVER_MEMORY_POOL_CAPACITY(bundle.getIntegerProperty("SERVER.MEMORY_POOL_CAPACITY"));
 		cfg.setSERVER_MEMORY_POOL_CAPACITY_RATE(bundle.getDoubleProperty("SERVER.MEMORY_POOL_CAPACITY_RATE"));
 		

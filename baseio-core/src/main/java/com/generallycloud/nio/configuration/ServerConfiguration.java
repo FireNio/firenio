@@ -17,6 +17,7 @@ public class ServerConfiguration {
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT;
 	private boolean	SERVER_MEMORY_POOL_DIRECT;
+	private boolean	SERVER_ENABLE_SSL;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
 	private int		SERVER_READ_BUFFER				= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
@@ -46,6 +47,14 @@ public class ServerConfiguration {
 
 	public int getSERVER_UDP_PORT() {
 		return SERVER_UDP_PORT;
+	}
+	
+	public boolean isSERVER_ENABLE_SSL() {
+		return SERVER_ENABLE_SSL;
+	}
+
+	public void setSERVER_ENABLE_SSL(boolean SERVER_ENABLE_SSL) {
+		this.SERVER_ENABLE_SSL = SERVER_ENABLE_SSL;
 	}
 
 	public void setSERVER_UDP_PORT(int SERVER_UDP_PORT) {
