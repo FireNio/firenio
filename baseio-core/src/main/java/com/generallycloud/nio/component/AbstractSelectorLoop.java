@@ -21,6 +21,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private Logger				logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean			working			= false;
 	private boolean			shutdown			= false;
+	private long				last_select		= 0;
 
 	protected Selector			selector			= null;
 	protected BaseContext		context			= null;
@@ -54,7 +55,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			Selector selector = this.selector;
 
-			long last_select = System.currentTimeMillis();
+			last_select = System.currentTimeMillis();
 
 			int selected = selector.select(60000);
 			

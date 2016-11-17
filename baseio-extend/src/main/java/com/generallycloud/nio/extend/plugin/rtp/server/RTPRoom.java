@@ -32,7 +32,7 @@ public class RTPRoom {
 		this.roomID = genRoomID();
 		this.roomFactory = context.getRTPRoomFactory();
 		this.context = context;
-		this.join(session.getDatagramChannel());
+//		this.join(session.getDatagramChannel()); //FIXME udp 
 	}
 
 	public void broadcast(DatagramChannel channel, DatagramPacket packet) {

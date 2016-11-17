@@ -26,20 +26,19 @@ public abstract class SessionImpl implements Session {
 	protected BaseContext				context;
 	protected Integer					sessionID;
 	protected EventLoop				eventLoop;
-	protected SocketChannel				socketChannel;
-	protected DatagramChannel			datagramChannel;
+	protected SocketChannel				channel;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
 	public SessionImpl(SocketChannel channel, Integer sessionID) {
 		this.context = channel.getContext();
-		this.socketChannel = channel;
+		this.channel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
 		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 
 	public void active() {
-		socketChannel.active();
+		channel.active();
 	}
 
 	public void clearAttributes() {
@@ -52,7 +51,7 @@ public abstract class SessionImpl implements Session {
 			return;
 		}
 
-		SocketChannel socketChannel = this.socketChannel;
+		SocketChannel socketChannel = this.channel;
 
 		if (!socketChannel.isOpened()) {
 
@@ -119,11 +118,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getCreationTime() {
-		return socketChannel.getCreationTime();
-	}
-
-	public DatagramChannel getDatagramChannel() {
-		return datagramChannel;
+		return channel.getCreationTime();
 	}
 
 	public Charset getEncoding() {
@@ -135,51 +130,51 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getLastAccessTime() {
-		return socketChannel.getLastAccessTime();
+		return channel.getLastAccessTime();
 	}
 
 	public String getLocalAddr() {
-		return socketChannel.getLocalAddr();
+		return channel.getLocalAddr();
 	}
 
 	public String getLocalHost() {
-		return socketChannel.getLocalHost();
+		return channel.getLocalHost();
 	}
 
 	public int getLocalPort() {
-		return socketChannel.getLocalPort();
+		return channel.getLocalPort();
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
-		return socketChannel.getLocalSocketAddress();
+		return channel.getLocalSocketAddress();
 	}
 
 	public int getMaxIdleTime() throws SocketException {
-		return socketChannel.getMaxIdleTime();
+		return channel.getMaxIdleTime();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
-		return socketChannel.getProtocolEncoder();
+		return channel.getProtocolEncoder();
 	}
 
 	public String getProtocolID() {
-		return socketChannel.getProtocolFactory().getProtocolID();
+		return channel.getProtocolFactory().getProtocolID();
 	}
 
 	public String getRemoteAddr() {
-		return socketChannel.getRemoteAddr();
+		return channel.getRemoteAddr();
 	}
 
 	public String getRemoteHost() {
-		return socketChannel.getRemoteHost();
+		return channel.getRemoteHost();
 	}
 
 	public int getRemotePort() {
-		return socketChannel.getRemotePort();
+		return channel.getRemotePort();
 	}
 
 	public InetSocketAddress getRemoteSocketAddress() {
-		return socketChannel.getRemoteSocketAddress();
+		return channel.getRemoteSocketAddress();
 	}
 
 	public Integer getSessionID() {
@@ -187,7 +182,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public boolean isBlocking() {
-		return socketChannel.isBlocking();
+		return channel.isBlocking();
 	}
 
 	public boolean isClosed() {
@@ -195,7 +190,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public boolean isOpened() {
-		return socketChannel.isOpened();
+		return channel.isOpened();
 	}
 
 	public Object removeAttribute(Object key) {
@@ -215,25 +210,16 @@ public abstract class SessionImpl implements Session {
 		attributes.put(key, value);
 	}
 
-	public void setDatagramChannel(DatagramChannel datagramChannel) {
-
-		if (this.datagramChannel != null && this.datagramChannel != datagramChannel) {
-			throw new IllegalArgumentException("datagram channel setted");
-		}
-
-		this.datagramChannel = datagramChannel;
-	}
-
 	public void setSessionID(Integer sessionID) {
 		this.sessionID = sessionID;
 	}
 
 	public String toString() {
-		return socketChannel.toString();
+		return channel.toString();
 	}
 
 	public ByteBufAllocator getByteBufAllocator() {
-		return socketChannel.getByteBufAllocator();
+		return channel.getByteBufAllocator();
 	}
 	
 }

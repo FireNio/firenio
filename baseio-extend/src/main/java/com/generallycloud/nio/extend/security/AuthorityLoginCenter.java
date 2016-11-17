@@ -11,7 +11,6 @@ import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
-import com.generallycloud.nio.extend.FixedSessionManager;
 import com.generallycloud.nio.extend.InitializeableImpl;
 import com.generallycloud.nio.extend.LoginCenter;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -45,10 +44,6 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 		
 		attachment.setAuthorityManager(authorityManager);
-		
-		FixedSessionManager sessionFactory = context.getSessionFactory();
-		
-		sessionFactory.putSession(authority.getUsername(), session);
 		
 		return true;
 

@@ -49,7 +49,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private List<FutureAcceptorFilter>			pluginFilters		= new ArrayList<FutureAcceptorFilter>();
 	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
 	private RoleManager						roleManager		= new RoleManager();
-	private FixedSessionManager				sessionManager;
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
 	private FutureAcceptorServiceFilter		lastServiceFilter	= null;
@@ -97,8 +96,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
-		this.sessionManager = new FixedSessionManager(context);
-		this.context.setSessionManager(sessionManager);
 		this.context.setSessionAttachmentSize(filterService.getPluginContexts().length);
 	}
 
@@ -172,10 +169,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public RoleManager getRoleManager() {
 		return roleManager;
-	}
-
-	public FixedSessionManager getSessionFactory() {
-		return sessionManager;
 	}
 
 	@Deprecated

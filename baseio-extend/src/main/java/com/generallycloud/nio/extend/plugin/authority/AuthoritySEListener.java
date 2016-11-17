@@ -2,9 +2,7 @@ package com.generallycloud.nio.extend.plugin.authority;
 
 import com.generallycloud.nio.component.SEListenerAdapter;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
-import com.generallycloud.nio.extend.FixedSessionManager;
 import com.generallycloud.nio.extend.security.Authority;
 
 public class AuthoritySEListener extends SEListenerAdapter {
@@ -32,11 +30,9 @@ public class AuthoritySEListener extends SEListenerAdapter {
 			return;
 		}
 		
-		ApplicationContext context = ApplicationContext.getInstance();
-		
-		FixedSessionManager sessionFactory = context.getSessionFactory();
-		
-		sessionFactory.removeSession(authority.getUsername());
+//		AuthorityContext context = AuthorityContext.getInstance();
+//		
+//		session.setAttachment(context.getPluginIndex(), null);
 	}
 	
 }

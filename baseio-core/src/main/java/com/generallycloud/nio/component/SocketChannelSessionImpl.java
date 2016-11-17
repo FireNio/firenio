@@ -107,7 +107,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 				future.wrapSSL(this, sslHandler);
 			}
 
-			socketChannel.offer(future);
+			channel.offer(future);
 
 		} catch (Exception e) {
 
@@ -124,11 +124,11 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	}
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return socketChannel.getProtocolDecoder();
+		return channel.getProtocolDecoder();
 	}
 
 	public ProtocolFactory getProtocolFactory() {
-		return socketChannel.getProtocolFactory();
+		return channel.getProtocolFactory();
 	}
 
 	public SSLEngine getSSLEngine() {
@@ -140,15 +140,15 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	}
 
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		socketChannel.setProtocolDecoder(protocolDecoder);
+		channel.setProtocolDecoder(protocolDecoder);
 	}
 
 	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		socketChannel.setProtocolEncoder(protocolEncoder);
+		channel.setProtocolEncoder(protocolEncoder);
 	}
 
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		socketChannel.setProtocolFactory(protocolFactory);
+		channel.setProtocolFactory(protocolFactory);
 	}
 
 }

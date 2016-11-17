@@ -24,12 +24,12 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 	}
 
 	public SocketChannel getSocketChannel() {
-		return socketChannel;
+		return channel;
 	}
 
 	public void close() {
 
-		ReentrantLock lock = socketChannel.getChannelLock();
+		ReentrantLock lock = channel.getChannelLock();
 		
 		lock.lock();
 		
@@ -73,9 +73,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 			}
 		}
 
-		physicalClose(datagramChannel);
-
-		physicalClose(socketChannel);
+		physicalClose(channel);
 
 		ChannelService service = context.getSocketChannelService();
 		

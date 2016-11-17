@@ -36,7 +36,7 @@ public class RTPSessionEventListener extends SEListenerAdapter {
 			return;
 		}
 
-		room.leave(session.getDatagramChannel());
+//		room.leave(session.getDatagramChannel()); //FIXME udp 
 	}
 	
 }

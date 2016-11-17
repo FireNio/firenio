@@ -13,7 +13,7 @@ public class RTPLeaveRoomServlet extends RTPServlet {
 		RTPRoom room = attachment.getRtpRoom();
 		
 		if (room != null) {
-			room.leave(session.getDatagramChannel());
+//			room.leave(session.getDatagramChannel()); //FIXME udp 
 		}
 
 		future.write(ByteUtil.TRUE);

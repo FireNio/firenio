@@ -19,7 +19,10 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 		RTPRoom room = roomFactory.getRTPRoom(roomID);
 
-		DatagramChannel datagramChannel = session.getDatagramChannel();
+//		DatagramChannel datagramChannel = session.getDatagramChannel();
+		
+		//FIXME udp 
+		DatagramChannel datagramChannel = null;
 
 		if (room == null || datagramChannel == null) {
 

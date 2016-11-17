@@ -13,7 +13,6 @@ import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
-import com.generallycloud.nio.extend.FixedSessionManager;
 import com.generallycloud.nio.extend.LoginCenter;
 import com.generallycloud.nio.extend.security.AuthorityManager;
 import com.generallycloud.nio.protocol.DatagramPacket;
@@ -76,11 +75,11 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 				return;
 			}
 			
-			FixedSessionManager factory = context.getSessionFactory();
-			
 			String username = parameters.getParameter("username");
 			
-			Session session = factory.getSession(username);
+//			Session session = factory.getSession(username);
+			
+			Session session = null;  
 			
 			if (session == null) {
 				return ;
@@ -88,7 +87,7 @@ public class RTPServerDPAcceptor extends ServerDPAcceptor {
 			
 			channel.setSession(session);
 			
-			session.setDatagramChannel(channel);
+//			session.setDatagramChannel(channel); //FIXME udp 
 			
 			BaseReadFuture future = new BaseReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
 			
