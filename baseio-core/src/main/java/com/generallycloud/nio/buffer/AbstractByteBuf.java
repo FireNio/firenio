@@ -31,13 +31,15 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 		synchronized (this) {
 			
+			if (released) {
+				throw new ReleasedException("");
+			}
+			
 			this.referenceCount++;
 
 			AbstractByteBuf buf = newByteBuf();
 			
-			buf.blockEnd = blockEnd;
-			buf.free = free;
-			buf.index = index;
+			buf.beginUnit = beginUnit;
 			buf.limit = limit;
 			buf.nioBuffer = nioBuffer;
 			buf.offset = offset;
@@ -127,11 +129,12 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return this;
 	}
 
-	public ByteBuf produce(int newLimit) {
-		this.offset = index * allocator.getUnitMemorySize();
-		this.capacity = (blockEnd - index) * allocator.getUnitMemorySize();
+	public ByteBuf produce(int begin, int end, int newLimit) {
+		this.offset = begin * allocator.getUnitMemorySize();
+		this.capacity = (end - begin) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
 		this.position = 0;
+		this.beginUnit = begin;
 		this.referenceCount++;
 		return this;
 	}
@@ -154,12 +157,17 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	public void release() {
 
 		synchronized (this) {
+			
+			if (released) {
+				return;
+			}
 
 			if (referenceCount != 1) {
 				return;
 			}
 			
 			referenceCount = 0;
+			released = true;
 
 			allocator.release(this);
 		}
@@ -184,8 +192,8 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		b.append(capacity);
 		b.append(",remaining=");
 		b.append(remaining());
-		b.append(",index=");
-		b.append(index);
+		b.append(",offset=");
+		b.append(offset);
 		b.append("]");
 		return b.toString();
 	}

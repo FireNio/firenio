@@ -7,19 +7,20 @@ public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
 		super(capacity, unitMemorySize, isDirect);
 	}
 
+	//FIXME 判断余下的是否足够，否则退出循环
 	protected ByteBuf allocate(int capacity, int start, int end, int size) {
 
-		PooledByteBuf[] memoryUnits = this.bufs;
+		ByteBufUnit[] units = this.units;
 
 		int freeSize = 0;
 
 		for (; start < end;) {
 
-			PooledByteBuf unit = memoryUnits[start];
+			ByteBufUnit unit = units[start];
 
-			if (!unit.isFree()) {
+			if (!unit.free) {
 
-				start = unit.getBlockEnd();
+				start = unit.blockEnd;
 
 				freeSize = 0;
 
@@ -28,19 +29,19 @@ public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
 
 			if (++freeSize == size) {
 
-				int blockEnd = unit.getIndex() + 1;
+				int blockEnd = unit.index + 1;
 				start = blockEnd - size;
 
-				PooledByteBuf memoryStart = memoryUnits[start];
-				PooledByteBuf memoryEnd = unit;
+				ByteBufUnit unitStart = units[start];
+				ByteBufUnit unitEnd = unit;
 
-				memoryStart.setFree(false);
-				memoryStart.setBlockEnd(blockEnd);
-				memoryEnd.setFree(false);
+				unitStart.free = false;
+				unitStart.blockEnd = blockEnd;
+				unitEnd.free = false;
 
 				mask = blockEnd;
-
-				return memoryStart.produce(capacity);
+				
+				return bufFactory.newByteBuf(this).produce(start, blockEnd, capacity);
 			}
 
 			start++;
@@ -49,13 +50,13 @@ public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
 		return null;
 	}
 
-	protected void doRelease(PooledByteBuf buf) {
+	protected void doRelease(ByteBufUnit buf) {
 
-		PooledByteBuf memoryStart = buf;
-		PooledByteBuf memoryEnd = bufs[memoryStart.getBlockEnd() - 1];
+		ByteBufUnit memoryStart = buf;
+		ByteBufUnit memoryEnd = units[memoryStart.blockEnd - 1];
 
-		memoryStart.setFree(true);
-		memoryEnd.setFree(true);
+		memoryStart.free = true;
+		memoryEnd.free = true;
 	}
 
 }

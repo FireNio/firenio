@@ -14,25 +14,25 @@ import com.generallycloud.nio.common.LoggerFactory;
 
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
-	protected PooledByteBuf[]		bufs;
+	protected ByteBufUnit[]			units;
 
 	protected int					capacity;
 
 	protected int					mask;
-	
+
 	protected boolean				isDirect;
 
 	protected int					unitMemorySize;
-	
-	protected ByteBufFactory		bufFactory	;
 
-	protected ReentrantLock			lock			= new ReentrantLock();
+	protected ByteBufFactory		bufFactory;
 
-	protected Map<ByteBuf, Exception>	busyBuf		= new HashMap<ByteBuf, Exception>();
+	protected ReentrantLock			lock		= new ReentrantLock();
 
-	protected List<PooledByteBuf>	busyUnit		= new ArrayList<PooledByteBuf>();
+	protected Map<ByteBuf, Exception>	busyBuf	= new HashMap<ByteBuf, Exception>();
 
-	protected Logger				logger		= LoggerFactory.getLogger(AbstractByteBufAllocator.class);
+	protected List<ByteBufUnit>		busyUnit	= new ArrayList<ByteBufUnit>();
+
+	protected Logger				logger	= LoggerFactory.getLogger(AbstractByteBufAllocator.class);
 
 	public AbstractByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		this.isDirect = isDirect;
@@ -45,23 +45,27 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	}
 
 	public ByteBuf allocate(int capacity) {
-
+		
 		int size = (capacity + unitMemorySize - 1) / unitMemorySize;
 
 		ReentrantLock lock = this.lock;
 
 		lock.lock();
-
+		
 		try {
 
-			ByteBuf buf = allocate(capacity, mask, this.capacity - size, size);
+			int mask = this.mask;
+			
+			ByteBuf buf = allocate(capacity, mask, this.capacity, size);
 
 			if (buf == null) {
 
-				buf = allocate(capacity, 0, mask - size, size);
+				buf = allocate(capacity, 0, mask, size);
 			}
 
-			busyBuf.put(buf, new RuntimeException(String.valueOf(capacity)));
+			if (buf != null) {
+				busyBuf.put(buf, new RuntimeException(String.valueOf(capacity)));
+			}
 
 			return buf;
 
@@ -74,7 +78,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		bufFactory.freeMemory();
 	}
 
-	protected abstract ByteBuf allocate(int capacity, int start, int end, int size) ;
+	protected abstract ByteBuf allocate(int capacity, int start, int end, int size);
 
 	protected void doStart() throws Exception {
 
@@ -84,16 +88,15 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 		initializeMemory(capacity * unitMemorySize);
 
-		PooledByteBuf[] bufs = new PooledByteBuf[capacity];
+		ByteBufUnit[] bufs = new ByteBufUnit[capacity];
 
 		for (int i = 0; i < capacity; i++) {
-			PooledByteBuf buf = bufFactory.newByteBuf(this);
-			buf.setFree(true);
-			buf.setIndex(i);
+			ByteBufUnit buf = new ByteBufUnit();
+			buf.index = i;
 			bufs[i] = buf;
 		}
 
-		this.bufs = bufs;
+		this.units = bufs;
 	}
 
 	private ByteBufFactory createBufFactory() {
@@ -155,7 +158,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 		try {
 
-			doRelease((PooledByteBuf) buf);
+			doRelease(units[((PooledByteBuf) buf).getBeginUnit()]);
 
 			busyBuf.remove(buf);
 
@@ -163,20 +166,20 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 			lock.unlock();
 		}
 	}
-	
-	protected abstract void doRelease(PooledByteBuf buf);
+
+	protected abstract void doRelease(ByteBufUnit beginUnit);
 
 	public String toString() {
 
 		busyUnit.clear();
 
-		PooledByteBuf[] memoryUnits = this.bufs;
+		ByteBufUnit[] memoryUnits = this.units;
 
 		int free = 0;
 
-		for (PooledByteBuf b : memoryUnits) {
+		for (ByteBufUnit b : memoryUnits) {
 
-			if (b.isFree()) {
+			if (b.free) {
 				free++;
 			} else {
 				busyUnit.add(b);

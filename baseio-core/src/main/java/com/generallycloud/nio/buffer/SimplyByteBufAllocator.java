@@ -7,33 +7,39 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		super(capacity, unitMemorySize, isDirect);
 	}
 
-	protected ByteBuf allocate(int capacity, int start, int end, int size) {
+	protected ByteBuf allocate(int capacity, int begin, int end, int size) {
 
-		PooledByteBuf[] bufs = this.bufs;
+		ByteBufUnit[] units = this.units;
 		
-		for (; start < end;) {
+		for (; begin < end;) {
 			
-			PooledByteBuf unitBegin = bufs[start];
+			ByteBufUnit unitBegin = units[begin];
 			
-			if (!unitBegin.isFree()) {
+			if (!unitBegin.free) {
 				
-				start = unitBegin.getBlockEnd();
+				begin = unitBegin.blockEnd;
 				
 				continue;
 			}
 			
-			int blockEnd = unitBegin.getBlockEnd();
+			int blockEnd = unitBegin.blockEnd;
 			
-			int freeSize = blockEnd - unitBegin.getBlockBegin();
+			int blockBegin = unitBegin.blockBegin;
+			
+			int freeSize = blockEnd - blockBegin;
 			
 			if(freeSize < size){
 				
-				start = blockEnd;
+				begin = blockEnd;
 				
 				continue;
 			}
 			
-			PooledByteBuf unitEnd = bufs[blockEnd - 1];
+			ByteBufUnit unitEnd = units[blockEnd - 1];
+
+			blockBegin = unitEnd.blockBegin;
+			
+			blockEnd = unitEnd.blockEnd;
 			
 			if (freeSize == size) {
 				
@@ -41,20 +47,22 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 				
 				mask = blockEnd;
 				
-				return unitBegin.produce(capacity);
+				return bufFactory.newByteBuf(this).produce(blockBegin,blockEnd,capacity);
 			}
 			
-			PooledByteBuf buf1 = bufs[unitBegin.getIndex() + size - 1];
+			unitBegin = units[blockBegin];
 			
-			PooledByteBuf buf2 = bufs[buf1.getIndex() + 1];
+			ByteBufUnit buf1 = units[blockBegin + size - 1];
+			
+			ByteBufUnit buf2 = units[buf1.index + 1];
 			
 			setBlock(buf2, unitEnd, true);
 			
 			setBlock(unitBegin, buf1, false);
 			
-			mask = buf2.getIndex();
+			mask = buf2.index;
 			
-			return unitBegin.produce(capacity);
+			return bufFactory.newByteBuf(this).produce(blockBegin,blockEnd,capacity);
 		}
 		
 		return null;
@@ -64,54 +72,60 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		
 		super.doStart();
 		
-		PooledByteBuf begin = bufs[0];
-		PooledByteBuf end = bufs[capacity - 1];
+		ByteBufUnit begin = units[0];
+		ByteBufUnit end = units[capacity - 1];
 		
 		setBlock(begin, end, true);
 	}
 	
-	private void setBlock(PooledByteBuf begin,PooledByteBuf end,boolean free){
+	private void setBlock(ByteBufUnit begin,ByteBufUnit end,boolean free){
 		
-		int beginIndex = begin.getIndex();
-		int endIndex = end.getIndex() + 1;
+		int beginIndex = begin.index;
+		int endIndex = end.index + 1;
 		
-		begin.setFree(free);
-		begin.setBlockBegin(beginIndex);
-		begin.setBlockEnd(endIndex);
+		begin.free = free;
+		begin.blockBegin = beginIndex;
+		begin.blockEnd = endIndex;
 		
-		end.setFree(free);
-		end.setBlockBegin(beginIndex);
-		end.setBlockEnd(endIndex);
+		end.free = free;
+		end.blockBegin = beginIndex;
+		end.blockEnd = endIndex;
+		
+		if (free) {
+			logger.debug("free {}>{},,,,,{}",new Object[]{beginIndex,endIndex,Thread.currentThread().getName()});
+		}else{
+			logger.debug("allocate {}>{},,,,,{}",new Object[]{beginIndex,endIndex,Thread.currentThread().getName()});
+		}
 	}
 
-	protected void doRelease(PooledByteBuf buf) {
+	protected void doRelease(ByteBufUnit begin) {
 		
-		PooledByteBuf[] bufs = this.bufs;
-
-		int beginIndex = buf.getBlockBegin();
-		int endIndex = buf.getBlockEnd();
+		ByteBufUnit[] bufs = this.units;
 		
-		PooledByteBuf memoryBegin = buf;
-		PooledByteBuf memoryEnd = bufs[endIndex - 1];
+		int beginIndex = begin.blockBegin;
+		int endIndex = begin.blockEnd;
 		
-		memoryBegin.setFree(true);
-		memoryEnd.setFree(true);
+		ByteBufUnit memoryBegin = begin;
+		ByteBufUnit memoryEnd = bufs[endIndex - 1];
+		
+		memoryBegin.free = true;
+		memoryEnd.free = true;
 		
 		if (beginIndex != 0) {
 			
-			PooledByteBuf leftBuf = bufs[beginIndex - 1];
+			ByteBufUnit leftBuf = bufs[beginIndex - 1];
 			
-			if (leftBuf.isFree()) {
-				memoryBegin = bufs[leftBuf.getBlockBegin()];
+			if (leftBuf.free) {
+				memoryBegin = bufs[leftBuf.blockBegin];
 			}
 		}
 		
 		if (endIndex != capacity) {
 			
-			PooledByteBuf rightBuf = bufs[endIndex];
+			ByteBufUnit rightBuf = bufs[endIndex];
 			
-			if (rightBuf.isFree()) {
-				memoryEnd = bufs[rightBuf.getBlockEnd() - 1];
+			if (rightBuf.free) {
+				memoryEnd = bufs[rightBuf.blockEnd - 1];
 			}
 		}
 		
