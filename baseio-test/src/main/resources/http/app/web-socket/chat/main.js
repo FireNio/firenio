@@ -17,7 +17,9 @@ $(function() {
 	var lastTypingTime;
 	var $currentInput = $usernameInput.focus();
 
-	var url = "wss://" + window.location.host + "/web-socket-chat";
+	var protocol = window.location.protocol == 'http:' ? "ws://" : "wss://";
+	
+	var url = protocol + window.location.host + "/web-socket-chat";
 	
 	var socket = new WebSocket(url);
 	
