@@ -60,7 +60,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			int selected = selector.select(60000);
 			
 			long past = System.currentTimeMillis() - last_select;
-			
 
 			if (selected < 1) {
 
