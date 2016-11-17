@@ -61,8 +61,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			
 			long past = System.currentTimeMillis() - last_select;
 			
-			logger.debug("selected ...... size={}",selected);
-			logger.debug("last={},past={}", last_select, past);
 
 			if (selected < 1) {
 
