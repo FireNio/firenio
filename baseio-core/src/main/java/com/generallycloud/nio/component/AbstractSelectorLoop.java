@@ -56,13 +56,16 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			long last_select = System.currentTimeMillis();
 
-			int selected = selector.select(64);
+			int selected = selector.select(60000);
+			
+			long past = System.currentTimeMillis() - last_select;
+			
+			logger.debug("selected ...... size={}",selected);
+			logger.debug("last={},past={}", last_select, past);
 
 			if (selected < 1) {
 
-				long past = System.currentTimeMillis() - last_select;
-
-				if (past < 64) {
+				if (past < 60000) {
 
 					if (shutdown || past < 0) {
 						working = false;
@@ -75,6 +78,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 					logger.debug("last={},past={}", last_select, past);
 					this.selector = rebuildSelector();
 				}
+				
+				
 
 				working = false;
 

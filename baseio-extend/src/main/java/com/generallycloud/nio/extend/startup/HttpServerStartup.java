@@ -14,6 +14,7 @@ import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.SessionAliveSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -58,6 +59,8 @@ public class HttpServerStartup {
 			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
+			
+			context.addSessionEventListener(new SessionAliveSEListener());
 			
 //			context.addSessionEventListener(new SessionActiveSEListener());
 			
