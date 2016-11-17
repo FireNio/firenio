@@ -120,7 +120,7 @@ $(function() {
 		try{
 			socket.send(JSON.stringify(data));
 		}catch(e){
-			cosole.log(e);
+			console.log(e);
 			reconnect();
 		}
 	}
