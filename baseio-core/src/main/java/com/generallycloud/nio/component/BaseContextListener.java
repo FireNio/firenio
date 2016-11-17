@@ -40,17 +40,12 @@ public class BaseContextListener extends AbstractLifeCycleListener implements Li
 			return;
 		}
 		
-		if (context.getSocketChannelService() == null) {
-			LoggerUtil.prettyNIOServerLog(logger, "服务启动失败，正在停止...");
-			return;
-		}
-		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
-		String[] params = { String.valueOf(configuration.getSERVER_TCP_PORT()), String.valueOf(hour) };
+		String[] params = { String.valueOf(configuration.getSERVER_PORT()), String.valueOf(hour) };
 		LoggerUtil.prettyNIOServerLog(logger, "服务运行时间  @127.0.0.1:{} 共 {} 小时", params);
 		LoggerUtil.prettyNIOServerLog(logger, "开始停止服务，请稍等");
 	}

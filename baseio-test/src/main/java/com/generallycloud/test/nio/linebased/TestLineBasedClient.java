@@ -35,7 +35,7 @@ public class TestLineBasedClient {
 		ServerConfiguration configuration = new ServerConfiguration();
 		
 		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_TCP_PORT(18300);
+		configuration.setSERVER_PORT(18300);
 		
 		BaseContext context = new BaseContextImpl(configuration);
 

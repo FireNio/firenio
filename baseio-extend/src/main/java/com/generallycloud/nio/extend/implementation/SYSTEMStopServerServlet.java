@@ -50,14 +50,12 @@ public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 
 			}
 			
-			ChannelAcceptor tcpAcceptor = (ChannelAcceptor) context.getSocketChannelService();
-			ChannelAcceptor udpAcceptor = (ChannelAcceptor) context.getDatagramChannelService();
 			
-			tcpAcceptor.unbind();
 			
-			if (udpAcceptor!=null) {
-				udpAcceptor.unbind();
-			}
+			ChannelAcceptor acceptor = (ChannelAcceptor) context.getChannelService();
+			
+			acceptor.unbind();
+			
 		}
 	}
 }

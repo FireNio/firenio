@@ -52,7 +52,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 			
 			ServerConfiguration configuration = new ServerConfiguration();
 			
-			configuration.setSERVER_TCP_PORT(Integer.parseInt(port));
+			configuration.setSERVER_PORT(Integer.parseInt(port));
 			
 			connector = new SocketChannelConnector();
 

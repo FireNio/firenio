@@ -42,7 +42,7 @@ public class TestProtobufServer {
 
 		ServerConfiguration configuration = new ServerConfiguration();
 
-		configuration.setSERVER_TCP_PORT(18300);
+		configuration.setSERVER_PORT(18300);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
 

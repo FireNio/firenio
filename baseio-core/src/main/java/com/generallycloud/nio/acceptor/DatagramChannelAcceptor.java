@@ -9,7 +9,6 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	
@@ -48,21 +47,6 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	protected void unbind(BaseContext context) {
 
 		LifeCycleUtil.stop(selectorLoopThread);
-	}
-	
-	protected void setChannelService(BaseContext context) {
-		context.setDatagramChannelService(this);
-	}
-
-	protected int getSERVER_PORT(ServerConfiguration configuration) {
-
-		int SERVER_PORT = configuration.getSERVER_UDP_PORT();
-
-		if (SERVER_PORT < 1) {
-			throw new IllegalArgumentException("SERVER.UDP_PORT 参数错误");
-		}
-
-		return SERVER_PORT;
 	}
 
 }

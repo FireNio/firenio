@@ -75,7 +75,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 		physicalClose(channel);
 
-		ChannelService service = context.getSocketChannelService();
+		ChannelService service = context.getChannelService();
 		
 		if (service instanceof ChannelConnector) {
 			

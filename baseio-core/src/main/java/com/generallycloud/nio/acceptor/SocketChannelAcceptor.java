@@ -81,19 +81,4 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		}
 	}
 
-	protected void setChannelService(BaseContext context) {
-		context.setSocketChannelService(this);
-	}
-
-	protected int getSERVER_PORT(ServerConfiguration configuration) {
-
-		int SERVER_PORT = configuration.getSERVER_TCP_PORT();
-
-		if (SERVER_PORT < 1) {
-			throw new IllegalArgumentException("SERVER.TCP_PORT 参数错误");
-		}
-
-		return SERVER_PORT;
-	}
-
 }

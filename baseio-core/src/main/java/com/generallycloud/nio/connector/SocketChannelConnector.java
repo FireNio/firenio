@@ -13,7 +13,6 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
-import com.generallycloud.nio.configuration.ServerConfiguration;
 
 //FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractChannelConnector {
@@ -83,17 +82,8 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 	protected EventLoopThread getSelectorLoopThread() {
 		return selectorLoopThread;
 	}
-
-	protected int getSERVER_PORT(ServerConfiguration configuration) {
-		return configuration.getSERVER_TCP_PORT();
-	}
 	
-	protected void setChannelService(BaseContext context) {
-		context.setSocketChannelService(this);
-	}
-
 	protected void doPhysicalClose0() {
-		
 		LifeCycleUtil.stop(selectorLoopThread);
 	}
 

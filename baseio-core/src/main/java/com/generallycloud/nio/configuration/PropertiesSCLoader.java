@@ -15,8 +15,7 @@ public class PropertiesSCLoader implements ServerConfigurationLoader{
 		cfg.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
 		cfg.setSERVER_IO_EVENT_QUEUE(bundle.getIntegerProperty("SERVER_IO_EVENT_QUEUE"));
 		cfg.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
-		cfg.setSERVER_TCP_PORT(bundle.getIntegerProperty("SERVER.TCP_PORT"));
-		cfg.setSERVER_UDP_PORT(bundle.getIntegerProperty("SERVER.UDP_PORT"));
+		cfg.setSERVER_PORT(bundle.getIntegerProperty("SERVER.PORT"));
 		cfg.setSERVER_ENCODING(Charset.forName(encoding));
 		cfg.setSERVER_SESSION_IDLE_TIME(bundle.getLongProperty("SERVER.SESSION_IDLE_TIME"));
 		cfg.setSERVER_MEMORY_POOL_UNIT(bundle.getIntegerProperty("SERVER.MEMORY_POOL_UNIT"));

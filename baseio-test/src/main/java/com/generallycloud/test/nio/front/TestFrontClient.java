@@ -39,7 +39,7 @@ public class TestFrontClient {
 
 		ServerConfiguration configuration = new ServerConfiguration();
 
-		configuration.setSERVER_TCP_PORT(8600);
+		configuration.setSERVER_PORT(8600);
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 

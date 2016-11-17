@@ -47,7 +47,7 @@ public class BaseServerShutdown {
 		
 		ServerConfiguration configuration = new ServerConfiguration();
 		
-		configuration.setSERVER_TCP_PORT(port);
+		configuration.setSERVER_PORT(port);
 
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 

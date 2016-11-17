@@ -37,7 +37,7 @@ public class TestFrontLoad {
 
 		ServerConfiguration configuration = new ServerConfiguration();
 
-		configuration.setSERVER_TCP_PORT(8800);
+		configuration.setSERVER_PORT(8800);
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 

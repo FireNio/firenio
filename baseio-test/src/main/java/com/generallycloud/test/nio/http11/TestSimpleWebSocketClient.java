@@ -55,10 +55,10 @@ public class TestSimpleWebSocketClient {
 //		configuration.setSERVER_HOST("120.76.222.210");
 //		configuration.setSERVER_HOST("115.29.193.48");
 //		configuration.setSERVER_HOST("workerman.net");
-		configuration.setSERVER_TCP_PORT(443);
-//		configuration.setSERVER_TCP_PORT(30005);
-//		configuration.setSERVER_TCP_PORT(29000);
-//		configuration.setSERVER_TCP_PORT(8280);
+		configuration.setSERVER_PORT(443);
+//		configuration.setSERVER_PORT(30005);
+//		configuration.setSERVER_PORT(29000);
+//		configuration.setSERVER_PORT(8280);
 		Session session = connector.connect();
 		String url = "/web-socket-chat";
 //		 url = "/";

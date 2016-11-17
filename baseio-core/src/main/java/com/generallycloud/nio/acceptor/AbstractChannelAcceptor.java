@@ -42,14 +42,14 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 			if (context == null) {
 				throw new IllegalArgumentException("null nio context");
 			}
+			
+			context.setChannelService(this);
 
 			LifeCycleUtil.start(context);
 
 			ServerConfiguration configuration = context.getServerConfiguration();
 
-			int SERVER_PORT = getSERVER_PORT(configuration);
-
-			this.setChannelService(context);
+			int SERVER_PORT = configuration.getSERVER_PORT();
 
 			this.bind(context, getInetSocketAddress(SERVER_PORT));
 			
@@ -110,8 +110,6 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	protected InetSocketAddress getInetSocketAddress(int port) {
 		return new InetSocketAddress(port);
 	}
-
-	protected abstract int getSERVER_PORT(ServerConfiguration configuration);
 
 	public boolean isActive() {
 		return active;

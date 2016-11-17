@@ -99,15 +99,15 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			
 			configuration.setSERVER_CORE_SIZE(1);
 			
-			String SERVER_HOST = getSERVER_HOST(configuration);
+			String SERVER_HOST = configuration.getSERVER_HOST();
 			
-			int SERVER_PORT = getSERVER_PORT(configuration);
+			int SERVER_PORT = configuration.getSERVER_PORT();
 
+			context.setChannelService(this);
+			
 			LifeCycleUtil.start(context);
 
 			this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
-
-			this.setChannelService(context);
 
 			this.connect(context, serverAddress);
 			

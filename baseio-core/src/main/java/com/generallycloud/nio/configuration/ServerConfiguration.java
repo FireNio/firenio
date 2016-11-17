@@ -8,8 +8,7 @@ import com.generallycloud.nio.component.BaseContext;
 //FIXME 校验参数
 public class ServerConfiguration {
 
-	private int		SERVER_TCP_PORT;
-	private int		SERVER_UDP_PORT;
+	private int		SERVER_PORT;
 	private String		SERVER_HOST					= "localhost";
 	private int		SERVER_CORE_SIZE				= Runtime.getRuntime().availableProcessors();
 	private Charset	SERVER_ENCODING				= Encoding.UTF8;
@@ -25,43 +24,32 @@ public class ServerConfiguration {
 	public ServerConfiguration() {
 	}
 
-	public ServerConfiguration(int SERVER_TCP_PORT) {
-		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+	public ServerConfiguration(int SERVER_PORT) {
+		this.SERVER_PORT = SERVER_PORT;
 	}
 
-	public ServerConfiguration(String SERVER_HOST, int SERVER_TCP_PORT) {
-		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+	public ServerConfiguration(String SERVER_HOST, int SERVER_PORT) {
+		this.SERVER_PORT = SERVER_PORT;
 		this.SERVER_HOST = SERVER_HOST;
 	}
 
-	public int getSERVER_TCP_PORT() {
-		return SERVER_TCP_PORT;
+	public int getSERVER_PORT() {
+		return SERVER_PORT;
 	}
 
-	public void setSERVER_TCP_PORT(int SERVER_TCP_PORT) {
-		if (SERVER_TCP_PORT == 0) {
+	public void setSERVER_PORT(int SERVER_PORT) {
+		if (SERVER_PORT == 0) {
 			return;
 		}
-		this.SERVER_TCP_PORT = SERVER_TCP_PORT;
+		this.SERVER_PORT = SERVER_PORT;
 	}
 
-	public int getSERVER_UDP_PORT() {
-		return SERVER_UDP_PORT;
-	}
-	
 	public boolean isSERVER_ENABLE_SSL() {
 		return SERVER_ENABLE_SSL;
 	}
 
 	public void setSERVER_ENABLE_SSL(boolean SERVER_ENABLE_SSL) {
 		this.SERVER_ENABLE_SSL = SERVER_ENABLE_SSL;
-	}
-
-	public void setSERVER_UDP_PORT(int SERVER_UDP_PORT) {
-		if (SERVER_UDP_PORT == 0) {
-			return;
-		}
-		this.SERVER_UDP_PORT = SERVER_UDP_PORT;
 	}
 
 	public int getSERVER_CORE_SIZE() {

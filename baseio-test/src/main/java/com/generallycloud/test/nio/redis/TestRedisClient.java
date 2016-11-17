@@ -21,7 +21,7 @@ public class TestRedisClient {
 		ServerConfiguration configuration = new ServerConfiguration();
 
 		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_TCP_PORT(6379);
+		configuration.setSERVER_PORT(6379);
 
 		BaseContext context = new BaseContextImpl(configuration);
 

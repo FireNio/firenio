@@ -34,9 +34,7 @@ public class TestFrontBroadcast {
 			}
 		};
 
-		ServerConfiguration configuration = new ServerConfiguration();
-
-		configuration.setSERVER_TCP_PORT(8800);
+		ServerConfiguration configuration = new ServerConfiguration(8800);
 
 		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 

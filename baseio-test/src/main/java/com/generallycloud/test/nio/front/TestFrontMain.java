@@ -18,10 +18,10 @@ public class TestFrontMain {
 		
 		
 		ServerConfiguration fc = new ServerConfiguration();
-		fc.setSERVER_TCP_PORT(8600);
+		fc.setSERVER_PORT(8600);
 		
 		ServerConfiguration frc = new ServerConfiguration();
-		frc.setSERVER_TCP_PORT(8800);
+		frc.setSERVER_PORT(8800);
 		
 		f.setFrontServerConfiguration(fc);
 		f.setFrontReverseServerConfiguration(frc);

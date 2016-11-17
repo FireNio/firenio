@@ -23,7 +23,7 @@ public class TestHttpLoadConnection {
 		ServerConfiguration configuration = new ServerConfiguration();
 		
 		configuration.setSERVER_HOST("www.generallycloud.com");
-		configuration.setSERVER_TCP_PORT(80);
+		configuration.setSERVER_PORT(80);
 		
 		try {
 			for (int i = 0; i < 999; i++) {

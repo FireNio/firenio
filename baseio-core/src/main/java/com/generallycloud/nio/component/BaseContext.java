@@ -23,13 +23,9 @@ public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract SessionManager getSessionManager();
 
-	public abstract ChannelService getSocketChannelService();
+	public abstract ChannelService getChannelService();
 
-	public abstract void setSocketChannelService(ChannelService service);
-
-	public abstract ChannelService getDatagramChannelService();
-
-	public abstract void setDatagramChannelService(ChannelService service);
+	public abstract void setChannelService(ChannelService service);
 
 	public abstract EventLoopGroup getEventLoopGroup();
 

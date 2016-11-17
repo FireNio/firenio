@@ -31,9 +31,8 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private ServerConfiguration			serverConfiguration;
 	private Linkable<SessionEventListener>	sessionEventListenerLink;
 	private SessionManager				sessionManager;
-	private ChannelService				socketChannelService;
+	private ChannelService				channelService;
 	private DatagramChannelFactory		datagramChannelFactory;
-	private ChannelService				datagramChannelService;
 	private ProtocolFactory				protocolFactory;
 	private EventLoopThread				sessionManagerThread;
 	private long						sessionIdleTime;
@@ -161,10 +160,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		LoggerUtil.prettyNIOServerLog(logger, "启用SSL加密        ：{ {} }", isEnableSSL());
 		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
 				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_TCP_PORT());
-		if (serverConfiguration.getSERVER_UDP_PORT() != 0) {
-			LoggerUtil.prettyNIOServerLog(logger, "监听端口(UDP)      ：{ {} }", serverConfiguration.getSERVER_UDP_PORT());
-		}
+		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_PORT());
 		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", new Object[] {
 				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
@@ -254,7 +250,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	}
 
 	public ChannelService getTCPService() {
-		return socketChannelService;
+		return channelService;
 	}
 
 	public EventLoopGroup getEventLoopGroup() {
@@ -263,10 +259,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public DatagramChannelFactory getDatagramChannelFactory() {
 		return datagramChannelFactory;
-	}
-
-	public ChannelService getUDPService() {
-		return datagramChannelService;
 	}
 
 	public Object removeAttribute(Object key) {
@@ -289,20 +281,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramChannelFactory = datagramChannelFactory;
 	}
 
-	public ChannelService getSocketChannelService() {
-		return socketChannelService;
+	public ChannelService getChannelService() {
+		return channelService;
 	}
 
-	public void setSocketChannelService(ChannelService service) {
-		this.socketChannelService = service;
-	}
-
-	public ChannelService getDatagramChannelService() {
-		return datagramChannelService;
-	}
-
-	public void setDatagramChannelService(ChannelService service) {
-		this.datagramChannelService = service;
+	public void setChannelService(ChannelService service) {
+		this.channelService = service;
 	}
 
 	public Sequence getSequence() {

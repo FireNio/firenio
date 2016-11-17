@@ -10,10 +10,9 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
-import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelConnector extends AbstractChannelConnector {
@@ -35,8 +34,6 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 	public String getServiceDescription() {
 		return "UDP:" + getServerSocketAddress();
 	}
-	
-	
 
 	public InetSocketAddress getServerSocketAddress() {
 		return datagramChannel().getLocalSocketAddress();
@@ -57,10 +54,6 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 			// FIXME close connector
 		}
-	}
-
-	protected void setChannelService(BaseContext context) {
-		context.setDatagramChannelService(this);
 	}
 
 	private void allocate(ByteBuffer buffer, DatagramPacket packet) {
@@ -120,10 +113,6 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 		LifeCycleUtil.stop(selectorLoopThread);
 
 		CloseUtil.close(datagramChannel);
-	}
-
-	protected int getSERVER_PORT(ServerConfiguration configuration) {
-		return configuration.getSERVER_UDP_PORT();
 	}
 
 }

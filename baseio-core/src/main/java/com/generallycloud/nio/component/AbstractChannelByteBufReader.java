@@ -1,7 +1,5 @@
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
-
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
