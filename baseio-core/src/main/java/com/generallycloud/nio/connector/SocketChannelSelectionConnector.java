@@ -12,9 +12,12 @@ public class SocketChannelSelectionConnector extends AbstractTCPSelectionAlpha {
 
 	private SocketChannelConnector	connector;
 
+	private SelectorLoop			selectorLoop;
+
 	public SocketChannelSelectionConnector(SelectorLoop selectorLoop, SocketChannelConnector connector) {
-		super(selectorLoop.getContext(),selectorLoop);
+		super(connector.getContext());
 		this.connector = connector;
+		this.selectorLoop = selectorLoop;
 	}
 
 	public void accept(SelectionKey selectionKey) throws Exception {
@@ -33,14 +36,14 @@ public class SocketChannelSelectionConnector extends AbstractTCPSelectionAlpha {
 	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) {
 
 		BaseContext context = selectorLoop.getContext();
-		
+
 		try {
 
 			channel.finishConnect();
 
 			channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 
-			final SocketChannel socketChannel = attachSocketChannel(selectionKey);
+			final SocketChannel socketChannel = attachSocketChannel(selectionKey, selectorLoop);
 
 			socketChannel.getSession().getEventLoop().dispatch(new Runnable() {
 

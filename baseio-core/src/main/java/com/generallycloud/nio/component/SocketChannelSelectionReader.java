@@ -37,7 +37,10 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		int length = buf.read(channel);
 		
 		if (length < 1) {
-			CloseUtil.close(channel);
+			
+			if (length == -1) {
+				CloseUtil.close(channel);
+			}
 			return;
 		}
 

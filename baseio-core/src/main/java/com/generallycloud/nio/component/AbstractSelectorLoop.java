@@ -24,9 +24,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private boolean			working			= false;
 	private boolean			shutdown			= false;
 
+	protected boolean			isMainSelector		= false;
 	protected Selector			selector			= null;
 	protected BaseContext		context			= null;
-	protected ChannelFlusher		channelFlusher		= null;
+	protected ChannelFlusher	channelFlusher		= null;
 	protected EventLoopThread	channelFlushThread	= null;
 	protected SelectableChannel	selectableChannel	= null;
 	protected ByteBufAllocator	byteBufAllocator	= null;
@@ -241,6 +242,14 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
+	}
+
+	public boolean isMainSelector() {
+		return isMainSelector;
+	}
+
+	public void setMainSelector(boolean isMainSelector) {
+		this.isMainSelector = isMainSelector;
 	}
 
 }

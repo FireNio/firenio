@@ -37,14 +37,17 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
 
-		CoreProcessors processors = new CoreProcessors(core_size);
-
 		this.selectorLoops = new SelectorLoop[core_size];
 
 		for (int i = 0; i < core_size; i++) {
-			selectorLoops[i] = new ServerTCPSelectorLoop(context, selectableChannel, processors);
+			
+			ServerTCPSelectorLoop loop = new ServerTCPSelectorLoop(context,selectorLoops, selectableChannel); 
+			
+			loop.setMainSelector(i == 0);
+			
+			selectorLoops[i] = loop;
 		}
-
+		
 		for (int i = 0; i < core_size; i++) {
 			selectorLoops[i].startup();
 		}

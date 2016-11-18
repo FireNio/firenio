@@ -9,22 +9,20 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class AbstractTCPSelectionAlpha implements SocketChannelSelectionAlpha {
 
-	protected SelectorLoop		selectorLoop;
-
 	protected ProtocolFactory	protocolFactory;
 
 	protected ProtocolDecoder	protocolDecoder;
 
 	protected ProtocolEncoder	protocolEncoder;
 
-	protected AbstractTCPSelectionAlpha(BaseContext context, SelectorLoop selectorLoop) {
-		this.selectorLoop = selectorLoop;
+	protected AbstractTCPSelectionAlpha(BaseContext context) {
 		this.protocolFactory = context.getProtocolFactory();
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 	}
 
-	protected SocketChannel attachSocketChannel(SelectionKey selectionKey) throws SocketException {
+	protected SocketChannel attachSocketChannel(SelectionKey selectionKey, SelectorLoop selectorLoop)
+			throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 

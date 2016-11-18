@@ -3,80 +3,43 @@ package com.generallycloud.nio.acceptor;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractTCPSelectionAlpha;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
 public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 
-	private int					this_core_index	;
-	private int					next_core_index	;
-	private CoreProcessors			processors		;
-//	private Logger					logger			= LoggerFactory.getLogger(TCPSelectionAcceptor.class);
+	private SelectorLoop[]		selectorLoops;
+	private FixedAtomicInteger	core_index;
 
-	public SocketChannelSelectionAcceptor(SelectorLoop selectorLoop,CoreProcessors processors) {
+	public SocketChannelSelectionAcceptor(BaseContext context, SelectorLoop[] loops) {
+
+		super(context);
 		
-		super(selectorLoop.getContext(),selectorLoop);
-		
-		this.processors = processors;
-		
-		ReentrantLock lock = processors.getReentrantLock();
-		
-		lock.lock();
-		
-		try{
-			
-			this.this_core_index = processors.getCurrentCoreIndex();
-			
-			this.next_core_index = this_core_index + 1;
-			
-			if (next_core_index == processors.getCoreSize()) {
-				next_core_index = 0;
-			}
-			
-			processors.setCurrentCoreIndex(next_core_index);
-		}finally{
-			
-			lock.unlock();
-		}
+		this.selectorLoops = loops;
+
+		this.core_index = new FixedAtomicInteger(0, loops.length - 1);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
 		java.nio.channels.SocketChannel channel;
-		
-		CoreProcessors processors = this.processors;
-		
-		ReentrantLock lock = processors.getReentrantLock();
-		
-		lock.lock();
-		
-		try{
-			
-			int core_index = processors.getCurrentCoreIndex();
-			
-			if (this_core_index != core_index) {
-				return;
-			}
 
-			ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
-			
-			channel = server.accept();
-			// 前面已经有人获取到channel，而且把core_index+1，
-			//这里虽然匹配到core，但是是拿不到channel的，有待改进
-			if (channel == null) {
-//				Exception e = new Exception("core_index error");
-//				logger.error(e.getMessage(), e);
-				return;
-			}
-			
-			processors.setCurrentCoreIndex(next_core_index);
-			
-		}finally{
-			
-			lock.unlock();
+		int next_core_index = core_index.getAndIncrement();
+		
+		SelectorLoop selectorLoop = selectorLoops[next_core_index];
+
+		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
+
+		channel = server.accept();
+		
+		if (channel == null) {
+			// Exception e = new Exception("core_index error");
+			// logger.error(e.getMessage(), e);
+			return;
 		}
 		
 		// 配置为非阻塞
@@ -84,7 +47,7 @@ public class SocketChannelSelectionAcceptor extends AbstractTCPSelectionAlpha {
 		// 注册到selector，等待连接
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = attachSocketChannel(sk);
+		SocketChannel socketChannel = attachSocketChannel(sk,selectorLoop);
 
 		// fire session open event
 		socketChannel.getSession().fireOpend();
