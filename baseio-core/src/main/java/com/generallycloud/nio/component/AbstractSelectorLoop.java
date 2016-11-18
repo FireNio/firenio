@@ -57,13 +57,14 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			last_select = System.currentTimeMillis();
 
-			int selected = selector.select(60000);
+			//FIXME 这里select(big number) 比如60s的话会停顿60秒且有数据进来
+			int selected = selector.select(8);
 			
 			long past = System.currentTimeMillis() - last_select;
 
 			if (selected < 1) {
 
-				if (past < 60000) {
+				if (past < 8) {
 
 					if (shutdown || past < 0) {
 						working = false;
