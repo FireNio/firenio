@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -18,7 +18,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 //FIXME post
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public ChannelWriteFuture encode(Session session, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 
 		HttpReadFuture future = (HttpReadFuture) readFuture;
 
@@ -53,9 +53,9 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
 		h.append("\r\n");
 
-		ByteBuf buf = session.getByteBufAllocator().allocate(h.length());
+		ByteBuf buf = allocator.allocate(h.length());
 
-		buf.put(h.toString().getBytes(session.getEncoding()));
+		buf.put(h.toString().getBytes(readFuture.getContext().getEncoding()));
 
 		return new ChannelWriteFutureImpl(readFuture, buf.flip());
 	}

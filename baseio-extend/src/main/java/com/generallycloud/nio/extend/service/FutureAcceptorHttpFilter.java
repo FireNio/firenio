@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.nio.codec.http11.future.EmptyServerHttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.HtmlUtil;
@@ -13,12 +14,16 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.configuration.Configuration;
+import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 
+
+//FIXME if-modified-since http code 304 res 
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	public FutureAcceptorHttpFilter(DynamicClassLoader classLoader) {
@@ -32,11 +37,11 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	protected void accept404(Session session, NamedReadFuture future, String serviceName) throws IOException {
 
 		String _service_name = serviceName;
-		
-//		if ("/".equals(_service_name)) {
-//			_service_name = "/index.html";
-//		}
-		
+
+		// if ("/".equals(_service_name)) {
+		// _service_name = "/index.html";
+		// }
+
 		HttpEntity entity = html_cache.get(_service_name);
 
 		if (entity == null) {
@@ -46,32 +51,59 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				return;
 			}
 		}
-		
+
 		File file = entity.file;
-		
-		if(file != null && file.lastModified() > entity.lastModify){
-			
+
+		if (file != null && file.lastModified() > entity.lastModify) {
+
 			synchronized (entity) {
-				entity.array = FileUtil.readFileToByteArray(file);
-				entity.lastModify = file.lastModified();
+				
+				reloadEntity(entity, session.getContext());
 			}
 		}
 
-		HttpReadFuture f = (HttpReadFuture) future;
-
-		f.setResponseHeader("Content-Type", entity.contentType);
-
-		f.writeBinary(entity.array);
-
-		session.flush(f);
+		session.flush(entity.future.duplicate(future));
 	}
-
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+	
+	
+	private void reloadEntity(HttpEntity entity,BaseContext context) throws IOException{
 		
+		EmptyServerHttpReadFuture f = new EmptyServerHttpReadFuture(context);
+		
+		String text = entity.text;
+		
+		File file = entity.file;
+
+		if (text != null) {
+			
+			f.setResponseHeader("Content-Type", entity.contentType);
+			f.setResponseHeader("Connection", "keep-alive");
+			f.write(text);
+			
+			entity.lastModify = System.currentTimeMillis();
+			
+			entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getInstance(), f);
+			
+		}else{
+			
+			byte [] data = FileUtil.readFileToByteArray(file);
+			
+			f.setResponseHeader("Content-Type", entity.contentType);
+			f.setResponseHeader("Connection", "keep-alive");
+			f.writeBinary(data);
+		}
+		
+		entity.lastModify = file.lastModified();
+		
+		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getInstance(), f);
+	}
+	
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
 		String rootPath = context.getAppLocalAddress();
 
 		File rootFile = new File(rootPath);
-		
+
 		Map<String, String> mapping = new HashMap<String, String>();
 
 		mapping.put("htm", HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
@@ -85,88 +117,88 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		mapping.put("txt", HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN);
 		mapping.put("ico", HttpReadFuture.CONTENT_TYPE_IMAGE_ICON);
 
-		scanFolder(rootFile, rootPath,mapping);
+		scanFolder(context.getContext(),rootFile, rootPath, mapping);
 
 		super.initialize(context, config);
 	}
 
-	private void scanFolder(File file, String root,Map<String, String> mapping) throws IOException {
+	private void scanFolder(BaseContext context,File file, String root, Map<String, String> mapping) throws IOException {
 
 		if (file.exists()) {
 			if (file.isFile()) {
 
 				String contentType = getContentType(file.getName(), mapping);
 
-				byte[] bytes = FileUtil.readFileToByteArray(file);
-
 				String fileName = file.getCanonicalPath();
 
 				fileName = fileName.replace("\\", "/");
 
 				String staticName = fileName.substring(root.length() - 1, fileName.length());
-				
+
 				staticName = getHttpPath(file, root);
 
 				HttpEntity entity = new HttpEntity();
 
-				entity.array = bytes;
 				entity.contentType = contentType;
 				entity.file = file;
-				entity.lastModify = file.lastModified();
-
+				entity.lastModify = 0;
+				
 				html_cache.put(staticName, entity);
 
 				LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", staticName, fileName);
 			} else if (file.isDirectory()) {
-				
+
 				File[] fs = file.listFiles();
-				
+
 				StringBuilder b = new StringBuilder(HtmlUtil.HTML_HEADER);
-				
+
 				b.append("		<div style=\"margin-left:20px;\">\n");
-				b.append("			Index of "+getHttpPath(file, root)+"\n");
+				b.append("			Index of " + getHttpPath(file, root) + "\n");
 				b.append("		</div>\n");
 				b.append("		<hr>\n");
-				
+
 				File rootFile = new File(root);
-				
+
 				if (!rootFile.equals(file)) {
 					b.append("		<p>\n");
-					b.append("			<a href=\""+getHttpPath(file.getParentFile(), root)+"\">&lt;dir&gt;..</a>\n");
+					b.append("			<a href=\"" + getHttpPath(file.getParentFile(), root) + "\">&lt;dir&gt;..</a>\n");
 					b.append("		</p>\n");
 				}
-				
+
 				StringBuilder db = new StringBuilder();
 				StringBuilder fb = new StringBuilder();
-				
+
 				for (File f : fs) {
-					
-					scanFolder(f, root,mapping);
-					
+
+					scanFolder(context,f, root, mapping);
+
 					if (f.isDirectory()) {
+						String a = "<a href=\"" + getHttpPath(f, root) + "\">&lt;dir&gt;" + f.getName()+ "</a>\n";
 						db.append("		<p>\n");
-						db.append("			<a href=\""+getHttpPath(f, root)+"\">&lt;dir&gt;"+f.getName()+"</a>\n");
+						db.append("			" + a);
 						db.append("		</p>\n");
-					}else{
+					} else {
+						String a = "<a href=\"" + getHttpPath(f, root) + "\">" + f.getName() + "</a>\n";
 						fb.append("		<p>\n");
-						fb.append("			<a href=\""+getHttpPath(f, root)+"\">"+f.getName()+"</a>\n");
+						fb.append("			" + a);
 						fb.append("		<p>\n");
 					}
 				}
-				
+
 				b.append(db);
 				b.append(fb);
-				
+
 				b.append("		<hr>\n");
 				b.append(HtmlUtil.HTML_BOTTOM);
-				
+
 				HttpEntity entity = new HttpEntity();
-				
-				entity.array = b.toString().getBytes(Encoding.UTF8);
+
 				entity.contentType = HttpReadFuture.CONTENT_TYPE_TEXT_HTML;
-				
+				entity.file = file;
+				entity.text = b.toString();
+
 				String staticName = getHttpPath(file, root);
-				
+
 				if ("".equals(staticName)) {
 					staticName = "/";
 				}
@@ -174,19 +206,19 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			}
 		}
 	}
-	
-	private String getHttpPath(File file,String root) throws IOException{
-		
+
+	private String getHttpPath(File file, String root) throws IOException {
+
 		String fileName = file.getCanonicalPath();
 
 		fileName = fileName.replace("\\", "/");
 
 		String staticName = fileName.substring(root.length() - 1, fileName.length());
-		
+
 		if (StringUtil.isNullOrBlank(staticName)) {
 			staticName = "/";
 		}
-		
+
 		return staticName;
 	}
 
@@ -211,12 +243,14 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private class HttpEntity {
 
-		byte[]	array;
+		ChannelWriteFuture	future;
 
-		String	contentType;
+		String			contentType;
+
+		File				file;
+
+		long				lastModify;
 		
-		File file;
-		
-		long lastModify;
+		String text;
 	}
 }

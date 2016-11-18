@@ -19,7 +19,7 @@ import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
-import com.generallycloud.nio.extend.FixedIOEventHandle;
+import com.generallycloud.nio.extend.ExtendIOEventHandle;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
@@ -58,7 +58,7 @@ public class Http2ServerStartup {
 			
 			context.setSessionFactory(new Http2SessionFactory());
 
-			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
+			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 			

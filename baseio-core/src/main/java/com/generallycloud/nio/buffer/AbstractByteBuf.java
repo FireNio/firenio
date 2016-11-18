@@ -41,7 +41,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 			
 			buf.beginUnit = beginUnit;
 			buf.limit = limit;
-			buf.nioBuffer = nioBuffer;
 			buf.offset = offset;
 			buf.position = position;
 			
@@ -118,6 +117,10 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 	public int offset() {
 		return offset;
+	}
+	
+	protected void offset(int offset) {
+		this.offset = offset;
 	}
 
 	public int position() {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
@@ -12,6 +13,10 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 	public ServerHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
 		super(session, readBuffer);
 		this.params = new HashMap<String, String>();
+	}
+
+	protected ServerHttpReadFuture(BaseContext context) {
+		super(context);
 	}
 
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {

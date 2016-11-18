@@ -25,7 +25,7 @@ public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
 	
 	static{
 		
-		PREFACE_BUF = UnpooledByteBufAllocator.wrap(ByteBuffer.wrap(PREFACE_BINARY));
+		PREFACE_BUF = UnpooledByteBufAllocator.getInstance().wrap(ByteBuffer.wrap(PREFACE_BINARY));
 		
 	}
 

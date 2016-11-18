@@ -256,7 +256,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 		return futureName + "@" + getText();
 	}
 
-	public BalanceReadFuture translate() throws IOException {
+	public BalanceReadFuture translate(){
 
 		if (!translated) {
 			translated = true;

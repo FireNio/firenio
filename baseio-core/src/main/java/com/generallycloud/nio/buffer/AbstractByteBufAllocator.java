@@ -26,7 +26,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 	protected ByteBufFactory		bufFactory;
 
-	protected ReentrantLock			lock		= new ReentrantLock();
+	protected ReentrantLock			lock		;
 
 	protected Map<ByteBuf, Exception>	busyBuf	= new HashMap<ByteBuf, Exception>();
 
@@ -81,6 +81,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	protected abstract ByteBuf allocate(int capacity, int start, int end, int size);
 
 	protected void doStart() throws Exception {
+		
+		lock		= new ReentrantLock();
 
 		bufFactory = createBufFactory();
 

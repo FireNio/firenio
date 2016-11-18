@@ -3,9 +3,8 @@ package com.generallycloud.nio.buffer;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.common.ReleaseUtil;
 
-public class LinkAbleByteBufAllocatorImpl extends AbstractLifeCycle implements LinkAbleByteBufAllocator {
+public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements LinkAbleByteBufAllocator {
 
 	private Linkable<LinkAbleByteBufAllocator>	next;
 
@@ -15,7 +14,7 @@ public class LinkAbleByteBufAllocatorImpl extends AbstractLifeCycle implements L
 
 	private MCByteBufAllocator				mcByteBufAllocator;
 
-	public LinkAbleByteBufAllocatorImpl(MCByteBufAllocator mcByteBufAllocator,ByteBufAllocator allocator, int index) {
+	public LinkableByteBufAllocatorImpl(MCByteBufAllocator mcByteBufAllocator,ByteBufAllocator allocator, int index) {
 		this.index = index;
 		this.allocator = allocator;
 		this.mcByteBufAllocator = mcByteBufAllocator;
@@ -42,7 +41,7 @@ public class LinkAbleByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	public void release(ByteBuf buf) {
-		ReleaseUtil.release(buf);
+		unwrap().release(buf);
 	}
 
 	public ByteBuf allocate(int capacity) {

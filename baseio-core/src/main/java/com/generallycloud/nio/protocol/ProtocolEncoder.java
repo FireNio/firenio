@@ -2,7 +2,7 @@ package com.generallycloud.nio.protocol;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 
 public interface ProtocolEncoder {
 
@@ -13,6 +13,6 @@ public interface ProtocolEncoder {
 	 * @return
 	 * @throws IOException
 	 */
-	public abstract ChannelWriteFuture encode(Session session,ChannelReadFuture future) throws IOException;
+	public abstract ChannelWriteFuture encode(ByteBufAllocator allocator,ChannelReadFuture future) throws IOException;
 
 }

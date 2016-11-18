@@ -8,13 +8,13 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.service.FutureAcceptor;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FixedIOEventHandle extends IOEventHandleAdaptor {
+public class ExtendIOEventHandle extends IOEventHandleAdaptor {
 
 	private ApplicationContext	applicationContext;
 	private FutureAcceptor		filterService;
-	private Logger				logger	= LoggerFactory.getLogger(FixedIOEventHandle.class);
+	private Logger				logger	= LoggerFactory.getLogger(ExtendIOEventHandle.class);
 
-	public FixedIOEventHandle(ApplicationContext applicationContext) {
+	public ExtendIOEventHandle(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
 

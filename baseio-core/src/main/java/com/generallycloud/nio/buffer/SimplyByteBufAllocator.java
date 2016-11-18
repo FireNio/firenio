@@ -6,9 +6,15 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 	public SimplyByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(capacity, unitMemorySize, isDirect);
 	}
+	
+	private String tName(){
+		return Thread.currentThread().getName();
+	}
 
 	protected ByteBuf allocate(int capacity, int begin, int end, int size) {
 
+		logger.debug("申请内存____________________________{},{}",size,tName());
+		
 		ByteBufUnit[] units = this.units;
 		
 		for (; begin < end;) {
@@ -43,6 +49,8 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 			
 			if (freeSize == size) {
 				
+				logger.debug("申请内存结束____________________________{},{},{}",new Object[]{unitBegin.index,unitEnd.index,tName()});
+				
 				setBlock(unitBegin, unitEnd, false);
 				
 				mask = blockEnd;
@@ -58,7 +66,13 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 			
 			setBlock(buf2, unitEnd, true);
 			
+			logger.debug("申请内存前释放____________________________{},{},{}",new Object[]{ buf2.index,unitEnd.index,tName()});
+			
 			setBlock(unitBegin, buf1, false);
+			
+			logger.debug("申请内存结束____________________________{},{},{}",new Object[]{unitBegin.index,buf1.index,tName()});
+			
+			System.out.println();
 			
 			mask = buf2.index;
 			
@@ -91,11 +105,11 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		end.blockBegin = beginIndex;
 		end.blockEnd = endIndex;
 		
-		if (free) {
-			logger.debug("free {}>{},,,,,{}",new Object[]{beginIndex,endIndex,Thread.currentThread().getName()});
-		}else{
-			logger.debug("allocate {}>{},,,,,{}",new Object[]{beginIndex,endIndex,Thread.currentThread().getName()});
-		}
+//		if (free) {
+//			logger.debug("free {}>{},,,,,{}",new Object[]{beginIndex,endIndex,tName()});
+//		}else{
+//			logger.debug("allocate {}>{},,,,,{}",new Object[]{beginIndex,endIndex,tName()});
+//		}
 	}
 
 	protected void doRelease(ByteBufUnit begin) {
@@ -105,18 +119,18 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		int beginIndex = begin.blockBegin;
 		int endIndex = begin.blockEnd;
 		
-		ByteBufUnit memoryBegin = begin;
-		ByteBufUnit memoryEnd = bufs[endIndex - 1];
+		ByteBufUnit bufBegin = begin;
+		ByteBufUnit bufEnd = bufs[endIndex - 1];
 		
-		memoryBegin.free = true;
-		memoryEnd.free = true;
+		bufBegin.free = true;
+		bufEnd.free = true;
 		
 		if (beginIndex != 0) {
 			
 			ByteBufUnit leftBuf = bufs[beginIndex - 1];
 			
 			if (leftBuf.free) {
-				memoryBegin = bufs[leftBuf.blockBegin];
+				bufBegin = bufs[leftBuf.blockBegin];
 			}
 		}
 		
@@ -125,11 +139,14 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 			ByteBufUnit rightBuf = bufs[endIndex];
 			
 			if (rightBuf.free) {
-				memoryEnd = bufs[rightBuf.blockEnd - 1];
+				bufEnd = bufs[rightBuf.blockEnd - 1];
 			}
 		}
 		
-		setBlock(memoryBegin, memoryEnd, true);
+		setBlock(bufBegin, bufEnd, true);
+		
+		logger.debug("释放内存____________________________{},{},{}",new Object[]{bufBegin.index,bufEnd.index,tName()});
+		System.out.println();
 	}
 
 }

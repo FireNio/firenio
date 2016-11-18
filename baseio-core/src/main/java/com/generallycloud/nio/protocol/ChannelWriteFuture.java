@@ -13,7 +13,9 @@ public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFu
 
 	public abstract boolean write(SocketChannel channel) throws IOException;
 
-	public ChannelWriteFuture duplicate();
+	public abstract ChannelWriteFuture duplicate();
+	
+	public abstract ChannelWriteFuture duplicate(ReadFuture future);
 
 	public abstract void onException(SocketSession session, Exception e);
 

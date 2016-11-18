@@ -1,11 +1,12 @@
 package com.generallycloud.nio.codec.http11;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.common.MathUtil;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -15,15 +16,17 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 //A server MUST NOT mask any frames that it sends to the client.
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
-	public ChannelWriteFuture encode(Session session, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 		
 		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
 
 		String o = future.getWriteText();
 		
+		Charset charset = readFuture.getContext().getEncoding();
+		
 		byte [] header;
 		
-		byte [] data = o.getBytes(session.getEncoding());
+		byte [] data = o.getBytes(charset);
 		
 		int size = data.length;
 		
@@ -46,7 +49,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			MathUtil.int2Byte(header, size, 2);
 		}
 		
-		ByteBuf buf = session.getByteBufAllocator().allocate(header.length + size);
+		ByteBuf buf = allocator.allocate(header.length + size);
 		
 		buf.put(header);
 		

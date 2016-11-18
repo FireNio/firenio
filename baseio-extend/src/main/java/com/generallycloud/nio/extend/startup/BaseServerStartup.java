@@ -14,7 +14,7 @@ import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.extend.ApplicationContext;
-import com.generallycloud.nio.extend.FixedIOEventHandle;
+import com.generallycloud.nio.extend.ExtendIOEventHandle;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.extend.configuration.FileSystemACLoader;
@@ -47,7 +47,7 @@ public class BaseServerStartup {
 
 			applicationContext.setContext(context);
 
-			context.setIOEventHandleAdaptor(new FixedIOEventHandle(applicationContext));
+			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 

@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -84,9 +86,11 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 				
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 				
+				ByteBufAllocator allocator = UnpooledByteBufAllocator.getInstance();
+				
 				ChannelWriteFuture writeFuture;
 				try {
-					writeFuture = encoder.encode(session, (ChannelReadFuture) future);
+					writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;

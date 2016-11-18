@@ -1,18 +1,19 @@
 package com.generallycloud.nio.codec.http11;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -20,7 +21,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
-	public ChannelWriteFuture encode(Session session, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
 
@@ -29,6 +30,8 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		byte [] text_array;
 		
 		BufferedOutputStream os = f.getBinaryBuffer();
+		
+		Charset charset = readFuture.getContext().getEncoding();
 		
 		int length;
 		
@@ -47,7 +50,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 			
 		}else{
 			
-			text_array = write_text.getBytes(session.getEncoding());
+			text_array = write_text.getBytes(charset);
 			
 			length = text_array.length;
 			
@@ -99,9 +102,9 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		h.append("\r\n");
 		
-		ByteBuf buf = session.getByteBufAllocator().allocate(h.length() + length);
+		ByteBuf buf = allocator.allocate(h.length() + length);
 		
-		buf.put(h.toString().getBytes(session.getEncoding()));
+		buf.put(h.toString().getBytes(charset));
 		
 		if (length != 0) {
 			buf.put(text_array, 0, length);

@@ -19,7 +19,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 	public SocketChannelSelectionReader(BaseContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
 		this.byteBufReader = context.getChannelByteBufReader();
-		this.buf = UnpooledByteBufAllocator.allocate(readBuffer);// FIXME 使用direct
+		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME 使用direct
 	}
 
 	public void accept(SelectionKey selectionKey) throws Exception {

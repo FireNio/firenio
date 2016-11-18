@@ -259,7 +259,7 @@ public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture impl
 
 			hasBodyContent = true;
 
-			bodyContent = UnpooledByteBufAllocator.allocate(contentLength);
+			bodyContent = UnpooledByteBufAllocator.getInstance().allocate(contentLength);
 		} else {
 			// FIXME 写入临时文件
 			throw new IOException("max content 1024 * 1024,content " + contentLength);

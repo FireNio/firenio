@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.balance.router.FrontRouter;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -40,14 +42,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 
 			public void fire(BaseContext context, Map<Integer, Session> sessions) {
 
-				BalanceReadFuture f ;
-				
-				try {
-					f = future.translate();
-				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
-					return;
-				}
+				BalanceReadFuture f = future.translate();
 				
 				Iterator<Session> ss = sessions.values().iterator();
 				
@@ -62,9 +57,11 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 				
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 				
+				ByteBufAllocator allocator = UnpooledByteBufAllocator.getInstance();
+				
 				ChannelWriteFuture writeFuture;
 				try {
-					writeFuture = encoder.encode(session, (ChannelReadFuture) f);
+					writeFuture = encoder.encode(allocator, (ChannelReadFuture) f);
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 					return;

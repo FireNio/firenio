@@ -19,8 +19,8 @@ public class TestSimplyByteBufAllocator {
 		int unit = 1;
 		int max = unit * capacity / 5;
 
-//		allocator = new SimplyByteBufAllocator(capacity, unit, false);
-		 allocator = new SimpleByteBufAllocator(capacity, unit, false);
+		allocator = new SimplyByteBufAllocator(capacity, unit, false);
+//		 allocator = new SimpleByteBufAllocator(capacity, unit, false);
 
 		allocator.start();
 
@@ -36,9 +36,8 @@ public class TestSimplyByteBufAllocator {
 				ByteBuf buf = allocator.allocate(random);
 
 				if (buf == null) {
-
+					System.out.println(buf + Thread.currentThread().getName());
 				}
-				System.out.println(buf + Thread.currentThread().getName());
 
 				ThreadUtil.sleep(new Random().nextInt(20));
 
@@ -60,9 +59,9 @@ public class TestSimplyByteBufAllocator {
 
 		 ThreadUtil.execute(r);
 		
-		 ThreadUtil.execute(r);
+//		 ThreadUtil.execute(r);
 //		
-		 ThreadUtil.execute(r);
+//		 ThreadUtil.execute(r);
 
 	}
 }

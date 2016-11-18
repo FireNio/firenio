@@ -70,7 +70,7 @@ public abstract class SessionImpl implements Session {
 
 			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
 
-			writeFuture = encoder.encode(this, ioReadFuture);
+			writeFuture = encoder.encode(getByteBufAllocator(), ioReadFuture);
 
 			ioReadFuture.flush();
 

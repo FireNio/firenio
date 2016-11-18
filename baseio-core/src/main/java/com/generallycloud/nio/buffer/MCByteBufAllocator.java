@@ -38,7 +38,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 			return buf;
 		}
 		
-		return UnpooledByteBufAllocator.allocate(capacity);
+		return UnpooledByteBufAllocator.getInstance().allocate(capacity);
 		
 	}
 
@@ -62,7 +62,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 			
 			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
 
-			allocators[i] = new LinkAbleByteBufAllocatorImpl(this,allocator, i);
+			allocators[i] = new LinkableByteBufAllocatorImpl(this,allocator, i);
 		}
 		
 		cycle = core -1;
