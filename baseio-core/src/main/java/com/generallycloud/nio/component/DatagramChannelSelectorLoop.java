@@ -18,6 +18,7 @@ public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 
 	public void accept(SelectionKey selectionKey) {
 		if (!selectionKey.isValid()) {
+			cancelSelectionKey(selectionKey);
 			return;
 		}
 
@@ -33,14 +34,10 @@ public abstract class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 				logger.error("Connectable=================");
 			}
 
-		} catch (Exception e) {
-			acceptException(selectionKey, e);
+		} catch (Throwable e) {
+			
+			cancelSelectionKey(selectionKey, e);
 		}
-	}
-
-	private void acceptException(SelectionKey selectionKey, Exception e) {
-
-		logger.error(e.getMessage(), e);
 	}
 
 	public String toString() {

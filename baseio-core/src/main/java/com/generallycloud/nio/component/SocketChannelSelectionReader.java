@@ -5,16 +5,12 @@ import java.nio.channels.SelectionKey;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 
 public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	private ByteBuf			buf			= null;
 
 	private ChannelByteBufReader	byteBufReader	= null;
-
-	private Logger				logger		= LoggerFactory.getLogger(SocketChannelSelectionReader.class);
 
 	public SocketChannelSelectionReader(BaseContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_READ_BUFFER();
@@ -39,12 +35,9 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 		buf.nioBuffer();
 
 		int length = buf.read(channel);
-
-		if (length == -1) {
+		
+		if (length < 1) {
 			CloseUtil.close(channel);
-			return;
-		} else if (length == 0) {
-			logger.info("read length 0, selection key={}", selectionKey);
 			return;
 		}
 

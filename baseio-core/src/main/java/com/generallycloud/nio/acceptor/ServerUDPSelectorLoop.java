@@ -14,9 +14,6 @@ public class ServerUDPSelectorLoop extends DatagramChannelSelectorLoop {
 		super(context,selectableChannel);
 	}
 
-	public void register(SelectableChannel channel) throws IOException {
-	}
-
 	public Selector buildSelector(SelectableChannel channel) throws IOException {
 		// 打开selector
 		Selector selector = Selector.open();

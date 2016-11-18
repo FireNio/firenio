@@ -4,13 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-
 public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
-
-	private Logger						logger	= LoggerFactory.getLogger(SocketChannelSelectorLoop.class);
 
 	protected SelectionAcceptor			_read_acceptor;
 
@@ -29,7 +23,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	public void accept(SelectionKey selectionKey) throws IOException {
 
 		if (!selectionKey.isValid()) {
-			logger.info("isValid selection key={}",selectionKey);
+			cancelSelectionKey(selectionKey);
 			return;
 		}
 
@@ -48,25 +42,9 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		} catch (Throwable e) {
 
-			acceptException(selectionKey, e);
+			cancelSelectionKey(selectionKey, e);
 		}
 		
-	}
-
-	protected void acceptException(SelectionKey selectionKey, Throwable exception) {
-
-		Object attachment = selectionKey.attachment();
-
-		if (isSocketChannel(attachment)) {
-
-			CloseUtil.close(((SocketChannel) attachment));
-		}
-
-		logger.error(exception.getMessage(), exception);
-	}
-
-	private boolean isSocketChannel(Object object) {
-		return object instanceof SocketChannel;
 	}
 
 	public String toString() {
@@ -74,7 +52,6 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	}
 
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
-		
 		return new SocketChannelSelectionReader(context);
 	}
 	

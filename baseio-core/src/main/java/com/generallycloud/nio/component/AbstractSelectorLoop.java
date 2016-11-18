@@ -139,8 +139,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			try {
 				sk.channel().register(selector, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
-				logger.error(e.getMessage(), e);
-				cancelSelectionKey(sk);
+				cancelSelectionKey(sk,e);
 			}
 		}
 
@@ -148,8 +147,15 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		return selector;
 	}
+	
+	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable exception) {
 
-	private void cancelSelectionKey(SelectionKey sk) {
+		cancelSelectionKey(selectionKey);
+
+		logger.error(exception.getMessage(), exception);
+	}
+
+	protected void cancelSelectionKey(SelectionKey sk) {
 
 		Object attachment = sk.attachment();
 
