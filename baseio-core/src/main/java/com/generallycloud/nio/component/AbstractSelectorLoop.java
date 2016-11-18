@@ -8,7 +8,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.Set;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
@@ -24,11 +23,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private Logger				logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 	private boolean			working			= false;
 	private boolean			shutdown			= false;
-	private long				last_select		= 0;
 
 	protected Selector			selector			= null;
 	protected BaseContext		context			= null;
-	protected ChannelFlusher	channelFlusher		= null;
+	protected ChannelFlusher		channelFlusher		= null;
 	protected EventLoopThread	channelFlushThread	= null;
 	protected SelectableChannel	selectableChannel	= null;
 	protected ByteBufAllocator	byteBufAllocator	= null;
@@ -38,11 +36,11 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		this.context = context;
 
 		this.selectableChannel = selectableChannel;
-		
+
 		this.channelFlusher = new ChannelFlusherImpl(context);
 
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
-		
+
 		this.channelFlushThread = new EventLoopThread(channelFlusher, channelFlusher.toString());
 	}
 
@@ -58,48 +56,26 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			Selector selector = this.selector;
 
-			last_select = System.currentTimeMillis();
+			long last_select = System.currentTimeMillis();
 
-			//FIXME 这里select(big number) 比如60s的话会停顿60秒且有数据进来
-			int selected = selector.select(8);
-			
-			long past = System.currentTimeMillis() - last_select;
+			// FIXME 这里select(big number) 比如60s的话会停顿60秒且有数据进来
+			int selected = selector.select(16);
 
 			if (selected < 1) {
-
-				if (past < 8) {
-
-					if (shutdown || past < 0) {
-						working = false;
-						return;
-					}
-
-					// JDK bug fired ?
-					IOException e = new IOException("JDK bug fired ?");
-					logger.error(e.getMessage(), e);
-					logger.debug("last={},past={}", last_select, past);
-					this.selector = rebuildSelector();
-				}
 				
+				selectEmpty(last_select);
 				
-
-				working = false;
-
 				return;
 			}
 
 			Set<SelectionKey> selectionKeys = selector.selectedKeys();
-
-			Iterator<SelectionKey> iterator = selectionKeys.iterator();
-
-			for (; iterator.hasNext();) {
-
-				SelectionKey selectionKey = iterator.next();
-
-				iterator.remove();
-
-				accept(selectionKey);
+			
+			for(SelectionKey key: selectionKeys){
+				
+				accept(key);
 			}
+
+			selectionKeys.clear();
 
 			working = false;
 
@@ -110,6 +86,30 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			working = false;
 		}
 	}
+	
+	private void selectEmpty(long last_select){
+		
+		long past = System.currentTimeMillis() - last_select;
+		
+		if (past < 16) {
+
+			if (shutdown || past < 0) {
+				working = false;
+				return;
+			}
+
+			// JDK bug fired ?
+			IOException e = new IOException("JDK bug fired ?");
+			logger.error(e.getMessage(), e);
+			logger.debug("last={},past={}", last_select, past);
+			this.selector = rebuildSelector();
+		}
+
+		working = false;
+		
+	}
+	
+	public abstract void accept(SelectionKey key);
 
 	private Selector rebuildSelector() {
 
@@ -140,7 +140,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			try {
 				sk.channel().register(selector, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
-				cancelSelectionKey(sk,e);
+				cancelSelectionKey(sk, e);
 			}
 		}
 
@@ -148,7 +148,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		return selector;
 	}
-	
+
 	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
 
 		cancelSelectionKey(selectionKey);
@@ -162,38 +162,38 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		if (attachment instanceof Channel) {
 			CloseUtil.close((Channel) attachment);
-		}else{
-			
+		} else {
+
 			IOException e1 = new IOException("cancel sk");
-			
-			logger.error(e1.getMessage(),e1);
-			
+
+			logger.error(e1.getMessage(), e1);
+
 			try {
 				SelectableChannel ch = sk.channel();
-				
+
 				if (ch instanceof ServerSocketChannel) {
-					
+
 					SocketAddress l = ((ServerSocketChannel) ch).getLocalAddress();
-					
+
 					logger.debug("l={},r=null", l);
-					
-				}else if(ch instanceof SocketChannel){
-					
+
+				} else if (ch instanceof SocketChannel) {
+
 					SocketAddress r = ((SocketChannel) ch).getRemoteAddress();
 					SocketAddress l = ((ServerSocketChannel) ch).getLocalAddress();
-					
+
 					logger.debug("l={},r={}", l, r);
-				}else{
-					
+				} else {
+
 					logger.debug("l=null,r=null");
 				}
-				
+
 			} catch (IOException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
-	
+
 	public void startup() throws IOException {
 
 		this.channelFlushThread.startup();

@@ -1,6 +1,5 @@
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
@@ -20,7 +19,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		this._read_acceptor = createSocketChannelSelectionReader(context);
 	}
 
-	public void accept(SelectionKey selectionKey) throws IOException {
+	public void accept(SelectionKey selectionKey) {
 
 		if (!selectionKey.isValid()) {
 			cancelSelectionKey(selectionKey);
