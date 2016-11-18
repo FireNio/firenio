@@ -1,10 +1,13 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -129,8 +132,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		for (SelectionKey sk : sks) {
 
-			logger.debug("sk={},attachment={}", sk, sk.attachment());
-
 			if (!sk.isValid() || sk.attachment() == null) {
 				cancelSelectionKey(sk);
 				continue;
@@ -148,11 +149,11 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		return selector;
 	}
 	
-	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable exception) {
+	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
 
 		cancelSelectionKey(selectionKey);
 
-		logger.error(exception.getMessage(), exception);
+		logger.error(t.getMessage(), t);
 	}
 
 	protected void cancelSelectionKey(SelectionKey sk) {
@@ -161,9 +162,38 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		if (attachment instanceof Channel) {
 			CloseUtil.close((Channel) attachment);
+		}else{
+			
+			IOException e1 = new IOException("cancel sk");
+			
+			logger.error(e1.getMessage(),e1);
+			
+			try {
+				SelectableChannel ch = sk.channel();
+				
+				if (ch instanceof ServerSocketChannel) {
+					
+					SocketAddress l = ((ServerSocketChannel) ch).getLocalAddress();
+					
+					logger.debug("l={},r=null", l);
+					
+				}else if(ch instanceof SocketChannel){
+					
+					SocketAddress r = ((SocketChannel) ch).getRemoteAddress();
+					SocketAddress l = ((ServerSocketChannel) ch).getLocalAddress();
+					
+					logger.debug("l={},r={}", l, r);
+				}else{
+					
+					logger.debug("l=null,r=null");
+				}
+				
+			} catch (IOException e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 	}
-
+	
 	public void startup() throws IOException {
 
 		this.channelFlushThread.startup();
