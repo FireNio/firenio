@@ -3,6 +3,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -10,7 +11,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 import com.generallycloud.nio.protocol.SslReadFuture;
 
-public interface SocketChannel extends DuplexChannel {
+public interface SocketChannel extends DuplexChannel ,SelectorLoopEvent{
 
 	public abstract void setWriteFuture(ChannelWriteFuture future);
 
@@ -51,8 +52,6 @@ public interface SocketChannel extends DuplexChannel {
 	public abstract ProtocolFactory getProtocolFactory() ;
 
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory) ;
-	
-	public abstract boolean flush() throws IOException;
 	
 	public abstract int getWriteFutureSize();
 	

@@ -5,15 +5,20 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 
 public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
+	
+	private SocketChannelConnector	connector;
 
 	public ClientTCPSelectorLoop(SocketChannelConnector connector) {
 
 		super(connector.getContext(),connector.getSelectableChannel());
+		
+		this.connector = connector;
 
-		this._alpha_acceptor = new SocketChannelSelectionConnector(this, connector);
+		this.isMainSelector = true;
 	}
 
 	//FIXME open channel
@@ -24,5 +29,42 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 		channel.register(selector, SelectionKey.OP_CONNECT);
 		
 		return selector;
+	}
+
+	@Override
+	protected void acceptPrepare(SelectionKey selectionKey) throws IOException {
+		
+		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectionKey.channel();
+
+		// does it need connection pending ?
+		if (!channel.isConnectionPending()) {
+
+			return;
+		}
+
+		finishConnect(selectionKey, channel);
+		
+	}
+	
+	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) {
+
+		try {
+
+			channel.finishConnect();
+
+			channel.register(getSelector(), SelectionKey.OP_READ);
+
+			final SocketChannel socketChannel = attachSocketChannel(selectionKey);
+			
+			connector.finishConnect(socketChannel.getSession(), null);
+
+		} catch (final IOException e) {
+			
+			connector.finishConnect(null, e);
+
+		} catch (final Exception e) {
+			
+			connector.finishConnect(null, new IOException(e.getMessage(), e));
+		}
 	}
 }

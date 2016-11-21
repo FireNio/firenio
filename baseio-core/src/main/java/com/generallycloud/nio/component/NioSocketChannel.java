@@ -11,11 +11,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.ClosedChannelException;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.ChannelFlusher.ChannelFlusherEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -33,11 +31,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ChannelReadFuture			readFuture;
 	private SslReadFuture				sslReadFuture;
 	private SelectionKey				selectionKey;
-	private ChannelFlusher				channelFlusher;
 	private boolean					networkWeak;
 	private ProtocolDecoder				protocolDecoder;
 	private ProtocolEncoder				protocolEncoder;
 	private ProtocolFactory				protocolFactory;
+	private SelectorLoop				selectorLoop;
 	private ChannelWriteFuture			writeFuture;
 	private boolean					opened			= true;
 	private long						next_network_weak	= Long.MAX_VALUE;
@@ -51,11 +49,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(BaseContext context, SelectionKey selectionKey, ByteBufAllocator allocator,
-			ChannelFlusher channelFlusher) throws SocketException {
-		super(context, allocator);
+	public NioSocketChannel(SelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
+		super(selectorLoop.getContext(), selectorLoop.getByteBufAllocator());
 		this.selectionKey = selectionKey;
-		this.channelFlusher = channelFlusher;
+		this.selectorLoop = selectorLoop;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		this.local = getLocalSocketAddress();
@@ -70,7 +67,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		CloseUtil.close(session);
 	}
 
-	public boolean flush() throws IOException {
+	public boolean handle(SelectorLoop selectorLoop) throws IOException {
+		if (!isOpened()) {
+			throw new ClosedChannelException("closed");
+		}
 
 		if (writeFuture == null) {
 			writeFuture = writeFutures.poll();
@@ -81,14 +81,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		if (!writeFuture.write(this)) {
-			return false;
+			return isNetworkWeak();
 		}
 
 		writeFuture.onSuccess(session);
 
 		writeFuture = null;
 
-		return true;
+		return needFlush();
 	}
 
 	public ChannelWriteFuture getWriteFuture() {
@@ -185,7 +185,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				return;
 			}
 
-			channelFlusher.offer(this);
+			selectorLoop.fireEvent(this);
 
 		} finally {
 
@@ -250,7 +250,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		this.selectionKey.cancel();
-		
+
 		ReleaseUtil.release(readFuture);
 	}
 
@@ -310,19 +310,23 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public void wakeup() throws IOException {
 
-		this.channelFlusher.fire(new ChannelFlusherEvent() {
+		upNetworkState();
+		
+		ReentrantLock lock = channelLock;
 
-			public void handle(ChannelFlusher flusher) {
+		lock.lock();
 
-				NioSocketChannel channel = NioSocketChannel.this;
+		try {
 
-				channel.upNetworkState();
+			selectorLoop.fireEvent(this);
 
-				flusher.wekeupSocketChannel(channel);
-			}
-		});
+		} finally {
+
+			lock.unlock();
+		}
 
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
+
 	}
 
 	public int write(ByteBuffer buffer) throws IOException {

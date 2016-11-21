@@ -9,18 +9,18 @@ import com.generallycloud.nio.common.StringUtil;
 
 public abstract class AbstractChannel implements Channel {
 
-	protected Object			attachment;
-	protected BaseContext		context;
-	protected String			edp_description;
-	protected Integer			channelID;
-	protected InetSocketAddress	local;
-	protected InetSocketAddress	remote;
+	protected Object				attachment;
+	protected BaseContext			context;
+	protected String				edp_description;
+	protected Integer				channelID;
+	protected InetSocketAddress		local;
+	protected InetSocketAddress		remote;
 	protected long				lastAccess;
-	private ByteBufAllocator		byteBufAllocator;
+	protected ByteBufAllocator		byteBufAllocator;
 	protected long				creationTime	= System.currentTimeMillis();
-	protected ReentrantLock		channelLock	= new ReentrantLock();
+	protected ReentrantLock			channelLock	= new ReentrantLock();
 
-	public AbstractChannel(BaseContext context,ByteBufAllocator allocator) {
+	public AbstractChannel(BaseContext context, ByteBufAllocator allocator) {
 		this.context = context;
 		this.byteBufAllocator = allocator;
 		// 这里认为在第一次Idle之前，连接都是畅通的
@@ -58,7 +58,7 @@ public abstract class AbstractChannel implements Channel {
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
 	}
-	
+
 	public int getLocalPort() {
 		return local.getPort();
 	}

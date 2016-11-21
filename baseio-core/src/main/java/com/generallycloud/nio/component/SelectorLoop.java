@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.Selector;
@@ -13,8 +14,6 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 
 	public abstract Selector getSelector();
 
-	public abstract ChannelFlusher getChannelFlusher();
-
 	public abstract BaseContext getContext();
 
 	public abstract void startup() throws IOException;
@@ -22,8 +21,14 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract SelectableChannel getSelectableChannel();
 
 	public abstract ByteBufAllocator getByteBufAllocator();
+	
+	public abstract void wakeup();
+	
+	public abstract void fireEvent(SelectorLoopEvent event);
+	
+	public interface SelectorLoopEvent extends Closeable{
+		
+		boolean handle(SelectorLoop selectLoop) throws IOException;
+	}
 
-	public abstract boolean isMainSelector();
-
-	public abstract void setMainSelector(boolean isMainSelector);
 }

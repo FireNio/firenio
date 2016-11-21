@@ -38,21 +38,17 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		int core_size = configuration.getSERVER_CORE_SIZE();
 
 		this.selectorLoops = new SelectorLoop[core_size];
+		
+		this.selectorLoopThreads = new EventLoopThread[core_size];
 
 		for (int i = 0; i < core_size; i++) {
 			
-			ServerTCPSelectorLoop loop = new ServerTCPSelectorLoop(context,selectorLoops, selectableChannel); 
-			
-			loop.setMainSelector(i == 0);
-			
-			selectorLoops[i] = loop;
+			selectorLoops[i] = new ServerTCPSelectorLoop(context,selectorLoops, selectableChannel);
 		}
 		
 		for (int i = 0; i < core_size; i++) {
 			selectorLoops[i].startup();
 		}
-
-		selectorLoopThreads = new EventLoopThread[core_size];
 
 		for (int i = 0; i < core_size; i++) {
 
@@ -62,6 +58,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 			selectorLoopThreads[i].startup();
 		}
+		
 	}
 
 	public String getServiceDescription() {

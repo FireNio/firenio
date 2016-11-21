@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
@@ -8,8 +10,6 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	protected SelectionAcceptor			_read_acceptor;
 
 	protected SelectionAcceptor			_write_acceptor;
-
-	protected SocketChannelSelectionAlpha	_alpha_acceptor;
 
 	public SocketChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
 		super(context,selectableChannel);
@@ -36,7 +36,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 				_write_acceptor.accept(selectionKey);
 			} else {
 
-				_alpha_acceptor.accept(selectionKey);
+				acceptPrepare(selectionKey);
 			}
 
 		} catch (Throwable e) {
@@ -45,6 +45,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		}
 		
 	}
+	
+	protected abstract void acceptPrepare(SelectionKey selectionKey) throws IOException;
 
 	public String toString() {
 		return "TCP:Selector@" + String.valueOf(selector.toString());
@@ -52,6 +54,28 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
 		return new SocketChannelSelectionReader(context);
+	}
+	
+	protected SocketChannel attachSocketChannel(SelectionKey selectionKey) throws SocketException {
+
+		SocketChannel channel = (SocketChannel) selectionKey.attachment();
+
+		if (channel != null) {
+
+			return channel;
+		}
+
+		channel = new NioSocketChannel(this, selectionKey);
+
+		channel.setProtocolDecoder(protocolDecoder);
+
+		channel.setProtocolEncoder(protocolEncoder);
+
+		channel.setProtocolFactory(protocolFactory);
+
+		selectionKey.attach(channel);
+
+		return channel;
 	}
 	
 }
