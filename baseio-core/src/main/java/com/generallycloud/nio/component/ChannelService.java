@@ -12,8 +12,6 @@ public interface ChannelService{
 	
 	public abstract InetSocketAddress getServerSocketAddress();
 	
-	public abstract String getServiceDescription();
-	
 	public abstract boolean isActive();
 	
 	public abstract SelectableChannel getSelectableChannel();

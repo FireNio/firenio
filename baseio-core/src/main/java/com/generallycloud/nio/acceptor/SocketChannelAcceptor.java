@@ -52,17 +52,17 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 		for (int i = 0; i < core_size; i++) {
 
-			SelectorLoop selectorLoop = selectorLoops[i];
-
-			selectorLoopThreads[i] = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
+			selectorLoopThreads[i] = new EventLoopThread(selectorLoops[i], getServiceDescription(i));
+			
+			selectorLoops[i].setMonitor(selectorLoopThreads[i].getMonitor());
 
 			selectorLoopThreads[i].startup();
 		}
 		
 	}
 
-	public String getServiceDescription() {
-		return "TCP:" + getServerSocketAddress();
+	public String getServiceDescription(int i) {
+		return "tcp>IoProcess-" + i;
 	}
 
 	public InetSocketAddress getServerSocketAddress() {

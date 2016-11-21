@@ -9,6 +9,7 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.connector.ChannelConnector;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -28,7 +29,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 	}
 
 	public void close() {
-
+		
 		ReentrantLock lock = channel.getChannelLock();
 		
 		lock.lock();
@@ -38,15 +39,32 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 			if (isClosed()) {
 				return;
 			}
-
-			doClose();
+			
+			if (channel.isInSelectorLoop()) {
+				doClose();
+				fireClosed();
+			}else{
+				channel.fireEvent(new SelectorLoopEvent() {
+					
+					public void close() throws IOException {
+						
+					}
+					
+					public boolean handle(SelectorLoop selectLoop) throws IOException {
+						
+						doClose();
+						
+						fireClosed();
+						
+						return false;
+					}
+				});
+			}
 			
 		}finally{
 			
 			lock.unlock();
 		}
-		
-		fireClosed();
 	}
 
 	private void doClose() {
@@ -62,7 +80,6 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
 
 				flush(f);
-				
 			}
 
 			try {
@@ -85,7 +102,6 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 				logger.error(e.getMessage(), e);
 			}
 		}
-		
 	}
 
 	private void physicalClose(Channel channel) {

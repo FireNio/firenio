@@ -48,10 +48,6 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	
 	protected abstract void acceptPrepare(SelectionKey selectionKey) throws IOException;
 
-	public String toString() {
-		return "TCP:Selector@" + String.valueOf(selector.toString());
-	}
-
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
 		return new SocketChannelSelectionReader(context);
 	}

@@ -111,7 +111,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 
 			this.connect(context, serverAddress);
 			
-			LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServiceDescription());
+			LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 			
 			((SocketSession)this.getSession()).fireOpend();
 

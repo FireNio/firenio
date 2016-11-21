@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -194,12 +194,21 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	private void releaseWriteFutures() {
-
-		ReleaseUtil.release(writeFuture);
+		
+		ClosedChannelException e = null;
+		
+		if (writeFuture != null) {
+			
+			e = new ClosedChannelException(session.toString());
+			
+			ReleaseUtil.release(writeFuture);
+			
+			writeFuture.onException(session, e);
+		}
 
 		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
 
-		if (writeFutures.size() != -1) {
+		if (writeFutures.size() == 0) {
 			return;
 		}
 
@@ -207,7 +216,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		UnsafeSession session = this.session;
 
-		ClosedChannelException e = new ClosedChannelException(session.toString());
+		if (e == null) {
+			e = new ClosedChannelException(session.toString());
+		}
 
 		for (; f != null;) {
 
@@ -223,20 +234,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void physicalClose() throws IOException {
 
 		enableInbound = false;
-
-		int tryTime = 5;
-
-		if (channel.isOpen()) {
-			tryTime <<= 3;
-		}
-
-		// FIXME condition instead?
-		for (;;) {
-			if (!needFlush() || tryTime-- == 0) {
-				break;
-			}
-			ThreadUtil.sleep(6);
-		}
 
 		this.opened = false;
 
@@ -308,22 +305,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 
-	public void wakeup() throws IOException {
+	public void wakeup() {
 
 		upNetworkState();
 		
-		ReentrantLock lock = channelLock;
-
-		lock.lock();
-
-		try {
-
-			selectorLoop.fireEvent(this);
-
-		} finally {
-
-			lock.unlock();
-		}
+		this.selectorLoop.fireEvent(this);
 
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
 
@@ -344,5 +330,15 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public boolean needFlush() {
 		return writeFuture != null || writeFutures.size() > 0;
 	}
+	
+	public void fireEvent(SelectorLoopEvent event){
+		this.selectorLoop.fireEvent(event);
+	}
 
+	public boolean isInSelectorLoop() {
+		return Thread.currentThread() == selectorLoop.getMonitor();
+	}
+	
+	
+	
 }

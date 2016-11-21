@@ -64,7 +64,7 @@ public class TestFIxedLengthClient {
 
 		session.flush(future);
 		
-		ThreadUtil.sleep(100);
+		ThreadUtil.sleep(200);
 
 		CloseUtil.close(connector);
 

@@ -55,7 +55,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 			this.bind(context, getInetSocketAddress(SERVER_PORT));
 			
-			LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}",getServiceDescription());
+			LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}",getServerSocketAddress());
 
 			active = true;
 

@@ -13,6 +13,10 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract Selector buildSelector(SelectableChannel channel) throws IOException;
 
 	public abstract Selector getSelector();
+	
+	public abstract Thread	getMonitor();
+	
+	public abstract void setMonitor(Thread monitor);
 
 	public abstract BaseContext getContext();
 

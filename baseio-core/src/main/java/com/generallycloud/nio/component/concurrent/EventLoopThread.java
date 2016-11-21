@@ -18,6 +18,12 @@ public class EventLoopThread implements Looper {
 	public EventLoopThread(Looper looper, String threadName) {
 		this.looper = looper;
 		this.threadName = threadName;
+		this.monitor = new Thread(new Runnable() {
+
+			public void run() {
+				loop();
+			}
+		}, threadName);
 	}
 
 	public void startup() {
@@ -27,13 +33,6 @@ public class EventLoopThread implements Looper {
 		}
 
 		this.running = true;
-
-		monitor = new Thread(new Runnable() {
-
-			public void run() {
-				loop();
-			}
-		}, threadName);
 
 		monitor.start();
 	}

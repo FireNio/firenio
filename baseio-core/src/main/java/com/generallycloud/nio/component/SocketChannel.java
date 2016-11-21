@@ -11,7 +11,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 import com.generallycloud.nio.protocol.SslReadFuture;
 
-public interface SocketChannel extends DuplexChannel ,SelectorLoopEvent{
+public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract void setWriteFuture(ChannelWriteFuture future);
 
@@ -20,17 +20,19 @@ public interface SocketChannel extends DuplexChannel ,SelectorLoopEvent{
 	public abstract boolean isNetworkWeak();
 
 	public abstract void upNetworkState();
-	
+
 	public abstract void downNetworkState();
+
+	public abstract void wakeup();
 	
-	public abstract void wakeup() throws IOException;
+	public abstract boolean isInSelectorLoop();
 
 	public abstract ChannelReadFuture getReadFuture();
-	
+
 	public abstract SslReadFuture getSslReadFuture();
 
 	public abstract void setReadFuture(ChannelReadFuture future);
-	
+
 	public abstract void setSslReadFuture(SslReadFuture future);
 
 	public abstract int read(ByteBuffer buffer) throws IOException;
@@ -40,20 +42,22 @@ public interface SocketChannel extends DuplexChannel ,SelectorLoopEvent{
 	public abstract void offer(ChannelWriteFuture future);
 
 	public abstract boolean isBlocking();
-	
-	public abstract ProtocolEncoder getProtocolEncoder() ;
 
-	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder) ;
+	public abstract ProtocolEncoder getProtocolEncoder();
 
-	public abstract ProtocolDecoder getProtocolDecoder() ;
+	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
 
-	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder) ;
-	
-	public abstract ProtocolFactory getProtocolFactory() ;
+	public abstract ProtocolDecoder getProtocolDecoder();
 
-	public abstract void setProtocolFactory(ProtocolFactory protocolFactory) ;
-	
+	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+
+	public abstract ProtocolFactory getProtocolFactory();
+
+	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
+
 	public abstract int getWriteFutureSize();
-	
+
 	public abstract boolean needFlush();
+	
+	public abstract void fireEvent(SelectorLoopEvent event);
 }

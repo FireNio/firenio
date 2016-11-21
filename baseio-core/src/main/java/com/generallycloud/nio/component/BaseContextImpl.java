@@ -180,14 +180,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 			
-			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IOEvent", eventQueueSize, eventLoopSize);
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
 			
 			this.eventLoopGroup = eventLoopGroup;
 		}
 
 		this.mcByteBufAllocator.start();
-
-		// this.directByteBufferPool.start();
 
 		this.sessionManagerThread = new EventLoopThread(sessionManager, "session-manager");
 
@@ -205,8 +203,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		LifeCycleUtil.stop(sessionManagerThread);
 
 		LifeCycleUtil.stop(mcByteBufAllocator);
-
-		// LifeCycleUtil.stop(directByteBufferPool);
 	}
 
 	public ProtocolFactory getProtocolFactory() {

@@ -34,6 +34,8 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		((SocketChannel)this.selectableChannel).connect(socketAddress);
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
+		
+		this.selectorLoop.setMonitor(this.selectorLoopThread.getMonitor());
 
 		this.selectorLoopThread.startup();
 
