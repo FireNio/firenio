@@ -270,8 +270,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 这里有问题
 	public void physicalClose() throws IOException {
+		
+		ReleaseUtil.release(readFuture);
+		ReleaseUtil.release(sslReadFuture);
 
-		enableInbound = false;
+		this.enableInbound = false;
 
 		this.opened = false;
 		
@@ -287,8 +290,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		this.selectionKey.cancel();
-
-		ReleaseUtil.release(readFuture);
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {

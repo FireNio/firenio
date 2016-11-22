@@ -6,7 +6,6 @@ import java.nio.channels.SelectionKey;
 import java.util.List;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
@@ -91,14 +90,8 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 	
 	public void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
 		
-		long last = System.currentTimeMillis();
-		
-		DebugUtil.info("before regist {}", last);
-		
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 		
-		DebugUtil.info("past regist {}", System.currentTimeMillis() - last);
-
 		// 绑定SocketChannel到SelectionKey
 		SocketChannel socketChannel = buildSocketChannel(sk,selectorLoop);
 

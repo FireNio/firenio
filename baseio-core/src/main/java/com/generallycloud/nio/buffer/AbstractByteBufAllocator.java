@@ -1,11 +1,7 @@
 package com.generallycloud.nio.buffer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.AbstractLifeCycle;
@@ -27,8 +23,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	protected ByteBufFactory		bufFactory;
 
 	protected ReentrantLock			lock		;
-
-	protected Map<ByteBuf, Exception>	busyBuf	= new HashMap<ByteBuf, Exception>();
 
 	protected List<ByteBufUnit>		busyUnit	= new ArrayList<ByteBufUnit>();
 
@@ -124,34 +118,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		bufFactory.initializeMemory(capacity);
 	}
 
-	private void printBusy() {
-
-		if (busyBuf.size() == 0) {
-
-			return;
-		}
-
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
-
-			Set<Entry<ByteBuf, Exception>> es = busyBuf.entrySet();
-
-			for (Entry<ByteBuf, Exception> e : es) {
-
-				Exception ex = e.getValue();
-
-				logger.error(ex.getMessage(), ex);
-			}
-
-		} finally {
-
-			lock.unlock();
-		}
-	}
-
 	public void release(ByteBuf buf) {
 
 		ReentrantLock lock = this.lock;
@@ -161,8 +127,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		try {
 
 			doRelease(units[((PooledByteBuf) buf).getBeginUnit()]);
-
-			busyBuf.remove(buf);
 
 		} finally {
 			lock.unlock();
@@ -195,8 +159,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		b.append(",memory=");
 		b.append(capacity);
 		b.append("]");
-
-		printBusy();
 
 		return b.toString();
 	}
