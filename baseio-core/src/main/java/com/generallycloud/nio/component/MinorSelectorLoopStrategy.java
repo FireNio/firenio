@@ -3,6 +3,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.util.Set;
 
 
@@ -58,6 +59,22 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		}
 
 		handleEvents(looper, true);
+	}
+	
+	public void regist(SocketChannel channel, SelectorLoop selectorLoop) throws IOException {
+		
+		byte [] lock = selectorLoop.getIsWaitForRegistLock();
+		
+		synchronized (lock) {
+
+			selectorLoop.setWaitForRegist(true);
+
+			selectorLoop.wakeup();
+
+			super.regist(channel, selectorLoop);
+			
+			selectorLoop.setWaitForRegist(false);
+		}
 	}
 	
 }

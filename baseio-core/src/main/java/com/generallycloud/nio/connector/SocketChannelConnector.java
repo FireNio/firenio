@@ -27,7 +27,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 		this.selectableChannel.configureBlocking(false);
 
-		this.selectorLoop = new ClientTCPSelectorLoop(this);
+		this.selectorLoop = new ClientSocketChannelSelectorLoop(this);
 
 		this.selectorLoop.startup();
 

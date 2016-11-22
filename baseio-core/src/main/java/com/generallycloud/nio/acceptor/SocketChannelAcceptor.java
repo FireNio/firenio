@@ -43,7 +43,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 		for (int i = 0; i < core_size; i++) {
 			
-			selectorLoops[i] = new ServerTCPSelectorLoop(context,selectorLoops, selectableChannel);
+			selectorLoops[i] = new ServerSocketChannelSelectorLoop(context,selectorLoops, selectableChannel);
 		}
 		
 		for (int i = 0; i < core_size; i++) {

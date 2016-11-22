@@ -11,9 +11,9 @@ import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.protocol.DatagramPacket;
 import com.generallycloud.nio.protocol.DatagramRequest;
 
-public abstract class ServerDPAcceptor implements DatagramPacketAcceptor {
+public abstract class ServerDatagramPacketAcceptor implements DatagramPacketAcceptor {
 	
-	private Logger logger = LoggerFactory.getLogger(ServerDPAcceptor.class);
+	private Logger logger = LoggerFactory.getLogger(ServerDatagramPacketAcceptor.class);
 
 	public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
 

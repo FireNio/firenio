@@ -241,4 +241,9 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	public ProtocolFactory getProtocolFactory() {
 		return protocolFactory;
 	}
+
+	public SelectorLoopStrategy getSelectorLoopStrategy() {
+		return selectorLoopStrategy;
+	}
+	
 }

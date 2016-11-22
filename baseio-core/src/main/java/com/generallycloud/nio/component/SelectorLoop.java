@@ -63,5 +63,7 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract ProtocolEncoder getProtocolEncoder();
 
 	public abstract ProtocolFactory getProtocolFactory();
+	
+	public abstract SelectorLoopStrategy getSelectorLoopStrategy();
 
 }

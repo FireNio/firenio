@@ -9,11 +9,11 @@ import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 
-public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
+public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	
 	private SocketChannelConnector	connector;
 
-	public ClientTCPSelectorLoop(SocketChannelConnector connector) {
+	public ClientSocketChannelSelectorLoop(SocketChannelConnector connector) {
 
 		super(connector.getContext(),connector.getSelectableChannel());
 		

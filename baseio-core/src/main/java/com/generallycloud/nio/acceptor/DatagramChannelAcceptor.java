@@ -27,7 +27,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 		// 进行服务的绑定
 		this.serverSocket.bind(socketAddress);
 		
-		this.selectorLoop = new ServerUDPSelectorLoop(context,selectableChannel);
+		this.selectorLoop = new ServerDatagramChannelSelectorLoop(context,selectableChannel);
 		
 		this.selectorLoop.startup();
 		

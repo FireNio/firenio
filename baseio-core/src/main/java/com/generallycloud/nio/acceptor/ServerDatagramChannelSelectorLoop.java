@@ -8,9 +8,9 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
-public class ServerUDPSelectorLoop extends DatagramChannelSelectorLoop {
+public class ServerDatagramChannelSelectorLoop extends DatagramChannelSelectorLoop {
 
-	public ServerUDPSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+	public ServerDatagramChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
 		super(context,selectableChannel);
 	}
 

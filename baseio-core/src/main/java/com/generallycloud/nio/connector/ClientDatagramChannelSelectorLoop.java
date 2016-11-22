@@ -11,11 +11,11 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 
-public class ClientUDPSelectorLoop extends DatagramChannelSelectorLoop {
+public class ClientDatagramChannelSelectorLoop extends DatagramChannelSelectorLoop {
 
 	private DatagramChannel	datagramChannel;
 
-	public ClientUDPSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
+	public ClientDatagramChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
 		super(context,selectableChannel);
 	}
 	

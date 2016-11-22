@@ -19,7 +19,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
 	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
-	private ClientUDPSelectorLoop	selectorLoop;
+	private ClientDatagramChannelSelectorLoop	selectorLoop;
 	private EventLoopThread		selectorLoopThread;
 
 	protected EventLoopThread getSelectorLoopThread() {
@@ -88,7 +88,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 
-		this.selectorLoop = new ClientUDPSelectorLoop(context,selectableChannel);
+		this.selectorLoop = new ClientDatagramChannelSelectorLoop(context,selectableChannel);
 
 		this.selectorLoop.startup();
 

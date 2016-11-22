@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.acceptor.ServerDPAcceptor;
+import com.generallycloud.nio.acceptor.ServerDatagramPacketAcceptor;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.ByteUtil;
@@ -18,7 +18,7 @@ import com.generallycloud.nio.extend.security.AuthorityManager;
 import com.generallycloud.nio.protocol.DatagramPacket;
 import com.generallycloud.nio.protocol.DatagramRequest;
 
-public class RTPServerDPAcceptor extends ServerDPAcceptor {
+public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 	
 	public static final String BIND_SESSION = "BIND_SESSION";
 	

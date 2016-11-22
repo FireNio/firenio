@@ -13,13 +13,13 @@ import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
-public class ServerTCPSelectorLoop extends SocketChannelSelectorLoop {
+public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	
 	private SelectorLoop[]		selectorLoops;
 	
 	private FixedAtomicInteger	core_index;
 
-	public ServerTCPSelectorLoop(BaseContext context, SelectorLoop[] loops, SelectableChannel selectableChannel) {
+	public ServerSocketChannelSelectorLoop(BaseContext context, SelectorLoop[] loops, SelectableChannel selectableChannel) {
 
 		super(context, selectableChannel);
 		
@@ -51,28 +51,25 @@ public class ServerTCPSelectorLoop extends SocketChannelSelectorLoop {
 	}
 
 	protected void acceptPrepare(SelectionKey selectionKey) throws IOException {
+
+		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
 		
-		java.nio.channels.SocketChannel channel;
+		java.nio.channels.SocketChannel channel = server.accept();
+
+		if (channel == null) {
+			return;
+		}
 
 		int next_core_index = core_index.getAndIncrement();
 		
 		SelectorLoop selectorLoop = selectorLoops[next_core_index];
 
-		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
-
-		channel = server.accept();
-		
-		if (channel == null) {
-			// Exception e = new Exception("core_index error");
-			// logger.error(e.getMessage(), e);
-			return;
-		}
-		
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		
 		// 注册到selector，等待连接
-		selectorLoopStrategy.regist(channel, selectorLoop);
+		selectorLoop.getSelectorLoopStrategy().regist(channel, selectorLoop);
+		
 	}
 
 }
