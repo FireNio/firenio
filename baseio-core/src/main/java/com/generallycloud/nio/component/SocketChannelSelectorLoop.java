@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
@@ -50,28 +49,6 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
 		return new SocketChannelSelectionReader(context);
-	}
-	
-	protected SocketChannel attachSocketChannel(SelectionKey selectionKey,SelectorLoop selectorLoop) throws SocketException {
-
-		SocketChannel channel = (SocketChannel) selectionKey.attachment();
-
-		if (channel != null) {
-
-			return channel;
-		}
-
-		channel = new NioSocketChannel(selectorLoop, selectionKey);
-
-		channel.setProtocolDecoder(protocolDecoder);
-
-		channel.setProtocolEncoder(protocolEncoder);
-
-		channel.setProtocolFactory(protocolFactory);
-
-		selectionKey.attach(channel);
-
-		return channel;
 	}
 	
 }

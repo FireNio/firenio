@@ -5,6 +5,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 
@@ -19,6 +20,8 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 		this.connector = connector;
 
 		this.setMainSelector(true);
+		
+		this.selectorLoopStrategy = new PrimarySelectorLoopStrategy();
 	}
 
 	//FIXME open channel
@@ -54,7 +57,7 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 
 			channel.register(getSelector(), SelectionKey.OP_READ);
 
-			SocketChannel socketChannel = attachSocketChannel(selectionKey,this);
+			SocketChannel socketChannel = selectorLoopStrategy.buildSocketChannel(selectionKey, this);
 			
 			connector.finishConnect(socketChannel.getSession(), null);
 

@@ -57,6 +57,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			throw new SocketException("socket is empty");
 		}
 
+		this.protocolFactory = selectorLoop.getProtocolFactory();
+		this.protocolDecoder = selectorLoop.getProtocolDecoder();
+		this.protocolEncoder = selectorLoop.getProtocolEncoder();
 		this.session = context.getSessionFactory().newUnsafeSession(this);
 	}
 
