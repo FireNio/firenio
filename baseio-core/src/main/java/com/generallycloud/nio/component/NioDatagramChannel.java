@@ -43,7 +43,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		this.physicalClose();
 	}
 
-	public void physicalClose() throws IOException {
+	public void physicalClose() {
 
 		if (_closed.compareAndSet(false, true)) {
 

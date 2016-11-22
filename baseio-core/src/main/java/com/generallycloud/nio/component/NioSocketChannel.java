@@ -72,11 +72,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		
 		try{
 			
-			if (!opened || closing) {
+			if (!opened) {
 				return;
 			}
-			
-			closing = true;
 			
 			if (isInSelectorLoop()) {
 				
@@ -85,6 +83,12 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				this.physicalClose();
 				
 			}else{
+				
+				if (closing) {
+					return;
+				}
+
+				closing = true;
 				
 				fireEvent(new SelectorLoopEvent() {
 					
@@ -115,7 +119,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		if (writeFuture == null) {
-			return true;
+			return false;
 		}
 
 		if (!writeFuture.write(this)) {
@@ -269,16 +273,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	// FIXME 这里有问题
-	public void physicalClose() throws IOException {
+	public void physicalClose() {
+		
+		this.enableInbound = false;
 		
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);
 
-		this.enableInbound = false;
-
-		this.opened = false;
-		
-		this.closing = false;
+		// 最后一轮
+		try {
+			this.handle(selectorLoop);
+		} catch (IOException e) {
+		}
 
 		this.releaseWriteFutures();
 
@@ -288,6 +294,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			this.channel.close();
 		} catch (Exception e) {
 		}
+
+		this.opened = false;
+		
+		this.closing = false;
 
 		this.selectionKey.cancel();
 	}

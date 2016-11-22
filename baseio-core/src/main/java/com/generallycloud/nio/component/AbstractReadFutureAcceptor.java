@@ -1,54 +1,38 @@
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.IOEventHandle.IOEventState;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class AbstractChannelByteBufReader implements ChannelByteBufReader{
+public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 
 	private Logger logger = LoggerFactory.getLogger(AbstractChannelByteBufReader.class);
 	
-	protected void accept(final Session session, final ChannelReadFuture future) throws Exception {
+	public void accept(final Session session, final ReadFuture future) throws Exception {
 
-		if (future.isSilent()) {
+		ChannelReadFuture f = (ChannelReadFuture) future;
+		
+		if (f.isSilent()) {
 			return;
 		}
 
-		if (future.isHeartbeat()) {
+		if (f.isHeartbeat()) {
 
-			acceptHeartBeat(session, future);
+			acceptHeartBeat(session, f);
 
 			return;
 		}
+		
+		BaseContext context = session.getContext();
 
-		EventLoop eventLoop = session.getEventLoop();
-
-		eventLoop.dispatch(new Runnable() {
-
-			public void run() {
-
-				BaseContext context = session.getContext();
-
-				IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
-
-				try {
-
-					eventHandle.accept(session, future);
-
-				} catch (Exception e) {
-
-					logger.error(e.getMessage(), e);
-
-					eventHandle.exceptionCaught(session, future, e, IOEventState.HANDLE);
-				}
-			}
-		});
+		IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
+		
+		accept(eventHandle, session, f);
 	}
+	
+	protected abstract void accept(IOEventHandle eventHandle,Session session, ChannelReadFuture future);
 	
 	private void acceptHeartBeat(final Session session, final ChannelReadFuture future) {
 
@@ -80,7 +64,4 @@ public abstract class AbstractChannelByteBufReader implements ChannelByteBufRead
 
 	}
 
-	protected ByteBuf allocate(Session session,int capacity){
-		return session.getByteBufAllocator().allocate(capacity);
-	}
 }

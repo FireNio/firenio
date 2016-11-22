@@ -44,6 +44,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private boolean					enableSSL;
 	private ChannelByteBufReader			channelByteBufReader;
 	private SessionFactory				sessionFactory;
+	private ReadFutureAcceptor			readFutureAcceptor;
 	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
 	private long						startupTime	= System.currentTimeMillis();
 	private Sequence					sequence		= new Sequence();
@@ -145,11 +146,13 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		this.addSessionEventListener(new ManagerSEListener());
 		
+		this.channelByteBufReader = new IoLimitChannelByteBufReader();
+		
 		if (enableSSL) {
-			this.channelByteBufReader = new SslChannelByteBufReader();
-		}else{
-			this.channelByteBufReader = new TransparentByteBufReader();
+			getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
 		}
+		
+		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader());
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -164,6 +167,11 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
+		
+		if (readFutureAcceptor == null) {
+//			readFutureAcceptor = new EventLoopReadFutureAcceptor();
+			readFutureAcceptor = new IoProcessReadFutureAcceptor();
+		}
 		
 		if (sessionManager == null) {
 			sessionManager = new SessionManagerImpl(this);
@@ -187,6 +195,18 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.mcByteBufAllocator.start();
 
 		this.eventLoopGroup.start();
+	}
+
+	private ChannelByteBufReader getLastChannelByteBufReader(ChannelByteBufReader value) {
+
+		for (;;) {
+
+			if (value.getNext() == null) {
+				return value;
+			}
+
+			value = value.getNext().getValue();
+		}
 	}
 
 	protected void doStop() throws Exception {
@@ -323,6 +343,14 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public ChannelByteBufReader getChannelByteBufReader() {
 		return channelByteBufReader;
+	}
+
+	public ReadFutureAcceptor getReadFutureAcceptor() {
+		return readFutureAcceptor;
+	}
+
+	public void setReadFutureAcceptor(ReadFutureAcceptor readFutureAcceptor) {
+		this.readFutureAcceptor = readFutureAcceptor;
 	}
 
 }

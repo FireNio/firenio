@@ -67,6 +67,10 @@ public interface BaseContext extends Attributes, LifeCycle {
 	
 	public abstract ChannelByteBufReader getChannelByteBufReader();
 	
+	public abstract ReadFutureAcceptor getReadFutureAcceptor() ;
+
+	public abstract void setReadFutureAcceptor(ReadFutureAcceptor readFutureAcceptor) ;
+	
 	public abstract void addSessionEventListener(SessionEventListener listener);
 	
 	public abstract SslContext getSslContext() ;

@@ -8,12 +8,12 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 
-public class TransparentByteBufReader extends AbstractChannelByteBufReader{
+public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
-	public void accept(SocketChannel channel,ByteBuf buf) throws Exception {
+	public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
 
 		UnsafeSession session = channel.getSession();
-		
+
 		for (;;) {
 
 			if (!buf.hasRemaining()) {
@@ -59,7 +59,7 @@ public class TransparentByteBufReader extends AbstractChannelByteBufReader{
 
 			channel.setReadFuture(null);
 
-			accept(session, future);
+			channel.getContext().getReadFutureAcceptor().accept(session, future);
 		}
 	}
 }
