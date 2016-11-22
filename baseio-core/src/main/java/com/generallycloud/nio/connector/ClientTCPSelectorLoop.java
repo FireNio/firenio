@@ -18,7 +18,7 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 		
 		this.connector = connector;
 
-		this.isMainSelector = true;
+		this.setMainSelector(true);
 	}
 
 	//FIXME open channel
@@ -54,15 +54,15 @@ public class ClientTCPSelectorLoop extends SocketChannelSelectorLoop {
 
 			channel.register(getSelector(), SelectionKey.OP_READ);
 
-			final SocketChannel socketChannel = attachSocketChannel(selectionKey);
+			SocketChannel socketChannel = attachSocketChannel(selectionKey,this);
 			
 			connector.finishConnect(socketChannel.getSession(), null);
 
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			
 			connector.finishConnect(null, e);
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			
 			connector.finishConnect(null, new IOException(e.getMessage(), e));
 		}

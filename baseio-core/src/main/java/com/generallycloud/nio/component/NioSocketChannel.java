@@ -44,9 +44,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
 
-	// private ListQueue<IOWriteFuture> writeFutures = new
-	// ListQueueABQ<IOWriteFuture>(1024 * 10);
-
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
 	public NioSocketChannel(SelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
@@ -64,10 +61,45 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	public void close() throws IOException {
-		CloseUtil.close(session);
+		
+		ReentrantLock lock = this.channelLock;
+		
+		lock.lock();
+		
+		try{
+			
+			if (!isOpened()) {
+				return;
+			}
+			
+			if (isInSelectorLoop()) {
+				
+				session.physicalClose();
+				
+				this.physicalClose();
+				
+			}else{
+				
+				fireEvent(new SelectorLoopEvent() {
+					
+					public void close() throws IOException {
+					}
+					
+					public boolean handle(SelectorLoop selectLoop) throws IOException {
+						
+						CloseUtil.close(NioSocketChannel.this);
+
+						return true;
+					}
+				});
+			}
+		}finally{
+			lock.unlock();
+		}
 	}
 
 	public boolean handle(SelectorLoop selectorLoop) throws IOException {
+		
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
@@ -81,7 +113,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		if (!writeFuture.write(this)) {
-			return isNetworkWeak();
+			return !isNetworkWeak();
 		}
 
 		writeFuture.onSuccess(session);

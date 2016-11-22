@@ -48,53 +48,42 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	public void fireOpend() {
 
-//		ReentrantLock lock = socketChannel.getChannelLock();
-//
-//		lock.lock();
+		if (isEnableSSL() && context.getSslContext().isClient()) {
 
-//		try {
+			handshakeWaiter = new Waiter<Exception>();
 
-			if (isEnableSSL() && context.getSslContext().isClient()) {
+			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
 
-				handshakeWaiter = new Waiter<Exception>();
+			ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
 
-				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
+			flush(f);
 
-				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
+			// wait
 
-				flush(f);
-
-				// wait
-
-				if (handshakeWaiter.await(3000000)) {//FIXME test
-					CloseUtil.close(this);
-					throw new RuntimeException("hands shake failed");
-				}
-
-				if (handshakeWaiter.getPayload() != null) {
-					throw new RuntimeException(handshakeWaiter.getPayload());
-				}
-				// success
+			if (handshakeWaiter.await(3000000)) {// FIXME test
+				CloseUtil.close(this);
+				throw new RuntimeException("hands shake failed");
 			}
 
-			Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
-
-			for (; linkable != null;) {
-
-				try {
-
-					linkable.getValue().sessionOpened(this);
-
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-				linkable = linkable.getNext();
+			if (handshakeWaiter.getPayload() != null) {
+				throw new RuntimeException(handshakeWaiter.getPayload());
 			}
+			// success
+		}
 
-//		} finally {
-//
-//			lock.unlock();
-//		}
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionOpened(this);
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
 
 	}
 
@@ -149,6 +138,23 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		channel.setProtocolFactory(protocolFactory);
+	}
+
+	public void fireClosed() {
+
+		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionClosed(this);
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
 	}
 
 }

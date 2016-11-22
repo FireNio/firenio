@@ -6,6 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.SocketChannel;
@@ -35,7 +36,7 @@ public class ServerTCPSelectorLoop extends SocketChannelSelectorLoop {
 			
 			channel.register(selector, SelectionKey.OP_ACCEPT);
 			
-			isMainSelector = true;
+			setMainSelector(true);
 			
 			core_index = new FixedAtomicInteger(selectorLoops.length -1);
 		}
@@ -64,37 +65,45 @@ public class ServerTCPSelectorLoop extends SocketChannelSelectorLoop {
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 		
-		SelectionKey sk;
 		// 注册到selector，等待连接
-		if (isMainSelector) {
-			sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
+		if (selectorLoop.isMainSelector()) {
+			
+			regist(channel, selectorLoop);
+			
 		}else{
 			
-			synchronized (isWaitForRegistLock) {
+			byte [] lock = selectorLoop.getIsWaitForRegistLock();
+			
+			synchronized (lock) {
 
-				isWaitedForRegist = true;
+				selectorLoop.setWaitForRegist(true);
 
 				selectorLoop.wakeup();
-				
-				sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
-				
-				isWaitedForRegist = false;
 
-				if (isWaitedForRegist) {
-					
-					isWaitForRegistLock.notify();
-				}
+				regist(channel, selectorLoop);
+				
+				selectorLoop.setWaitForRegist(false);
 			}
 		}
+	}
+	
+	private void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
 		
+		long last = System.currentTimeMillis();
+		
+		DebugUtil.info("before regist {}", last);
+		
+		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
+		
+		DebugUtil.info("past regist {}", System.currentTimeMillis() - last);
+
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = attachSocketChannel(sk);
+		SocketChannel socketChannel = attachSocketChannel(sk,selectorLoop);
 
 		// fire session open event
 		socketChannel.getSession().fireOpend();
 		// logger.debug("__________________chanel____gen____{}", channel);
+		
 	}
-	
-	
 
 }

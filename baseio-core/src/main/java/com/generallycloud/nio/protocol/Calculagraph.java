@@ -53,22 +53,4 @@ public class Calculagraph {
 	public long getAlphaTimestamp() {
 		return alphaTimestamp;
 	}
-
-	public static void main(String[] args) {
-
-		Calculagraph calculagraph = new Calculagraph(1000);
-
-		for (;;) {
-
-			long t = calculagraph.getTimestamp();
-
-			int s = calculagraph.getSequenceNO();
-
-			System.out.println("T:" + t + ",S:" + s);
-
-			ThreadUtil.sleep(200);
-		}
-
-	}
-
 }

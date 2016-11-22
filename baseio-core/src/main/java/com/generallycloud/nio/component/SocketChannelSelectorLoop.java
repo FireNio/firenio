@@ -52,7 +52,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		return new SocketChannelSelectionReader(context);
 	}
 	
-	protected SocketChannel attachSocketChannel(SelectionKey selectionKey) throws SocketException {
+	protected SocketChannel attachSocketChannel(SelectionKey selectionKey,SelectorLoop selectorLoop) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
@@ -61,7 +61,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 			return channel;
 		}
 
-		channel = new NioSocketChannel(this, selectionKey);
+		channel = new NioSocketChannel(selectorLoop, selectionKey);
 
 		channel.setProtocolDecoder(protocolDecoder);
 

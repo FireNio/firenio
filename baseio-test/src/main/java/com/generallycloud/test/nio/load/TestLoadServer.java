@@ -46,7 +46,8 @@ public class TestLoadServer {
 		
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
-
+		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+		
 		acceptor.bind();
 	}
 }

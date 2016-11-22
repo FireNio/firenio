@@ -7,28 +7,32 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public interface SocketSession extends Session{
-	
+public interface SocketSession extends Session {
+
 	public abstract boolean isEnableSSL();
-	
+
 	public abstract SSLEngine getSSLEngine();
-	
+
 	public abstract SslHandler getSslHandler();
-	
+
 	public abstract void fireOpend();
-	
+
+	public abstract void fireClosed();
+
+	public abstract void physicalClose();
+
 	public abstract void finishHandshake(Exception e);
 
-	public abstract ProtocolDecoder getProtocolDecoder() ;
+	public abstract ProtocolDecoder getProtocolDecoder();
 
-	public abstract ProtocolEncoder getProtocolEncoder() ;
+	public abstract ProtocolEncoder getProtocolEncoder();
 
-	public abstract ProtocolFactory getProtocolFactory() ;
-	
-	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder) ;
+	public abstract ProtocolFactory getProtocolFactory();
 
-	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder) ;
-	
-	public abstract void setProtocolFactory(ProtocolFactory protocolFactory) ;
-	
+	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+
+	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+
+	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
+
 }

@@ -8,11 +8,11 @@ public class LoggerSEListener implements SessionEventListener{
 	private Logger logger = LoggerFactory.getLogger(LoggerSEListener.class);
 	
 	public void sessionOpened(Session session) {
-		logger.debug("session opened:{}",session);
+		logger.info("session opened:{}",session);
 	}
 
 	public void sessionClosed(Session session) {
-		logger.debug("session closed:{}",session);
+		logger.info("session closed:{}",session);
 	}
 
 	public void sessionIdled(Session session,long lastIdleTime, long currentTime) {

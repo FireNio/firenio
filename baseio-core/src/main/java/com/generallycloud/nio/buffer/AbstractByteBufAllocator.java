@@ -64,7 +64,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 			}
 
 			if (buf != null) {
-				busyBuf.put(buf, new RuntimeException(String.valueOf(capacity)));
+//				busyBuf.put(buf, new RuntimeException(String.valueOf(capacity)));
 			}
 
 			return buf;

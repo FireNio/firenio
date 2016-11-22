@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -19,7 +21,7 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient {
 
-	final static int	time	= 1000000;
+	final static int	time	= 10000;
 
 	public static void main(String[] args) throws Exception {
 
@@ -67,12 +69,11 @@ public class TestLoadClient {
 
 		for (int i = 0; i < time; i++) {
 			
-			BaseReadFuture future = ReadFutureFactory.create(session, "test",eventHandleAdaptor );
+			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
 
 			future.write("hello server !");
 
 			session.flush(future);
-			
 		}
 
 		latch.await();

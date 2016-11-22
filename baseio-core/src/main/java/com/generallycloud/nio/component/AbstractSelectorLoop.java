@@ -7,7 +7,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
@@ -22,12 +21,15 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	private Thread								monitor			= null;
+	private boolean							isMainSelector		= false;
+	private boolean							isWaitForRegist	= false;
+	private boolean							hasTask			= false;
+	private int								runTask			= 0;
+	private byte[]							isWaitForRegistLock	= new byte[] {};
+	private byte[]							runLock			= new byte[] {};
+
 	protected ByteBufAllocator					byteBufAllocator	= null;
 	protected BaseContext						context			= null;
-	protected boolean							isMainSelector		= false;
-	protected boolean							isWaitedForRegist	= false;
-	protected boolean							isWaitForRegist	= false;
-	protected byte[]							isWaitForRegistLock	= new byte[] {};
 	protected ProtocolDecoder					protocolDecoder	= null;
 	protected ProtocolEncoder					protocolEncoder	= null;
 	protected ProtocolFactory					protocolFactory	= null;
@@ -39,11 +41,26 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	private static final Logger					logger			= LoggerFactory
 																	.getLogger(AbstractSelectorLoop.class);
+	public boolean isWaitForRegist() {
+		return isWaitForRegist;
+	}
+
+	public void setWaitForRegist(boolean isWaitForRegist) {
+		this.isWaitForRegist = isWaitForRegist;
+	}
+
+	public byte[] getIsWaitForRegistLock() {
+		return isWaitForRegistLock;
+	}
+	
+	public void setMainSelector(boolean isMainSelector) {
+		this.isMainSelector = isMainSelector;
+	}
 
 	protected AbstractSelectorLoop(BaseContext context, SelectableChannel selectableChannel) {
 
 		this.context = context;
-		
+
 		this.selectableChannel = selectableChannel;
 
 		this.protocolFactory = context.getProtocolFactory();
@@ -54,11 +71,11 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
 	}
-	
+
 	public Thread getMonitor() {
 		return monitor;
 	}
-	
+
 	public void setMonitor(Thread monitor) {
 		if (this.monitor == null) {
 			this.monitor = monitor;
@@ -73,7 +90,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		if (attachment instanceof Channel) {
 			CloseUtil.close((Channel) attachment);
-		} 
+		}
 	}
 
 	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
@@ -81,6 +98,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		cancelSelectionKey(selectionKey);
 
 		logger.error(t.getMessage(), t);
+	}
+	
+	public boolean isMainSelector() {
+		return isMainSelector;
 	}
 
 	public ByteBufAllocator getByteBufAllocator() {
@@ -102,20 +123,13 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private void waitForRegist() throws InterruptedException {
 
 		synchronized (isWaitForRegistLock) {
-
-			if (isWaitForRegist) {
-
-				isWaitedForRegist = true;
-
-				isWaitForRegistLock.wait();
-			}
 		}
 	}
 
 	public void loop() {
 
 		working = true;
-		
+
 		if (shutdown) {
 			working = false;
 			return;
@@ -129,27 +143,34 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			}
 
 			Selector selector = this.selector;
-			
+
 			int selected;
 
-			long last_select = System.currentTimeMillis();
-
+			// long last_select = System.currentTimeMillis();
+			
+			
 			if (hasTask) {
+				
+				if (runTask-- > 0) {
+					
+					handleEvents(false);
 
-				selected = selector.selectNow();
-
-			} else {
-
-				selected = selector.select(1000);
-
-				if (selected < 1) {
-
-					selectEmpty(last_select);
+					working = false;
+					
+					return;
 				}
+				
+				selected = selector.selectNow();
+			}else{
+				
+				selected = selector.select(8);
 			}
+			
+			if (selected < 1) {
 
-			if (selected > 0) {
-
+				// selectEmpty(last_select);
+			}else{
+				
 				Set<SelectionKey> selectionKeys = selector.selectedKeys();
 
 				for (SelectionKey key : selectionKeys) {
@@ -159,8 +180,8 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 				selectionKeys.clear();
 			}
-
-			handleEvents();
+			
+			handleEvents(true);
 
 			working = false;
 
@@ -172,27 +193,15 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		}
 	}
 
-	private void handleEvents() {
+	private void handleEvents(boolean refresh) {
 
-		ReentrantLock lock = events.getReentrantLock();
+		List<SelectorLoopEvent> eventBuffer = events.getBuffer();
 
-		List<SelectorLoopEvent> eventBuffer;
+		if (eventBuffer.size() == 0) {
+			
+			hasTask = false;
 
-		lock.lock();
-
-		try {
-
-			eventBuffer = events.getBuffer();
-
-			if (eventBuffer.size() == 0) {
-
-				hasTask = false;
-
-				return;
-			}
-
-		} finally {
-			lock.unlock();
+			return;
 		}
 
 		for (SelectorLoopEvent event : eventBuffer) {
@@ -210,6 +219,12 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 				continue;
 			}
+		}
+		
+		hasTask = events.getBufferSize() > 0;
+		
+		if (hasTask && refresh) {
+			runTask = 5;
 		}
 	}
 
@@ -253,21 +268,21 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	private void selectEmpty(long last_select) {
 
-		// long past = System.currentTimeMillis() - last_select;
+		long past = System.currentTimeMillis() - last_select;
 
-		// if (past < 1000) {
-		//
-		// if (shutdown || past < 0) {
-		// working = false;
-		// return;
-		// }
-		//
-		// // JDK bug fired ?
-		// IOException e = new IOException("JDK bug fired ?");
-		// logger.error(e.getMessage(), e);
-		// logger.debug("last={},past={}", last_select, past);
-		// this.selector = rebuildSelector();
-		// }
+		if (past < 1000) {
+
+			if (shutdown || past < 0) {
+				working = false;
+				return;
+			}
+
+			// JDK bug fired ?
+			IOException e = new IOException("JDK bug fired ?");
+			logger.error(e.getMessage(), e);
+			logger.debug("last={},past={}", last_select, past);
+			this.selector = rebuildSelector();
+		}
 
 		working = false;
 
@@ -282,30 +297,23 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	// 执行stop的时候如果确保不会再有数据进来
 	public void stop() {
 
-		ReentrantLock lock = events.getReentrantLock();
+		this.shutdown = true;
 
-		lock.lock();
+		this.selector.wakeup();
 
-		try {
+		for (; working;) {
 
-			this.shutdown = true;
+			ThreadUtil.sleep(8);
+		}
 
-			this.selector.wakeup();
+		synchronized (runLock) {
 
-			for (; working;) {
-
-				ThreadUtil.sleep(8);
-			}
-			
 			List<SelectorLoopEvent> eventBuffer = events.getBuffer();
 
 			for (SelectorLoopEvent event : eventBuffer) {
 
 				CloseUtil.close(event);
 			}
-			
-		} finally {
-			lock.unlock();
 		}
 
 		try {
@@ -313,22 +321,15 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 	public void wakeup() {
 		selector.wakeup();
 	}
 
-	private boolean	hasTask	= false;
-
 	public void fireEvent(SelectorLoopEvent event) {
 
-		ReentrantLock lock = events.getReentrantLock();
-
-		lock.lock();
-
-		try {
+		synchronized (runLock) {
 
 			if (shutdown) {
 				CloseUtil.close(event);
@@ -336,16 +337,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			}
 
 			events.offer(event);
-
-			if (!hasTask) {
-
-				hasTask = true;
-
-				wakeup();
-			}
-
-		} finally {
-			lock.unlock();
 		}
 	}
 

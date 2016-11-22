@@ -13,9 +13,11 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract Selector buildSelector(SelectableChannel channel) throws IOException;
 
 	public abstract Selector getSelector();
-	
-	public abstract Thread	getMonitor();
-	
+
+	public abstract Thread getMonitor();
+
+	public abstract boolean isMainSelector();
+
 	public abstract void setMonitor(Thread monitor);
 
 	public abstract BaseContext getContext();
@@ -25,13 +27,24 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	public abstract SelectableChannel getSelectableChannel();
 
 	public abstract ByteBufAllocator getByteBufAllocator();
-	
+
 	public abstract void wakeup();
-	
+
 	public abstract void fireEvent(SelectorLoopEvent event);
+
+	public abstract boolean isWaitForRegist();
+
+	public abstract void setWaitForRegist(boolean isWaitForRegist);
+
+	public abstract byte[] getIsWaitForRegistLock();
 	
-	public interface SelectorLoopEvent extends Closeable{
-		
+	public abstract void setMainSelector(boolean isMainSelector);
+
+	public interface SelectorLoopEvent extends Closeable {
+
+		/**
+		 * 返回该Event是否结束
+		 */
 		boolean handle(SelectorLoop selectLoop) throws IOException;
 	}
 
