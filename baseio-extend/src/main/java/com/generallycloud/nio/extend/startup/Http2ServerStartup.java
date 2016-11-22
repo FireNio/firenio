@@ -56,7 +56,7 @@ public class Http2ServerStartup {
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 			
-			context.setSessionFactory(new Http2SessionFactory());
+			context.setSessionFactory(new Http2SessionFactory(context));
 
 			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 

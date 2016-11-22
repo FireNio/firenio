@@ -24,7 +24,7 @@ public class TestUDPConnector1 {
 
 		session.login("udp1", "udp1");
 		
-		DatagramChannelConnector udpConnector = new DatagramChannelConnector(connector.getSession());
+		DatagramChannelConnector udpConnector = new DatagramChannelConnector();
 		
 		udpConnector.connect();
 		

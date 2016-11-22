@@ -11,7 +11,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
@@ -26,8 +25,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 		return selectorLoopThread;
 	}
 
-	public DatagramChannelConnector(Session session) {
-		this.session = session;
+	public DatagramChannelConnector() {
 		this.context = session.getContext();
 	}
 

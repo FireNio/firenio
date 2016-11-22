@@ -169,8 +169,25 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
 		if (readFutureAcceptor == null) {
-//			readFutureAcceptor = new EventLoopReadFutureAcceptor();
-			readFutureAcceptor = new IoProcessReadFutureAcceptor();
+			
+			if (serverConfiguration.isSERVER_WORK_EVENT_LOOP()) {
+				
+				readFutureAcceptor = new EventLoopReadFutureAcceptor();
+				
+				if (eventLoopGroup == null) {
+
+					int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
+
+					int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+					
+					EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
+					
+					this.eventLoopGroup = eventLoopGroup;
+				}
+				
+			}else{
+				readFutureAcceptor = new IoProcessReadFutureAcceptor();
+			}
 		}
 		
 		if (sessionManager == null) {
@@ -178,23 +195,12 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		}
 
 		if (sessionFactory == null) {
-			sessionFactory = new SessionFactoryImpl();
+			sessionFactory = new SessionFactoryImpl(this);
 		}
 		
-		if (eventLoopGroup == null) {
-
-			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-
-			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-			
-			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
-			
-			this.eventLoopGroup = eventLoopGroup;
-		}
-
-		this.mcByteBufAllocator.start();
-
-		this.eventLoopGroup.start();
+		LifeCycleUtil.start(mcByteBufAllocator);
+		
+		LifeCycleUtil.start(eventLoopGroup);
 	}
 
 	private ChannelByteBufReader getLastChannelByteBufReader(ChannelByteBufReader value) {

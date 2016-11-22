@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -29,12 +30,12 @@ public abstract class SessionImpl implements Session {
 	protected SocketChannel				channel;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
-	public SessionImpl(SocketChannel channel, Integer sessionID) {
+	public SessionImpl(SocketChannel channel,EventLoop eventLoop,Integer sessionID) {
 		this.context = channel.getContext();
 		this.channel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
-		this.eventLoop = context.getEventLoopGroup().getNext();
+		this.eventLoop = eventLoop;
 	}
 
 	public void active() {
@@ -220,6 +221,14 @@ public abstract class SessionImpl implements Session {
 
 	public ByteBufAllocator getByteBufAllocator() {
 		return channel.getByteBufAllocator();
+	}
+
+	public boolean isInSelectorLoop() {
+		return channel.isInSelectorLoop();
+	}
+	
+	public void close() {
+		CloseUtil.close(channel);
 	}
 	
 }

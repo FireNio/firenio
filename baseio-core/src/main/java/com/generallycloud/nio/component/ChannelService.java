@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectableChannel;
 
 
-public interface ChannelService{
+public interface ChannelService {
 
 	public abstract BaseContext getContext() ;
 

@@ -52,7 +52,7 @@ public class TestFIxedLengthClient {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
-//		context.setSslContext(sslContext);
+		context.setSslContext(sslContext);
 		
 		connector.setContext(context);
 		

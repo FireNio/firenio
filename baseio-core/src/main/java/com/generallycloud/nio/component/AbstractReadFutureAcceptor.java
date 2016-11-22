@@ -8,7 +8,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 
-	private Logger logger = LoggerFactory.getLogger(AbstractChannelByteBufReader.class);
+	private Logger logger = LoggerFactory.getLogger(AbstractReadFutureAcceptor.class);
 	
 	public void accept(final Session session, final ReadFuture future) throws Exception {
 

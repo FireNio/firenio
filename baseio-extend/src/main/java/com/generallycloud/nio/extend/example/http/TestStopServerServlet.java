@@ -3,6 +3,7 @@ package com.generallycloud.nio.extend.example.http;
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -48,10 +49,7 @@ public class TestStopServerServlet extends HTTPFutureAcceptorService {
 				ThreadUtil.sleep(1000);
 			}
 			
-			ChannelAcceptor acceptor = (ChannelAcceptor) context.getChannelService();
-			
-			acceptor.unbind();
-			
+			CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
 		}
 	}
 }

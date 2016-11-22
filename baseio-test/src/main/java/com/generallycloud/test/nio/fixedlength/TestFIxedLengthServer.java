@@ -52,7 +52,7 @@ public class TestFIxedLengthServer {
 
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		
-//		context.setSslContext(sslContext);
+		context.setSslContext(sslContext);
 		
 		acceptor.setContext(context);
 

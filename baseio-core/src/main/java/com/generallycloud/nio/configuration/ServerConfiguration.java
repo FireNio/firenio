@@ -17,6 +17,7 @@ public class ServerConfiguration {
 	private int		SERVER_MEMORY_POOL_UNIT;
 	private boolean	SERVER_MEMORY_POOL_DIRECT;
 	private boolean	SERVER_ENABLE_SSL;
+	private boolean	SERVER_WORK_EVENT_LOOP;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
 	private int		SERVER_READ_BUFFER				= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
@@ -173,6 +174,14 @@ public class ServerConfiguration {
 			SERVER_IO_EVENT_QUEUE = getSERVER_MEMORY_POOL_CAPACITY() * 2;
 		}
 		
+	}
+
+	public boolean isSERVER_WORK_EVENT_LOOP() {
+		return SERVER_WORK_EVENT_LOOP;
+	}
+
+	public void setSERVER_WORK_EVENT_LOOP(boolean SERVER_WORK_EVENT_LOOP) {
+		this.SERVER_WORK_EVENT_LOOP = SERVER_WORK_EVENT_LOOP;
 	}
 
 }

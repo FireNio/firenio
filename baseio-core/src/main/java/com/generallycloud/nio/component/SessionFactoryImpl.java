@@ -1,10 +1,24 @@
 package com.generallycloud.nio.component;
 
-public class SessionFactoryImpl implements SessionFactory{
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+
+public class SessionFactoryImpl implements SessionFactory {
+
+	private BaseContext	context;
+
+	public SessionFactoryImpl(BaseContext context) {
+		this.context = context;
+	}
 
 	public UnsafeSession newUnsafeSession(SocketChannel channel) {
 
-		return new UnsafeSessionImpl(channel, channel.getChannelID());
+		EventLoopGroup eventLoopGroup = context.getEventLoopGroup();
+
+		if (eventLoopGroup == null) {
+			return new UnsafeSessionImpl(channel, null, channel.getChannelID());
+		}
+
+		return new UnsafeSessionImpl(channel, eventLoopGroup.getNext(), channel.getChannelID());
 	}
 
 }

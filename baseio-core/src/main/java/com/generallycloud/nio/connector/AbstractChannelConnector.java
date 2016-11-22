@@ -11,9 +11,9 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.UnsafeSession;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -22,7 +22,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	protected boolean			active		= false;
 	protected ReentrantLock		activeLock	= new ReentrantLock();
 	protected InetSocketAddress	serverAddress;
-	protected Session			session;
+	protected UnsafeSession		session;
 	protected long			timeout		= 3000;
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
@@ -39,12 +39,8 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	public void physicalClose() throws IOException {
 		
-		Thread thread = Thread.currentThread();
-
-		EventLoopThread loopThread = getSelectorLoopThread();
-
-		if ((loopThread != null && loopThread.isMonitor(thread)) 
-				|| (session != null && session.getEventLoop().inEventLoop(thread))) {
+		//FIXME always true
+		if (session.isInSelectorLoop()) {
 			ThreadUtil.execute(new Runnable() {
 				
 				public void run() {
@@ -55,6 +51,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		}
 		
 		doPhysicalClose();
+		
 	}
 
 	private void doPhysicalClose(){
@@ -103,7 +100,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			
 			int SERVER_PORT = configuration.getSERVER_PORT();
 
-			context.setChannelService(this);
+			this.context.setChannelService(this);
 			
 			LifeCycleUtil.start(context);
 
@@ -113,9 +110,9 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 			
 			LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 			
-			((SocketSession)this.getSession()).fireOpend();
+			this.session.fireOpend();
 
-			active = true;
+			this.active = true;
 			
 			return getSession();
 

@@ -15,12 +15,6 @@ public interface SocketSession extends Session {
 
 	public abstract SslHandler getSslHandler();
 
-	public abstract void fireOpend();
-
-	public abstract void fireClosed();
-
-	public abstract void physicalClose();
-
 	public abstract void finishHandshake(Exception e);
 
 	public abstract ProtocolDecoder getProtocolDecoder();

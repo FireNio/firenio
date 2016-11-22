@@ -6,11 +6,12 @@ import com.generallycloud.nio.codec.http2.hpack.Http2Headers;
 import com.generallycloud.nio.codec.http2.hpack.Http2HeadersImpl;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.UnsafeSessionImpl;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 
 public class Http2SocketSessionImpl extends UnsafeSessionImpl implements Http2SocketSession {
 
-	public Http2SocketSessionImpl(SocketChannel channel, Integer sessionID) {
-		super(channel, sessionID);
+	public Http2SocketSessionImpl(SocketChannel channel,EventLoop eventLoop, Integer sessionID) {
+		super(channel,eventLoop, sessionID);
 	}
 
 	private Http2FrameHeader	lastReadFrameHeader;

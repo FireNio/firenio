@@ -12,10 +12,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
+import com.generallycloud.nio.connector.ChannelConnector;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -44,6 +47,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
+	
+	private static final Logger logger = LoggerFactory.getLogger(NioSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -65,51 +70,52 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	public void close() throws IOException {
-		
+
 		ReentrantLock lock = this.channelLock;
-		
+
 		lock.lock();
-		
-		try{
-			
+
+		try {
+
 			if (!opened) {
 				return;
 			}
-			
+
 			if (isInSelectorLoop()) {
-				
-				session.physicalClose();
-				
+
+				this.session.physicalClose();
+
 				this.physicalClose();
-				
-			}else{
-				
+
+			} else {
+
 				if (closing) {
 					return;
 				}
-
 				closing = true;
-				
-				fireEvent(new SelectorLoopEvent() {
-					
-					public void close() throws IOException {
-					}
-					
-					public boolean handle(SelectorLoop selectLoop) throws IOException {
-						
-						CloseUtil.close(NioSocketChannel.this);
 
-						return true;
-					}
-				});
+				fireClose();
 			}
-		}finally{
+		} finally {
 			lock.unlock();
 		}
 	}
 
+	private void fireClose() {
+
+		fireEvent(new SelectorLoopEventAdapter() {
+
+			public boolean handle(SelectorLoop selectLoop) throws IOException {
+
+				CloseUtil.close(NioSocketChannel.this);
+
+				return true;
+			}
+		});
+	}
+
 	public boolean handle(SelectorLoop selectorLoop) throws IOException {
-		
+
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
@@ -236,15 +242,15 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	private void releaseWriteFutures() {
-		
+
 		ClosedChannelException e = null;
-		
+
 		if (writeFuture != null) {
-			
+
 			e = new ClosedChannelException(session.toString());
-			
+
 			ReleaseUtil.release(writeFuture);
-			
+
 			writeFuture.onException(session, e);
 		}
 
@@ -274,9 +280,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 这里有问题
 	public void physicalClose() {
-		
+
 		this.enableInbound = false;
-		
+
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);
 
@@ -296,10 +302,21 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		this.opened = false;
-		
+
 		this.closing = false;
 
 		this.selectionKey.cancel();
+
+		ChannelService service = context.getChannelService();
+
+		if (service instanceof ChannelConnector) {
+
+			try {
+				((ChannelConnector) service).physicalClose();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	public int read(ByteBuffer buffer) throws IOException {
@@ -359,11 +376,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void wakeup() {
 
 		upNetworkState();
-		
+
 		this.selectorLoop.fireEvent(this);
 
 		this.selectionKey.interestOps(SelectionKey.OP_READ);
-
 	}
 
 	public int write(ByteBuffer buffer) throws IOException {
@@ -381,15 +397,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public boolean needFlush() {
 		return writeFuture != null || writeFutures.size() > 0;
 	}
-	
-	public void fireEvent(SelectorLoopEvent event){
+
+	public void fireEvent(SelectorLoopEvent event) {
 		this.selectorLoop.fireEvent(event);
 	}
 
 	public boolean isInSelectorLoop() {
 		return Thread.currentThread() == selectorLoop.getMonitor();
 	}
-	
-	
-	
+
 }

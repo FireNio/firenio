@@ -9,8 +9,8 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
+import com.generallycloud.nio.component.UnsafeSession;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
@@ -60,7 +60,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		}
 	}
 
-	protected void finishConnect(Session session, IOException exception) {
+	protected void finishConnect(UnsafeSession session, IOException exception) {
 
 		if (exception == null) {
 

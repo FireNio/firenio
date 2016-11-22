@@ -44,7 +44,7 @@ public class TestHttp2Server {
 
 		context.setProtocolFactory(new Http2ProtocolFactory());
 		
-		context.setSessionFactory(new Http2SessionFactory());
+		context.setSessionFactory(new Http2SessionFactory(context));
 
 		File certificate = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.crt");
 		File privateKey = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.key");
