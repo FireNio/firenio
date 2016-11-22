@@ -16,7 +16,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
-		BaseContext context = session.getIOSession().getContext();
+		BaseContext context = session.getIoSession().getContext();
 		HttpContext httpContext = session.getContext();
 
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());

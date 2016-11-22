@@ -1,5 +1,7 @@
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -13,38 +15,37 @@ import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
-public class SessionManagerImpl extends AbstractLooper implements SessionManager {
+public class SessionManagerImpl implements SessionManager {
 
-	//FIXME last current next tailuan
-	private BaseContext					context;
-	private long						next_idle_time	= System.currentTimeMillis();
-	private long						current_idle_time;
-	private long						last_idle_time;
-	private ReentrantMap<Integer, Session>	sessions		= new ReentrantMap<Integer, Session>();
-	private ListQueue<SessionMEvent>		events		= new ListQueueABQ<SessionMEvent>(512);
-	private Logger						logger		= LoggerFactory.getLogger(SessionManagerImpl.class);
+	private BaseContext					context			= null;
+	private long						current_idle_time	= 0;
+	private long						last_idle_time		= 0;
+	private long						next_idle_time		= System.currentTimeMillis();
+	private ReentrantMap<Integer, Session>	sessions			= new ReentrantMap<Integer, Session>();
+	private ListQueue<SessionMEvent>		events			= new ListQueueABQ<SessionMEvent>(512);
+	private Logger						logger			= LoggerFactory.getLogger(SessionManagerImpl.class);
 
-	protected SessionManagerImpl(BaseContext context) {
+	public SessionManagerImpl(BaseContext context) {
 		this.context = context;
 	}
 
 	public void putSession(Session session) {
 
 		Integer sessionID = session.getSessionID();
-		
+
 		Session old = sessions.get(sessionID);
-		
+
 		if (old != null) {
 			CloseUtil.close(old);
 			removeSession(old);
 		}
-		
+
 		sessions.put(sessionID, session);
 	}
 
 	public void loop() {
 
-		SessionMEvent event = events.poll(16);
+		SessionMEvent event = events.poll();
 
 		Map<Integer, Session> map = sessions.getSnapshot();
 
@@ -78,12 +79,12 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 
 			Session s = e.getValue();
 
-			sessionIdle(s, last_idle_time, current_time);
+			sessionIdle(context, s, last_idle_time, current_time);
 		}
 	}
 
 	// FIXME 优化这个方法
-	private void sessionIdle(Session session, long lastIdleTime, long currentTime) {
+	private void sessionIdle(BaseContext context, Session session, long lastIdleTime, long currentTime) {
 
 		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 
@@ -118,5 +119,21 @@ public class SessionManagerImpl extends AbstractLooper implements SessionManager
 	public int getManagedSessionSize() {
 		return sessions.size();
 	}
-	
+
+	public void close() throws IOException {
+		
+		Map<Integer, Session> map = sessions.getSnapshot();
+
+		if (map.size() == 0) {
+			return;
+		}
+		
+		Collection<Session> es = map.values();
+		
+		for(Session session : es){
+			
+			CloseUtil.close(session);
+		}
+	}
+
 }

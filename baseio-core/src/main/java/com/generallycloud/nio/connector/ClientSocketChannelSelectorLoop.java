@@ -21,7 +21,7 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
 		this.setMainSelector(true);
 		
-		this.selectorLoopStrategy = new PrimarySelectorLoopStrategy();
+		this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(context);
 	}
 
 	//FIXME open channel

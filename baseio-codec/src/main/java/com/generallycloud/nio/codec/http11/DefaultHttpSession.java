@@ -44,7 +44,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 		return createTime;
 	}
 
-	public Session getIOSession() {
+	public Session getIoSession() {
 		return ioSession;
 	}
 

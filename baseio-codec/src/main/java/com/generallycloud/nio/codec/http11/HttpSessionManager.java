@@ -78,7 +78,7 @@ public class HttpSessionManager extends AbstractLooper{
 				if (!session.isValidate()) {
 					
 					sessions.remove(e.getKey());
-					CloseUtil.close(session.getIOSession());
+					CloseUtil.close(session.getIoSession());
 				}
 			}
 			

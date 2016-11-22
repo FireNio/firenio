@@ -5,16 +5,12 @@ import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.HttpSessionManager;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.HttpStatus;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.nio.protocol.TextReadFuture;
 
 public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 	
-	private Logger logger = LoggerFactory.getLogger(HTTPFutureAcceptorService.class);
-
 	private HttpContext		context	= HttpContext.getInstance();
 
 	public void accept(Session session, ReadFuture future) throws Exception {

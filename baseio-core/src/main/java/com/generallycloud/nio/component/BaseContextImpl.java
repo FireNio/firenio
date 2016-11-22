@@ -10,13 +10,13 @@ import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -34,7 +34,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 	private ChannelService				channelService;
 	private DatagramChannelFactory		datagramChannelFactory;
 	private ProtocolFactory				protocolFactory;
-	private EventLoopThread				sessionManagerThread;
 	private long						sessionIdleTime;
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
@@ -165,11 +164,11 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
-
+		
 		if (sessionManager == null) {
 			sessionManager = new SessionManagerImpl(this);
 		}
-		
+
 		if (sessionFactory == null) {
 			sessionFactory = new SessionFactoryImpl();
 		}
@@ -187,20 +186,16 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		this.mcByteBufAllocator.start();
 
-		this.sessionManagerThread = new EventLoopThread(sessionManager, "session-manager");
-
-		this.sessionManagerThread.startup();
-
 		this.eventLoopGroup.start();
 	}
 
 	protected void doStop() throws Exception {
+		
+		CloseUtil.close(sessionManager);
 
 		LifeCycleUtil.stop(eventLoopGroup);
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
-
-		LifeCycleUtil.stop(sessionManagerThread);
 
 		LifeCycleUtil.stop(mcByteBufAllocator);
 	}

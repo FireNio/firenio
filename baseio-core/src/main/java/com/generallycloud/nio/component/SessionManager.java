@@ -1,8 +1,8 @@
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.Looper;
+import java.io.Closeable;
 
-public interface SessionManager extends Looper{
+public interface SessionManager extends Closeable{
 
 	public abstract void putSession(Session session);
 
@@ -13,5 +13,7 @@ public interface SessionManager extends Looper{
 	public abstract void offerSessionMEvent(SessionMEvent event);
 
 	public abstract int getManagedSessionSize();
+	
+	public abstract void loop();
 
 }

@@ -7,6 +7,12 @@ import java.util.Set;
 
 
 public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
+	
+	private SessionManager sessionManager = null;
+
+	public PrimarySelectorLoopStrategy(BaseContext context) {
+		this.sessionManager = context.getSessionManager();
+	}
 
 	public void loop(SelectorLoop looper) throws IOException {
 
@@ -47,6 +53,8 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		}
 
 		handleEvents(looper, true);
+		
+		sessionManager.loop();
 	}
 	
 }

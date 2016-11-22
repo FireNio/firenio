@@ -30,9 +30,9 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		
 		session.flush(future);
 
-		msgAdapter.addClient(session.getIOSession());
+		msgAdapter.addClient(session.getIoSession());
 
-		Session ioSession = session.getIOSession();
+		Session ioSession = session.getIoSession();
 
 		JSONObject o = new JSONObject();
 		o.put("type", "welcome");

@@ -38,6 +38,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private SelectorLoop				selectorLoop;
 	private ChannelWriteFuture			writeFuture;
 	private boolean					opened			= true;
+	private boolean					closing			= false;
 	private long						next_network_weak	= Long.MAX_VALUE;
 	private boolean					enableInbound		= true;
 
@@ -71,9 +72,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		
 		try{
 			
-			if (!isOpened()) {
+			if (!opened || closing) {
 				return;
 			}
+			
+			closing = true;
 			
 			if (isInSelectorLoop()) {
 				
@@ -271,6 +274,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		enableInbound = false;
 
 		this.opened = false;
+		
+		this.closing = false;
 
 		this.releaseWriteFutures();
 

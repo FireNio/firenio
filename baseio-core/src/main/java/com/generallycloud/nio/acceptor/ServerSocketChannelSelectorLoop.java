@@ -30,17 +30,17 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 		
 		// 打开selector
 		Selector selector = Selector.open();
-		// 注册监听事件到该selector
 
 		if (selectorLoops[0] == this) {
 			
+			// 注册监听事件到该selector
 			channel.register(selector, SelectionKey.OP_ACCEPT);
 			
 			this.setMainSelector(true);
 			
 			this.core_index = new FixedAtomicInteger(selectorLoops.length -1);
 			
-			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy();
+			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(context);
 			
 			return selector;
 		}

@@ -13,7 +13,7 @@ public interface HttpSession {
 
 	public abstract long getCreateTime();
 
-	public abstract Session getIOSession();
+	public abstract Session getIoSession();
 
 	public abstract long getLastAccessTime();
 
