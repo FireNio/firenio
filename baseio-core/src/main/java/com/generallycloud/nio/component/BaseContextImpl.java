@@ -144,7 +144,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
-		if (serverConfiguration.isSERVER_WORK_EVENT_LOOP()) {
+		if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
 
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
 

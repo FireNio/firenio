@@ -1,30 +1,59 @@
 package com.generallycloud.nio.configuration;
 
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.common.SharedBundle;
 
-public class PropertiesSCLoader implements ServerConfigurationLoader{
+public class PropertiesSCLoader implements ServerConfigurationLoader {
 
 	public ServerConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
 
 		ServerConfiguration cfg = new ServerConfiguration();
 
+		Method[] methods = cfg.getClass().getDeclaredMethods();
+
+		for (Method method : methods) {
+
+			String name = method.getName();
+
+			if (!name.startsWith("set")) {
+				continue;
+			}
+
+			if ("setSERVER_ENCODING".equals(name) || "setSERVER_CORE_SIZE".equals(name)) {
+				continue;
+			}
+
+			if (!method.isAccessible()) {
+				method.setAccessible(true);
+			}
+
+			Class<?> type = method.getParameterTypes()[0];
+
+			String temp = name.replace("setSERVER_", "SERVER.");
+
+			if (type == String.class) {
+				method.invoke(cfg, bundle.getProperty(temp));
+			} else if (type == int.class) {
+				method.invoke(cfg, bundle.getIntegerProperty(temp));
+			} else if (type == double.class) {
+				method.invoke(cfg, bundle.getDoubleProperty(temp));
+			} else if (type == boolean.class) {
+				method.invoke(cfg, bundle.getBooleanProperty(temp));
+			} else if (type == long.class) {
+				method.invoke(cfg, bundle.getLongProperty(temp));
+			} else {
+				throw new Exception("unknow type " + type);
+			}
+		}
+
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 
 		cfg.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
-		cfg.setSERVER_IO_EVENT_QUEUE(bundle.getIntegerProperty("SERVER_IO_EVENT_QUEUE"));
-		cfg.setSERVER_HOST(bundle.getProperty("SERVER.HOST"));
-		cfg.setSERVER_PORT(bundle.getIntegerProperty("SERVER.PORT"));
 		cfg.setSERVER_ENCODING(Charset.forName(encoding));
-		cfg.setSERVER_SESSION_IDLE_TIME(bundle.getLongProperty("SERVER.SESSION_IDLE_TIME"));
-		cfg.setSERVER_MEMORY_POOL_UNIT(bundle.getIntegerProperty("SERVER.MEMORY_POOL_UNIT"));
-		cfg.setSERVER_MEMORY_POOL_DIRECT(bundle.getBooleanProperty("SERVER.MEMORY_POOL_DIRECT"));
-		cfg.setSERVER_ENABLE_SSL(bundle.getBooleanProperty("SERVER.ENABLE_SSL"));
-		cfg.setSERVER_MEMORY_POOL_CAPACITY(bundle.getIntegerProperty("SERVER.MEMORY_POOL_CAPACITY"));
-		cfg.setSERVER_MEMORY_POOL_CAPACITY_RATE(bundle.getDoubleProperty("SERVER.MEMORY_POOL_CAPACITY_RATE"));
-		
+
 		return cfg;
 	}
-	
+
 }

@@ -52,7 +52,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
 
-		boolean direct = c.isSERVER_MEMORY_POOL_DIRECT();
+		boolean direct = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
 
 		this.allocators = new LinkAbleByteBufAllocator[core];
 

@@ -15,11 +15,11 @@ public class ServerConfiguration {
 	private int		SERVER_IO_EVENT_QUEUE			= 0;
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT;
-	private boolean	SERVER_MEMORY_POOL_DIRECT;
+	private boolean	SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	private boolean	SERVER_ENABLE_SSL;
-	private boolean	SERVER_WORK_EVENT_LOOP;
+	private boolean	SERVER_ENABLE_WORK_EVENT_LOOP;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
-	private int		SERVER_READ_BUFFER				= 1024 * 100;
+	private int		SERVER_CHANNEL_READ_BUFFER				= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
 
 	public ServerConfiguration() {
@@ -126,15 +126,15 @@ public class ServerConfiguration {
 		this.SERVER_MEMORY_POOL_CAPACITY = SERVER_MEMORY_POOL_CAPACITY;
 	}
 
-	public int getSERVER_READ_BUFFER() {
-		return SERVER_READ_BUFFER;
+	public int getSERVER_CHANNEL_READ_BUFFER() {
+		return SERVER_CHANNEL_READ_BUFFER;
 	}
 
-	public void setSERVER_READ_BUFFER(int SERVER_READ_BUFFER) {
-		if (SERVER_READ_BUFFER == 0) {
+	public void setSERVER_CHANNEL_READ_BUFFER(int SERVER_CHANNEL_READ_BUFFER) {
+		if (SERVER_CHANNEL_READ_BUFFER == 0) {
 			return;
 		}
-		this.SERVER_READ_BUFFER = SERVER_READ_BUFFER;
+		this.SERVER_CHANNEL_READ_BUFFER = SERVER_CHANNEL_READ_BUFFER;
 	}
 
 	public double getSERVER_MEMORY_POOL_CAPACITY_RATE() {
@@ -148,12 +148,12 @@ public class ServerConfiguration {
 		this.SERVER_MEMORY_POOL_CAPACITY_RATE = SERVER_MEMORY_POOL_CAPACITY_RATE;
 	}
 
-	public boolean isSERVER_MEMORY_POOL_DIRECT() {
-		return SERVER_MEMORY_POOL_DIRECT;
+	public boolean isSERVER_ENABLE_MEMORY_POOL_DIRECT() {
+		return SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	}
 
-	public void setSERVER_MEMORY_POOL_DIRECT(boolean SERVER_MEMORY_POOL_DIRECT) {
-		this.SERVER_MEMORY_POOL_DIRECT = SERVER_MEMORY_POOL_DIRECT;
+	public void setSERVER_ENABLE_MEMORY_POOL_DIRECT(boolean SERVER_ENABLE_MEMORY_POOL_DIRECT) {
+		this.SERVER_ENABLE_MEMORY_POOL_DIRECT = SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	}
 
 	public void initializeDefault(BaseContext context) {
@@ -176,12 +176,12 @@ public class ServerConfiguration {
 		
 	}
 
-	public boolean isSERVER_WORK_EVENT_LOOP() {
-		return SERVER_WORK_EVENT_LOOP;
+	public boolean isSERVER_ENABLE_WORK_EVENT_LOOP() {
+		return SERVER_ENABLE_WORK_EVENT_LOOP;
 	}
 
-	public void setSERVER_WORK_EVENT_LOOP(boolean SERVER_WORK_EVENT_LOOP) {
-		this.SERVER_WORK_EVENT_LOOP = SERVER_WORK_EVENT_LOOP;
+	public void setSERVER_ENABLE_WORK_EVENT_LOOP(boolean SERVER_ENABLE_WORK_EVENT_LOOP) {
+		this.SERVER_ENABLE_WORK_EVENT_LOOP = SERVER_ENABLE_WORK_EVENT_LOOP;
 	}
 
 }
