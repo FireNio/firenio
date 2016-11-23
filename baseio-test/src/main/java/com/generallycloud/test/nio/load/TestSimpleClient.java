@@ -35,7 +35,7 @@ public class TestSimpleClient {
 
 		BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIoEventHandleAdaptor());
 
-		future.write("hello server !");
+		future.write("hello server!");
 
 		session.flush(future);
 		

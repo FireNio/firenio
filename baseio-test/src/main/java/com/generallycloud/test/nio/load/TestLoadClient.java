@@ -71,7 +71,7 @@ public class TestLoadClient {
 			
 			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
 
-			future.write("hello server !");
+			future.write("hello server!");
 
 			session.flush(future);
 		}

@@ -44,7 +44,7 @@ public class TestLineBasedClient {
 
 		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 
-		future.write("hello server !");
+		future.write("hello server!");
 
 		session.flush(future);
 		

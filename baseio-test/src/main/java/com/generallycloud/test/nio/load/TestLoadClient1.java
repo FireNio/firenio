@@ -32,7 +32,7 @@ public class TestLoadClient1 extends ITestThread {
 			
 			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
 			
-			future.write("hello server !");
+			future.write("hello server!");
 			
 			session.flush(future);
 		}

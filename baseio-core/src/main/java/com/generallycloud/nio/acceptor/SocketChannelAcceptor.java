@@ -66,7 +66,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 	}
 
 	public String getServiceDescription(int i) {
-		return "tcp>IoProcess-" + i;
+		return "tcp-io-process-" + i;
 	}
 
 	public InetSocketAddress getServerSocketAddress() {

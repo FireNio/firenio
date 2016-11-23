@@ -150,7 +150,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 			
-			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 			
 			this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
 			
