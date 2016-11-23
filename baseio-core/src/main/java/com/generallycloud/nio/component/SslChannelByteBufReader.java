@@ -23,7 +23,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
 			if (future == null) {
 
-				ByteBuf buf = session.getByteBufAllocator().allocate(SslReadFuture.SSL_RECORD_HEADER_LENGTH);
+				ByteBuf buf = allocate(session,SslReadFuture.SSL_RECORD_HEADER_LENGTH);
 
 				future = new SslReadFutureImpl(session, buf);
 
@@ -61,7 +61,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
 			try {
 
-				getNext().getValue().accept(channel, produce);
+				nextAccept(channel, produce);
 
 			} finally {
 

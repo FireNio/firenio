@@ -145,14 +145,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.mcByteBufAllocator = new MCByteBufAllocator(this);
 
 		this.addSessionEventListener(new ManagerSEListener());
-		
-		this.channelByteBufReader = new IoLimitChannelByteBufReader();
-		
-		if (enableSSL) {
-			getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
-		}
-		
-		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader());
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -189,6 +181,15 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 				readFutureAcceptor = new IoProcessReadFutureAcceptor();
 			}
 		}
+		
+		
+		this.channelByteBufReader = new IoLimitChannelByteBufReader();
+		
+		if (enableSSL) {
+			getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
+		}
+		
+		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader(this));
 		
 		if (sessionManager == null) {
 			sessionManager = new SessionManagerImpl(this);
