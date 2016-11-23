@@ -8,10 +8,10 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.IOEventHandle;
+import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.ReadFutureAcceptor;
 import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.IOEventHandle.IOEventState;
+import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.PluginContext;
@@ -54,9 +54,9 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 				
 				logger.error(e.getMessage(),e);
 				
-				IOEventHandle eventHandle = future.getIOEventHandle();
+				IoEventHandle eventHandle = future.getIOEventHandle();
 				
-				eventHandle.exceptionCaught(session, future, e, IOEventState.HANDLE);
+				eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
 				
 				return true;
 			}

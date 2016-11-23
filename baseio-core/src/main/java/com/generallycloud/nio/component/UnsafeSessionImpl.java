@@ -7,7 +7,6 @@ import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
@@ -18,8 +17,8 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 	private static final Logger	logger	= LoggerFactory.getLogger(UnsafeSessionImpl.class);
 
-	public UnsafeSessionImpl(SocketChannel channel,EventLoop eventLoop, Integer sessionID) {
-		super(channel,eventLoop, sessionID);
+	public UnsafeSessionImpl(SocketChannel channel,Integer sessionID) {
+		super(channel,sessionID);
 	}
 
 	public SocketChannel getSocketChannel() {

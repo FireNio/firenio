@@ -17,9 +17,9 @@ public abstract class BaseFutureAcceptorService extends FutureAcceptorService{
 
 	protected abstract void doAccept(Session session, BaseReadFuture future) throws Exception;
 	
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
 		
-		if (state == IOEventState.HANDLE) {
+		if (state == IoEventState.HANDLE) {
 			
 			ErrorServlet servlet = new ErrorServlet(cause);
 			try {

@@ -9,6 +9,6 @@ public interface EventLoop extends LifeCycle{
 
 	public abstract void dispatch(Runnable job) throws RejectedExecutionException;
 	
-	public abstract boolean inEventLoop(Thread thread);
+	public abstract boolean inEventLoop();
 	
 }

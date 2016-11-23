@@ -9,12 +9,12 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.DateUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestFrontClient {
@@ -25,7 +25,7 @@ public class TestFrontClient {
 		
 		final AtomicInteger res = new AtomicInteger();
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				
@@ -41,7 +41,7 @@ public class TestFrontClient {
 
 		configuration.setSERVER_PORT(8600);
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
 
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 		

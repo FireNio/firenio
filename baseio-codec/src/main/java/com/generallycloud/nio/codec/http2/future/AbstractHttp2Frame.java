@@ -1,9 +1,9 @@
 package com.generallycloud.nio.codec.http2.future;
 
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public abstract class AbstractHttp2Frame extends AbstractIOReadFuture implements Http2Frame {
+public abstract class AbstractHttp2Frame extends AbstractChannelReadFuture implements Http2Frame {
 
 	protected byte flags;
 	

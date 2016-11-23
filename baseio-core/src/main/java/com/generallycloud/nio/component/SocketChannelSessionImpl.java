@@ -6,8 +6,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
-import com.generallycloud.nio.component.IOEventHandle.IOEventState;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -23,8 +22,8 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	protected SSLEngine			sslEngine;
 	protected SslHandler		sslHandler;
 
-	public SocketChannelSessionImpl(SocketChannel channel,EventLoop eventLoop, Integer sessionID) {
-		super(channel,eventLoop, sessionID);
+	public SocketChannelSessionImpl(SocketChannel channel,Integer sessionID) {
+		super(channel, sessionID);
 		if (context.isEnableSSL()) {
 			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
@@ -61,9 +60,9 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 			logger.debug(e.getMessage(), e);
 
-			IOEventHandle handle = readFuture.getIOEventHandle();
+			IoEventHandle handle = readFuture.getIOEventHandle();
 
-			handle.exceptionCaught(this, readFuture, e, IOEventState.WRITE);
+			handle.exceptionCaught(this, readFuture, e, IoEventState.WRITE);
 		}
 	}
 

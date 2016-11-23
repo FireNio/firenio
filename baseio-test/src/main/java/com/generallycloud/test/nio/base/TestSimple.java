@@ -12,7 +12,7 @@ import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestSimple {
 	
@@ -27,7 +27,7 @@ public class TestSimple {
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 

@@ -11,12 +11,12 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestLoadClient1 extends ITestThread {
 
@@ -42,7 +42,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			public void accept(Session session, ReadFuture future) throws Exception {
 				CountDownLatch latch = getLatch();
 
@@ -52,7 +52,7 @@ public class TestLoadClient1 extends ITestThread {
 			}
 		};
 
-		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
+		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		BaseContext context = connector.getContext();
 

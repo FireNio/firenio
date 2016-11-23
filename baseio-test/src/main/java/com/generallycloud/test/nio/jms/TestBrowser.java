@@ -6,7 +6,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageBrowser;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBrowser {
 
@@ -16,7 +16,7 @@ public class TestBrowser {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = new FixedSession(connector.connect());
 

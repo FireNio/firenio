@@ -4,10 +4,10 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOAcceptorUtil;
+import com.generallycloud.test.nio.common.IoAcceptorUtil;
 
 public class TestSimpleHttpServer {
 
@@ -15,7 +15,7 @@ public class TestSimpleHttpServer {
 		
 		SharedBundle.instance().loadAllProperties("http");
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				this.acceptAlong(session, future);
@@ -38,7 +38,7 @@ public class TestSimpleHttpServer {
 			}
 		};
 
-		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
+		SocketChannelAcceptor acceptor = IoAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 
 		acceptor.getContext().setProtocolFactory(new ServerHTTPProtocolFactory());
 

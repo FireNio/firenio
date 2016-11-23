@@ -1,11 +1,11 @@
 package com.generallycloud.nio.codec.redis.future;
 
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class RedisIOEventHandle extends IOEventHandleAdaptor{
+public class RedisIOEventHandle extends IoEventHandleAdaptor{
 	
 	private Waiter<RedisNode> waiter;
 

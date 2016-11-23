@@ -27,12 +27,12 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 		
 		BaseContext context = session.getContext();
 
-		IOEventHandle eventHandle = context.getIOEventHandleAdaptor();
+		IoEventHandle eventHandle = context.getIOEventHandleAdaptor();
 		
 		accept(eventHandle, session, f);
 	}
 	
-	protected abstract void accept(IOEventHandle eventHandle,Session session, ChannelReadFuture future);
+	protected abstract void accept(IoEventHandle eventHandle,Session session, ChannelReadFuture future);
 	
 	private void acceptHeartBeat(final Session session, final ChannelReadFuture future) {
 

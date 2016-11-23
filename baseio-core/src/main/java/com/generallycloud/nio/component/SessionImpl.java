@@ -11,7 +11,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.IOEventHandle.IOEventState;
+import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -30,12 +30,12 @@ public abstract class SessionImpl implements Session {
 	protected SocketChannel				channel;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
-	public SessionImpl(SocketChannel channel,EventLoop eventLoop,Integer sessionID) {
+	public SessionImpl(SocketChannel channel,Integer sessionID) {
 		this.context = channel.getContext();
 		this.channel = channel;
 		this.sessionID = sessionID;
 		this.attachments = new Object[context.getSessionAttachmentSize()];
-		this.eventLoop = eventLoop;
+		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 
 	public void active() {
@@ -56,9 +56,9 @@ public abstract class SessionImpl implements Session {
 
 		if (!socketChannel.isOpened()) {
 
-			IOEventHandle handle = future.getIOEventHandle();
+			IoEventHandle handle = future.getIOEventHandle();
 			
-			exceptionCaught(handle, future, new DisconnectException("disconnected"), IOEventState.WRITE);
+			exceptionCaught(handle, future, new DisconnectException("disconnected"), IoEventState.WRITE);
 
 			return;
 		}
@@ -83,13 +83,13 @@ public abstract class SessionImpl implements Session {
 
 			logger.debug(e.getMessage(), e);
 
-			IOEventHandle handle = future.getIOEventHandle();
+			IoEventHandle handle = future.getIOEventHandle();
 
-			exceptionCaught(handle, future, e, IOEventState.WRITE);
+			exceptionCaught(handle, future, e, IoEventState.WRITE);
 		}
 	}
 	
-	private void exceptionCaught(IOEventHandle handle,ReadFuture future, Exception cause, IOEventState state){
+	private void exceptionCaught(IoEventHandle handle,ReadFuture future, Exception cause, IoEventState state){
 		try {
 			handle.exceptionCaught(this, future, cause, state);
 		} catch (Exception e) {

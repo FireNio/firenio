@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestHttpLoadThread extends ITestThread {
@@ -47,7 +47,7 @@ public class TestHttpLoadThread extends ITestThread {
 
 	public void prepare() throws Exception {
 
-		connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor);
+		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 

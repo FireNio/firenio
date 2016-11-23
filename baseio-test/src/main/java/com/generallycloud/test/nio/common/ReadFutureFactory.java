@@ -4,7 +4,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.codec.http11.future.ClientHttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.IOEventHandle;
+import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.Session;
 
 public class ReadFutureFactory {
@@ -15,7 +15,7 @@ public class ReadFutureFactory {
 	}
 
 	public static BaseReadFuture create(Session session, Integer futureID, String serviceName,
-			IOEventHandle ioEventHandle) {
+			IoEventHandle ioEventHandle) {
 
 		BaseReadFutureImpl textReadFuture = new BaseReadFutureImpl(session.getContext(),futureID, serviceName);
 
@@ -29,7 +29,7 @@ public class ReadFutureFactory {
 		return create(session, futureID, serviceName, session.getContext().getIOEventHandleAdaptor());
 	}
 
-	public static BaseReadFuture create(Session session, String serviceName, IOEventHandle ioEventHandle) {
+	public static BaseReadFuture create(Session session, String serviceName, IoEventHandle ioEventHandle) {
 
 		return create(session, 0, serviceName, ioEventHandle);
 	}

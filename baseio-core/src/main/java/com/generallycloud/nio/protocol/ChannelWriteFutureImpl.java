@@ -8,8 +8,8 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
-import com.generallycloud.nio.component.IOEventHandle;
-import com.generallycloud.nio.component.IOEventHandle.IOEventState;
+import com.generallycloud.nio.component.IoEventHandle;
+import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 
@@ -33,10 +33,10 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 		ReleaseUtil.release(this);
 
-		IOEventHandle handle = readFuture.getIOEventHandle();
+		IoEventHandle handle = readFuture.getIOEventHandle();
 
 		try {
-			handle.exceptionCaught(session, readFuture, e, IOEventState.WRITE);
+			handle.exceptionCaught(session, readFuture, e, IoEventState.WRITE);
 		} catch (Throwable e1) {
 			logger.debug(e1.getMessage(), e1);
 		}
@@ -48,7 +48,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 		ReleaseUtil.release(this);
 
-		IOEventHandle handle = readFuture.getIOEventHandle();
+		IoEventHandle handle = readFuture.getIOEventHandle();
 
 		try {
 			handle.futureSent(session, readFuture);

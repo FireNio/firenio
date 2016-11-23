@@ -8,9 +8,9 @@ import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public class Http2FrameHeaderImpl extends AbstractIOReadFuture implements Http2FrameHeader {
+public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements Http2FrameHeader {
 
 	private ByteBuf	buf;
 

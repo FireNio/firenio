@@ -17,6 +17,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.LineEventLoopGroup;
 import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -26,7 +27,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	private DatagramPacketAcceptor		datagramPacketAcceptor;
 	private Charset					encoding;
-	private IOEventHandleAdaptor			ioEventHandleAdaptor;
+	private IoEventHandleAdaptor			ioEventHandleAdaptor;
 	private Linkable<SessionEventListener>	lastSessionEventListener;
 	private ServerConfiguration			serverConfiguration;
 	private Linkable<SessionEventListener>	sessionEventListenerLink;
@@ -81,23 +82,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		}
 
 		this.serverConfiguration = configuration;
-
-		this.addLifeCycleListener(new BaseContextListener());
-	}
-
-	public BaseContextImpl(ServerConfiguration configuration, EventLoopGroup eventLoopGroup) {
-
-		if (configuration == null) {
-			throw new IllegalArgumentException("null configuration");
-		}
-
-		if (eventLoopGroup == null) {
-			throw new IllegalArgumentException("null eventLoopGroup");
-		}
-
-		this.serverConfiguration = configuration;
-
-		this.eventLoopGroup = eventLoopGroup;
 
 		this.addLifeCycleListener(new BaseContextListener());
 	}
@@ -160,28 +144,25 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
-		if (readFutureAcceptor == null) {
+		if (serverConfiguration.isSERVER_WORK_EVENT_LOOP()) {
+
+			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
+
+			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 			
-			if (serverConfiguration.isSERVER_WORK_EVENT_LOOP()) {
-				
-				readFutureAcceptor = new EventLoopReadFutureAcceptor();
-				
-				if (eventLoopGroup == null) {
-
-					int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-
-					int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-					
-					EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
-					
-					this.eventLoopGroup = eventLoopGroup;
-				}
-				
-			}else{
-				readFutureAcceptor = new IoProcessReadFutureAcceptor();
-			}
+			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("IoEvent", eventQueueSize, eventLoopSize);
+			
+			this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
+			
+			this.eventLoopGroup = eventLoopGroup;
+			
+		}else{
+			
+//			this.readFutureAcceptor = new IoProcessReadFutureAcceptor();
+			this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
+			
+			this.eventLoopGroup = new LineEventLoopGroup();
 		}
-		
 		
 		this.channelByteBufReader = new IoLimitChannelByteBufReader();
 		
@@ -196,7 +177,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		}
 
 		if (sessionFactory == null) {
-			sessionFactory = new SessionFactoryImpl(this);
+			sessionFactory = new SessionFactoryImpl();
 		}
 		
 		LifeCycleUtil.start(mcByteBufAllocator);
@@ -247,7 +228,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return encoding;
 	}
 
-	public IOEventHandleAdaptor getIOEventHandleAdaptor() {
+	public IoEventHandleAdaptor getIOEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
 	}
 
@@ -291,7 +272,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 
-	public void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor) {
+	public void setIOEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 
@@ -354,10 +335,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 
 	public ReadFutureAcceptor getReadFutureAcceptor() {
 		return readFutureAcceptor;
-	}
-
-	public void setReadFutureAcceptor(ReadFutureAcceptor readFutureAcceptor) {
-		this.readFutureAcceptor = readFutureAcceptor;
 	}
 
 }

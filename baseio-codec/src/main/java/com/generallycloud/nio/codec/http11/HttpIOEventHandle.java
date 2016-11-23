@@ -1,12 +1,12 @@
 package com.generallycloud.nio.codec.http11;
 
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class HttpIOEventHandle extends IOEventHandleAdaptor{
+public class HttpIOEventHandle extends IoEventHandleAdaptor{
 	
 	private Waiter<HttpReadFuture> waiter;
 

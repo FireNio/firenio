@@ -3,12 +3,12 @@ package com.generallycloud.nio.codec.protobuf.future;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
-public abstract class ProtobufIOEventHandle extends IOEventHandleAdaptor {
+public abstract class ProtobufIOEventHandle extends IoEventHandleAdaptor {
 
 	private Map<String, Parser<? extends MessageLite>>	parses	= new HashMap<String, Parser<? extends MessageLite>>();
 

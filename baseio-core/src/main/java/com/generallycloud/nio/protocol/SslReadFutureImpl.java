@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 
-public class SslReadFutureImpl extends AbstractIOReadFuture implements SslReadFuture {
+public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslReadFuture {
 
 	private boolean	body_complete;
 

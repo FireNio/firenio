@@ -8,7 +8,7 @@ import com.generallycloud.nio.extend.plugin.jms.MapMessage;
 import com.generallycloud.nio.extend.plugin.jms.TextMessage;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageProducer;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestTeller {
 
@@ -18,7 +18,7 @@ public class TestTeller {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
 		FixedSession session = new FixedSession(connector.connect());
 

@@ -2,9 +2,9 @@ package com.generallycloud.nio.codec.redis.future;
 
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public abstract class AbstractRedisReadFuture extends AbstractIOReadFuture implements RedisReadFuture{
+public abstract class AbstractRedisReadFuture extends AbstractChannelReadFuture implements RedisReadFuture{
 
 	protected AbstractRedisReadFuture(BaseContext context) {
 		super(context);

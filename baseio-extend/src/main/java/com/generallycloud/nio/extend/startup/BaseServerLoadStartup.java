@@ -6,7 +6,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
@@ -19,7 +19,7 @@ public class BaseServerLoadStartup {
 		
 		SharedBundle.instance().loadAllProperties("nio");
 		
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture)future;

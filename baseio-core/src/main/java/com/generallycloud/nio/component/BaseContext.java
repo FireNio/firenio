@@ -17,7 +17,7 @@ public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract Charset getEncoding();
 
-	public abstract IOEventHandleAdaptor getIOEventHandleAdaptor();
+	public abstract IoEventHandleAdaptor getIOEventHandleAdaptor();
 
 	public abstract ServerConfiguration getServerConfiguration();
 
@@ -47,7 +47,7 @@ public interface BaseContext extends Attributes, LifeCycle {
 
 	public abstract DatagramChannelFactory getDatagramChannelFactory();
 
-	public abstract void setIOEventHandleAdaptor(IOEventHandleAdaptor ioEventHandleAdaptor);
+	public abstract void setIOEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
 
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
@@ -69,8 +69,6 @@ public interface BaseContext extends Attributes, LifeCycle {
 	
 	public abstract ReadFutureAcceptor getReadFutureAcceptor() ;
 
-	public abstract void setReadFutureAcceptor(ReadFutureAcceptor readFutureAcceptor) ;
-	
 	public abstract void addSessionEventListener(SessionEventListener listener);
 	
 	public abstract SslContext getSslContext() ;

@@ -4,7 +4,7 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
 import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
 import com.generallycloud.nio.component.BaseContextImpl;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
@@ -15,7 +15,7 @@ public class TestLineBasedServer {
 
 	public static void main(String[] args) throws Exception {
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				

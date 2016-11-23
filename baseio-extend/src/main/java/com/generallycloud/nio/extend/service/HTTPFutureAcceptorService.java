@@ -26,9 +26,9 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 
 	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
 
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
 		
-		if (state == IOEventState.HANDLE) {
+		if (state == IoEventState.HANDLE) {
 			
 			if (future instanceof HttpReadFuture) {
 				((HttpReadFuture)future).setStatus(HttpStatus.C500);

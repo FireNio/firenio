@@ -49,8 +49,8 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 		}
 	}
 
-	public boolean inEventLoop(Thread thread) {
-		return threadFactory.inFactory(thread);
+	public boolean inEventLoop() {
+		return threadFactory.inFactory(Thread.currentThread());
 	}
 
 }

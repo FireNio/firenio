@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class Test404 {
 
@@ -19,7 +19,7 @@ public class Test404 {
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 

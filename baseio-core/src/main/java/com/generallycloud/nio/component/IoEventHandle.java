@@ -2,13 +2,13 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public interface IOEventHandle extends ReadFutureAcceptor {
+public interface IoEventHandle extends ReadFutureAcceptor {
 
-	enum IOEventState {
+	enum IoEventState {
 		READ, HANDLE, WRITE
 	}
 
-	public abstract void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state);
+	public abstract void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state);
 
 	public abstract void futureSent(Session session, ReadFuture future);
 }

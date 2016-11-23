@@ -1,11 +1,11 @@
 package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.IOEventHandle;
+import com.generallycloud.nio.component.IoEventHandle;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
-	protected IOEventHandle		ioEventHandle;
+	protected IoEventHandle		ioEventHandle;
 	protected boolean			flushed;
 	protected BaseContext		context;
 
@@ -13,14 +13,14 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		this.context = context;
 	}
 
-	public IOEventHandle getIOEventHandle() {
+	public IoEventHandle getIOEventHandle() {
 		if (ioEventHandle == null) {
 			this.ioEventHandle = context.getIOEventHandleAdaptor();
 		}
 		return ioEventHandle;
 	}
 
-	public void setIOEventHandle(IOEventHandle ioEventHandle) {
+	public void setIOEventHandle(IoEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
 	}
 

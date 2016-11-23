@@ -6,13 +6,13 @@ import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FileSendUtil;
 import com.generallycloud.nio.extend.example.baseio.TestUploadServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestUpload {
 
@@ -24,7 +24,7 @@ public class TestUpload {
 		
 		String serviceName = TestUploadServlet.SERVICE_NAME;
 
-		IOEventHandleAdaptor eventHandle = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			
 			public void accept(Session session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture) future;
@@ -42,7 +42,7 @@ public class TestUpload {
 			}
 		};
 
-		connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 

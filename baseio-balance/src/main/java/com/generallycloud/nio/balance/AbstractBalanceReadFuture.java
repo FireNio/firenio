@@ -1,9 +1,9 @@
 package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public abstract class AbstractBalanceReadFuture extends AbstractIOReadFuture implements BalanceReadFuture {
+public abstract class AbstractBalanceReadFuture extends AbstractChannelReadFuture implements BalanceReadFuture {
 
 	protected boolean	isBroadcast;
 

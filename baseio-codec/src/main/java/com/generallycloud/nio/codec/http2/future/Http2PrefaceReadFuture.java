@@ -9,11 +9,11 @@ import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractIOReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 
-public class Http2PrefaceReadFuture extends AbstractIOReadFuture {
+public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 
 	private ByteBuf	buf;
 

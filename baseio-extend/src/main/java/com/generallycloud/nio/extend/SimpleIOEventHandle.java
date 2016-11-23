@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SimpleIOEventHandle extends IOEventHandleAdaptor {
+public class SimpleIOEventHandle extends IoEventHandleAdaptor {
 
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 

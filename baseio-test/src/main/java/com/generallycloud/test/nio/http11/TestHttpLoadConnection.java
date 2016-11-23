@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestHttpLoadConnection {
 
@@ -34,7 +34,7 @@ public class TestHttpLoadConnection {
 				
 				HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 				
-				SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
+				SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor,configuration);
 				
 				connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 				

@@ -3,12 +3,12 @@ package com.generallycloud.nio.extend;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.service.FutureAcceptor;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class ExtendIOEventHandle extends IOEventHandleAdaptor {
+public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 
 	private ApplicationContext	applicationContext;
 	private FutureAcceptor		filterService;
@@ -28,7 +28,7 @@ public class ExtendIOEventHandle extends IOEventHandleAdaptor {
 
 			logger.error(e.getMessage(), e);
 
-			exceptionCaught(session, future, e, IOEventState.HANDLE);
+			exceptionCaught(session, future, e, IoEventState.HANDLE);
 		}
 	}
 

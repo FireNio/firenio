@@ -11,7 +11,7 @@ import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -23,7 +23,7 @@ public class TestHttp2Server {
 		
 		SharedBundle.instance().loadAllProperties("http");
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				Http2FrameHeader f = (Http2FrameHeader) future;
@@ -44,7 +44,7 @@ public class TestHttp2Server {
 
 		context.setProtocolFactory(new Http2ProtocolFactory());
 		
-		context.setSessionFactory(new Http2SessionFactory(context));
+		context.setSessionFactory(new Http2SessionFactory());
 
 		File certificate = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.crt");
 		File privateKey = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.key");

@@ -3,12 +3,12 @@ package com.generallycloud.nio.balance;
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontFacadeAcceptorHandler extends IOEventHandleAdaptor {
+public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorHandler.class);
 	private FrontRouter		frontRouter;

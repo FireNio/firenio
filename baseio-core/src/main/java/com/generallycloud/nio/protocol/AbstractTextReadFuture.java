@@ -2,7 +2,7 @@ package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.component.BaseContext;
 
-public abstract class AbstractTextReadFuture extends AbstractIOReadFuture implements TextReadFuture{
+public abstract class AbstractTextReadFuture extends AbstractChannelReadFuture implements TextReadFuture{
 
 	protected AbstractTextReadFuture(BaseContext context) {
 		super(context);

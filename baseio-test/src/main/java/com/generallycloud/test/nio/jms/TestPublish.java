@@ -6,7 +6,7 @@ import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.plugin.jms.TextMessage;
 import com.generallycloud.nio.extend.plugin.jms.client.MessageProducer;
 import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageProducer;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestPublish {
 
@@ -14,7 +14,7 @@ public class TestPublish {
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = new FixedSession(connector.connect());
 

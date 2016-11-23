@@ -1,6 +1,5 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.common.ThreadUtil;
 
 public class Calculagraph {
 

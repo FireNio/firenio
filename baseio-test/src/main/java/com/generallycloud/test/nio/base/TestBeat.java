@@ -13,7 +13,7 @@ import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
 import com.generallycloud.nio.extend.example.baseio.TestSimpleServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOConnectorUtil;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBeat {
 	
@@ -32,7 +32,7 @@ public class TestBeat {
 
 		configuration.setSERVER_SESSION_IDLE_TIME(100);
 		
-		SocketChannelConnector connector = IOConnectorUtil.getTCPConnector(eventHandle,configuration);
+		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle,configuration);
 		
 		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
 		

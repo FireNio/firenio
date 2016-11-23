@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.SocketSession;
@@ -21,7 +21,7 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
+public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
 	private FrontContext	frontContext;
@@ -131,7 +131,7 @@ public class FrontReverseAcceptorHandler extends IOEventHandleAdaptor {
 		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", sessionID, f);
 	}
 
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
 		
 		String msg = future.toString();
 		

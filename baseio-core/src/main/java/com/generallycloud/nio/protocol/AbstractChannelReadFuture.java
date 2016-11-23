@@ -5,9 +5,9 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
 
 
-public abstract class AbstractIOReadFuture extends AbstractReadFuture implements ChannelReadFuture {
+public abstract class AbstractChannelReadFuture extends AbstractReadFuture implements ChannelReadFuture {
 
-	protected AbstractIOReadFuture(BaseContext context) {
+	protected AbstractChannelReadFuture(BaseContext context) {
 		super(context);
 	}
 

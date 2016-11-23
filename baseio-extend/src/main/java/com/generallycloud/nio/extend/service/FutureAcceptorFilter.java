@@ -1,6 +1,6 @@
 package com.generallycloud.nio.extend.service;
 
-import com.generallycloud.nio.component.IOEventHandle;
+import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.HotDeploy;
@@ -10,7 +10,7 @@ import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.protocol.NamedReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class FutureAcceptorFilter extends InitializeableImpl implements Initializeable, HotDeploy, IOEventHandle {
+public abstract class FutureAcceptorFilter extends InitializeableImpl implements Initializeable, HotDeploy, IoEventHandle {
 	
 	private int sortIndex;
 	
@@ -36,7 +36,7 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 		this.destroy(context, config);
 	}
 	
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
 		
 	}
 

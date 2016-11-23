@@ -25,7 +25,7 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 		this.filter.accept(session, future);
 	}
 
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IOEventState state) {
+	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
 		this.filter.exceptionCaught(session, future, cause, state);
 	}
 

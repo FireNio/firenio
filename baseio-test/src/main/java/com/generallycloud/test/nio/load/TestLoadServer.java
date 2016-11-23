@@ -6,11 +6,11 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.IOEventHandleAdaptor;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IOAcceptorUtil;
+import com.generallycloud.test.nio.common.IoAcceptorUtil;
 
 public class TestLoadServer {
 
@@ -21,7 +21,7 @@ public class TestLoadServer {
 		final AtomicInteger res = new AtomicInteger();
 		final AtomicInteger req = new AtomicInteger();
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				FixedLengthReadFuture f = (FixedLengthReadFuture)future;
@@ -38,7 +38,7 @@ public class TestLoadServer {
 			}
 		};
 
-		SocketChannelAcceptor acceptor = IOAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
+		SocketChannelAcceptor acceptor = IoAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
 		
 		acceptor.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 		
