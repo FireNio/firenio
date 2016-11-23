@@ -91,7 +91,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 			BaseReadFuture future = new BaseReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
 			
-			future.setIOEventHandle(session.getContext().getIOEventHandleAdaptor());
+			future.setIOEventHandle(session.getContext().getIoEventHandleAdaptor());
 			
 			logger.debug("___________________bind___session___{}",session);
 			

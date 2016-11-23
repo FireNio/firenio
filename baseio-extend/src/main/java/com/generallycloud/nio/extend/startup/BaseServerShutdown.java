@@ -57,7 +57,7 @@ public class BaseServerShutdown {
 
 		BaseContext context = new BaseContextImpl(configuration);
 
-		context.setIOEventHandleAdaptor(eventHandle);
+		context.setIoEventHandleAdaptor(eventHandle);
 
 		context.addSessionEventListener(new LoggerSEListener());
 

@@ -15,12 +15,12 @@ public class IoAcceptorUtil {
 
 	private static Logger	logger	= LoggerFactory.getLogger(IoAcceptorUtil.class);
 
-	public static SocketChannelAcceptor getTCPAcceptor(IoEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
+	public static SocketChannelAcceptor getTCPAcceptor(IoEventHandleAdaptor IoEventHandleAdaptor) throws Exception {
 
-		return getTCPAcceptor(ioEventHandleAdaptor, null);
+		return getTCPAcceptor(IoEventHandleAdaptor, null);
 	}
 
-	public static SocketChannelAcceptor getTCPAcceptor(IoEventHandleAdaptor ioEventHandleAdaptor,
+	public static SocketChannelAcceptor getTCPAcceptor(IoEventHandleAdaptor IoEventHandleAdaptor,
 			ServerConfiguration configuration) throws Exception {
 		
 		if (configuration == null) {
@@ -34,7 +34,7 @@ public class IoAcceptorUtil {
 			
 			BaseContext context = new BaseContextImpl(configuration);
 
-			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
+			context.setIoEventHandleAdaptor(IoEventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());
 

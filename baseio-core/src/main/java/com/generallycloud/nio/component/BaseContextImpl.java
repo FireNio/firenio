@@ -228,7 +228,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return encoding;
 	}
 
-	public IoEventHandleAdaptor getIOEventHandleAdaptor() {
+	public IoEventHandleAdaptor getIoEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
 	}
 
@@ -272,7 +272,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
 	}
 
-	public void setIOEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
+	public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 

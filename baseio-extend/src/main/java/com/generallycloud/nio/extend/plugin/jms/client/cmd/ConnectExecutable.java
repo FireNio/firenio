@@ -62,7 +62,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 			BaseContext baseContext = new BaseContextImpl(configuration);
 			
-			baseContext.setIOEventHandleAdaptor(eventHandle);
+			baseContext.setIoEventHandleAdaptor(eventHandle);
 
 			baseContext.addSessionEventListener(new LoggerSEListener());
 

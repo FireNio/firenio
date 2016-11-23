@@ -54,7 +54,7 @@ public class FrontServerBootStrap {
 
 		BaseContext context = new BaseContextImpl(configuration);
 
-		context.setIOEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
+		context.setIoEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
 		context.addSessionEventListener(frontContext.getFrontFacadeAcceptorSEListener());
 
@@ -78,7 +78,7 @@ public class FrontServerBootStrap {
 
 		BaseContext context = new BaseContextImpl(configuration);
 
-		context.setIOEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
+		context.setIoEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 
 		context.addSessionEventListener(frontContext.getFrontReverseAcceptorSEListener());
 

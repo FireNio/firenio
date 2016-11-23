@@ -27,7 +27,7 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 		
 		BaseContext context = session.getContext();
 
-		IoEventHandle eventHandle = context.getIOEventHandleAdaptor();
+		IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
 		
 		accept(eventHandle, session, f);
 	}

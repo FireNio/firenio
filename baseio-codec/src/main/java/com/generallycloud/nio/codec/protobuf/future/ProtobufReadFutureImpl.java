@@ -38,7 +38,7 @@ public class ProtobufReadFutureImpl extends BaseReadFutureImpl implements Protob
 
 		if (message == null) {
 
-			ProtobufIOEventHandle handle = (ProtobufIOEventHandle) context.getIOEventHandleAdaptor();
+			ProtobufIOEventHandle handle = (ProtobufIOEventHandle) context.getIoEventHandleAdaptor();
 
 			Parser<? extends MessageLite> parser = handle.getParser(getParserName());
 

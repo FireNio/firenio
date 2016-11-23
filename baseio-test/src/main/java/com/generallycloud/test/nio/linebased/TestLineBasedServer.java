@@ -36,7 +36,7 @@ public class TestLineBasedServer {
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.setProtocolFactory(new LineBasedProtocolFactory());
 

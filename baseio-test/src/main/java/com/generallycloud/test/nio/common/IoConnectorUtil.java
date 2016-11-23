@@ -13,11 +13,11 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 
 public class IoConnectorUtil {
 
-	public static SocketChannelConnector getTCPConnector(IoEventHandleAdaptor ioEventHandleAdaptor) throws Exception {
-		return getTCPConnector(ioEventHandleAdaptor, null);
+	public static SocketChannelConnector getTCPConnector(IoEventHandleAdaptor IoEventHandleAdaptor) throws Exception {
+		return getTCPConnector(IoEventHandleAdaptor, null);
 	}
 
-	public static SocketChannelConnector getTCPConnector(IoEventHandleAdaptor ioEventHandleAdaptor,
+	public static SocketChannelConnector getTCPConnector(IoEventHandleAdaptor IoEventHandleAdaptor,
 			ServerConfiguration configuration) throws Exception {
 		
 		if (configuration == null) {
@@ -35,7 +35,7 @@ public class IoConnectorUtil {
 
 			BaseContext context = new BaseContextImpl(configuration);
 
-			context.setIOEventHandleAdaptor(ioEventHandleAdaptor);
+			context.setIoEventHandleAdaptor(IoEventHandleAdaptor);
 			
 			context.addSessionEventListener(new LoggerSEListener());
 

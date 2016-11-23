@@ -58,7 +58,7 @@ public class Http2ServerStartup {
 			
 			context.setSessionFactory(new Http2SessionFactory());
 
-			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
+			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 			

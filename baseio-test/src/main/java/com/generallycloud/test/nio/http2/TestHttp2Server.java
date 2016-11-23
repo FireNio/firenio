@@ -40,7 +40,7 @@ public class TestHttp2Server {
 
 		context.addSessionEventListener(new LoggerSEListener());
 
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
 		context.setProtocolFactory(new Http2ProtocolFactory());
 		

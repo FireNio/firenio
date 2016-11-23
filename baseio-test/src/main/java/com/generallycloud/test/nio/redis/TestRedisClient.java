@@ -25,7 +25,7 @@ public class TestRedisClient {
 
 		BaseContext context = new BaseContextImpl(configuration);
 
-		context.setIOEventHandleAdaptor(new RedisIOEventHandle());
+		context.setIoEventHandleAdaptor(new RedisIOEventHandle());
 
 		context.addSessionEventListener(new LoggerSEListener());
 

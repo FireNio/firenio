@@ -56,7 +56,7 @@ public class HttpServerStartup {
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
-			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
+			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 			

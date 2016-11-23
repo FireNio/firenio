@@ -15,7 +15,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 
 	public IoEventHandle getIOEventHandle() {
 		if (ioEventHandle == null) {
-			this.ioEventHandle = context.getIOEventHandleAdaptor();
+			this.ioEventHandle = context.getIoEventHandleAdaptor();
 		}
 		return ioEventHandle;
 	}

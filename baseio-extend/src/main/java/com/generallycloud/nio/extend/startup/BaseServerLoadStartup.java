@@ -38,7 +38,7 @@ public class BaseServerLoadStartup {
 
 			BaseContext context = new BaseContextImpl(configuration);
 
-			context.setIOEventHandleAdaptor(eventHandleAdaptor);
+			context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());
 

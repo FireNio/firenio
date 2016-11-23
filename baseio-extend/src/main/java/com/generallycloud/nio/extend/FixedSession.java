@@ -165,7 +165,7 @@ public class FixedSession {
 	public void update(Session session) {
 		this.session = session;
 		this.context = session.getContext();
-		this.eventHandle = (SimpleIOEventHandle) context.getIOEventHandleAdaptor();
+		this.eventHandle = (SimpleIOEventHandle) context.getIoEventHandleAdaptor();
 	}
 
 	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {

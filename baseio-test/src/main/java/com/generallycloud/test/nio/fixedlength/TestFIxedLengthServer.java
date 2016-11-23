@@ -41,7 +41,7 @@ public class TestFIxedLengthServer {
 		
 //		context.addSessionEventListener(new SessionAliveSEListener());
 
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.setBeatFutureFactory(new FLBeatFutureFactory());
 

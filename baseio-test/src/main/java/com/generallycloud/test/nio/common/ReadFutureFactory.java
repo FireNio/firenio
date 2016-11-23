@@ -26,7 +26,7 @@ public class ReadFutureFactory {
 
 	public static BaseReadFuture create(Session session, Integer futureID, String serviceName) {
 
-		return create(session, futureID, serviceName, session.getContext().getIOEventHandleAdaptor());
+		return create(session, futureID, serviceName, session.getContext().getIoEventHandleAdaptor());
 	}
 
 	public static BaseReadFuture create(Session session, String serviceName, IoEventHandle ioEventHandle) {
@@ -40,6 +40,6 @@ public class ReadFutureFactory {
 
 	public static BaseReadFuture create(Session session, String serviceName) {
 
-		return create(session, 0, serviceName, session.getContext().getIOEventHandleAdaptor());
+		return create(session, 0, serviceName, session.getContext().getIoEventHandleAdaptor());
 	}
 }

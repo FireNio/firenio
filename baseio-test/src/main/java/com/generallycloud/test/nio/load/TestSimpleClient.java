@@ -33,7 +33,7 @@ public class TestSimpleClient {
 
 		Session session = connector.getSession();
 
-		BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIOEventHandleAdaptor());
+		BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIoEventHandleAdaptor());
 
 		future.write("hello server !");
 

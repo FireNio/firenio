@@ -47,7 +47,7 @@ public class BaseServerStartup {
 
 			applicationContext.setContext(context);
 
-			context.setIOEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
+			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSEListener());
 
