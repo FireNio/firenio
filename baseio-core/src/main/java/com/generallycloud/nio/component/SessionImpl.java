@@ -34,7 +34,6 @@ public abstract class SessionImpl implements Session {
 		this.context = channel.getContext();
 		this.channel = channel;
 		this.sessionID = sessionID;
-		this.attachments = new Object[context.getSessionAttachmentSize()];
 		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 
@@ -102,7 +101,9 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public Object getAttachment(int index) {
-
+		if (attachments == null) {
+			return null;
+		}
 		return attachments[index];
 	}
 
@@ -199,7 +200,9 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public void setAttachment(int index, Object attachment) {
-
+		if (attachments == null) {
+			attachments = new Object[context.getSessionAttachmentSize()];
+		}
 		this.attachments[index] = attachment;
 	}
 
