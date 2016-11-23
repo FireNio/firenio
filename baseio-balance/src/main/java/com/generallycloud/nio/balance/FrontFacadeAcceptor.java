@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.BaseContext;
 public class FrontFacadeAcceptor {
 
 	private AtomicBoolean			started				= new AtomicBoolean(false);
-	private SocketChannelAcceptor		acceptor				= new SocketChannelAcceptor();
+	private SocketChannelAcceptor		acceptor				= null;
 	private FrontContext			frontContext;
 
 	public void start(FrontContext frontContext, BaseContext frontBaseContext, BaseContext frontReverseBaseContext)
@@ -29,7 +29,7 @@ public class FrontFacadeAcceptor {
 
 		this.frontContext.getFrontReverseAcceptor().start(frontReverseBaseContext);
 
-		this.acceptor.setContext(frontBaseContext);
+		this.acceptor = new SocketChannelAcceptor(frontBaseContext);
 
 		this.acceptor.bind();
 

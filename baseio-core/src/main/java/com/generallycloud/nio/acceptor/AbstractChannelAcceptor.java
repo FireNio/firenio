@@ -28,7 +28,11 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	protected boolean		active		= false;
 	protected ReentrantLock	activeLock	= new ReentrantLock();
 	private Logger			logger		= LoggerFactory.getLogger(AbstractChannelAcceptor.class);
-
+	
+	public AbstractChannelAcceptor(BaseContext context) {
+		super(context);
+	}
+	
 	public void bind() throws IOException {
 
 		ReentrantLock lock = this.activeLock;

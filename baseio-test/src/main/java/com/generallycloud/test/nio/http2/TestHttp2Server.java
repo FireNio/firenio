@@ -33,10 +33,10 @@ public class TestHttp2Server {
 				session.flush(future);
 			}
 		};
-
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
-
+		
 		BaseContext context = new BaseContextImpl(new ServerConfiguration(443));
+
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		context.addSessionEventListener(new LoggerSEListener());
 
@@ -52,8 +52,6 @@ public class TestHttp2Server {
 		SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
 
 		context.setSslContext(sslContext);
-
-		acceptor.setContext(context);
 
 		acceptor.bind();
 

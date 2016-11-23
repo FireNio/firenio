@@ -15,23 +15,16 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 public class TestRedisClient {
 
 	public static void main(String[] args) throws Exception {
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(6379));
 
-		SocketChannelConnector connector = new SocketChannelConnector();
-
-		ServerConfiguration configuration = new ServerConfiguration();
-
-		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_PORT(6379);
-
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(new RedisIOEventHandle());
 
 		context.addSessionEventListener(new LoggerSEListener());
 
 		context.setProtocolFactory(new RedisProtocolFactory());
-
-		connector.setContext(context);
 
 		Session session = connector.connect();
 

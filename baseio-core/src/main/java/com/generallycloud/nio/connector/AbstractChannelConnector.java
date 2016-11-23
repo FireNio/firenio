@@ -26,6 +26,10 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	protected long			timeout		= 3000;
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
+	
+	public AbstractChannelConnector(BaseContext context) {
+		super(context);
+	}
 
 	protected abstract EventLoopThread getSelectorLoopThread();
 

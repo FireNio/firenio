@@ -50,23 +50,17 @@ public class ConnectExecutable extends MQCommandExecutor {
 		
 		try {
 			
-			ServerConfiguration configuration = new ServerConfiguration();
+			BaseContext baseContext = new BaseContextImpl(new ServerConfiguration(Integer.parseInt(port)));
 			
-			configuration.setSERVER_PORT(Integer.parseInt(port));
-			
-			connector = new SocketChannelConnector();
+			connector = new SocketChannelConnector(baseContext);
 
 //			String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
-
-			BaseContext baseContext = new BaseContextImpl(configuration);
 			
 			baseContext.setIoEventHandleAdaptor(eventHandle);
 
 			baseContext.addSessionEventListener(new LoggerSEListener());
-
-			connector.setContext(baseContext);
 
 			FixedSession session = new FixedSession(connector.connect());
 			

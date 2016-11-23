@@ -45,7 +45,7 @@ public class HttpServerStartup {
 
 		BaseContext context = new BaseContextImpl(configuration);
 		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
 			
@@ -79,8 +79,6 @@ public class HttpServerStartup {
 				context.setSslContext(sslContext);
 			}
 			
-			acceptor.setContext(context);
-
 			acceptor.bind();
 
 		} catch (Throwable e) {

@@ -37,15 +37,10 @@ public class TestProtobufClient {
 		};
 		
 		eventHandleAdaptor.regist(SearchRequest.getDefaultInstance());
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 
-		SocketChannelConnector connector = new SocketChannelConnector();
-		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_PORT(18300);
-		
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
@@ -56,8 +51,6 @@ public class TestProtobufClient {
 //		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
 		context.setProtocolFactory(new ProtobufProtocolFactory());
-		
-		connector.setContext(context);
 		
 		Session session = connector.connect();
 		

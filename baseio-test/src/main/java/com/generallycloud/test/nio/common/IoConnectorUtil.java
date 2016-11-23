@@ -26,20 +26,16 @@ public class IoConnectorUtil {
 		}
 		
 		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+
+		BaseContext context = new BaseContextImpl(configuration);
 		
-		SocketChannelConnector connector = null;
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		try {
-
-			connector = new SocketChannelConnector();
-
-			BaseContext context = new BaseContextImpl(configuration);
 
 			context.setIoEventHandleAdaptor(IoEventHandleAdaptor);
 			
 			context.addSessionEventListener(new LoggerSEListener());
-
-			connector.setContext(context);
 
 			return connector;
 

@@ -6,13 +6,13 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected BaseContext		context;
 	protected SelectableChannel	selectableChannel;
+	
+	public AbstractChannelService(BaseContext context) {
+		this.context = context;
+	}
 
 	public BaseContext getContext() {
 		return context;
-	}
-
-	public void setContext(BaseContext context) {
-		this.context = context;
 	}
 
 	public SelectableChannel getSelectableChannel() {

@@ -11,10 +11,14 @@ import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
-	
+
 	private DatagramChannelSelectorLoop		selectorLoop		;
 	private EventLoopThread					selectorLoopThread	;
 	private DatagramSocket					serverSocket		;
+	
+	public DatagramChannelAcceptor(BaseContext context) {
+		super(context);
+	}
 
 	protected void bind(BaseContext context,InetSocketAddress socketAddress) throws IOException {
 		

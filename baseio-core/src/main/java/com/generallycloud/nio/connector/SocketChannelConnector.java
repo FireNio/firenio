@@ -17,9 +17,13 @@ import com.generallycloud.nio.component.concurrent.Waiter;
 //FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractChannelConnector {
 
-	private SocketChannelSelectorLoop	selectorLoop;
-	private EventLoopThread	selectorLoopThread;
-	private Waiter<Object>	waiter	= new Waiter<Object>();
+	private SocketChannelSelectorLoop	selectorLoop		= null;
+	private EventLoopThread			selectorLoopThread	= null;
+	private Waiter<Object>			waiter			= new Waiter<Object>();
+	
+	public SocketChannelConnector(BaseContext context) {
+		super(context);
+	}
 
 	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
@@ -31,10 +35,10 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 		this.selectorLoop.startup();
 
-		((SocketChannel)this.selectableChannel).connect(socketAddress);
+		((SocketChannel) this.selectableChannel).connect(socketAddress);
 
 		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
-		
+
 		this.selectorLoop.setMonitor(this.selectorLoopThread.getMonitor());
 
 		this.selectorLoopThread.startup();
@@ -42,10 +46,10 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		if (waiter.await(getTimeout())) {
 
 			active = true;
-			
+
 			CloseUtil.close(this);
 
-			throw new TimeoutException("connect to "+this.getServiceDescription()+" time out");
+			throw new TimeoutException("connect to " + this.getServiceDescription() + " time out");
 		}
 
 		Object o = waiter.getPayload();
@@ -84,7 +88,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 	protected EventLoopThread getSelectorLoopThread() {
 		return selectorLoopThread;
 	}
-	
+
 	protected void doPhysicalClose0() {
 		LifeCycleUtil.stop(selectorLoopThread);
 	}

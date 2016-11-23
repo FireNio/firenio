@@ -45,23 +45,17 @@ public class BaseServerShutdown {
 
 		String password = args[2];
 		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_PORT(port);
-
 		String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(port));
 
-		SocketChannelConnector connector = new SocketChannelConnector();
-
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandle);
 
 		context.addSessionEventListener(new LoggerSEListener());
-
-		connector.setContext(context);
 
 		FixedSession session = new FixedSession(connector.connect());
 		

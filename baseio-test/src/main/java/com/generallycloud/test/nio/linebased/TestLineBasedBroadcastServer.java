@@ -48,17 +48,15 @@ public class TestLineBasedBroadcastServer {
 		
 		configuration.setSERVER_MEMORY_POOL_UNIT(64);
 		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
-
 		BaseContext context = new BaseContextImpl(configuration);
+		
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.setProtocolFactory(new LineBasedProtocolFactory());
-
-		acceptor.setContext(context);
 
 		acceptor.bind();
 	}

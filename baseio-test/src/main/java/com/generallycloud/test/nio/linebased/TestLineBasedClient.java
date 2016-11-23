@@ -29,23 +29,16 @@ public class TestLineBasedClient {
 				System.out.println();
 			}
 		};
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 
-		SocketChannelConnector connector = new SocketChannelConnector();
-		
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_HOST("localhost");
-		configuration.setSERVER_PORT(18300);
-		
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 
 		context.setProtocolFactory(new LineBasedProtocolFactory());
-		
-		connector.setContext(context);
 		
 		Session session = connector.connect();
 

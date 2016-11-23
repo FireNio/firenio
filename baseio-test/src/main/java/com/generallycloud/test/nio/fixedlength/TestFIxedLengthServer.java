@@ -31,11 +31,9 @@ public class TestFIxedLengthServer {
 			}
 		};
 		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 		
-		ServerConfiguration configuration = new ServerConfiguration(18300);
-		
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
@@ -53,8 +51,6 @@ public class TestFIxedLengthServer {
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		
 		context.setSslContext(sslContext);
-		
-		acceptor.setContext(context);
 
 		acceptor.bind();
 	}

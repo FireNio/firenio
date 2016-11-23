@@ -26,21 +26,15 @@ public class TestLineBasedServer {
 			}
 		};
 
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_PORT(18300);
+		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
-
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.setProtocolFactory(new LineBasedProtocolFactory());
-
-		acceptor.setContext(context);
 
 		acceptor.bind();
 	}

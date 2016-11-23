@@ -16,17 +16,18 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelConnector extends AbstractChannelConnector {
 
-	private Logger				logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
-	private ByteBuffer			cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
-	private ClientDatagramChannelSelectorLoop	selectorLoop;
-	private EventLoopThread		selectorLoopThread;
+	private Logger							logger			= LoggerFactory
+																.getLogger(DatagramChannelConnector.class);
+	private ByteBuffer						cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private EventLoopThread					selectorLoopThread	= null;
+	private ClientDatagramChannelSelectorLoop	selectorLoop		= null;
 
 	protected EventLoopThread getSelectorLoopThread() {
 		return selectorLoopThread;
 	}
 
-	public DatagramChannelConnector() {
-		this.context = session.getContext();
+	public DatagramChannelConnector(BaseContext context) {
+		super(context);
 	}
 
 	public String getServiceDescription() {
@@ -86,11 +87,11 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 
-		this.selectorLoop = new ClientDatagramChannelSelectorLoop(context,selectableChannel);
+		this.selectorLoop = new ClientDatagramChannelSelectorLoop(context, selectableChannel);
 
 		this.selectorLoop.startup();
 
-		((java.nio.channels.DatagramChannel)this.selectableChannel).connect(socketAddress);
+		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
 
 		// FIXME rebuild selector
 		this.datagramChannel().setSession(session);
@@ -101,7 +102,7 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 
 	protected void doPhysicalClose0() {
-		
+
 		DatagramChannel datagramChannel = datagramChannel();
 
 		if (datagramChannel != null && datagramChannel.isOpened()) {

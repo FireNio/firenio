@@ -33,14 +33,10 @@ public class TestFIxedLengthClient {
 		};
 		
 		SslContext sslContext = SSLUtil.initClient();
+		
+		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
 
-		SocketChannelConnector connector = new SocketChannelConnector();
-		
-		ServerConfiguration configuration = new ServerConfiguration("localhost", 18300);
-		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.4);
-		
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
@@ -53,8 +49,6 @@ public class TestFIxedLengthClient {
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
 		context.setSslContext(sslContext);
-		
-		connector.setContext(context);
 		
 		Session session = connector.connect();
 

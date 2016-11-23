@@ -1,6 +1,5 @@
 package com.generallycloud.nio.extend.startup;
 
-import com.generallycloud.nio.acceptor.DatagramChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.base.BaseProtocolFactory;
 import com.generallycloud.nio.common.LifeCycleUtil;
@@ -39,9 +38,7 @@ public class BaseServerStartup {
 
 		BaseContext context = new BaseContextImpl(configuration);
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
-
-		DatagramChannelAcceptor udpAcceptor = new DatagramChannelAcceptor();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
 
@@ -53,13 +50,7 @@ public class BaseServerStartup {
 
 			context.setProtocolFactory(new BaseProtocolFactory());
 			
-			acceptor.setContext(context);
-
 			acceptor.bind();
-
-			udpAcceptor.setContext(context);
-
-			udpAcceptor.bind();
 
 		} catch (Throwable e) {
 
@@ -68,8 +59,6 @@ public class BaseServerStartup {
 			LifeCycleUtil.stop(applicationContext);
 
 			acceptor.unbind();
-
-			udpAcceptor.unbind();
 		}
 	}
 

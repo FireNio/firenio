@@ -30,20 +30,19 @@ public class BaseServerLoadStartup {
 		};
 
 		PropertiesSCLoader loader = new PropertiesSCLoader();
+		
 		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+		BaseContext context = new BaseContextImpl(configuration);
+
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
-
-			BaseContext context = new BaseContextImpl(configuration);
 
 			context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());
 
-			acceptor.setContext(context);
-			
 			acceptor.getContext().setProtocolFactory(new BaseProtocolFactory());
 
 			acceptor.bind();

@@ -8,8 +8,6 @@ public interface ChannelService {
 
 	public abstract BaseContext getContext() ;
 
-	public abstract void setContext(BaseContext context);
-	
 	public abstract InetSocketAddress getServerSocketAddress();
 	
 	public abstract boolean isActive();

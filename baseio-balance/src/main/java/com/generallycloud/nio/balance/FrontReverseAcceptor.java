@@ -9,11 +9,11 @@ import com.generallycloud.nio.component.BaseContext;
 
 public class FrontReverseAcceptor {
 
-	private SocketChannelAcceptor		acceptor	= new SocketChannelAcceptor();
+	private SocketChannelAcceptor		acceptor	= null;
 
 	protected void start(BaseContext context) throws IOException {
 
-		this.acceptor.setContext(context);
+		this.acceptor = new SocketChannelAcceptor(context);
 
 		this.acceptor.bind();
 

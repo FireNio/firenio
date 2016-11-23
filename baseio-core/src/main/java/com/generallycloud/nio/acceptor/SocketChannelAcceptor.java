@@ -14,9 +14,13 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
+	private ServerSocket		serverSocket;
 	private SelectorLoop[]		selectorLoops;
 	private EventLoopThread[]	selectorLoopThreads;
-	private ServerSocket		serverSocket;
+	
+	public SocketChannelAcceptor(BaseContext context) {
+		super(context);
+	}
 
 	protected void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 

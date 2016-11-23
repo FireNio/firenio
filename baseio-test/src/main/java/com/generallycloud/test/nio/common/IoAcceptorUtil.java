@@ -27,18 +27,16 @@ public class IoAcceptorUtil {
 			PropertiesSCLoader loader = new PropertiesSCLoader();
 			configuration = loader.loadConfiguration(SharedBundle.instance());
 		}
+		
+		BaseContext context = new BaseContextImpl(configuration);
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
-			
-			BaseContext context = new BaseContextImpl(configuration);
 
 			context.setIoEventHandleAdaptor(IoEventHandleAdaptor);
 
 			context.addSessionEventListener(new LoggerSEListener());
-
-			acceptor.setContext(context);
 
 		} catch (Throwable e) {
 
