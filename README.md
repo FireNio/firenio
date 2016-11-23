@@ -31,31 +31,25 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 	public static void main(String[] args) throws Exception {
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
-				String res = "yes server already accept your message:" + f.getText();
-				future.write(res);
+				f.write("yes server already accept your message:");
+				f.write(f.getReadText());
 				session.flush(future);
 			}
 		};
 		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor();
-
 		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
+		
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 		
-		context.addSessionEventListener(new SessionAliveSEListener());
-
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
-		context.setBeatFutureFactory(new FLBeatFutureFactory());
-
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		acceptor.setContext(context);
 
 		acceptor.bind();
 	}
@@ -68,36 +62,30 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 	public static void main(String[] args) throws Exception {
 
-		IOEventHandleAdaptor eventHandleAdaptor = new IOEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(Session session, ReadFuture future) throws Exception {
 
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getText());
+				System.out.println("____________________"+f.getReadText());
 				System.out.println();
 			}
 		};
 		
-		SocketChannelConnector connector = new SocketChannelConnector();
-		
 		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
 
-		context.setIOEventHandleAdaptor(eventHandleAdaptor);
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSEListener());
 
-		context.addSessionEventListener(new SessionActiveSEListener());
-		
-		context.setBeatFutureFactory(new FLBeatFutureFactory());
-
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		connector.setContext(context);
 		
 		Session session = connector.connect();
 
-		ReadFuture future = new FixedLengthReadFutureImpl(context);
+		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 
 		future.write("hello server !");
 
