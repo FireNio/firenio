@@ -7,7 +7,7 @@ import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -28,7 +28,7 @@ public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
 		
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		if (future instanceof HttpReadFuture) {
 			super.accept(session, future);

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.FileReceiveUtil;
 import com.generallycloud.nio.extend.FileSendUtil;
 import com.generallycloud.nio.extend.RESMessage;
@@ -14,7 +14,7 @@ public class SYSTEMDownloadServlet extends BaseFutureAcceptorService {
 
 	public static final String	SERVICE_NAME	= SYSTEMDownloadServlet.class.getSimpleName();
 
-	public void doAccept(Session session, BaseReadFuture future) throws Exception {
+	public void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 
 		FileSendUtil fileSendUtil = new FileSendUtil();
 
@@ -29,7 +29,7 @@ public class SYSTEMDownloadServlet extends BaseFutureAcceptorService {
 
 	}
 
-	private void fileNotFound(Session session, BaseReadFuture future, String msg) throws IOException {
+	private void fileNotFound(SocketSession session, BaseReadFuture future, String msg) throws IOException {
 		RESMessage message = new RESMessage(404, msg);
 		future.write(message.toString());
 		session.flush(future);

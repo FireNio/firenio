@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.example.baseio;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
 public class TestGetPhoneNOServlet extends BaseFutureAcceptorService {
@@ -12,7 +12,7 @@ public class TestGetPhoneNOServlet extends BaseFutureAcceptorService {
 	
 	private int index = 0;
 
-	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 
 		String phone = NOS[index++];
 		

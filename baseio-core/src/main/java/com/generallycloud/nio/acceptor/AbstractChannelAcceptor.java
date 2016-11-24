@@ -3,24 +3,14 @@ package com.generallycloud.nio.acceptor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.util.Iterator;
-import java.util.Map;
 
-import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.protocol.ChannelReadFuture;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class AbstractChannelAcceptor extends AbstractChannelService  implements ChannelAcceptor{
 
@@ -47,50 +37,6 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 	}
 
 	protected abstract void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException;
-
-	public void broadcast(final ReadFuture future) {
-
-		offerSessionMEvent(new SessionMEvent() {
-
-			public void fire(BaseContext context, Map<Integer, Session> sessions) {
-				
-				Iterator<Session> ss = sessions.values().iterator();
-				
-				Session session = ss.next();
-				
-				if (sessions.size() == 1) {
-					
-					session.flush(future);
-					
-					return;
-				}
-				
-				ProtocolEncoder encoder = context.getProtocolEncoder();
-				
-				ByteBufAllocator allocator = UnpooledByteBufAllocator.getInstance();
-				
-				ChannelWriteFuture writeFuture;
-				try {
-					writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
-				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
-					return;
-				}
-				
-				for (; ss.hasNext();) {
-
-					Session s = ss.next();
-
-					ChannelWriteFuture copy = writeFuture.duplicate();
-
-					s.flush(copy);
-
-				}
-				
-				ReleaseUtil.release(writeFuture);
-			}
-		});
-	}
 
 	public boolean isActive() {
 		return active;

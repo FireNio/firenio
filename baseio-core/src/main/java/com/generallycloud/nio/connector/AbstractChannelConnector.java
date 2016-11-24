@@ -10,14 +10,11 @@ import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
-import com.generallycloud.nio.component.UnsafeSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
 
 	protected long			timeout		= 3000;
-	protected UnsafeSession		session;
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
 	
@@ -26,17 +23,17 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	}
 
 	public void close() throws IOException {
-		if (session == null) {
+		if (getSession() == null) {
 			physicalClose();
 			return;
 		}
-		CloseUtil.close(session);
+		CloseUtil.close(getSession());
 	}
 	
 	public void physicalClose() throws IOException {
 		
 		//FIXME always true
-		if (session.isInSelectorLoop()) {
+		if (getSession().isInSelectorLoop()) {
 			ThreadUtil.execute(new Runnable() {
 				
 				public void run() {
@@ -65,24 +62,15 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		
 		LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 		
-		this.session.fireOpend();
+		fireSessionOpend();
 	}
-
-	public Session connect() throws IOException {
-		
-		this.service();
-		
-		return getSession();
-	}
+	
+	protected abstract void fireSessionOpend();
 
 	protected abstract void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException;
 
-	public Session getSession() {
-		return session;
-	}
-
 	public boolean isConnected() {
-		return session != null && session.isOpened();
+		return getSession() != null && getSession().isOpened();
 	}
 
 	public boolean isActive() {

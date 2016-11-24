@@ -51,5 +51,7 @@ public interface Channel extends Closeable{
 	public abstract ReentrantLock getChannelLock() ;
 	
 	public abstract ByteBufAllocator getByteBufAllocator();
+
+	public abstract boolean isInSelectorLoop();
 	
 }

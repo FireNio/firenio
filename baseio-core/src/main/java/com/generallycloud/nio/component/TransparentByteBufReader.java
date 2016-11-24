@@ -18,7 +18,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
 	public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
 
-		UnsafeSession session = channel.getSession();
+		UnsafeSocketSession session = channel.getSession();
 
 		for (;;) {
 

@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.ReadFutureAcceptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
@@ -38,7 +38,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		this.serviceFilter = serviceFilter;
 	}
 
-	private boolean accept(Linkable<FutureAcceptorFilter> filter, Session session, ReadFuture future) {
+	private boolean accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
 
 		for (; filter != null;) {
 
@@ -71,7 +71,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		return true;
 	}
 
-	public void accept(Session session, ReadFuture future) throws IOException {
+	public void accept(SocketSession session, ReadFuture future) throws IOException {
 
 		try {
 
@@ -85,7 +85,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		}
 	}
 
-	private void acceptException(Session session, ReadFuture future, Throwable exception) throws IOException {
+	private void acceptException(SocketSession session, ReadFuture future, Throwable exception) throws IOException {
 
 		ErrorServlet servlet = new ErrorServlet(exception);
 

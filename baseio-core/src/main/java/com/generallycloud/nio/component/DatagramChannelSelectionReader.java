@@ -2,11 +2,12 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.DatagramPacket;
@@ -15,7 +16,7 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
 	private BaseContext		context;
 	private SelectorLoop	selectorLoop;
-	private ByteBuffer		cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private ByteBuf		cacheBuffer	= UnpooledByteBufAllocator.getInstance().allocate(DatagramPacket.PACKET_MAX);
 	private Logger			logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
 
 	public DatagramChannelSelectionReader(SelectorLoop selectorLoop) {
@@ -27,17 +28,17 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
 		BaseContext context = this.context;
 
-		ByteBuffer cacheBuffer = this.cacheBuffer;
+		ByteBuf cacheBuffer = this.cacheBuffer;
 
 		cacheBuffer.clear();
 
 		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
 
-		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(cacheBuffer);
+		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(cacheBuffer.nioBuffer());
 
 		DatagramChannelFactory factory = context.getDatagramChannelFactory();
 
-		DatagramPacket packet = new DatagramPacket(cacheBuffer, remoteSocketAddress);
+		DatagramPacket packet = new DatagramPacket(context,cacheBuffer, remoteSocketAddress);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
 

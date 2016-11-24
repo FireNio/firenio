@@ -4,7 +4,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IoEventHandle;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.HotDeploy;
 import com.generallycloud.nio.extend.Initializeable;
@@ -33,11 +33,11 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 		this.destroy(context, config);
 	}
 
-	public void futureSent(Session session, ReadFuture future) {
+	public void futureSent(SocketSession session, ReadFuture future) {
 
 	}
 	
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		logger.error(cause.getMessage(), cause);
 	}
 

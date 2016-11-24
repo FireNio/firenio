@@ -4,34 +4,34 @@ import java.io.IOException;
 
 import com.generallycloud.nio.AttributesImpl;
 import com.generallycloud.nio.common.UUIDGenerator;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
-	private long		createTime	= System.currentTimeMillis();
+	private long			createTime	= System.currentTimeMillis();
 
-	private Session	ioSession;
+	private SocketSession	ioSession;
 
-	private long		lastAccessTime;
+	private long			lastAccessTime;
 
-	private String		sessionID;
+	private String			sessionID;
 
-	private HttpContext	context;
+	private HttpContext		context;
 
-	protected DefaultHttpSession(HttpContext context, Session ioSession) {
+	protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
 		this.context = context;
 		this.ioSession = ioSession;
 		this.sessionID = UUIDGenerator.random().toString();
 	}
 
-	protected DefaultHttpSession(HttpContext context, Session ioSession, String sessionID) {
+	protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {
 		this.context = context;
 		this.ioSession = ioSession;
 		this.sessionID = sessionID;
 	}
 
-	public void active(Session ioSession) {
+	public void active(SocketSession ioSession) {
 		this.ioSession = ioSession;
 		this.lastAccessTime = System.currentTimeMillis();
 	}
@@ -44,7 +44,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 		return createTime;
 	}
 
-	public Session getIoSession() {
+	public SocketSession getIoSession() {
 		return ioSession;
 	}
 

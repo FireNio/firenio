@@ -10,7 +10,7 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 
 	private Logger logger = LoggerFactory.getLogger(AbstractReadFutureAcceptor.class);
 	
-	public void accept(final Session session, final ReadFuture future) throws Exception {
+	public void accept(final SocketSession session, final ReadFuture future) throws Exception {
 
 		ChannelReadFuture f = (ChannelReadFuture) future;
 		
@@ -32,9 +32,9 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 		accept(eventHandle, session, f);
 	}
 	
-	protected abstract void accept(IoEventHandle eventHandle,Session session, ChannelReadFuture future);
+	protected abstract void accept(IoEventHandle eventHandle,SocketSession session, ChannelReadFuture future);
 	
-	private void acceptHeartBeat(final Session session, final ChannelReadFuture future) {
+	private void acceptHeartBeat(final SocketSession session, final ChannelReadFuture future) {
 
 		if (future.isPING()) {
 

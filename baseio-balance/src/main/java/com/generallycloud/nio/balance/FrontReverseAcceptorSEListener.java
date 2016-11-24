@@ -2,9 +2,8 @@ package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class FrontReverseAcceptorSEListener extends SEListenerAdapter {
 
@@ -16,12 +15,12 @@ public class FrontReverseAcceptorSEListener extends SEListenerAdapter {
 		this.context = context;
 	}
 
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		logger.info("负载服务器来自 " + session + " 已建立连接.");
 		context.getFrontRouter().addRouterSession((SocketSession) session);
 	}
 
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		logger.info("负载服务器来自 " + session + " 已断开连接.");
 		context.getFrontRouter().removeRouterSession((SocketSession) session);
 	}

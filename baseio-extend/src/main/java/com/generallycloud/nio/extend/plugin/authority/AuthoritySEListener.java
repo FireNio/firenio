@@ -1,13 +1,13 @@
 package com.generallycloud.nio.extend.plugin.authority;
 
 import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.security.Authority;
 
 public class AuthoritySEListener extends SEListenerAdapter {
 	
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		
 		AuthorityContext context = AuthorityContext.getInstance();
 		
@@ -22,7 +22,7 @@ public class AuthoritySEListener extends SEListenerAdapter {
 
 	}
 
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		
 		Authority authority = ApplicationContextUtil.getAuthority(session);
 		

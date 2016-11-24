@@ -1,13 +1,13 @@
 package com.generallycloud.nio.extend.plugin.rtp.server;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.DatagramChannel;
+import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
@@ -45,12 +45,12 @@ public class RTPRoom {
 				continue;
 			}
 
-			ByteBuffer buffer = packet.getSource();
+			ByteBuf buf = packet.getSource();
 
-			buffer.flip();
+			buf.flip();
 
 			try {
-				ch.sendPacket(buffer);
+				ch.sendPacket(buf);
 			} catch (Throwable e) {
 				logger.debug(e);
 			}

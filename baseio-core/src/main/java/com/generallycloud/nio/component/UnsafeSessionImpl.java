@@ -13,7 +13,7 @@ import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class UnsafeSessionImpl extends SocketChannelSessionImpl implements UnsafeSession {
+public class UnsafeSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
 
 	private static final Logger	logger	= LoggerFactory.getLogger(UnsafeSessionImpl.class);
 

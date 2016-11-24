@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.service;
 
 import com.generallycloud.nio.component.IoEventHandle;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.HotDeploy;
 import com.generallycloud.nio.extend.Initializeable;
@@ -22,11 +22,11 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 		
 	}
 	
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 		this.accept(session, (NamedReadFuture)future);
 	}
 	
-	protected abstract void accept(Session session, NamedReadFuture future) throws Exception;
+	protected abstract void accept(SocketSession session, NamedReadFuture future) throws Exception;
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 		this.initialize(context, config);
@@ -36,11 +36,11 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 		this.destroy(context, config);
 	}
 	
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		
 	}
 
-	public void futureSent(Session session, ReadFuture future) {
+	public void futureSent(SocketSession session, ReadFuture future) {
 		
 	}
 

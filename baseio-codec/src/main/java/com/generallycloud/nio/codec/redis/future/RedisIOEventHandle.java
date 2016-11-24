@@ -1,7 +1,7 @@
 package com.generallycloud.nio.codec.redis.future;
 
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -9,7 +9,7 @@ public class RedisIOEventHandle extends IoEventHandleAdaptor{
 	
 	private Waiter<RedisNode> waiter;
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 		
 		RedisReadFuture f = (RedisReadFuture) future;
 		

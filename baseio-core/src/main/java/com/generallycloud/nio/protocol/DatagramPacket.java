@@ -1,10 +1,11 @@
 package com.generallycloud.nio.protocol;
 
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
+import com.generallycloud.nio.component.BaseContext;
 
 /**
  * 
@@ -15,7 +16,7 @@ import com.generallycloud.nio.common.MathUtil;
  * </pre>
  * 
  */
-public class DatagramPacket {
+public class DatagramPacket extends AbstractReadFuture implements DatagramReadFuture{
 
 	public static final int		PACKET_HEADER		= 8 + 4;
 	public static final int		IP_HEADER		= 20;
@@ -30,24 +31,27 @@ public class DatagramPacket {
 //	private byte				protocolType		= TRANS;
 	private int				sequenceNo		= -1;			// 4 byte
 	private long				timestamp			= -1;			// 8 byte
-	private ByteBuffer			source			;
+	private ByteBuf			source			;
 	private String				dataString		;
 	private int				sourceLength		;
 	private InetSocketAddress	remoteSocketAddress	;
 
-	public DatagramPacket(ByteBuffer buffer,InetSocketAddress remoteSocketAddress) {
-		this.source = buffer;
-		this.sourceLength = buffer.position();
+	public DatagramPacket(BaseContext context,ByteBuf buf,InetSocketAddress remoteSocketAddress) {
+		super(context);
+		this.source = buf;
+		this.sourceLength = buf.position();
 		this.remoteSocketAddress = remoteSocketAddress;
 	}
 
-	protected DatagramPacket(long timestamp, int sequenceNO, byte[] data) {
+	protected DatagramPacket(BaseContext context,long timestamp, int sequenceNO, byte[] data) {
+		super(context);
 		this.timestamp = timestamp;
 		this.sequenceNo = sequenceNO;
 		this.data = data;
 	}
 
-	public DatagramPacket(byte[] data) {
+	public DatagramPacket(BaseContext context,byte[] data) {
+		super(context);
 		this.data = data;
 	}
 
@@ -100,10 +104,20 @@ public class DatagramPacket {
 		return remoteSocketAddress;
 	}
 
-	public ByteBuffer getSource() {
+	public ByteBuf getSource() {
 		return source;
 	}
 	
+	public void release() {
+		
+	}
+	
+	@Override
+	public DatagramReadFuture newDatagramReadFuture() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public String toString() {
 		
 		return new StringBuilder("[data:")

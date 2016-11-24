@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.example.baseio;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
 public class TestSimpleServlet extends BaseFutureAcceptorService{
@@ -15,7 +15,7 @@ public class TestSimpleServlet extends BaseFutureAcceptorService{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 
 //		accept.getAndIncrement();
 		

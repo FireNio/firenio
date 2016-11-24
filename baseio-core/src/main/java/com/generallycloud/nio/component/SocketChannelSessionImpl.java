@@ -2,12 +2,14 @@ package com.generallycloud.nio.component;
 
 import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.Waiter;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -21,13 +23,27 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	protected Waiter<Exception>	handshakeWaiter;
 	protected SSLEngine			sslEngine;
 	protected SslHandler		sslHandler;
+	protected SocketChannel		channel;
 
 	public SocketChannelSessionImpl(SocketChannel channel,Integer sessionID) {
-		super(channel, sessionID);
+		super(channel.getContext(), sessionID);
+		this.channel = channel;
 		if (context.isEnableSSL()) {
 			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
 		}
+	}
+	
+	protected Channel getChannel() {
+		return channel;
+	}
+	
+	public ProtocolEncoder getProtocolEncoder() {
+		return channel.getProtocolEncoder();
+	}
+
+	public String getProtocolID() {
+		return channel.getProtocolFactory().getProtocolID();
 	}
 
 	public void finishHandshake(Exception e) {
@@ -39,6 +55,61 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	public boolean isEnableSSL() {
 		return context.isEnableSSL();
+	}
+	
+	private void exceptionCaught(IoEventHandle handle,ReadFuture future, Exception cause, IoEventState state){
+		try {
+			handle.exceptionCaught(this, future, cause, state);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		}
+	}
+	
+	public boolean isBlocking() {
+		return channel.isBlocking();
+	}
+	
+	public void flush(ReadFuture future) {
+
+		if (future == null || future.flushed()) {
+			return;
+		}
+
+		SocketChannel socketChannel = this.channel;
+
+		if (!socketChannel.isOpened()) {
+
+			IoEventHandle handle = future.getIOEventHandle();
+			
+			exceptionCaught(handle, future, new DisconnectException("disconnected"), IoEventState.WRITE);
+
+			return;
+		}
+
+		ChannelWriteFuture writeFuture = null;
+
+		try {
+
+			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
+
+			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
+
+			writeFuture = encoder.encode(getByteBufAllocator(), ioReadFuture);
+
+			ioReadFuture.flush();
+
+			flush(writeFuture);
+
+		} catch (Exception e) {
+
+			ReleaseUtil.release(writeFuture);
+
+			logger.debug(e.getMessage(), e);
+
+			IoEventHandle handle = future.getIOEventHandle();
+
+			exceptionCaught(handle, future, e, IoEventState.WRITE);
+		}
 	}
 
 	public void flush(ChannelWriteFuture future) {

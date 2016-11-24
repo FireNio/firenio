@@ -9,7 +9,7 @@ public class SessionActiveSEListener extends SEListenerAdapter {
 
 	private Logger		logger	= LoggerFactory.getLogger(SessionActiveSEListener.class);
 
-	public void sessionIdled(Session session, long lastIdleTime, long currentTime) {
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 
 		if (session.getLastAccessTime() < lastIdleTime) {
 

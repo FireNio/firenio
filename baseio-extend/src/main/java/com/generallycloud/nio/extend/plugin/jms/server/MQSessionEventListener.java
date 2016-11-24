@@ -3,13 +3,13 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class MQSessionEventListener extends SEListenerAdapter {
 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
 
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		
 		MQContext context = MQContext.getInstance();
 
@@ -24,7 +24,7 @@ public class MQSessionEventListener extends SEListenerAdapter {
 	}
 
 	// FIXME 移除该session上的consumer
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		
 		MQContext context = MQContext.getInstance();
 

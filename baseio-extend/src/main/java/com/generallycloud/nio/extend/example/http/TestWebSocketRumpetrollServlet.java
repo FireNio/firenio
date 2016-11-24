@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -32,7 +32,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 		msgAdapter.addClient(session.getIoSession());
 
-		Session ioSession = session.getIoSession();
+		SocketSession ioSession = session.getIoSession();
 
 		JSONObject o = new JSONObject();
 		o.put("type", "welcome");
@@ -45,7 +45,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		session.flush(f);
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		if (future instanceof HttpReadFuture) {
 			super.accept(session, future);
@@ -98,7 +98,7 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 		}
 	}
 
-	private String getAddress(Session session) {
+	private String getAddress(SocketSession session) {
 
 		String address = (String) session.getAttribute("_remote_address");
 

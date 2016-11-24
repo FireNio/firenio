@@ -11,7 +11,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
 	public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
 
-		UnsafeSession session = channel.getSession();
+		UnsafeSocketSession session = channel.getSession();
 
 		for (;;) {
 

@@ -1,14 +1,14 @@
 package com.generallycloud.nio.extend.plugin.jms.server;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.RESMessage;
 
 public class MQTransactionServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQTransactionServlet.class.getSimpleName();
 
-	public void doAccept(Session session, BaseReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		String action = future.getReadText();
 

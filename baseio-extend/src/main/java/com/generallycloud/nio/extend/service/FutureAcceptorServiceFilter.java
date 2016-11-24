@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.RESMessage;
@@ -25,7 +25,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
-	protected void accept(Session session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 
 		String serviceName = future.getFutureName();
 
@@ -39,7 +39,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		}
 	}
 
-	private void accept(String serviceName, Session session, NamedReadFuture future) throws Exception {
+	private void accept(String serviceName, SocketSession session, NamedReadFuture future) throws Exception {
 
 		FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
 
@@ -57,7 +57,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 	
 	
 
-	protected void accept404(Session session, NamedReadFuture future, String serviceName) throws IOException {
+	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
 		if (!(future instanceof TextReadFuture)) {
 			return;
@@ -70,7 +70,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		flush(session, (TextReadFuture) future, message);
 	}
 
-	private void flush(Session session, TextReadFuture future, RESMessage message) throws IOException {
+	private void flush(SocketSession session, TextReadFuture future, RESMessage message) throws IOException {
 
 		future.setIOEventHandle(this);
 

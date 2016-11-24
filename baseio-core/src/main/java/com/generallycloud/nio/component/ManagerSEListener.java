@@ -3,7 +3,7 @@ package com.generallycloud.nio.component;
 
 public class ManagerSEListener extends SEListenerAdapter{
 	
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 
 		BaseContext context = session.getContext();
 		
@@ -12,7 +12,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 		manager.putSession(session);
 	}
 
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		
 		BaseContext context = session.getContext();
 		

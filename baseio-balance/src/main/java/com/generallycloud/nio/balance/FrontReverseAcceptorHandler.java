@@ -13,7 +13,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -40,13 +40,13 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 		acceptor.offerSessionMEvent(new SessionMEvent() {
 
-			public void fire(BaseContext context, Map<Integer, Session> sessions) {
+			public void fire(BaseContext context, Map<Integer, SocketSession> sessions) {
 
 				BalanceReadFuture f = future.translate();
 				
-				Iterator<Session> ss = sessions.values().iterator();
+				Iterator<SocketSession> ss = sessions.values().iterator();
 				
-				Session session = ss.next();
+				SocketSession session = ss.next();
 				
 				if (sessions.size() == 1) {
 					
@@ -69,7 +69,7 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 				for (; ss.hasNext();) {
 
-					SocketSession s = (SocketSession) ss.next();
+					SocketSession s = ss.next();
 
 					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) == null) {
 
@@ -93,7 +93,7 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 		});
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
 
@@ -131,7 +131,7 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", sessionID, f);
 	}
 
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		
 		String msg = future.toString();
 		

@@ -4,7 +4,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.FutureAcceptor;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -18,7 +18,7 @@ public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 		this.applicationContext = applicationContext;
 	}
 
-	public void accept(Session session, ReadFuture future) {
+	public void accept(SocketSession session, ReadFuture future) {
 
 		try {
 

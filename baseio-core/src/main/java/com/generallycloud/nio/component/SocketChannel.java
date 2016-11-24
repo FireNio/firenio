@@ -59,7 +59,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract boolean needFlush();
 	
-	public abstract UnsafeSession getSession();
+	public abstract UnsafeSocketSession getSession();
 	
 	public abstract void fireEvent(SelectorLoopEvent event);
 }

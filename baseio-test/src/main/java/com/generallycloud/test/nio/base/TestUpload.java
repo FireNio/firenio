@@ -7,7 +7,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FileSendUtil;
 import com.generallycloud.nio.extend.example.baseio.TestUploadServlet;
@@ -26,7 +26,7 @@ public class TestUpload {
 
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println();
 				System.out.println(f.getReadText());
@@ -36,7 +36,7 @@ public class TestUpload {
 				
 			}
 
-			public void futureSent(Session session, ReadFuture future) {
+			public void futureSent(SocketSession session, ReadFuture future) {
 				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println("报文已发送："+f.getReadText());
 			}
@@ -46,7 +46,7 @@ public class TestUpload {
 		
 		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
 
-		Session session = connector.connect();
+		SocketSession session = connector.connect();
 		
 		String fileName = "lantern-installer-beta.exe";
 		

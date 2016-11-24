@@ -1,14 +1,14 @@
 package com.generallycloud.nio.extend.implementation;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
 public class SYSTEMShowMemoryServlet extends BaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = SYSTEMShowMemoryServlet.class.getSimpleName();
 
-	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 		
 		int M = 1024 * 1024;
 		Runtime runtime = Runtime.getRuntime();

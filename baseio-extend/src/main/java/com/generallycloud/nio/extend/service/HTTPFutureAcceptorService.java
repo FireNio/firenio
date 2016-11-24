@@ -5,7 +5,7 @@ import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.HttpSessionManager;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.HttpStatus;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.nio.protocol.TextReadFuture;
 
@@ -13,7 +13,7 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 	
 	private HttpContext		context	= HttpContext.getInstance();
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		HttpSessionManager manager = context.getHttpSessionManager();
 
@@ -26,7 +26,7 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 
 	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
 
-	public void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		
 		if (state == IoEventState.HANDLE) {
 			

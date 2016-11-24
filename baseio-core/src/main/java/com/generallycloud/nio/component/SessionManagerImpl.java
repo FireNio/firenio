@@ -21,7 +21,7 @@ public class SessionManagerImpl implements SessionManager {
 	private long						current_idle_time	= 0;
 	private long						last_idle_time		= 0;
 	private long						next_idle_time		= System.currentTimeMillis();
-	private ReentrantMap<Integer, Session>	sessions			= new ReentrantMap<Integer, Session>();
+	private ReentrantMap<Integer, SocketSession>	sessions			= new ReentrantMap<Integer, SocketSession>();
 	private ListQueue<SessionMEvent>		events			= new ListQueueABQ<SessionMEvent>(512);
 	private Logger						logger			= LoggerFactory.getLogger(SessionManagerImpl.class);
 
@@ -29,11 +29,11 @@ public class SessionManagerImpl implements SessionManager {
 		this.context = context;
 	}
 
-	public void putSession(Session session) {
+	public void putSession(SocketSession session) {
 
 		Integer sessionID = session.getSessionID();
 
-		Session old = sessions.get(sessionID);
+		SocketSession old = sessions.get(sessionID);
 
 		if (old != null) {
 			CloseUtil.close(old);
@@ -47,7 +47,7 @@ public class SessionManagerImpl implements SessionManager {
 
 		SessionMEvent event = events.poll();
 
-		Map<Integer, Session> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.getSnapshot();
 
 		if (map.size() == 0) {
 			return;
@@ -73,18 +73,18 @@ public class SessionManagerImpl implements SessionManager {
 
 		this.next_idle_time = current_idle_time + context.getSessionIdleTime();
 
-		Set<Entry<Integer, Session>> es = map.entrySet();
+		Set<Entry<Integer, SocketSession>> es = map.entrySet();
 
-		for (Entry<Integer, Session> e : es) {
+		for (Entry<Integer, SocketSession> e : es) {
 
-			Session s = e.getValue();
+			SocketSession s = e.getValue();
 
 			sessionIdle(context, s, last_idle_time, current_time);
 		}
 	}
 
 	// FIXME 优化这个方法
-	private void sessionIdle(BaseContext context, Session session, long lastIdleTime, long currentTime) {
+	private void sessionIdle(BaseContext context, SocketSession session, long lastIdleTime, long currentTime) {
 
 		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 
@@ -101,12 +101,12 @@ public class SessionManagerImpl implements SessionManager {
 		}
 	}
 
-	public Session getSession(Integer sessionID) {
+	public SocketSession getSession(Integer sessionID) {
 
 		return sessions.get(sessionID);
 	}
 
-	public void removeSession(Session session) {
+	public void removeSession(SocketSession session) {
 
 		sessions.remove(session.getSessionID());
 	}
@@ -122,15 +122,15 @@ public class SessionManagerImpl implements SessionManager {
 
 	public void close() throws IOException {
 		
-		Map<Integer, Session> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.getSnapshot();
 
 		if (map.size() == 0) {
 			return;
 		}
 		
-		Collection<Session> es = map.values();
+		Collection<SocketSession> es = map.values();
 		
-		for(Session session : es){
+		for(SocketSession session : es){
 			
 			CloseUtil.close(session);
 		}

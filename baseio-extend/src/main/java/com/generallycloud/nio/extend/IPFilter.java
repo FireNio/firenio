@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class IPFilter extends SEListenerAdapter{
 
@@ -14,11 +14,10 @@ public class IPFilter extends SEListenerAdapter{
 		this.blackIPs = blackIPs;
 	}
 
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		if (!blackIPs.contains(session.getRemoteAddr())) {
 			CloseUtil.close(session);
 		}
-		super.sessionOpened(session);
 	}
 	
 }

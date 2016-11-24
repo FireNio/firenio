@@ -2,14 +2,14 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.DatagramChannel;
 
 public class RTPJoinRoomServlet extends RTPServlet {
 
 	public static final String	SERVICE_NAME	= RTPJoinRoomServlet.class.getSimpleName();
 
-	public void doAccept(Session session, BaseReadFuture future, RTPSessionAttachment attachment) throws Exception {
+	public void doAccept(SocketSession session, BaseReadFuture future, RTPSessionAttachment attachment) throws Exception {
 
 		RTPContext context = getRTPContext();
 

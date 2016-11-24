@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend.implementation;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.RESMessage;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
@@ -11,7 +11,7 @@ public class ErrorServlet extends BaseFutureAcceptorService{
 		this.exception = exception;
 	}
 
-	protected void doAccept(Session session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 //		String stack = DebugUtil.exception2string(exception);
 //		RESMessage message = new RESMessage(500, stack);
 		RESMessage res = new RESMessage(500, exception.getMessage());

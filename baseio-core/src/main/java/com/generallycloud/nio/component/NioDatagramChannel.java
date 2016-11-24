@@ -5,11 +5,11 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
@@ -19,17 +19,19 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
 	private DatagramSocket		socket;
-	private DatagramSession		session;
+	private UnsafeDatagramSession	session; //FIXME new 
 
 	public NioDatagramChannel(SelectorLoop selectorLoop, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
-		super(selectorLoop.getContext(),selectorLoop.getByteBufAllocator());
+		super(selectorLoop.getContext(), selectorLoop.getByteBufAllocator());
 		this.channel = channel;
 		this.remote = remote;
 		this.socket = channel.socket();
 		if (socket == null) {
 			throw new SocketException("null socket");
 		}
+		
+		session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
 	}
 
 	public void close() throws IOException {
@@ -68,18 +70,18 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		return remote;
 	}
 
-	public DatagramSession getSession() {
+	public UnsafeDatagramSession getSession() {
 		return session;
 	}
 
-	public void sendPacket(ByteBuffer buffer) throws IOException {
+	public void sendPacket(ByteBuf buf) throws IOException {
 
-		channel.send(buffer, getRemoteSocketAddress());
+		channel.send(buf.nioBuffer(), getRemoteSocketAddress());
 	}
 
-	public void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
+	public void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
 
-		channel.send(buffer, socketAddress);
+		channel.send(buf.nioBuffer(), socketAddress);
 	}
 
 	public boolean isOpened() {

@@ -10,7 +10,7 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.AbstractLooper;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 public class HttpSessionManager extends AbstractLooper{
@@ -27,7 +27,7 @@ public class HttpSessionManager extends AbstractLooper{
 		sessions.remove(sessionID);
 	}
 	
-	public HttpSession getHttpSession(HttpContext context,Session ioSession, HttpReadFuture future){
+	public HttpSession getHttpSession(HttpContext context,SocketSession ioSession, HttpReadFuture future){
 		
 		String sessionID = future.getCookie(COOKIE_NAME_SESSIONID);
 		

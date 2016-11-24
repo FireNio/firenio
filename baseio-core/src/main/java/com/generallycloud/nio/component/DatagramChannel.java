@@ -2,14 +2,15 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
+
+import com.generallycloud.nio.buffer.ByteBuf;
 
 public interface DatagramChannel extends Channel {
 
-	public abstract void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException;
+	public abstract void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException;
 
-	public abstract void sendPacket(ByteBuffer buffer) throws IOException;
+	public abstract void sendPacket(ByteBuf buf) throws IOException;
 	
-	public abstract DatagramSession getSession();
+	public abstract UnsafeDatagramSession getSession();
 
 }

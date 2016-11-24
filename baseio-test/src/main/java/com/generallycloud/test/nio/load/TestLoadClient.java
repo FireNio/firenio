@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
@@ -34,7 +34,7 @@ public class TestLoadClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				latch.countDown();
 				long count = latch.getCount();
 //				if (count % 10 == 0) {
@@ -45,7 +45,7 @@ public class TestLoadClient {
 //				logger.info("res==========={}",res.getAndIncrement());
 			}
 			
-			public void futureSent(Session session, ReadFuture future) {
+			public void futureSent(SocketSession session, ReadFuture future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());
 //				System.out.println("req======================"+req.getAndIncrement());
@@ -59,7 +59,7 @@ public class TestLoadClient {
 		
 		connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
 
-		Session session = connector.connect();
+		SocketSession session = connector.connect();
 
 		System.out.println("################## Test start ####################");
 

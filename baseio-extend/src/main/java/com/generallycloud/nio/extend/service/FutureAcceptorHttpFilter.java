@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -34,7 +34,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private Map<String, HttpEntity>	html_cache	= new HashMap<String, HttpEntity>();
 
-	protected void accept404(Session session, NamedReadFuture future, String serviceName) throws IOException {
+	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
 		String _service_name = serviceName;
 
@@ -61,7 +61,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				reloadEntity(entity, session.getContext());
 			}
 		}
-
+		
 		session.flush(entity.future.duplicate(future));
 	}
 	

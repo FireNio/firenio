@@ -5,95 +5,33 @@ import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.ChannelReadFuture;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class SessionImpl implements Session {
-
-	private static final Logger		logger		= LoggerFactory.getLogger(SessionImpl.class);
 
 	protected Object					attachment;
 	protected Object[]					attachments;
 	protected BaseContext				context;
 	protected Integer					sessionID;
 	protected EventLoop				eventLoop;
-	protected SocketChannel				channel;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
-	public SessionImpl(SocketChannel channel,Integer sessionID) {
-		this.context = channel.getContext();
-		this.channel = channel;
+	public SessionImpl(BaseContext context,Integer sessionID) {
+		this.context = context;
 		this.sessionID = sessionID;
 		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
+	
+	protected abstract Channel getChannel();
 
 	public void active() {
-		channel.active();
+		getChannel().active();
 	}
 
 	public void clearAttributes() {
 		attributes.clear();
-	}
-
-	public void flush(ReadFuture future) {
-
-		if (future == null || future.flushed()) {
-			return;
-		}
-
-		SocketChannel socketChannel = this.channel;
-
-		if (!socketChannel.isOpened()) {
-
-			IoEventHandle handle = future.getIOEventHandle();
-			
-			exceptionCaught(handle, future, new DisconnectException("disconnected"), IoEventState.WRITE);
-
-			return;
-		}
-
-		ChannelWriteFuture writeFuture = null;
-
-		try {
-
-			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
-
-			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
-
-			writeFuture = encoder.encode(getByteBufAllocator(), ioReadFuture);
-
-			ioReadFuture.flush();
-
-			flush(writeFuture);
-
-		} catch (Exception e) {
-
-			ReleaseUtil.release(writeFuture);
-
-			logger.debug(e.getMessage(), e);
-
-			IoEventHandle handle = future.getIOEventHandle();
-
-			exceptionCaught(handle, future, e, IoEventState.WRITE);
-		}
-	}
-	
-	private void exceptionCaught(IoEventHandle handle,ReadFuture future, Exception cause, IoEventState state){
-		try {
-			handle.exceptionCaught(this, future, cause, state);
-		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
 	}
 
 	public Object getAttachment() {
@@ -120,7 +58,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getCreationTime() {
-		return channel.getCreationTime();
+		return getChannel().getCreationTime();
 	}
 
 	public Charset getEncoding() {
@@ -132,59 +70,47 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public long getLastAccessTime() {
-		return channel.getLastAccessTime();
+		return getChannel().getLastAccessTime();
 	}
 
 	public String getLocalAddr() {
-		return channel.getLocalAddr();
+		return getChannel().getLocalAddr();
 	}
 
 	public String getLocalHost() {
-		return channel.getLocalHost();
+		return getChannel().getLocalHost();
 	}
 
 	public int getLocalPort() {
-		return channel.getLocalPort();
+		return getChannel().getLocalPort();
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
-		return channel.getLocalSocketAddress();
+		return getChannel().getLocalSocketAddress();
 	}
 
 	public int getMaxIdleTime() throws SocketException {
-		return channel.getMaxIdleTime();
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return channel.getProtocolEncoder();
-	}
-
-	public String getProtocolID() {
-		return channel.getProtocolFactory().getProtocolID();
+		return getChannel().getMaxIdleTime();
 	}
 
 	public String getRemoteAddr() {
-		return channel.getRemoteAddr();
+		return getChannel().getRemoteAddr();
 	}
 
 	public String getRemoteHost() {
-		return channel.getRemoteHost();
+		return getChannel().getRemoteHost();
 	}
 
 	public int getRemotePort() {
-		return channel.getRemotePort();
+		return getChannel().getRemotePort();
 	}
 
 	public InetSocketAddress getRemoteSocketAddress() {
-		return channel.getRemoteSocketAddress();
+		return getChannel().getRemoteSocketAddress();
 	}
 
 	public Integer getSessionID() {
 		return sessionID;
-	}
-
-	public boolean isBlocking() {
-		return channel.isBlocking();
 	}
 
 	public boolean isClosed() {
@@ -192,7 +118,7 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public boolean isOpened() {
-		return channel.isOpened();
+		return getChannel().isOpened();
 	}
 
 	public Object removeAttribute(Object key) {
@@ -219,19 +145,19 @@ public abstract class SessionImpl implements Session {
 	}
 
 	public String toString() {
-		return channel.toString();
+		return getChannel().toString();
 	}
 
 	public ByteBufAllocator getByteBufAllocator() {
-		return channel.getByteBufAllocator();
+		return getChannel().getByteBufAllocator();
 	}
 
 	public boolean isInSelectorLoop() {
-		return channel.isInSelectorLoop();
+		return getChannel().isInSelectorLoop();
 	}
 	
 	public void close() {
-		CloseUtil.close(channel);
+		CloseUtil.close(getChannel());
 	}
 	
 }

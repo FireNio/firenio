@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
 public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
@@ -15,7 +15,7 @@ public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
-	public void doAccept(Session session, BaseReadFuture future) throws Exception {
+	public void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 		
 		BaseContext context = session.getContext();
 		

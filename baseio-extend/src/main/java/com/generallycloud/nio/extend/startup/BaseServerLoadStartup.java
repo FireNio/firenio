@@ -8,7 +8,7 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -21,7 +21,7 @@ public class BaseServerLoadStartup {
 		
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				BaseReadFuture f = (BaseReadFuture)future;
 				f.write("yes server already accept your message");
 				f.write(f.getReadText());

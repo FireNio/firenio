@@ -2,12 +2,12 @@ package com.generallycloud.nio.codec.redis.future;
 
 import com.generallycloud.nio.codec.redis.future.RedisReadFuture.RedisCommand;
 import com.generallycloud.nio.component.BeatFutureFactory;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class RedisBeatFutureFactory implements BeatFutureFactory{
 
-	public ReadFuture createPINGPacket(Session session) {
+	public ReadFuture createPINGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
 		
@@ -18,7 +18,7 @@ public class RedisBeatFutureFactory implements BeatFutureFactory{
 		return f;
 	}
 
-	public ReadFuture createPONGPacket(Session session) {
+	public ReadFuture createPONGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
 		

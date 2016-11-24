@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -26,7 +26,7 @@ public class TestSimpleWebSocketClient {
 
 		IoEventHandleAdaptor adaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				if (future instanceof ClientHttpReadFuture) {
 					ClientHttpReadFuture f = (ClientHttpReadFuture) future;
 					if (f.getRequestHeader("Sec-WebSocket-Accept") != null) {
@@ -59,7 +59,7 @@ public class TestSimpleWebSocketClient {
 //		configuration.setSERVER_PORT(30005);
 //		configuration.setSERVER_PORT(29000);
 //		configuration.setSERVER_PORT(8280);
-		Session session = connector.connect();
+		SocketSession session = connector.connect();
 		String url = "/web-socket-chat";
 //		 url = "/";
 		HttpReadFuture future = new WebSocketUpgradeRequestFuture(session.getContext(),url);

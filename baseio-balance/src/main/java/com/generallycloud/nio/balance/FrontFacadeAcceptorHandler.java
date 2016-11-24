@@ -4,7 +4,7 @@ import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -18,7 +18,7 @@ public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 		this.frontRouter = context.getFrontRouter();
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		BalanceReadFuture f = (BalanceReadFuture) future;
 

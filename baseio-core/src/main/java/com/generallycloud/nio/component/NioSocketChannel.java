@@ -30,7 +30,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	private Socket						socket;
 	private SocketChannel				channel;
-	private UnsafeSession				session;
+	private UnsafeSocketSession				session;
 	private ChannelReadFuture			readFuture;
 	private SslReadFuture				sslReadFuture;
 	private SelectionKey				selectionKey;
@@ -38,7 +38,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolDecoder				protocolDecoder;
 	private ProtocolEncoder				protocolEncoder;
 	private ProtocolFactory				protocolFactory;
-	private SelectorLoop				selectorLoop;
 	private ChannelWriteFuture			writeFuture;
 	private boolean					opened			= true;
 	private boolean					closing			= false;
@@ -181,7 +180,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return remote;
 	}
 
-	public UnsafeSession getSession() {
+	public UnsafeSocketSession getSession() {
 		return session;
 	}
 
@@ -262,7 +261,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		ChannelWriteFuture f = writeFutures.poll();
 
-		UnsafeSession session = this.session;
+		UnsafeSocketSession session = this.session;
 
 		if (e == null) {
 			e = new ClosedChannelException(session.toString());
@@ -402,8 +401,5 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.selectorLoop.fireEvent(event);
 	}
 
-	public boolean isInSelectorLoop() {
-		return Thread.currentThread() == selectorLoop.getMonitor();
-	}
 
 }

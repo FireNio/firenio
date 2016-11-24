@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.DateUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -27,7 +27,7 @@ public class TestFrontClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
 				BaseReadFuture f = (BaseReadFuture)future;
 				
@@ -47,7 +47,7 @@ public class TestFrontClient {
 		
 		connector.connect();
 
-		Session session = connector.getSession();
+		SocketSession session = connector.getSession();
 		
 		for (int i = 0; i < 100; i++) {
 

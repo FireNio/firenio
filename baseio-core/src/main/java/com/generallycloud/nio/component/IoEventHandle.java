@@ -8,7 +8,7 @@ public interface IoEventHandle extends ReadFutureAcceptor {
 		READ, HANDLE, WRITE
 	}
 
-	public abstract void exceptionCaught(Session session, ReadFuture future, Exception cause, IoEventState state);
+	public abstract void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state);
 
-	public abstract void futureSent(Session session, ReadFuture future);
+	public abstract void futureSent(SocketSession session, ReadFuture future);
 }

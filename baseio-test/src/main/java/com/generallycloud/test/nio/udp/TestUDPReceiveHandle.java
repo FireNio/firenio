@@ -4,6 +4,7 @@ import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.extend.plugin.jms.MapMessage;
 import com.generallycloud.nio.extend.plugin.rtp.RTPException;
 import com.generallycloud.nio.extend.plugin.rtp.client.RTPClient;
@@ -32,6 +33,8 @@ public class TestUDPReceiveHandle extends RTPHandle {
 	}
 
 	public void onInvite(RTPClient client, MapMessage message) {
+		
+		BaseContext context = client.getContext();
 
 		int markInterval = 5;
 
@@ -39,7 +42,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 		
 		String inviteUsername = message.getParameter("inviteUsername");
 		
-		DatagramPacketFactory factory = new DatagramPacketFactory(markInterval);
+		DatagramPacketFactory factory = new DatagramPacketFactory(context,markInterval);
 
 		long currentMark = factory.getCalculagraph().getAlphaTimestamp();
 
@@ -78,6 +81,8 @@ public class TestUDPReceiveHandle extends RTPHandle {
 	}
 
 	public void onInviteReplyed(RTPClient client, MapMessage message) {
+		
+		BaseContext context = client.getContext();
 
 		int markInterval = message.getIntegerParameter(RTPClient.MARK_INTERVAL);
 
@@ -87,7 +92,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
 		logger.debug("___________onInviteReplyed:{},{},{}", new Object[] { markInterval, currentMark, groupSize });
 
-		DatagramPacketFactory factory = new DatagramPacketFactory(markInterval, currentMark);
+		DatagramPacketFactory factory = new DatagramPacketFactory(context,markInterval, currentMark);
 
 		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
 

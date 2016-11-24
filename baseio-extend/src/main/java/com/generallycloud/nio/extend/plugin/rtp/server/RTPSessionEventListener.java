@@ -1,11 +1,11 @@
 package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import com.generallycloud.nio.component.SEListenerAdapter;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class RTPSessionEventListener extends SEListenerAdapter {
 	
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		
 		RTPContext context = RTPContext.getInstance();
 		
@@ -20,7 +20,7 @@ public class RTPSessionEventListener extends SEListenerAdapter {
 
 	}
 
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		
 		RTPContext context = RTPContext.getInstance();
 		

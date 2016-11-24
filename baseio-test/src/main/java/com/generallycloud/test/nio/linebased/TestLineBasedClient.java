@@ -10,7 +10,7 @@ import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -21,7 +21,7 @@ public class TestLineBasedClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 				LineBasedReadFuture f = (LineBasedReadFuture) future;
 				System.out.println();
@@ -40,7 +40,7 @@ public class TestLineBasedClient {
 
 		context.setProtocolFactory(new LineBasedProtocolFactory());
 		
-		Session session = connector.connect();
+		SocketSession session = connector.connect();
 
 		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 

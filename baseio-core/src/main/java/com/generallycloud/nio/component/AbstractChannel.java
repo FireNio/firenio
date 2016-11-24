@@ -17,6 +17,7 @@ public abstract class AbstractChannel implements Channel {
 	protected InetSocketAddress		remote;
 	protected long				lastAccess;
 	protected ByteBufAllocator		byteBufAllocator;
+	protected SelectorLoop			selectorLoop;
 	protected long				creationTime	= System.currentTimeMillis();
 	protected ReentrantLock			channelLock	= new ReentrantLock();
 
@@ -49,6 +50,10 @@ public abstract class AbstractChannel implements Channel {
 		}
 
 		return address.getHostAddress();
+	}
+
+	public boolean isInSelectorLoop() {
+		return Thread.currentThread() == selectorLoop.getMonitor();
 	}
 
 	public String getLocalHost() {

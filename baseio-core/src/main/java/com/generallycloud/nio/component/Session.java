@@ -8,8 +8,6 @@ import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface Session extends Closeable{
@@ -21,8 +19,6 @@ public interface Session extends Closeable{
 	public abstract boolean isClosed();
 
 	public abstract void flush(ReadFuture future) ;
-	
-	public abstract void flush(ChannelWriteFuture future);
 
 	public abstract Object getAttachment();
 
@@ -58,8 +54,6 @@ public interface Session extends Closeable{
 
 	public abstract Integer getSessionID();
 
-	public abstract boolean isBlocking();
-
 	public abstract Object removeAttribute(Object key) ;
 	
 	public abstract void setAttachment(Object attachment);
@@ -73,10 +67,6 @@ public interface Session extends Closeable{
 	public abstract EventLoop getEventLoop();
 	
 	public abstract Charset getEncoding();
-	
-	public abstract String getProtocolID();
-	
-	public abstract ProtocolEncoder getProtocolEncoder();
 
 	public abstract boolean isOpened();
 

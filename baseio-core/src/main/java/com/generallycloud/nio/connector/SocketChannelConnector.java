@@ -9,11 +9,14 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.SelectorLoop;
-import com.generallycloud.nio.component.UnsafeSession;
+import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.UnsafeSocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractChannelConnector {
+	
+	private UnsafeSocketSession			session;
 
 	private Waiter<Object>			waiter			= new Waiter<Object>();
 	
@@ -58,8 +61,23 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 					t.getMessage()), t);
 		}
 	}
+	
+	public SocketSession connect() throws IOException {
+		
+		this.service();
+		
+		return getSession();
+	}
+	
+	public SocketSession getSession() {
+		return session;
+	}
 
-	protected void finishConnect(UnsafeSession session, IOException exception) {
+	protected void fireSessionOpend() {
+		session.fireOpend();
+	}
+
+	protected void finishConnect(UnsafeSocketSession session, IOException exception) {
 
 		if (exception == null) {
 

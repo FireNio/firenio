@@ -8,16 +8,16 @@ public class SessionEventListenerWrapper extends AbstractLinkable<SessionEventLi
 		super(value);
 	}
 
-	public void sessionOpened(Session session) {
+	public void sessionOpened(SocketSession session) {
 		getValue().sessionOpened(session);
 	}
 
-	public void sessionClosed(Session session) {
+	public void sessionClosed(SocketSession session) {
 		getValue().sessionClosed(session);
 
 	}
 
-	public void sessionIdled(Session session, long lastIdleTime, long currentTime) {
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 		getValue().sessionIdled(session, lastIdleTime, currentTime);
 	}
 

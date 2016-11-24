@@ -7,7 +7,7 @@ import com.generallycloud.nio.codec.protobuf.future.ProtobufReadFuture;
 import com.generallycloud.nio.component.BaseContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest;
@@ -19,7 +19,7 @@ public class TestProtobufServer {
 		ProtobufIOEventHandle eventHandleAdaptor = new ProtobufIOEventHandle() {
 
 			@Override
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
 				ProtobufReadFuture f = (ProtobufReadFuture) future;
 				
