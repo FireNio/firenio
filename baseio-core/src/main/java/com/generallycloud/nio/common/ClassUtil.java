@@ -2,7 +2,7 @@ package com.generallycloud.nio.common;
 
 public class ClassUtil {
 
-	public static Object newInstance(Class clazz) {
+	public static Object newInstance(Class<?> clazz) {
 
 		if (clazz == null) {
 			return null;
@@ -15,7 +15,7 @@ public class ClassUtil {
 		}
 	}
 	
-	public static Class forName(String className){
+	public static Class<?> forName(String className){
 		
 		try {
 			return Class.forName(className);

@@ -2,6 +2,7 @@ package com.generallycloud.nio.extend.plugin.jms;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class MQException extends IOException{
 	
 	public static final MQException TIME_OUT = new MQException("timeout");

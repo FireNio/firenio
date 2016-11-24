@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class CollectionUtil {
 
-	public static boolean isEmpty(Collection collection) {
+	public static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.size() == 0;
 	}
 	
@@ -13,7 +13,7 @@ public class CollectionUtil {
 		return array == null || array.length == 0;
 	}
 
-	public static boolean isEmpty(Map map) {
+	public static boolean isEmpty(Map<?,?> map) {
 		return map == null || map.size() == 0;
 	}
 	

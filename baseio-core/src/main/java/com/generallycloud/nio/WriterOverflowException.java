@@ -2,6 +2,7 @@ package com.generallycloud.nio;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class WriterOverflowException extends IOException {
 	
 	public static WriterOverflowException INSTANCE = new WriterOverflowException("writer overflow");

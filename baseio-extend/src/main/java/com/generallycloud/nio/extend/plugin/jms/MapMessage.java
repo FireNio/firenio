@@ -104,6 +104,7 @@ public class MapMessage extends BasicMessage implements MappedMessage{
 		return map.toJSONString();
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void put(Map value){
 		this.map.putAll(value);
 	}

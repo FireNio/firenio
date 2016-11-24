@@ -8,10 +8,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class BeanUtil {
 
-	private static Map<Class, FieldMapping>	fieldMapping	= new HashMap<Class, FieldMapping>();
+	private static Map<Class<?>, FieldMapping>	fieldMapping	= new HashMap<Class<?>, FieldMapping>();
 	private static ReentrantLock			lock				= new ReentrantLock();
 	
-	public static Object map2Object(Map<String, Object> map, Class clazz) {
+	public static Object map2Object(Map<String, Object> map, Class<?> clazz) {
 		if (map == null || clazz == null) {
 			return null;
 		}

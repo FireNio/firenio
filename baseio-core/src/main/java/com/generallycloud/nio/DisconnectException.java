@@ -2,6 +2,7 @@ package com.generallycloud.nio;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class DisconnectException extends IOException {
 	
 	public DisconnectException(String message, Exception cause) {

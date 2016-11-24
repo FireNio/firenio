@@ -1,5 +1,6 @@
 package com.generallycloud.nio;
 
+@SuppressWarnings("serial")
 public class PropertiesException extends Exception{
 
 	

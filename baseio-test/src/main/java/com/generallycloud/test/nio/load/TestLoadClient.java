@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
@@ -17,7 +16,6 @@ import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestLoadClient {
 

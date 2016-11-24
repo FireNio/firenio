@@ -8,18 +8,18 @@ import java.util.Map;
 
 public class FieldMapping{
 
-	private Class				mappingClass	;
+	private Class<?>				mappingClass	;
 
 	private Map<String, Field>	fieldMapping	= new HashMap<String, Field>();
 
 	private List<Field>			fieldList		= new ArrayList<Field>();
 
-	public FieldMapping(Class clazz) {
+	public FieldMapping(Class<?> clazz) {
 		this.mappingClass = clazz;
 		analyse(clazz);
 	}
 
-	private void analyse(Class clazz) {
+	private void analyse(Class<?> clazz) {
 
 		Field[] fields = clazz.getDeclaredFields();
 
@@ -28,7 +28,7 @@ public class FieldMapping{
 			this.fieldList.add(f);
 		}
 
-		Class c = clazz.getSuperclass();
+		Class<?> c = clazz.getSuperclass();
 
 		if (c != Object.class) {
 			analyse(c);
@@ -44,7 +44,7 @@ public class FieldMapping{
 		return fieldMapping.get(fieldName);
 	}
 
-	public Class getMappingClass() {
+	public Class<?> getMappingClass() {
 		return mappingClass;
 	}
 }

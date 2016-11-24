@@ -13,7 +13,7 @@ public class LoggerFactory {
 		enableSLF4JLogger = enable;
 	}
 	
-	public static Logger getLogger(Class clazz){
+	public static Logger getLogger(Class<?> clazz){
 		if (enableSLF4JLogger) {
 			return new SLF4JLogger(clazz);
 		}

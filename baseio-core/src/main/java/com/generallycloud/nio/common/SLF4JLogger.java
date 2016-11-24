@@ -6,14 +6,14 @@ public class SLF4JLogger implements Logger{
 
 	private org.slf4j.Logger logger = null;
 
-	private Class loggerClass = null;
+	private Class<?> loggerClass = null;
 	
-	public SLF4JLogger(Class clazz) {
+	public SLF4JLogger(Class<?> clazz) {
 		this.logger = LoggerFactory.getLogger(clazz);
 		this.loggerClass = clazz;
 	}
 	
-	public Class getLoggerClass() {
+	public Class<?> getLoggerClass() {
 		return loggerClass;
 	}
 

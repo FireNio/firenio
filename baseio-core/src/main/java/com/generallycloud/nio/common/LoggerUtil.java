@@ -7,7 +7,7 @@ public class LoggerUtil {
 
 	private static String getSpace(Logger logger) {
 
-		Class clazz = logger.getLoggerClass();
+		Class<?> clazz = logger.getLoggerClass();
 
 		String name = clazz.getSimpleName();
 

@@ -93,45 +93,45 @@ public abstract class Assert {
 		noNullElements(array, "[Assertion failed] - this array must not contain any null elements");
 	}
 
-	public static void notEmpty(Collection collection, String message) {
+	public static void notEmpty(Collection<?> collection, String message) {
 		if (CollectionUtil.isEmpty(collection)) {
 			throw new IllegalArgumentException(message);
 		}
 	}
 
-	public static void notEmpty(Collection collection) {
+	public static void notEmpty(Collection<?> collection) {
 		notEmpty(collection,
 				"[Assertion failed] - this collection must not be empty: it must contain at least 1 element");
 	}
 
-	public static void notEmpty(Map map, String message) {
+	public static void notEmpty(Map<?,?> map, String message) {
 		if (CollectionUtil.isEmpty(map)) {
 			throw new IllegalArgumentException(message);
 		}
 	}
 
-	public static void notEmpty(Map map) {
+	public static void notEmpty(Map<?,?> map) {
 		notEmpty(map, "[Assertion failed] - this map must not be empty; it must contain at least one entry");
 	}
 
-	public static void isInstanceOf(Class clazz, Object obj) {
+	public static void isInstanceOf(Class<?> clazz, Object obj) {
 		isInstanceOf(clazz, obj, "");
 	}
 
-	public static void isInstanceOf(Class type, Object obj, String message) {
+	public static void isInstanceOf(Class<?> type, Object obj, String message) {
 		notNull(type, "Type to check against must not be null");
 		if (!type.isInstance(obj)) {
 			throw new IllegalArgumentException(message +
-					"Object of class [" + (obj != null ? obj.getClass().getName() : "null") +
+					"Object of Class<?> [" + (obj != null ? obj.getClass().getName() : "null") +
 					"] must be an instance of " + type);
 		}
 	}
 
-	public static void isAssignable(Class superType, Class subType) {
+	public static void isAssignable(Class<?> superType, Class<?> subType) {
 		isAssignable(superType, subType, "");
 	}
 
-	public static void isAssignable(Class superType, Class subType, String message) {
+	public static void isAssignable(Class<?> superType, Class<?> subType, String message) {
 		notNull(superType, "Type to check against must not be null");
 		if (subType == null || !superType.isAssignableFrom(subType)) {
 			throw new IllegalArgumentException(message + subType + " is not assignable to " + superType);

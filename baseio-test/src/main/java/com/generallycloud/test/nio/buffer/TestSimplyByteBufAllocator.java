@@ -4,7 +4,6 @@ import java.util.Random;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.SimpleByteBufAllocator;
 import com.generallycloud.nio.buffer.SimplyByteBufAllocator;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -50,8 +49,8 @@ public class TestSimplyByteBufAllocator {
 //				}
 
 				// ThreadUtil.sleep(10);
-				int i = 0;
-				i++;
+				
+				debug();
 			}
 		};
 
@@ -63,5 +62,9 @@ public class TestSimplyByteBufAllocator {
 //		
 //		 ThreadUtil.execute(r);
 
+	}
+	
+	static void debug(){
+		
 	}
 }

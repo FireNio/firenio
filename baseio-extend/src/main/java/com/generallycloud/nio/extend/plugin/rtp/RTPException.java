@@ -2,6 +2,7 @@ package com.generallycloud.nio.extend.plugin.rtp;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class RTPException extends IOException{
 	
 	public RTPException(String reason){

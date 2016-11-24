@@ -59,13 +59,13 @@ final public class MessageFormatter {
 						// itself escaped: "abc x:\\{}"
 						// we have to consume one backward slash
 						builder.append(messagePattern.substring(i, j - 1));
-						deeplyAppendParameter(builder, argArray[L], new HashMap());
+						deeplyAppendParameter(builder, argArray[L], new HashMap<>());
 						i = j + 2;
 					}
 				} else {
 					// normal case
 					builder.append(messagePattern.substring(i, j));
-					deeplyAppendParameter(builder, argArray[L], new HashMap());
+					deeplyAppendParameter(builder, argArray[L], new HashMap<>());
 					i = j + 2;
 				}
 			}
@@ -101,7 +101,7 @@ final public class MessageFormatter {
 	}
 
 	// special treatment of array values was suggested by 'lizongbo'
-	private static void deeplyAppendParameter(StringBuilder sbuf, Object o, Map seenMap) {
+	private static void deeplyAppendParameter(StringBuilder sbuf, Object o, Map<?,?> seenMap) {
 		if (o == null) {
 			sbuf.append("null");
 			return;
@@ -146,6 +146,7 @@ final public class MessageFormatter {
 
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map seenMap) {
 		sbuf.append('[');
 		if (!seenMap.containsKey(a)) {
