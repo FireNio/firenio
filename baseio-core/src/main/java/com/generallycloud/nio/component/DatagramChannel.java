@@ -9,7 +9,7 @@ public interface DatagramChannel extends Channel {
 	public abstract void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException;
 
 	public abstract void sendPacket(ByteBuffer buffer) throws IOException;
-
-	public abstract void setSession(Session session);
 	
+	public abstract DatagramSession getSession();
+
 }

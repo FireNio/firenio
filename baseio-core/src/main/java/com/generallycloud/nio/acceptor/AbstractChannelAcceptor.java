@@ -2,13 +2,12 @@ package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -23,10 +22,10 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor {
+public abstract class AbstractChannelAcceptor extends AbstractChannelService  implements ChannelAcceptor{
 
-	protected boolean		active		= false;
-	protected ReentrantLock	activeLock	= new ReentrantLock();
+	protected ServerSocket serverSocket;
+	
 	private Logger			logger		= LoggerFactory.getLogger(AbstractChannelAcceptor.class);
 	
 	public AbstractChannelAcceptor(BaseContext context) {
@@ -34,39 +33,17 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	}
 	
 	public void bind() throws IOException {
+		
+		this.service();
+	}
+	
+	protected void initService(ServerConfiguration configuration) throws IOException {
+		
+		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
 
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-
-			if (active) {
-				return;
-			}
-
-			if (context == null) {
-				throw new IllegalArgumentException("null nio context");
-			}
-			
-			context.setChannelService(this);
-
-			LifeCycleUtil.start(context);
-
-			ServerConfiguration configuration = context.getServerConfiguration();
-
-			int SERVER_PORT = configuration.getSERVER_PORT();
-
-			this.bind(context, getInetSocketAddress(SERVER_PORT));
-			
-			LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}",getServerSocketAddress());
-
-			active = true;
-
-		} finally {
-
-			lock.unlock();
-		}
+		this.bind(context, getServerSocketAddress());
+		
+		LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}",getServerSocketAddress());
 	}
 
 	protected abstract void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException;
@@ -115,10 +92,6 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 		});
 	}
 
-	protected InetSocketAddress getInetSocketAddress(int port) {
-		return new InetSocketAddress(port);
-	}
-
 	public boolean isActive() {
 		return active;
 	}
@@ -132,29 +105,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	}
 
 	public void unbind() {
-
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-
-			if (!active) {
-				return;
-			}
-
-			unbind(context);
-
-		} finally {
-
-			active = false;
-
-			LifeCycleUtil.stop(context);
-
-			lock.unlock();
-		}
+		cancelService();
 	}
-
-	protected abstract void unbind(BaseContext context);
 
 }

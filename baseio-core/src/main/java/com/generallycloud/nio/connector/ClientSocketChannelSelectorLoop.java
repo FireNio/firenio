@@ -6,6 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
+import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 
@@ -13,9 +14,9 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	
 	private SocketChannelConnector	connector;
 
-	public ClientSocketChannelSelectorLoop(SocketChannelConnector connector) {
+	public ClientSocketChannelSelectorLoop(SocketChannelConnector connector, SelectorLoop[] selectorLoops) {
 
-		super(connector.getContext(),connector.getSelectableChannel());
+		super(connector,selectorLoops);
 		
 		this.connector = connector;
 

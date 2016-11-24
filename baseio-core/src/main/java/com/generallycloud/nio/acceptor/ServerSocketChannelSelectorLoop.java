@@ -6,7 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
 import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
 import com.generallycloud.nio.component.SelectorLoop;
@@ -15,15 +15,10 @@ import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
 public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	
-	private SelectorLoop[]		selectorLoops;
-	
 	private FixedAtomicInteger	core_index;
 
-	public ServerSocketChannelSelectorLoop(BaseContext context, SelectorLoop[] loops, SelectableChannel selectableChannel) {
-
-		super(context, selectableChannel);
-		
-		this.selectorLoops = loops;
+	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
+		super(service,selectorLoops);
 	}
 
 	public Selector buildSelector(SelectableChannel channel) throws IOException {

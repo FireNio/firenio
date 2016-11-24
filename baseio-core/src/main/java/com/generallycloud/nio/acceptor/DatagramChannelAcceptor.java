@@ -1,56 +1,44 @@
 package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
+import java.net.BindException;
 import java.net.InetSocketAddress;
-import java.nio.channels.DatagramChannel;
+import java.nio.channels.ServerSocketChannel;
 
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
+import com.generallycloud.nio.component.SelectorLoop;
 
-public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
+public final class DatagramChannelAcceptor extends AbstractChannelAcceptor{
 
-	private DatagramChannelSelectorLoop		selectorLoop		;
-	private EventLoopThread					selectorLoopThread	;
-	private DatagramSocket					serverSocket		;
-	
 	public DatagramChannelAcceptor(BaseContext context) {
 		super(context);
 	}
 
-	protected void bind(BaseContext context,InetSocketAddress socketAddress) throws IOException {
-		
+	protected void initselectableChannel() throws IOException {
 		// 打开服务器套接字通道
-		this.selectableChannel = DatagramChannel.open();
+		this.selectableChannel = ServerSocketChannel.open();
 		// 服务器配置为非阻塞
 		this.selectableChannel.configureBlocking(false);
 		// 检索与此通道关联的服务器套接字
-		this.serverSocket = ((DatagramChannel) selectableChannel).socket();
-		// 进行服务的绑定
-		this.serverSocket.bind(socketAddress);
-		
-		this.selectorLoop = new ServerDatagramChannelSelectorLoop(context,selectableChannel);
-		
-		this.selectorLoop.startup();
-		
-		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription()+"(selector)");
+		this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
 
-		this.selectorLoopThread.startup();
-	}
-	
-	public String getServiceDescription() {
-		return "UDP:" + getServerSocketAddress();
 	}
 
-	public InetSocketAddress getServerSocketAddress() {
-		return (InetSocketAddress) serverSocket.getLocalSocketAddress();
+	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+		return new DatagramChannelSelectorLoop(this, selectorLoops);
 	}
 
-	protected void unbind(BaseContext context) {
+	protected void bind(BaseContext context, InetSocketAddress socketAddress) throws IOException {
 
-		LifeCycleUtil.stop(selectorLoopThread);
+		try {
+			// 进行服务的绑定
+			this.serverSocket.bind(socketAddress, 50);
+		} catch (BindException e) {
+			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
+		}
+
+		initSelectorLoops();
 	}
 
 }

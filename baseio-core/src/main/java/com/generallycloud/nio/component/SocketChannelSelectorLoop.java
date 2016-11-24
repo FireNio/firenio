@@ -1,17 +1,19 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
 public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
-	protected SelectionAcceptor			_read_acceptor;
+	protected SelectionAcceptor	_read_acceptor;
 
-	protected SelectionAcceptor			_write_acceptor;
+	protected SelectionAcceptor	_write_acceptor;
 
-	public SocketChannelSelectorLoop(BaseContext context,SelectableChannel selectableChannel) {
-		super(context,selectableChannel);
+	public SocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
+		
+		super(service,selectorLoops);
+		
+		this.selectorLoops = selectorLoops;
 
 		this._write_acceptor = new SocketChannelSelectionWriter();
 
@@ -42,13 +44,13 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 			cancelSelectionKey(selectionKey, e);
 		}
-		
+
 	}
-	
+
 	protected abstract void acceptPrepare(SelectionKey selectionKey) throws IOException;
 
 	private SelectionAcceptor createSocketChannelSelectionReader(BaseContext context) {
 		return new SocketChannelSelectionReader(context);
 	}
-	
+
 }

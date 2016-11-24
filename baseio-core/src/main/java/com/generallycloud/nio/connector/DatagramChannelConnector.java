@@ -4,42 +4,28 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.DatagramChannel;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
+import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
+import com.generallycloud.nio.component.NioDatagramChannel;
+import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelConnector extends AbstractChannelConnector {
 
-	private Logger							logger			= LoggerFactory
-																.getLogger(DatagramChannelConnector.class);
-	private ByteBuffer						cacheBuffer		= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
-	private EventLoopThread					selectorLoopThread	= null;
-	private ClientDatagramChannelSelectorLoop	selectorLoop		= null;
-
-	protected EventLoopThread getSelectorLoopThread() {
-		return selectorLoopThread;
-	}
+	private Logger			logger		= LoggerFactory.getLogger(DatagramChannelConnector.class);
+	private ByteBuffer		cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private DatagramChannel	channel		= null; //FIXME use parent session
 
 	public DatagramChannelConnector(BaseContext context) {
 		super(context);
 	}
 
-	public String getServiceDescription() {
-		return "UDP:" + getServerSocketAddress();
-	}
-
-	public InetSocketAddress getServerSocketAddress() {
-		return datagramChannel().getLocalSocketAddress();
-	}
-
 	private DatagramChannel datagramChannel() {
-		return selectorLoop.getDatagramChannel();
+		return channel;
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) {
@@ -84,34 +70,24 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 
 	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
+		
+		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
+
+		this.channel = new NioDatagramChannel(selectorLoops[0], (java.nio.channels.DatagramChannel) selectableChannel,
+				socketAddress);
+
+		initSelectorLoops();
+	}
+
+	protected void initselectableChannel() throws IOException {
 
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 
-		this.selectorLoop = new ClientDatagramChannelSelectorLoop(context, selectableChannel);
-
-		this.selectorLoop.startup();
-
-		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
-
-		// FIXME rebuild selector
-		this.datagramChannel().setSession(session);
-
-		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
-
-		this.selectorLoopThread.startup();
+		this.selectableChannel.configureBlocking(false);
 	}
 
-	protected void doPhysicalClose0() {
-
-		DatagramChannel datagramChannel = datagramChannel();
-
-		if (datagramChannel != null && datagramChannel.isOpened()) {
-			CloseUtil.close(datagramChannel);
-		}
-
-		LifeCycleUtil.stop(selectorLoopThread);
-
-		CloseUtil.close(datagramChannel);
+	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+		return new DatagramChannelSelectorLoop(this, selectorLoops);
 	}
 
 }

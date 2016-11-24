@@ -40,7 +40,7 @@ public interface Channel extends Closeable{
 	
 	public abstract InetSocketAddress getLocalSocketAddress() ;
 	
-	public abstract UnsafeSession getSession();
+	public abstract Session getSession();
 
 	public abstract Integer getChannelID();
 	

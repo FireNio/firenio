@@ -7,11 +7,9 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.nio.acceptor.DatagramChannelFactory;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
@@ -20,17 +18,12 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(NioDatagramChannel.class);
 	private AtomicBoolean		_closed	= new AtomicBoolean(false);
 	private DatagramChannel		channel;
-	private UnsafeSession		session;
 	private DatagramSocket		socket;
+	private DatagramSession		session;
 
-	public NioDatagramChannel(BaseContext context, SelectionKey selectionKey,InetSocketAddress remote)
+	public NioDatagramChannel(SelectorLoop selectorLoop, DatagramChannel channel, InetSocketAddress remote)
 			throws SocketException {
-		this(context, (DatagramChannel) selectionKey.channel(), remote);
-	}
-
-	public NioDatagramChannel(BaseContext context, DatagramChannel channel, InetSocketAddress remote)
-			throws SocketException {
-		super(context,null);
+		super(selectorLoop.getContext(),selectorLoop.getByteBufAllocator());
 		this.channel = channel;
 		this.remote = remote;
 		this.socket = channel.socket();
@@ -75,7 +68,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		return remote;
 	}
 
-	public UnsafeSession getSession() {
+	public DatagramSession getSession() {
 		return session;
 	}
 
@@ -89,18 +82,8 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		channel.send(buffer, socketAddress);
 	}
 
-	public void setSession(Session session) {
-		this.session = (UnsafeSession) session;
-	}
-
 	public boolean isOpened() {
 		return channel.isConnected() || channel.isOpen();
 	}
-
-	public ByteBufAllocator getByteBufAllocator() {
-		return session.getByteBufAllocator();
-	}
-	
-	
 
 }

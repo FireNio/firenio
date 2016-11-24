@@ -13,12 +13,14 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
-	private BaseContext	context		;
-	private ByteBuffer	cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
-	private Logger		logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
+	private BaseContext		context;
+	private SelectorLoop	selectorLoop;
+	private ByteBuffer		cacheBuffer	= ByteBuffer.allocate(DatagramPacket.PACKET_MAX);
+	private Logger			logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
 
-	public DatagramChannelSelectionReader(BaseContext context) {
-		this.context = context;
+	public DatagramChannelSelectionReader(SelectorLoop selectorLoop) {
+		this.selectorLoop = selectorLoop;
+		this.context = selectorLoop.getContext();
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
@@ -38,13 +40,14 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 		DatagramPacket packet = new DatagramPacket(cacheBuffer, remoteSocketAddress);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
-		
+
 		if (acceptor == null) {
 			logger.debug("______________ none acceptor for context");
 			return;
 		}
 
-		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getDatagramChannel(context, selectionKey, remoteSocketAddress);
+		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getDatagramChannel(selectorLoop,
+				channel, remoteSocketAddress);
 
 		acceptor.accept(datagramChannel, packet);
 

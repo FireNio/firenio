@@ -85,8 +85,6 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 				return ;
 			}
 			
-			channel.setSession(session);
-			
 //			session.setDatagramChannel(channel); //FIXME udp 
 			
 			BaseReadFuture future = new BaseReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);

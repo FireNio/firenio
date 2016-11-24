@@ -24,7 +24,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private byte[]				isWaitForRegistLock		= new byte[] {};
 	private byte[]				runLock				= new byte[] {};
 
-
 	protected ProtocolDecoder		protocolDecoder		= null;
 	protected ProtocolEncoder		protocolEncoder		= null;
 	protected ProtocolFactory		protocolFactory		= null;
@@ -35,6 +34,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	protected boolean				shutdown				= false;
 	protected boolean				working				= false;
 	protected SelectorLoopStrategy	selectorLoopStrategy	= null;
+	protected SelectorLoop[]		selectorLoops			= null;
 
 	private static final Logger		logger				= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 
@@ -54,17 +54,19 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		this.isMainSelector = isMainSelector;
 	}
 
-	protected AbstractSelectorLoop(BaseContext context, SelectableChannel selectableChannel) {
+	protected AbstractSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
 
-		this.context = context;
+		this.context = service.getContext();
 		
+		this.selectorLoops = selectorLoops;
+
 		this.protocolFactory = context.getProtocolFactory();
 
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
 
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
-		this.selectableChannel = selectableChannel;
+		this.selectableChannel = service.getSelectableChannel();
 
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
 	}
@@ -125,7 +127,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		}
 
 		try {
-			
+
 			selectorLoopStrategy.loop(this);
 
 			working = false;
@@ -245,5 +247,5 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;
 	}
-	
+
 }

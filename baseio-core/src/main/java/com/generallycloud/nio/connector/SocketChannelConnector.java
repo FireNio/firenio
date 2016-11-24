@@ -6,50 +6,45 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.SocketChannelSelectorLoop;
+import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.UnsafeSession;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractChannelConnector {
 
-	private SocketChannelSelectorLoop	selectorLoop		= null;
-	private EventLoopThread			selectorLoopThread	= null;
 	private Waiter<Object>			waiter			= new Waiter<Object>();
 	
 	public SocketChannelConnector(BaseContext context) {
 		super(context);
 	}
-
-	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
-
+	
+	protected void initselectableChannel() throws IOException {
+		
 		this.selectableChannel = SocketChannel.open();
 
 		this.selectableChannel.configureBlocking(false);
+	}
+	
+	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
+	}
 
-		this.selectorLoop = new ClientSocketChannelSelectorLoop(this);
-
-		this.selectorLoop.startup();
-
+	protected void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException {
+		
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
-
-		this.selectorLoopThread = new EventLoopThread(selectorLoop, getServiceDescription() + "(selector)");
-
-		this.selectorLoop.setMonitor(this.selectorLoopThread.getMonitor());
-
-		this.selectorLoopThread.startup();
-
+		
+		initSelectorLoops();
+		
 		if (waiter.await(getTimeout())) {
 
 			active = true;
 
 			CloseUtil.close(this);
 
-			throw new TimeoutException("connect to " + this.getServiceDescription() + " time out");
+			throw new TimeoutException("connect to " + socketAddress.toString() + " time out");
 		}
 
 		Object o = waiter.getPayload();
@@ -59,7 +54,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 			Exception t = (Exception) o;
 
 			throw new TimeoutException(MessageFormatter.format(
-					"connect faild,connector:[{}],nested exception is {}", this.getServiceDescription(),
+					"connect faild,connector:[{}],nested exception is {}", socketAddress,
 					t.getMessage()), t);
 		}
 	}
@@ -80,21 +75,9 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 			this.waiter.setPayload(exception);
 		}
 	}
-
-	public InetSocketAddress getServerSocketAddress() {
-		return this.serverAddress;
-	}
-
-	protected EventLoopThread getSelectorLoopThread() {
-		return selectorLoopThread;
-	}
-
-	protected void doPhysicalClose0() {
-		LifeCycleUtil.stop(selectorLoopThread);
-	}
-
-	public String getServiceDescription() {
-		return "TCP:" + serverAddress.toString();
+	
+	public String getServiceDescription(int i) {
+		return "tcp-io-process-" + i;
 	}
 
 }
