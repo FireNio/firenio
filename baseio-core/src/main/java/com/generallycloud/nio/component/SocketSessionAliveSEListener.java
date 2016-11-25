@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.common.CloseUtil;
 
-public class SessionAliveSEListener extends SEListenerAdapter{
+public class SocketSessionAliveSEListener extends SocketSEListenerAdapter{
 
 	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 		

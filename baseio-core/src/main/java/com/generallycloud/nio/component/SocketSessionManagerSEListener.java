@@ -1,13 +1,13 @@
 package com.generallycloud.nio.component;
 
 
-public class ManagerSEListener extends SEListenerAdapter{
+public class SocketSessionManagerSEListener extends SocketSEListenerAdapter{
 	
 	public void sessionOpened(SocketSession session) {
 
 		SocketChannelContext context = session.getContext();
 		
-		SessionManager manager = context.getSessionManager();
+		SocketSessionManager manager = context.getSessionManager();
 
 		manager.putSession(session);
 	}
@@ -16,7 +16,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 		
 		SocketChannelContext context = session.getContext();
 		
-		SessionManager manager = context.getSessionManager();
+		SocketSessionManager manager = context.getSessionManager();
 
 		manager.removeSession(session);
 	}

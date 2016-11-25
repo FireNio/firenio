@@ -5,7 +5,7 @@ import com.generallycloud.nio.codec.protobuf.ProtobufProtocolFactory;
 import com.generallycloud.nio.codec.protobuf.future.ProtobufIOEventHandle;
 import com.generallycloud.nio.codec.protobuf.future.ProtobufReadFuture;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -44,7 +44,7 @@ public class TestProtobufServer {
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
-		context.addSessionEventListener(new LoggerSEListener());
+		context.addSessionEventListener(new LoggerSocketSEListener());
 
 //		context.addSessionEventListener(new SessionAliveSEListener());
 

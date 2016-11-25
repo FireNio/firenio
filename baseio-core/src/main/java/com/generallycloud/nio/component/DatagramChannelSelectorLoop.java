@@ -19,7 +19,7 @@ public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 		super(service, selectorLoops);
 		this.context = (DatagramChannelContext) service.getContext();
 		this._read_acceptor = new DatagramChannelSelectionReader(this);
-		this.selectorLoopStrategy = new DatagramSelectorLoopStrategy();
+		this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(context);
 	}
 	
 	public DatagramChannelContext getContext() {

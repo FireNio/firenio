@@ -2,10 +2,10 @@ package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SEListenerAdapter;
+import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class FrontReverseAcceptorSEListener extends SEListenerAdapter {
+public class FrontReverseAcceptorSEListener extends SocketSEListenerAdapter {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorSEListener.class);
 

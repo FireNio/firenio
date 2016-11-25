@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import java.util.EventListener;
 
-public interface SessionEventListener extends EventListener{
+public interface SocketSessionEventListener extends EventListener{
 
 	public abstract void sessionOpened(SocketSession session);
 

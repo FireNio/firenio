@@ -1,6 +1,6 @@
 package com.generallycloud.nio.component;
 
-public class SEListenerAdapter implements SessionEventListener{
+public class SocketSEListenerAdapter implements SocketSessionEventListener{
 
 	public void sessionOpened(SocketSession session) {
 		

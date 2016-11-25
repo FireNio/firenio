@@ -3,9 +3,9 @@ package com.generallycloud.nio.component;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-public class LoggerSEListener implements SessionEventListener{
+public class LoggerSocketSEListener implements SocketSessionEventListener{
 
-	private Logger logger = LoggerFactory.getLogger(LoggerSEListener.class);
+	private Logger logger = LoggerFactory.getLogger(LoggerSocketSEListener.class);
 	
 	public void sessionOpened(SocketSession session) {
 		logger.info("session opened:{}",session);

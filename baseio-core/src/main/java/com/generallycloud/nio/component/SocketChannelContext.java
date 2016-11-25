@@ -1,11 +1,17 @@
 package com.generallycloud.nio.component;
 
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.ssl.SslContext;
+import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public interface SocketChannelContext extends ChannelContext {
+	
+	public abstract void setSessionManager(SocketSessionManager sessionManager) ;
+	
+	public abstract SocketSessionManager getSessionManager();
 
 	public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();
 
@@ -35,8 +41,16 @@ public interface SocketChannelContext extends ChannelContext {
 
 	public abstract boolean isEnableSSL() ;
 	
-	public abstract SessionFactory getSessionFactory() ;
+	public abstract SocketSessionFactory getSessionFactory() ;
 
-	public abstract void setSessionFactory(SessionFactory sessionFactory) ;
+	public abstract void setSocketSessionFactory(SocketSessionFactory sessionFactory) ;
+	
+	public abstract ReadFutureAcceptor getReadFutureAcceptor();
+	
+	public abstract Linkable<SocketSessionEventListener> getSessionEventListenerLink();
+	
+	public abstract void addSessionEventListener(SocketSessionEventListener listener);
+	
+	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
 
 }

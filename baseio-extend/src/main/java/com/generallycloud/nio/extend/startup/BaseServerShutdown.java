@@ -7,7 +7,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -55,7 +55,7 @@ public class BaseServerShutdown {
 
 		context.setIoEventHandleAdaptor(eventHandle);
 
-		context.addSessionEventListener(new LoggerSEListener());
+		context.addSessionEventListener(new LoggerSocketSEListener());
 
 		FixedSession session = new FixedSession(connector.connect());
 		

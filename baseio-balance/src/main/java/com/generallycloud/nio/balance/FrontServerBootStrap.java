@@ -11,7 +11,7 @@ import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
-import com.generallycloud.nio.component.SessionEventListener;
+import com.generallycloud.nio.component.SocketSessionEventListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -21,8 +21,8 @@ public class FrontServerBootStrap {
 	private ProtocolFactory				frontReverseProtocolFactory;
 	private ServerConfiguration			frontServerConfiguration;
 	private ServerConfiguration			frontReverseServerConfiguration;
-	private List<SessionEventListener>		frontSessionEventListeners;
-	private List<SessionEventListener>		frontReverseSessionEventListeners;
+	private List<SocketSessionEventListener>		frontSessionEventListeners;
+	private List<SocketSessionEventListener>		frontReverseSessionEventListeners;
 	private BeatFutureFactory			frontBeatFutureFactory;
 	private BeatFutureFactory			frontReverseBeatFutureFactory;
 	private ChannelLostReadFutureFactory	channelLostReadFutureFactory;
@@ -126,22 +126,22 @@ public class FrontServerBootStrap {
 		this.frontReverseServerConfiguration = frontReverseServerConfiguration;
 	}
 
-	public void addFrontSessionEventListener(SessionEventListener listener) {
+	public void addFrontSessionEventListener(SocketSessionEventListener listener) {
 		if (frontSessionEventListeners == null) {
-			frontSessionEventListeners = new ArrayList<SessionEventListener>();
+			frontSessionEventListeners = new ArrayList<SocketSessionEventListener>();
 		}
 		frontSessionEventListeners.add(listener);
 	}
 
-	public void addFrontReverseSessionEventListener(SessionEventListener listener) {
+	public void addFrontReverseSessionEventListener(SocketSessionEventListener listener) {
 		if (frontReverseSessionEventListeners == null) {
-			frontReverseSessionEventListeners = new ArrayList<SessionEventListener>();
+			frontReverseSessionEventListeners = new ArrayList<SocketSessionEventListener>();
 		}
 		frontReverseSessionEventListeners.add(listener);
 	}
 
-	private void addSessionEventListener2Context(SocketChannelContext context, List<SessionEventListener> listeners) {
-		for (SessionEventListener l : listeners) {
+	private void addSessionEventListener2Context(SocketChannelContext context, List<SocketSessionEventListener> listeners) {
+		for (SocketSessionEventListener l : listeners) {
 			context.addSessionEventListener(l);
 		}
 	}

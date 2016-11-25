@@ -1,32 +1,46 @@
 package com.generallycloud.nio.component;
 
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 
-import com.generallycloud.nio.acceptor.DatagramChannelFactory;
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.component.DatagramSessionManager.DatagramSessionManagerEvent;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class DatagramChannelContextImpl extends AbstractChannelContext implements DatagramChannelContext {
 
 	private DatagramPacketAcceptor		datagramPacketAcceptor;
-	private Charset					encoding;
-	private SessionManager				sessionManager;
-	private DatagramChannelFactory		datagramChannelFactory;
+	private DatagramSessionManager				sessionManager;
+	private Linkable<DatagramSessionEventListener>	lastSessionEventListener;
+	private Linkable<DatagramSessionEventListener>	sessionEventListenerLink;
 	private Logger						logger		= LoggerFactory.getLogger(DatagramChannelContextImpl.class);
 
 	public DatagramChannelContextImpl(ServerConfiguration configuration) {
 		super(configuration);
 	}
+	
+	public void addSessionEventListener(DatagramSessionEventListener listener) {
+		if (this.sessionEventListenerLink == null) {
+			this.sessionEventListenerLink = new DatagramSEListenerWrapper(listener);
+			this.lastSessionEventListener = this.sessionEventListenerLink;
+		} else {
+			this.lastSessionEventListener.setNext(new DatagramSEListenerWrapper(listener));
+			this.lastSessionEventListener = this.lastSessionEventListener.getNext();
+		}
+	}
+
+	public Linkable<DatagramSessionEventListener> getSessionEventListenerLink() {
+		return sessionEventListenerLink;
+	}
 
 	protected void doStart() throws Exception {
 
-		serverConfiguration.initializeDefault(this);
+		this.serverConfiguration.initializeDefault(this);
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
@@ -39,11 +53,11 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		this.datagramChannelFactory = new DatagramChannelFactory();
+		this.sessionManager = new DatagramSessionManagerImpl(this);
 
 		this.mcByteBufAllocator = new MCByteBufAllocator(this);
 
-		this.addSessionEventListener(new ManagerSEListener());
+		this.addSessionEventListener(new DatagramSessionManagerSEListener());
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -57,6 +71,18 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 
 		LifeCycleUtil.start(mcByteBufAllocator);
 	}
+	
+	public void setSessionManager(DatagramSessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public DatagramSessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void offerSessionMEvent(DatagramSessionManagerEvent event) {
+		sessionManager.offerSessionMEvent(event);
+	}
 
 	protected void doStop() throws Exception {
 
@@ -69,16 +95,8 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		return datagramPacketAcceptor;
 	}
 
-	public DatagramChannelFactory getDatagramChannelFactory() {
-		return datagramChannelFactory;
-	}
-
 	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
 		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
-
-	public void setDatagramChannelFactory(DatagramChannelFactory datagramChannelFactory) {
-		this.datagramChannelFactory = datagramChannelFactory;
 	}
 
 }

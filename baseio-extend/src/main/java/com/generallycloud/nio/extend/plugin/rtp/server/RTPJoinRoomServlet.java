@@ -33,7 +33,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 			return;
 		}
 
-		if (room.join(datagramChannel)) {
+		if (room.join(null)) {
 			
 			future.write(ByteUtil.TRUE);
 			

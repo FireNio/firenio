@@ -2,10 +2,10 @@ package com.generallycloud.nio.extend.plugin.jms.server;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SEListenerAdapter;
+import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class MQSessionEventListener extends SEListenerAdapter {
+public class MQSessionEventListener extends SocketSEListenerAdapter {
 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
 

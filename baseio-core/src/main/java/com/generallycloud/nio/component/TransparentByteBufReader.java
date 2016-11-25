@@ -10,8 +10,12 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 	
-	private ReadFutureAcceptor readFutureAcceptor = new EventLoopReadFutureAcceptor();
+	private ReadFutureAcceptor readFutureAcceptor;
 	
+	public TransparentByteBufReader(SocketChannelContext context) {
+		this.readFutureAcceptor = context.getReadFutureAcceptor();
+	}
+
 	public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
 
 		UnsafeSocketSession session = channel.getSession();

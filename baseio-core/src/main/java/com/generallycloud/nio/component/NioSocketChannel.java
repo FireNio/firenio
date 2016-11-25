@@ -40,8 +40,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolFactory				protocolFactory;
 	private SocketChannelContext			context;
 	private ChannelWriteFuture			writeFuture;
-	private boolean					opened			= true;
-	private boolean					closing			= false;
 	private long						next_network_weak	= Long.MAX_VALUE;
 	private boolean					enableInbound		= true;
 
@@ -53,10 +51,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
 	public NioSocketChannel(SocketChannelSelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
-		super(selectorLoop.getContext(),selectorLoop.getByteBufAllocator());
+		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.selectionKey = selectionKey;
-		this.selectorLoop = selectorLoop;
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		this.local = getLocalSocketAddress();
@@ -114,7 +111,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 				CloseUtil.close(NioSocketChannel.this);
 
-				return true;
+				return false;
 			}
 		});
 	}

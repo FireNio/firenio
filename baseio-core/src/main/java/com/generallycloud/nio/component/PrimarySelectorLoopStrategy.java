@@ -10,7 +10,7 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 	
 	private SessionManager sessionManager = null;
 
-	public PrimarySelectorLoopStrategy(SocketChannelContext context) {
+	public PrimarySelectorLoopStrategy(ChannelContext context) {
 		this.sessionManager = context.getSessionManager();
 	}
 

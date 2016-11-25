@@ -14,9 +14,9 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SelectorLoop;
-import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -24,11 +24,11 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
-	private SocketChannelContext context = null;
+	private SocketChannelContext	context		= null;
 
-	private Logger			logger		= LoggerFactory.getLogger(SocketChannelAcceptor.class);
+	private Logger				logger		= LoggerFactory.getLogger(SocketChannelAcceptor.class);
 
-	private ServerSocket	serverSocket	= null;
+	private ServerSocket		serverSocket	= null;
 
 	public SocketChannelAcceptor(SocketChannelContext context) {
 		this.context = context;
@@ -48,7 +48,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 	public void broadcast(final ReadFuture future) {
 
-		offerSessionMEvent(new SessionMEvent() {
+		offerSessionMEvent(new SocketSessionManagerEvent() {
 
 			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
 
@@ -108,7 +108,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		return new ServerSocketChannelSelectorLoop(this, selectorLoops);
 	}
 
-	public void offerSessionMEvent(SessionMEvent event) {
+	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 		getContext().getSessionManager().offerSessionMEvent(event);
 	}
 

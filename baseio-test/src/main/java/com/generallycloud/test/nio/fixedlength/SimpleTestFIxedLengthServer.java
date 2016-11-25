@@ -6,7 +6,7 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -29,7 +29,7 @@ public class SimpleTestFIxedLengthServer {
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
-		context.addSessionEventListener(new LoggerSEListener());
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		

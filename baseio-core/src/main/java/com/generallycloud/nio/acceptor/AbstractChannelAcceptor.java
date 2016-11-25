@@ -7,7 +7,6 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelAcceptor extends AbstractChannelService  implements ChannelAcceptor{
@@ -38,10 +37,6 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 		cancelService();
 	}
 	
-	public void offerSessionMEvent(SessionMEvent event) {
-		getContext().getSessionManager().offerSessionMEvent(event);
-	}
-
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();
 	}

@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -46,7 +46,7 @@ public class BaseServerStartup {
 
 			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
-			context.addSessionEventListener(new LoggerSEListener());
+			context.addSessionEventListener(new LoggerSocketSEListener());
 
 			context.setProtocolFactory(new BaseProtocolFactory());
 			

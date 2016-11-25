@@ -6,17 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelContext extends AbstractLifeCycle implements ChannelContext {
 
 	protected Charset							encoding;
-	protected Linkable<SessionEventListener>		lastSessionEventListener;
 	protected ServerConfiguration				serverConfiguration;
-	protected Linkable<SessionEventListener>		sessionEventListenerLink;
-	protected SessionManager					sessionManager;
 	protected long							sessionIdleTime;
 	protected MCByteBufAllocator					mcByteBufAllocator;
 	protected ChannelService					channelService;
@@ -36,17 +32,7 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 
 		this.serverConfiguration = configuration;
 
-		this.addLifeCycleListener(new BaseContextListener());
-	}
-
-	public void addSessionEventListener(SessionEventListener listener) {
-		if (this.sessionEventListenerLink == null) {
-			this.sessionEventListenerLink = new SessionEventListenerWrapper(listener);
-			this.lastSessionEventListener = this.sessionEventListenerLink;
-		} else {
-			this.lastSessionEventListener.setNext(new SessionEventListenerWrapper(listener));
-			this.lastSessionEventListener = this.lastSessionEventListener.getNext();
-		}
+		this.addLifeCycleListener(new ChannelContextListener());
 	}
 
 	public void clearAttributes() {
@@ -67,18 +53,6 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 
 	public ServerConfiguration getServerConfiguration() {
 		return serverConfiguration;
-	}
-
-	public Linkable<SessionEventListener> getSessionEventListenerLink() {
-		return sessionEventListenerLink;
-	}
-
-	public SessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
 	}
 
 	public Object removeAttribute(Object key) {

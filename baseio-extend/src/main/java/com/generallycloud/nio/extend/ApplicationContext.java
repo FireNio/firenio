@@ -16,7 +16,7 @@ import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SessionEventListener;
+import com.generallycloud.nio.component.SocketSessionEventListener;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
 import com.generallycloud.nio.extend.security.RoleManager;
@@ -99,7 +99,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.context.setSessionAttachmentSize(filterService.getPluginContexts().length);
 	}
 
-	public void addSessionEventListener(SessionEventListener listener) {
+	public void addSessionEventListener(SocketSessionEventListener listener) {
 		context.addSessionEventListener(listener);
 	}
 

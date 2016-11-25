@@ -1,9 +1,9 @@
 package com.generallycloud.nio.extend.plugin.rtp.server;
 
-import com.generallycloud.nio.component.SEListenerAdapter;
+import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class RTPSessionEventListener extends SEListenerAdapter {
+public class RTPSessionEventListener extends SocketSEListenerAdapter {
 	
 	public void sessionOpened(SocketSession session) {
 		

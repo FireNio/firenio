@@ -4,7 +4,7 @@ import com.generallycloud.nio.codec.base.future.BaseBeatFutureFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.SessionActiveSEListener;
+import com.generallycloud.nio.component.SocketSessionActiveSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -34,7 +34,7 @@ public class TestBeat {
 		
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle,configuration);
 		
-		connector.getContext().addSessionEventListener(new SessionActiveSEListener());
+		connector.getContext().addSessionEventListener(new SocketSessionActiveSEListener());
 		
 		connector.getContext().setBeatFutureFactory(new BaseBeatFutureFactory());
 		

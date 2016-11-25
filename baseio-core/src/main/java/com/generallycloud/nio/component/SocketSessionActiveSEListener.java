@@ -5,9 +5,9 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SessionActiveSEListener extends SEListenerAdapter {
+public class SocketSessionActiveSEListener extends SocketSEListenerAdapter {
 
-	private Logger		logger	= LoggerFactory.getLogger(SessionActiveSEListener.class);
+	private Logger		logger	= LoggerFactory.getLogger(SocketSessionActiveSEListener.class);
 
 	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 

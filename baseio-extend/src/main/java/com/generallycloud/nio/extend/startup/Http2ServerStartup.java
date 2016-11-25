@@ -14,7 +14,7 @@ import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -56,11 +56,11 @@ public class Http2ServerStartup {
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 			
-			context.setSessionFactory(new Http2SessionFactory());
+			context.setSocketSessionFactory(new Http2SessionFactory());
 
 			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
 
-			context.addSessionEventListener(new LoggerSEListener());
+			context.addSessionEventListener(new LoggerSocketSEListener());
 			
 //			context.addSessionEventListener(new SessionActiveSEListener());
 			

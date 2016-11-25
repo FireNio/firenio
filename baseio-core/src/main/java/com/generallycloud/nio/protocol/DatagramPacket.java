@@ -1,10 +1,8 @@
 package com.generallycloud.nio.protocol;
 
-import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.MathUtil;
 
 /**
  * 
@@ -32,14 +30,6 @@ public class DatagramPacket{
 	private long				timestamp			= -1;			// 8 byte
 	private ByteBuf			source			;
 	private String				dataString		;
-	private int				sourceLength		;
-	private InetSocketAddress	remoteSocketAddress	;
-
-	public DatagramPacket(ByteBuf buf,InetSocketAddress remoteSocketAddress) {
-		this.source = buf;
-		this.sourceLength = buf.position();
-		this.remoteSocketAddress = remoteSocketAddress;
-	}
 
 	protected DatagramPacket(long timestamp, int sequenceNO, byte[] data) {
 		this.timestamp = timestamp;
@@ -50,15 +40,22 @@ public class DatagramPacket{
 	public DatagramPacket(byte[] data) {
 		this.data = data;
 	}
+	
+	public DatagramPacket(ByteBuf source) {
+		this.source = source;
+	}
 
 	public byte[] getData() {
+		
 		if (data == null) {
 
-			int length = sourceLength - PACKET_HEADER;
+			int length = source.position() - PACKET_HEADER;
+			
+			int offset = PACKET_HEADER + source.offset();
 
 			data = new byte[length];
 
-			System.arraycopy(source.array(), PACKET_HEADER, data, 0, length);
+			System.arraycopy(source.array(), offset, data, 0, length);
 		}
 		return data;
 	}
@@ -67,9 +64,7 @@ public class DatagramPacket{
 
 		if (dataString == null) {
 
-			int length = sourceLength - PACKET_HEADER;
-
-			dataString = new String(source.array(), PACKET_HEADER, length, encoding);
+			dataString = new String(getData(), encoding);
 		}
 
 		return dataString;
@@ -78,7 +73,10 @@ public class DatagramPacket{
 	public int getSequenceNo() {
 		
 		if (sequenceNo == -1) {
-			sequenceNo = MathUtil.byte2Int(source.array(), 8);
+			if (source == null) {
+				return sequenceNo;
+			}
+			sequenceNo = source.getInt(8);
 		}
 		
 		return sequenceNo;
@@ -90,14 +88,10 @@ public class DatagramPacket{
 			if (source == null) {
 				return timestamp;
 			}
-			timestamp = MathUtil.byte2Long(source.array(), 0);
+			timestamp = source.getLong(0);
 		}
 		
 		return timestamp;
-	}
-
-	protected InetSocketAddress getRemoteSocketAddress() {
-		return remoteSocketAddress;
 	}
 
 	public ByteBuf getSource() {

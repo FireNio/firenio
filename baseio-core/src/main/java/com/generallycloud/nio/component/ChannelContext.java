@@ -4,15 +4,12 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Attributes;
 import com.generallycloud.nio.LifeCycle;
-import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public interface ChannelContext extends Attributes, LifeCycle {
 
 	public abstract SessionManager getSessionManager();
-	
-	public abstract void setSessionManager(SessionManager sessionManager) ;
 
 	public abstract Charset getEncoding();
 
@@ -30,20 +27,4 @@ public interface ChannelContext extends Attributes, LifeCycle {
 
 	public abstract MCByteBufAllocator getMcByteBufAllocator();
 	
-	public abstract Linkable<SessionEventListener> getSessionEventListenerLink();
-	
-	public abstract void addSessionEventListener(SessionEventListener listener);
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.generallycloud.nio.acceptor.ChannelAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
@@ -12,9 +12,9 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.SessionMEvent;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -35,9 +35,9 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
 
-		ChannelAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
+		SocketChannelAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
 
-		acceptor.offerSessionMEvent(new SessionMEvent() {
+		acceptor.offerSessionMEvent(new SocketSessionManagerEvent() {
 
 			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
 

@@ -9,19 +9,23 @@ import com.generallycloud.nio.common.StringUtil;
 
 public abstract class AbstractChannel implements Channel {
 
-	protected Object				attachment;
-	protected String				edp_description;
-	protected Integer				channelID;
-	protected InetSocketAddress		local;
-	protected InetSocketAddress		remote;
-	protected long				lastAccess;
-	protected ByteBufAllocator		byteBufAllocator;
-	protected SelectorLoop			selectorLoop;
-	protected long				creationTime	= System.currentTimeMillis();
-	protected ReentrantLock			channelLock	= new ReentrantLock();
+	protected Object			attachment;
+	protected String			edp_description;
+	protected Integer			channelID;
+	protected InetSocketAddress	local;
+	protected InetSocketAddress	remote;
+	protected long			lastAccess;
+	protected ByteBufAllocator	byteBufAllocator;
+	protected SelectorLoop		selectorLoop;
+	protected boolean			opened		= true;
+	protected boolean			closing		= false;
+	protected long			creationTime	= System.currentTimeMillis();
+	protected ReentrantLock		channelLock	= new ReentrantLock();
 
-	public AbstractChannel(ChannelContext context, ByteBufAllocator allocator) {
-		this.byteBufAllocator = allocator;
+	public AbstractChannel(SelectorLoop selectorLoop) {
+		ChannelContext context = selectorLoop.getContext();
+		this.selectorLoop = selectorLoop;
+		this.byteBufAllocator = selectorLoop.getByteBufAllocator();
 		// 这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
@@ -37,7 +41,7 @@ public abstract class AbstractChannel implements Channel {
 
 	public String getLocalAddr() {
 
-		InetAddress address = local.getAddress();
+		InetAddress address = getLocalSocketAddress().getAddress();
 
 		if (address == null) {
 			return "127.0.0.1";
@@ -51,7 +55,7 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	public String getLocalHost() {
-		return local.getHostName();
+		return getLocalSocketAddress().getHostName();
 	}
 
 	public ByteBufAllocator getByteBufAllocator() {
@@ -59,7 +63,7 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	public int getLocalPort() {
-		return local.getPort();
+		return getLocalSocketAddress().getPort();
 	}
 
 	public abstract InetSocketAddress getLocalSocketAddress();
@@ -115,18 +119,9 @@ public abstract class AbstractChannel implements Channel {
 	public String toString() {
 
 		if (edp_description == null) {
-			edp_description = new StringBuilder("[")
-				.append(getMarkPrefix())
-				.append("(id:")
-				.append(getIdHexString(channelID))
-				.append(") R /")
-				.append(getRemoteAddr())
-				.append(":")
-				.append(getRemotePort())
-				.append("; Lp:")
-				.append(getLocalPort())
-				.append("]")
-				.toString();
+			edp_description = new StringBuilder("[").append(getMarkPrefix()).append("(id:")
+					.append(getIdHexString(channelID)).append(") R /").append(getRemoteAddr()).append(":")
+					.append(getRemotePort()).append("; Lp:").append(getLocalPort()).append("]").toString();
 		}
 
 		return edp_description;

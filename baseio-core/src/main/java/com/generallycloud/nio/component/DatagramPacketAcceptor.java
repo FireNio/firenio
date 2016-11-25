@@ -6,5 +6,5 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public interface DatagramPacketAcceptor {
 	
-	public abstract void accept(DatagramChannel channel,DatagramPacket packet) throws IOException;
+	public abstract void accept(DatagramSession session,DatagramPacket packet) throws IOException;
 }

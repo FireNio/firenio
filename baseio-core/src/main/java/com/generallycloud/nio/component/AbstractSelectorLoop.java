@@ -77,6 +77,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 			logger.error(t.getMessage()+" channel:" + attachment, t);
 			
 			CloseUtil.close((Channel) attachment);
+			
+		} else {
+			
+			logger.error(t.getMessage(), t);
 		}
 	}
 	

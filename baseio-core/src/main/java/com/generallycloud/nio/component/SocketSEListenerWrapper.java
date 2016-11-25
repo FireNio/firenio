@@ -2,9 +2,9 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.AbstractLinkable;
 
-public class SessionEventListenerWrapper extends AbstractLinkable<SessionEventListener> implements SessionEventListener {
+public class SocketSEListenerWrapper extends AbstractLinkable<SocketSessionEventListener> implements SocketSessionEventListener {
 
-	public SessionEventListenerWrapper(SessionEventListener value) {
+	public SocketSEListenerWrapper(SocketSessionEventListener value) {
 		super(value);
 	}
 

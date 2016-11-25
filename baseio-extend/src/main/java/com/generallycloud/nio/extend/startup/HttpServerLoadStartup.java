@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.LoggerSEListener;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -52,7 +52,7 @@ public class HttpServerLoadStartup {
 
 			context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-			context.addSessionEventListener(new LoggerSEListener());
+			context.addSessionEventListener(new LoggerSocketSEListener());
 
 			acceptor.getContext().setProtocolFactory(new ServerHTTPProtocolFactory());
 

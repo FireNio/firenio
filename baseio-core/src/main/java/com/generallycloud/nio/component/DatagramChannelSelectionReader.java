@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
@@ -43,9 +42,7 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 		
 		buf.skipBytes(nioBuffer.position());
 
-		DatagramChannelFactory factory = context.getDatagramChannelFactory();
-
-		DatagramPacket packet = new DatagramPacket(buf, remoteSocketAddress);
+		DatagramPacket packet = new DatagramPacket(buf);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
 
@@ -53,11 +50,11 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 			logger.debug("______________ none acceptor for context");
 			return;
 		}
+		
+		DatagramSessionManager manager = context.getSessionManager();
 
-		com.generallycloud.nio.component.DatagramChannel datagramChannel = factory.getDatagramChannel(selectorLoop,
-				channel, remoteSocketAddress);
-
-		acceptor.accept(datagramChannel, packet);
+		acceptor.accept(manager.getSession(selectorLoop, channel, remoteSocketAddress), packet);
 
 	}
+	
 }

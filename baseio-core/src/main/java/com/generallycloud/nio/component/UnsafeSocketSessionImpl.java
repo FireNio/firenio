@@ -13,11 +13,11 @@ import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class UnsafeSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
+public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
 
-	private static final Logger	logger	= LoggerFactory.getLogger(UnsafeSessionImpl.class);
+	private static final Logger	logger	= LoggerFactory.getLogger(UnsafeSocketSessionImpl.class);
 
-	public UnsafeSessionImpl(SocketChannel channel,Integer sessionID) {
+	public UnsafeSocketSessionImpl(SocketChannel channel,Integer sessionID) {
 		super(channel,sessionID);
 	}
 
@@ -50,7 +50,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 			// success
 		}
 
-		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
 
 		for (; linkable != null;) {
 
@@ -68,7 +68,7 @@ public class UnsafeSessionImpl extends SocketChannelSessionImpl implements Unsaf
 
 	public void fireClosed() {
 
-		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
+		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
 
 		for (; linkable != null;) {
 

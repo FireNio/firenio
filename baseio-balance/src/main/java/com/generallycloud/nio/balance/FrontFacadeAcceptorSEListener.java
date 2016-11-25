@@ -3,11 +3,11 @@ package com.generallycloud.nio.balance;
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SEListenerAdapter;
+import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontFacadeAcceptorSEListener extends SEListenerAdapter {
+public class FrontFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorSEListener.class);
 

@@ -5,7 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.DatagramChannel;
+import com.generallycloud.nio.component.DatagramSession;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
@@ -23,7 +23,7 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
-	private ReentrantList<DatagramChannel>	datagramChannelList	= new ReentrantList<DatagramChannel>();
+	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<DatagramSession>();
 	private RTPRoomFactory			roomFactory	;
 	private Integer				roomID		;
 	private boolean				closed		= false;
@@ -35,13 +35,13 @@ public class RTPRoom {
 //		this.join(session.getDatagramChannel()); //FIXME udp 
 	}
 
-	public void broadcast(DatagramChannel channel, DatagramPacket packet) {
+	public void broadcast(DatagramSession session, DatagramPacket packet) {
 
-		List<DatagramChannel> datagramChannels = datagramChannelList.getSnapshot();
+		List<DatagramSession> datagramChannels = datagramChannelList.getSnapshot();
 
-		for (DatagramChannel ch : datagramChannels) {
+		for (DatagramSession ch : datagramChannels) {
 
-			if (channel == ch) {
+			if (session == ch) {
 				continue;
 			}
 
@@ -64,9 +64,9 @@ public class RTPRoom {
 		return roomID;
 	}
 
-	public boolean join(DatagramChannel channel) {
+	public boolean join(DatagramSession session) {
 		
-		if (channel == null) {
+		if (session == null) {
 			return false;
 		}
 
@@ -81,7 +81,7 @@ public class RTPRoom {
 			return false;
 		}
 
-		if (!datagramChannelList.add(channel)) {
+		if (!datagramChannelList.add(session)) {
 
 			lock.unlock();
 
@@ -90,7 +90,7 @@ public class RTPRoom {
 
 		lock.unlock();
 
-		Session session = (Session) channel.getSession();
+//		Session session = (Session) session.getSession();
 
 		//FIXME RTP
 //		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
@@ -100,7 +100,7 @@ public class RTPRoom {
 		return true;
 	}
 
-	public void leave(DatagramChannel channel) {
+	public void leave(DatagramSession channel) {
 
 		ReentrantLock lock = datagramChannelList.getReentrantLock();
 
@@ -108,28 +108,28 @@ public class RTPRoom {
 
 		datagramChannelList.remove(channel);
 
-		List<DatagramChannel> chs = datagramChannelList.getSnapshot();
+		List<DatagramSession> chs = datagramChannelList.getSnapshot();
 
-		for (DatagramChannel ch : chs) {
+		for (DatagramSession ch : chs) {
 
 			if (ch == channel) {
 				continue;
 			}
 
 			//FIXME RTP
-			SocketSession session = (SocketSession) ch.getSession();
+//			SocketSession session = (SocketSession) ch.getSession();
 			
-			Authority authority = ApplicationContextUtil.getAuthority(session);
-
-			MapMessage message = new MapMessage("mmm", authority.getUuid());
-
-			message.setEventName("break");
-
-			message.put("userID", authority.getUserID());
-
-			MQContext mqContext = MQContext.getInstance();
-
-			mqContext.offerMessage(message);
+//			Authority authority = ApplicationContextUtil.getAuthority(session);
+//
+//			MapMessage message = new MapMessage("mmm", authority.getUuid());
+//
+//			message.setEventName("break");
+//
+//			message.put("userID", authority.getUserID());
+//
+//			MQContext mqContext = MQContext.getInstance();
+//
+//			mqContext.offerMessage(message);
 		}
 
 		if (datagramChannelList.size() == 0) {

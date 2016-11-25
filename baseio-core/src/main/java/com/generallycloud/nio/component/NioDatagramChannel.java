@@ -6,27 +6,29 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
+import com.generallycloud.nio.connector.ChannelConnector;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.nio.component.DatagramChannel {
 
-	private static final Logger		LOGGER	= LoggerFactory.getLogger(NioDatagramChannel.class);
-	private AtomicBoolean			_closed	= new AtomicBoolean(false);
+	private static final Logger logger = LoggerFactory.getLogger(NioDatagramChannel.class);
+	
 	private DatagramChannel			channel;
 	private DatagramSocket			socket;
 	private DatagramChannelContext	context;
 	private UnsafeDatagramSession		session;
 
 	public NioDatagramChannel(DatagramChannelSelectorLoop selectorLoop, DatagramChannel channel, InetSocketAddress remote)
-			throws SocketException {
-		super(selectorLoop.getContext(), selectorLoop.getByteBufAllocator());
+			throws IOException {
+		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.channel = channel;
 		this.remote = remote;
@@ -36,10 +38,58 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		}
 
 		session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
+	
+		session.fireOpend();
+		
 	}
 
 	public void close() throws IOException {
-		this.physicalClose();
+		
+		ReentrantLock lock = this.channelLock;
+
+		lock.lock();
+
+		try {
+
+			if (!opened) {
+				return;
+			}
+
+			if (isInSelectorLoop()) {
+
+				this.session.physicalClose();
+
+				this.physicalClose();
+
+			} else {
+
+				if (closing) {
+					return;
+				}
+				closing = true;
+
+				fireClose();
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	private void fireClose() {
+
+		fireEvent(new SelectorLoopEventAdapter() {
+
+			public boolean handle(SelectorLoop selectLoop) throws IOException {
+
+				CloseUtil.close(NioDatagramChannel.this);
+
+				return false;
+			}
+		});
+	}
+	
+	public void fireEvent(SelectorLoopEvent event) {
+		this.selectorLoop.fireEvent(event);
 	}
 	
 	public DatagramChannelContext getContext() {
@@ -48,15 +98,20 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	public void physicalClose() {
 
-		if (_closed.compareAndSet(false, true)) {
+		DatagramSessionManager manager = context.getSessionManager();
+		
+		manager.removeSession(session);
+		
+		ChannelService service = context.getChannelService();
 
-			DatagramChannelFactory factory = getContext().getDatagramChannelFactory();
+		if (service instanceof ChannelConnector) {
 
-			factory.removeDatagramChannel(this);
-
-			LOGGER.debug(">>>> rm {}", this.toString());
+			try {
+				((ChannelConnector) service).physicalClose();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
-
 	}
 
 	public InetSocketAddress getLocalSocketAddress() {
