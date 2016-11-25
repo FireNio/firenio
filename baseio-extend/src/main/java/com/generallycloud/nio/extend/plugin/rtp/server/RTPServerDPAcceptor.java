@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.LoginCenter;
@@ -34,7 +34,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 		this.context = context;
 	}
 
-	public void doAccept(DatagramChannel channel, DatagramPacket packet,Session session) throws IOException {
+	public void doAccept(DatagramChannel channel, DatagramPacket packet,SocketSession session) throws IOException {
 
 		AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(session);
 		
@@ -79,7 +79,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 //			Session session = factory.getSession(username);
 			
-			Session session = null;  
+			SocketSession session = null;  
 			
 			if (session == null) {
 				return ;

@@ -4,8 +4,8 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.SocketSession;
@@ -44,7 +44,7 @@ public class HttpServerLoadStartup {
 		PropertiesSCLoader loader = new PropertiesSCLoader();
 		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
 
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 

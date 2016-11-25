@@ -1,7 +1,7 @@
 package com.generallycloud.nio.extend;
 
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
@@ -13,7 +13,7 @@ public class OnReadFutureWrapper implements OnReadFuture {
 
 	private ListQueue<WaiterOnReadFuture>	waiters	= new ListQueueABQ<WaiterOnReadFuture>(1024 * 8);
 
-	public void onResponse(final Session session, final ReadFuture future) {
+	public void onResponse(final SocketSession session, final ReadFuture future) {
 
 		WaiterOnReadFuture waiter = waiters.poll();
 

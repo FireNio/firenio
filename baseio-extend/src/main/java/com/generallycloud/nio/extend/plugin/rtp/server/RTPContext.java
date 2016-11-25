@@ -2,8 +2,7 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 
 import java.util.Map;
 
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -27,16 +26,12 @@ public class RTPContext extends AbstractPluginContext {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		BaseContext baseContext = context.getContext();
-
-		baseContext.setDatagramPacketAcceptor(new RTPServerDPAcceptor(this));
-
 		context.addSessionEventListener(new RTPSessionEventListener());
 		
 		instance = this;
 	}
 	
-	public RTPSessionAttachment getSessionAttachment(Session session){
+	public RTPSessionAttachment getSessionAttachment(SocketSession session){
 		return (RTPSessionAttachment) session.getAttachment(this.getPluginIndex());
 	}
 

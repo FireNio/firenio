@@ -24,7 +24,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract void downNetworkState();
 
 	public abstract void wakeup();
-	
+
 	public abstract boolean isInSelectorLoop();
 
 	public abstract ChannelReadFuture getReadFuture();
@@ -43,6 +43,8 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract boolean isBlocking();
 
+	public abstract SocketChannelContext getContext();
+
 	public abstract ProtocolEncoder getProtocolEncoder();
 
 	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
@@ -58,8 +60,8 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract int getWriteFutureSize();
 
 	public abstract boolean needFlush();
-	
+
 	public abstract UnsafeSocketSession getSession();
-	
+
 	public abstract void fireEvent(SelectorLoopEvent event);
 }

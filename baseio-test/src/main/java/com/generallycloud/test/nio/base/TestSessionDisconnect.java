@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.base;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -32,7 +32,7 @@ public class TestSessionDisconnect {
 		System.out.println(future.getReadText());
 
 		session.listen(serviceName, new OnReadFuture() {
-			public void onResponse(Session session, ReadFuture future) {
+			public void onResponse(SocketSession session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println(f.getReadText());

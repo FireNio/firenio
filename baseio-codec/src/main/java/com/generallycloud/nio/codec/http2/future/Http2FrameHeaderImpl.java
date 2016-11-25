@@ -6,7 +6,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
@@ -29,7 +29,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 		this.buf = buf;
 	}
 
-	public Http2FrameHeaderImpl(BaseContext context) {
+	public Http2FrameHeaderImpl(SocketChannelContext context) {
 		super(context);
 	}
 

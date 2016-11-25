@@ -5,7 +5,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.service.BaseFutureAcceptorService;
 
@@ -17,7 +17,7 @@ public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 
 	public void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
 		
-		BaseContext context = session.getContext();
+		SocketChannelContext context = session.getContext();
 		
 		new Thread(new StopServer(context)).start();
 		
@@ -28,9 +28,9 @@ public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 
 	private class StopServer implements Runnable {
 		
-		private BaseContext context = null;
+		private SocketChannelContext context = null;
 
-		public StopServer(BaseContext context) {
+		public StopServer(SocketChannelContext context) {
 			this.context = context;
 		}
 

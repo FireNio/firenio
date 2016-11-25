@@ -3,7 +3,7 @@ package com.generallycloud.nio.buffer;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.ChannelContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class MCByteBufAllocator extends AbstractLifeCycle {
@@ -14,7 +14,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 	
 	private int cycle;
 
-	public MCByteBufAllocator(BaseContext context) {
+	public MCByteBufAllocator(ChannelContext context) {
 		createLinkAbleByteBufAllocator(context);
 	}
 
@@ -42,7 +42,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 		
 	}
 
-	private void createLinkAbleByteBufAllocator(BaseContext context) {
+	private void createLinkAbleByteBufAllocator(ChannelContext context) {
 
 		ServerConfiguration c = context.getServerConfiguration();
 

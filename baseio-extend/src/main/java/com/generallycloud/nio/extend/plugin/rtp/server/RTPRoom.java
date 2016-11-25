@@ -3,11 +3,11 @@ package com.generallycloud.nio.extend.plugin.rtp.server;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantList;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
@@ -45,12 +45,8 @@ public class RTPRoom {
 				continue;
 			}
 
-			ByteBuf buf = packet.getSource();
-
-			buf.flip();
-
 			try {
-				ch.sendPacket(buf);
+				ch.sendPacket(packet);
 			} catch (Throwable e) {
 				logger.debug(e);
 			}
@@ -96,9 +92,10 @@ public class RTPRoom {
 
 		Session session = (Session) channel.getSession();
 
-		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
+		//FIXME RTP
+//		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
 
-		attachment.setRTPRoom(this);
+//		attachment.setRTPRoom(this);
 
 		return true;
 	}
@@ -119,7 +116,8 @@ public class RTPRoom {
 				continue;
 			}
 
-			Session session = (Session) ch.getSession();
+			//FIXME RTP
+			SocketSession session = (SocketSession) ch.getSession();
 			
 			Authority authority = ApplicationContextUtil.getAuthority(session);
 

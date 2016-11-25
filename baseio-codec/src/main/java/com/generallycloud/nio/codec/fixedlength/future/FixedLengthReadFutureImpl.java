@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractTextReadFuture;
@@ -35,7 +35,7 @@ public class FixedLengthReadFutureImpl extends AbstractTextReadFuture implements
 		this.limit = limit;
 	}
 
-	public FixedLengthReadFutureImpl(BaseContext context) {
+	public FixedLengthReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
 

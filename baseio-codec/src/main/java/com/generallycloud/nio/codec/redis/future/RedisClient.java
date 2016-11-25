@@ -4,26 +4,26 @@ import java.io.IOException;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.redis.future.RedisReadFuture.RedisCommand;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {
 
-	private BaseContext			context;
+	private SocketChannelContext	context;
 
-	private Session			session;
+	private SocketSession		session;
 
 	private RedisIOEventHandle	ioEventHandle;
 
 	private long				timeout;
 
-	public RedisClient(Session session) {
+	public RedisClient(SocketSession session) {
 		this(session, 3000);
 	}
 
-	public RedisClient(Session session, long timeout) {
+	public RedisClient(SocketSession session, long timeout) {
 		this.timeout = timeout;
 		this.session = session;
 		this.context = session.getContext();

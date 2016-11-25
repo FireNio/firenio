@@ -2,7 +2,7 @@ package com.generallycloud.nio.extend.plugin.jms.client.impl;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.plugin.jms.MQException;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.plugin.jms.client.OnMessage;
@@ -19,7 +19,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 		this.messageDecoder = messageDecoder;
 	}
 
-	public void onResponse(Session session, ReadFuture future) {
+	public void onResponse(SocketSession session, ReadFuture future) {
 		
 		BaseReadFuture f = (BaseReadFuture) future;
 		

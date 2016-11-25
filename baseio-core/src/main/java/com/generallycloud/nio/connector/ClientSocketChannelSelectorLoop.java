@@ -58,7 +58,7 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
 			channel.register(getSelector(), SelectionKey.OP_READ);
 
-			SocketChannel socketChannel = selectorLoopStrategy.buildSocketChannel(selectionKey, this);
+			SocketChannel socketChannel = buildSocketChannel(selectionKey);
 			
 			connector.finishConnect(socketChannel.getSession(), null);
 

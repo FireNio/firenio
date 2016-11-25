@@ -8,7 +8,7 @@ import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 
@@ -16,44 +16,44 @@ public class WebSocketMsgAdapter implements Looper {
 
 	private Logger				logger	= LoggerFactory.getLogger(WebSocketMsgAdapter.class);
 
-	private List<Session>		clients	= new ArrayList<Session>();
+	private List<SocketSession>	clients	= new ArrayList<SocketSession>();
 
 	private ListQueue<String>	msgs		= new ListQueueABQ<String>(1024 * 4);
-	
+
 	public void stop() {
 
 	}
-	
+
 	public void startup() throws Exception {
-		
+
 	}
 
-	public synchronized void addClient(Session session) {
+	public synchronized void addClient(SocketSession session) {
 
 		clients.add(session);
 
-		logger.info("客户端 {} 已加入当前客户端数量：{}",session, clients.size());
+		logger.info("客户端 {} 已加入当前客户端数量：{}", session, clients.size());
 	}
 
-	public synchronized void removeClient(Session session) {
+	public synchronized void removeClient(SocketSession session) {
 
 		clients.remove(session);
 
-		logger.info("客户端 {} 已离开当前客户端数量：{}",session, clients.size());
+		logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
 	}
 
 	public void sendMsg(String msg) {
 		msgs.offer(msg);
 	}
-	
-	public int getClientSize(){
+
+	public int getClientSize() {
 		return clients.size();
 	}
 
 	public void loop() {
 
 		String msg = msgs.poll(16);
-		
+
 		if (msg == null) {
 			return;
 		}
@@ -62,7 +62,7 @@ public class WebSocketMsgAdapter implements Looper {
 
 			for (int i = 0; i < clients.size(); i++) {
 
-				Session s = clients.get(i);
+				SocketSession s = clients.get(i);
 
 				if (s.isOpened()) {
 

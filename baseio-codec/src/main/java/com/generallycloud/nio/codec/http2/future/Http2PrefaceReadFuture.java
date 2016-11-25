@@ -7,7 +7,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -29,7 +29,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 		
 	}
 
-	public Http2PrefaceReadFuture(BaseContext context,ByteBuf buf) {
+	public Http2PrefaceReadFuture(SocketChannelContext context,ByteBuf buf) {
 		super(context);
 		this.buf = buf;
 	}

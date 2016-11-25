@@ -33,7 +33,7 @@ public class BaseContextListener extends AbstractLifeCycleListener implements Li
 	}
 
 	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		BaseContext context = (BaseContext) lifeCycle;
+		SocketChannelContext context = (SocketChannelContext) lifeCycle;
 		
 		if (context == null) {
 			LoggerUtil.prettyNIOServerLog(logger, "服务启动失败，正在停止...");

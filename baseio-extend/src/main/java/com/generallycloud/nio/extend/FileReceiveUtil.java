@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class FileReceiveUtil {
 
@@ -29,7 +29,7 @@ public class FileReceiveUtil {
 		this.prefix = prefix;
 	}
 
-	public void accept(Session session, BaseReadFuture future,boolean callback) throws Exception {
+	public void accept(SocketSession session, BaseReadFuture future,boolean callback) throws Exception {
 
 		Parameters parameters = future.getParameters();
 

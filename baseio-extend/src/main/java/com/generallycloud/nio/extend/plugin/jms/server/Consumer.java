@@ -4,21 +4,21 @@ import java.io.IOException;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.plugin.jms.BytedMessage;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 
 public class Consumer {
 
-	private String				queueName		;
-	private MQSessionAttachment	attachment	;
-	private ConsumerQueue		consumerQueue	;
-	private Session			session		;
-	private BaseReadFuture			future		;
-	private Message			message		;
+	private String				queueName;
+	private MQSessionAttachment	attachment;
+	private ConsumerQueue		consumerQueue;
+	private SocketSession		session;
+	private BaseReadFuture		future;
+	private Message			message;
 
-	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, Session session, BaseReadFuture future,
-			String queueName) {
+	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, SocketSession session,
+			BaseReadFuture future, String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -49,12 +49,12 @@ public class Consumer {
 
 		String content = message.toString();
 
-		Session session = this.session;
+		SocketSession session = this.session;
 
-		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
+		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
 
 		f.attach(this);
-		
+
 		f.setIOEventHandle(this.future.getIOEventHandle());
 
 		f.write(content);
@@ -80,7 +80,7 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(),future.getFutureID(), future.getFutureName());
+		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

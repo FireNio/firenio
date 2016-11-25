@@ -30,7 +30,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	private Socket						socket;
 	private SocketChannel				channel;
-	private UnsafeSocketSession				session;
+	private UnsafeSocketSession			session;
 	private ChannelReadFuture			readFuture;
 	private SslReadFuture				sslReadFuture;
 	private SelectionKey				selectionKey;
@@ -38,6 +38,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolDecoder				protocolDecoder;
 	private ProtocolEncoder				protocolEncoder;
 	private ProtocolFactory				protocolFactory;
+	private SocketChannelContext			context;
 	private ChannelWriteFuture			writeFuture;
 	private boolean					opened			= true;
 	private boolean					closing			= false;
@@ -51,8 +52,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(SelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
-		super(selectorLoop.getContext(), selectorLoop.getByteBufAllocator());
+	public NioSocketChannel(SocketChannelSelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
+		super(selectorLoop.getContext(),selectorLoop.getByteBufAllocator());
+		this.context = selectorLoop.getContext();
 		this.selectionKey = selectionKey;
 		this.selectorLoop = selectorLoop;
 		this.channel = (SocketChannel) selectionKey.channel();
@@ -61,7 +63,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-
+		
 		this.protocolFactory = selectorLoop.getProtocolFactory();
 		this.protocolDecoder = selectorLoop.getProtocolDecoder();
 		this.protocolEncoder = selectorLoop.getProtocolEncoder();
@@ -98,6 +100,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		} finally {
 			lock.unlock();
 		}
+	}
+	
+	public SocketChannelContext getContext() {
+		return context;
 	}
 
 	private void fireClose() {

@@ -7,11 +7,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
 import com.generallycloud.nio.common.FileUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 
 public class FileSendUtil {
 	
-	public void sendFile(Session session,String serviceName,File file,int cacheSize) throws Exception {
+	public void sendFile(SocketSession session,String serviceName,File file,int cacheSize) throws Exception {
 
 		FileInputStream inputStream = new FileInputStream(file);
 		

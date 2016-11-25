@@ -3,10 +3,9 @@ package com.generallycloud.nio.component;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectableChannel;
 
-
 public interface ChannelService {
 
-	public abstract BaseContext getContext() ;
+	public abstract ChannelContext getContext() ;
 
 	public abstract InetSocketAddress getServerSocketAddress();
 	

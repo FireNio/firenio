@@ -1,12 +1,12 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public class EmptyReadFuture extends AbstractReadFuture{
 
 	private static EmptyReadFuture emptyReadFuture = null;
 	
-	public static EmptyReadFuture getEmptyReadFuture(BaseContext context){
+	public static EmptyReadFuture getEmptyReadFuture(SocketChannelContext context){
 		
 		if (emptyReadFuture == null) {
 			synchronized (EmptyReadFuture.class) {
@@ -19,7 +19,7 @@ public class EmptyReadFuture extends AbstractReadFuture{
 		return emptyReadFuture;
 	}
 	
-	protected EmptyReadFuture(BaseContext context) {
+	protected EmptyReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 

@@ -1,6 +1,6 @@
 package com.generallycloud.nio.balance;
 
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
 public abstract class AbstractBalanceReadFuture extends AbstractChannelReadFuture implements BalanceReadFuture {
@@ -9,7 +9,7 @@ public abstract class AbstractBalanceReadFuture extends AbstractChannelReadFutur
 
 	protected Integer	sessionID;
 
-	protected AbstractBalanceReadFuture(BaseContext context) {
+	protected AbstractBalanceReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 

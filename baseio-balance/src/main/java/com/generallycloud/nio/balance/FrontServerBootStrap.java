@@ -8,8 +8,9 @@ import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.balance.router.SimpleNextRouter;
 import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BeatFutureFactory;
-import com.generallycloud.nio.component.BaseContextImpl;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -38,10 +39,10 @@ public class FrontServerBootStrap {
 
 		FrontContext frontContext = new FrontContext(frontFacadeAcceptor, frontRouter);
 
-		BaseContext frontBaseContext = getFrontBaseContext(frontContext, frontServerConfiguration,
+		SocketChannelContext frontBaseContext = getFrontBaseContext(frontContext, frontServerConfiguration,
 				frontProtocolFactory);
 
-		BaseContext frontReverseBaseContext = getFrontReverseBaseContext(frontContext,
+		SocketChannelContext frontReverseBaseContext = getFrontReverseBaseContext(frontContext,
 				frontReverseServerConfiguration, frontReverseProtocolFactory);
 		
 		frontContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
@@ -49,10 +50,10 @@ public class FrontServerBootStrap {
 		frontFacadeAcceptor.start(frontContext, frontBaseContext, frontReverseBaseContext);
 	}
 
-	private BaseContext getFrontBaseContext(FrontContext frontContext, ServerConfiguration configuration,
+	private SocketChannelContext getFrontBaseContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
 		context.setIoEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
@@ -73,10 +74,10 @@ public class FrontServerBootStrap {
 		return context;
 	}
 
-	private BaseContext getFrontReverseBaseContext(FrontContext frontContext, ServerConfiguration configuration,
+	private SocketChannelContext getFrontReverseBaseContext(FrontContext frontContext, ServerConfiguration configuration,
 			ProtocolFactory protocolFactory) {
 
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
 		context.setIoEventHandleAdaptor(frontContext.getFrontReverseAcceptorHandler());
 
@@ -139,7 +140,7 @@ public class FrontServerBootStrap {
 		frontReverseSessionEventListeners.add(listener);
 	}
 
-	private void addSessionEventListener2Context(BaseContext context, List<SessionEventListener> listeners) {
+	private void addSessionEventListener2Context(SocketChannelContext context, List<SessionEventListener> listeners) {
 		for (SessionEventListener l : listeners) {
 			context.addSessionEventListener(l);
 		}

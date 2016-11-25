@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.KMPUtil;
 import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractTextReadFuture;
@@ -61,7 +61,7 @@ public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture impl
 	protected StringBuilder			currentHeaderLine	= new StringBuilder();
 	protected BufferedOutputStream	binaryBuffer;
 
-	public AbstractHttpReadFuture(BaseContext context) {
+	public AbstractHttpReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 

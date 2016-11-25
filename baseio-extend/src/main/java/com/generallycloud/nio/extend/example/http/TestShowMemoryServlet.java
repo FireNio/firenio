@@ -8,7 +8,7 @@ import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.HtmlUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
@@ -16,7 +16,7 @@ public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
-		BaseContext context = session.getIoSession().getContext();
+		SocketChannelContext context = session.getIoSession().getContext();
 		HttpContext httpContext = session.getContext();
 
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());

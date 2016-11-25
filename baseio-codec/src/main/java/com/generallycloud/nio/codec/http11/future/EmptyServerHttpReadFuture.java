@@ -2,11 +2,11 @@ package com.generallycloud.nio.codec.http11.future;
 
 import java.util.Map;
 
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public class EmptyServerHttpReadFuture extends ServerHttpReadFuture{
 
-	public EmptyServerHttpReadFuture(BaseContext context) {
+	public EmptyServerHttpReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 

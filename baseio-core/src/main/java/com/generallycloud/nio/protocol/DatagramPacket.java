@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.MathUtil;
-import com.generallycloud.nio.component.BaseContext;
 
 /**
  * 
@@ -16,7 +15,7 @@ import com.generallycloud.nio.component.BaseContext;
  * </pre>
  * 
  */
-public class DatagramPacket extends AbstractReadFuture implements DatagramReadFuture{
+public class DatagramPacket{
 
 	public static final int		PACKET_HEADER		= 8 + 4;
 	public static final int		IP_HEADER		= 20;
@@ -36,22 +35,19 @@ public class DatagramPacket extends AbstractReadFuture implements DatagramReadFu
 	private int				sourceLength		;
 	private InetSocketAddress	remoteSocketAddress	;
 
-	public DatagramPacket(BaseContext context,ByteBuf buf,InetSocketAddress remoteSocketAddress) {
-		super(context);
+	public DatagramPacket(ByteBuf buf,InetSocketAddress remoteSocketAddress) {
 		this.source = buf;
 		this.sourceLength = buf.position();
 		this.remoteSocketAddress = remoteSocketAddress;
 	}
 
-	protected DatagramPacket(BaseContext context,long timestamp, int sequenceNO, byte[] data) {
-		super(context);
+	protected DatagramPacket(long timestamp, int sequenceNO, byte[] data) {
 		this.timestamp = timestamp;
 		this.sequenceNo = sequenceNO;
 		this.data = data;
 	}
 
-	public DatagramPacket(BaseContext context,byte[] data) {
-		super(context);
+	public DatagramPacket(byte[] data) {
 		this.data = data;
 	}
 
@@ -108,16 +104,6 @@ public class DatagramPacket extends AbstractReadFuture implements DatagramReadFu
 		return source;
 	}
 	
-	public void release() {
-		
-	}
-	
-	@Override
-	public DatagramReadFuture newDatagramReadFuture() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public String toString() {
 		
 		return new StringBuilder("[data:")

@@ -9,8 +9,8 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ssl.SSLUtil;
 import com.generallycloud.nio.common.ssl.SslContext;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.SocketSession;
@@ -31,7 +31,7 @@ public class TestFIxedLengthServer {
 			}
 		};
 		
-		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
+		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration(18300));
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		

@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
@@ -21,7 +21,7 @@ public class TestHttpLoadThread extends ITestThread {
 
 	SocketChannelConnector	connector;
 
-	Session				session;
+	SocketSession			session;
 
 	HttpClient			client;
 
@@ -52,7 +52,7 @@ public class TestHttpLoadThread extends ITestThread {
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 
 		session = connector.connect();
-		
+
 		client = new HttpClient(session);
 	}
 

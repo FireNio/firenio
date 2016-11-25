@@ -4,5 +4,5 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface OnReadFuture {
 	
-	public abstract void onResponse(Session session ,ReadFuture future);
+	public abstract void onResponse(SocketSession session ,ReadFuture future);
 }

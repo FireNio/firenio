@@ -5,7 +5,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 	
 	public void sessionOpened(SocketSession session) {
 
-		BaseContext context = session.getContext();
+		SocketChannelContext context = session.getContext();
 		
 		SessionManager manager = context.getSessionManager();
 
@@ -14,7 +14,7 @@ public class ManagerSEListener extends SEListenerAdapter{
 
 	public void sessionClosed(SocketSession session) {
 		
-		BaseContext context = session.getContext();
+		SocketChannelContext context = session.getContext();
 		
 		SessionManager manager = context.getSessionManager();
 

@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.util.List;
 
@@ -93,28 +92,11 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 		
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = buildSocketChannel(sk,selectorLoop);
+		SocketChannel socketChannel = selectorLoop.buildSocketChannel(sk);
 
 		// fire session open event
 		socketChannel.getSession().fireOpend();
 		// logger.debug("__________________chanel____gen____{}", channel);
 	}
 	
-	
-	public SocketChannel buildSocketChannel(SelectionKey selectionKey,SelectorLoop selectorLoop) throws SocketException {
-
-		SocketChannel channel = (SocketChannel) selectionKey.attachment();
-
-		if (channel != null) {
-
-			return channel;
-		}
-
-		channel = new NioSocketChannel(selectorLoop, selectionKey);
-
-		selectionKey.attach(channel);
-
-		return channel;
-	}
-
 }

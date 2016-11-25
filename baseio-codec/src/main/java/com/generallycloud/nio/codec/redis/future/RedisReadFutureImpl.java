@@ -3,7 +3,7 @@ package com.generallycloud.nio.codec.redis.future;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 
 //FIXME 完善心跳
@@ -18,7 +18,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture {
 
 	private boolean		complete		= false;
 
-	public RedisReadFutureImpl(BaseContext context) {
+	public RedisReadFutureImpl(SocketChannelContext context) {
 		super(context);
 //		this.currentLine 	= new StringBuilder();
 //		this.rootNode		= new RedisNode(0);

@@ -10,7 +10,6 @@ import com.generallycloud.nio.common.StringUtil;
 public abstract class AbstractChannel implements Channel {
 
 	protected Object				attachment;
-	protected BaseContext			context;
 	protected String				edp_description;
 	protected Integer				channelID;
 	protected InetSocketAddress		local;
@@ -21,8 +20,7 @@ public abstract class AbstractChannel implements Channel {
 	protected long				creationTime	= System.currentTimeMillis();
 	protected ReentrantLock			channelLock	= new ReentrantLock();
 
-	public AbstractChannel(BaseContext context, ByteBufAllocator allocator) {
-		this.context = context;
+	public AbstractChannel(ChannelContext context, ByteBufAllocator allocator) {
 		this.byteBufAllocator = allocator;
 		// 这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
@@ -31,10 +29,6 @@ public abstract class AbstractChannel implements Channel {
 
 	public Object getAttachment() {
 		return attachment;
-	}
-
-	public BaseContext getContext() {
-		return context;
 	}
 
 	public Integer getChannelID() {

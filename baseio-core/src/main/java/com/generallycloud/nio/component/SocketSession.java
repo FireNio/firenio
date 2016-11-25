@@ -7,6 +7,7 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface SocketSession extends Session {
 
@@ -24,9 +25,17 @@ public interface SocketSession extends Session {
 
 	public abstract ProtocolFactory getProtocolFactory();
 	
+	public abstract void setAttachment(int index, Object attachment);
+	
+	public abstract Object getAttachment(int index);
+	
+	public abstract SocketChannelContext getContext();
+	
 	public abstract String getProtocolID();
 
 	public abstract boolean isBlocking();
+	
+	public abstract void flush(ReadFuture future) ;
 	
 	public abstract void flush(ChannelWriteFuture future);
 

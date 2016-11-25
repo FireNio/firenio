@@ -10,7 +10,7 @@ import javax.net.ssl.SSLEngineResult.Status;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
@@ -20,11 +20,11 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SslHandler {
 
-	private BaseContext	context	= null;
+	private SocketChannelContext	context	= null;
 
 //	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
 
-	public SslHandler(BaseContext context) {
+	public SslHandler(SocketChannelContext context) {
 		this.context = context;
 	}
 

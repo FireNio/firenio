@@ -3,7 +3,7 @@ package com.generallycloud.nio.configuration;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Encoding;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.ChannelContext;
 
 //FIXME 校验参数
 public class ServerConfiguration {
@@ -156,7 +156,7 @@ public class ServerConfiguration {
 		this.SERVER_ENABLE_MEMORY_POOL_DIRECT = SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	}
 
-	public void initializeDefault(BaseContext context) {
+	public void initializeDefault(ChannelContext context) {
 
 		if (SERVER_MEMORY_POOL_UNIT == 0) {
 			SERVER_MEMORY_POOL_UNIT = 512;

@@ -2,6 +2,7 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
@@ -14,31 +15,37 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
-	private BaseContext		context;
-	private SelectorLoop	selectorLoop;
-	private ByteBuf		cacheBuffer	= UnpooledByteBufAllocator.getInstance().allocate(DatagramPacket.PACKET_MAX);
-	private Logger			logger		= LoggerFactory.getLogger(DatagramChannelSelectionReader.class);
+	private DatagramChannelContext		context		= null;
+	private DatagramChannelSelectorLoop	selectorLoop	= null;
+	private ByteBuf					cacheBuffer	= null;
+	private Logger						logger		= LoggerFactory
+			.getLogger(DatagramChannelSelectionReader.class);
 
-	public DatagramChannelSelectionReader(SelectorLoop selectorLoop) {
+	public DatagramChannelSelectionReader(DatagramChannelSelectorLoop selectorLoop) {
 		this.selectorLoop = selectorLoop;
 		this.context = selectorLoop.getContext();
+		this.cacheBuffer = UnpooledByteBufAllocator.getInstance().allocate(DatagramPacket.PACKET_MAX);
 	}
 
 	public void accept(SelectionKey selectionKey) throws IOException {
 
-		BaseContext context = this.context;
+		DatagramChannelContext context = this.context;
 
-		ByteBuf cacheBuffer = this.cacheBuffer;
+		ByteBuf buf = this.cacheBuffer;
 
-		cacheBuffer.clear();
+		buf.clear();
 
 		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
 
-		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(cacheBuffer.nioBuffer());
+		ByteBuffer nioBuffer = buf.nioBuffer();
+		
+		InetSocketAddress remoteSocketAddress = (InetSocketAddress) channel.receive(nioBuffer);
+		
+		buf.skipBytes(nioBuffer.position());
 
 		DatagramChannelFactory factory = context.getDatagramChannelFactory();
 
-		DatagramPacket packet = new DatagramPacket(context,cacheBuffer, remoteSocketAddress);
+		DatagramPacket packet = new DatagramPacket(buf, remoteSocketAddress);
 
 		DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
 

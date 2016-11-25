@@ -3,7 +3,7 @@ package com.generallycloud.nio.extend.plugin.authority;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.AbstractPluginContext;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
@@ -41,7 +41,7 @@ public class AuthorityContext extends AbstractPluginContext {
 		instance = this;
 	}
 	
-	public AuthoritySessionAttachment getSessionAttachment(Session session){
+	public AuthoritySessionAttachment getSessionAttachment(SocketSession session){
 		
 		return (AuthoritySessionAttachment) session.getAttachment(this.getPluginIndex());
 	}

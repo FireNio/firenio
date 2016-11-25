@@ -7,7 +7,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
 
 public class TestStopServerServlet extends HTTPFutureAcceptorService {
@@ -16,7 +16,7 @@ public class TestStopServerServlet extends HTTPFutureAcceptorService {
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
-		BaseContext context = session.getIoSession().getContext();
+		SocketChannelContext context = session.getIoSession().getContext();
 		
 		new Thread(new StopServer(context)).start();
 		
@@ -28,9 +28,9 @@ public class TestStopServerServlet extends HTTPFutureAcceptorService {
 
 	private class StopServer implements Runnable {
 		
-		private BaseContext context = null;
+		private SocketChannelContext context = null;
 
-		public StopServer(BaseContext context) {
+		public StopServer(SocketChannelContext context) {
 			this.context = context;
 		}
 

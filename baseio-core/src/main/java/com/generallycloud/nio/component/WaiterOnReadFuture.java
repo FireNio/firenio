@@ -20,7 +20,7 @@ public class WaiterOnReadFuture implements OnReadFuture {
 		return waiter.getPayload();
 	}
 
-	public void onResponse(Session session, ReadFuture future) {
+	public void onResponse(SocketSession session, ReadFuture future) {
 		this.waiter.setPayload(future);
 	}
 }

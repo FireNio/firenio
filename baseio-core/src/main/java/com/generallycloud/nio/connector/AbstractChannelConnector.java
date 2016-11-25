@@ -9,7 +9,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
@@ -18,13 +17,9 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
 	
-	public AbstractChannelConnector(BaseContext context) {
-		super(context);
-	}
-
 	public void close() throws IOException {
 		if (getSession() == null) {
-			physicalClose();
+			doPhysicalClose();
 			return;
 		}
 		CloseUtil.close(getSession());
@@ -58,7 +53,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		
 		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 		
-		this.connect(context, getServerSocketAddress());
+		this.connect(getServerSocketAddress());
 		
 		LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 		
@@ -67,7 +62,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	protected abstract void fireSessionOpend();
 
-	protected abstract void connect(BaseContext context, InetSocketAddress socketAddress) throws IOException;
+	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
 	public boolean isConnected() {
 		return getSession() != null && getSession().isOpened();

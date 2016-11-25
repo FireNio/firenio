@@ -8,7 +8,7 @@ import com.generallycloud.nio.codec.http2.future.Http2HeadersFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2PrefaceReadFuture;
 import com.generallycloud.nio.codec.http2.future.Http2SettingsFrameImpl;
 import com.generallycloud.nio.codec.http2.future.Http2WindowUpdateFrameImpl;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -92,7 +92,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 		Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
 
-		BaseContext context = session.getContext();
+		SocketChannelContext context = session.getContext();
 
 		switch (http2UnsafeSession.getFrameWillBeRead()) {
 		case FRAME_TYPE_CONTINUATION:

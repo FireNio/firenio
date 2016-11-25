@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractTextReadFuture;
@@ -19,7 +19,7 @@ public class LineBasedReadFutureImpl extends AbstractTextReadFuture implements L
 
 	private BufferedOutputStream	cache	= new BufferedOutputStream();
 
-	public LineBasedReadFutureImpl(BaseContext context) {
+	public LineBasedReadFutureImpl(SocketChannelContext context) {
 		super(context);
 		this.limit = 1024 * 1024;
 	}

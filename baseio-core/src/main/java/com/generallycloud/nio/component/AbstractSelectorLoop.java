@@ -12,9 +12,6 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.protocol.ProtocolDecoder;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class AbstractSelectorLoop implements SelectorLoop {
 
@@ -24,11 +21,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	private byte[]				isWaitForRegistLock		= new byte[] {};
 	private byte[]				runLock				= new byte[] {};
 
-	protected ProtocolDecoder		protocolDecoder		= null;
-	protected ProtocolEncoder		protocolEncoder		= null;
-	protected ProtocolFactory		protocolFactory		= null;
 	protected ByteBufAllocator		byteBufAllocator		= null;
-	protected BaseContext			context				= null;
 	protected SelectableChannel		selectableChannel		= null;
 	protected Selector				selector				= null;
 	protected boolean				shutdown				= false;
@@ -56,15 +49,9 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	protected AbstractSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
 
-		this.context = service.getContext();
+		ChannelContext context = service.getContext();
 		
 		this.selectorLoops = selectorLoops;
-
-		this.protocolFactory = context.getProtocolFactory();
-
-		this.protocolDecoder = protocolFactory.getProtocolDecoder();
-
-		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
 		this.selectableChannel = service.getSelectableChannel();
 
@@ -81,20 +68,26 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		}
 	}
 
-	protected void cancelSelectionKey(SelectionKey sk) {
+	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
 
-		Object attachment = sk.attachment();
+		Object attachment = selectionKey.attachment();
 
 		if (attachment instanceof Channel) {
+			
+			logger.error(t.getMessage()+" channel:" + attachment, t);
+			
 			CloseUtil.close((Channel) attachment);
 		}
 	}
+	
+	protected void cancelSelectionKey(SelectionKey selectionKey) {
 
-	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
+		Object attachment = selectionKey.attachment();
 
-		cancelSelectionKey(selectionKey);
-
-		logger.error(t.getMessage(), t);
+		if (attachment instanceof Channel) {
+			
+			CloseUtil.close((Channel) attachment);
+		}
 	}
 
 	public boolean isMainSelector() {
@@ -103,10 +96,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
-	}
-
-	public BaseContext getContext() {
-		return context;
 	}
 
 	public SelectableChannel getSelectableChannel() {
@@ -230,18 +219,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 			selectorLoopStrategy.fireEvent(event);
 		}
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
-
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
 	}
 
 	public SelectorLoopStrategy getSelectorLoopStrategy() {

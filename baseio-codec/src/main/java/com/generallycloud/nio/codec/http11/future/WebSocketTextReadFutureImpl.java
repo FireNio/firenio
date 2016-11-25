@@ -1,11 +1,11 @@
 package com.generallycloud.nio.codec.http11.future;
 
 import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public class WebSocketTextReadFutureImpl extends WebSocketReadFutureImpl{
 
-	public WebSocketTextReadFutureImpl(BaseContext context) {
+	public WebSocketTextReadFutureImpl(SocketChannelContext context) {
 		super(context);
 		this.type = WebSocketProtocolDecoder.TYPE_TEXT;
 	}

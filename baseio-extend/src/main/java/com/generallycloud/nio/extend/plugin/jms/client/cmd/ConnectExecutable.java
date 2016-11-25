@@ -7,8 +7,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -50,7 +50,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 		
 		try {
 			
-			BaseContext baseContext = new BaseContextImpl(new ServerConfiguration(Integer.parseInt(port)));
+			SocketChannelContext baseContext = new SocketChannelContextImpl(new ServerConfiguration(Integer.parseInt(port)));
 			
 			connector = new SocketChannelConnector(baseContext);
 

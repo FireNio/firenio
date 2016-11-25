@@ -35,7 +35,7 @@ import javax.net.ssl.TrustManagerFactory;
 import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.Protocol;
 import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import com.generallycloud.nio.common.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.ByteArrayInputStream;
 
 public abstract class SslContext {
@@ -80,7 +80,7 @@ public abstract class SslContext {
 		}
 	}
 
-	public void initialize(BaseContext context){
+	public void initialize(SocketChannelContext context){
 		this.sslHandler = new SslHandler(context);
 	}
 	

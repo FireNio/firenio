@@ -5,29 +5,19 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectableChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.ChannelConnector;
 
 public abstract class AbstractChannelService implements ChannelService {
-
 
 	protected InetSocketAddress		serverAddress		= null;
 	protected boolean				active			= false;
 	protected ReentrantLock			activeLock		= new ReentrantLock();
-	protected BaseContext			context			= null;
 	protected SelectableChannel		selectableChannel	= null;
 	protected SelectorLoop[]		selectorLoops		= null;
 	protected EventLoopThread[]		selectorLoopThreads	= null;
-
-	public AbstractChannelService(BaseContext context) {
-		this.context = context;
-	}
-
-	public BaseContext getContext() {
-		return context;
-	}
 
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
@@ -39,7 +29,7 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected void initSelectorLoops() throws IOException {
 
-		ServerConfiguration configuration = context.getServerConfiguration();
+		ServerConfiguration configuration = getContext().getServerConfiguration();
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
 
@@ -74,17 +64,14 @@ public abstract class AbstractChannelService implements ChannelService {
 
 		try {
 
-			if (!active) {
-				return;
-			}
-
+			// just close
 			destroySelectorLoops();
+			
+			LifeCycleUtil.stop(getContext());
 
 		} finally {
 
 			active = false;
-
-			LifeCycleUtil.stop(context);
 
 			lock.unlock();
 		}
@@ -103,19 +90,19 @@ public abstract class AbstractChannelService implements ChannelService {
 				return ;
 			}
 
-			if (context == null) {
+			if (getContext() == null) {
 				throw new IllegalArgumentException("null nio context");
 			}
 			
-			this.context.setChannelService(this);
+			getContext().setChannelService(this);
 
-			ServerConfiguration configuration = context.getServerConfiguration();
+			ServerConfiguration configuration = getContext().getServerConfiguration();
 			
-			if (this instanceof ChannelConnector) {
+			if (!(this instanceof SocketChannelAcceptor)) {
 				configuration.setSERVER_CORE_SIZE(1);
 			}
 
-			LifeCycleUtil.start(context);
+			LifeCycleUtil.start(getContext());
 
 			this.initselectableChannel();
 			

@@ -25,7 +25,7 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 			return;
 		}
 		
-		BaseContext context = session.getContext();
+		SocketChannelContext context = session.getContext();
 
 		IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
 		
@@ -40,7 +40,7 @@ public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
 
 			logger.info("收到心跳请求!来自：{}", session);
 
-			BaseContext context = session.getContext();
+			SocketChannelContext context = session.getContext();
 
 			BeatFutureFactory factory = context.getBeatFutureFactory();
 

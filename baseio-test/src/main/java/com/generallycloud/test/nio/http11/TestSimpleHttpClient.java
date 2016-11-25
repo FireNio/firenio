@@ -6,7 +6,7 @@ import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
@@ -23,7 +23,7 @@ public class TestSimpleHttpClient {
 		
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
 
-		Session session =  connector.connect();
+		SocketSession session =  connector.connect();
 
 		HttpClient client = new HttpClient(session);
 

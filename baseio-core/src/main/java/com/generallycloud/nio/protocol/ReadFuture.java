@@ -1,7 +1,7 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IoEventHandle;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public interface ReadFuture extends Future {
 	
@@ -9,7 +9,7 @@ public interface ReadFuture extends Future {
 
 	public abstract void setIOEventHandle(IoEventHandle ioEventHandle);
 	
-	public abstract BaseContext getContext();
+	public abstract SocketChannelContext getContext();
 	
 	public abstract boolean flushed();
 	

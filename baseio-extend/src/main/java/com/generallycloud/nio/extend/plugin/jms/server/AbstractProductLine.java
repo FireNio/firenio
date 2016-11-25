@@ -7,7 +7,7 @@ import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.security.Authority;
@@ -44,7 +44,7 @@ public abstract class AbstractProductLine implements MessageQueue, Looper {
 		return context;
 	}
 
-	public void pollMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;

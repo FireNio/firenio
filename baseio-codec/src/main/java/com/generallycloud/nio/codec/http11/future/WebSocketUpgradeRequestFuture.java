@@ -2,11 +2,11 @@ package com.generallycloud.nio.codec.http11.future;
 
 import com.generallycloud.nio.common.BASE64Util;
 import com.generallycloud.nio.common.UUIDGenerator;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public class WebSocketUpgradeRequestFuture extends ClientHttpReadFuture {
 
-	public WebSocketUpgradeRequestFuture(BaseContext context,String url) {
+	public WebSocketUpgradeRequestFuture(SocketChannelContext context,String url) {
 		
 		super(context,url, "GET");
 

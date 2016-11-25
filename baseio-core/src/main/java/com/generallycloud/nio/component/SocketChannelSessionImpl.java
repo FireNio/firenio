@@ -18,26 +18,34 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class SocketChannelSessionImpl extends SessionImpl implements SocketSession {
 
-	private static final Logger	logger	= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
+	private static final Logger		logger	= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
 
-	protected Waiter<Exception>	handshakeWaiter;
+	protected Waiter<Exception>		handshakeWaiter;
 	protected SSLEngine			sslEngine;
-	protected SslHandler		sslHandler;
-	protected SocketChannel		channel;
+	protected SslHandler			sslHandler;
+	protected SocketChannel			channel;
+	protected SocketChannelContext	context;
+	
 
-	public SocketChannelSessionImpl(SocketChannel channel,Integer sessionID) {
-		super(channel.getContext(), sessionID);
+	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
+		super(sessionID);
 		this.channel = channel;
+		this.context = channel.getContext();
+		this.eventLoop = context.getEventLoopGroup().getNext();
 		if (context.isEnableSSL()) {
 			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
 		}
 	}
 	
+	public SocketChannelContext getContext() {
+		return context;
+	}
+
 	protected Channel getChannel() {
 		return channel;
 	}
-	
+
 	public ProtocolEncoder getProtocolEncoder() {
 		return channel.getProtocolEncoder();
 	}
@@ -52,23 +60,37 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 			this.handshakeWaiter.setPayload(e);
 		}
 	}
+	
+	public void setAttachment(int index, Object attachment) {
+		if (attachments == null) {
+			attachments = new Object[getContext().getSessionAttachmentSize()];
+		}
+		this.attachments[index] = attachment;
+	}
+	
+	public Object getAttachment(int index) {
+		if (attachments == null) {
+			return null;
+		}
+		return attachments[index];
+	}
 
 	public boolean isEnableSSL() {
 		return context.isEnableSSL();
 	}
-	
-	private void exceptionCaught(IoEventHandle handle,ReadFuture future, Exception cause, IoEventState state){
+
+	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause, IoEventState state) {
 		try {
 			handle.exceptionCaught(this, future, cause, state);
 		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public boolean isBlocking() {
 		return channel.isBlocking();
 	}
-	
+
 	public void flush(ReadFuture future) {
 
 		if (future == null || future.flushed()) {
@@ -80,7 +102,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		if (!socketChannel.isOpened()) {
 
 			IoEventHandle handle = future.getIOEventHandle();
-			
+
 			exceptionCaught(handle, future, new DisconnectException("disconnected"), IoEventState.WRITE);
 
 			return;

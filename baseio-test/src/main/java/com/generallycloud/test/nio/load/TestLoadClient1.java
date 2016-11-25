@@ -10,7 +10,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.test.ITestThread;
 import com.generallycloud.nio.common.test.ITestThreadHandle;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -54,7 +54,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
-		BaseContext context = connector.getContext();
+		SocketChannelContext context = connector.getContext();
 
 		ServerConfiguration c = context.getServerConfiguration();
 

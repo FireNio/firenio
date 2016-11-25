@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 import com.generallycloud.nio.component.concurrent.ReentrantSet;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
@@ -37,7 +37,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return messageIDs.get(messageID);
 	}
 
-	public MQSessionAttachment getSessionAttachment(Session session) {
+	public MQSessionAttachment getSessionAttachment(SocketSession session) {
 		return (MQSessionAttachment) session.getAttachment(this.getPluginIndex());
 	}
 
@@ -95,12 +95,12 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return messageDecoder.decode(future);
 	}
 
-	public void pollMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
-	public void subscribeMessage(Session session, BaseReadFuture future, MQSessionAttachment attachment) {
+	public void subscribeMessage(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) {
 
 		subProductLine.pollMessage(session, future, attachment);
 	}

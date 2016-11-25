@@ -1,15 +1,15 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.IoEventHandle;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
-	protected IoEventHandle		ioEventHandle;
-	protected boolean			flushed;
-	protected BaseContext		context;
+	protected IoEventHandle			ioEventHandle;
+	protected boolean				flushed;
+	protected SocketChannelContext	context;
 
-	protected AbstractReadFuture(BaseContext context) {
+	protected AbstractReadFuture(SocketChannelContext context) {
 		this.context = context;
 	}
 
@@ -28,7 +28,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		return flushed;
 	}
 
-	public BaseContext getContext() {
+	public SocketChannelContext getContext() {
 		return context;
 	}
 

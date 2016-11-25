@@ -4,26 +4,26 @@ import java.io.IOException;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 public class HttpClient {
 
-	private BaseContext			context;
+	private SocketChannelContext	context;
 
-	private Session			session;
+	private SocketSession		session;
 
 	private HttpIOEventHandle	ioEventHandle;
 
-	public HttpClient(Session session) {
+	public HttpClient(SocketSession session) {
 		this.session = session;
 		this.context = session.getContext();
 		this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandleAdaptor();
 	}
-	
-	public synchronized HttpReadFuture request(HttpReadFuture future,long timeout) throws IOException {
-		
+
+	public synchronized HttpReadFuture request(HttpReadFuture future, long timeout) throws IOException {
+
 		Waiter<HttpReadFuture> waiter = new Waiter<HttpReadFuture>();
 
 		ioEventHandle.setWaiter(waiter);

@@ -3,8 +3,8 @@ package com.generallycloud.test.nio.common;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
@@ -27,7 +27,7 @@ public class IoConnectorUtil {
 		
 		configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

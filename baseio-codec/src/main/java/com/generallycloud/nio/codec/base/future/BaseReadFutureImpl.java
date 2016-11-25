@@ -10,7 +10,7 @@ import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.DefaultParameters;
 import com.generallycloud.nio.component.Parameters;
@@ -42,17 +42,17 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	protected StringBuilder		writeTextBuffer	= new StringBuilder();
 
 	// for ping & pong
-	public BaseReadFutureImpl(BaseContext context) {
+	public BaseReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
 
-	public BaseReadFutureImpl(BaseContext context, Integer futureID, String futureName) {
+	public BaseReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
-	public BaseReadFutureImpl(BaseContext context, String futureName) {
+	public BaseReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context);
 		this.futureName = futureName;
 	}

@@ -5,13 +5,13 @@ import java.io.IOException;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public class FrontReverseAcceptor {
 
 	private SocketChannelAcceptor		acceptor	= null;
 
-	protected void start(BaseContext context) throws IOException {
+	protected void start(SocketChannelContext context) throws IOException {
 
 		this.acceptor = new SocketChannelAcceptor(context);
 

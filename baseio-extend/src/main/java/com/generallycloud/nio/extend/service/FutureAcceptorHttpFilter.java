@@ -14,7 +14,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.DynamicClassLoader;
@@ -66,7 +66,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	}
 	
 	
-	private void reloadEntity(HttpEntity entity,BaseContext context) throws IOException{
+	private void reloadEntity(HttpEntity entity,SocketChannelContext context) throws IOException{
 		
 		EmptyServerHttpReadFuture f = new EmptyServerHttpReadFuture(context);
 		
@@ -122,7 +122,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		super.initialize(context, config);
 	}
 
-	private void scanFolder(BaseContext context,File file, String root, Map<String, String> mapping) throws IOException {
+	private void scanFolder(SocketChannelContext context,File file, String root, Map<String, String> mapping) throws IOException {
 
 		if (file.exists()) {
 			if (file.isFile()) {

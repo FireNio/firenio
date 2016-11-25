@@ -12,7 +12,7 @@ public class SocketChannelSelectionReader implements SelectionAcceptor {
 
 	private ChannelByteBufReader	byteBufReader	= null;
 
-	public SocketChannelSelectionReader(BaseContext context) {
+	public SocketChannelSelectionReader(SocketChannelContext context) {
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
 		this.byteBufReader = context.getChannelByteBufReader();
 		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME 使用direct

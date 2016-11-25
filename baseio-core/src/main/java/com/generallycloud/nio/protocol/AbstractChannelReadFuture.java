@@ -1,13 +1,13 @@
 package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 
 public abstract class AbstractChannelReadFuture extends AbstractReadFuture implements ChannelReadFuture {
 
-	protected AbstractChannelReadFuture(BaseContext context) {
+	protected AbstractChannelReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 
@@ -58,4 +58,10 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 	protected ByteBuf allocate(Session session,int capacity){
 		return session.getByteBufAllocator().allocate(capacity);
 	}
+
+	public SocketChannelContext getContext() {
+		return context;
+	}
+	
+	
 }

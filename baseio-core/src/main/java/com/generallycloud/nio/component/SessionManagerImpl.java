@@ -17,7 +17,7 @@ import com.generallycloud.nio.component.concurrent.ReentrantMap;
 //所有涉及操作全部session的操作放在此队列中做
 public class SessionManagerImpl implements SessionManager {
 
-	private BaseContext					context			= null;
+	private SocketChannelContext					context			= null;
 	private long						current_idle_time	= 0;
 	private long						last_idle_time		= 0;
 	private long						next_idle_time		= System.currentTimeMillis();
@@ -25,7 +25,7 @@ public class SessionManagerImpl implements SessionManager {
 	private ListQueue<SessionMEvent>		events			= new ListQueueABQ<SessionMEvent>(512);
 	private Logger						logger			= LoggerFactory.getLogger(SessionManagerImpl.class);
 
-	public SessionManagerImpl(BaseContext context) {
+	public SessionManagerImpl(SocketChannelContext context) {
 		this.context = context;
 	}
 
@@ -84,7 +84,7 @@ public class SessionManagerImpl implements SessionManager {
 	}
 
 	// FIXME 优化这个方法
-	private void sessionIdle(BaseContext context, SocketSession session, long lastIdleTime, long currentTime) {
+	private void sessionIdle(SocketChannelContext context, SocketSession session, long lastIdleTime, long currentTime) {
 
 		Linkable<SessionEventListener> linkable = context.getSessionEventListenerLink();
 

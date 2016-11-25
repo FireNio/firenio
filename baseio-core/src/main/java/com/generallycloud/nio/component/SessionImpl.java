@@ -13,15 +13,12 @@ public abstract class SessionImpl implements Session {
 
 	protected Object					attachment;
 	protected Object[]					attachments;
-	protected BaseContext				context;
 	protected Integer					sessionID;
 	protected EventLoop				eventLoop;
 	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
 
-	public SessionImpl(BaseContext context,Integer sessionID) {
-		this.context = context;
+	public SessionImpl(Integer sessionID) {
 		this.sessionID = sessionID;
-		this.eventLoop = context.getEventLoopGroup().getNext();
 	}
 	
 	protected abstract Channel getChannel();
@@ -38,13 +35,6 @@ public abstract class SessionImpl implements Session {
 		return attachment;
 	}
 
-	public Object getAttachment(int index) {
-		if (attachments == null) {
-			return null;
-		}
-		return attachments[index];
-	}
-
 	public Object getAttribute(Object key) {
 		return attributes.get(key);
 	}
@@ -53,16 +43,12 @@ public abstract class SessionImpl implements Session {
 		return attributes;
 	}
 
-	public BaseContext getContext() {
-		return context;
-	}
-
 	public long getCreationTime() {
 		return getChannel().getCreationTime();
 	}
 
 	public Charset getEncoding() {
-		return context.getEncoding();
+		return getContext().getEncoding();
 	}
 
 	public EventLoop getEventLoop() {
@@ -123,13 +109,6 @@ public abstract class SessionImpl implements Session {
 
 	public Object removeAttribute(Object key) {
 		return attributes.remove(key);
-	}
-
-	public void setAttachment(int index, Object attachment) {
-		if (attachments == null) {
-			attachments = new Object[context.getSessionAttachmentSize()];
-		}
-		this.attachments[index] = attachment;
 	}
 
 	public void setAttachment(Object attachment) {

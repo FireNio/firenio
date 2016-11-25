@@ -1,10 +1,10 @@
 package com.generallycloud.nio.protocol;
 
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 
 public abstract class AbstractTextReadFuture extends AbstractChannelReadFuture implements TextReadFuture{
 
-	protected AbstractTextReadFuture(BaseContext context) {
+	protected AbstractTextReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 

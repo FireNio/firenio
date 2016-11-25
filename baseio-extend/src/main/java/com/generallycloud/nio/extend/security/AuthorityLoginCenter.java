@@ -9,7 +9,7 @@ import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.InitializeableImpl;
 import com.generallycloud.nio.extend.LoginCenter;
@@ -23,7 +23,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
-	public boolean login(Session session, Parameters parameters) {
+	public boolean login(SocketSession session, Parameters parameters) {
 
 		Authority authority = getAuthority(parameters);
 		
@@ -49,7 +49,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	}
 
-	public boolean isLogined(Session session) {
+	public boolean isLogined(SocketSession session) {
 		
 		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
 		
@@ -58,7 +58,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		return attachment.getAuthorityManager() != null;
 	}
 
-	public void logout(Session session) {
+	public void logout(SocketSession session) {
 		
 		// 需要登出吗
 	}

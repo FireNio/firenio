@@ -3,12 +3,12 @@ package com.generallycloud.nio.codec.redis.future;
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 
 public class RedisCmdFuture extends AbstractRedisReadFuture {
 
-	protected RedisCmdFuture(BaseContext context) {
+	protected RedisCmdFuture(SocketChannelContext context) {
 		super(context);
 	}
 

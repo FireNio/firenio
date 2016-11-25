@@ -5,8 +5,8 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.BaseContext;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
 import com.generallycloud.nio.component.SocketSession;
@@ -29,7 +29,7 @@ public class SimpleTestFIxedLengthClient {
 			}
 		};
 		
-		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
+		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

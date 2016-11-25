@@ -15,9 +15,9 @@ import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.extend.plugin.authority.SYSTEMAuthorityServlet;
 import com.generallycloud.nio.extend.security.Authority;
@@ -26,13 +26,13 @@ import com.generallycloud.nio.protocol.ReadFuture;
 public class FixedSession {
 
 	private Authority			authority		= null;
-	private BaseContext			context		= null;
+	private SocketChannelContext	context		= null;
 	private AtomicBoolean		logined		= new AtomicBoolean(false);
-	private Session			session		= null;
+	private SocketSession		session		= null;
 	private long				timeout		= 50000;
 	private SimpleIOEventHandle	eventHandle	= null;
 
-	public FixedSession(Session session) {
+	public FixedSession(SocketSession session) {
 		update(session);
 	}
 
@@ -48,7 +48,7 @@ public class FixedSession {
 		return timeout;
 	}
 
-	public void accept(Session session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 	}
 
@@ -56,11 +56,11 @@ public class FixedSession {
 		return authority;
 	}
 
-	public BaseContext getContext() {
+	public SocketChannelContext getContext() {
 		return context;
 	}
 
-	public Session getSession() {
+	public SocketSession getSession() {
 		return session;
 	}
 
@@ -162,7 +162,7 @@ public class FixedSession {
 		this.authority = authority;
 	}
 
-	public void update(Session session) {
+	public void update(SocketSession session) {
 		this.session = session;
 		this.context = session.getContext();
 		this.eventHandle = (SimpleIOEventHandle) context.getIoEventHandleAdaptor();

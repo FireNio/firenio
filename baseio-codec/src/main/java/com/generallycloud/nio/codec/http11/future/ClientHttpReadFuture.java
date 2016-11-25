@@ -4,12 +4,12 @@ import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 
 public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ClientHttpReadFuture(BaseContext context, String url, String method) {
+	public ClientHttpReadFuture(SocketChannelContext context, String url, String method) {
 		super(context);
 		this.method = method;
 		this.setRequestURL(url);

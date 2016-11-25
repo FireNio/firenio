@@ -32,7 +32,7 @@ public interface Channel extends Closeable{
 	
 	public abstract void physicalClose();
 
-	public abstract BaseContext getContext();
+	public abstract ChannelContext getContext();
 	
 	public abstract void setAttachment(Object attachment);
 

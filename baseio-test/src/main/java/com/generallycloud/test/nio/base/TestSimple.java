@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
 import com.generallycloud.nio.extend.SimpleIOEventHandle;
@@ -41,7 +41,7 @@ public class TestSimple {
 		
 		session.listen(serviceKey, new OnReadFuture() {
 			
-			public void onResponse(Session session, ReadFuture future) {
+			public void onResponse(SocketSession session, ReadFuture future) {
 				
 				BaseReadFuture f = (BaseReadFuture) future;
 				System.out.println(f.getReadText());

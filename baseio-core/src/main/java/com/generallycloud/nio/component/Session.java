@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.protocol.ReadFuture;
 
 public interface Session extends Closeable{
 
@@ -18,17 +17,13 @@ public interface Session extends Closeable{
 
 	public abstract boolean isClosed();
 
-	public abstract void flush(ReadFuture future) ;
-
 	public abstract Object getAttachment();
-
-	public abstract Object getAttachment(int index);
 
 	public abstract Object getAttribute(Object key) ;
 	
 	public abstract Map<Object, Object> getAttributes() ;
 
-	public abstract BaseContext getContext();
+	public abstract ChannelContext getContext();
 
 	public abstract long getCreationTime();
 
@@ -57,8 +52,6 @@ public interface Session extends Closeable{
 	public abstract Object removeAttribute(Object key) ;
 	
 	public abstract void setAttachment(Object attachment);
-
-	public abstract void setAttachment(int index, Object attachment);
 
 	public abstract void setAttribute(Object key, Object value) ;
 

@@ -7,10 +7,11 @@ import com.generallycloud.nio.DisconnectException;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.DatagramChannelContext;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.connector.DatagramChannelConnector;
 import com.generallycloud.nio.extend.FixedSession;
@@ -36,7 +37,7 @@ public class RTPClient {
 
 	private DatagramChannelConnector		connector		;
 	private FixedMessageConsumer	consumer		;
-	private BaseContext			context		;
+	private DatagramChannelContext			context		;
 	private String				inviteUsername	;
 	private MessageProducer		producer		;
 	private String				roomID		;
@@ -121,7 +122,7 @@ public class RTPClient {
 		return true;
 	}
 
-	public BaseContext getContext() {
+	public DatagramChannelContext getContext() {
 		return context;
 	}
 
@@ -212,7 +213,11 @@ public class RTPClient {
 			throw new RTPException("none roomID,create room first");
 		}
 
-		connector.sendDatagramPacket(packet);
+		try {
+			connector.sendDatagramPacket(packet);
+		} catch (IOException e) {
+			throw new RTPException(e);
+		}
 	}
 
 	public void setRoomID(String roomID) {
@@ -246,7 +251,7 @@ public class RTPClient {
 		json.put("username", authority.getUsername());
 		json.put("password", authority.getPassword());
 
-		final DatagramPacket packet = new DatagramPacket(context,json.toJSONString().getBytes(context.getEncoding()));
+		final DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
 
 		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
 
@@ -254,7 +259,7 @@ public class RTPClient {
 
 		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
 
-			public void onResponse(Session session, ReadFuture future) {
+			public void onResponse(SocketSession session, ReadFuture future) {
 
 				waiter.setPayload(0);
 			}
@@ -266,7 +271,11 @@ public class RTPClient {
 				
 				for (int i = 0; i < 10; i++) {
 
-					connector.sendDatagramPacket(packet);
+					try {
+						connector.sendDatagramPacket(packet);
+					} catch (IOException e) {
+						DebugUtil.debug(e);
+					}
 
 					if (waiter.wait4Callback(300)) {
 

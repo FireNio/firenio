@@ -15,7 +15,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SessionEventListener;
 import com.generallycloud.nio.extend.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.extend.security.AuthorityLoginCenter;
@@ -40,7 +40,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Sequence						sequence			= new Sequence();
 	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
-	private BaseContext						context;
+	private SocketChannelContext						context;
 	private Charset						encoding			;
 	private FutureAcceptor					filterService;
 	private Logger							logger			= LoggerFactory
@@ -121,12 +121,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return configuration;
 	}
 
-	public BaseContext getContext() {
+	public SocketChannelContext getContext() {
 		return context;
-	}
-
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return context.getDatagramPacketAcceptor();
 	}
 
 	public Charset getEncoding() {
@@ -198,12 +194,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return redeployed;
 	}
 
-	public void setContext(BaseContext context) {
+	public void setContext(SocketChannelContext context) {
 		this.context = context;
-	}
-
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		context.setDatagramPacketAcceptor(datagramPacketAcceptor);
 	}
 
 	public void setLoginCenter(LoginCenter loginCenter) {

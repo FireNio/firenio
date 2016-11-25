@@ -6,7 +6,7 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.extend.FileReceiveUtil;
 import com.generallycloud.nio.extend.FixedSession;
@@ -38,7 +38,7 @@ public class TestDownload {
 		
 		session.listen(serviceName, new OnReadFuture() {
 			
-			public void onResponse(Session session, ReadFuture future) {
+			public void onResponse(SocketSession session, ReadFuture future) {
 				
 				try {
 					fileReceiveUtil.accept(session, (BaseReadFuture) future,false);

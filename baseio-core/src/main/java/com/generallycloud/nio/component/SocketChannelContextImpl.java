@@ -1,14 +1,7 @@
 package com.generallycloud.nio.component;
 
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
-import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.acceptor.DatagramChannelFactory;
 import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
@@ -23,33 +16,19 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
+public class SocketChannelContextImpl extends AbstractChannelContext implements SocketChannelContext {
 
-	private DatagramPacketAcceptor		datagramPacketAcceptor;
-	private Charset					encoding;
 	private IoEventHandleAdaptor			ioEventHandleAdaptor;
-	private Linkable<SessionEventListener>	lastSessionEventListener;
-	private ServerConfiguration			serverConfiguration;
-	private Linkable<SessionEventListener>	sessionEventListenerLink;
-	private SessionManager				sessionManager;
-	private ChannelService				channelService;
-	private DatagramChannelFactory		datagramChannelFactory;
 	private ProtocolFactory				protocolFactory;
-	private long						sessionIdleTime;
 	private BeatFutureFactory			beatFutureFactory;
 	private int						sessionAttachmentSize;
 	private EventLoopGroup				eventLoopGroup;
-	private MCByteBufAllocator			mcByteBufAllocator;
 	private ProtocolEncoder				protocolEncoder;
 	private SslContext					sslContext;
 	private boolean					enableSSL;
 	private ChannelByteBufReader			channelByteBufReader;
 	private SessionFactory				sessionFactory;
-	private ReadFutureAcceptor			readFutureAcceptor;
-	private Map<Object, Object>			attributes	= new HashMap<Object, Object>();
-	private long						startupTime	= System.currentTimeMillis();
-	private Sequence					sequence		= new Sequence();
-	private Logger						logger		= LoggerFactory.getLogger(BaseContextImpl.class);
+	private Logger						logger		= LoggerFactory.getLogger(SocketChannelContextImpl.class);
 
 	public int getSessionAttachmentSize() {
 		return sessionAttachmentSize;
@@ -63,10 +42,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return beatFutureFactory;
 	}
 
-	public MCByteBufAllocator getMcByteBufAllocator() {
-		return mcByteBufAllocator;
-	}
-
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
 	}
@@ -75,29 +50,8 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return protocolEncoder;
 	}
 
-	public BaseContextImpl(ServerConfiguration configuration) {
-
-		if (configuration == null) {
-			throw new IllegalArgumentException("null configuration");
-		}
-
-		this.serverConfiguration = configuration;
-
-		this.addLifeCycleListener(new BaseContextListener());
-	}
-
-	public void addSessionEventListener(SessionEventListener listener) {
-		if (this.sessionEventListenerLink == null) {
-			this.sessionEventListenerLink = new SessionEventListenerWrapper(listener);
-			this.lastSessionEventListener = this.sessionEventListenerLink;
-		} else {
-			this.lastSessionEventListener.setNext(new SessionEventListenerWrapper(listener));
-			this.lastSessionEventListener = this.lastSessionEventListener.getNext();
-		}
-	}
-
-	public void clearAttributes() {
-		this.attributes.clear();
+	public SocketChannelContextImpl(ServerConfiguration configuration) {
+		super(configuration);
 	}
 
 	protected void doStart() throws Exception {
@@ -123,7 +77,6 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		this.datagramChannelFactory = new DatagramChannelFactory();
 		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
 		this.mcByteBufAllocator = new MCByteBufAllocator(this);
@@ -152,14 +105,9 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 			
 			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 			
-			this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
-			
 			this.eventLoopGroup = eventLoopGroup;
 			
 		}else{
-			
-//			this.readFutureAcceptor = new IoProcessReadFutureAcceptor();
-			this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
 			
 			this.eventLoopGroup = new LineEventLoopGroup();
 		}
@@ -170,7 +118,7 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 			getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
 		}
 		
-		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader(this));
+		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader());
 		
 		if (sessionManager == null) {
 			sessionManager = new SessionManagerImpl(this);
@@ -212,96 +160,20 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return protocolFactory;
 	}
 
-	public Object getAttribute(Object key) {
-		return this.attributes.get(key);
-	}
-
-	public Set<Object> getAttributeNames() {
-		return this.attributes.keySet();
-	}
-
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return datagramPacketAcceptor;
-	}
-
-	public Charset getEncoding() {
-		return encoding;
-	}
-
 	public IoEventHandleAdaptor getIoEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
-	}
-
-	public ServerConfiguration getServerConfiguration() {
-		return serverConfiguration;
-	}
-
-	public Linkable<SessionEventListener> getSessionEventListenerLink() {
-		return sessionEventListenerLink;
-	}
-
-	public SessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	public ChannelService getTCPService() {
-		return channelService;
 	}
 
 	public EventLoopGroup getEventLoopGroup() {
 		return eventLoopGroup;
 	}
 
-	public DatagramChannelFactory getDatagramChannelFactory() {
-		return datagramChannelFactory;
-	}
-
-	public Object removeAttribute(Object key) {
-		return this.attributes.remove(key);
-	}
-
-	public void setAttribute(Object key, Object value) {
-		this.attributes.put(key, value);
-	}
-
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
-
 	public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 
-	public void setDatagramChannelFactory(DatagramChannelFactory datagramChannelFactory) {
-		this.datagramChannelFactory = datagramChannelFactory;
-	}
-
-	public ChannelService getChannelService() {
-		return channelService;
-	}
-
-	public void setChannelService(ChannelService service) {
-		this.channelService = service;
-	}
-
-	public Sequence getSequence() {
-		return sequence;
-	}
-
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
-	}
-
-	public long getSessionIdleTime() {
-		return sessionIdleTime;
-	}
-
-	public long getStartupTime() {
-		return startupTime;
 	}
 
 	public SslContext getSslContext() {
@@ -333,8 +205,5 @@ public class BaseContextImpl extends AbstractLifeCycle implements BaseContext {
 		return channelByteBufReader;
 	}
 
-	public ReadFutureAcceptor getReadFutureAcceptor() {
-		return readFutureAcceptor;
-	}
-
+	
 }

@@ -4,10 +4,10 @@ import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
 import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
-import com.generallycloud.nio.component.BaseContextImpl;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSEListener;
-import com.generallycloud.nio.component.BaseContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -48,7 +48,7 @@ public class TestLineBasedBroadcastServer {
 		
 		configuration.setSERVER_MEMORY_POOL_UNIT(64);
 		
-		BaseContext context = new BaseContextImpl(configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
