@@ -34,10 +34,6 @@ public interface Channel extends Closeable{
 
 	public abstract ChannelContext getContext();
 	
-	public abstract void setAttachment(Object attachment);
-
-	public abstract Object getAttachment();
-	
 	public abstract InetSocketAddress getLocalSocketAddress() ;
 	
 	public abstract Session getSession();

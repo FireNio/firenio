@@ -9,7 +9,6 @@ import com.generallycloud.nio.common.StringUtil;
 
 public abstract class AbstractChannel implements Channel {
 
-	protected Object			attachment;
 	protected String			edp_description;
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
@@ -29,10 +28,6 @@ public abstract class AbstractChannel implements Channel {
 		// 这里认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
-	}
-
-	public Object getAttachment() {
-		return attachment;
 	}
 
 	public Integer getChannelID() {
@@ -112,16 +107,21 @@ public abstract class AbstractChannel implements Channel {
 		return address.getPort();
 	}
 
-	public void setAttachment(Object attachment) {
-		this.attachment = attachment;
-	}
-
 	public String toString() {
 
 		if (edp_description == null) {
-			edp_description = new StringBuilder("[").append(getMarkPrefix()).append("(id:")
-					.append(getIdHexString(channelID)).append(") R /").append(getRemoteAddr()).append(":")
-					.append(getRemotePort()).append("; Lp:").append(getLocalPort()).append("]").toString();
+			edp_description = new StringBuilder("[")
+					.append(getMarkPrefix())
+					.append("(id:")
+					.append(getIdHexString(channelID))
+					.append(") R /")
+					.append(getRemoteAddr())
+					.append(":")
+					.append(getRemotePort())
+					.append("; Lp:")
+					.append(getLocalPort())
+					.append("]")
+					.toString();
 		}
 
 		return edp_description;

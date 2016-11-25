@@ -9,6 +9,8 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
+
+//FIXME 定时清理DatagramChannel
 public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 
 	private Logger					logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
