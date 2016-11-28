@@ -1,4 +1,4 @@
-package com.generallycloud.nio.common.json;
+package com.generallycloud.test.json;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.generallycloud.nio.common.json;
+package com.generallycloud.test.json;
 
 public class JSONSyntaxException extends Exception{
 	public JSONSyntaxException(String string) {

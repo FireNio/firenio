@@ -35,12 +35,12 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			
 			this.core_index = new FixedAtomicInteger(selectorLoops.length -1);
 			
-			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(context);
+			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(this);
 			
 			return selector;
 		}
 		
-		this.selectorLoopStrategy = new MinorSelectorLoopStrategy();
+		this.selectorLoopStrategy = new MinorSelectorLoopStrategy(this);
 
 		return selector;
 	}

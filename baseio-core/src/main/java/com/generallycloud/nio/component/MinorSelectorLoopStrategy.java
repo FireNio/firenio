@@ -9,6 +9,10 @@ import java.util.Set;
 
 public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
+	public MinorSelectorLoopStrategy(SelectorLoop selectorLoop) {
+		super(selectorLoop);
+	}
+
 	private void waitForRegist(SelectorLoop looper) {
 
 		synchronized (looper.getIsWaitForRegistLock()) {
@@ -35,7 +39,15 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 			selected = selector.selectNow();
 		} else {
 
-			selected = selector.select(8);
+			if (selecting.compareAndSet(false, true)) {
+				
+				selected = selector.select(8);
+				
+				selecting.set(false);
+			}else{
+				
+				selected = selector.selectNow();
+			}
 		}
 		
 		if (looper.isWaitForRegist()) {

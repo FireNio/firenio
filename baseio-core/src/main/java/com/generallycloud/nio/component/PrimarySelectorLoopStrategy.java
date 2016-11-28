@@ -10,8 +10,9 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 	
 	private SessionManager sessionManager = null;
 
-	public PrimarySelectorLoopStrategy(ChannelContext context) {
-		this.sessionManager = context.getSessionManager();
+	public PrimarySelectorLoopStrategy(SelectorLoop selectorLoop) {
+		super(selectorLoop);
+		this.sessionManager = selectorLoop.getContext().getSessionManager();
 	}
 
 	public void loop(SelectorLoop looper) throws IOException {
@@ -33,8 +34,17 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
 			selected = selector.selectNow();
 		} else {
-
-			selected = selector.select(8);
+			
+			if (selecting.compareAndSet(false, true)) {
+				
+				selected = selector.select(8);//FIXME try
+				
+				selecting.set(false);
+			}else{
+				
+				selected = selector.selectNow();
+			}
+			
 		}
 		
 		if (selected < 1) {

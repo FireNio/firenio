@@ -3,6 +3,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
@@ -17,7 +18,13 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 
 	protected boolean							hasTask	= false;
 	protected int								runTask	= 0;
+	protected SelectorLoop						selectorLoop;
+	protected AtomicBoolean						selecting = new AtomicBoolean();
 	protected BufferedArrayList<SelectorLoopEvent>	events	= new BufferedArrayList<SelectorLoopEvent>();
+	
+	protected AbstractSelectorLoopStrategy(SelectorLoop selectorLoop) {
+		this.selectorLoop = selectorLoop;
+	}
 
 	protected void selectEmpty(SelectorLoop looper,long last_select) {
 
@@ -84,7 +91,18 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 	}
 
 	public void fireEvent(SelectorLoopEvent event) {
+		
 		events.offer(event);
+		
+		if (events.getBufferSize() == 1) {
+			
+			if (selecting.compareAndSet(false, true)) {
+				
+				selectorLoop.wakeup();
+				
+				selecting.set(false);
+			}
+		}
 	}
 	
 	public void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
