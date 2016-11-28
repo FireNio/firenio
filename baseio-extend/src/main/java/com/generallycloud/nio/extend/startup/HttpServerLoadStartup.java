@@ -17,8 +17,6 @@ public class HttpServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("http");
-
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
@@ -42,6 +40,7 @@ public class HttpServerLoadStartup {
 		};
 
 		PropertiesSCLoader loader = new PropertiesSCLoader();
+		
 		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
 
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);
