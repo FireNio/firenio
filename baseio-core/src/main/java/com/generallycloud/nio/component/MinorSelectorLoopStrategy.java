@@ -31,7 +31,7 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
 			if (runTask-- > 0) {
 
-				handleEvents(looper, false);
+				handlePositiveEvents(looper, false);
 
 				return;
 			}
@@ -56,6 +56,8 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		}
 
 		if (selected < 1) {
+			
+			handleNegativeEvents(looper);
 
 			// selectEmpty(last_select);
 		} else {
@@ -70,7 +72,7 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 			selectionKeys.clear();
 		}
 
-		handleEvents(looper, true);
+		handlePositiveEvents(looper, true);
 	}
 	
 	public void regist(SocketChannel channel, SelectorLoop selectorLoop) throws IOException {

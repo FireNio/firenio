@@ -50,6 +50,8 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 		 * 返回该Event是否结束
 		 */
 		boolean handle(SelectorLoop selectLoop) throws IOException;
+		
+		boolean isPositive();
 	}
 
 	public abstract void rebuildSelector();

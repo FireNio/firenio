@@ -131,7 +131,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 
 		if (!writeFuture.write(this)) {
-			return !isNetworkWeak();
+			return true;
 		}
 
 		writeFuture.onSuccess(session);
@@ -189,10 +189,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public int getWriteFutureSize() {
 		return writeFutures.size();
-	}
-
-	private void interestWrite() {
-		selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_WRITE);
 	}
 
 	public boolean isBlocking() {
@@ -288,7 +284,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);
 
-		// 最后一轮
+		// 最后一轮 //FIXME once
 		try {
 			this.handle(selectorLoop);
 		} catch (IOException e) {
@@ -356,33 +352,35 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	public void downNetworkState() {
+		
+		long current = System.currentTimeMillis();
 
 		if (next_network_weak < Long.MAX_VALUE) {
-
-			if (System.currentTimeMillis() > next_network_weak) {
-
-				if (!networkWeak) {
-
-					networkWeak = true;
-
-					interestWrite();
-				}
+			
+			if (networkWeak) {
+				return;
+			}
+			
+			if (current > next_network_weak) {
+				
+				networkWeak = true;
+				
+				fireEvent(this);
 			}
 
 		} else {
 
-			next_network_weak = System.currentTimeMillis() + 64;
+			next_network_weak = current + 64;
 		}
+		
 	}
 
-	public void wakeup() {
-
-		upNetworkState();
-
-		this.selectorLoop.fireEvent(this);
-
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
-	}
+//	public void wakeup() {
+//		
+//		upNetworkState();
+//
+//		this.selectorLoop.fireEvent(this);
+//	}
 
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
@@ -404,5 +402,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.selectorLoop.fireEvent(event);
 	}
 
-
+	public boolean isPositive() {
+		return !isNetworkWeak();
+	}
+	
 }

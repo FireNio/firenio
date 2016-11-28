@@ -20,7 +20,9 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 	protected int								runTask	= 0;
 	protected SelectorLoop						selectorLoop;
 	protected AtomicBoolean						selecting = new AtomicBoolean();
-	protected BufferedArrayList<SelectorLoopEvent>	events	= new BufferedArrayList<SelectorLoopEvent>();
+	protected BufferedArrayList<SelectorLoopEvent>	positiveEvents	= new BufferedArrayList<SelectorLoopEvent>();
+	protected BufferedArrayList<SelectorLoopEvent>	negativeEvents	= new BufferedArrayList<SelectorLoopEvent>();
+	
 	
 	protected AbstractSelectorLoopStrategy(SelectorLoop selectorLoop) {
 		this.selectorLoop = selectorLoop;
@@ -44,10 +46,10 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			looper.rebuildSelector();
 		}
 	}
-
-	protected void handleEvents(SelectorLoop looper, boolean refresh) {
-
-		List<SelectorLoopEvent> eventBuffer = events.getBuffer();
+	
+	protected void handlePositiveEvents(SelectorLoop looper, boolean refresh){
+		
+		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
 
 		if (eventBuffer.size() == 0) {
 
@@ -61,10 +63,15 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			try {
 
 				if (event.handle(looper)) {
-
-					events.offer(event);
+					
+					//FIXME xiaolv hui jiangdi
+					if (event.isPositive()) {
+						positiveEvents.offer(event);
+					}else{
+						negativeEvents.offer(event);
+					}
 				}
-
+				
 			} catch (IOException e) {
 
 				CloseUtil.close(event);
@@ -73,16 +80,48 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			}
 		}
 
-		hasTask = events.getBufferSize() > 0;
+		hasTask = positiveEvents.getBufferSize() > 0;
 
 		if (hasTask && refresh) {
 			runTask = 5;
+		}
+		
+	}
+
+	protected void handleNegativeEvents(SelectorLoop looper) {
+
+		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
+
+		if (eventBuffer.size() == 0) {
+			return;
+		}
+
+		for (SelectorLoopEvent event : eventBuffer) {
+
+			try {
+
+				if (event.handle(looper)) {
+					
+					//FIXME xiaolv hui jiangdi
+					if (event.isPositive()) {
+						positiveEvents.offer(event);
+					}else{
+						negativeEvents.offer(event);
+					}
+				}
+				
+			} catch (IOException e) {
+
+				CloseUtil.close(event);
+
+				continue;
+			}
 		}
 	}
 
 	public void stop() {
 
-		List<SelectorLoopEvent> eventBuffer = events.getBuffer();
+		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
 
 		for (SelectorLoopEvent event : eventBuffer) {
 
@@ -92,9 +131,9 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 
 	public void fireEvent(SelectorLoopEvent event) {
 		
-		events.offer(event);
+		positiveEvents.offer(event);
 		
-		if (events.getBufferSize() == 1) {
+		if (positiveEvents.getBufferSize() == 1) {
 			
 			if (selecting.compareAndSet(false, true)) {
 				

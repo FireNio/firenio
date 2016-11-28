@@ -27,7 +27,7 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
 			if (runTask-- > 0) {
 
-				handleEvents(looper, false);
+				handlePositiveEvents(looper, false);
 
 				return;
 			}
@@ -48,6 +48,8 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		}
 		
 		if (selected < 1) {
+			
+			handleNegativeEvents(looper);
 
 			// selectEmpty(last_select);
 		} else {
@@ -62,7 +64,7 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 			selectionKeys.clear();
 		}
 
-		handleEvents(looper, true);
+		handlePositiveEvents(looper, true);
 		
 		sessionManager.loop();
 	}

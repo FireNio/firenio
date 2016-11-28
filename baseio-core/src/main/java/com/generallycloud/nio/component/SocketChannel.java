@@ -23,7 +23,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract void downNetworkState();
 
-	public abstract void wakeup();
+//	public abstract void wakeup();
 
 	public abstract boolean isInSelectorLoop();
 
