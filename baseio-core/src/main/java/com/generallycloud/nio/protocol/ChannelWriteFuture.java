@@ -20,6 +20,8 @@ public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFu
 	public abstract void onException(SocketSession session, Exception e);
 
 	public abstract void onSuccess(SocketSession session);
+	
+	public abstract int getBinaryLength();
 
 	public abstract void wrapSSL(SocketSession session, SslHandler handler) throws SSLException, IOException;
 }

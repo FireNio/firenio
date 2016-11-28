@@ -122,4 +122,9 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 			ReleaseUtil.release(old);
 		}
 	}
+
+	public int getBinaryLength() {
+		return buf.limit();
+	}
+	
 }

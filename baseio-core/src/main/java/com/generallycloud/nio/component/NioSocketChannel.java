@@ -42,6 +42,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ChannelWriteFuture			writeFuture;
 	private long						next_network_weak	= Long.MAX_VALUE;
 	private boolean					enableInbound		= true;
+	private int						writeFutureLength	;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
@@ -133,12 +134,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!writeFuture.write(this)) {
 			return true;
 		}
+		
+		writeFutureLength -= writeFuture.getBinaryLength();
 
 		writeFuture.onSuccess(session);
 
 		writeFuture = null;
 
 		return needFlush();
+	}
+	
+	public int getWriteFutureLength() {
+		return writeFutureLength;
 	}
 
 	public ChannelWriteFuture getWriteFuture() {
@@ -224,6 +231,12 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				future.onException(session, new RejectedExecutionException());
 
 				return;
+			}
+			
+			this.writeFutureLength += future.getBinaryLength();
+			
+			if (writeFutureLength > 1024 * 1024 * 10) {
+				//FIXME 该连接写入过多啦
 			}
 
 			if (writeFutures.size() > 1) {
