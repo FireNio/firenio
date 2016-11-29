@@ -3,25 +3,25 @@ package com.generallycloud.nio.component.concurrent;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.AbstractEventLoopThread;
 
 public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 
-	private static Logger		logger	= LoggerFactory.getLogger(SingleEventLoop.class);
+	private static Logger		logger				= LoggerFactory.getLogger(SingleEventLoop.class);
 
-	private EventLoopThread			thread;
+	private String				threadName			= null;
 
-	private SingleEventLoopWorker	singleEventLoopWorker;
+	private SingleEventLoopWorker	singleEventLoopWorker	= null;
 
 	public SingleEventLoop(String threadName, int queueSize) {
+		
+		this.threadName = threadName;
 
 		this.singleEventLoopWorker = new SingleEventLoopWorker(queueSize);
-
-		this.thread = new EventLoopThread(singleEventLoopWorker, threadName);
 	}
 
 	public void dispatch(Runnable job) {
@@ -29,39 +29,39 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 	}
 
 	protected void doStart() throws Exception {
-		thread.startup();
+		singleEventLoopWorker.startup(threadName);
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(thread);
+		LifeCycleUtil.stop(singleEventLoopWorker);
 	}
 
 	public String toString() {
-		return thread.toString();
+		return singleEventLoopWorker.toString();
 	}
-	
-//	AtomicInteger integer = new AtomicInteger();
 
-	class SingleEventLoopWorker implements Looper {
+	// AtomicInteger integer = new AtomicInteger();
 
-		private boolean	stoped	= false;
+	class SingleEventLoopWorker extends AbstractEventLoopThread {
+
+		private boolean stoped = false;
 
 		protected SingleEventLoopWorker(int queueSize) {
 			this.jobs = new ListQueueABQ<Runnable>(queueSize);
 		}
 
-		private ListQueue<Runnable>	jobs;
+		private ListQueue<Runnable> jobs;
 
 		public void dispatch(Runnable job) {
-			
-//			logger.debug("dispatch {}",integer.incrementAndGet());
-			
+
+			// logger.debug("dispatch {}",integer.incrementAndGet());
+
 			if (stoped || !jobs.offer(job)) {
 				throw new RejectedExecutionException();
 			}
 		}
 
-		public void loop() {
+		public void doLoop() {
 
 			try {
 
@@ -76,23 +76,17 @@ public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
 				logger.error(e.getMessage(), e);
 			}
 		}
-
-		public void stop() {
-
-			stoped = true;
-
+		
+		protected void beforeStop() {
 			for (; jobs.size() > 0;) {
 				ThreadUtil.sleep(8);
 			}
-		}
-
-		public void startup() throws Exception {
-			
+			super.beforeStop();
 		}
 	}
 
 	public boolean inEventLoop() {
-		return Thread.currentThread() == thread.getMonitor();
+		return Thread.currentThread() == singleEventLoopWorker.getMonitor();
 	}
-	
+
 }

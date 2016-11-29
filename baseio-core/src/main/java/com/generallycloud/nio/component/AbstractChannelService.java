@@ -7,17 +7,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
 	protected InetSocketAddress		serverAddress		= null;
 	protected boolean				active			= false;
-	protected ReentrantLock			activeLock		= new ReentrantLock();
 	protected SelectableChannel		selectableChannel	= null;
 	protected SelectorLoop[]		selectorLoops		= null;
-	protected EventLoopThread[]		selectorLoopThreads	= null;
+	protected ReentrantLock			activeLock		= new ReentrantLock();
 
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
@@ -35,24 +33,20 @@ public abstract class AbstractChannelService implements ChannelService {
 
 		this.selectorLoops = new SelectorLoop[core_size];
 
-		this.selectorLoopThreads = new EventLoopThread[core_size];
-
 		for (int i = 0; i < core_size; i++) {
 
 			selectorLoops[i] = newSelectorLoop(selectorLoops);
 		}
 
 		for (int i = 0; i < core_size; i++) {
-			selectorLoops[i].startup();
-		}
-
-		for (int i = 0; i < core_size; i++) {
-
-			selectorLoopThreads[i] = new EventLoopThread(selectorLoops[i], getServiceDescription(i));
-
-			selectorLoops[i].setMonitor(selectorLoopThreads[i].getMonitor());
-
-			selectorLoopThreads[i].startup();
+			try {
+				selectorLoops[i].startup(getServiceDescription(i));
+			} catch (Exception e) {
+				if (e instanceof IOException) {
+					throw (IOException)e;
+				}
+				throw new IOException(e.getMessage(),e);
+			}
 		}
 	}
 	
@@ -124,13 +118,13 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected void destroySelectorLoops() {
 
-		if (selectorLoopThreads == null) {
+		if (selectorLoops == null) {
 			return;
 		}
 
-		for (int i = 0; i < selectorLoopThreads.length; i++) {
+		for (int i = 0; i < selectorLoops.length; i++) {
 
-			LifeCycleUtil.stop(selectorLoopThreads[i]);
+			LifeCycleUtil.stop(selectorLoops[i]);
 		}
 	}
 

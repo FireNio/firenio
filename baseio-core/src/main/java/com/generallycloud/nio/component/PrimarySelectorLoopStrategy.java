@@ -44,7 +44,6 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 				
 				selected = selector.selectNow();
 			}
-			
 		}
 		
 		if (selected < 1) {

@@ -10,7 +10,6 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 import com.generallycloud.nio.extend.ApplicationContext;
 import com.generallycloud.nio.extend.configuration.Configuration;
 import com.generallycloud.nio.extend.service.HTTPFutureAcceptorService;
@@ -21,8 +20,6 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketRumpetrollServlet.class);
 
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
-
-	private EventLoopThread	msgAdapterThread;
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
@@ -113,16 +110,14 @@ public class TestWebSocketRumpetrollServlet extends HTTPFutureAcceptorService {
 
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		msgAdapterThread = new EventLoopThread(msgAdapter, "WebSocketRumpetroll");
-
-		msgAdapterThread.startup();
+		msgAdapter.startup("WebSocketRumpetroll");
 
 		super.initialize(context, config);
 	}
 
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
-		LifeCycleUtil.stop(msgAdapterThread);
+		LifeCycleUtil.stop(msgAdapter);
 
 		super.destroy(context, config);
 	}

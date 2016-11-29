@@ -33,7 +33,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 
 		if (past < 1000) {
 
-			if (looper.isShutdown() || past < 0) {
+			if (!looper.isRunning() || past < 0) {
 				return;
 			}
 

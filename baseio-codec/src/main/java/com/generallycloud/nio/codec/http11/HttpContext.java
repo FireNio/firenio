@@ -2,7 +2,6 @@ package com.generallycloud.nio.codec.http11;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.LifeCycleUtil;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public class HttpContext extends AbstractLifeCycle {
 
@@ -10,22 +9,19 @@ public class HttpContext extends AbstractLifeCycle {
 
 	private HttpSessionManager	httpSessionManager	= new HttpSessionManager();
 
-	private EventLoopThread		taskExecutorThread;
-
 	public static HttpContext getInstance() {
 		return instance;
 	}
 
 	protected void doStart() throws Exception {
-		this.taskExecutorThread = new EventLoopThread(httpSessionManager, "HTTPSession-Manager");
-
-		this.taskExecutorThread.startup();
+		
+		this.httpSessionManager.startup("HTTPSession-Manager");
 
 		instance = this;
 	}
 
 	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(taskExecutorThread);
+		LifeCycleUtil.stop(httpSessionManager);
 	}
 
 	public HttpSessionManager getHttpSessionManager() {

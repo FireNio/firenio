@@ -21,7 +21,7 @@ public class SubscribeProductLine extends AbstractProductLine {
 	}
 
 	// FIXME 完善消息匹配机制
-	public void loop() {
+	public void doLoop() {
 
 		Message message = storage.poll(16);
 

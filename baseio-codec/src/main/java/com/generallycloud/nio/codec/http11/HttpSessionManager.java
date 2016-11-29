@@ -9,11 +9,11 @@ import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.AbstractLooper;
+import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
-public class HttpSessionManager extends AbstractLooper{
+public class HttpSessionManager extends AbstractEventLoopThread{
 	
 	private static final String COOKIE_NAME_SESSIONID = "BSESSIONID";
 
@@ -60,7 +60,7 @@ public class HttpSessionManager extends AbstractLooper{
 		return session;
 	}
 	
-	public void loop(){
+	public void doLoop(){
 		
 		ReentrantLock lock = sessions.getReentrantLock();
 		
@@ -93,5 +93,5 @@ public class HttpSessionManager extends AbstractLooper{
 	public int getManagedSessionSize(){
 		return sessions.size();
 	}
-	
+
 }

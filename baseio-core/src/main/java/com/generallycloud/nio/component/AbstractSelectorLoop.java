@@ -12,11 +12,9 @@ import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.ThreadUtil;
 
-public abstract class AbstractSelectorLoop implements SelectorLoop {
+public abstract class AbstractSelectorLoop extends AbstractEventLoopThread implements SelectorLoop {
 
-	private Thread					monitor				= null;
 	private boolean				isMainSelector			= false;
 	private boolean				isWaitForRegist		= false;
 	private byte[]				isWaitForRegistLock		= new byte[] {};
@@ -25,8 +23,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	protected ByteBufAllocator		byteBufAllocator		= null;
 	protected SelectableChannel		selectableChannel		= null;
 	protected Selector				selector				= null;
-	protected boolean				shutdown				= false;
-	protected boolean				working				= false;
 	protected SelectorLoopStrategy	selectorLoopStrategy	= null;
 	protected SelectorLoop[]		selectorLoops			= null;
 
@@ -57,16 +53,6 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		this.selectableChannel = service.getSelectableChannel();
 
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
-	}
-
-	public Thread getMonitor() {
-		return monitor;
-	}
-
-	public void setMonitor(Thread monitor) {
-		if (this.monitor == null) {
-			this.monitor = monitor;
-		}
 	}
 
 	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
@@ -110,28 +96,18 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	public Selector getSelector() {
 		return selector;
 	}
-
-	public void loop() {
-
-		working = true;
-
-		if (shutdown) {
-			working = false;
-			return;
-		}
-
+	
+	protected void doLoop() {
+		
 		try {
 
 			selectorLoopStrategy.loop(this);
 
-			working = false;
-
 		} catch (Throwable e) {
 
 			logger.error(e.getMessage(), e);
-
-			working = false;
 		}
+		
 	}
 
 	private Selector rebuildSelector0() {
@@ -176,29 +152,18 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		this.selector = rebuildSelector0();
 	}
 
-	public boolean isShutdown() {
-		return shutdown;
-	}
-
-	public void startup() throws IOException {
-
+	public void doStartup() throws IOException {
 		this.selector = buildSelector(selectableChannel);
 	}
-
+	
 	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
 	// 执行stop的时候如果确保不会再有数据进来
-	public void stop() {
-
-		this.shutdown = true;
-
+	protected void wakeupThread(){
+		
+		super.wakeupThread();
+		
 		this.selector.wakeup();
-
-		for (; working;) {
-
-			//FIXME wait
-			ThreadUtil.sleep(8);
-		}
-
+		
 		synchronized (runLock) {
 			selectorLoopStrategy.stop();
 		}
@@ -220,7 +185,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		synchronized (runLock) {
 
-			if (shutdown) {
+			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
 			}
@@ -237,7 +202,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		return null;
 	}
 
-	protected void doStop() {
+	protected void doStop0() {
 		
 	}
 	

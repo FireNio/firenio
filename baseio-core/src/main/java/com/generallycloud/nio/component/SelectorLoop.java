@@ -7,26 +7,20 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
-import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
-public interface SelectorLoop extends SelectionAcceptor, Looper {
+public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 
 	public abstract Selector buildSelector(SelectableChannel channel) throws IOException;
 
 	public abstract Selector getSelector();
 
-	public abstract Thread getMonitor();
-
 	public abstract boolean isMainSelector();
 
-	public abstract void setMonitor(Thread monitor);
-
 	public abstract void accept(SelectionKey key);
-
+	
 	public abstract ChannelContext getContext();
-
-	public abstract void startup() throws IOException;
 
 	public abstract SelectableChannel getSelectableChannel();
 
@@ -55,8 +49,6 @@ public interface SelectorLoop extends SelectionAcceptor, Looper {
 	}
 
 	public abstract void rebuildSelector();
-
-	public abstract boolean isShutdown();
 
 	public abstract SelectorLoopStrategy getSelectorLoopStrategy();
 

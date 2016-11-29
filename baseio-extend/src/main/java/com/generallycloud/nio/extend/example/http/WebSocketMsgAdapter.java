@@ -3,30 +3,22 @@ package com.generallycloud.nio.extend.example.http;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 
-public class WebSocketMsgAdapter implements Looper {
+public class WebSocketMsgAdapter extends AbstractEventLoopThread {
 
 	private Logger				logger	= LoggerFactory.getLogger(WebSocketMsgAdapter.class);
 
 	private List<SocketSession>	clients	= new ArrayList<SocketSession>();
 
 	private ListQueue<String>	msgs		= new ListQueueABQ<String>(1024 * 4);
-
-	public void stop() {
-
-	}
-
-	public void startup() throws Exception {
-
-	}
 
 	public synchronized void addClient(SocketSession session) {
 
@@ -50,7 +42,7 @@ public class WebSocketMsgAdapter implements Looper {
 		return clients.size();
 	}
 
-	public void loop() {
+	protected void doLoop() {
 
 		String msg = msgs.poll(16);
 

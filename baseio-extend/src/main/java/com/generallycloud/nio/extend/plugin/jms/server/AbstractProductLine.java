@@ -7,12 +7,13 @@ import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.extend.ApplicationContextUtil;
 import com.generallycloud.nio.extend.plugin.jms.Message;
 import com.generallycloud.nio.extend.security.Authority;
 
-public abstract class AbstractProductLine implements MessageQueue, Looper {
+public abstract class AbstractProductLine extends AbstractEventLoopThread implements MessageQueue, Looper {
 
 	protected MQContext					context;
 	protected MessageStorage				storage;
@@ -21,23 +22,18 @@ public abstract class AbstractProductLine implements MessageQueue, Looper {
 	private Logger						logger	= LoggerFactory.getLogger(AbstractProductLine.class);
 
 	public AbstractProductLine(MQContext context) {
-		
+
 		this.context = context;
-		
+
 		this.storage = new MessageStorage();
 
 		this.consumerMap = new HashMap<String, ConsumerQueue>();
 
 		this.dueTime = context.getMessageDueTime();
 	}
-	
-	public void startup() throws Exception {
-		
-	}
 
 	// TODO 处理剩下的message 和 receiver
-	public void stop() {
-
+	protected void doStop() {
 	}
 
 	public MQContext getContext() {

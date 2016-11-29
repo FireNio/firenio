@@ -1,76 +1,17 @@
 package com.generallycloud.nio.component.concurrent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.generallycloud.nio.Looper;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 
-public class EventLoopThread implements Looper {
+public interface EventLoopThread extends Looper {
 
-	private volatile boolean	running		= false;
-	private AtomicBoolean	initialized	= new AtomicBoolean();
-	private Logger			logger		= LoggerFactory.getLogger(EventLoopThread.class);
-	private Looper			looper;
-	private Thread			monitor;
-	private String			threadName;
+	public abstract boolean isMonitor(Thread thread);
 
-	public EventLoopThread(Looper looper, String threadName) {
-		this.looper = looper;
-		this.threadName = threadName;
-		this.monitor = new Thread(new Runnable() {
+	public abstract Thread getMonitor();
+	
+	public abstract boolean isRunning();
+	
+	public abstract boolean isStopping();
+	
+	public abstract void startup(String threadName) throws Exception;
 
-			public void run() {
-				loop();
-			}
-		}, threadName);
-	}
-
-	public void startup() {
-
-		if (!initialized.compareAndSet(false, true)) {
-			return;
-		}
-
-		this.running = true;
-
-		monitor.start();
-	}
-
-	public void loop() {
-
-		Looper _looper = looper;
-
-		for (;;) {
-
-			try {
-				_looper.loop();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-
-			if (!running) {
-				break;
-			}
-		}
-	}
-
-	public void stop() {
-
-		this.looper.stop();
-
-		this.running = false;
-	}
-
-	public boolean isMonitor(Thread thread) {
-		return monitor == thread;
-	}
-
-	public String toString() {
-		return threadName;
-	}
-
-	public Thread getMonitor() {
-		return monitor;
-	}
 }
