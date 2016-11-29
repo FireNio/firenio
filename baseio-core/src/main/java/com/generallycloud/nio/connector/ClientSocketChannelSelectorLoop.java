@@ -62,13 +62,9 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			
 			connector.finishConnect(socketChannel.getSession(), null);
 
-		} catch (IOException e) {
-			
-			connector.finishConnect(null, e);
-
 		} catch (Exception e) {
 			
-			connector.finishConnect(null, new IOException(e.getMessage(), e));
-		}
+			connector.finishConnect(null, e);
+		} 
 	}
 }

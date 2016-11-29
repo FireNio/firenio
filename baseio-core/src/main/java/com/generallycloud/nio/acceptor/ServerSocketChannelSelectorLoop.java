@@ -64,11 +64,8 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 		channel.configureBlocking(false);
 		
 		// 注册到selector，等待连接
-		
-		if (isMainSelector()) {
-			
+		if (selectorLoop.isMainSelector()) {
 			regist(channel, selectorLoop);
-			
 			return;
 		}
 		
@@ -88,7 +85,7 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	}
 	
 	private void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
-		
+
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 		
 		// 绑定SocketChannel到SelectionKey

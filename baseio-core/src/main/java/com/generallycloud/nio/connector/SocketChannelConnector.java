@@ -82,7 +82,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		session.fireOpend();
 	}
 
-	protected void finishConnect(UnsafeSocketSession session, IOException exception) {
+	protected void finishConnect(UnsafeSocketSession session, Exception exception) {
 
 		if (exception == null) {
 
