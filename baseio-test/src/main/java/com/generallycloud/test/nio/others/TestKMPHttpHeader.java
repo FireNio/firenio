@@ -5,8 +5,8 @@ import java.io.File;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.KMPByteUtil;
-import com.generallycloud.nio.common.test.ITest;
-import com.generallycloud.nio.common.test.ITestHandle;
+import com.generallycloud.test.test.ITest;
+import com.generallycloud.test.test.ITestHandle;
 
 public class TestKMPHttpHeader {
 

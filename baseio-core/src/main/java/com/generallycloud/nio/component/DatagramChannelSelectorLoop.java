@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -61,10 +60,4 @@ public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 		return selector;
 	}
 	
-	
-	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
-
-		return null;
-	}
-
 }

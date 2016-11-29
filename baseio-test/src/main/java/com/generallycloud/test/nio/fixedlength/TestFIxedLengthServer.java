@@ -7,13 +7,13 @@ import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.ssl.SSLUtil;
-import com.generallycloud.nio.common.ssl.SslContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.ssl.SSLUtil;
+import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -37,7 +37,7 @@ public class TestFIxedLengthServer {
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
-//		context.addSessionEventListener(new SessionAliveSEListener());
+//		context.addSessionEventListener(new SocketSessionAliveSEListener());
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		

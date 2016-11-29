@@ -2,7 +2,7 @@ package com.generallycloud.nio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.nio.common.ssl.SslHandler;
+import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;

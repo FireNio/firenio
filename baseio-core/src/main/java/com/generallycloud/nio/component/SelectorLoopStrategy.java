@@ -12,6 +12,4 @@ public interface SelectorLoopStrategy{
 	
 	public abstract void stop();
 	
-	public abstract void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException;
-	
 }

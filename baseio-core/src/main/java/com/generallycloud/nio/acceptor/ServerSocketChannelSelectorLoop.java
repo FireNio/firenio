@@ -10,6 +10,7 @@ import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
 import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
 import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
@@ -63,8 +64,39 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 		channel.configureBlocking(false);
 		
 		// 注册到selector，等待连接
-		selectorLoop.getSelectorLoopStrategy().regist(channel, selectorLoop);
 		
+		if (isMainSelector()) {
+			
+			regist(channel, selectorLoop);
+			
+			return;
+		}
+		
+		byte [] lock = selectorLoop.getIsWaitForRegistLock();
+		
+		synchronized (lock) {
+
+			selectorLoop.setWaitForRegist(true);
+
+			selectorLoop.wakeup();
+
+			regist(channel, selectorLoop);
+			
+			selectorLoop.setWaitForRegist(false);
+		}
+		
+	}
+	
+	private void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
+		
+		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
+		
+		// 绑定SocketChannel到SelectionKey
+		SocketChannel socketChannel = selectorLoop.buildSocketChannel(sk);
+
+		// fire session open event
+		socketChannel.getSession().fireOpend();
+		// logger.debug("__________________chanel____gen____{}", channel);
 	}
 
 }

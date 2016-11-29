@@ -7,13 +7,13 @@ import com.generallycloud.nio.codec.http2.Http2ProtocolFactory;
 import com.generallycloud.nio.codec.http2.Http2SessionFactory;
 import com.generallycloud.nio.codec.http2.future.Http2FrameHeader;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.ssl.SSLUtil;
-import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.ssl.SSLUtil;
+import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 

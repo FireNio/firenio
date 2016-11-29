@@ -2,9 +2,6 @@ package com.generallycloud.nio.common;
 
 import java.util.UUID;
 
-import com.generallycloud.nio.common.test.ITest;
-import com.generallycloud.nio.common.test.ITestHandle;
-
 public class UUIDGenerator {
 
 	
@@ -28,20 +25,5 @@ public class UUIDGenerator {
 		long hi = 1L << (digits * 4);
 		return Long.toHexString(hi | (val & (hi - 1))).substring(1);
 	}
-	
-	public static void main(String[] args) {
-		
-		ITestHandle.doTest(new ITest() {
-			
-			public void test(int i) {
-				random();
-			}
-		}, 2000000,"uuid");
-		
-		System.out.println(random());
-		System.out.println(UUID.randomUUID());
-		
-	}
-	
 	
 }

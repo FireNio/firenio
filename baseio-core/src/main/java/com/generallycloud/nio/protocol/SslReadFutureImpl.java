@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.ssl.SslHandler;
 
 public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslReadFuture {
 

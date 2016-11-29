@@ -2,8 +2,8 @@ package com.generallycloud.test.json;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.test.ITest;
-import com.generallycloud.nio.common.test.ITestHandle;
+import com.generallycloud.test.test.ITest;
+import com.generallycloud.test.test.ITestHandle;
 
 public class JSONParse {
 

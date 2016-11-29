@@ -8,8 +8,6 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.test.ITestThread;
-import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
@@ -17,6 +15,8 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
+import com.generallycloud.test.test.ITestThread;
+import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
 
@@ -61,7 +61,7 @@ public class TestLoadClient1 extends ITestThread {
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
 		
-		c.setSERVER_HOST("192.168.1.105");
+		c.setSERVER_HOST("192.168.0.180");
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
@@ -76,9 +76,9 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 16 * 10000;
+		int time = 64 * 10000;
 
-		int core_size = 4;
+		int core_size = 8;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

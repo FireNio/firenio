@@ -4,25 +4,34 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
-	protected SelectionAcceptor		_read_acceptor;
-	protected SelectionAcceptor		_write_acceptor;
-	protected SocketChannelContext	context;
-	protected ProtocolDecoder		protocolDecoder		= null;
-	protected ProtocolEncoder		protocolEncoder		= null;
-	protected ProtocolFactory		protocolFactory		= null;
+	protected ByteBuf				buf				= null;
+
+	protected ChannelByteBufReader	byteBufReader		= null;
+
+	protected SocketChannelContext	context			= null;
+
+	protected ProtocolDecoder		protocolDecoder	= null;
+
+	protected ProtocolEncoder		protocolEncoder	= null;
+
+	protected ProtocolFactory		protocolFactory	= null;
 
 	public SocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
 
 		super(service, selectorLoops);
-		
+
 		this.context = (SocketChannelContext) service.getContext();
-		
+
 		this.protocolFactory = context.getProtocolFactory();
 
 		this.protocolDecoder = protocolFactory.getProtocolDecoder();
@@ -31,9 +40,12 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		this.selectorLoops = selectorLoops;
 
-		this._write_acceptor = new SocketChannelSelectionWriter();
+		this.byteBufReader = context.getChannelByteBufReader();
 
-		this._read_acceptor = createSocketChannelSelectionReader(context);
+		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
+
+		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME
+																	// 使用direct
 	}
 
 	public void accept(SelectionKey selectionKey) {
@@ -45,16 +57,13 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		try {
 
-			if (selectionKey.isReadable()) {
-
-				_read_acceptor.accept(selectionKey);
-			} else if (selectionKey.isWritable()) {
-
-				_write_acceptor.accept(selectionKey);
-			} else {
+			if (!selectionKey.isReadable()) {
 
 				acceptPrepare(selectionKey);
+				return;
 			}
+
+			accept((SocketChannel) selectionKey.attachment());
 
 		} catch (Throwable e) {
 
@@ -62,18 +71,37 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		}
 
 	}
-	
-	public SocketChannelContext getContext() {
-		return context;
+
+	public void accept(SocketChannel channel) throws Exception {
+
+		if (channel == null || !channel.isOpened()) {
+			// 该channel已经被关闭
+			return;
+		}
+
+		ByteBuf buf = this.buf;
+
+		buf.clear();
+
+		buf.nioBuffer();
+
+		int length = buf.read(channel);
+
+		if (length < 1) {
+
+			if (length == -1) {
+				CloseUtil.close(channel);
+			}
+			return;
+		}
+
+		channel.active();
+
+		byteBufReader.accept(channel, buf.flip());
 	}
 
 	protected abstract void acceptPrepare(SelectionKey selectionKey) throws IOException;
 
-	private SelectionAcceptor createSocketChannelSelectionReader(SocketChannelContext context) {
-		return new SocketChannelSelectionReader(context);
-	}
-	
-	
 	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
@@ -89,7 +117,14 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		return channel;
 	}
-	
+
+	protected void doStop() {
+		ReleaseUtil.release(buf);
+	}
+
+	public SocketChannelContext getContext() {
+		return context;
+	}
 
 	public ProtocolDecoder getProtocolDecoder() {
 		return protocolDecoder;

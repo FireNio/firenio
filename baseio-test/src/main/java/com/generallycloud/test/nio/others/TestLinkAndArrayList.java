@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.others;
 
-import com.generallycloud.nio.common.test.ITest;
-import com.generallycloud.nio.common.test.ITestHandle;
+import com.generallycloud.test.test.ITest;
+import com.generallycloud.test.test.ITestHandle;
 
 public class TestLinkAndArrayList {
 

@@ -5,7 +5,7 @@ import static com.generallycloud.nio.codec.http2.hpack.Http2Exception.streamErro
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
-import com.generallycloud.nio.common.ssl.ApplicationProtocolNames;
+import com.generallycloud.nio.component.ssl.ApplicationProtocolNames;
 
 public final class Http2CodecUtil {
 	    public static final int CONNECTION_STREAM_ID = 0;

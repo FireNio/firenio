@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.generallycloud.nio.balance.router.FrontRouter;
 import com.generallycloud.nio.balance.router.SimpleNextRouter;
-import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSessionEventListener;
+import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 

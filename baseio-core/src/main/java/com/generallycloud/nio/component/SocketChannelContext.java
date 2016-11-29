@@ -1,9 +1,9 @@
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.common.ssl.SslContext;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 

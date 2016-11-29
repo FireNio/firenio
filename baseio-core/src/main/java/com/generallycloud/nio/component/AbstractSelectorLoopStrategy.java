@@ -1,7 +1,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -142,18 +141,6 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 				selecting.set(false);
 			}
 		}
-	}
-	
-	public void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
-		
-		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
-		
-		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = selectorLoop.buildSocketChannel(sk);
-
-		// fire session open event
-		socketChannel.getSession().fireOpend();
-		// logger.debug("__________________chanel____gen____{}", channel);
 	}
 	
 }

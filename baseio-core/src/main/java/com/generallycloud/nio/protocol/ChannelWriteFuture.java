@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.component.SocketChannel;
 
 public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFuture> {

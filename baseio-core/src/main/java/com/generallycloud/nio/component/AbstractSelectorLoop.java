@@ -1,6 +1,7 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -194,6 +195,7 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 
 		for (; working;) {
 
+			//FIXME wait
 			ThreadUtil.sleep(8);
 		}
 
@@ -206,8 +208,10 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
+		
+		doStop();
 	}
-
+	
 	public void wakeup() {
 		selector.wakeup();
 	}
@@ -228,5 +232,13 @@ public abstract class AbstractSelectorLoop implements SelectorLoop {
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;
 	}
+	
+	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
+		return null;
+	}
 
+	protected void doStop() {
+		
+	}
+	
 }

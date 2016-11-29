@@ -7,9 +7,9 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.common.ssl.SslHandler;
 import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
+import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketChannel;
 

@@ -8,12 +8,13 @@ import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.test.ITestThread;
-import com.generallycloud.nio.common.test.ITestThreadHandle;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
+import com.generallycloud.test.test.ITestThread;
+import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestHttpLoadThread extends ITestThread {
 
@@ -50,6 +51,14 @@ public class TestHttpLoadThread extends ITestThread {
 		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
 		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
+		
+		ServerConfiguration c = connector.getContext().getServerConfiguration();
+
+		c.setSERVER_MEMORY_POOL_CAPACITY(128000);
+		c.setSERVER_MEMORY_POOL_UNIT(128);
+		c.setSERVER_PORT(18300);
+		c.setSERVER_ENABLE_SSL(false);
+		c.setSERVER_ENABLE_WORK_EVENT_LOOP(false);
 
 		session = connector.connect();
 
@@ -64,9 +73,9 @@ public class TestHttpLoadThread extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("http");
 
-		int time = 5120000;
+		int time = 4 * 10000;
 
-		int core_size = 256;
+		int core_size = 64;
 
 		ITestThreadHandle.doTest(TestHttpLoadThread.class, core_size, time / core_size);
 	}
