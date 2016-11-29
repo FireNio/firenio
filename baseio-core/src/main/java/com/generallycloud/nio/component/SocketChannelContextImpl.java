@@ -11,8 +11,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.LineSingleEventLoopGroup;
-import com.generallycloud.nio.component.concurrent.ThreadSingleEventLoopGroup;
+import com.generallycloud.nio.component.concurrent.LineEventLoopGroup;
+import com.generallycloud.nio.component.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -130,9 +130,9 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 		
 		if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-			this.eventLoopGroup = new ThreadSingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+			this.eventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 		} else {
-			this.eventLoopGroup = new LineSingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+			this.eventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 		}
 
 		this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();

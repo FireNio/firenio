@@ -9,7 +9,7 @@ import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.concurrent.EventLoop;
-import com.generallycloud.nio.component.concurrent.LineSingleEventLoop;
+import com.generallycloud.nio.component.concurrent.LineEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -125,8 +125,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	
 	public void doStartup() throws IOException {
 		
-		if (eventLoop instanceof LineSingleEventLoop) {
-			((LineSingleEventLoop) eventLoop).setMonitor(getMonitor());
+		if (eventLoop instanceof LineEventLoop) {
+			((LineEventLoop) eventLoop).setMonitor(getMonitor());
 		}
 		
 		super.doStartup();

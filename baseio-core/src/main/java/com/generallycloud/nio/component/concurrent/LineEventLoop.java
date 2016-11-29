@@ -4,7 +4,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 
-public class LineSingleEventLoop extends AbstractLifeCycle implements EventLoop{
+public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
 	
 	private Thread monitor;
 

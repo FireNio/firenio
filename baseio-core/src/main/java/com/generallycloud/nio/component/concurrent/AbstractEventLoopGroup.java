@@ -3,7 +3,7 @@ package com.generallycloud.nio.component.concurrent;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.LifeCycleUtil;
 
-public abstract class AbstractSingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup{
+public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup{
 	
 	private String eventLoopName;
 	
@@ -15,7 +15,7 @@ public abstract class AbstractSingleEventLoopGroup extends AbstractLifeCycle imp
 	
 	private FixedAtomicInteger eventLoopIndex;
 
-	public AbstractSingleEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
+	public AbstractEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
 		this.eventLoopName = eventLoopName;
 		this.eventQueueSize = eventQueueSize;
 		this.eventLoopSize = eventLoopSize;
