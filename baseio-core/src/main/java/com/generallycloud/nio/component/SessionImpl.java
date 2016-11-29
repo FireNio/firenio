@@ -7,20 +7,18 @@ import java.util.HashMap;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 
 public abstract class SessionImpl implements Session {
 
-	protected Object					attachment;
-	protected Object[]					attachments;
-	protected Integer					sessionID;
-	protected EventLoop				eventLoop;
-	protected HashMap<Object, Object>		attributes	= new HashMap<Object, Object>();
+	protected Object				attachment;
+	protected Object[]				attachments;
+	protected Integer				sessionID;
+	protected HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
 
 	public SessionImpl(Integer sessionID) {
 		this.sessionID = sessionID;
 	}
-	
+
 	protected abstract Channel getChannel();
 
 	public void active() {
@@ -49,10 +47,6 @@ public abstract class SessionImpl implements Session {
 
 	public Charset getEncoding() {
 		return getContext().getEncoding();
-	}
-
-	public EventLoop getEventLoop() {
-		return eventLoop;
 	}
 
 	public long getLastAccessTime() {
@@ -134,9 +128,9 @@ public abstract class SessionImpl implements Session {
 	public boolean isInSelectorLoop() {
 		return getChannel().isInSelectorLoop();
 	}
-	
+
 	public void close() {
 		CloseUtil.close(getChannel());
 	}
-	
+
 }

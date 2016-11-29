@@ -128,14 +128,14 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			
 			running = true;
 		
-			this.doStartup();
-		
 			this.monitor = new Thread(new Runnable() {
 	
 				public void run() {
 					loop();
 				}
 			}, threadName);
+			
+			this.doStartup();
 			
 			this.monitor.start();
 		}
@@ -160,5 +160,5 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	public boolean isStopping() {
 		return stoping;
 	}
-
+	
 }

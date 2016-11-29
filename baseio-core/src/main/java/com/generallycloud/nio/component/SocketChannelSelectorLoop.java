@@ -8,6 +8,8 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.LineSingleEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -26,11 +28,15 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	protected ProtocolFactory		protocolFactory	= null;
 
+	protected EventLoop			eventLoop			= null;
+
 	public SocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
 
 		super(service, selectorLoops);
 
 		this.context = (SocketChannelContext) service.getContext();
+		
+		this.eventLoop = context.getEventLoopGroup().getNext();
 
 		this.protocolFactory = context.getProtocolFactory();
 
@@ -44,8 +50,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
 
-		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME
-																	// 使用direct
+		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME 使用direct
 	}
 
 	public void accept(SelectionKey selectionKey) {
@@ -117,6 +122,15 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		return channel;
 	}
+	
+	public void doStartup() throws IOException {
+		
+		if (eventLoop instanceof LineSingleEventLoop) {
+			((LineSingleEventLoop) eventLoop).setMonitor(getMonitor());
+		}
+		
+		super.doStartup();
+	}
 
 	protected void doStop() {
 		ReleaseUtil.release(buf);
@@ -136,6 +150,10 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	public ProtocolFactory getProtocolFactory() {
 		return protocolFactory;
+	}
+
+	public EventLoop getEventLoop() {
+		return eventLoop;
 	}
 
 }

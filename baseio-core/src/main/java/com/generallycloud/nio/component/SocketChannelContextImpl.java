@@ -11,8 +11,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.component.concurrent.EventLoopGroup;
-import com.generallycloud.nio.component.concurrent.LineEventLoopGroup;
-import com.generallycloud.nio.component.concurrent.SingleEventLoopGroup;
+import com.generallycloud.nio.component.concurrent.LineSingleEventLoopGroup;
+import com.generallycloud.nio.component.concurrent.ThreadSingleEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -29,7 +29,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	private SslContext						sslContext;
 	private boolean						enableSSL;
 	private ChannelByteBufReader				channelByteBufReader;
-	private ReadFutureAcceptor				readFutureAcceptor;
+	private ForeReadFutureAcceptor			foreReadFutureAcceptor;
 	private SocketSessionManager				sessionManager;
 	private Linkable<SocketSessionEventListener>	lastSessionEventListener;
 	private Linkable<SocketSessionEventListener>	sessionEventListenerLink;
@@ -125,22 +125,17 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 
+		int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
+
+		int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+		
 		if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-
-			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-
-			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-
-			EventLoopGroup eventLoopGroup = new SingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
-
-			this.eventLoopGroup = eventLoopGroup;
-
+			this.eventLoopGroup = new ThreadSingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 		} else {
-
-			this.eventLoopGroup = new LineEventLoopGroup();
+			this.eventLoopGroup = new LineSingleEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 		}
 
-		this.readFutureAcceptor = new EventLoopReadFutureAcceptor();
+		this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
 
 		this.channelByteBufReader = new IoLimitChannelByteBufReader();
 
@@ -235,8 +230,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		return channelByteBufReader;
 	}
 
-	public ReadFutureAcceptor getReadFutureAcceptor() {
-		return readFutureAcceptor;
+	public ForeReadFutureAcceptor getForeReadFutureAcceptor() {
+		return foreReadFutureAcceptor;
 	}
 
 	public void setSessionManager(SocketSessionManager sessionManager) {

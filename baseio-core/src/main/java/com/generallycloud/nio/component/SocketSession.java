@@ -2,6 +2,7 @@ package com.generallycloud.nio.component;
 
 import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -34,6 +35,8 @@ public interface SocketSession extends Session {
 	public abstract String getProtocolID();
 
 	public abstract boolean isBlocking();
+
+	public abstract EventLoop getEventLoop();
 	
 	public abstract void flush(ReadFuture future) ;
 	

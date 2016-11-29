@@ -6,7 +6,6 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.DatagramPacketAcceptor;
 import com.generallycloud.nio.component.DatagramSession;
-import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.protocol.DatagramPacket;
 import com.generallycloud.nio.protocol.DatagramPacketGroup;
 
@@ -66,16 +65,17 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
 			this.packetGroup.addDatagramPacket(packet);
 
-			session.getEventLoop().dispatch(new Runnable() {
-
-				public void run() {
-					try {
-						udpReceiveHandle.onReceiveUDPPacket(rtpClient, _packetGroup);
-					} catch (Throwable e) {
-						logger.debug(e);
-					}
-				}
-			});
+			//socketSession.getEventLoop()
+//			session.getEventLoop().dispatch(new Runnable() {
+//
+//				public void run() {
+//					try {
+//						udpReceiveHandle.onReceiveUDPPacket(rtpClient, _packetGroup);
+//					} catch (Throwable e) {
+//						logger.debug(e);
+//					}
+//				}
+//			});
 		}
 	}
 

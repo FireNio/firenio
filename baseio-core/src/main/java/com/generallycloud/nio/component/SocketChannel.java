@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -22,10 +23,6 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract void upNetworkState();
 
 	public abstract void downNetworkState();
-
-//	public abstract void wakeup();
-
-	public abstract boolean isInSelectorLoop();
 
 	public abstract ChannelReadFuture getReadFuture();
 
@@ -64,4 +61,6 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract UnsafeSocketSession getSession();
 
 	public abstract void fireEvent(SelectorLoopEvent event);
+	
+	public abstract EventLoop getEventLoop();
 }

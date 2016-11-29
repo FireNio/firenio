@@ -51,7 +51,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		this.selectorLoops = selectorLoops;
 
 		this.selectableChannel = service.getSelectableChannel();
-
+		
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
 	}
 

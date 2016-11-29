@@ -7,6 +7,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -25,13 +26,11 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	protected SslHandler			sslHandler;
 	protected SocketChannel			channel;
 	protected SocketChannelContext	context;
-	
 
 	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(sessionID);
 		this.channel = channel;
 		this.context = channel.getContext();
-		this.eventLoop = context.getEventLoopGroup().getNext();
 		if (context.isEnableSSL()) {
 			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
@@ -169,6 +168,10 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	public SSLEngine getSSLEngine() {
 		return sslEngine;
+	}
+
+	public EventLoop getEventLoop() {
+		return channel.getEventLoop();
 	}
 
 	public SslHandler getSslHandler() {

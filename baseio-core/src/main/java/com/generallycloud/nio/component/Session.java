@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 
 public interface Session extends Closeable{
 
@@ -56,8 +55,6 @@ public interface Session extends Closeable{
 	public abstract void setAttribute(Object key, Object value) ;
 
 	public abstract void setSessionID(Integer sessionID);
-
-	public abstract EventLoop getEventLoop();
 	
 	public abstract Charset getEncoding();
 

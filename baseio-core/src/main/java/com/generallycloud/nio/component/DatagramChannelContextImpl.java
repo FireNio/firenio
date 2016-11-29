@@ -14,7 +14,7 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class DatagramChannelContextImpl extends AbstractChannelContext implements DatagramChannelContext {
 
-	private DatagramPacketAcceptor		datagramPacketAcceptor;
+	private DatagramPacketAcceptor				datagramPacketAcceptor;
 	private DatagramSessionManager				sessionManager;
 	private Linkable<DatagramSessionEventListener>	lastSessionEventListener;
 	private Linkable<DatagramSessionEventListener>	sessionEventListenerLink;

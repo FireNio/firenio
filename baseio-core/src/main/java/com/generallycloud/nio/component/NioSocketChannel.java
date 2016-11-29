@@ -16,6 +16,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
 import com.generallycloud.nio.connector.ChannelConnector;
@@ -43,6 +44,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private long						next_network_weak	= Long.MAX_VALUE;
 	private boolean					enableInbound		= true;
 	private int						writeFutureLength	;
+	private EventLoop					eventLoop;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
@@ -55,6 +57,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.selectionKey = selectionKey;
+		this.eventLoop = selectorLoop.getEventLoop();
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		this.local = getLocalSocketAddress();
@@ -388,13 +391,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		
 	}
 
-//	public void wakeup() {
-//		
-//		upNetworkState();
-//
-//		this.selectorLoop.fireEvent(this);
-//	}
-
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
@@ -417,6 +413,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	public boolean isPositive() {
 		return !isNetworkWeak();
+	}
+
+	public EventLoop getEventLoop() {
+		return eventLoop;
 	}
 	
 }

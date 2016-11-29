@@ -9,15 +9,15 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractEventLoopThread;
 
-public class SingleEventLoop extends AbstractLifeCycle implements EventLoop {
+public class ThreadSingleEventLoop extends AbstractLifeCycle implements EventLoop {
 
-	private static Logger		logger				= LoggerFactory.getLogger(SingleEventLoop.class);
+	private static Logger		logger				= LoggerFactory.getLogger(ThreadSingleEventLoop.class);
 
 	private String				threadName			= null;
 
 	private SingleEventLoopWorker	singleEventLoopWorker	= null;
 
-	public SingleEventLoop(String threadName, int queueSize) {
+	public ThreadSingleEventLoop(String threadName, int queueSize) {
 		
 		this.threadName = threadName;
 

@@ -6,7 +6,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class AbstractReadFutureAcceptor implements ReadFutureAcceptor{
+public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAcceptor{
 
 	private Logger logger = LoggerFactory.getLogger(AbstractReadFutureAcceptor.class);
 	

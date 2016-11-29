@@ -10,10 +10,10 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 	
-	private ReadFutureAcceptor readFutureAcceptor;
+	private ForeReadFutureAcceptor foreReadFutureAcceptor;
 	
 	public TransparentByteBufReader(SocketChannelContext context) {
-		this.readFutureAcceptor = context.getReadFutureAcceptor();
+		this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
 	}
 
 	public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
@@ -65,7 +65,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
 			channel.setReadFuture(null);
 
-			readFutureAcceptor.accept(session, future);
+			foreReadFutureAcceptor.accept(session, future);
 		}
 	}
 }
