@@ -33,7 +33,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				f.write("yes server already accept your message:");
 				f.write(f.getReadText());
@@ -41,11 +41,11 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 			}
 		};
 		
-		BaseContext context = new BaseContextImpl(new ServerConfiguration(18300));
+		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration(18300));
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
-		context.addSessionEventListener(new LoggerSEListener());
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
@@ -64,7 +64,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			public void accept(Session session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				System.out.println();
@@ -73,28 +73,27 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 			}
 		};
 		
-		BaseContext context = new BaseContextImpl(new ServerConfiguration("localhost", 18300));
+		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
-		context.addSessionEventListener(new LoggerSEListener());
+		context.addSessionEventListener(new LoggerSocketSEListener());
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
-		Session session = connector.connect();
+		SocketSession session = connector.connect();
 
 		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
 
-		future.write("hello server !");
+		future.write("hello server!");
 
 		session.flush(future);
 		
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
-
 	}
 
 ```
