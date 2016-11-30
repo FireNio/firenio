@@ -1,16 +1,17 @@
 package com.generallycloud.nio.balance;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 
 public class FrontFacadeAcceptor {
 
-	private AtomicBoolean			started				= new AtomicBoolean(false);
+	private byte[]				runLock				= new byte[]{};
+	private boolean				running				= false;
 	private SocketChannelAcceptor		acceptor				= null;
 	private FrontContext			frontContext;
 
@@ -20,30 +21,32 @@ public class FrontFacadeAcceptor {
 		if (frontContext == null) {
 			throw new IllegalArgumentException("null configuration");
 		}
+		
+		synchronized (runLock) {
+			
+			if (running) {
+				return;
+			}
+			
+			this.frontContext = frontContext;
 
-		if (!started.compareAndSet(false, true)) {
-			return;
+			this.frontContext.getFrontReverseAcceptor().start(frontReverseBaseContext);
+
+			this.acceptor = new SocketChannelAcceptor(frontBaseContext);
+
+			this.acceptor.bind();
+
+			LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontFacadeAcceptor.class),
+					"Front Facade Acceptor 启动成功 ...");
 		}
 
-		this.frontContext = frontContext;
-
-		this.frontContext.getFrontReverseAcceptor().start(frontReverseBaseContext);
-
-		this.acceptor = new SocketChannelAcceptor(frontBaseContext);
-
-		this.acceptor.bind();
-
-		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontFacadeAcceptor.class),
-				"Front Facade Acceptor 启动成功 ...");
 	}
 
 	public void stop() {
-		if (!started.get()) {
-			return;
+		synchronized (runLock) {
+			CloseUtil.unbind(acceptor);
+			this.frontContext.getFrontReverseAcceptor().stop();
 		}
-		this.acceptor.unbind();
-
-		this.frontContext.getFrontReverseAcceptor().stop();
 	}
 
 	public FrontContext getFrontContext() {

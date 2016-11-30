@@ -2,6 +2,7 @@ package com.generallycloud.nio.extend.implementation;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -54,8 +55,7 @@ public class SYSTEMStopServerServlet extends BaseFutureAcceptorService {
 			
 			ChannelAcceptor acceptor = (ChannelAcceptor) context.getChannelService();
 			
-			acceptor.unbind();
-			
+			CloseUtil.unbind(acceptor);
 		}
 	}
 }

@@ -264,6 +264,8 @@ public class RTPClient {
 				waiter.setPayload(0);
 			}
 		});
+		
+		byte [] shortWaiter = new byte[]{};
 
 		ThreadUtil.execute(new Runnable() {
 
@@ -277,9 +279,16 @@ public class RTPClient {
 						DebugUtil.debug(e);
 					}
 
-					if (waiter.wait4Callback(300)) {
-
+					if (waiter.isDnoe()) {
 						break;
+					}
+					
+					synchronized (shortWaiter) {
+						try {
+							shortWaiter.wait(300);
+						} catch (InterruptedException e) {
+							break;
+						}
 					}
 				}
 			}

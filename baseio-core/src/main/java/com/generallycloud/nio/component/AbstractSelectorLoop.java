@@ -18,8 +18,8 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	private boolean				isMainSelector			= false;
 	private boolean				isWaitForRegist		= false;
 	private byte[]				isWaitForRegistLock		= new byte[] {};
-	private byte[]				runLock				= new byte[] {};
 
+	protected byte[]				runLock				= new byte[] {};
 	protected ByteBufAllocator		byteBufAllocator		= null;
 	protected SelectableChannel		selectableChannel		= null;
 	protected Selector				selector				= null;
@@ -163,18 +163,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		super.wakeupThread();
 		
 		this.selector.wakeup();
-		
-		synchronized (runLock) {
-			selectorLoopStrategy.stop();
-		}
-
-		try {
-			this.selector.close();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-		doStop();
 	}
 	
 	public void wakeup() {
@@ -200,10 +188,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	
 	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
 		return null;
-	}
-
-	protected void doStop0() {
-		
 	}
 	
 }

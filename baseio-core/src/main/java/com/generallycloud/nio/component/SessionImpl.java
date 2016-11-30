@@ -125,8 +125,8 @@ public abstract class SessionImpl implements Session {
 		return getChannel().getByteBufAllocator();
 	}
 
-	public boolean isInSelectorLoop() {
-		return getChannel().isInSelectorLoop();
+	public boolean inSelectorLoop() {
+		return getChannel().inSelectorLoop();
 	}
 
 	public void close() {

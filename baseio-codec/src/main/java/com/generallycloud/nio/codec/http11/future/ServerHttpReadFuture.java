@@ -3,6 +3,7 @@ package com.generallycloud.nio.codec.http11.future;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
@@ -20,7 +21,12 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 	}
 
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
-		headers.put("Content-Type", "text/plain");
+		
+		if (context.getEncoding() == Encoding.GBK) {
+			headers.put("Content-Type", "text/plain;charset=gbk");
+		}else{
+			headers.put("Content-Type", "text/plain;charset=utf-8");
+		}
 		headers.put("Connection", "keep-alive");
 	}
 

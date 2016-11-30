@@ -7,6 +7,8 @@ import java.nio.channels.SelectionKey;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
@@ -15,6 +17,8 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
+	
+	private	Logger				logger			= LoggerFactory.getLogger(SocketChannelSelectorLoop.class);
 
 	protected ByteBuf				buf				= null;
 
@@ -133,6 +137,17 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	}
 
 	protected void doStop() {
+		
+		synchronized (runLock) {
+			selectorLoopStrategy.stop();
+		}
+
+		try {
+			this.selector.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		
 		ReleaseUtil.release(buf);
 	}
 

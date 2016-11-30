@@ -16,13 +16,9 @@ import com.generallycloud.nio.component.concurrent.Waiter;
 //FIXME 重连的时候不需要重新加载BaseContext
 public class SocketChannelConnector extends AbstractChannelConnector {
 
-	private UnsafeSocketSession	session;
-
 	private SocketChannelContext	context;
 
-	public SocketChannelContext getContext() {
-		return context;
-	}
+	private UnsafeSocketSession	session;
 
 	private Waiter<Object> waiter = new Waiter<Object>();
 
@@ -30,15 +26,11 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		this.context = context;
 	}
 
-	protected void initselectableChannel() throws IOException {
+	public SocketSession connect() throws IOException {
 
-		this.selectableChannel = SocketChannel.open();
+		this.service();
 
-		this.selectableChannel.configureBlocking(false);
-	}
-
-	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
-		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
+		return getSession();
 	}
 
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
@@ -67,21 +59,6 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		}
 	}
 
-	public SocketSession connect() throws IOException {
-
-		this.service();
-
-		return getSession();
-	}
-
-	public SocketSession getSession() {
-		return session;
-	}
-
-	protected void fireSessionOpend() {
-		session.fireOpend();
-	}
-
 	protected void finishConnect(UnsafeSocketSession session, Exception exception) {
 
 		if (exception == null) {
@@ -97,6 +74,33 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 			this.waiter.setPayload(exception);
 		}
+	}
+	
+	protected boolean canSafeClose() {
+		return session == null || (!session.inSelectorLoop() && !session.getEventLoop().inEventLoop());
+	}
+
+	protected void fireSessionOpend() {
+		session.fireOpend();
+	}
+
+	public SocketChannelContext getContext() {
+		return context;
+	}
+
+	public SocketSession getSession() {
+		return session;
+	}
+
+	protected void initselectableChannel() throws IOException {
+
+		this.selectableChannel = SocketChannel.open();
+
+		this.selectableChannel.configureBlocking(false);
+	}
+
+	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
 	}
 
 }

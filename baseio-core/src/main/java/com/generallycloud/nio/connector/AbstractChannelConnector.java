@@ -3,12 +3,14 @@ package com.generallycloud.nio.connector;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
+import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
@@ -18,28 +20,39 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
 	
 	public void close() throws IOException {
+		
+		Waiter<IOException> waiter = asynchronousClose();
+		
+		if(waiter.await()){
+			//FIXME never timeout
+			throw new TimeoutException("timeout to close");
+		}
+	}
+	
+	public Waiter<IOException> asynchronousClose() {
 		if (getSession() == null) {
 			doPhysicalClose();
-			return;
+			return shutDownWaiter;
 		}
 		CloseUtil.close(getSession());
+		return shutDownWaiter;
 	}
 	
 	public void physicalClose() throws IOException {
-		
-		//FIXME always true
-		if (getSession().isInSelectorLoop()) {
-			ThreadUtil.execute(new Runnable() {
-				
-				public void run() {
-					doPhysicalClose();
-				}
-			});
+
+		if (canSafeClose()) {
+			doPhysicalClose();
 			return;
 		}
-		
-		doPhysicalClose();
+
+		ThreadUtil.execute(new Runnable() {
+			public void run() {
+				doPhysicalClose();
+			}
+		});
 	}
+	
+	protected abstract boolean canSafeClose();
 
 	private void doPhysicalClose(){
 		cancelService();

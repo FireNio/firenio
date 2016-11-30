@@ -8,7 +8,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {

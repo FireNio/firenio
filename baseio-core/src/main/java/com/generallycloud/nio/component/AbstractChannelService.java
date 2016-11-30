@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.LifeCycleUtil;
+import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
@@ -15,6 +16,7 @@ public abstract class AbstractChannelService implements ChannelService {
 	protected boolean				active			= false;
 	protected SelectableChannel		selectableChannel	= null;
 	protected SelectorLoop[]		selectorLoops		= null;
+	protected Waiter<IOException>	shutDownWaiter		= new Waiter<>();
 	protected ReentrantLock			activeLock		= new ReentrantLock();
 
 	public SelectableChannel getSelectableChannel() {
@@ -43,15 +45,15 @@ public abstract class AbstractChannelService implements ChannelService {
 				selectorLoops[i].startup(getServiceDescription(i));
 			} catch (Exception e) {
 				if (e instanceof IOException) {
-					throw (IOException)e;
+					throw (IOException) e;
 				}
-				throw new IOException(e.getMessage(),e);
+				throw new IOException(e.getMessage(), e);
 			}
 		}
 	}
-	
-	protected void cancelService(){
-		
+
+	protected void cancelService() {
+
 		ReentrantLock lock = this.activeLock;
 
 		lock.lock();
@@ -60,8 +62,10 @@ public abstract class AbstractChannelService implements ChannelService {
 
 			// just close
 			destroySelectorLoops();
-			
+
 			LifeCycleUtil.stop(getContext());
+
+			shutDownWaiter.setPayload(null);
 
 		} finally {
 
@@ -69,7 +73,7 @@ public abstract class AbstractChannelService implements ChannelService {
 
 			lock.unlock();
 		}
-		
+
 	}
 
 	protected void service() throws IOException {
@@ -81,17 +85,17 @@ public abstract class AbstractChannelService implements ChannelService {
 		try {
 
 			if (active) {
-				return ;
+				return;
 			}
 
 			if (getContext() == null) {
 				throw new IllegalArgumentException("null nio context");
 			}
-			
+
 			getContext().setChannelService(this);
 
 			ServerConfiguration configuration = getContext().getServerConfiguration();
-			
+
 			if (!(this instanceof SocketChannelAcceptor)) {
 				configuration.setSERVER_CORE_SIZE(1);
 			}
@@ -99,7 +103,7 @@ public abstract class AbstractChannelService implements ChannelService {
 			LifeCycleUtil.start(getContext());
 
 			this.initselectableChannel();
-			
+
 			this.initService(configuration);
 
 			this.active = true;
@@ -109,11 +113,11 @@ public abstract class AbstractChannelService implements ChannelService {
 			lock.unlock();
 		}
 	}
-	
+
 	public InetSocketAddress getServerSocketAddress() {
 		return serverAddress;
 	}
-	
+
 	protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
 	protected void destroySelectorLoops() {

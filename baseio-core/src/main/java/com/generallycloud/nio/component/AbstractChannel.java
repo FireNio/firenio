@@ -45,7 +45,7 @@ public abstract class AbstractChannel implements Channel {
 		return address.getHostAddress();
 	}
 
-	public boolean isInSelectorLoop() {
+	public boolean inSelectorLoop() {
 		return Thread.currentThread() == selectorLoop.getMonitor();
 	}
 

@@ -62,6 +62,6 @@ public interface Session extends Closeable{
 
 	public abstract ByteBufAllocator getByteBufAllocator();
 	
-	public abstract boolean isInSelectorLoop();
+	public abstract boolean inSelectorLoop();
 
 }

@@ -16,8 +16,6 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	
 	private byte[] workingLock = new byte[]{};
 	
-	private byte[] sleepingLock = new byte[]{};
-	
 	private Thread			monitor;
 	
 	public void loop() {
@@ -73,9 +71,11 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			
 			if (working) {
 				
-				wait4Free();
+				notify4Free();
 				
 				wakeupThread();
+				
+				wait4Free();
 			}
 			
 			stoping = false;
@@ -103,20 +103,16 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	}
 
 	protected void sleep(long time){
-		synchronized (sleepingLock) {
+		synchronized (workingLock) {
 			try {
-				sleepingLock.wait(time);
+				workingLock.wait(time);
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(),e);
 			}
 		}
 	}
 	
-	protected void wakeupThread(){
-		synchronized (sleepingLock) {
-			sleepingLock.notify();
-		}
-	}
+	protected void wakeupThread(){}
 
 	public void startup(String threadName) throws Exception {
 		

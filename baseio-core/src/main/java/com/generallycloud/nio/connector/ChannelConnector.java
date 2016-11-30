@@ -6,6 +6,7 @@ import java.io.IOException;
 import com.generallycloud.nio.component.Connectable;
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.concurrent.Waiter;
 
 public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 
@@ -18,4 +19,6 @@ public interface ChannelConnector extends ChannelService, Connectable, Closeable
 	public abstract void setTimeout(long timeout) ;
 	
 	public abstract void physicalClose() throws IOException;
+	
+	public abstract Waiter<IOException> asynchronousClose();
 }

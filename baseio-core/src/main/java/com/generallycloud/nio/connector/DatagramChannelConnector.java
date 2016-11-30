@@ -40,11 +40,13 @@ public class DatagramChannelConnector extends AbstractChannelConnector {
 		
 		this.session = channel.getSession();
 	}
+	
+	protected boolean canSafeClose() {
+		return session == null || !session.inSelectorLoop();
+	}
 
-	@Override
 	protected void fireSessionOpend() {
-		// TODO Auto-generated method stub
-
+		session.fireOpend();
 	}
 
 	public DatagramChannelContext getContext() {

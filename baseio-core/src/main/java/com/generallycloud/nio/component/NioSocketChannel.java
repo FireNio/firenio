@@ -83,7 +83,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				return;
 			}
 
-			if (isInSelectorLoop()) {
+			if (inSelectorLoop()) {
 
 				this.session.physicalClose();
 

@@ -3,10 +3,12 @@ package com.generallycloud.nio.acceptor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
+import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelAcceptor extends AbstractChannelService  implements ChannelAcceptor{
@@ -33,8 +35,19 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 		return active;
 	}
 
-	public void unbind() {
+	public void unbind() throws TimeoutException {
+		
+		Waiter<IOException> waiter = asynchronousUnbind();
+		
+		if (waiter.await()) {
+			//FIXME never timeout
+			throw new TimeoutException("timeout to unbind");
+		}
+	}
+	
+	public Waiter<IOException> asynchronousUnbind() {
 		cancelService();
+		return shutDownWaiter;
 	}
 	
 	public int getManagedSessionSize() {

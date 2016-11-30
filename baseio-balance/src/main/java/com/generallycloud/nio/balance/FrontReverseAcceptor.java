@@ -3,6 +3,7 @@ package com.generallycloud.nio.balance;
 import java.io.IOException;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
@@ -26,6 +27,6 @@ public class FrontReverseAcceptor {
 	}
 
 	protected void stop() {
-		acceptor.unbind();
+		CloseUtil.unbind(acceptor);
 	}
 }

@@ -56,7 +56,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 				return;
 			}
 
-			if (isInSelectorLoop()) {
+			if (inSelectorLoop()) {
 
 				this.session.physicalClose();
 

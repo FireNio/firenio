@@ -5,6 +5,7 @@ import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
@@ -61,5 +62,7 @@ public class TestFIxedLengthClient {
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);
+		
+		DebugUtil.debug("连接已关闭。。。");
 	}
 }
