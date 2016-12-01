@@ -8,9 +8,9 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.implementation.SYSTEMShowMemoryServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 

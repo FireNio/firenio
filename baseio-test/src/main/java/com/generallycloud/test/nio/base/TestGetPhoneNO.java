@@ -4,9 +4,9 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.example.baseio.TestGetPhoneNOServlet;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.protobase.example.TestGetPhoneNOServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestGetPhoneNO {

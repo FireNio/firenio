@@ -3,9 +3,9 @@ package com.generallycloud.test.nio.base;
 import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.implementation.SYSTEMRedeployServlet;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.implementation.SYSTEMRedeployServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestRedeploy {

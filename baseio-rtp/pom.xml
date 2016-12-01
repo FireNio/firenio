@@ -43,9 +43,16 @@
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-extend</artifactId>
+			<artifactId>baseio-container</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-jms</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
+		</dependency>
+		
 	</dependencies>
 
 </project>

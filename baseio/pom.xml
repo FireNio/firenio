@@ -13,7 +13,11 @@
 		<module>../baseio-balance</module>
 		<module>../baseio-codec</module>
 		<module>../baseio-core</module>
-		<module>../baseio-extend</module>
+		<module>../baseio-container</module>
+		<module>../baseio-http</module>
+		<module>../baseio-jms</module>
+		<module>../baseio-protobase</module>
+		<module>../baseio-rtp</module>
 	</modules>
 
 	<build>

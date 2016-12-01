@@ -19,7 +19,19 @@
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>../baseio-extend/src/main/java</directory>
+            <directory>../baseio-container/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>../baseio-http/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>../baseio-jms/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>../baseio-protobase/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>

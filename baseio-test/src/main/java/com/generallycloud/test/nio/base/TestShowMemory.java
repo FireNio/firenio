@@ -5,9 +5,9 @@ import com.generallycloud.nio.codec.base.future.BaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.implementation.SYSTEMShowMemoryServlet;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.implementation.SYSTEMShowMemoryServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestShowMemory {

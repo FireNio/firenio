@@ -45,7 +45,10 @@
 									<include>com.generallycloud:baseio-balance</include>
 									<include>com.generallycloud:baseio-codec</include>
 								    <include>com.generallycloud:baseio-core</include>
-									<include>com.generallycloud:baseio-extend</include>
+									<include>com.generallycloud:baseio-container</include>
+									<include>com.generallycloud:baseio-http</include>
+									<include>com.generallycloud:baseio-jms</include>
+									<include>com.generallycloud:baseio-protobase</include>
 									<include>com.generallycloud:baseio-rtp</include>
 								</includes>
 							</artifactSet>
@@ -69,15 +72,51 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-core</artifactId>
+			<artifactId>baseio-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-extend</artifactId>
+			<artifactId>baseio-codec</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-container</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-http</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-jms</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-protobase</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-rtp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 	</dependencies>
 </project>

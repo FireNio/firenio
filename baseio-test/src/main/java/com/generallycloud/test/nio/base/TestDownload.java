@@ -8,10 +8,10 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FileReceiveUtil;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.implementation.SYSTEMDownloadServlet;
+import com.generallycloud.nio.container.FileReceiveUtil;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.protobase.example.TestDownloadServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
@@ -19,7 +19,7 @@ public class TestDownload {
 	
 	public static void main(String[] args) throws Exception {
 
-		String serviceName = SYSTEMDownloadServlet.SERVICE_NAME;
+		String serviceName = TestDownloadServlet.SERVICE_NAME;
 		
 		String fileName = "upload-flashmail-2.4.exe";
 		

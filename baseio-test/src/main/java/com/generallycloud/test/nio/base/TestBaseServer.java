@@ -1,7 +1,6 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.extend.startup.BaseServerStartup;
-
+import com.generallycloud.nio.container.protobase.startup.BaseServerStartup;
 
 public class TestBaseServer {
 

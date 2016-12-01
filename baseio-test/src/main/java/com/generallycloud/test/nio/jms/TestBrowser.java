@@ -1,11 +1,11 @@
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.extend.FixedSession;
-import com.generallycloud.nio.extend.SimpleIOEventHandle;
-import com.generallycloud.nio.extend.plugin.jms.Message;
-import com.generallycloud.nio.extend.plugin.jms.client.MessageBrowser;
-import com.generallycloud.nio.extend.plugin.jms.client.impl.DefaultMessageBrowser;
+import com.generallycloud.nio.container.FixedSession;
+import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.jms.Message;
+import com.generallycloud.nio.container.jms.client.MessageBrowser;
+import com.generallycloud.nio.container.jms.client.impl.DefaultMessageBrowser;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBrowser {
