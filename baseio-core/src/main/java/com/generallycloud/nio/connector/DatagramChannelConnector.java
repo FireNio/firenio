@@ -12,7 +12,7 @@ import com.generallycloud.nio.component.SelectorLoop;
 import com.generallycloud.nio.component.UnsafeDatagramSession;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
-public class DatagramChannelConnector extends AbstractChannelConnector {
+public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 	private DatagramChannelContext	context	= null;
 	private UnsafeDatagramSession		session	= null;

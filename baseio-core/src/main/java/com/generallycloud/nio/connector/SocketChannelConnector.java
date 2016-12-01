@@ -14,7 +14,7 @@ import com.generallycloud.nio.component.UnsafeSocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
 //FIXME 重连的时候不需要重新加载BaseContext
-public class SocketChannelConnector extends AbstractChannelConnector {
+public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	private SocketChannelContext	context;
 

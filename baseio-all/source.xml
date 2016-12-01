@@ -22,5 +22,9 @@
             <directory>../baseio-extend/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
+		<fileSet>
+            <directory>../baseio-rtp/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>

@@ -40,7 +40,12 @@
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	
+
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-extend</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 </project>

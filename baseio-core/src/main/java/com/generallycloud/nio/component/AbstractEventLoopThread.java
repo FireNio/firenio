@@ -6,7 +6,7 @@ import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
 public abstract class AbstractEventLoopThread implements EventLoopThread {
 
-	private static final Logger	logger			= LoggerFactory.getLogger(AbstractEventLoopThread.class);
+	private static final Logger		logger		= LoggerFactory.getLogger(AbstractEventLoopThread.class);
 
 	private volatile boolean		running		= false;
 
