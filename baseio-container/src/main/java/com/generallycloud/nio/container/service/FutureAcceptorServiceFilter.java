@@ -12,7 +12,7 @@ import com.generallycloud.nio.container.DynamicClassLoader;
 import com.generallycloud.nio.container.RESMessage;
 import com.generallycloud.nio.container.configuration.Configuration;
 import com.generallycloud.nio.protocol.NamedReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
+import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
@@ -59,18 +59,14 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
-		if (!(future instanceof TextReadFuture)) {
-			return;
-		}
-		
 		logger.info("[NIOServer] 未发现命令：" + serviceName);
 
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 
-		flush(session, (TextReadFuture) future, message);
+		flush(session, future, message);
 	}
 
-	private void flush(SocketSession session, TextReadFuture future, RESMessage message) throws IOException {
+	private void flush(SocketSession session, ReadFuture future, RESMessage message) throws IOException {
 
 		future.setIOEventHandle(this);
 

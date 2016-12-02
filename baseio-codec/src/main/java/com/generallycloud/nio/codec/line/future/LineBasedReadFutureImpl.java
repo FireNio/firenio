@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractTextReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public class LineBasedReadFutureImpl extends AbstractTextReadFuture implements LineBasedReadFuture {
+public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implements LineBasedReadFuture {
 
 	private String				text;
 

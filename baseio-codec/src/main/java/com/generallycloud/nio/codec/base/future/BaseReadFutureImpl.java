@@ -12,7 +12,7 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.DefaultParameters;
+import com.generallycloud.nio.component.JsonParameters;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
 import com.generallycloud.nio.component.SocketSession;
@@ -170,7 +170,7 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 
 	public Parameters getParameters() {
 		if (parameters == null) {
-			parameters = new DefaultParameters(getText());
+			parameters = new JsonParameters(getText());
 		}
 		return parameters;
 	}

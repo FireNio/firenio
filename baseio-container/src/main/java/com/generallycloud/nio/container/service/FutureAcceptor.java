@@ -37,37 +37,25 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		this.serviceFilter = serviceFilter;
 	}
 
-	private boolean accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
+	private void accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
 
-		for (; filter != null;) {
-
-			try {
-				
-				FutureAcceptorFilter acceptorFilter = filter.getValue();
-				
-				future.setIOEventHandle(acceptorFilter);
-				
-				acceptorFilter.accept(session, future);
-				
-			} catch (Exception e) {
-				
-				logger.error(e.getMessage(),e);
-				
-				IoEventHandle eventHandle = future.getIOEventHandle();
-				
-				eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
-				
-				return true;
-			}
-
-			if (future.flushed()) {
-
-				return true;
-			}
-
-			filter = filter.getNext();
+		try {
+			
+			FutureAcceptorFilter acceptorFilter = filter.getValue();
+			
+			future.setIOEventHandle(acceptorFilter);
+			
+			acceptorFilter.accept(session, future);
+			
+		} catch (Exception e) {
+			
+			logger.error(e.getMessage(),e);
+			
+			IoEventHandle eventHandle = future.getIOEventHandle();
+			
+			eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
 		}
-		return true;
+		
 	}
 
 	public void accept(SocketSession session, ReadFuture future) throws IOException {

@@ -9,7 +9,6 @@ import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
 
 public class SYSTEMStopServerServlet extends FutureAcceptorService {
 
@@ -23,7 +22,7 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 		
 		new Thread(new StopServer(context)).start();
 		
-		((TextReadFuture) future).write("服务端正在处理停止服务命令...");
+		future.write("服务端正在处理停止服务命令...");
 		
 		session.flush(future);
 	}

@@ -15,10 +15,12 @@ import com.generallycloud.nio.common.KMPUtil;
 import com.generallycloud.nio.common.SHA1Util;
 import com.generallycloud.nio.common.StringLexer;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
+import com.generallycloud.nio.component.MapParameters;
+import com.generallycloud.nio.component.Parameters;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractTextReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
@@ -29,7 +31,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture implements HttpReadFuture {
+public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture implements HttpReadFuture {
 
 	protected static final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
 	protected static final KMPUtil	KMP_BOUNDARY		= new KMPUtil("boundary=");
@@ -499,6 +501,15 @@ public abstract class AbstractHttpReadFuture extends AbstractTextReadFuture impl
 
 	public BufferedOutputStream getBinaryBuffer() {
 		return binaryBuffer;
+	}
+	
+	private MapParameters mapParameters = null;
+
+	public Parameters getParameters() {
+		if (mapParameters == null) {
+			mapParameters = new MapParameters(getRequestParams());
+		}
+		return mapParameters;
 	}
 
 }

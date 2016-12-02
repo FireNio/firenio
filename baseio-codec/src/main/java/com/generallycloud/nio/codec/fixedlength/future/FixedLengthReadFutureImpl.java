@@ -5,13 +5,13 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractTextReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class FixedLengthReadFutureImpl extends AbstractTextReadFuture implements FixedLengthReadFuture {
+public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture implements FixedLengthReadFuture {
 
 	private ByteBuf	buf;
 

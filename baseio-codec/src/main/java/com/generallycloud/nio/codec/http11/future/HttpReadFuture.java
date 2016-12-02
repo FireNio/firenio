@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.NamedReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
+import com.generallycloud.nio.protocol.ParametersReadFuture;
 
-public abstract interface HttpReadFuture extends NamedReadFuture ,TextReadFuture{
+public abstract interface HttpReadFuture extends NamedReadFuture ,ParametersReadFuture{
 	
 	public static final String	CONTENT_TYPE_MULTIPART					= "multipart/form-data";
 	public static final String	CONTENT_TYPE_TEXT_PLAIN				= "text/plain";

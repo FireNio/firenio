@@ -1,7 +1,7 @@
 package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.component.DatagramChannelContext;
-import com.generallycloud.nio.component.DefaultParameters;
+import com.generallycloud.nio.component.JsonParameters;
 import com.generallycloud.nio.component.Parameters;
 
 public class DatagramRequest {
@@ -11,7 +11,7 @@ public class DatagramRequest {
 	private Parameters parameters;
 
 	public DatagramRequest(String content) {
-		this.parameters = new DefaultParameters(content);
+		this.parameters = new JsonParameters(content);
 		this.serviceName = parameters.getParameter("serviceName");
 	}
 

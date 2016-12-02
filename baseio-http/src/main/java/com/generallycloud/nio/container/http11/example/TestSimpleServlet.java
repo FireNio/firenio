@@ -2,9 +2,9 @@ package com.generallycloud.nio.container.http11.example;
 
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.container.http11.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.container.http11.service.HttpFutureAcceptorService;
 
-public class TestSimpleServlet extends HTTPFutureAcceptorService {
+public class TestSimpleServlet extends HttpFutureAcceptorService {
 	
 //	private Logger	logger	= LoggerFactory.getLogger(TestSimpleServlet.class);
 

@@ -18,7 +18,19 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	
 		this.filter.accept(session, future);
+		
+		if (future.flushed()) {
+
+			return;
+		}
+		
+		callNextAccept(session, future);
+	}
+	
+	private void callNextAccept(SocketSession session, ReadFuture future) throws Exception{
+		getNext().getValue().accept(session, future);
 	}
 
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {

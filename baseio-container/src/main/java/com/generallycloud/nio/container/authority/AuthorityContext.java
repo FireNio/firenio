@@ -11,7 +11,7 @@ import com.generallycloud.nio.container.implementation.AuthorityFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 
-public abstract class AuthorityContext extends AbstractPluginContext {
+public class AuthorityContext extends AbstractPluginContext {
 	
 	private static AuthorityContext instance = null;
 	
@@ -20,10 +20,8 @@ public abstract class AuthorityContext extends AbstractPluginContext {
 	}
 
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		acceptors.put(SYSTEMAuthorityServlet.SERVICE_NAME, createSYSTEMAuthorityServlet());
+		acceptors.put(SYSTEMAuthorityServlet.SERVICE_NAME, new SYSTEMAuthorityServlet());
 	}
-	
-	protected abstract SYSTEMAuthorityServlet createSYSTEMAuthorityServlet();
 	
 	public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
 		

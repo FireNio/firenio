@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.StringUtil;
 
-public class DefaultParameters implements Parameters {
+public class JsonParameters implements Parameters {
 
 	private JSONObject	object	;
 
 	private String		json		;
 
-	public DefaultParameters(String json) {
+	public JsonParameters(String json) {
 		if (!StringUtil.isNullOrBlank(json)) {
 			try {
 				object = JSONObject.parseObject(json);
@@ -22,7 +22,7 @@ public class DefaultParameters implements Parameters {
 		}
 	}
 	
-	public DefaultParameters(JSONObject object) {
+	public JsonParameters(JSONObject object) {
 		this.object = object;
 	}
 

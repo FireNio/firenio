@@ -5,12 +5,22 @@ import com.generallycloud.nio.component.SocketChannelContext;
 
 public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
 
-	protected IoEventHandle			ioEventHandle;
 	protected boolean				flushed;
+	protected String				readText;
 	protected SocketChannelContext	context;
+	protected IoEventHandle			ioEventHandle;
+	protected StringBuilder			writeTextBuffer = new StringBuilder();
 
 	protected AbstractReadFuture(SocketChannelContext context) {
 		this.context = context;
+	}
+
+	public boolean flushed() {
+		return flushed;
+	}
+
+	public SocketChannelContext getContext() {
+		return context;
 	}
 
 	public IoEventHandle getIOEventHandle() {
@@ -20,16 +30,44 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 		return ioEventHandle;
 	}
 
+	public String getReadText() {
+		return readText;
+	}
+
+	public String getWriteText() {
+		return writeTextBuffer.toString();
+	}
+
+	public StringBuilder getWriteTextBuffer() {
+		return writeTextBuffer;
+	}
+
 	public void setIOEventHandle(IoEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
 	}
 
-	public boolean flushed() {
-		return flushed;
+	public void write(boolean b) {
+		writeTextBuffer.append(b);
 	}
 
-	public SocketChannelContext getContext() {
-		return context;
+	public void write(char c) {
+		writeTextBuffer.append(c);
+	}
+
+	public void write(double d) {
+		writeTextBuffer.append(d);
+	}
+
+	public void write(int i) {
+		writeTextBuffer.append(i);
+	}
+
+	public void write(long l) {
+		writeTextBuffer.append(l);
+	}
+
+	public void write(String text) {
+		writeTextBuffer.append(text);
 	}
 
 }

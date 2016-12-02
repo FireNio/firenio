@@ -8,12 +8,12 @@ import com.generallycloud.nio.protocol.NamedReadFuture;
 
 public class LoggerFilter extends FutureAcceptorFilter {
 
-	private Logger	logger	= LoggerFactory.getLogger(LoggerFilter.class);
+	private Logger logger = LoggerFactory.getLogger(LoggerFilter.class);
 
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 
-		logger.info("请求IP：{}，服务名称：{}，请求内容：{}", 
-				new String[] { session.getRemoteAddr(), future.getFutureName() });
+		logger.info("请求IP：{}，服务名称：{}，请求内容：{}",
+				new String[] { session.getRemoteAddr(), future.getFutureName(), future.getReadText() });
 	}
 
 }

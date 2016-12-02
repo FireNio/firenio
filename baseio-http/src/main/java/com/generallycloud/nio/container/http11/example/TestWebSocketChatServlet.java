@@ -10,10 +10,10 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.configuration.Configuration;
-import com.generallycloud.nio.container.http11.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.container.http11.service.HttpFutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class TestWebSocketChatServlet extends HTTPFutureAcceptorService {
+public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 	private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 

@@ -10,9 +10,9 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.container.http11.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.container.http11.service.HttpFutureAcceptorService;
 
-public class TestShowMemoryServlet extends HTTPFutureAcceptorService {
+public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 

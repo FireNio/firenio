@@ -8,9 +8,8 @@ import com.generallycloud.nio.codec.http11.future.HttpStatus;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
 
-public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
+public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 	
 	private HttpContext		context	= HttpContext.getInstance();
 
@@ -35,7 +34,7 @@ public abstract class HTTPFutureAcceptorService extends FutureAcceptorService {
 				((HttpReadFuture)future).setStatus(HttpStatus.C500);
 			}
 			
-			((TextReadFuture) future).write("server error:"+cause.getMessage());
+			future.write("server error:"+cause.getMessage());
 
 			session.flush(future);
 		}

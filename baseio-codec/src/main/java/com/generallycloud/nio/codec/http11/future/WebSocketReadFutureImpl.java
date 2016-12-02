@@ -7,10 +7,10 @@ import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.AbstractTextReadFuture;
+import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class WebSocketReadFutureImpl extends AbstractTextReadFuture implements WebSocketReadFuture{
+public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implements WebSocketReadFuture{
 	
 	protected int type;
 

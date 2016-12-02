@@ -8,9 +8,9 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.container.http11.service.HTTPFutureAcceptorService;
+import com.generallycloud.nio.container.http11.service.HttpFutureAcceptorService;
 
-public class TestStopServerServlet extends HTTPFutureAcceptorService {
+public class TestStopServerServlet extends HttpFutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(TestStopServerServlet.class);
 

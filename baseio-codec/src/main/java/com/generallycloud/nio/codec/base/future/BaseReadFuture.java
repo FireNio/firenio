@@ -2,15 +2,12 @@ package com.generallycloud.nio.codec.base.future;
 
 import com.generallycloud.nio.balance.HashedBalanceReadFuture;
 import com.generallycloud.nio.component.BufferedOutputStream;
-import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.protocol.NamedReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
+import com.generallycloud.nio.protocol.ParametersReadFuture;
 
-public interface BaseReadFuture extends HashedBalanceReadFuture, NamedReadFuture, TextReadFuture {
+public interface BaseReadFuture extends HashedBalanceReadFuture, NamedReadFuture , ParametersReadFuture{
 
 	public abstract int getTextLength();
-
-	public abstract Parameters getParameters();
 
 	public abstract int getBinaryLength();
 

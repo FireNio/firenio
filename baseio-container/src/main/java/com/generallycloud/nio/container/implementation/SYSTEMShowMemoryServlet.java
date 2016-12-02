@@ -3,7 +3,6 @@ package com.generallycloud.nio.container.implementation;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.TextReadFuture;
 
 public class SYSTEMShowMemoryServlet extends FutureAcceptorService{
 	
@@ -24,7 +23,7 @@ public class SYSTEMShowMemoryServlet extends FutureAcceptorService{
 		builder.append("M;\n虚拟机最大可占用内存：");
 		builder.append(runtime.maxMemory()/M + "M;");
 		
-		((TextReadFuture) future).write(builder.toString());
+		future.write(builder.toString());
 		
 		session.flush(future);
 		
