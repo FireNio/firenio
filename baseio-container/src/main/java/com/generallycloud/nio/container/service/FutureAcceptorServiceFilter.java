@@ -59,7 +59,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
-		logger.info("[NIOServer] 未发现命令：" + serviceName);
+		logger.info("未发现命令：" + serviceName);
 
 		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 

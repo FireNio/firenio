@@ -1,4 +1,4 @@
-package com.generallycloud.test.nio.base;
+package com.generallycloud.test.nio.protobase;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;

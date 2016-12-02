@@ -1,4 +1,4 @@
-package com.generallycloud.test.nio.base;
+package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
@@ -9,13 +9,15 @@ import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
-public class Test404 {
-
+public class TestException {
+	
+	
 	public static void main(String[] args) throws Exception {
 		
 		SharedBundle.instance().loadAllProperties("nio");
-
-		String serviceKey = "22";
+		
+		String serviceKey = "TestExceptionServlet";
+		String param = "ttt";
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
@@ -25,10 +27,10 @@ public class Test404 {
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		ProtobaseReadFuture future = session.request(serviceKey, null);
-
+		ProtobaseReadFuture future = session.request(serviceKey, param);
+		
 		System.out.println(future.getReadText());
-
+		
 		CloseUtil.close(connector);
 	}
 }

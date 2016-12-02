@@ -19,8 +19,9 @@ public abstract class ProtobaseFutureAcceptorService extends FutureAcceptorServi
 
 			ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 
-			f.write(cause.getClass() + ":" + cause.getMessage());
-
+			f.write(cause.getClass().getName() + ":" + cause.getMessage());
+			
+			session.flush(future);
 		}
 	}
 }

@@ -117,14 +117,17 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 	}
 
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-
-		acceptors.put(MQConsumerServlet.SERVICE_NAME, new MQConsumerServlet());
-		acceptors.put(MQProducerServlet.SERVICE_NAME, new MQProducerServlet());
-		acceptors.put(MQSubscribeServlet.SERVICE_NAME, new MQSubscribeServlet());
-		acceptors.put(MQPublishServlet.SERVICE_NAME, new MQPublishServlet());
-		acceptors.put(MQTransactionServlet.SERVICE_NAME, new MQTransactionServlet());
-		acceptors.put(MQBrowserServlet.SERVICE_NAME, new MQBrowserServlet());
-
+		putServlet(acceptors,new MQConsumerServlet());
+		putServlet(acceptors,new MQProducerServlet());
+		putServlet(acceptors,new MQSubscribeServlet());
+		putServlet(acceptors,new MQPublishServlet());
+		putServlet(acceptors,new MQTransactionServlet());
+		putServlet(acceptors,new MQBrowserServlet());
+	}
+	
+	protected void putServlet(Map<String, FutureAcceptorService> acceptors,MQServlet servlet){
+		String name = servlet.getClass().getName();
+		acceptors.put(name, servlet);
 	}
 
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {

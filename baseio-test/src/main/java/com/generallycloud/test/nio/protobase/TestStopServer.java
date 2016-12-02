@@ -1,20 +1,15 @@
-package com.generallycloud.test.nio.base;
+package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.implementation.SYSTEMRedeployServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
-public class TestRedeploy {
+public class TestStopServer {
 
 	public static void main(String[] args) throws Exception {
-
-		String serviceKey = SYSTEMRedeployServlet.SERVICE_NAME;
-
-		String param = "{username:\"admin\",password:\"admin100\"}";
 
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
@@ -24,17 +19,11 @@ public class TestRedeploy {
 
 		session.login("admin", "admin100");
 
-		ProtobaseReadFuture future = session.request(serviceKey, param);
+		ProtobaseReadFuture future = session.request("test-stop-server2.auth", null);
+		
 		System.out.println(future.getReadText());
-		
-		for (int i = 0; i < 0; i++) {
-			
-			future = session.request(serviceKey, param);
-			
-			
-		}
-		
 
 		CloseUtil.close(connector);
+
 	}
 }

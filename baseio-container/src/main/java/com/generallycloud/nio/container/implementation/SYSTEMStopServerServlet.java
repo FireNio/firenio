@@ -12,8 +12,6 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SYSTEMStopServerServlet extends FutureAcceptorService {
 
-	public static final String	SERVICE_NAME	= SYSTEMStopServerServlet.class.getSimpleName();
-
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
@@ -50,8 +48,6 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 				ThreadUtil.sleep(1000);
 
 			}
-			
-			
 			
 			ChannelAcceptor acceptor = (ChannelAcceptor) context.getChannelService();
 			

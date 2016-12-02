@@ -1,41 +1,40 @@
-package com.generallycloud.test.nio.base;
-
-import java.io.File;
+package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.container.implementation.SYSTEMRedeployServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
-public class TestSimpleBigParam {
-	
-	
+public class TestRedeploy {
+
 	public static void main(String[] args) throws Exception {
 
-		String serviceKey = "TestSimpleServlet";
-		
+		String serviceKey = SYSTEMRedeployServlet.SERVICE_NAME;
+
+		String param = "{username:\"admin\",password:\"admin100\"}";
+
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		String temp = "网易科技腾讯科技阿里巴巴";
-		StringBuilder builder = new StringBuilder(temp);
-		for (int i = 0; i < 600000; i++) {
-			builder.append("\n");
-			builder.append(temp);
+		session.login("admin", "admin100");
+
+		ProtobaseReadFuture future = session.request(serviceKey, param);
+		System.out.println(future.getReadText());
+		
+		for (int i = 0; i < 0; i++) {
+			
+			future = session.request(serviceKey, param);
+			
+			
 		}
-		ProtobaseReadFuture future = session.request(serviceKey, builder.toString());
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getReadText());
-		System.out.println("处理完成");
 		
+
 		CloseUtil.close(connector);
-		
-		
-		
 	}
 }
