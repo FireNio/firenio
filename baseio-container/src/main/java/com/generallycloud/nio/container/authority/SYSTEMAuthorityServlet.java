@@ -22,7 +22,7 @@ public class SYSTEMAuthorityServlet extends FutureAcceptorService {
 
 		String username = parameters.getParameter("username");
 		String password = parameters.getParameter("password");
-
+		
 		boolean login = loginCenter.login(session, username, password);
 
 		RESMessage message = RESMessage.UNAUTH;

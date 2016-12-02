@@ -2,7 +2,7 @@ package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.nio.container.protobase.startup.ProtobaseServerStartup;
 
-public class TestBaseServer {
+public class TestProtobaseServer {
 
 	public static void main(String[] args) throws Exception {
 		
