@@ -100,4 +100,8 @@ public class JsonParameters implements Parameters {
 		return object.getJSONArray(key);
 	}
 
+	public int size() {
+		return object.size();
+	}
+	
 }

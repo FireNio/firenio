@@ -94,9 +94,12 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		
 		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 			// FIXME encoding
+			
 			String paramString = new String(bodyArray, session.getEncoding());
 
 			parseParamString(paramString);
+			
+			this.readText = paramString;
 		} else {
 			// FIXME 解析BODY中的内容
 		}
@@ -316,7 +319,6 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 			}
 
 			decodeBody();
-
 		}
 
 		return true;
