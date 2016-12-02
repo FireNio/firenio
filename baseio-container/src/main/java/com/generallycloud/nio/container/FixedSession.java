@@ -20,7 +20,6 @@ import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.container.authority.Authority;
-import com.generallycloud.nio.container.authority.SYSTEMAuthorityServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FixedSession {
@@ -90,7 +89,7 @@ public class FixedSession {
 
 			String paramString = JSONObject.toJSONString(param);
 
-			BaseReadFuture future = request(SYSTEMAuthorityServlet.SERVICE_NAME, paramString);
+			BaseReadFuture future = request("login", paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 

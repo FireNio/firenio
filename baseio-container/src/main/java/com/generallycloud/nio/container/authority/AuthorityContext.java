@@ -19,12 +19,13 @@ public class AuthorityContext extends AbstractPluginContext {
 	}
 
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		acceptors.put(SYSTEMAuthorityServlet.SERVICE_NAME, new SYSTEMAuthorityServlet());
+		acceptors.put("login", new SYSTEMAuthorityServlet());
 	}
 
 	public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
 
 		AuthorityFilter authorityFilter = new AuthorityFilter();
+		
 		authorityFilter.setSortIndex(0);
 
 		filters.add(authorityFilter);

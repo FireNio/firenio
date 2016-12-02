@@ -26,10 +26,11 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 			return;
 		}
 		
-		callNextAccept(session, future);
+		nextAccept(session, future);
 	}
 	
-	private void callNextAccept(SocketSession session, ReadFuture future) throws Exception{
+	private void nextAccept(SocketSession session, ReadFuture future) throws Exception{
+		
 		Linkable<FutureAcceptorFilter> next = getNext();
 		
 		if (next == null) {
