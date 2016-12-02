@@ -30,7 +30,13 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 	
 	private void callNextAccept(SocketSession session, ReadFuture future) throws Exception{
-		getNext().getValue().accept(session, future);
+		Linkable<FutureAcceptorFilter> next = getNext();
+		
+		if (next == null) {
+			return;
+		}
+		
+		next.getValue().accept(session, future);
 	}
 
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {

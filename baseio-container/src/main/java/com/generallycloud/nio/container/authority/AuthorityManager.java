@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.nio.common.StringUtil;
+
 public class AuthorityManager {
 
 	private Integer				roleID			;
@@ -30,6 +32,10 @@ public class AuthorityManager {
 	}
 
 	public boolean isInvokeApproved(String permissionAPI) {
+		
+		if (!isNeedAuthor(permissionAPI)) {
+			return true;
+		}
 
 		Permission permission = permissions.get(permissionAPI);
 
@@ -50,6 +56,10 @@ public class AuthorityManager {
 		}
 
 		return manager;
+	}
+	
+	private boolean isNeedAuthor(String permissionAPI){
+		return StringUtil.isNullOrBlank(permissionAPI) || permissionAPI.endsWith(".auth");
 	}
 	
 	protected void setAuthority(Authority authority){

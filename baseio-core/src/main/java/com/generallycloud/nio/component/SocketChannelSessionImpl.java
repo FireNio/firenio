@@ -96,9 +96,13 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 			return;
 		}
 
+		ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
+		
 		SocketChannel socketChannel = this.channel;
 
 		if (!socketChannel.isOpened()) {
+			
+			ioReadFuture.flush();
 
 			IoEventHandle handle = future.getIOEventHandle();
 
@@ -113,10 +117,8 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
 
-			ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
-
 			writeFuture = encoder.encode(getByteBufAllocator(), ioReadFuture);
-
+			
 			ioReadFuture.flush();
 
 			flush(writeFuture);

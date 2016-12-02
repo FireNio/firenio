@@ -102,11 +102,14 @@ public class RoleManager extends InitializeableImpl {
 			reflectPermission(r, roles, permissions, authorityManager);
 
 			authorityManagers.put(authorityManager.getRoleID(), authorityManager);
-			
-			if ("guest".equals(r.getRoleName())) {
-				guestAuthorityManager = authorityManager;
-			}
 		}
+		
+		guestAuthorityManager = new AuthorityManager();
+		
+		guestAuthorityManager.setRoleID(Authority.GUEST.getRoleID());
+		
+		authorityManagers.put(guestAuthorityManager.getRoleID(), guestAuthorityManager);
+		
 	}
 
 	private void reflectPermission(Role role, Map<Integer, Role> roles, Map<Integer, Permission> permissions,
