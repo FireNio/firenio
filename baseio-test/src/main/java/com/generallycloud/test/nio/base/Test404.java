@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -21,11 +21,11 @@ public class Test404 {
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
-		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		BaseReadFuture future = session.request(serviceKey, null);
+		ProtobaseReadFuture future = session.request(serviceKey, null);
 
 		System.out.println(future.getReadText());
 

@@ -1,4 +1,4 @@
-package com.generallycloud.nio.codec.base;
+package com.generallycloud.nio.codec.protobase;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
@@ -16,30 +16,30 @@ import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-public class BaseProtocolEncoder implements ProtocolEncoder {
+public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
-	private final int	PROTOCOL_HEADER	= BaseProtocolDecoder.PROTOCOL_HEADER;
+	private final int	PROTOCOL_HEADER	= ProtobaseProtocolDecoder.PROTOCOL_HEADER;
 	
 	private static final byte [] EMPTY_ARRAY = EmptyByteBuf.EMPTY_BYTEBUF.array();
 
 	private void calc_text(byte[] header, int text_length) {
-		MathUtil.unsignedShort2Byte(header, text_length, BaseProtocolDecoder.TEXT_BEGIN_INDEX);
+		MathUtil.unsignedShort2Byte(header, text_length, ProtobaseProtocolDecoder.TEXT_BEGIN_INDEX);
 	}
 
 	private void calc_future_id(byte[] header, int future_id) {
-		MathUtil.int2Byte(header, future_id, BaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
+		MathUtil.int2Byte(header, future_id, ProtobaseProtocolDecoder.FUTURE_ID_BEGIN_INDEX);
 	}
 
 	private void calc_session_id(byte[] header, int future_id) {
-		MathUtil.int2Byte(header, future_id, BaseProtocolDecoder.SESSION_ID_BEGIN_INDEX);
+		MathUtil.int2Byte(header, future_id, ProtobaseProtocolDecoder.SESSION_ID_BEGIN_INDEX);
 	}
 
 	private void calc_binary(byte[] header, int binary_length) {
-		MathUtil.int2Byte(header, binary_length, BaseProtocolDecoder.BINARY_BEGIN_INDEX);
+		MathUtil.int2Byte(header, binary_length, ProtobaseProtocolDecoder.BINARY_BEGIN_INDEX);
 	}
 
 	private void calc_hash(byte[] header, int hash) {
-		MathUtil.int2Byte(header, hash, BaseProtocolDecoder.HASH_BEGIN_INDEX);
+		MathUtil.int2Byte(header, hash, ProtobaseProtocolDecoder.HASH_BEGIN_INDEX);
 	}
 
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
@@ -48,8 +48,8 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 
 			byte[] array = new byte[1];
 
-			array[0] = (byte) (readFuture.isPING() ? BaseProtocolDecoder.PROTOCOL_PING
-					: BaseProtocolDecoder.PROTOCOL_PONG << 6);
+			array[0] = (byte) (readFuture.isPING() ? ProtobaseProtocolDecoder.PROTOCOL_PING
+					: ProtobaseProtocolDecoder.PROTOCOL_PONG << 6);
 
 			ByteBuf buf = allocator.allocate(1);
 
@@ -58,7 +58,7 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 			return new ChannelWriteFutureImpl(readFuture, buf.flip());
 		}
 
-		BaseReadFuture f = (BaseReadFuture) readFuture;
+		ProtobaseReadFuture f = (ProtobaseReadFuture) readFuture;
 
 		Integer future_id = f.getFutureID();
 		Integer session_id = f.getSessionID();

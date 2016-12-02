@@ -1,8 +1,8 @@
 package com.generallycloud.test.nio.base;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
@@ -30,7 +30,7 @@ public class TestDownload {
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
-		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
 		FixedSession session = new FixedSession(connector.connect());
 		
@@ -41,7 +41,7 @@ public class TestDownload {
 			public void onResponse(SocketSession session, ReadFuture future) {
 				
 				try {
-					fileReceiveUtil.accept(session, (BaseReadFuture) future,false);
+					fileReceiveUtil.accept(session, (ProtobaseReadFuture) future,false);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

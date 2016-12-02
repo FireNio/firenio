@@ -1,4 +1,4 @@
-package com.generallycloud.nio.codec.base.future;
+package com.generallycloud.nio.codec.protobase.future;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,7 +20,7 @@ import com.generallycloud.nio.component.SocketSession;
 /**
  *
  */
-public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements BaseReadFuture {
+public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implements ProtobaseReadFuture {
 
 	private byte[]				binary;
 	private int				binaryLength;
@@ -42,26 +42,26 @@ public class BaseReadFutureImpl extends AbstractBalanceReadFuture implements Bas
 	protected StringBuilder		writeTextBuffer	= new StringBuilder();
 
 	// for ping & pong
-	public BaseReadFutureImpl(SocketChannelContext context) {
+	public ProtobaseReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
 
-	public BaseReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
+	public ProtobaseReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
 	}
 
-	public BaseReadFutureImpl(SocketChannelContext context, String futureName) {
+	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context);
 		this.futureName = futureName;
 	}
 
-	public BaseReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
+	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
 		this(session, buf, 1024 * 1024 * 2);
 	}
 
-	public BaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
+	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;

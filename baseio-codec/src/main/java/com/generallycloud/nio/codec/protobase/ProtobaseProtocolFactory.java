@@ -1,17 +1,17 @@
-package com.generallycloud.nio.codec.base;
+package com.generallycloud.nio.codec.protobase;
 
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class BaseProtocolFactory implements ProtocolFactory{
+public class ProtobaseProtocolFactory implements ProtocolFactory{
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return new BaseProtocolDecoder();
+		return new ProtobaseProtocolDecoder();
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
-		return new BaseProtocolEncoder();
+		return new ProtobaseProtocolEncoder();
 	}
 
 	public String getProtocolID() {

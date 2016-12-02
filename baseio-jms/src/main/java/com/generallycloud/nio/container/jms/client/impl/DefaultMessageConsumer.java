@@ -2,7 +2,7 @@ package com.generallycloud.nio.container.jms.client.impl;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.component.WaiterOnReadFuture;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.RESMessage;
@@ -42,7 +42,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 				throw MQException.TIME_OUT;
 			}
 			
-			BaseReadFuture future = (BaseReadFuture) onReadFuture.getReadFuture();
+			ProtobaseReadFuture future = (ProtobaseReadFuture) onReadFuture.getReadFuture();
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 

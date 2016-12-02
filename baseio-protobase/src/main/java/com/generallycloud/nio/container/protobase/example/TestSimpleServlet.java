@@ -1,11 +1,11 @@
 package com.generallycloud.nio.container.protobase.example;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.container.protobase.service.BaseFutureAcceptorService;
+import com.generallycloud.nio.container.protobase.service.ProtobaseFutureAcceptorService;
 
-public class TestSimpleServlet extends BaseFutureAcceptorService{
+public class TestSimpleServlet extends ProtobaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
 	
@@ -15,7 +15,7 @@ public class TestSimpleServlet extends BaseFutureAcceptorService{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
-	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 //		accept.getAndIncrement();
 		

@@ -1,8 +1,8 @@
 package com.generallycloud.nio.container.protobase.startup;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
@@ -13,7 +13,7 @@ import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class BaseServerLoadStartup {
+public class ProtobaseServerLoadStartup {
 
 	public static void main(String[] args) throws Exception {
 		
@@ -22,7 +22,7 @@ public class BaseServerLoadStartup {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				BaseReadFuture f = (BaseReadFuture)future;
+				ProtobaseReadFuture f = (ProtobaseReadFuture)future;
 				f.write("yes server already accept your message");
 				f.write(f.getReadText());
 				session.flush(future);
@@ -43,7 +43,7 @@ public class BaseServerLoadStartup {
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
 
-			acceptor.getContext().setProtocolFactory(new BaseProtocolFactory());
+			acceptor.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
 			acceptor.bind();
 

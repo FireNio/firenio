@@ -1,6 +1,6 @@
 package com.generallycloud.nio.container.jms.decode;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.container.jms.MQException;
 import com.generallycloud.nio.container.jms.Message;
 
@@ -17,7 +17,7 @@ public class DefaultMessageDecoder implements MessageDecoder {
 		decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
 	}
 	
-	public Message decode(BaseReadFuture future) throws MQException{
+	public Message decode(ProtobaseReadFuture future) throws MQException{
 		int msgType = future.getParameters().getIntegerParameter("msgType");
 		return decoders[msgType].decode(future);
 	}

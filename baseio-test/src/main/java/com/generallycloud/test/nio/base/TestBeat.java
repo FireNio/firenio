@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.base.future.BaseBeatFutureFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseBeatFutureFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -36,7 +36,7 @@ public class TestBeat {
 		
 		connector.getContext().addSessionEventListener(new SocketSessionActiveSEListener());
 		
-		connector.getContext().setBeatFutureFactory(new BaseBeatFutureFactory());
+		connector.getContext().setBeatFutureFactory(new ProtobaseBeatFutureFactory());
 		
 		FixedSession session = new FixedSession(connector.connect());
 		

@@ -1,11 +1,11 @@
 package com.generallycloud.nio.container.rtp.server;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.container.protobase.service.BaseFutureAcceptorService;
+import com.generallycloud.nio.container.protobase.service.ProtobaseFutureAcceptorService;
 import com.generallycloud.nio.container.rtp.RTPContext;
 
-public abstract class RTPServlet extends BaseFutureAcceptorService {
+public abstract class RTPServlet extends ProtobaseFutureAcceptorService {
 
 	private RTPContext	context	= RTPContext.getInstance();
 
@@ -13,14 +13,14 @@ public abstract class RTPServlet extends BaseFutureAcceptorService {
 		return context;
 	}
 
-	public void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
 		this.doAccept(session, future, attachment);
 	}
 
-	public abstract void doAccept(SocketSession session, BaseReadFuture future, RTPSessionAttachment attachment)
+	public abstract void doAccept(SocketSession session, ProtobaseReadFuture future, RTPSessionAttachment attachment)
 			throws Exception;
 
 }

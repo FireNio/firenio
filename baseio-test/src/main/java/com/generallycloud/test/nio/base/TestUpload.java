@@ -2,8 +2,8 @@ package com.generallycloud.test.nio.base;
 
 import java.io.File;
 
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
@@ -27,7 +27,7 @@ public class TestUpload {
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				BaseReadFuture f = (BaseReadFuture) future;
+				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println();
 				System.out.println(f.getReadText());
 				System.out.println();
@@ -37,14 +37,14 @@ public class TestUpload {
 			}
 
 			public void futureSent(SocketSession session, ReadFuture future) {
-				BaseReadFuture f = (BaseReadFuture) future;
+				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println("报文已发送："+f.getReadText());
 			}
 		};
 
 		connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
-		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
 		SocketSession session = connector.connect();
 		

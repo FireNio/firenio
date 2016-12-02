@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.TimeoutException;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
@@ -89,7 +89,7 @@ public class FixedSession {
 
 			String paramString = JSONObject.toJSONString(param);
 
-			BaseReadFuture future = request("login", paramString);
+			ProtobaseReadFuture future = request("login", paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
@@ -120,17 +120,17 @@ public class FixedSession {
 		// TODO complete logout
 	}
 
-	public BaseReadFuture request(String serviceName, String content) throws IOException {
+	public ProtobaseReadFuture request(String serviceName, String content) throws IOException {
 		return request(serviceName, content, null);
 	}
 
-	public BaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
+	public ProtobaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		BaseReadFuture readFuture = new BaseReadFutureImpl(context, serviceName);
+		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
 
 		readFuture.setIOEventHandle(eventHandle);
 
@@ -154,7 +154,7 @@ public class FixedSession {
 			throw new TimeoutException("timeout");
 		}
 
-		return (BaseReadFuture) onReadFuture.getReadFuture();
+		return (ProtobaseReadFuture) onReadFuture.getReadFuture();
 	}
 
 	public void setAuthority(Authority authority) {
@@ -198,7 +198,7 @@ public class FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		BaseReadFuture readFuture = new BaseReadFutureImpl(context, serviceName);
+		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
 
 		readFuture.setIOEventHandle(eventHandle);
 

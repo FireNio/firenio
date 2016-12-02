@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -29,7 +29,7 @@ public class FileReceiveUtil {
 		this.prefix = prefix;
 	}
 
-	public void accept(SocketSession session, BaseReadFuture future,boolean callback) throws Exception {
+	public void accept(SocketSession session, ProtobaseReadFuture future,boolean callback) throws Exception {
 
 		Parameters parameters = future.getParameters();
 

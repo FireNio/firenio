@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.DisconnectException;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.DebugUtil;
@@ -101,7 +101,7 @@ public class RTPClient {
 
 	public boolean createRoom(String inviteUsername) throws RTPException {
 
-		BaseReadFuture future;
+		ProtobaseReadFuture future;
 
 		try {
 			future = session.request(RTPCreateRoomServlet.SERVICE_NAME, null);
@@ -180,7 +180,7 @@ public class RTPClient {
 	public boolean joinRoom(String roomID) throws RTPException {
 		try {
 
-			BaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			ProtobaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			return ByteUtil.isTrue(future.getReadText());
 		} catch (IOException e) {
@@ -197,7 +197,7 @@ public class RTPClient {
 				throw new RTPException("not login");
 			}
 
-			BaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			ProtobaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 

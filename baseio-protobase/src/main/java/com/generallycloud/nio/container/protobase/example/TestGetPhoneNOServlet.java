@@ -1,10 +1,10 @@
 package com.generallycloud.nio.container.protobase.example;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.container.protobase.service.BaseFutureAcceptorService;
+import com.generallycloud.nio.container.protobase.service.ProtobaseFutureAcceptorService;
 
-public class TestGetPhoneNOServlet extends BaseFutureAcceptorService {
+public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
 	
 	public static final String SERVICE_NAME = TestGetPhoneNOServlet.class.getSimpleName();
 
@@ -12,7 +12,7 @@ public class TestGetPhoneNOServlet extends BaseFutureAcceptorService {
 	
 	private int index = 0;
 
-	protected void doAccept(SocketSession session, BaseReadFuture future) throws Exception {
+	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		String phone = NOS[index++];
 		

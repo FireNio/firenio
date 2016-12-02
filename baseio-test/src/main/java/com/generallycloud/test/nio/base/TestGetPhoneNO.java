@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -26,7 +26,7 @@ public class TestGetPhoneNO {
 
 		session.login("admin", "admin100");
 		
-		BaseReadFuture future = session.request(serviceKey, null);
+		ProtobaseReadFuture future = session.request(serviceKey, null);
 		System.out.println(future.getReadText());
 		
 		CloseUtil.close(connector);

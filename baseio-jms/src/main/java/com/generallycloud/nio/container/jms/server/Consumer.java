@@ -2,8 +2,8 @@ package com.generallycloud.nio.container.jms.server;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
-import com.generallycloud.nio.codec.base.future.BaseReadFutureImpl;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.jms.BytedMessage;
 import com.generallycloud.nio.container.jms.Message;
@@ -14,11 +14,11 @@ public class Consumer {
 	private MQSessionAttachment	attachment;
 	private ConsumerQueue		consumerQueue;
 	private SocketSession		session;
-	private BaseReadFuture		future;
+	private ProtobaseReadFuture		future;
 	private Message			message;
 
 	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, SocketSession session,
-			BaseReadFuture future, String queueName) {
+			ProtobaseReadFuture future, String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -51,7 +51,7 @@ public class Consumer {
 
 		SocketSession session = this.session;
 
-		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
+		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
 
 		f.attach(this);
 
@@ -80,7 +80,7 @@ public class Consumer {
 	}
 
 	public Consumer clone() {
-		BaseReadFuture f = new BaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
+		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

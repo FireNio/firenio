@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
@@ -28,13 +28,13 @@ public class TestSessionDisconnect {
 
 		session.login("admin", "admin100");
 
-		BaseReadFuture future = session.request(serviceName, param);
+		ProtobaseReadFuture future = session.request(serviceName, param);
 		System.out.println(future.getReadText());
 
 		session.listen(serviceName, new OnReadFuture() {
 			public void onResponse(SocketSession session, ReadFuture future) {
 				
-				BaseReadFuture f = (BaseReadFuture) future;
+				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println(f.getReadText());
 			}
 		});

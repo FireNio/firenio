@@ -1,7 +1,7 @@
 package com.generallycloud.test.nio.load;
 
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -27,13 +27,13 @@ public class TestSimpleClient {
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
 
-		connector.getContext().setProtocolFactory(new BaseProtocolFactory());
+		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 		
 		connector.connect();
 
 		SocketSession session = connector.getSession();
 
-		BaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIoEventHandleAdaptor());
+		ProtobaseReadFuture future = ReadFutureFactory.create(session, "test", session.getContext().getIoEventHandleAdaptor());
 
 		future.write("hello server!");
 

@@ -1,6 +1,6 @@
 package com.generallycloud.nio.container.jms.server;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.jms.Message;
@@ -9,7 +9,7 @@ public class MQPublishServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQPublishServlet.class.getSimpleName();
 
-	public void doAccept(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();
 

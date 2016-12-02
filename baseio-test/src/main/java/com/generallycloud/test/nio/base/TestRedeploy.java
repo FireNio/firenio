@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.base;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
@@ -24,7 +24,7 @@ public class TestRedeploy {
 
 		session.login("admin", "admin100");
 
-		BaseReadFuture future = session.request(serviceKey, param);
+		ProtobaseReadFuture future = session.request(serviceKey, param);
 		System.out.println(future.getReadText());
 		
 		for (int i = 0; i < 0; i++) {

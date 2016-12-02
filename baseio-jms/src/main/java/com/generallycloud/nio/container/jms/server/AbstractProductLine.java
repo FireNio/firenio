@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.nio.Looper;
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.AbstractEventLoopThread;
@@ -40,7 +40,7 @@ public abstract class AbstractProductLine extends AbstractEventLoopThread implem
 		return context;
 	}
 
-	public void pollMessage(SocketSession session, BaseReadFuture future, MQSessionAttachment attachment) {
+	public void pollMessage(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
 			return;

@@ -1,6 +1,6 @@
 package com.generallycloud.nio.container.jms.client.impl;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.jms.MQException;
@@ -21,7 +21,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 
 	public void onResponse(SocketSession session, ReadFuture future) {
 		
-		BaseReadFuture f = (BaseReadFuture) future;
+		ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 		
 		try {
 			

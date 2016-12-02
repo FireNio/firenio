@@ -1,7 +1,7 @@
 package com.generallycloud.nio.container.protobase.startup;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.codec.base.BaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -18,9 +18,9 @@ import com.generallycloud.nio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.container.configuration.FileSystemACLoader;
 
-public class BaseServerStartup {
+public class ProtobaseServerStartup {
 
-	private Logger		logger	= LoggerFactory.getLogger(BaseServerStartup.class);
+	private Logger		logger	= LoggerFactory.getLogger(ProtobaseServerStartup.class);
 
 	public void launch(String base) throws Exception {
 		
@@ -48,7 +48,7 @@ public class BaseServerStartup {
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
 
-			context.setProtocolFactory(new BaseProtocolFactory());
+			context.setProtocolFactory(new ProtobaseProtocolFactory());
 			
 			acceptor.bind();
 

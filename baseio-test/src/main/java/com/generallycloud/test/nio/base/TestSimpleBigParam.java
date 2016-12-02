@@ -2,7 +2,7 @@ package com.generallycloud.test.nio.base;
 
 import java.io.File;
 
-import com.generallycloud.nio.codec.base.future.BaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -29,7 +29,7 @@ public class TestSimpleBigParam {
 			builder.append("\n");
 			builder.append(temp);
 		}
-		BaseReadFuture future = session.request(serviceKey, builder.toString());
+		ProtobaseReadFuture future = session.request(serviceKey, builder.toString());
 		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getReadText());
 		System.out.println("处理完成");
 		
