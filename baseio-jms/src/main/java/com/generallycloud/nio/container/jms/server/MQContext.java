@@ -126,7 +126,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 	}
 	
 	protected void putServlet(Map<String, FutureAcceptorService> acceptors,MQServlet servlet){
-		String name = servlet.getClass().getName();
+		String name = servlet.getClass().getSimpleName();
 		acceptors.put(name, servlet);
 	}
 

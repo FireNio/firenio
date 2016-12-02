@@ -7,7 +7,6 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.InitializeableImpl;
@@ -84,8 +83,8 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
 		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");
-		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin10000");
-		String UUID = SharedBundle.instance().getProperty("SERVER.UUID",UUIDGenerator.random());
+		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin100");
+		String UUID = SharedBundle.instance().getProperty("SERVER.UUID","uuid");
 		Integer roleID = SharedBundle.instance().getIntegerProperty("SERVER.ROLEID");
 		
 

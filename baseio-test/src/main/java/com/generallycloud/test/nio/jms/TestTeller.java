@@ -1,5 +1,6 @@
 package com.generallycloud.test.nio.jms;
 
+import com.generallycloud.nio.codec.protobuf.ProtobufProtocolFactory;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
@@ -20,17 +21,19 @@ public class TestTeller {
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		
+		connector.getContext().setProtocolFactory(new ProtobufProtocolFactory());
+		
 		FixedSession session = new FixedSession(connector.connect());
 
-		boolean b = session.login("wk", "wk");
+		boolean b = session.login("admin", "admin100");
 		
 		System.out.println(b);
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 
-		TextMessage message = new TextMessage("msgID", "ea36e428892a4e5b9e5f7c0ba40226ac", "你好！");
+		TextMessage message = new TextMessage("msgID", "uuid", "你好！");
 		
-		MapMessage mapMessage = new MapMessage("msgID", "ea36e428892a4e5b9e5f7c0ba40226ac");
+		MapMessage mapMessage = new MapMessage("msgID", "uuid");
 		
 		mapMessage.put("test","test111111111111111111111");
 

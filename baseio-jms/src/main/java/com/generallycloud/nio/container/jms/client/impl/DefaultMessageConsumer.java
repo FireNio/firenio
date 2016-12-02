@@ -17,8 +17,8 @@ import com.generallycloud.nio.container.jms.server.MQTransactionServlet;
 public class DefaultMessageConsumer implements MessageConsumer {
 
 	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
-	private boolean		sendReceiveCommand		= true;
-	private boolean		sendSubscribeCommand	= true;
+	private boolean		needSendReceiveCommand	= true;
+	private boolean		needSendSubscribeCommand	= true;
 	private FixedSession	session;
 
 	public DefaultMessageConsumer(FixedSession session) {
@@ -41,7 +41,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 			if (onReadFuture.await(3000)) {
 				throw MQException.TIME_OUT;
 			}
-			
+
 			ProtobaseReadFuture future = (ProtobaseReadFuture) onReadFuture.getReadFuture();
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
@@ -51,7 +51,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 			} else {
 				throw new MQException(message.getDescription());
 			}
-			
+
 		} catch (IOException e) {
 			throw new MQException(e.getMessage(), e);
 		}
@@ -76,11 +76,11 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	}
 
 	private void sendReceiveCommandCallback(OnMessage onMessage) throws MQException {
-		
-		if (sendReceiveCommand) {
+
+		if (!needSendReceiveCommand) {
 			return;
 		}
-		
+
 		checkLoginState();
 
 		try {
@@ -89,7 +89,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			session.write("MQConsumerServlet", null);
 
-			sendReceiveCommand = false;
+			needSendReceiveCommand = false;
 		} catch (IOException e) {
 			throw new MQException(e);
 		}
@@ -102,8 +102,8 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	}
 
 	private void sendSubscribeCommandCallback(OnMessage onMessage) throws MQException {
-		
-		if (!sendSubscribeCommand) {
+
+		if (!needSendSubscribeCommand) {
 			return;
 		}
 
@@ -115,7 +115,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 			session.write("MQSubscribeServlet", null);
 
-			sendSubscribeCommand = false;
+			needSendSubscribeCommand = false;
 		} catch (IOException e) {
 			throw new MQException(e);
 		}

@@ -1,5 +1,6 @@
 package com.generallycloud.test.nio.jms;
 
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -21,10 +22,12 @@ public class TestListener {
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
+		
+		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		session.login("wk", "wk");
+		session.login("admin", "admin100");
 
 		MessageConsumer consumer = new DefaultMessageConsumer(session);
 
