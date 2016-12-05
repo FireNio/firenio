@@ -3,6 +3,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
@@ -138,8 +139,17 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	protected void doStop() {
 		
-		synchronized (runLock) {
+		ReentrantLock lock = this.runLock;
+		
+		lock.lock();
+		
+		try{
+			
 			selectorLoopStrategy.stop();
+			
+		}finally{
+			
+			lock.unlock();
 		}
 
 		try {

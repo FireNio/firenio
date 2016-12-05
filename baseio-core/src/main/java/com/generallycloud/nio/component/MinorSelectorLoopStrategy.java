@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
@@ -13,9 +14,11 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 	}
 
 	private void waitForRegist(SelectorLoop looper) {
+		ReentrantLock lock = looper.getIsWaitForRegistLock();
 
-		synchronized (looper.getIsWaitForRegistLock()) {
-		}
+		lock.lock();
+		
+		lock.unlock();
 	}
 
 	public void loop(SelectorLoop looper) throws IOException {

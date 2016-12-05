@@ -7,6 +7,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
@@ -17,14 +18,14 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 
 	private boolean				isMainSelector			= false;
 	private boolean				isWaitForRegist		= false;
-	private byte[]				isWaitForRegistLock		= new byte[] {};
+	private ReentrantLock			isWaitForRegistLock		= new ReentrantLock();
 
-	protected byte[]				runLock				= new byte[] {};
 	protected ByteBufAllocator		byteBufAllocator		= null;
 	protected SelectableChannel		selectableChannel		= null;
 	protected Selector				selector				= null;
 	protected SelectorLoopStrategy	selectorLoopStrategy	= null;
 	protected SelectorLoop[]		selectorLoops			= null;
+	protected ReentrantLock			runLock				= new ReentrantLock();
 
 	private static final Logger		logger				= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 
@@ -36,7 +37,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		this.isWaitForRegist = isWaitForRegist;
 	}
 
-	public byte[] getIsWaitForRegistLock() {
+	public ReentrantLock getIsWaitForRegistLock() {
 		return isWaitForRegistLock;
 	}
 
@@ -47,11 +48,11 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	protected AbstractSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
 
 		ChannelContext context = service.getContext();
-		
+
 		this.selectorLoops = selectorLoops;
 
 		this.selectableChannel = service.getSelectableChannel();
-		
+
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
 	}
 
@@ -60,23 +61,23 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		Object attachment = selectionKey.attachment();
 
 		if (attachment instanceof Channel) {
-			
-			logger.error(t.getMessage()+" channel:" + attachment, t);
-			
+
+			logger.error(t.getMessage() + " channel:" + attachment, t);
+
 			CloseUtil.close((Channel) attachment);
-			
+
 		} else {
-			
+
 			logger.error(t.getMessage(), t);
 		}
 	}
-	
+
 	protected void cancelSelectionKey(SelectionKey selectionKey) {
 
 		Object attachment = selectionKey.attachment();
 
 		if (attachment instanceof Channel) {
-			
+
 			CloseUtil.close((Channel) attachment);
 		}
 	}
@@ -96,9 +97,9 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	public Selector getSelector() {
 		return selector;
 	}
-	
+
 	protected void doLoop() {
-		
+
 		try {
 
 			selectorLoopStrategy.loop(this);
@@ -107,7 +108,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 
 			logger.error(e.getMessage(), e);
 		}
-		
+
 	}
 
 	private Selector rebuildSelector0() {
@@ -155,39 +156,48 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	public void doStartup() throws IOException {
 		this.selector = buildSelector(selectableChannel);
 	}
-	
+
 	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
 	// 执行stop的时候如果确保不会再有数据进来
-	protected void wakeupThread(){
-		
+	protected void wakeupThread() {
+
 		super.wakeupThread();
-		
+
 		this.selector.wakeup();
 	}
-	
+
 	public void wakeup() {
 		selector.wakeup();
 	}
 
 	public void fireEvent(SelectorLoopEvent event) {
-
-		synchronized (runLock) {
-
+		
+		ReentrantLock lock = this.runLock;
+		
+		lock.lock();
+		
+		try{
+			
 			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
 			}
 
 			selectorLoopStrategy.fireEvent(event);
+			
+		}finally{
+			
+			lock.unlock();
 		}
+		
 	}
 
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;
 	}
-	
+
 	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
 		return null;
 	}
-	
+
 }

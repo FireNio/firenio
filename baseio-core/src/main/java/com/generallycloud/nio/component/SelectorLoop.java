@@ -6,6 +6,7 @@ import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoopThread;
@@ -34,7 +35,7 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 
 	public abstract void setWaitForRegist(boolean isWaitForRegist);
 
-	public abstract byte[] getIsWaitForRegistLock();
+	public abstract ReentrantLock getIsWaitForRegistLock();
 
 	public abstract void setMainSelector(boolean isMainSelector);
 

@@ -5,6 +5,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
@@ -69,10 +70,12 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			return;
 		}
 		
-		byte [] lock = selectorLoop.getIsWaitForRegistLock();
+		ReentrantLock lock = selectorLoop.getIsWaitForRegistLock();
 		
-		synchronized (lock) {
-
+		lock.lock();
+		
+		try{
+			
 			selectorLoop.setWaitForRegist(true);
 
 			selectorLoop.wakeup();
@@ -80,6 +83,10 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			regist(channel, selectorLoop);
 			
 			selectorLoop.setWaitForRegist(false);
+			
+		}finally{
+			
+			lock.unlock();
 		}
 		
 	}
