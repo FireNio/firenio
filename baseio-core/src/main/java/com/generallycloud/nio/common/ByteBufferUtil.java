@@ -2,9 +2,9 @@ package com.generallycloud.nio.common;
 
 import java.nio.ByteBuffer;
 
-@Deprecated
 public class ByteBufferUtil {
 
+	@Deprecated
 	public static void read(ByteBuffer dest, ByteBuffer src) {
 
 		int srcRemaing = src.remaining();
@@ -31,6 +31,14 @@ public class ByteBufferUtil {
 
 			src.position(src.limit());
 		}
+	}
+	
+	@SuppressWarnings("restriction")
+	public static void release(ByteBuffer buffer){
+		if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+			((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+		}
+		
 	}
 
 }

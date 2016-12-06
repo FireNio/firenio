@@ -1,4 +1,4 @@
-package com.generallycloud.nio.codec.line.future;
+package com.generallycloud.nio.codec.linebased.future;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,9 +19,9 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 
 	private BufferedOutputStream	cache	= new BufferedOutputStream();
 
-	public LineBasedReadFutureImpl(SocketChannelContext context) {
+	public LineBasedReadFutureImpl(SocketChannelContext context,int limit) {
 		super(context);
-		this.limit = 1024 * 1024;
+		this.limit = limit;
 	}
 
 	private void doBodyComplete() {

@@ -12,40 +12,37 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	protected int				limit;
 	protected ByteBuffer		nioBuffer;
 	protected int				offset;
-	protected int				position;
-	protected int				referenceCount = 0;
+	protected int				position		= 0;
+	protected int				referenceCount	= 0;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
-		this.limit = capacity;
-		this.position = 0;
 		this.allocator = allocator;
-	}
-
-	protected AbstractByteBuf(int capacity) {
-		this.capacity = capacity;
-		this.limit = capacity;
-		this.position = 0;
 	}
 
 	public ByteBuf duplicate() {
 
 		synchronized (this) {
-			
+
 			if (released) {
 				throw new ReleasedException("");
 			}
-			
+
 			this.referenceCount++;
 
-			AbstractByteBuf buf = newByteBuf();
-			
-			buf.beginUnit = beginUnit;
-			buf.limit = limit;
-			buf.offset = offset;
-			buf.position = position;
-			
-			return new DuplicateByteBuf(buf, this);
+			return doDuplicate();
 		}
+	}
+	
+	protected ByteBuf doDuplicate() {
+		
+		AbstractByteBuf buf = newByteBuf();
+		
+		buf.beginUnit = beginUnit;
+		buf.limit = limit;
+		buf.offset = offset;
+		buf.position = position;
+
+		return new DuplicateByteBuf(buf, this);
 	}
 
 	protected abstract AbstractByteBuf newByteBuf();
@@ -118,7 +115,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	public int offset() {
 		return offset;
 	}
-	
+
 	protected void offset(int offset) {
 		this.offset = offset;
 	}
@@ -132,13 +129,24 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return this;
 	}
 
-	public ByteBuf produce(int begin, int end, int newLimit) {
+	public PooledByteBuf produce(int begin, int end, int newLimit) {
 		this.offset = begin * allocator.getUnitMemorySize();
 		this.capacity = (end - begin) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
 		this.position = 0;
 		this.beginUnit = begin;
-		this.referenceCount++;
+		this.referenceCount = 1;
+		return this;
+	}
+	
+	public PooledByteBuf produce(PooledByteBuf buf) {
+		this.offset = buf.offset();
+		this.capacity = buf.capacity();
+		this.limit = buf.limit();
+		this.position = buf.position();
+		this.beginUnit = buf.getBeginUnit();
+		this.referenceCount = 1;
+		this.released = false;
 		return this;
 	}
 
@@ -160,20 +168,23 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	public void release() {
 
 		synchronized (this) {
-			
+
 			if (released) {
 				return;
 			}
 
-			if (referenceCount != 1) {
+			if (--referenceCount != 0) {
 				return;
 			}
-			
-			referenceCount = 0;
+
 			released = true;
 
-			allocator.release(this);
+			doRelease();
 		}
+	}
+	
+	protected void doRelease(){
+		allocator.release(this);
 	}
 
 	public int remaining() {
@@ -182,6 +193,25 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 	public void skipBytes(int length) {
 		this.position(position + length);
+	}
+
+	public void reallocate(int limit) {
+		reallocate(limit, false);
+	}
+	
+	public void reallocate(int limit, boolean copyOld) {
+		allocator.reallocate(this, limit, copyOld);
+	}
+
+	public void reallocate(int limit, int maxLimit, boolean copyOld) {
+		if (limit > maxLimit) {
+			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
+		}
+		reallocate(limit,copyOld);
+	}
+
+	public void reallocate(int limit, int maxLimit) {
+		reallocate(limit, maxLimit, false);
 	}
 
 	public String toString() {

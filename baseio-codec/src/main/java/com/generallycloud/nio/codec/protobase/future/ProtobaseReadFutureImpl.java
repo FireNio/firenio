@@ -10,11 +10,11 @@ import com.generallycloud.nio.balance.FrontContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.JsonParameters;
 import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 
 /**
@@ -22,7 +22,7 @@ import com.generallycloud.nio.component.SocketSession;
  */
 public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implements ProtobaseReadFuture {
 
-	private byte[]				binary;
+	private byte[]			binary;
 	private int				binaryLength;
 	private int				binaryLimit;
 	private boolean			body_complete;
@@ -32,14 +32,13 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	private int				hashCode;
 	private boolean			header_complete;
 	private Parameters			parameters;
-	protected String			readText;
+	private String				readText;
 	private int				service_name_length;
 	private int				textLength;
 	private boolean			translated;
 
 	private BufferedOutputStream	writeBinaryBuffer;
-
-	protected StringBuilder		writeTextBuffer	= new StringBuilder();
+	private StringBuilder		writeTextBuffer	= new StringBuilder();
 
 	// for ping & pong
 	public ProtobaseReadFutureImpl(SocketChannelContext context) {
@@ -55,10 +54,6 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context);
 		this.futureName = futureName;
-	}
-
-	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
-		this(session, buf, 1024 * 1024 * 2);
 	}
 
 	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
@@ -113,23 +108,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 		this.binaryLength = buf.getInt();
 
-		if (binaryLength > binaryLimit) {
-
-			throw new IOException("max length " + binaryLimit + ",length=" + binaryLength);
-		}
-
 		int all_length = service_name_length + textLength + binaryLength;
-
-		if (buf.capacity() >= all_length) {
-
-			buf.limit(all_length);
-
-		} else {
-
-			ReleaseUtil.release(buf);
-
-			this.buf = allocate(session,all_length);
-		}
+		
+		buf.reallocate(all_length,binaryLimit);
 	}
 
 	private void gainBinary(ByteBuf buf, int offset) {

@@ -4,6 +4,8 @@ public interface PooledByteBuf extends ByteBuf {
 
 	public abstract int getBeginUnit();
 
-	public abstract ByteBuf produce(int begin, int end, int newLimit);
+	public abstract PooledByteBuf produce(int begin, int end, int newLimit);
+	
+	public abstract PooledByteBuf produce(PooledByteBuf buf);
 
 }

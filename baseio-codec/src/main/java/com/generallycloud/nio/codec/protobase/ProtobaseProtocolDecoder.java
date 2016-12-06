@@ -46,6 +46,12 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 	public static final int	HASH_BEGIN_INDEX			= 10;
 	public static final int	TEXT_BEGIN_INDEX			= 14;
 	public static final int	BINARY_BEGIN_INDEX		= 16;
+	
+	private int limit;
+	
+	public ProtobaseProtocolDecoder(int limit) {
+		this.limit = limit;
+	}
 
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
@@ -63,7 +69,7 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		return new ProtobaseReadFutureImpl(session, buf);
+		return new ProtobaseReadFutureImpl(session, buf,limit);
 	}
 
 }

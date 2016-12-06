@@ -10,11 +10,6 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	protected byte[]	memory;
 
-	protected HeapByteBuf(byte[] memory) {
-		super(memory.length);
-		this.memory = memory;
-	}
-
 	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
 		super(allocator);
 		this.memory = memory;
@@ -66,7 +61,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 		this.position += length;
 	}
 
-	public int read(ByteBuffer buffer) throws IOException {
+	public int read(ByteBuffer buffer) {
 
 		int srcRemaining = buffer.remaining();
 
@@ -169,7 +164,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 		memory[ix(position++)] = b;
 	}
 
-	public int read(ByteBuf buf) throws IOException {
+	public int read(ByteBuf buf) {
 
 		int srcRemaining = buf.remaining();
 

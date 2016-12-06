@@ -253,11 +253,11 @@ public class DuplicateByteBuf implements ByteBuf {
 		unwrap().putLongLE(value);
 	}
 
-	public int read(ByteBuf buf) throws IOException {
+	public int read(ByteBuf buf) {
 		return unwrap().read(buf);
 	}
 
-	public int read(ByteBuffer buffer) throws IOException {
+	public int read(ByteBuffer buffer) {
 		return unwrap().read(buffer);
 	}
 
@@ -276,4 +276,25 @@ public class DuplicateByteBuf implements ByteBuf {
 	public int write(SocketChannel channel) throws IOException {
 		return unwrap().write(channel);
 	}
+
+	public void reallocate(int limit) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void reallocate(int limit, int maxLimit) {
+		throw new UnsupportedOperationException();
+	}
+
+	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void reallocate(int limit, boolean copyOld) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void reallocate(int limit, int maxLimit, boolean copyOld) {
+		throw new UnsupportedOperationException();
+	}
+	
 }

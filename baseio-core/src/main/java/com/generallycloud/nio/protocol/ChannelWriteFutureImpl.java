@@ -87,7 +87,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	}
 	
 	public ChannelWriteFuture duplicate(ReadFuture future) {
-		return new ChannelWriteFutureImpl(readFuture, buf.duplicate());
+		return new ChannelWriteFutureImpl(future, buf.duplicate());
 	}
 
 	public Linkable<ChannelWriteFuture> getNext() {

@@ -42,11 +42,16 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	public static final int	TYPE_CLOSE		= 8;
 	public static final int	TYPE_PING		= 9;
 	public static final int	TYPE_PONG		= 10;
+	
+	private int limit;
+	
+	public WebSocketProtocolDecoder(int limit) {
+		this.limit = limit;
+	}
 
-	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(2));
+		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(2),limit);
 	}
 
 }

@@ -11,6 +11,7 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
+//FIXME 2 byte header
 public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture implements FixedLengthReadFuture {
 
 	private ByteBuf	buf;
@@ -25,10 +26,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 	private int		limit;
 
-	public FixedLengthReadFutureImpl(SocketSession session, ByteBuf buf) {
-		this(session, buf, 1024 * 1024);
-	}
-	
 	public FixedLengthReadFutureImpl(SocketSession session, ByteBuf buf,int limit) {
 		super(session.getContext());
 		this.buf = buf;
@@ -37,10 +34,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 	public FixedLengthReadFutureImpl(SocketChannelContext context) {
 		super(context);
-	}
-
-	private boolean isHeaderReadComplete(ByteBuf buf) {
-		return !buf.hasRemaining();
 	}
 
 	private void doHeaderComplete(Session session, ByteBuf buf) {
@@ -70,21 +63,9 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 			}
 
 			throw new ProtocolException("illegal length:" + length);
-
-		} else if (length > limit) {
-
-			throw new ProtocolException("max "+limit+" ,length:" + length);
-
-		} else if (length > buf.capacity()) {
-
-			ReleaseUtil.release(buf);
-
-			this.buf = allocate(session,length);
-
-		} else {
-
-			buf.limit(length);
-		}
+		} 
+		
+		buf.reallocate(length, limit);
 	}
 
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
@@ -95,7 +76,7 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 			buf.read(buffer);
 
-			if (!isHeaderReadComplete(buf)) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 

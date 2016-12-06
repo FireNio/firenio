@@ -1,4 +1,4 @@
-package com.generallycloud.nio.codec.line.future;
+package com.generallycloud.nio.codec.linebased.future;
 
 import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.SocketSession;

@@ -20,10 +20,6 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 	private int		limit;
 
-	public SslReadFutureImpl(SocketSession session, ByteBuf buf) {
-		this(session, buf, 1024 * 1024);
-	}
-
 	public SslReadFutureImpl(SocketSession session, ByteBuf buf, int limit) {
 		super(session.getContext());
 		this.buf = buf;
@@ -56,32 +52,10 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 		int length = getEncryptedPacketLength(buf);
 
 		if (length < 1) {
-
 			throw new ProtocolException("illegal length:" + length);
-
-		} else if (length <= limit) {
-
-			if (length > buf.capacity()) {
-
-				this.buf = allocate(session,length);
-
-				buf.flip();
-
-				this.buf.read(buf);
-
-				ReleaseUtil.release(buf);
-
-			} else {
-
-				int skip = buf.position();
-
-				buf.limit(length).skipBytes(skip);
-			}
-
-		} else {
-
-			throw new ProtocolException("max " + limit + " ,length:" + length);
 		}
+		
+		buf.reallocate(length, limit, true);
 
 		this.length = length;
 	}
@@ -89,7 +63,7 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 	int getEncryptedPacketLength(ByteBuf buffer) {
 		int packetLength = 0;
 		int offset = 0;
-		//FIXME offset
+		// FIXME offset
 
 		// SSLv3 or TLS - Check ContentType
 		boolean tls;

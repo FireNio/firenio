@@ -9,12 +9,7 @@ import com.generallycloud.nio.component.SocketChannel;
 public class DirectByteBuf extends AbstractByteBuf {
 
 	protected ByteBuffer	memory;
-
-	protected DirectByteBuf(ByteBuffer memory) {
-		super(memory.capacity());
-		this.memory = memory;
-	}
-
+	
 	public DirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
 		super(allocator);
 		this.memory = memory;
@@ -66,7 +61,7 @@ public class DirectByteBuf extends AbstractByteBuf {
 		this.position += length;
 	}
 
-	public int read(ByteBuffer buffer) throws IOException {
+	public int read(ByteBuffer buffer) {
 
 		int srcRemaining = buffer.remaining();
 
@@ -175,7 +170,7 @@ public class DirectByteBuf extends AbstractByteBuf {
 		memory.put(b);
 	}
 
-	public int read(ByteBuf buf) throws IOException {
+	public int read(ByteBuf buf) {
 
 		int srcRemaining = buf.remaining();
 

@@ -4,10 +4,20 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class FixedLengthProtocolFactory implements ProtocolFactory{
+public class FixedLengthProtocolFactory implements ProtocolFactory {
+
+	private int limit;
+
+	public FixedLengthProtocolFactory() {
+		this(1024 * 8);
+	}
+
+	public FixedLengthProtocolFactory(int limit) {
+		this.limit = limit;
+	}
 
 	public ProtocolDecoder getProtocolDecoder() {
-		return new FixedLengthProtocolDecoder();
+		return new FixedLengthProtocolDecoder(limit);
 	}
 
 	public ProtocolEncoder getProtocolEncoder() {
@@ -17,5 +27,5 @@ public class FixedLengthProtocolFactory implements ProtocolFactory{
 	public String getProtocolID() {
 		return "FixedLength";
 	}
-	
+
 }

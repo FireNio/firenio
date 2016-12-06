@@ -11,7 +11,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		return Thread.currentThread().getName();
 	}
 
-	protected ByteBuf allocate(int capacity, int begin, int end, int size) {
+	protected PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int begin, int end, int size) {
 
 		logger.debug("申请内存____________________________{},{}",size,tName());
 		
@@ -55,7 +55,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 				
 				mask = blockEnd;
 				
-				return bufFactory.newByteBuf(this).produce(blockBegin,blockEnd,capacity);
+				return byteBufNew.newByteBuf(this).produce(blockBegin,blockEnd,limit);
 			}
 			
 			unitBegin = units[blockBegin];
@@ -76,7 +76,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 			
 			mask = buf2.index;
 			
-			return bufFactory.newByteBuf(this).produce(blockBegin,blockEnd,capacity);
+			return byteBufNew.newByteBuf(this).produce(blockBegin,blockEnd,limit);
 		}
 		
 		return null;

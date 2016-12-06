@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ReleaseUtil;
 
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
@@ -38,9 +39,13 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		return isDirect;
 	}
 
-	public ByteBuf allocate(int capacity) {
+	public ByteBuf allocate(int limit) {
+		return allocate(bufFactory, limit);
+	}
+	
+	private PooledByteBuf allocate(ByteBufNew byteBufNew,int limit) {
 		
-		int size = (capacity + unitMemorySize - 1) / unitMemorySize;
+		int size = (limit + unitMemorySize - 1) / unitMemorySize;
 
 		ReentrantLock lock = this.lock;
 
@@ -50,11 +55,11 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 			int mask = this.mask;
 			
-			ByteBuf buf = allocate(capacity, mask, this.capacity, size);
+			PooledByteBuf buf = allocate(byteBufNew,limit, mask, this.capacity, size);
 
 			if (buf == null) {
 
-				buf = allocate(capacity, 0, mask, size);
+				buf = allocate(byteBufNew,limit, 0, mask, size);
 			}
 
 			return buf;
@@ -63,12 +68,64 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 			lock.unlock();
 		}
 	}
+	
+	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
+		
+		if (copyOld) {
+			
+			if (limit > buf.capacity()) {
+				
+				PooledByteBuf newBuf = allocate(bufFactory,limit);
+				
+				newBuf.read(buf.position(0));
+				
+				ReleaseUtil.release(buf);
+				
+				buf.newByteBuf(this).produce(newBuf);
+				
+				return;
+			}
+			
+			int oldLimit = buf.limit();
+			
+			buf.limit(limit).skipBytes(oldLimit);
+			
+			return;
+		}
+		
+		if (limit > buf.capacity()) {
+			
+			ReleaseUtil.release(buf);
+			
+			allocate(buf, limit);
+			
+			return;
+		}
+		
+		buf.limit(limit);
+		
+	}
+
+	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+		if (limit > maxLimit) {
+			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
+		}
+		reallocate(buf,limit,copyOld);
+	}
+
+	public void reallocate(ByteBuf buf, int limit) {
+		reallocate(buf, limit, false);
+	}
+
+	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
+		reallocate(buf, limit, maxLimit, false);
+	}
 
 	public void freeMemory() {
 		bufFactory.freeMemory();
 	}
 
-	protected abstract ByteBuf allocate(int capacity, int start, int end, int size);
+	protected abstract PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int start, int end, int size);
 
 	protected void doStart() throws Exception {
 		

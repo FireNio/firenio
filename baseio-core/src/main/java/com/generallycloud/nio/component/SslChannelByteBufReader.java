@@ -25,7 +25,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
 				ByteBuf buf = allocate(session,SslReadFuture.SSL_RECORD_HEADER_LENGTH);
 
-				future = new SslReadFutureImpl(session, buf);
+				future = new SslReadFutureImpl(session, buf,1024 * 64);//FIXME param
 
 				channel.setSslReadFuture(future);
 			}

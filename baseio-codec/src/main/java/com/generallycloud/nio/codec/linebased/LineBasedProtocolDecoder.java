@@ -1,9 +1,9 @@
-package com.generallycloud.nio.codec.line;
+package com.generallycloud.nio.codec.linebased;
 
 import java.io.IOException;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.codec.line.future.LineBasedReadFutureImpl;
+import com.generallycloud.nio.codec.linebased.future.LineBasedReadFutureImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -13,9 +13,15 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  */
 public class LineBasedProtocolDecoder implements ProtocolDecoder {
 
+	private int limit;
+
+	public LineBasedProtocolDecoder(int limit) {
+		this.limit = limit;
+	}
+
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-		
-		return new LineBasedReadFutureImpl(session.getContext());
+
+		return new LineBasedReadFutureImpl(session.getContext(), limit);
 	}
 
 }

@@ -13,7 +13,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 	private boolean	isComplete;
 
-	private long[]		settings;
+	private long[]	settings;
 
 	public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf) {
 		super(session);

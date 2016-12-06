@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import com.generallycloud.nio.Releasable;
 import com.generallycloud.nio.component.SocketChannel;
 
-public interface ByteBuf extends Releasable {
+public interface ByteBuf extends ByteBufNew, Releasable {
 
 	public abstract byte[] array();
 
@@ -33,25 +33,25 @@ public interface ByteBuf extends Releasable {
 	public abstract byte getByte();
 
 	public abstract byte getByte(int index);
-	
+
 	public abstract byte[] getBytes();
 
 	public abstract int getInt();
-	
+
 	public abstract int getInt(int index);
 
 	public abstract int getIntLE();
-	
+
 	public abstract int getIntLE(int index);
-	
+
 	public abstract long getLong();
-	
+
 	public abstract long getLong(int index);
-	
+
 	public abstract long getLongLE();
-	
+
 	public abstract long getLongLE(int index);
-	
+
 	public abstract short getShort();
 
 	public abstract short getShort(int index);
@@ -59,19 +59,19 @@ public interface ByteBuf extends Releasable {
 	public abstract short getShortLE();
 
 	public abstract short getShortLE(int index);
-	
+
 	public abstract short getUnsignedByte();
-	
+
 	public abstract short getUnsignedByte(int index);
-	
+
 	public abstract long getUnsignedInt();
-	
+
 	public abstract long getUnsignedInt(int index);
-	
+
 	public abstract long getUnsignedIntLE();
-	
+
 	public abstract long getUnsignedIntLE(int index);
-	
+
 	public abstract int getUnsignedShort();
 
 	public abstract int getUnsignedShort(int index);
@@ -87,7 +87,7 @@ public interface ByteBuf extends Releasable {
 	public abstract int limit();
 
 	public abstract ByteBuf limit(int limit);
-	
+
 	public abstract ByteBuffer nioBuffer();
 
 	public abstract int offset();
@@ -97,42 +97,50 @@ public interface ByteBuf extends Releasable {
 	public abstract ByteBuf position(int position);
 
 	public abstract void putByte(byte b);
-	
+
 	public abstract void put(byte[] src);
 
 	public abstract void put(byte[] src, int offset, int length);
 
 	public abstract void putShort(short value);
-	
+
 	public abstract void putShortLE(short value);
-	
+
 	public abstract void putUnsignedShort(int value);
-	
+
 	public abstract void putUnsignedShortLE(int value);
-	
+
 	public abstract void putInt(int value);
-	
+
 	public abstract void putIntLE(int value);
-	
+
 	public abstract void putUnsignedInt(long value);
-	
+
 	public abstract void putUnsignedIntLE(long value);
 
 	public abstract void putLong(long value);
-	
-	public abstract void putLongLE(long value);
-	
-	public abstract int read(ByteBuf buf) throws IOException;
 
-	public abstract int read(ByteBuffer buffer) throws IOException;
+	public abstract void putLongLE(long value);
+
+	public abstract int read(ByteBuf buf);
+
+	public abstract int read(ByteBuffer buffer);
 
 	// 往buffer中write
 	public abstract int read(SocketChannel channel) throws IOException;
 
 	public abstract int remaining();
 
+	public abstract void reallocate(int limit);
+
+	public abstract void reallocate(int limit, boolean copyOld);
+
+	public abstract void reallocate(int limit, int maxLimit);
+
+	public abstract void reallocate(int limit, int maxLimit, boolean copyOld);
+
 	public abstract void skipBytes(int length);
-	
+
 	// 往buffer中read
 	public abstract int write(SocketChannel channel) throws IOException;
 

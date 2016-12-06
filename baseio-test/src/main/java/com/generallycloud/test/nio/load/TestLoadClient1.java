@@ -61,7 +61,7 @@ public class TestLoadClient1 extends ITestThread {
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
 		
-		c.setSERVER_HOST("192.168.0.180");
+//		c.setSERVER_HOST("192.168.0.180");
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
@@ -78,7 +78,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		int time = 64 * 10000;
 
-		int core_size = 8;
+		int core_size = 4;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

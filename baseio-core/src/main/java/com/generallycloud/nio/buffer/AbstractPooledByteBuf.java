@@ -9,5 +9,9 @@ public abstract class AbstractPooledByteBuf implements PooledByteBuf {
 	public int getBeginUnit() {
 		return beginUnit;
 	}
+
+	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+		return this;
+	}
 	
 }

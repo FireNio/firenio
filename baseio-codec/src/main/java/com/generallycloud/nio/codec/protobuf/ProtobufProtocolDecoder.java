@@ -11,8 +11,18 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class ProtobufProtocolDecoder implements ProtocolDecoder {
 
+	private int limit;
+
+	public ProtobufProtocolDecoder() {
+		this(1024 * 8);
+	}
+
+	public ProtobufProtocolDecoder(int limit) {
+		this.limit = limit;
+	}
+
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-		
+
 		ByteBuf buf = session.getByteBufAllocator().allocate(ProtobaseProtocolDecoder.PROTOCOL_HEADER);
 
 		buf.read(buffer);
@@ -27,7 +37,7 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 			return new ProtobufReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		return new ProtobufReadFutureImpl(session, buf);
+		return new ProtobufReadFutureImpl(session, buf, limit);
 	}
 
 }

@@ -1,8 +1,6 @@
 package com.generallycloud.nio.buffer;
 
-public interface ByteBufFactory {
-
-	public abstract PooledByteBuf newByteBuf(ByteBufAllocator allocator);
+public interface ByteBufFactory extends ByteBufNew{
 
 	public abstract void freeMemory();
 

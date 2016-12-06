@@ -14,7 +14,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 
 	private MCByteBufAllocator				mcByteBufAllocator;
 
-	public LinkableByteBufAllocatorImpl(MCByteBufAllocator mcByteBufAllocator,ByteBufAllocator allocator, int index) {
+	public LinkableByteBufAllocatorImpl(MCByteBufAllocator mcByteBufAllocator, ByteBufAllocator allocator, int index) {
 		this.index = index;
 		this.allocator = allocator;
 		this.mcByteBufAllocator = mcByteBufAllocator;
@@ -78,7 +78,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	protected boolean logger() {
 		return false;
 	}
-	
+
 	public String toString() {
 		return unwrap().toString();
 	}
@@ -86,5 +86,21 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	public boolean isDirect() {
 		return unwrap().isDirect();
 	}
-	
+
+	public void reallocate(ByteBuf buf, int limit) {
+		unwrap().reallocate(buf, limit);
+	}
+
+	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
+		unwrap().reallocate(buf, limit, maxLimit);
+	}
+
+	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
+		unwrap().reallocate(buf, limit, copyOld);
+	}
+
+	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+		unwrap().reallocate(buf, limit, maxLimit, copyOld);
+	}
+
 }

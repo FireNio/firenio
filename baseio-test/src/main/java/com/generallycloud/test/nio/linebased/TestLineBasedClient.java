@@ -2,8 +2,8 @@ package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
-import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
-import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
+import com.generallycloud.nio.codec.linebased.LineBasedProtocolFactory;
+import com.generallycloud.nio.codec.linebased.future.LineBasedReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContext;

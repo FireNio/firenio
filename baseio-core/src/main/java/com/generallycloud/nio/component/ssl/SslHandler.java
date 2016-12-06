@@ -98,7 +98,7 @@ public class SslHandler {
 
 			out.read(buf);
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 
 			ReleaseUtil.release(out);
 

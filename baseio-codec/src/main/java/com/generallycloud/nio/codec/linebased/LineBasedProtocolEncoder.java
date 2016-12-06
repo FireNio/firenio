@@ -1,11 +1,11 @@
-package com.generallycloud.nio.codec.line;
+package com.generallycloud.nio.codec.linebased;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
+import com.generallycloud.nio.codec.linebased.future.LineBasedReadFuture;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;

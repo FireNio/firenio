@@ -13,25 +13,25 @@ import com.google.protobuf.Parser;
 
 public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements ProtobufReadFuture {
 
-	private MessageLite		message;
+	private MessageLite	message;
 
-	private boolean		writed;
+	private boolean	writed;
 
 	// for ping & pong
 	public ProtobufReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
-	
-	public ProtobufReadFutureImpl(SocketChannelContext context,String futureName) {
+
+	public ProtobufReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context, futureName);
 	}
 
-	public ProtobufReadFutureImpl(SocketChannelContext context,Integer futureID, String futureName) {
+	public ProtobufReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
 		super(context, futureID, futureName);
 	}
-	
-	public ProtobufReadFutureImpl(SocketSession session, ByteBuf buf) throws IOException {
-		super(session, buf);
+
+	public ProtobufReadFutureImpl(SocketSession session, ByteBuf buf, int limit) throws IOException {
+		super(session, buf, limit);
 	}
 
 	public MessageLite getMessage() throws InvalidProtocolBufferException {
@@ -47,7 +47,7 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 
 		return message;
 	}
-	
+
 	public void writeProtobuf(MessageLite messageLite) throws InvalidProtocolBufferException {
 		writeProtobuf(messageLite.getClass().getName(), messageLite);
 	}
@@ -60,10 +60,10 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 
 		super.write(parserName);
 
-		//FIXME 判断array是否过大
-		byte [] array = messageLite.toByteArray();
-		
-		super.writeBinary(array,0,array.length);
+		// FIXME 判断array是否过大
+		byte[] array = messageLite.toByteArray();
+
+		super.writeBinary(array, 0, array.length);
 	}
 
 	public void write(byte[] bytes, int offset, int length) {
@@ -77,5 +77,5 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 	public String getParserName() {
 		return getText();
 	}
-	
+
 }

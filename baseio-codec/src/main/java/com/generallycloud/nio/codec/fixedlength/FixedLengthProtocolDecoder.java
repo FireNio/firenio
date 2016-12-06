@@ -35,9 +35,15 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_PONG		= -2;
 
+	private int			limit;
+
+	public FixedLengthProtocolDecoder(int limit) {
+		this.limit = limit;
+	}
+
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-		
-		return new FixedLengthReadFutureImpl(session,session.getByteBufAllocator().allocate(PROTOCOL_HEADER));
+
+		return new FixedLengthReadFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
 	}
 
 }

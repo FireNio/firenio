@@ -2,8 +2,8 @@ package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.codec.line.LineBasedProtocolFactory;
-import com.generallycloud.nio.codec.line.future.LineBasedReadFuture;
+import com.generallycloud.nio.codec.linebased.LineBasedProtocolFactory;
+import com.generallycloud.nio.codec.linebased.future.LineBasedReadFuture;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
