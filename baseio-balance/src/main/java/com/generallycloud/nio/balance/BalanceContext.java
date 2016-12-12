@@ -15,10 +15,12 @@ public class BalanceContext {
 	private BalanceReverseAcceptorHandler		balanceReverseAcceptorHandler;
 	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
+	private FacadeInterceptor				facadeInterceptor;
 
 	protected BalanceContext(BalanceFacadeAcceptor facadeAcceptor, BalanceRouter balanceRouter) {
 		this.balanceFacadeAcceptor = facadeAcceptor;
 		this.balanceRouter = balanceRouter;
+		this.facadeInterceptor = new FacadeInterceptorImpl();
 		this.balanceReverseAcceptor = new BalanceReverseAcceptor();
 		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
 		this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);
@@ -62,4 +64,15 @@ public class BalanceContext {
 		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
 	}
 
+	public FacadeInterceptor getFacadeInterceptor() {
+		return facadeInterceptor;
+	}
+
+	public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
+		if (facadeInterceptor == null) {
+			throw new IllegalArgumentException("null facadeInterceptor");
+		}
+		this.facadeInterceptor = facadeInterceptor;
+	}
+	
 }

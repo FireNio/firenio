@@ -68,10 +68,9 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 				for (; ss.hasNext();) {
 
-					SocketSession s = ss.next();
+					BalanceFacadeSocketSession s = (BalanceFacadeSocketSession) ss.next();
 
-					if (s.getAttribute(BalanceContext.BALANCE_RECEIVE_BROADCAST) == null) {
-
+					if (!s.isReceiveBroadcast()) {
 						continue;
 					}
 

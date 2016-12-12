@@ -150,7 +150,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		}
 
 		if (sessionFactory == null) {
-			sessionFactory = new SessionFactoryImpl();
+			sessionFactory = new SocketSessionFactoryImpl();
 		}
 
 		LifeCycleUtil.start(mcByteBufAllocator);

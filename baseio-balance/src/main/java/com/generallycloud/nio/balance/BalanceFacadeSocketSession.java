@@ -4,8 +4,12 @@ import com.generallycloud.nio.component.SocketSession;
 
 public interface BalanceFacadeSocketSession extends SocketSession {
 
-	public BalanceReverseSocketSession getReverseSocketSession();
+	public abstract boolean isReceiveBroadcast();
 
-	public void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+	public abstract void setReceiveBroadcast(boolean receiveBroadcast);
+
+	public abstract BalanceReverseSocketSession getReverseSocketSession();
+
+	public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
 
 }

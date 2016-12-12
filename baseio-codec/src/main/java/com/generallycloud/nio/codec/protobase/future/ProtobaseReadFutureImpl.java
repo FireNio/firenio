@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
-import com.generallycloud.nio.balance.BalanceReadFuture;
 import com.generallycloud.nio.balance.BalanceContext;
+import com.generallycloud.nio.balance.BalanceReadFuture;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
@@ -187,7 +187,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	public boolean isBroadcast() {
 		return futureID.intValue() == 0;
 	}
-
+	
 	public boolean isReceiveBroadcast() {
 		return BalanceContext.BALANCE_RECEIVE_BROADCAST.equals(getFutureName());
 	}

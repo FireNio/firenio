@@ -6,14 +6,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.balance.BalanceFacadeSocketSession;
 import com.generallycloud.nio.balance.BalanceReverseSocketSession;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
 	private int							index			= 0;
 	private ReentrantLock					lock				= new ReentrantLock();
-	private String							SESSION_ID_ROUTER	= "_SESSION_ID_ROUTER";
 	private List<BalanceReverseSocketSession>	routerList		= new ArrayList<>();
 
 	private BalanceReverseSocketSession getNextRouterSession() {
@@ -92,19 +90,16 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
 
 			BalanceReverseSocketSession router_session = getRouterSession(session);
 
-			if (router_session != null && router_session.isOpened()) {
-				return router_session;
+			if (router_session == null || router_session.isClosed()) {
+				
+				router_session = getNextRouterSession();
+				
+				if (router_session == null) {
+					return null;
+				}
+
+				session.setReverseSocketSession(router_session);
 			}
-
-			CloseUtil.close(router_session);
-
-			router_session = getNextRouterSession();
-
-			if (router_session == null) {
-				return null;
-			}
-
-			session.setAttribute(SESSION_ID_ROUTER, router_session);
 
 			return router_session;
 

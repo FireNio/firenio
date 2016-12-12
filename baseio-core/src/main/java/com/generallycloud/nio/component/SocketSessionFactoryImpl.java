@@ -1,7 +1,7 @@
 package com.generallycloud.nio.component;
 
 
-public class SessionFactoryImpl implements SocketSessionFactory {
+public class SocketSessionFactoryImpl implements SocketSessionFactory {
 
 	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
 

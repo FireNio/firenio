@@ -16,17 +16,17 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class BalanceServerBootStrap {
 
-	private ProtocolFactory				balanceProtocolFactory;
-	private ProtocolFactory				balanceReverseProtocolFactory;
-	private ServerConfiguration			balanceServerConfiguration;
-	private ServerConfiguration			balanceReverseServerConfiguration;
-	private List<SocketSessionEventListener>		balanceSessionEventListeners;
-	private List<SocketSessionEventListener>		balanceReverseSessionEventListeners;
-	private BeatFutureFactory			balanceBeatFutureFactory;
-	private BeatFutureFactory			balanceReverseBeatFutureFactory;
-	private ChannelLostReadFutureFactory	channelLostReadFutureFactory;
+	private ProtocolFactory					balanceProtocolFactory;
+	private ProtocolFactory					balanceReverseProtocolFactory;
+	private ServerConfiguration				balanceServerConfiguration;
+	private ServerConfiguration				balanceReverseServerConfiguration;
+	private List<SocketSessionEventListener>	balanceSessionEventListeners;
+	private List<SocketSessionEventListener>	balanceReverseSessionEventListeners;
+	private BeatFutureFactory				balanceBeatFutureFactory;
+	private BeatFutureFactory				balanceReverseBeatFutureFactory;
+	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private BalanceRouter					balanceRouter;
-	private SslContext					sslContext;
+	private SslContext						sslContext;
 
 	public void startup() throws IOException {
 
@@ -40,17 +40,21 @@ public class BalanceServerBootStrap {
 
 		SocketChannelContext balanceBaseContext = getBalanceBaseContext(balanceContext, balanceServerConfiguration,
 				balanceProtocolFactory);
+		
+		balanceBaseContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
 
 		SocketChannelContext balanceReverseBaseContext = getBalanceReverseBaseContext(balanceContext,
 				balanceReverseServerConfiguration, balanceReverseProtocolFactory);
 		
+		balanceReverseBaseContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
+
 		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 
 		balanceFacadeAcceptor.start(balanceContext, balanceBaseContext, balanceReverseBaseContext);
 	}
 
-	private SocketChannelContext getBalanceBaseContext(BalanceContext balanceContext, ServerConfiguration configuration,
-			ProtocolFactory protocolFactory) {
+	private SocketChannelContext getBalanceBaseContext(BalanceContext balanceContext,
+			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
@@ -73,8 +77,8 @@ public class BalanceServerBootStrap {
 		return context;
 	}
 
-	private SocketChannelContext getBalanceReverseBaseContext(BalanceContext balanceContext, ServerConfiguration configuration,
-			ProtocolFactory protocolFactory) {
+	private SocketChannelContext getBalanceReverseBaseContext(BalanceContext balanceContext,
+			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
@@ -139,7 +143,8 @@ public class BalanceServerBootStrap {
 		balanceReverseSessionEventListeners.add(listener);
 	}
 
-	private void addSessionEventListener2Context(SocketChannelContext context, List<SocketSessionEventListener> listeners) {
+	private void addSessionEventListener2Context(SocketChannelContext context,
+			List<SocketSessionEventListener> listeners) {
 		for (SocketSessionEventListener l : listeners) {
 			context.addSessionEventListener(l);
 		}
@@ -184,5 +189,5 @@ public class BalanceServerBootStrap {
 	public void setChannelLostReadFutureFactory(ChannelLostReadFutureFactory channelLostReadFutureFactory) {
 		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
 	}
-	
+
 }

@@ -9,25 +9,24 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorHandler.class);
+	private Logger				logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorHandler.class);
 	private BalanceRouter		balanceRouter;
-	private byte[]		V		= {};
+	private FacadeInterceptor	facadeInterceptor;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
+		this.facadeInterceptor = context.getFacadeInterceptor();
 	}
 
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
-		
+
 		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
 
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
-		logger.info("报文来自客户端：[ {} ]，报文：{}", session.getRemoteSocketAddress(), f);
+		logger.info("报文来自客户端：[ {} ]，报文：{}", fs.getRemoteSocketAddress(), f);
 
-		//FIXME 是否需要设置取消接收广播
-		if (f.isReceiveBroadcast()) {
-			session.setAttribute(BalanceContext.BALANCE_RECEIVE_BROADCAST, V);
+		if (facadeInterceptor.intercept(fs, f)) {
 			return;
 		}
 
@@ -37,8 +36,8 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			logger.info("未发现负载节点，报文分发失败：{} ", f);
 			return;
 		}
-		
-		f.setSessionID(session.getSessionID());
+
+		f.setSessionID(fs.getSessionID());
 
 		f = f.translate();
 
