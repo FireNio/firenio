@@ -1,23 +1,25 @@
 package com.generallycloud.nio.balance;
 
-import com.generallycloud.nio.balance.router.FrontRouter;
+import com.generallycloud.nio.balance.router.BalanceRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
+public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorHandler.class);
-	private FrontRouter		frontRouter;
+	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorHandler.class);
+	private BalanceRouter		balanceRouter;
 	private byte[]		V		= {};
 
-	public FrontFacadeAcceptorHandler(FrontContext context) {
-		this.frontRouter = context.getFrontRouter();
+	public BalanceFacadeAcceptorHandler(BalanceContext context) {
+		this.balanceRouter = context.getBalanceRouter();
 	}
 
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
+		
+		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
 
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
@@ -25,13 +27,13 @@ public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 		//FIXME 是否需要设置取消接收广播
 		if (f.isReceiveBroadcast()) {
-			session.setAttribute(FrontContext.FRONT_RECEIVE_BROADCAST, V);
+			session.setAttribute(BalanceContext.BALANCE_RECEIVE_BROADCAST, V);
 			return;
 		}
 
-		SocketSession routerSession = frontRouter.getRouterSession((SocketSession) session, f);
+		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
 
-		if (routerSession == null) {
+		if (rs == null) {
 			logger.info("未发现负载节点，报文分发失败：{} ", f);
 			return;
 		}
@@ -40,9 +42,9 @@ public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 		f = f.translate();
 
-		routerSession.flush(f);
+		rs.flush(f);
 
-		logger.info("分发请求到：[ {} ]", routerSession.getRemoteSocketAddress());
+		logger.info("分发请求到：[ {} ]", rs.getRemoteSocketAddress());
 	}
 
 }

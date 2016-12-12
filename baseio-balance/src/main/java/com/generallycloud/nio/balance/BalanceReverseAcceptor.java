@@ -8,7 +8,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 
-public class FrontReverseAcceptor {
+public class BalanceReverseAcceptor {
 
 	private SocketChannelAcceptor		acceptor	= null;
 
@@ -18,8 +18,8 @@ public class FrontReverseAcceptor {
 
 		this.acceptor.bind();
 
-		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontReverseAcceptor.class),
-				"Front Reverse Acceptor 启动成功 ...");
+		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(BalanceReverseAcceptor.class),
+				"Balance Reverse Acceptor 启动成功 ...");
 	}
 	
 	protected SocketChannelAcceptor getAcceptor() {

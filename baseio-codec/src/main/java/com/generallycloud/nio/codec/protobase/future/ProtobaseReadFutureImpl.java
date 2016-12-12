@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
 import com.generallycloud.nio.balance.BalanceReadFuture;
-import com.generallycloud.nio.balance.FrontContext;
+import com.generallycloud.nio.balance.BalanceContext;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
@@ -189,7 +189,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	}
 
 	public boolean isReceiveBroadcast() {
-		return FrontContext.FRONT_RECEIVE_BROADCAST.equals(getFutureName());
+		return BalanceContext.BALANCE_RECEIVE_BROADCAST.equals(getFutureName());
 	}
 
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {

@@ -1,13 +1,13 @@
 package com.generallycloud.nio.balance.router;
 
-import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.balance.BalanceReverseSocketSession;
 
 public class Machine {
 	
-	Machine(SocketSession session) {
+	Machine(BalanceReverseSocketSession session) {
 		this.session = session;
 		this.session.setAttachment(this);
 	}
 
-	SocketSession session;
+	BalanceReverseSocketSession session;
 }

@@ -1,23 +1,24 @@
 package com.generallycloud.nio.balance.router;
 
+import com.generallycloud.nio.balance.BalanceFacadeSocketSession;
+import com.generallycloud.nio.balance.BalanceReverseSocketSession;
 import com.generallycloud.nio.balance.HashedBalanceReadFuture;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class HashedFrontRouter extends AbstractFrontRouter {
+public class HashedBalanceRouter extends AbstractBalanceRouter {
 
-	public HashedFrontRouter(int maxNode) {
+	public HashedBalanceRouter(int maxNode) {
 		this.nodeGroup = new NodeGroup(maxNode);
 	}
 
 	private NodeGroup	nodeGroup;
 
-	public void addRouterSession(SocketSession session) {
+	public void addRouterSession(BalanceReverseSocketSession session) {
 		Machine machine = new Machine(session);
 		nodeGroup.addMachine(machine);
 	}
 
-	public void removeRouterSession(SocketSession session) {
+	public void removeRouterSession(BalanceReverseSocketSession session) {
 		Machine machine = (Machine) session.getAttachment();
 		if (machine == null) {
 			return;
@@ -25,14 +26,14 @@ public class HashedFrontRouter extends AbstractFrontRouter {
 		nodeGroup.removeMachine(machine);
 	}
 
-	public SocketSession getRouterSession(SocketSession session, ReadFuture future) {
+	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, ReadFuture future) {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
 
 		return nodeGroup.getMachine(f.getHashCode()).session;
 	}
 
-	public SocketSession getRouterSession(SocketSession session) {
+	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
 
 		Machine machine = (Machine) session.getAttachment();
 

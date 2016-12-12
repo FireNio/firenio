@@ -5,23 +5,23 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class FrontReverseAcceptorSEListener extends SocketSEListenerAdapter {
+public class BalanceReverseAcceptorSEListener extends SocketSEListenerAdapter {
 
-	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorSEListener.class);
+	private Logger			logger	= LoggerFactory.getLogger(BalanceReverseAcceptorSEListener.class);
 
-	private FrontContext	context;
+	private BalanceContext	context;
 
-	public FrontReverseAcceptorSEListener(FrontContext context) {
+	public BalanceReverseAcceptorSEListener(BalanceContext context) {
 		this.context = context;
 	}
 
 	public void sessionOpened(SocketSession session) {
 		logger.info("负载服务器来自 " + session + " 已建立连接.");
-		context.getFrontRouter().addRouterSession((SocketSession) session);
+		context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
 	}
 
 	public void sessionClosed(SocketSession session) {
 		logger.info("负载服务器来自 " + session + " 已断开连接.");
-		context.getFrontRouter().removeRouterSession((SocketSession) session);
+		context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
 	}
 }

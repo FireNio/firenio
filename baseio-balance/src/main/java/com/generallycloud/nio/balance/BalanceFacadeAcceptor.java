@@ -8,17 +8,17 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 
-public class FrontFacadeAcceptor {
+public class BalanceFacadeAcceptor {
 
 	private byte[]				runLock				= new byte[]{};
 	private boolean				running				= false;
 	private SocketChannelAcceptor		acceptor				= null;
-	private FrontContext			frontContext;
+	private BalanceContext			balanceContext;
 
-	public void start(FrontContext frontContext, SocketChannelContext frontBaseContext, SocketChannelContext frontReverseBaseContext)
+	public void start(BalanceContext balanceContext, SocketChannelContext balanceBaseContext, SocketChannelContext balanceReverseBaseContext)
 			throws IOException {
 
-		if (frontContext == null) {
+		if (balanceContext == null) {
 			throw new IllegalArgumentException("null configuration");
 		}
 		
@@ -28,16 +28,16 @@ public class FrontFacadeAcceptor {
 				return;
 			}
 			
-			this.frontContext = frontContext;
+			this.balanceContext = balanceContext;
 
-			this.frontContext.getFrontReverseAcceptor().start(frontReverseBaseContext);
+			this.balanceContext.getBalanceReverseAcceptor().start(balanceReverseBaseContext);
 
-			this.acceptor = new SocketChannelAcceptor(frontBaseContext);
+			this.acceptor = new SocketChannelAcceptor(balanceBaseContext);
 
 			this.acceptor.bind();
 
-			LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(FrontFacadeAcceptor.class),
-					"Front Facade Acceptor 启动成功 ...");
+			LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
+					"Balance Facade Acceptor 启动成功 ...");
 		}
 
 	}
@@ -45,12 +45,12 @@ public class FrontFacadeAcceptor {
 	public void stop() {
 		synchronized (runLock) {
 			CloseUtil.unbind(acceptor);
-			this.frontContext.getFrontReverseAcceptor().stop();
+			this.balanceContext.getBalanceReverseAcceptor().stop();
 		}
 	}
 
-	public FrontContext getFrontContext() {
-		return frontContext;
+	public BalanceContext getBalanceContext() {
+		return balanceContext;
 	}
 
 	public SocketChannelAcceptor getAcceptor() {

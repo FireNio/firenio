@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.nio.balance.router.FrontRouter;
+import com.generallycloud.nio.balance.router.BalanceRouter;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
@@ -20,22 +20,22 @@ import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
+public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger			logger	= LoggerFactory.getLogger(FrontReverseAcceptorHandler.class);
-	private FrontContext	frontContext;
-	private FrontRouter		frontRouter;
+	private Logger			logger	= LoggerFactory.getLogger(BalanceReverseAcceptorHandler.class);
+	private BalanceContext	balanceContext;
+	private BalanceRouter		balanceRouter;
 
-	public FrontReverseAcceptorHandler(FrontContext frontContext) {
-		this.frontContext = frontContext;
-		this.frontRouter = frontContext.getFrontRouter();
+	public BalanceReverseAcceptorHandler(BalanceContext balanceContext) {
+		this.balanceContext = balanceContext;
+		this.balanceRouter = balanceContext.getBalanceRouter();
 	}
 
 	private void broadcast(final BalanceReadFuture future) {
 
-		FrontFacadeAcceptor frontFacadeAcceptor = frontContext.getFrontFacadeAcceptor();
+		BalanceFacadeAcceptor balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
 
-		SocketChannelAcceptor acceptor = frontFacadeAcceptor.getAcceptor();
+		SocketChannelAcceptor acceptor = balanceFacadeAcceptor.getAcceptor();
 
 		acceptor.offerSessionMEvent(new SocketSessionManagerEvent() {
 
@@ -70,7 +70,7 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 					SocketSession s = ss.next();
 
-					if (s.getAttribute(FrontContext.FRONT_RECEIVE_BROADCAST) == null) {
+					if (s.getAttribute(BalanceContext.BALANCE_RECEIVE_BROADCAST) == null) {
 
 						continue;
 					}
@@ -109,7 +109,7 @@ public class FrontReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 		int sessionID = f.getSessionID();
 
-		SocketSession response = frontRouter.getClientSession(sessionID);
+		SocketSession response = balanceRouter.getClientSession(sessionID);
 
 		if (response != null) {
 

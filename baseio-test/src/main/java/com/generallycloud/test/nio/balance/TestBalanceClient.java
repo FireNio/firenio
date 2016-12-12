@@ -1,4 +1,4 @@
-package com.generallycloud.test.nio.front;
+package com.generallycloud.test.nio.balance;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,7 +17,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
-public class TestFrontClient {
+public class TestBalanceClient {
 
 	public static void main(String[] args) throws Exception {
 		
