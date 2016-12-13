@@ -18,7 +18,6 @@ public class FrontContext {
 	protected FrontContext() {
 		this.frontRouter = new FrontRouter();
 		this.balanceFacadeConnector = new BalanceFacadeConnector();
-		this.frontInterceptor = new FrontInterceptorImpl();
 		this.frontFacadeAcceptor = new FrontFacadeAcceptor();
 		this.frontFacadeAcceptorSEListener = new FrontFacadeAcceptorSEListener(this);
 		this.balanceFacadeConnectorSEListener = new BalanceFacadeConnectorSEListener();

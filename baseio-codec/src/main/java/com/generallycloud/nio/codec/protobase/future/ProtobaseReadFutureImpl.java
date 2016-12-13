@@ -190,10 +190,6 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	public boolean isBroadcast() {
 		return futureID.intValue() == 0;
 	}
-	
-	public boolean isReceiveBroadcast() {
-		return BalanceContext.BALANCE_RECEIVE_BROADCAST.equals(getFutureName());
-	}
 
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 

@@ -5,28 +5,25 @@ import com.generallycloud.nio.component.UnsafeSocketSessionImpl;
 
 public class FrontFacadeSocketSessionImpl extends UnsafeSocketSessionImpl implements FrontFacadeSocketSession {
 
-	private BalanceReverseSocketSession	reverseSocketSession	= null;
-
-	private boolean					receiveBroadcast;
-
 	public FrontFacadeSocketSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(channel, sessionID);
 	}
 
-	public BalanceReverseSocketSession getReverseSocketSession() {
-		return reverseSocketSession;
-	}
-
-	public void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession) {
-		this.reverseSocketSession = reverseSocketSession;
-	}
-
-	public boolean isReceiveBroadcast() {
-		return receiveBroadcast;
-	}
-
-	public void setReceiveBroadcast(boolean receiveBroadcast) {
-		this.receiveBroadcast = receiveBroadcast;
+	private long next_check_time;
+	
+	private int msg_size;
+	
+	@Override
+	public boolean overfulfil(int size){
+		
+		long now = System.currentTimeMillis();
+		
+		if (now > next_check_time) {
+			next_check_time = now + 1000;
+			msg_size = 0;
+		}
+		
+		return ++msg_size > size; 
 	}
 	
 }

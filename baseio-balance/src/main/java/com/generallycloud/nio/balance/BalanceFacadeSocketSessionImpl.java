@@ -7,8 +7,6 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl impl
 
 	private BalanceReverseSocketSession	reverseSocketSession	= null;
 
-	private boolean					receiveBroadcast;
-
 	public BalanceFacadeSocketSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(channel, sessionID);
 	}
@@ -19,14 +17,6 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl impl
 
 	public void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession) {
 		this.reverseSocketSession = reverseSocketSession;
-	}
-
-	public boolean isReceiveBroadcast() {
-		return receiveBroadcast;
-	}
-
-	public void setReceiveBroadcast(boolean receiveBroadcast) {
-		this.receiveBroadcast = receiveBroadcast;
 	}
 	
 }

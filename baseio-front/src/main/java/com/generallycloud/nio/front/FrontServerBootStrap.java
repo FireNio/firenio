@@ -24,13 +24,15 @@ public class FrontServerBootStrap {
 	private BeatFutureFactory				frontReverseBeatFutureFactory;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private SslContext						sslContext;
+	private int							interceptorLimit = 5;
 
 	public void startup() throws IOException {
 
 		FrontFacadeAcceptor frontFacadeAcceptor = new FrontFacadeAcceptor();
 
-
 		FrontContext frontContext = new FrontContext();
+		
+		frontContext.setFrontInterceptor(new FrontInterceptorImpl(interceptorLimit));
 
 		SocketChannelContext frontBaseContext = getFrontFacadeChannelContext(frontContext, frontServerConfiguration,
 				frontProtocolFactory);
@@ -160,6 +162,17 @@ public class FrontServerBootStrap {
 
 	public SslContext getSslContext() {
 		return sslContext;
+	}
+	
+	public int getInterceptorLimit() {
+		return interceptorLimit;
+	}
+
+	public void setInterceptorLimit(int interceptorLimit) {
+		if (interceptorLimit < 1) {
+			return;
+		}
+		this.interceptorLimit = interceptorLimit;
 	}
 
 	public void setSslContext(SslContext sslContext) {

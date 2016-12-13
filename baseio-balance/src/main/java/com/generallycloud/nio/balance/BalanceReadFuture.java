@@ -24,8 +24,6 @@ public interface BalanceReadFuture extends ReadFuture {
 
 	public abstract void setBroadcast(boolean broadcast);
 
-	public abstract boolean isReceiveBroadcast();
-
 	public abstract BalanceReadFuture translate();
 
 }
