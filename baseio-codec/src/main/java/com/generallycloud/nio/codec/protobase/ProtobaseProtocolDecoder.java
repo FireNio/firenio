@@ -26,27 +26,22 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  *  B0:3-7	: 预留
  *  B1		: service name  length
  *  B2  - B5 	: future  id
- *  B6  - B9 	: session id
- *  B10 - B13 	: hash    code
- *  B14 - B15 	：text          length
- *  B16 - B19 	：binary        length //FIXME 是否应该设置为两字节？
- * 
+ *  B6  - B9 	: c-session id
+ *  B10 - B13 	: f-session id
+ *  B14 - B17 	: hash    code
+ *  B18 - B19 	：text          length
+ *  B20 - B23 	：binary        length //FIXME 是否应该设置为两字节？
+ *  
  * </pre>
  */
 public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 	
-	public static final int	PROTOCOL_HEADER			= 20;
+	public static final int	PROTOCOL_HEADER			= 24;
 
 	public static final int	PROTOCOL_PACKET			= 1;
 	public static final int	PROTOCOL_PING				= 2;
 	public static final int	PROTOCOL_PONG				= 3;
 
-	public static final int	FUTURE_ID_BEGIN_INDEX		= 2;
-	public static final int	SESSION_ID_BEGIN_INDEX		= 6;
-	public static final int	HASH_BEGIN_INDEX			= 10;
-	public static final int	TEXT_BEGIN_INDEX			= 14;
-	public static final int	BINARY_BEGIN_INDEX		= 16;
-	
 	private int limit;
 	
 	public ProtobaseProtocolDecoder(int limit) {

@@ -17,10 +17,10 @@ public class BalanceContext {
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
 
-	protected BalanceContext(BalanceFacadeAcceptor facadeAcceptor, BalanceRouter balanceRouter) {
-		this.balanceFacadeAcceptor = facadeAcceptor;
+	protected BalanceContext(BalanceRouter balanceRouter) {
 		this.balanceRouter = balanceRouter;
 		this.facadeInterceptor = new FacadeInterceptorImpl();
+		this.balanceFacadeAcceptor = new BalanceFacadeAcceptor();
 		this.balanceReverseAcceptor = new BalanceReverseAcceptor();
 		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
 		this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);

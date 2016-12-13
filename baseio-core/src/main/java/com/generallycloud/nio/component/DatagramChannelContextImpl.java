@@ -37,8 +37,10 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 	public Linkable<DatagramSessionEventListener> getSessionEventListenerLink() {
 		return sessionEventListenerLink;
 	}
-
+	
 	protected void doStart() throws Exception {
+		
+		this.clearContext();
 
 		this.serverConfiguration.initializeDefault(this);
 
@@ -53,11 +55,16 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		this.sessionManager = new DatagramSessionManagerImpl(this);
+		if (sessionManager == null) {
+			this.sessionManager = new DatagramSessionManagerImpl(this);
+		}
+		
+		if (mcByteBufAllocator == null) {
 
-		this.mcByteBufAllocator = new MCByteBufAllocator(this);
-
-		this.addSessionEventListener(new DatagramSessionManagerSEListener());
+			this.mcByteBufAllocator = new MCByteBufAllocator(this);
+			
+			this.addSessionEventListener(new DatagramSessionManagerSEListener());
+		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");

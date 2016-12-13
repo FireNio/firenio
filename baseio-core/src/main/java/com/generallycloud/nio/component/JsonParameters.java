@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.StringUtil;
 
 public class JsonParameters implements Parameters {
-
+	
 	private JSONObject	object	;
 
 	private String		json		;
@@ -17,8 +17,9 @@ public class JsonParameters implements Parameters {
 			} catch (Exception e) {
 				throw new IllegalArgumentException(json, e);
 			}
-
 			this.json = json;
+		}else{
+			this.object = new JSONObject();
 		}
 	}
 	

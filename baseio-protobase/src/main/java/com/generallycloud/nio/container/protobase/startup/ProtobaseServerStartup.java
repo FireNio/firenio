@@ -41,6 +41,8 @@ public class ProtobaseServerStartup {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
+			
+			configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.12);
 
 			applicationContext.setContext(context);
 

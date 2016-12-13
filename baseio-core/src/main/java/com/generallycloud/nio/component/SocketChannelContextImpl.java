@@ -81,7 +81,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	public SocketChannelContextImpl(ServerConfiguration configuration) {
 		super(configuration);
 	}
-
+	
 	protected void doStart() throws Exception {
 
 		if (ioEventHandleAdaptor == null) {
@@ -91,8 +91,10 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		if (protocolFactory == null) {
 			throw new IllegalArgumentException("null protocolFactory");
 		}
+		
+		this.clearContext();
 
-		serverConfiguration.initializeDefault(this);
+		this.serverConfiguration.initializeDefault(this);
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
@@ -105,11 +107,16 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		this.protocolEncoder = protocolFactory.getProtocolEncoder();
+		if (protocolEncoder == null) {
+			this.protocolEncoder = protocolFactory.getProtocolEncoder();
+		}
 
-		this.mcByteBufAllocator = new MCByteBufAllocator(this);
+		if (mcByteBufAllocator == null) {
 
-		this.addSessionEventListener(new SocketSessionManagerSEListener());
+			this.mcByteBufAllocator = new MCByteBufAllocator(this);
+			
+			this.addSessionEventListener(new SocketSessionManagerSEListener());
+		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -134,16 +141,21 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		} else {
 			this.eventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 		}
-
-		this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
-
-		this.channelByteBufReader = new IoLimitChannelByteBufReader();
-
-		if (enableSSL) {
-			getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
+		
+		if (foreReadFutureAcceptor == null) {
+			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
 		}
 
-		getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader(this));
+		if (channelByteBufReader == null) {
+
+			this.channelByteBufReader = new IoLimitChannelByteBufReader();
+			
+			if (enableSSL) {
+				getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
+			}
+			
+			getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader(this));
+		}
 
 		if (sessionManager == null) {
 			sessionManager = new SocketSessionManagerImpl(this);

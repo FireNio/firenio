@@ -17,11 +17,17 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	protected MCByteBufAllocator					mcByteBufAllocator;
 	protected ChannelService					channelService;
 	protected Map<Object, Object>				attributes	= new HashMap<Object, Object>();
-	protected long							startupTime	= System.currentTimeMillis();
-	protected Sequence							sequence		= new Sequence();
+	protected long							startupTime	;
+	protected Sequence							sequence		;
 
 	public MCByteBufAllocator getMcByteBufAllocator() {
 		return mcByteBufAllocator;
+	}
+	
+	protected void clearContext(){
+		this.clearAttributes();
+		this.startupTime = System.currentTimeMillis();
+		this.sequence = new Sequence();
 	}
 
 	public AbstractChannelContext(ServerConfiguration configuration) {

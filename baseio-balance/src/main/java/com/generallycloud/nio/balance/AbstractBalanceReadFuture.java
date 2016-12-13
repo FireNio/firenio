@@ -7,27 +7,46 @@ public abstract class AbstractBalanceReadFuture extends AbstractChannelReadFutur
 
 	protected boolean	isBroadcast;
 
-	protected Integer	sessionID;
+	protected Integer	clientSessionID;
+	
+	protected Integer	frontSessionID;
 
 	protected AbstractBalanceReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 
-	public Integer getSessionID() {
-		if (sessionID == null) {
-			sessionID = 0;
+	@Override
+	public Integer getClientSessionID() {
+		if (clientSessionID == null) {
+			clientSessionID = 0;
 		}
-		return sessionID;
+		return clientSessionID;
 	}
 
-	public void setSessionID(Integer sessionID) {
-		this.sessionID = sessionID;
+	@Override
+	public void setClientSessionID(Integer sessionID) {
+		this.clientSessionID = sessionID;
 	}
 
+	@Override
+	public Integer getFrontSessionID() {
+		if (frontSessionID == null) {
+			frontSessionID = 0;
+		}
+		return frontSessionID;
+	}
+
+	@Override
+	public void setFrontSessionID(Integer sessionID) {
+		this.frontSessionID = sessionID;
+	}
+
+	@Override
 	public boolean isBroadcast() {
 		return isBroadcast;
 	}
-
+	
+	@Override
 	public void setBroadcast(boolean isBroadcast) {
 		this.isBroadcast = isBroadcast;
 	}

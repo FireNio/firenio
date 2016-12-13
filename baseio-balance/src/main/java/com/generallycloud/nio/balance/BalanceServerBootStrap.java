@@ -30,30 +30,30 @@ public class BalanceServerBootStrap {
 
 	public void startup() throws IOException {
 
-		BalanceFacadeAcceptor balanceFacadeAcceptor = new BalanceFacadeAcceptor();
-
 		if (balanceRouter == null) {
 			balanceRouter = new SimpleNextRouter();
 		}
 
-		BalanceContext balanceContext = new BalanceContext(balanceFacadeAcceptor, balanceRouter);
+		BalanceContext balanceContext = new BalanceContext(balanceRouter);
+		
+		BalanceFacadeAcceptor balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
 
-		SocketChannelContext balanceBaseContext = getBalanceBaseContext(balanceContext, balanceServerConfiguration,
+		SocketChannelContext balanceChannelContext = getBalanceChannelContext(balanceContext, balanceServerConfiguration,
 				balanceProtocolFactory);
 		
-		balanceBaseContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
+		balanceChannelContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
 
-		SocketChannelContext balanceReverseBaseContext = getBalanceReverseBaseContext(balanceContext,
+		SocketChannelContext balanceReverseChannelContext = getBalanceReverseChannelContext(balanceContext,
 				balanceReverseServerConfiguration, balanceReverseProtocolFactory);
 		
-		balanceReverseBaseContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
+		balanceReverseChannelContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
 
 		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 
-		balanceFacadeAcceptor.start(balanceContext, balanceBaseContext, balanceReverseBaseContext);
+		balanceFacadeAcceptor.start(balanceContext, balanceChannelContext, balanceReverseChannelContext);
 	}
 
-	private SocketChannelContext getBalanceBaseContext(BalanceContext balanceContext,
+	private SocketChannelContext getBalanceChannelContext(BalanceContext balanceContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);
@@ -77,7 +77,7 @@ public class BalanceServerBootStrap {
 		return context;
 	}
 
-	private SocketChannelContext getBalanceReverseBaseContext(BalanceContext balanceContext,
+	private SocketChannelContext getBalanceReverseChannelContext(BalanceContext balanceContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);

@@ -54,6 +54,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context);
 		this.futureName = futureName;
+		this.futureID = 0;
 	}
 
 	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
@@ -100,8 +101,10 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 		this.futureID = buf.getInt();
 
-		this.sessionID = buf.getInt();
-
+		this.clientSessionID = buf.getInt();
+		
+		this.frontSessionID = buf.getInt();
+		
 		this.hashCode = buf.getInt();
 
 		this.textLength = buf.getUnsignedShort();
