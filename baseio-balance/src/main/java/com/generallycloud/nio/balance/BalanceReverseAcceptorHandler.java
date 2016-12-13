@@ -24,7 +24,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 	private Logger			logger	= LoggerFactory.getLogger(BalanceReverseAcceptorHandler.class);
 	private BalanceContext	balanceContext;
-	private BalanceRouter		balanceRouter;
+	private BalanceRouter	balanceRouter;
 
 	public BalanceReverseAcceptorHandler(BalanceContext balanceContext) {
 		this.balanceContext = balanceContext;
@@ -42,27 +42,27 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
 
 				BalanceReadFuture f = future.translate();
-				
+
 				Iterator<SocketSession> ss = sessions.values().iterator();
-				
+
 				SocketSession session = ss.next();
-				
+
 				if (sessions.size() == 1) {
-					
+
 					session.flush(f);
-					
+
 					return;
 				}
-				
+
 				ProtocolEncoder encoder = context.getProtocolEncoder();
-				
+
 				ByteBufAllocator allocator = UnpooledByteBufAllocator.getInstance();
-				
+
 				ChannelWriteFuture writeFuture;
 				try {
 					writeFuture = encoder.encode(allocator, (ChannelReadFuture) f);
 				} catch (IOException e) {
-					logger.error(e.getMessage(),e);
+					logger.error(e.getMessage(), e);
 					return;
 				}
 
@@ -93,15 +93,13 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
-		logger.info("报文来自负载均衡：[ {} ]，报文：{}", session.getRemoteSocketAddress(), future);
-
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (f.isBroadcast()) {
 
 			broadcast(f);
 
-			logger.info("广播报文");
+			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
 
 			return;
 		}
@@ -110,34 +108,31 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 		SocketSession response = balanceRouter.getClientSession(sessionID);
 
-		if (response != null) {
+		if (response == null || response.isClosed()) {
 
-			if (response.isClosed()) {
-
-				logger.info("回复报文到客户端失败，连接已丢失：[ {} ],{} ", sessionID, f);
-
-				return;
-			}
-
-			response.flush(f.translate());
-
-			logger.info("回复报文到客户端,{}", response);
+			logger.info("连接丢失：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
 
 			return;
 		}
 
-		logger.info("回复报文到客户端失败，连接已丢失，且连接已经被移除：[ {} ],{} ", sessionID, f);
+		response.flush(f.translate());
+
+		logger.info("回复报文：F：[{}]，T：[{}]，报文：{}",new Object[] { 
+				session.getRemoteSocketAddress(), 
+				response.getRemoteSocketAddress(), 
+				f
+		});
 	}
 
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-		
+
 		String msg = future.toString();
-		
+
 		if (msg.length() > 100) {
-			msg = msg.substring(0,100);
+			msg = msg.substring(0, 100);
 		}
-		
-		logger.error("exceptionCaught,msg="+msg,cause);
+
+		logger.error("exceptionCaught,msg=" + msg, cause);
 	}
-	
+
 }

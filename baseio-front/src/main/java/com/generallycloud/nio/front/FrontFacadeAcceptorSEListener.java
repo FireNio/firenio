@@ -1,6 +1,5 @@
 package com.generallycloud.nio.front;
 
-import com.generallycloud.nio.balance.BalanceFacadeAcceptorSEListener;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.SocketSEListenerAdapter;
@@ -9,7 +8,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class FrontFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 
-	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorSEListener.class);
+	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorSEListener.class);
 
 	private FrontContext	balanceContext;
 

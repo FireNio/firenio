@@ -3,7 +3,7 @@ package com.generallycloud.test.nio.balance;
 import java.io.IOException;
 
 import com.generallycloud.nio.balance.BalanceServerBootStrap;
-import com.generallycloud.nio.balance.router.SimpleNextRouter;
+import com.generallycloud.nio.balance.router.HashedBalanceRouter;
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -25,8 +25,8 @@ public class TestBalanceMain {
 		
 		f.setBalanceServerConfiguration(fc);
 		f.setBalanceReverseServerConfiguration(frc);
-//		f.setBalanceRouter(new HashedBalanceRouter(10240));
-		f.setBalanceRouter(new SimpleNextRouter());
+		f.setBalanceRouter(new HashedBalanceRouter(10240));
+//		f.setBalanceRouter(new SimpleNextRouter());
 		
 		f.startup();
 	}
