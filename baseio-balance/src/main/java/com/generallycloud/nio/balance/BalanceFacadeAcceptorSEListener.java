@@ -22,7 +22,7 @@ public class BalanceFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 
 	public void sessionOpened(SocketSession session) {
 		balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
-		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
+		logger.info("客户端来自 [ {} ] 已建立连接.",session.getRemoteSocketAddress());
 	}
 
 	public void sessionClosed(SocketSession session) {
@@ -31,7 +31,7 @@ public class BalanceFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 
 		balanceRouter.removeClientSession(fs);
 
-		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已断开连接.");
+		logger.info("客户端来自 [ {} ] 已断开连接.",session.getRemoteSocketAddress());
 
 		BalanceRouter balanceRouter = balanceContext.getBalanceRouter();
 

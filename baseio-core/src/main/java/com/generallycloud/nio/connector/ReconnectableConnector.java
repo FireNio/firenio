@@ -1,5 +1,7 @@
 package com.generallycloud.nio.connector;
 
+import java.io.Closeable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,26 +11,29 @@ import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSEListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public abstract class ReconnectableConnector {
+public class ReconnectableConnector implements Closeable {
 
-	private Logger					logger		= LoggerFactory.getLogger(ReconnectableConnector.class);
-	private SocketChannelConnector	connect2Front	= null;
-	private long					retryTime		= 15000;
-	private boolean				reconnect		= true;
-	
+	private Logger					logger				= LoggerFactory
+															.getLogger(ReconnectableConnector.class);
+	private SocketChannelConnector	connect2Front			= null;
+	private long					retryTime				= 15000;
+	private boolean				reconnect				= true;
+	private ReconnectableConnector	reconnectableConnector	= null;
+
 	public ReconnectableConnector(SocketChannelContext context) {
 		context.addSessionEventListener(getReconnectSEListener());
 		this.connect2Front = new SocketChannelConnector(context);
+		this.reconnectableConnector = this;
 	}
 
 	public boolean isConnected() {
 		return connect2Front.isConnected();
 	}
-	
-	public SocketSession getSession(){
+
+	public SocketSession getSession() {
 		return connect2Front.getSession();
 	}
-	
+
 	public synchronized void connect() {
 
 		if (!reconnect) {
@@ -65,15 +70,13 @@ public abstract class ReconnectableConnector {
 
 			public void sessionClosed(SocketSession session) {
 
-				ReconnectableConnector t = ReconnectableConnector.this;
-
 				ThreadUtil.execute(new Runnable() {
 
 					public void run() {
 
 						ThreadUtil.sleep(retryTime);
 
-						t.connect();
+						reconnectableConnector.connect();
 					}
 				});
 			}
@@ -86,7 +89,7 @@ public abstract class ReconnectableConnector {
 			CloseUtil.close(connect2Front);
 		}
 	}
-	
+
 	public long getRetryTime() {
 		return retryTime;
 	}

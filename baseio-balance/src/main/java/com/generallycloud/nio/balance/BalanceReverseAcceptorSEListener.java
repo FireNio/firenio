@@ -16,12 +16,12 @@ public class BalanceReverseAcceptorSEListener extends SocketSEListenerAdapter {
 	}
 
 	public void sessionOpened(SocketSession session) {
-		logger.info("负载服务器来自 " + session + " 已建立连接.");
+		logger.info("负载服务器来自 [ {} ] 已建立连接.", session);
 		context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
 	}
 
 	public void sessionClosed(SocketSession session) {
-		logger.info("负载服务器来自 " + session + " 已断开连接.");
+		logger.info("负载服务器来自 [ {} ] 已断开连接.", session);
 		context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
 	}
 }
