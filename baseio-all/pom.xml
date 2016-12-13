@@ -44,8 +44,9 @@
 								<includes>
 									<include>com.generallycloud:baseio-balance</include>
 									<include>com.generallycloud:baseio-codec</include>
-								    <include>com.generallycloud:baseio-core</include>
 									<include>com.generallycloud:baseio-container</include>
+								    <include>com.generallycloud:baseio-core</include>
+									<include>com.generallycloud:baseio-front</include>
 									<include>com.generallycloud:baseio-http</include>
 									<include>com.generallycloud:baseio-jms</include>
 									<include>com.generallycloud:baseio-protobase</include>
@@ -91,6 +92,12 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+				
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-front</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		

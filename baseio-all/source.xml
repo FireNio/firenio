@@ -15,11 +15,15 @@
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
+            <directory>../baseio-container/src/main/java</directory>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+		<fileSet>
             <directory>../baseio-core/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>../baseio-container/src/main/java</directory>
+            <directory>../baseio-front/src/main/java</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
 		<fileSet>
