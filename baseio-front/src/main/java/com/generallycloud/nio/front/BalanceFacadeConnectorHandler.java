@@ -24,9 +24,9 @@ public class BalanceFacadeConnectorHandler extends IoEventHandleAdaptor {
 
 		if (f.isBroadcast()) {
 
-			frontFacadeAcceptor.getAcceptor().broadcast(f);
+			frontFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
-			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), f);
 
 			return;
 		}

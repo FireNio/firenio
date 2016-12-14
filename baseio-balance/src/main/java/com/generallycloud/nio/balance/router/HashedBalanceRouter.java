@@ -30,7 +30,13 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
 
-		return nodeGroup.getMachine(f.getHashCode()).session;
+		Machine machine = nodeGroup.getMachine(f.getHashCode());
+		
+		if (machine == null) {
+			return null;
+		}
+		
+		return machine.session;
 	}
 
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {

@@ -23,10 +23,10 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (f.isBroadcast()) {
+			
+			balanceFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
-			balanceFacadeAcceptor.getAcceptor().broadcast(future);
-
-			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), f);
 
 			return;
 		}
