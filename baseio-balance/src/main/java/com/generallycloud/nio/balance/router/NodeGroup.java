@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.balance.BalanceReverseSocketSession;
+
 public class NodeGroup {
 
-	private ReentrantLock	lock		= new ReentrantLock();
+	private ReentrantLock					lock		= new ReentrantLock();
 
-	private int			maxNode;
+	private int							maxNode;
 
-	private Node[]			nodes;
+	private Node[]							nodes;
 
-	private List<Machine>	machines	= new ArrayList<Machine>();
+	private List<BalanceReverseSocketSession>	machines	= new ArrayList<BalanceReverseSocketSession>();
 
 	public NodeGroup(int maxNode) {
 		this.maxNode = maxNode;
@@ -26,7 +28,7 @@ public class NodeGroup {
 		}
 	}
 
-	public void addMachine(Machine machine) {
+	public void addMachine(BalanceReverseSocketSession machine) {
 
 		ReentrantLock lock = this.lock;
 
@@ -44,7 +46,7 @@ public class NodeGroup {
 		}
 	}
 
-	public void removeMachine(Machine machine) {
+	public void removeMachine(BalanceReverseSocketSession machine) {
 
 		ReentrantLock lock = this.lock;
 
@@ -52,8 +54,10 @@ public class NodeGroup {
 
 		try {
 
-			machines.remove(machine);
-
+			if(!machines.remove(machine)){
+				return;
+			}
+			
 			machineChange();
 
 		} finally {
@@ -63,8 +67,12 @@ public class NodeGroup {
 	}
 
 	private void machineChange() {
+		
+		if (machines.isEmpty()) {
+			return;
+		}
 
-		List<Machine> machines = this.machines;
+		List<BalanceReverseSocketSession> machines = this.machines;
 
 		Node[] nodes = this.nodes;
 
@@ -82,15 +90,12 @@ public class NodeGroup {
 		}
 	}
 
-	//FIXME 是否要设置同步
-	public Machine getMachine(int hash) {
+	// FIXME 是否要设置同步
+	public BalanceReverseSocketSession getMachine(int hash) {
 		if (hash < maxNode) {
 			return nodes[hash].machine;
 		}
 		return nodes[hash % maxNode].machine;
 	}
 
-	public static void main(String[] args) {
-
-	}
 }

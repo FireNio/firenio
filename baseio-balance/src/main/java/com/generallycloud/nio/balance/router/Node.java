@@ -1,5 +1,7 @@
 package com.generallycloud.nio.balance.router;
 
+import com.generallycloud.nio.balance.BalanceReverseSocketSession;
+
 public class Node {
 
 	Node(int index) {
@@ -8,5 +10,5 @@ public class Node {
 
 	int index;
 	
-	Machine machine;
+	BalanceReverseSocketSession machine;
 }

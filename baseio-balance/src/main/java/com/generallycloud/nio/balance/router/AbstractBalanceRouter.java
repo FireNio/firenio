@@ -1,6 +1,7 @@
 package com.generallycloud.nio.balance.router;
 
 import com.generallycloud.nio.balance.BalanceFacadeSocketSession;
+import com.generallycloud.nio.balance.BalanceReverseSocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter{
@@ -17,5 +18,9 @@ public abstract class AbstractBalanceRouter implements BalanceRouter{
 
 	public void removeClientSession(BalanceFacadeSocketSession session) {
 		this.clients.remove(session.getSessionID());
+	}
+	
+	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
+		return session.getReverseSocketSession();
 	}
 }

@@ -76,10 +76,6 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
 		return router_session;
 	}
 
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
-		return session.getReverseSocketSession();
-	}
-
 	private BalanceReverseSocketSession getRouterSessionFresh(BalanceFacadeSocketSession session) {
 
 		ReentrantLock lock = this.lock;
