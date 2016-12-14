@@ -7,8 +7,8 @@ public class BalanceContext {
 	public static final String				BALANCE_CHANNEL_LOST		= "BALANCE_CHANNEL_LOST";
 	public static final String				BALANCE_RECEIVE_BROADCAST	= "BALANCE_RECEIVE_BROADCAST";
 
-	private BalanceFacadeAcceptor				balanceFacadeAcceptor;
-	private BalanceReverseAcceptor			balanceReverseAcceptor;
+	private BalanceFacadeAcceptor				balanceFacadeAcceptor		= new BalanceFacadeAcceptor();
+	private BalanceReverseAcceptor			balanceReverseAcceptor		= new BalanceReverseAcceptor();
 	private BalanceFacadeAcceptorSEListener		balanceFacadeAcceptorSEListener;
 	private BalanceReverseAcceptorSEListener	balanceReverseAcceptorSEListener;
 	private BalanceRouter					balanceRouter;
@@ -17,11 +17,7 @@ public class BalanceContext {
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
 
-	protected BalanceContext(BalanceRouter balanceRouter) {
-		this.balanceRouter = balanceRouter;
-		this.facadeInterceptor = new FacadeInterceptorImpl();
-		this.balanceFacadeAcceptor = new BalanceFacadeAcceptor();
-		this.balanceReverseAcceptor = new BalanceReverseAcceptor();
+	public void initialize() {
 		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
 		this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);
 		this.balanceFacadeAcceptorHandler = new BalanceFacadeAcceptorHandler(this);
@@ -68,11 +64,15 @@ public class BalanceContext {
 		return facadeInterceptor;
 	}
 
+	public void setBalanceRouter(BalanceRouter balanceRouter) {
+		this.balanceRouter = balanceRouter;
+	}
+
 	public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
 		if (facadeInterceptor == null) {
 			throw new IllegalArgumentException("null facadeInterceptor");
 		}
 		this.facadeInterceptor = facadeInterceptor;
 	}
-	
+
 }

@@ -36,7 +36,8 @@ public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		f.setClientSessionID(fs.getSessionID());
+		//FIXME 将来考虑是否实现
+//		f.setClientSessionID(fs.getSessionID());
 
 		f = f.translate();
 

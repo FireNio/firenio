@@ -31,8 +31,12 @@ public class BalanceFacadeConnectorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		int sessionID = f.getClientSessionID();
+		//FIXME 将来考虑是否实现
+//		int sessionID = f.getClientSessionID();
 
+		//FIXME 这行代码是错误的
+		int sessionID = f.getSessionID();
+		
 		SocketSession response = frontRouter.getClientSession(sessionID);
 
 		if (response == null || response.isClosed()) {

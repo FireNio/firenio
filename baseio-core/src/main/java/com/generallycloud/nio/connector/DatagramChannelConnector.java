@@ -23,7 +23,9 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 	public DatagramSession connect() throws IOException {
 
-		service();
+		this.session = null;
+		
+		this.service();
 
 		return getSession();
 	}

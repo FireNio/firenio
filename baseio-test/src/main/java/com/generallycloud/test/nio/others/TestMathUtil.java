@@ -1,6 +1,6 @@
 package com.generallycloud.test.nio.others;
 
-import static com.generallycloud.nio.common.MathUtil.byte2BinaryString;
+import static com.generallycloud.nio.common.MathUtil.*;
 
 public class TestMathUtil {
 	
@@ -40,6 +40,18 @@ public class TestMathUtil {
 		System.out.println(byte2BinaryString((byte) 0x3F));
 		System.out.println( (Integer.MAX_VALUE + 5) & 0x7fffffff);
 		
+		int s = 19810313;
+		int2Byte(bb, s, 0);
 		System.out.println();
+		
+		long l = 1;
+		
+		System.out.println(1 << 32);
+		System.out.println(l << 32);
+		
+		
+		System.out.println();
+		
+		
 	}
 }

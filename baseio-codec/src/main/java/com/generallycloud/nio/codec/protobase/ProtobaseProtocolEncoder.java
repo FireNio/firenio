@@ -84,8 +84,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		buf.putByte((byte) (service_name_length));
 		buf.putInt(f.getFutureID());
-		buf.putInt(f.getClientSessionID());
-		buf.putInt(f.getFrontSessionID());
+		buf.putInt(f.getSessionID());
 		buf.putInt(f.getHashCode());
 		buf.putUnsignedShort(text_length);
 		buf.putInt(binary_length);

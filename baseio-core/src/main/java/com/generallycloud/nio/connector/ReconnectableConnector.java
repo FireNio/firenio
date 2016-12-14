@@ -54,7 +54,10 @@ public class ReconnectableConnector implements Closeable {
 				connect2Front.connect();
 
 				break;
-			} catch (Exception e) {
+			} catch (Throwable e) {
+				
+				CloseUtil.close(connect2Front);
+				
 				logger.error(e.getMessage(), e);
 			}
 

@@ -31,7 +31,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		int sessionID = f.getFrontSessionID();
+		int sessionID = f.getSessionID();
 
 		SocketSession response = balanceRouter.getClientSession(sessionID);
 

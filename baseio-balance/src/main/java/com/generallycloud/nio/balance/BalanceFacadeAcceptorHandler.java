@@ -36,7 +36,7 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		f.setFrontSessionID(fs.getSessionID());
+		f.setSessionID(fs.getSessionID());
 
 		f = f.translate();
 

@@ -21,7 +21,7 @@ public class BalanceFacadeAcceptor {
 		if (balanceContext == null) {
 			throw new IllegalArgumentException("null configuration");
 		}
-
+		
 		synchronized (runLock) {
 
 			if (running) {

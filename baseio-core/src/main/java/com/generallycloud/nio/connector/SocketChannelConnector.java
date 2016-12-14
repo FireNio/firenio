@@ -20,7 +20,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	private UnsafeSocketSession	session;
 
-	private Waiter<Object> waiter = new Waiter<Object>();
+	private Waiter<Object> waiter;
 
 	public SocketChannelConnector(SocketChannelContext context) {
 		this.context = context;
@@ -28,6 +28,10 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	public SocketSession connect() throws IOException {
 
+		this.waiter = new Waiter<Object>();
+		
+		this.session = null;
+		
 		this.service();
 
 		return getSession();

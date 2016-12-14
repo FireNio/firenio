@@ -12,14 +12,10 @@ public interface BalanceReadFuture extends ReadFuture {
 
 	public abstract void setFutureID(Object futureID);
 
-	public abstract Integer getClientSessionID();
+	public abstract Integer getSessionID();
 
-	public abstract void setClientSessionID(Integer sessionID);
+	public abstract void setSessionID(Integer sessionID);
 	
-	public abstract Integer getFrontSessionID();
-
-	public abstract void setFrontSessionID(Integer sessionID);
-
 	public abstract boolean isBroadcast();
 
 	public abstract void setBroadcast(boolean broadcast);

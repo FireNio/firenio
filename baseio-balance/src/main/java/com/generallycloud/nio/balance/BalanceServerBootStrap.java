@@ -27,6 +27,7 @@ public class BalanceServerBootStrap {
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
+	private FacadeInterceptor				facadeInterceptor;
 
 	public void startup() throws IOException {
 
@@ -34,7 +35,17 @@ public class BalanceServerBootStrap {
 			balanceRouter = new SimpleNextRouter();
 		}
 
-		BalanceContext balanceContext = new BalanceContext(balanceRouter);
+		BalanceContext balanceContext = new BalanceContext();
+		
+		if (facadeInterceptor == null) {
+			facadeInterceptor = new FacadeInterceptorImpl(2);
+		}
+
+		balanceContext.setFacadeInterceptor(facadeInterceptor);
+		
+		balanceContext.setBalanceRouter(balanceRouter);
+		
+		balanceContext.initialize();
 		
 		BalanceFacadeAcceptor balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
 
@@ -188,6 +199,14 @@ public class BalanceServerBootStrap {
 
 	public void setChannelLostReadFutureFactory(ChannelLostReadFutureFactory channelLostReadFutureFactory) {
 		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+	}
+
+	public FacadeInterceptor getFacadeInterceptor() {
+		return facadeInterceptor;
+	}
+
+	public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
+		this.facadeInterceptor = facadeInterceptor;
 	}
 
 }

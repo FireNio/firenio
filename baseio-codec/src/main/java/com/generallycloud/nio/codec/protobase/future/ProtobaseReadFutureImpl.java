@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import com.generallycloud.nio.balance.AbstractBalanceReadFuture;
-import com.generallycloud.nio.balance.BalanceContext;
 import com.generallycloud.nio.balance.BalanceReadFuture;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -101,9 +100,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 		this.futureID = buf.getInt();
 
-		this.clientSessionID = buf.getInt();
-		
-		this.frontSessionID = buf.getInt();
+		this.sessionID = buf.getInt();
 		
 		this.hashCode = buf.getInt();
 
