@@ -1,7 +1,7 @@
 
 # BaseIO Project
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
+[![License](https://img.shields.io/badge/License-Apache%202.0-F94F4F.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
 
 BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
 
