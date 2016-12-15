@@ -204,6 +204,11 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	}
 
 	public void reallocate(int limit, int maxLimit, boolean copyOld) {
+		
+		if (limit < 1) {
+			throw new BufferException("illegal limit:" + limit);
+		}
+		
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
 		}
