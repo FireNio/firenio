@@ -20,10 +20,10 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
  * Redis协议，示例：详见 {baseio-test}
  * Protobuf协议，示例：详见 {baseio-test}
  * LineBased协议（基于换行符的消息分割），示例：详见 {baseio-test}
+ * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
  * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
- * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和数据流
- * 私有协议（4位字节表示报文长度），支持传输文本
+ * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
  
 ## 如何使用
 

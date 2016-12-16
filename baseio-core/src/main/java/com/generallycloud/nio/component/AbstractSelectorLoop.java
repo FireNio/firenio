@@ -59,17 +59,16 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
 
 		Object attachment = selectionKey.attachment();
-
-		if (attachment instanceof Channel) {
-
-			logger.error(t.getMessage() + " channel:" + attachment, t);
-
-			CloseUtil.close((Channel) attachment);
-
-		} else {
-
-			logger.error(t.getMessage(), t);
+		
+		if (attachment == null) {
+			return;
 		}
+		
+		logger.error(t.getMessage() + " channel:" + attachment, t);
+
+		CloseUtil.close((Channel) attachment);
+		
+
 	}
 
 	protected void cancelSelectionKey(SelectionKey selectionKey) {
