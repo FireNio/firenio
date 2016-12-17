@@ -11,8 +11,6 @@ import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
 public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implements LineBasedReadFuture {
 
-	private String				text;
-
 	private boolean			complete;
 
 	private int				limit;
@@ -25,7 +23,10 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 	}
 
 	private void doBodyComplete() {
-		complete = true;
+		
+		this.readText = cache.toString(context.getEncoding());		
+
+		this.complete = true;
 	}
 
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
@@ -53,19 +54,6 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 		}
 
 		return false;
-	}
-
-	public String getText() {
-		return getText(context.getEncoding());
-	}
-
-	public String getText(Charset encoding) {
-
-		if (text == null) {
-			text = cache.toString(encoding);
-		}
-
-		return text;
 	}
 
 	public void release() {
