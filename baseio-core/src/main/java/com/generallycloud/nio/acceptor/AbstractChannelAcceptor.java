@@ -15,11 +15,13 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 	
 	private Logger			logger		= LoggerFactory.getLogger(AbstractChannelAcceptor.class);
 	
+	@Override
 	public void bind() throws IOException {
 		
 		this.service();
 	}
 	
+	@Override
 	protected void initService(ServerConfiguration configuration) throws IOException {
 		
 		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
@@ -31,10 +33,12 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 
 	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
 
+	@Override
 	public boolean isActive() {
 		return active;
 	}
 
+	@Override
 	public void unbind() throws TimeoutException {
 		
 		Waiter<IOException> waiter = asynchronousUnbind();
@@ -45,11 +49,13 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 		}
 	}
 	
+	@Override
 	public Waiter<IOException> asynchronousUnbind() {
 		cancelService();
 		return shutDownWaiter;
 	}
 	
+	@Override
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();
 	}

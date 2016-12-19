@@ -8,6 +8,7 @@ public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
 	
 	private Thread monitor;
 
+	@Override
 	public void dispatch(Runnable job) throws RejectedExecutionException {
 		
 		if (job == null) {
@@ -17,6 +18,7 @@ public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
 	}
 
 	
+	@Override
 	public boolean inEventLoop() {
 		return Thread.currentThread() == monitor; //FIXME 
 	}
@@ -29,10 +31,12 @@ public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
 		this.monitor = monitor;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 		
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		
 	}

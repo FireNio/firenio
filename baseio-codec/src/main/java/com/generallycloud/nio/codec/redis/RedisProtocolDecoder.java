@@ -10,6 +10,7 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class RedisProtocolDecoder implements ProtocolDecoder{
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 		return new RedisReadFutureImpl(session.getContext());
 	}

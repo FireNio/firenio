@@ -32,6 +32,7 @@ public class TestListenSimple {
 		
 		session.listen(serviceKey,new OnReadFuture() {
 			
+			@Override
 			public void onResponse(SocketSession session, ReadFuture future) {
 				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println(f.getReadText());

@@ -33,6 +33,7 @@ public abstract class AbstractProductLine extends AbstractEventLoopThread implem
 	}
 
 	// TODO 处理剩下的message 和 receiver
+	@Override
 	protected void doStop() {
 	}
 
@@ -40,6 +41,7 @@ public abstract class AbstractProductLine extends AbstractEventLoopThread implem
 		return context;
 	}
 
+	@Override
 	public void pollMessage(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) {
 
 		if (attachment.getConsumer() != null) {
@@ -83,6 +85,7 @@ public abstract class AbstractProductLine extends AbstractEventLoopThread implem
 
 	protected abstract ConsumerQueue createConsumerQueue();
 
+	@Override
 	public void offerMessage(Message message) {
 
 		storage.offer(message);

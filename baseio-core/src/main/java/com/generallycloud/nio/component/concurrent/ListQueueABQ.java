@@ -15,14 +15,17 @@ public class ListQueueABQ<T> implements ListQueue<T> {
 		this.queue = new ArrayBlockingQueue<T>(capacity);
 	}
 	
+	@Override
 	public boolean offer(T object) {
 		return queue.offer(object);
 	}
 
+	@Override
 	public T poll() {
 		return queue.poll();
 	}
 
+	@Override
 	public T poll(long timeout) {
 		try {
 			return queue.poll(timeout, TimeUnit.MILLISECONDS);
@@ -32,6 +35,7 @@ public class ListQueueABQ<T> implements ListQueue<T> {
 		}
 	}
 
+	@Override
 	public int size() {
 		return queue.size();
 	}

@@ -1,5 +1,6 @@
 package com.generallycloud.nio.container.jms;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 
@@ -16,11 +17,13 @@ public class TextMessage extends BasicMessage{
 		return text;
 	}
 
+	@Override
 	public int getMsgType() {
 		return Message.TYPE_TEXT;
 	}
 	
 	
+	@Override
 	public String toString() {
 		return new StringBuilder(24)
 			.append("{\"msgType\":2,\"msgID\":\"")
@@ -48,7 +51,7 @@ public class TextMessage extends BasicMessage{
 		
 		TextMessage message = new TextMessage("mid","qname",null);
 		
-		System.out.println(JSONObject.toJSON(message).toString());
+		System.out.println(JSON.toJSON(message).toString());
 		System.out.println(message.toString());
 	}
 }

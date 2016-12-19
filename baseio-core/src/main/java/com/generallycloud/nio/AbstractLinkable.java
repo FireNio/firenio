@@ -10,14 +10,17 @@ public abstract class AbstractLinkable<T> implements Linkable<T>{
 		this.value = value;
 	}
 
+	@Override
 	public Linkable<T> getNext() {
 		return next;
 	}
 
+	@Override
 	public void setNext(Linkable<T> next) {
 		this.next = next;
 	}
 
+	@Override
 	public T getValue() {
 		return value;
 	}

@@ -6,10 +6,12 @@ public abstract class AbstractPooledByteBuf implements PooledByteBuf {
 	
 	protected int beginUnit;
 
+	@Override
 	public int getBeginUnit() {
 		return beginUnit;
 	}
 
+	@Override
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
 		return this;
 	}

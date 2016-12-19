@@ -27,6 +27,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 		this(1024 * 8);
 	}
 
+	@Override
 	public boolean offer(T object) {
 		if (!tryIncrementSize()) {
 			return false;
@@ -70,6 +71,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 		}
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public T poll() {
 
@@ -88,6 +90,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 		return (T) obj;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public T poll(long timeout) {
 
@@ -127,6 +130,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 		return (T) obj;
 	}
 
+	@Override
 	public int size() {
 		return _size.get();
 	}
@@ -140,6 +144,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 	
 	protected abstract int getAndIncrementEnd();
 	
+	@Override
 	public String toString() {
 		return MessageFormatter.format("capability {} , size {}", _capability,_real_size.get());
 	}

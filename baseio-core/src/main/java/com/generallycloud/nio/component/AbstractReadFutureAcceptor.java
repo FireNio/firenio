@@ -10,6 +10,7 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 
 	private Logger logger = LoggerFactory.getLogger(AbstractReadFutureAcceptor.class);
 	
+	@Override
 	public void accept(final SocketSession session, final ReadFuture future) throws Exception {
 
 		ChannelReadFuture f = (ChannelReadFuture) future;

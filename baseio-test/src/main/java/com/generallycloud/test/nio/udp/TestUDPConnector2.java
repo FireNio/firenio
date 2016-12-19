@@ -1,15 +1,5 @@
 package com.generallycloud.test.nio.udp;
 
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.DatagramChannelConnector;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.rtp.client.RTPClient;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
-
 public class TestUDPConnector2 {
 
 	public static void main(String[] args) throws Exception {

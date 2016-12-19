@@ -22,6 +22,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 
 	private Logger	logger		= LoggerFactory.getLogger(ConnectExecutable.class);
 	
+	@Override
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();

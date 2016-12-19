@@ -14,6 +14,7 @@ public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T
 		_end = new FixedAtomicInteger(_capability - 1);
 	}
 
+	@Override
 	public final int getAndIncrementEnd() {
 		return _end.getAndIncrement();
 	}

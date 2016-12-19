@@ -39,6 +39,7 @@ public class DataBaseContext extends AbstractLifeCycle {
 		return dataSource;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		if (dataSource == null) {
@@ -67,6 +68,7 @@ public class DataBaseContext extends AbstractLifeCycle {
 
 	private final String	ORACLE_DRIVER_CLASS	= "oracle.jdbc.driver.OracleDriver";
 
+	@Override
 	protected void doStop() throws Exception {
 		if (dataSource != null) {
 			dataSource.close();

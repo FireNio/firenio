@@ -10,6 +10,7 @@ public class TestExceptionServlet extends ProtobaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
 
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 		throw new IOException("测试啊");
 	}

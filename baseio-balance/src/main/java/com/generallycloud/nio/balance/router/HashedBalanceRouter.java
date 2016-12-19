@@ -13,14 +13,17 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	private NodeGroup	nodeGroup;
 
+	@Override
 	public void addRouterSession(BalanceReverseSocketSession session) {
 		nodeGroup.addMachine(session);
 	}
 
+	@Override
 	public void removeRouterSession(BalanceReverseSocketSession session) {
 		nodeGroup.removeMachine(session);
 	}
 
+	@Override
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, ReadFuture future) {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
@@ -28,6 +31,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 		return nodeGroup.getMachine(f.getHashCode());
 	}
 
+	@Override
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
 		return null;
 	}

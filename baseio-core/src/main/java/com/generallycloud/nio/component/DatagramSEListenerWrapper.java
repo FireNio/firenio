@@ -8,15 +8,18 @@ public class DatagramSEListenerWrapper extends AbstractLinkable<DatagramSessionE
 		super(value);
 	}
 
+	@Override
 	public void sessionOpened(DatagramSession session) {
 		getValue().sessionOpened(session);
 	}
 
+	@Override
 	public void sessionClosed(DatagramSession session) {
 		getValue().sessionClosed(session);
 
 	}
 
+	@Override
 	public void sessionIdled(DatagramSession session, long lastIdleTime, long currentTime) {
 		getValue().sessionIdled(session, lastIdleTime, currentTime);
 	}

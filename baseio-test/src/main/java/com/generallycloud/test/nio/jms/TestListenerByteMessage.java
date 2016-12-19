@@ -33,6 +33,7 @@ public class TestListenerByteMessage {
 
 		consumer.receive(new OnMessage() {
 			
+			@Override
 			public void onReceive(Message message) {
 				System.out.println(message);
 				if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {

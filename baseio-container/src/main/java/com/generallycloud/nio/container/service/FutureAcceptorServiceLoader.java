@@ -32,6 +32,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		this.classLoader = classLoader;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		Map<String, FutureAcceptorService> servlets = loadServlets(configuration, classLoader);
@@ -42,6 +43,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();
@@ -134,6 +136,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		return servlets;
 	}
 
+	@Override
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Servlet配置......");
@@ -163,6 +166,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		}
 	}
 
+	@Override
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
 		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();

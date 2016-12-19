@@ -9,6 +9,7 @@ public class MQSessionEventListener extends SocketSEListenerAdapter {
 
 	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
 
+	@Override
 	public void sessionOpened(SocketSession session) {
 		
 		MQContext context = MQContext.getInstance();
@@ -24,6 +25,7 @@ public class MQSessionEventListener extends SocketSEListenerAdapter {
 	}
 
 	// FIXME 移除该session上的consumer
+	@Override
 	public void sessionClosed(SocketSession session) {
 		
 		MQContext context = MQContext.getInstance();

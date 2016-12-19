@@ -6,14 +6,17 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class ProtobufProtocolFactory implements ProtocolFactory {
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return new ProtobufProtocolDecoder();
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new ProtobufProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return "Protobuf";
 	}

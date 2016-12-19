@@ -28,6 +28,7 @@ public class TestLinkAndArrayList {
 		
 		ITestHandle.doTest(new ITest() {
 			
+			@Override
 			public void test(int i1) throws Exception {
 				Node t = r;
 				for(;;){
@@ -54,6 +55,7 @@ public class TestLinkAndArrayList {
 		
 		ITestHandle.doTest(new ITest() {
 			
+			@Override
 			public void test(int i1) throws Exception {
 				ns[i1].hello();
 			}

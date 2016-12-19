@@ -46,6 +46,7 @@ public class AuthorityManager {
 		this.roleID = roleID;
 	}
 
+	@Override
 	protected AuthorityManager clone() {
 		AuthorityManager manager = new AuthorityManager();
 

@@ -6,11 +6,13 @@ import com.generallycloud.nio.common.ArrayUtil;
 
 public class SQLServerQueryParamUtil implements QueryParamUtil{
 
+	@Override
 	public Object[] page(int firstResult, int pageSize, Object[] params)
 			throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Object[] top(int size, Object[] params) throws SQLException {
 		if (params == null) {
 			return new Object[] { size };

@@ -35,10 +35,12 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		this.unitMemorySize = unitMemorySize;
 	}
 
+	@Override
 	public boolean isDirect() {
 		return isDirect;
 	}
 
+	@Override
 	public ByteBuf allocate(int limit) {
 		return allocate(bufFactory, limit);
 	}
@@ -69,6 +71,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		}
 	}
 	
+	@Override
 	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		
 		if (copyOld) {
@@ -106,6 +109,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
@@ -113,20 +117,24 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		reallocate(buf,limit,copyOld);
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit) {
 		reallocate(buf, limit, false);
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
 		reallocate(buf, limit, maxLimit, false);
 	}
 
+	@Override
 	public void freeMemory() {
 		bufFactory.freeMemory();
 	}
 
 	protected abstract PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int start, int end, int size);
 
+	@Override
 	protected void doStart() throws Exception {
 		
 		lock		= new ReentrantLock();
@@ -155,14 +163,17 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		return new HeapByteBufFactory();
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		this.freeMemory();
 	}
 
+	@Override
 	public int getCapacity() {
 		return capacity;
 	}
 
+	@Override
 	public int getUnitMemorySize() {
 		return unitMemorySize;
 	}
@@ -171,6 +182,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		bufFactory.initializeMemory(capacity);
 	}
 
+	@Override
 	public void release(ByteBuf buf) {
 
 		ReentrantLock lock = this.lock;
@@ -188,6 +200,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 
 	protected abstract void doRelease(ByteBufUnit beginUnit);
 
+	@Override
 	public String toString() {
 
 		busyUnit.clear();

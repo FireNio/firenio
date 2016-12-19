@@ -26,6 +26,7 @@ public class TestSimpleWebSocketClient {
 
 		IoEventHandleAdaptor adaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				if (future instanceof ClientHttpReadFuture) {
 					ClientHttpReadFuture f = (ClientHttpReadFuture) future;

@@ -10,6 +10,7 @@ public class FrontInterceptorImpl implements FrontInterceptor {
 		this.interceptorLimit = interceptorLimit;
 	}
 
+	@Override
 	public boolean intercept(FrontFacadeSocketSession session, BalanceReadFuture future) throws Exception {
 		return session.overfulfil(interceptorLimit);
 	}

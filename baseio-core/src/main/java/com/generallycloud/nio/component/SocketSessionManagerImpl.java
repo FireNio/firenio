@@ -25,11 +25,13 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		this.context = context;
 	}
 
+	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 		// FIXME throw
 		this.events.offer(event);
 	}
 
+	@Override
 	protected void fireSessionManagerEvent() {
 
 		SocketSessionManagerEvent event = events.poll();
@@ -49,6 +51,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		}
 	}
 
+	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
 		Map<Integer, SocketSession> map = sessions.getSnapshot();
@@ -86,6 +89,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		}
 	}
 
+	@Override
 	public void close() throws IOException {
 
 		Map<Integer, SocketSession> map = sessions.getSnapshot();
@@ -102,6 +106,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		}
 	}
 
+	@Override
 	public void putSession(SocketSession session) {
 
 		ReentrantMap<Integer, SocketSession> sessions = this.sessions;
@@ -118,14 +123,17 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		sessions.put(sessionID, session);
 	}
 
+	@Override
 	public void removeSession(SocketSession session) {
 		sessions.remove(session.getSessionID());
 	}
 
+	@Override
 	public int getManagedSessionSize() {
 		return sessions.size();
 	}
 
+	@Override
 	public SocketSession getSession(Integer sessionID) {
 		return sessions.get(sessionID);
 	}

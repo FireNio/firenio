@@ -19,6 +19,7 @@ public class LineBasedProtocolDecoder implements ProtocolDecoder {
 		this.limit = limit;
 	}
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		return new LineBasedReadFutureImpl(session.getContext(), limit);

@@ -71,6 +71,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		this.session = context.getSessionFactory().newUnsafeSession(this);
 	}
 
+	@Override
 	public void close() throws IOException {
 
 		ReentrantLock lock = this.channelLock;
@@ -103,6 +104,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 	
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}
@@ -111,6 +113,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		fireEvent(new SelectorLoopEventAdapter() {
 
+			@Override
 			public boolean handle(SelectorLoop selectLoop) throws IOException {
 
 				CloseUtil.close(NioSocketChannel.this);
@@ -120,6 +123,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		});
 	}
 
+	@Override
 	public boolean handle(SelectorLoop selectorLoop) throws IOException {
 
 		if (!isOpened()) {
@@ -151,10 +155,12 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return writeFutureLength;
 	}
 
+	@Override
 	public ChannelWriteFuture getWriteFuture() {
 		return writeFuture;
 	}
 
+	@Override
 	public InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
@@ -162,30 +168,37 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return local;
 	}
 
+	@Override
 	protected String getMarkPrefix() {
 		return "TCP";
 	}
 
+	@Override
 	public int getMaxIdleTime() throws SocketException {
 		return socket.getSoTimeout();
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return protocolDecoder;
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return protocolEncoder;
 	}
 
+	@Override
 	public ProtocolFactory getProtocolFactory() {
 		return protocolFactory;
 	}
 
+	@Override
 	public ChannelReadFuture getReadFuture() {
 		return readFuture;
 	}
 
+	@Override
 	public InetSocketAddress getRemoteSocketAddress() {
 		if (remote == null) {
 			remote = (InetSocketAddress) socket.getRemoteSocketAddress();
@@ -193,27 +206,33 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return remote;
 	}
 
+	@Override
 	public UnsafeSocketSession getSession() {
 		return session;
 	}
 
+	@Override
 	public int getWriteFutureSize() {
 		return writeFutures.size();
 	}
 
+	@Override
 	public boolean isBlocking() {
 		return channel.isBlocking();
 	}
 
+	@Override
 	public boolean isNetworkWeak() {
 		return networkWeak;
 	}
 
 	// FIXME 是否使用channel.isOpen()
+	@Override
 	public boolean isOpened() {
 		return opened;
 	}
 
+	@Override
 	public void offer(ChannelWriteFuture future) {
 
 		ReentrantLock lock = channelLock;
@@ -293,6 +312,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	// FIXME 这里有问题
+	@Override
 	public void physicalClose() {
 
 		this.enableInbound = false;
@@ -333,30 +353,37 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 
+	@Override
 	public int read(ByteBuffer buffer) throws IOException {
 		return this.channel.read(buffer);
 	}
 
+	@Override
 	public void setWriteFuture(ChannelWriteFuture future) {
 		this.writeFuture = future;
 	}
 
+	@Override
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
 		this.protocolDecoder = protocolDecoder;
 	}
 
+	@Override
 	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
 		this.protocolEncoder = protocolEncoder;
 	}
 
+	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
 	}
 
+	@Override
 	public void setReadFuture(ChannelReadFuture readFuture) {
 		this.readFuture = readFuture;
 	}
 
+	@Override
 	public void upNetworkState() {
 
 		if (next_network_weak != Long.MAX_VALUE) {
@@ -367,6 +394,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 	}
 
+	@Override
 	public void downNetworkState() {
 		
 		long current = System.currentTimeMillis();
@@ -391,30 +419,37 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		
 	}
 
+	@Override
 	public int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
 	}
 
+	@Override
 	public SslReadFuture getSslReadFuture() {
 		return sslReadFuture;
 	}
 
+	@Override
 	public void setSslReadFuture(SslReadFuture future) {
 		this.sslReadFuture = future;
 	}
 
+	@Override
 	public boolean needFlush() {
 		return writeFuture != null || writeFutures.size() > 0;
 	}
 
+	@Override
 	public void fireEvent(SelectorLoopEvent event) {
 		this.selectorLoop.fireEvent(event);
 	}
 
+	@Override
 	public boolean isPositive() {
 		return !isNetworkWeak();
 	}
 
+	@Override
 	public EventLoop getEventLoop() {
 		return eventLoop;
 	}

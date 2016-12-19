@@ -29,18 +29,22 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 
 	private static final Logger		logger				= LoggerFactory.getLogger(AbstractSelectorLoop.class);
 
+	@Override
 	public boolean isWaitForRegist() {
 		return isWaitForRegist;
 	}
 
+	@Override
 	public void setWaitForRegist(boolean isWaitForRegist) {
 		this.isWaitForRegist = isWaitForRegist;
 	}
 
+	@Override
 	public ReentrantLock getIsWaitForRegistLock() {
 		return isWaitForRegistLock;
 	}
 
+	@Override
 	public void setMainSelector(boolean isMainSelector) {
 		this.isMainSelector = isMainSelector;
 	}
@@ -81,22 +85,27 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		}
 	}
 
+	@Override
 	public boolean isMainSelector() {
 		return isMainSelector;
 	}
 
+	@Override
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
 	}
 
+	@Override
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
 	}
 
+	@Override
 	public Selector getSelector() {
 		return selector;
 	}
 
+	@Override
 	protected void doLoop() {
 
 		try {
@@ -148,16 +157,19 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		return selector;
 	}
 
+	@Override
 	public void rebuildSelector() {
 		this.selector = rebuildSelector0();
 	}
 
+	@Override
 	public void doStartup() throws IOException {
 		this.selector = buildSelector(selectableChannel);
 	}
 
 	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
 	// 执行stop的时候如果确保不会再有数据进来
+	@Override
 	protected void wakeupThread() {
 
 		super.wakeupThread();
@@ -165,10 +177,12 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		this.selector.wakeup();
 	}
 
+	@Override
 	public void wakeup() {
 		selector.wakeup();
 	}
 
+	@Override
 	public void fireEvent(SelectorLoopEvent event) {
 		
 		ReentrantLock lock = this.runLock;
@@ -191,10 +205,12 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		
 	}
 
+	@Override
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;
 	}
 
+	@Override
 	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
 		return null;
 	}

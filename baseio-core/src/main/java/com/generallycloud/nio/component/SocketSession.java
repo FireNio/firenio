@@ -30,6 +30,7 @@ public interface SocketSession extends Session {
 	
 	public abstract Object getAttachment(int index);
 	
+	@Override
 	public abstract SocketChannelContext getContext();
 	
 	public abstract String getProtocolID();

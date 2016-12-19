@@ -35,6 +35,7 @@ public class TestListener {
 
 		consumer.receive(new OnMessage() {
 
+			@Override
 			public void onReceive(Message message) {
 				System.out.println(message);
 			}

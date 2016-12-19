@@ -19,6 +19,7 @@ public class MQBrowserServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQBrowserServlet.class.getSimpleName();
 
+	@Override
 	public void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		Parameters param = future.getParameters();

@@ -52,6 +52,7 @@ public class DynamicClassLoader extends ClassLoader {
 		return entry.loadedClass;
 	}
 
+	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 		Class<?> clazz = findLoadedClass0(name);
@@ -73,6 +74,7 @@ public class DynamicClassLoader extends ClassLoader {
 		return clazz;
 	}
 
+	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 
 		Class<?> clazz = findLoadedClass0(name);
@@ -120,7 +122,7 @@ public class DynamicClassLoader extends ClassLoader {
 		try {
 			LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
 
-			Enumeration<JarEntry> entries = (Enumeration<JarEntry>) file.entries();
+			Enumeration<JarEntry> entries = file.entries();
 			for (; entries.hasMoreElements();) {
 				JarEntry entry = entries.nextElement();
 				if (!entry.isDirectory()) {

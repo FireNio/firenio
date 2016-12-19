@@ -79,6 +79,7 @@ public class Consumer {
 		return message;
 	}
 
+	@Override
 	public Consumer clone() {
 		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);

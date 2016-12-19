@@ -20,6 +20,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 	private boolean					stopping				= false;
 	private Comparator<LifeCycleListener>	lifeCycleListenerSorter	= new Comparator<LifeCycleListener>() {
 
+		@Override
 		public int compare(LifeCycleListener o1,
 				LifeCycleListener o2) {
 	
@@ -29,6 +30,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		}
 	};
 
+	@Override
 	public void addLifeCycleListener(LifeCycleListener listener) {
 		synchronized (lifeCycleListeners) {
 			lifeCycleListeners.add(listener);
@@ -113,30 +115,37 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		}
 	}
 
+	@Override
 	public boolean isFailed() {
 		return this.failed;
 	}
 
+	@Override
 	public boolean isRunning() {
 		return this.running;
 	}
 
+	@Override
 	public boolean isStarted() {
 		return this.running;
 	}
 
+	@Override
 	public boolean isStarting() {
 		return this.starting;
 	}
 
+	@Override
 	public boolean isStopped() {
 		return this.stopped;
 	}
 
+	@Override
 	public boolean isStopping() {
 		return this.stopping;
 	}
 
+	@Override
 	public void removeLifeCycleListener(LifeCycleListener listener) {
 		synchronized (lifeCycleListeners) {
 			lifeCycleListeners.remove(listener);
@@ -144,6 +153,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 		}
 	}
 
+	@Override
 	public void start() throws Exception {
 		
 		if (this.stopped != true && this.stopping != true) {
@@ -185,6 +195,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
 	}
 
+	@Override
 	public void stop(){
 		
 //		if (this.starting != true && this.running != true) {

@@ -34,6 +34,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 		this.buf = buf;
 	}
 
+	@Override
 	public boolean isSilent() {
 		return true;
 	}
@@ -69,6 +70,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 		return true;
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -87,6 +89,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 		return true;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}

@@ -12,6 +12,7 @@ public abstract class AbstractRedisReadFuture extends AbstractChannelReadFuture 
 
 	private BufferedOutputStream outputStream = new BufferedOutputStream();
 
+	@Override
 	public void writeCommand(byte[] command, byte[]... args) {
 
 		this.write(RedisReadFuture.BYTE_ARRAYS);
@@ -44,6 +45,7 @@ public abstract class AbstractRedisReadFuture extends AbstractChannelReadFuture 
 		outputStream.write(b);
 	}
 
+	@Override
 	public BufferedOutputStream getBufferedOutputStream() {
 		return outputStream;
 	}

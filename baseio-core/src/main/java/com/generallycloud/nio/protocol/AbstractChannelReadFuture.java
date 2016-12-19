@@ -19,38 +19,46 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 	
 	protected boolean isSilent;
 
+	@Override
 	public void flush() {
 		flushed = true;
 	}
 
+	@Override
 	public boolean isHeartbeat() {
 		return isHeartbeat;
 	}
 
+	@Override
 	public boolean isPING() {
 		return isHeartbeat && isPING;
 	}
 
+	@Override
 	public boolean isPONG() {
 		return isHeartbeat && isPONG;
 	}
 
+	@Override
 	public ChannelReadFuture setPING() {
 		this.isPING = true;
 		this.isHeartbeat = true;
 		return this;
 	}
 
+	@Override
 	public ChannelReadFuture setPONG() {
 		this.isPONG = true;
 		this.isHeartbeat = true;
 		return this;
 	}
 	
+	@Override
 	public boolean isSilent() {
 		return isSilent;
 	}
 
+	@Override
 	public void setSilent(boolean isSilent) {
 		this.isSilent = isSilent;
 	}
@@ -59,6 +67,7 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 		return session.getByteBufAllocator().allocate(capacity);
 	}
 
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}

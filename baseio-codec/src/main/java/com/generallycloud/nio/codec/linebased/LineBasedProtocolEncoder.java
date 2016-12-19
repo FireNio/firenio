@@ -16,6 +16,7 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 	private byte	lineBase	= '\n';
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 
 		LineBasedReadFuture f = (LineBasedReadFuture) future;

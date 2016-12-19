@@ -8,6 +8,7 @@ public class MySQLQuery extends AbstractQuery {
 	private final String LIMITTOP = " LIMIT 0,?";
 
 
+	@Override
 	public String getPagingSQL(String sql) {
 		return new StringBuilder(sql.length() + 10)
 			.append(sql)
@@ -23,6 +24,7 @@ public class MySQLQuery extends AbstractQuery {
 //			.toString();
 //	}
 
+	@Override
 	public String getTopSQL(String sql) {
 		return new StringBuilder(sql.length() + 10)
 			.append(sql)
@@ -30,6 +32,7 @@ public class MySQLQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@Override
 	@SuppressWarnings("serial")
 	void setSys_fields() {
 		sys_fields = new HashMap<String, String>() {

@@ -20,6 +20,7 @@ public class TestSubscribe {
 
 			new Thread(new Runnable() {
 
+				@Override
 				public void run() {
 					try {
 						TestSubscribe.test();
@@ -47,6 +48,7 @@ public class TestSubscribe {
 
 		consumer.subscribe(new OnMessage() {
 
+			@Override
 			public void onReceive(Message message) {
 				System.out.println(message);
 			}

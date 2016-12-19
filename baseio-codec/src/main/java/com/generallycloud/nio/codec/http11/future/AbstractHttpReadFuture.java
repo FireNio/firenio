@@ -75,6 +75,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		this.request_headers = new HashMap<String, String>();
 	}
 
+	@Override
 	public void addCookie(Cookie cookie) {
 
 		if (cookieList == null) {
@@ -106,62 +107,77 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 
 	}
 
+	@Override
 	public String getBoundary() {
 		return boundary;
 	}
 
+	@Override
 	public int getContentLength() {
 		return contentLength;
 	}
 
+	@Override
 	public String getContentType() {
 		return contentType;
 	}
 
+	@Override
 	public String getCookie(String name) {
 		return cookies.get(name);
 	}
 
+	@Override
 	public List<Cookie> getCookieList() {
 		return cookieList;
 	}
 
+	@Override
 	public String getHost() {
 		return host;
 	}
 
+	@Override
 	public String getMethod() {
 		return method;
 	}
 
+	@Override
 	public byte[] getBodyContent() {
 		return bodyArray;
 	}
 
+	@Override
 	public boolean hasBodyContent() {
 		return hasBodyContent;
 	}
 
+	@Override
 	public String getRequestParam(String key) {
 		return params.get(key);
 	}
 
+	@Override
 	public Map<String, String> getRequestParams() {
 		return params;
 	}
 
+	@Override
 	public String getRequestURI() {
 		return requestURI;
 	}
 
+	@Override
 	public String getFutureName() {
 		return getRequestURI();
 	}
 
+	@Override
 	public HttpStatus getStatus() {
 		return status;
 	}
 
+	@Override
 	public String getVersion() {
 		return version;
 	}
@@ -271,6 +287,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		}
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!header_complete) {
@@ -324,10 +341,12 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		return true;
 	}
 
+	@Override
 	public void setRequestParams(Map<String, String> params) {
 		this.params = params;
 	}
 
+	@Override
 	public void setReuestParam(String key, String value) {
 		if (params == null) {
 			params = new HashMap<String, String>();
@@ -336,10 +355,12 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		this.params.put(key, value);
 	}
 
+	@Override
 	public void setStatus(HttpStatus status) {
 		this.status = status;
 	}
 
+	@Override
 	public void flush() {
 
 		if (updateWebSocketProtocol) {
@@ -364,6 +385,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 
 	private boolean							updateWebSocketProtocol;
 
+	@Override
 	public void updateWebSocketProtocol() {
 
 		String Sec_WebSocket_Key = getRequestHeader("Sec-WebSocket-Key");
@@ -389,6 +411,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		throw new IllegalArgumentException("illegal http header : empty Sec-WebSocket-Key");
 	}
 
+	@Override
 	public void release() {
 
 	}
@@ -397,6 +420,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		return contentLength > 0;
 	}
 
+	@Override
 	public String getRequestHeader(String name) {
 
 		if (StringUtil.isNullOrBlank(name)) {
@@ -406,6 +430,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		return request_headers.get(name.toLowerCase());
 	}
 
+	@Override
 	public void setRequestHeader(String name, String value) {
 		if (StringUtil.isNullOrBlank(name)) {
 			return;
@@ -418,6 +443,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		request_headers.put(name.toLowerCase(), value);
 	}
 
+	@Override
 	public void setResponseHeader(String name, String value) {
 		if (response_headers == null) {
 			response_headers = new HashMap<String, String>();
@@ -428,10 +454,12 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 
 	protected abstract void setDefaultResponseHeaders(Map<String, String> headers);
 
+	@Override
 	public Map<String, String> getRequestHeaders() {
 		return request_headers;
 	}
 
+	@Override
 	public Map<String, String> getResponseHeaders() {
 		if (response_headers == null) {
 			response_headers = new HashMap<String, String>();
@@ -440,18 +468,22 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		return response_headers;
 	}
 
+	@Override
 	public void setRequestHeaders(Map<String, String> headers) {
 		this.request_headers = headers;
 	}
 
+	@Override
 	public void setResponseHeaders(Map<String, String> headers) {
 		this.response_headers = headers;
 	}
 
+	@Override
 	public String getRequestURL() {
 		return requestURL;
 	}
 
+	@Override
 	public void setRequestURL(String url) {
 		this.requestURL = url;
 
@@ -493,6 +525,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		}
 	}
 
+	@Override
 	public void writeBinary(byte[] binary) {
 		if (binaryBuffer == null) {
 			binaryBuffer = new BufferedOutputStream(binary);
@@ -501,12 +534,14 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		binaryBuffer.write(binary);
 	}
 
+	@Override
 	public BufferedOutputStream getBinaryBuffer() {
 		return binaryBuffer;
 	}
 	
 	private MapParameters mapParameters = null;
 
+	@Override
 	public Parameters getParameters() {
 		if (mapParameters == null) {
 			mapParameters = new MapParameters(getRequestParams());

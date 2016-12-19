@@ -23,6 +23,7 @@ public class TestLoadServer {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				HttpReadFuture f = (HttpReadFuture) future;
 
@@ -43,6 +44,7 @@ public class TestLoadServer {
 //				System.out.println("req======================"+req.getAndIncrement());
 			}
 			
+			@Override
 			public void futureSent(SocketSession session, ReadFuture future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());

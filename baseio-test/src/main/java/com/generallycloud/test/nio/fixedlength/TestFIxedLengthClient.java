@@ -24,6 +24,7 @@ public class TestFIxedLengthClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;

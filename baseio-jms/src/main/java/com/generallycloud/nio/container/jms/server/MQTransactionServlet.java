@@ -8,6 +8,7 @@ public class MQTransactionServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQTransactionServlet.class.getSimpleName();
 
+	@Override
 	public void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		String action = future.getReadText();

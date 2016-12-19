@@ -121,6 +121,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		buf.reallocate(length, limit);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf src) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -182,26 +183,32 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		return true;
 	}
 
+	@Override
 	public String getFutureName() {
 		return serviceName;
 	}
 
+	@Override
 	public boolean isEof() {
 		return eof;
 	}
 
+	@Override
 	public int getType() {
 		return type;
 	}
 
+	@Override
 	public int getLength() {
 		return length;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public byte[] getByteArray() {
 		return byteArray;
 	}

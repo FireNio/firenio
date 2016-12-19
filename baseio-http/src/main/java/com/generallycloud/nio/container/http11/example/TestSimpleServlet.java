@@ -8,6 +8,7 @@ public class TestSimpleServlet extends HttpFutureAcceptorService {
 	
 //	private Logger	logger	= LoggerFactory.getLogger(TestSimpleServlet.class);
 
+	@Override
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 //		System.out.println();
 //		logger.info(future.getHost());

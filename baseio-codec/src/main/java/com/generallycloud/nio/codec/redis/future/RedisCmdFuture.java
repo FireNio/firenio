@@ -12,13 +12,16 @@ public class RedisCmdFuture extends AbstractRedisReadFuture {
 		super(context);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 		return true;
 	}
 
+	@Override
 	public void release() {
 	}
 
+	@Override
 	public RedisNode getRedisNode() {
 		return null;
 	}

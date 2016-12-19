@@ -42,6 +42,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!isComplete) {
@@ -60,18 +61,22 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 		return true;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public boolean isSilent() {
 		return true;
 	}
 
+	@Override
 	public Http2FrameType getHttp2FrameType() {
 		return Http2FrameType.FRAME_TYPE_SETTINGS;
 	}
 
+	@Override
 	public long[] getSettings() {
 		return settings;
 	}

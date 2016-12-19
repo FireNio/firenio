@@ -15,6 +15,7 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService{
 	
 //	private AtomicInteger size = new AtomicInteger();
 
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 //		accept.getAndIncrement();

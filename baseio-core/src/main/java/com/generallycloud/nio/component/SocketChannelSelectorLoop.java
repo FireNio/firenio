@@ -58,6 +58,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME 使用direct
 	}
 
+	@Override
 	public void accept(SelectionKey selectionKey) {
 
 		if (!selectionKey.isValid()) {
@@ -112,6 +113,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	protected abstract void acceptPrepare(SelectionKey selectionKey) throws IOException;
 
+	@Override
 	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
@@ -128,6 +130,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		return channel;
 	}
 	
+	@Override
 	public void doStartup() throws IOException {
 		
 		if (eventLoop instanceof LineEventLoop) {
@@ -137,6 +140,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		super.doStartup();
 	}
 
+	@Override
 	protected void doStop() {
 		
 		ReentrantLock lock = this.runLock;
@@ -161,6 +165,7 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}

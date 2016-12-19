@@ -13,6 +13,7 @@ public class LoggerFilter extends FutureAcceptorFilter {
 
 	private Logger logger = LoggerFactory.getLogger(LoggerFilter.class);
 
+	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 
 		String futureName = future.getFutureName();

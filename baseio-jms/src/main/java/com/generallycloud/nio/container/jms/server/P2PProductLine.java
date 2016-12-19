@@ -15,11 +15,13 @@ public class P2PProductLine extends AbstractProductLine {
 		super(context);
 	}
 
+	@Override
 	protected ConsumerQueue createConsumerQueue() {
 		return new P2PConsumerQueue();
 	}
 
 	// FIXME 完善消息匹配机制
+	@Override
 	public void doLoop() {
 
 		Message message = storage.poll(16);

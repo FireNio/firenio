@@ -21,6 +21,7 @@ public class ProtobufProtocolDecoder implements ProtocolDecoder {
 		this.limit = limit;
 	}
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = session.getByteBufAllocator().allocate(ProtobaseProtocolDecoder.PROTOCOL_HEADER);

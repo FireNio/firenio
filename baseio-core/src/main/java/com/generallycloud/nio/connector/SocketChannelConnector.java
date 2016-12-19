@@ -26,6 +26,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		this.context = context;
 	}
 
+	@Override
 	public SocketSession connect() throws IOException {
 
 		this.waiter = new Waiter<Object>();
@@ -37,6 +38,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		return getSession();
 	}
 
+	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
 
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
@@ -80,22 +82,27 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		}
 	}
 	
+	@Override
 	protected boolean canSafeClose() {
 		return session == null || (!session.inSelectorLoop() && !session.getEventLoop().inEventLoop());
 	}
 
+	@Override
 	protected void fireSessionOpend() {
 		session.fireOpend();
 	}
 
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}
 
+	@Override
 	public SocketSession getSession() {
 		return session;
 	}
 
+	@Override
 	protected void initselectableChannel() throws IOException {
 
 		this.selectableChannel = SocketChannel.open();
@@ -103,6 +110,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		this.selectableChannel.configureBlocking(false);
 	}
 
+	@Override
 	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
 		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
 	}

@@ -27,6 +27,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		this.buf.nioBuffer();
 	}
 
+	@Override
 	public void onException(SocketSession session, Exception e) {
 
 		ReadFuture readFuture = this.getReadFuture();
@@ -42,6 +43,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		}
 	}
 
+	@Override
 	public void onSuccess(SocketSession session) {
 
 		ReadFuture readFuture = this.getReadFuture();
@@ -57,6 +59,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		}
 	}
 
+	@Override
 	public boolean write(SocketChannel channel) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -66,6 +69,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		return !buf.hasRemaining();
 	}
 
+	@Override
 	public ReadFuture getReadFuture() {
 		return readFuture;
 	}
@@ -74,34 +78,42 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		this.readFuture = readFuture;
 	}
 
+	@Override
 	public String toString() {
 		return readFuture.toString();
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public ChannelWriteFuture duplicate() {
 		return duplicate(readFuture);
 	}
 	
+	@Override
 	public ChannelWriteFuture duplicate(ReadFuture future) {
 		return new ChannelWriteFutureImpl(future, buf.duplicate());
 	}
 
+	@Override
 	public Linkable<ChannelWriteFuture> getNext() {
 		return next;
 	}
 
+	@Override
 	public void setNext(Linkable<ChannelWriteFuture> next) {
 		this.next = next;
 	}
 
+	@Override
 	public ChannelWriteFuture getValue() {
 		return this;
 	}
 
+	@Override
 	public void wrapSSL(SocketSession session, SslHandler handler) throws IOException {
 
 		ByteBuf old = this.buf;
@@ -123,6 +135,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		}
 	}
 
+	@Override
 	public int getBinaryLength() {
 		return buf.limit();
 	}

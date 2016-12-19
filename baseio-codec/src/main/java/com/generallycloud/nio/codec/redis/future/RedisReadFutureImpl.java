@@ -26,6 +26,7 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture {
 //		this.complete		= false;
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (complete) {
@@ -169,10 +170,12 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture {
 		
 	}
 
+	@Override
 	public void release() {
 
 	}
 
+	@Override
 	public RedisNode getRedisNode() {
 		return rootNode;
 	}

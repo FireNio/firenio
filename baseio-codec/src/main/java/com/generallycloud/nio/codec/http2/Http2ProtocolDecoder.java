@@ -88,6 +88,7 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
 
 	public static final int	PROTOCOL_PONG			= -2;
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;

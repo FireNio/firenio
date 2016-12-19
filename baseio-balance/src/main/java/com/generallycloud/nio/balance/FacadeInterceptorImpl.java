@@ -8,6 +8,7 @@ public class FacadeInterceptorImpl implements FacadeInterceptor{
 		this.interceptorLimit = interceptorLimit;
 	}
 
+	@Override
 	public boolean intercept(BalanceFacadeSocketSession session, BalanceReadFuture future) throws Exception {
 		
 		return session.overfulfil(interceptorLimit);

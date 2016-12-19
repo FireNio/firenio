@@ -18,6 +18,7 @@ public class FrontFacadeAcceptorHandler extends IoEventHandleAdaptor {
 		this.frontInterceptor = context.getFrontInterceptor();
 	}
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		FrontFacadeSocketSession fs = (FrontFacadeSocketSession) session;

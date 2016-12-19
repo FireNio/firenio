@@ -6,10 +6,12 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class LineBasedBeatFutureFactory implements BeatFutureFactory{
 
+	@Override
 	public ReadFuture createPINGPacket(SocketSession session) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public ReadFuture createPONGPacket(SocketSession session) {
 		throw new UnsupportedOperationException();
 	}

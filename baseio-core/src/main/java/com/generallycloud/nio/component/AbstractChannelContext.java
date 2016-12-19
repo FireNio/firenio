@@ -20,6 +20,7 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	protected long							startupTime	;
 	protected Sequence							sequence		;
 
+	@Override
 	public MCByteBufAllocator getMcByteBufAllocator() {
 		return mcByteBufAllocator;
 	}
@@ -41,50 +42,62 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 		this.addLifeCycleListener(new ChannelContextListener());
 	}
 
+	@Override
 	public void clearAttributes() {
 		this.attributes.clear();
 	}
 
+	@Override
 	public Object getAttribute(Object key) {
 		return this.attributes.get(key);
 	}
 
+	@Override
 	public Set<Object> getAttributeNames() {
 		return this.attributes.keySet();
 	}
 
+	@Override
 	public Charset getEncoding() {
 		return encoding;
 	}
 
+	@Override
 	public ServerConfiguration getServerConfiguration() {
 		return serverConfiguration;
 	}
 
+	@Override
 	public Object removeAttribute(Object key) {
 		return this.attributes.remove(key);
 	}
 
+	@Override
 	public void setAttribute(Object key, Object value) {
 		this.attributes.put(key, value);
 	}
 
+	@Override
 	public Sequence getSequence() {
 		return sequence;
 	}
 
+	@Override
 	public long getSessionIdleTime() {
 		return sessionIdleTime;
 	}
 
+	@Override
 	public long getStartupTime() {
 		return startupTime;
 	}
 
+	@Override
 	public ChannelService getChannelService() {
 		return channelService;
 	}
 
+	@Override
 	public void setChannelService(ChannelService channelService) {
 		this.channelService = channelService;
 	}

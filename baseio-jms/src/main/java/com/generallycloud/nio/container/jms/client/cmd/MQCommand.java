@@ -29,6 +29,7 @@ public class MQCommand extends Command {
 		command.execute(context);
 	}
 
+	@Override
 	public void printPrefix(CommandContext context) {
 
 		SocketChannelConnector connector = (SocketChannelConnector) context.getAttribute("KEY_CONNECTOR");
@@ -40,6 +41,7 @@ public class MQCommand extends Command {
 		}
 	}
 
+	@Override
 	public CmdResponse doHelp(CommandContext context, HashMap<String, String> params) {
 
 		return helpExecutable.exec(context, params);

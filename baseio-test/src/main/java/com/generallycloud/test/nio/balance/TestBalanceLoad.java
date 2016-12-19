@@ -19,6 +19,7 @@ public class TestBalanceLoad {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
 				ProtobaseReadFuture f = (ProtobaseReadFuture)future;

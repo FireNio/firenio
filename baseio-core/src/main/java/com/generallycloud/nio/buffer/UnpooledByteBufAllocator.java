@@ -14,14 +14,17 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		return allocator;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 	}
 
+	@Override
 	public ByteBuf allocate(int capacity) {
 		return new UnpooledHeapByteBuf(new byte[capacity]);
 	}
@@ -62,6 +65,7 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 			this.referenceCount = 1;
 		}
 
+		@Override
 		public void doRelease() {
 			this.memory = null;
 		}
@@ -69,6 +73,7 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		/**
 		 * NOTICE 该方法非线程安全
 		 */
+		@Override
 		public ByteBuf doDuplicate() {
 
 			UnpooledHeapByteBuf buf = new UnpooledHeapByteBuf(memory);
@@ -80,6 +85,7 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 			return new DuplicateByteBuf(buf, this);
 		}
 
+		@Override
 		public void reallocate(int limit) {
 			ReleaseUtil.release(this);
 			this.memory = new byte[limit];
@@ -106,6 +112,7 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		/**
 		 * NOTICE 该方法非线程安全
 		 */
+		@Override
 		protected ByteBuf doDuplicate() {
 
 			UnpooledDirectByteBuf buf = new UnpooledDirectByteBuf(memory.duplicate());
@@ -118,10 +125,12 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 			return new DuplicateByteBuf(buf, this);
 		}
 
+		@Override
 		protected void doRelease() {
 			ByteBufferUtil.release(memory);
 		}
 
+		@Override
 		public void reallocate(int limit) {
 			ReleaseUtil.release(this);
 			this.memory = ByteBuffer.allocateDirect(limit);
@@ -132,38 +141,47 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		}
 	}
 
+	@Override
 	public void release(ByteBuf buf) {
 
 	}
 
+	@Override
 	public int getUnitMemorySize() {
 		return 0;
 	}
 
+	@Override
 	public void freeMemory() {
 
 	}
 
+	@Override
 	public int getCapacity() {
 		return 0;
 	}
 
+	@Override
 	public boolean isDirect() {
 		return false;
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}

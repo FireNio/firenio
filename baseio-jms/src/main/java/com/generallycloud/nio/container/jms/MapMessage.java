@@ -2,6 +2,7 @@ package com.generallycloud.nio.container.jms;
 
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.StringUtil;
@@ -74,6 +75,7 @@ public class MapMessage extends BasicMessage implements MappedMessage{
 		return value;
 	}
 
+	@Override
 	public int getMsgType() {
 		return Message.TYPE_MAP;
 	}
@@ -104,15 +106,18 @@ public class MapMessage extends BasicMessage implements MappedMessage{
 		return map.toJSONString();
 	}
 
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void put(Map value){
 		this.map.putAll(value);
 	}
 
+	@Override
 	public void put(String key,Object value){
 		this.map.put(key, value);
 	}
 
+	@Override
 	public String toString() {
 		return new StringBuilder(24)
 			.append("{\"msgType\":4,\"msgID\":\"")
@@ -138,7 +143,7 @@ public class MapMessage extends BasicMessage implements MappedMessage{
 		
 		System.out.println(str);
 		
-		JSONObject.parseObject(str);
+		JSON.parseObject(str);
 		
 		System.out.println();
 		

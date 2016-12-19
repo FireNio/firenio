@@ -10,7 +10,7 @@ import com.generallycloud.nio.component.SocketSession;
 public class ReadFutureFactory {
 
 	public static ProtobaseReadFuture create(SocketSession session, ProtobaseReadFuture future) {
-		ProtobaseReadFuture readFuture = (ProtobaseReadFuture) future;
+		ProtobaseReadFuture readFuture = future;
 		return create(session, readFuture.getFutureID(), readFuture.getFutureName(), readFuture.getIOEventHandle());
 	}
 

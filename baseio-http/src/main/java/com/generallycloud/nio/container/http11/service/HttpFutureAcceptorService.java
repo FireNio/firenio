@@ -13,6 +13,7 @@ public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 	
 	private HttpContext		context	= HttpContext.getInstance();
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		HttpSessionManager manager = context.getHttpSessionManager();
@@ -26,6 +27,7 @@ public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 
 	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
 
+	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		
 		if (state == IoEventState.HANDLE) {

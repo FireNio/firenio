@@ -14,6 +14,7 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 		
 		SocketChannelContext context = session.getContext();
@@ -33,6 +34,7 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 			this.context = context;
 		}
 
+		@Override
 		public void run() {
 
 			ThreadUtil.sleep(500);

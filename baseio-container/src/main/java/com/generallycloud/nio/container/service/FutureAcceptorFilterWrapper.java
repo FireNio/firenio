@@ -17,6 +17,7 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 		this.setConfig(config);
 	}
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 	
 		this.filter.accept(session, future);
@@ -40,46 +41,57 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 		next.getValue().accept(session, future);
 	}
 
+	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 		this.filter.accept(session, future);
 	}
 
+	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		this.filter.exceptionCaught(session, future, cause, state);
 	}
 
+	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {
 		this.filter.futureSent(session, future);
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		this.filter.destroy(context, config);
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		this.filter.initialize(context, config);
 	}
 
+	@Override
 	public String toString() {
 		return "Warpper(" + this.filter.toString() + ")";
 	}
 
+	@Override
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 		filter.prepare(context, config);
 	}
 
+	@Override
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 		filter.unload(context, config);
 	}
 
+	@Override
 	public Linkable<FutureAcceptorFilter> getNext() {
 		return nextFilter;
 	}
 
+	@Override
 	public void setNext(Linkable<FutureAcceptorFilter> next) {
 		this.nextFilter = next;
 	}
 
+	@Override
 	public FutureAcceptorFilter getValue() {
 		return this;
 	}

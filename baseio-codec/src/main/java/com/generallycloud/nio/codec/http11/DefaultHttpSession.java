@@ -31,35 +31,43 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 		this.sessionID = sessionID;
 	}
 
+	@Override
 	public void active(SocketSession ioSession) {
 		this.ioSession = ioSession;
 		this.lastAccessTime = System.currentTimeMillis();
 	}
 
+	@Override
 	public void flush(ReadFuture future) throws IOException {
 		ioSession.flush(future);
 	}
 
+	@Override
 	public long getCreateTime() {
 		return createTime;
 	}
 
+	@Override
 	public SocketSession getIoSession() {
 		return ioSession;
 	}
 
+	@Override
 	public long getLastAccessTime() {
 		return lastAccessTime;
 	}
 
+	@Override
 	public String getSessionID() {
 		return sessionID;
 	}
 
+	@Override
 	public boolean isValidate() {
 		return System.currentTimeMillis() - lastAccessTime < 1000 * 60 * 30;
 	}
 
+	@Override
 	public HttpContext getContext() {
 		return context;
 	}

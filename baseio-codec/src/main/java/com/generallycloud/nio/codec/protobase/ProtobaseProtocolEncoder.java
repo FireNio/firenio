@@ -19,6 +19,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 	private static final byte [] EMPTY_ARRAY = EmptyByteBuf.EMPTY_BYTEBUF.array();
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 
 		if (readFuture.isHeartbeat()) {

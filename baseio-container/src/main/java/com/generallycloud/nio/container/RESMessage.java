@@ -1,5 +1,6 @@
 package com.generallycloud.nio.container;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class RESMessage {
@@ -63,6 +64,7 @@ public class RESMessage {
 
 	private String	string	;
 
+	@Override
 	public String toString() {
 		if (string == null) {
 
@@ -75,7 +77,7 @@ public class RESMessage {
 							.append(description).append("\"}").toString();
 				}
 			} else {
-				string = JSONObject.toJSONString(this);
+				string = JSON.toJSONString(this);
 			}
 		}
 		return string;

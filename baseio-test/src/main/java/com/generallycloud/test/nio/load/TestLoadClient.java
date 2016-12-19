@@ -34,6 +34,7 @@ public class TestLoadClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				latch.countDown();
 				long count = latch.getCount();
@@ -45,6 +46,7 @@ public class TestLoadClient {
 //				logger.info("res==========={}",res.getAndIncrement());
 			}
 			
+			@Override
 			public void futureSent(SocketSession session, ReadFuture future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());

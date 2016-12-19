@@ -9,6 +9,7 @@ public class MQProducerServlet extends MQServlet {
 
 	public static final String	SERVICE_NAME	= MQProducerServlet.class.getSimpleName();
 
+	@Override
 	public void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) throws Exception {
 
 		MQContext context = getMQContext();

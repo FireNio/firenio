@@ -14,6 +14,7 @@ public class ProviderFactory {
 
 	static class FontProviderFromDisk implements FontProvider {
 
+		@Override
 		public String getFont(String name) {
 			return "DISK:" + name;
 		}

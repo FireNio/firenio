@@ -52,6 +52,7 @@ public class Role{
 		this.description = description;
 	}
 	
+	@Override
 	public String toString() {
 		return MessageFormatter.format("[id:{},name:{}]", roleID,roleName);
 	}

@@ -14,6 +14,7 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
 
 	public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 		FileSendUtil fileSendUtil = new FileSendUtil();
 

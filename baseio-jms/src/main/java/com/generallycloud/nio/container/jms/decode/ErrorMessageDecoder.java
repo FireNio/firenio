@@ -6,6 +6,7 @@ import com.generallycloud.nio.container.jms.Message;
 
 public class ErrorMessageDecoder implements MessageDecoder{
 
+	@Override
 	public Message decode(ProtobaseReadFuture future) {
 		return new ErrorMessage(future.getParameters().getIntegerParameter("code"));
 	}

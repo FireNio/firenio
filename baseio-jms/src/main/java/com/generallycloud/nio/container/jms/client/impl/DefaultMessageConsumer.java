@@ -25,6 +25,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 		this.session = session;
 	}
 
+	@Override
 	public boolean beginTransaction() throws MQException {
 		return transactionVal("begin");
 	}
@@ -57,19 +58,23 @@ public class DefaultMessageConsumer implements MessageConsumer {
 		}
 	}
 
+	@Override
 	public boolean commit() throws MQException {
 		return transactionVal("commit");
 	}
 
+	@Override
 	public boolean rollback() throws MQException {
 		return transactionVal("rollback");
 	}
 
+	@Override
 	public void receive(OnMessage onMessage) throws MQException {
 
 		sendReceiveCommandCallback(onMessage);
 	}
 
+	@Override
 	public void subscribe(OnMessage onMessage) throws MQException {
 
 		sendSubscribeCommandCallback(onMessage);

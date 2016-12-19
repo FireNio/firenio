@@ -18,6 +18,7 @@ public class RoleManager extends InitializeableImpl {
 
 	private AuthorityManager				guestAuthorityManager	;
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		ApplicationConfiguration configuration = context.getConfiguration();

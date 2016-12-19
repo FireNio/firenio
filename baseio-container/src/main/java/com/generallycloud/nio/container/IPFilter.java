@@ -14,6 +14,7 @@ public class IPFilter extends SocketSEListenerAdapter{
 		this.blackIPs = blackIPs;
 	}
 
+	@Override
 	public void sessionOpened(SocketSession session) {
 		if (!blackIPs.contains(session.getRemoteAddr())) {
 			CloseUtil.close(session);

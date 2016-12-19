@@ -8,6 +8,7 @@ import com.generallycloud.nio.common.cmd.CommandContext;
 @Deprecated
 public class HelpExecutable extends MQCommandExecutor {
 
+	@Override
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();

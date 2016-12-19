@@ -1,5 +1,6 @@
 package com.generallycloud.nio.component;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.common.StringUtil;
@@ -13,7 +14,7 @@ public class JsonParameters implements Parameters {
 	public JsonParameters(String json) {
 		if (!StringUtil.isNullOrBlank(json)) {
 			try {
-				object = JSONObject.parseObject(json);
+				object = JSON.parseObject(json);
 			} catch (Exception e) {
 				throw new IllegalArgumentException(json, e);
 			}
@@ -27,6 +28,7 @@ public class JsonParameters implements Parameters {
 		this.object = object;
 	}
 
+	@Override
 	public boolean getBooleanParameter(String key) {
 		if (object == null) {
 			return false;
@@ -34,10 +36,12 @@ public class JsonParameters implements Parameters {
 		return object.getBooleanValue(key);
 	}
 
+	@Override
 	public int getIntegerParameter(String key) {
 		return getIntegerParameter(key, 0);
 	}
 
+	@Override
 	public int getIntegerParameter(String key, int defaultValue) {
 		if (object == null) {
 			return defaultValue;
@@ -49,10 +53,12 @@ public class JsonParameters implements Parameters {
 		return value;
 	}
 
+	@Override
 	public long getLongParameter(String key) {
 		return getLongParameter(key, 0);
 	}
 
+	@Override
 	public long getLongParameter(String key, long defaultValue) {
 		if (object == null) {
 			return defaultValue;
@@ -64,6 +70,7 @@ public class JsonParameters implements Parameters {
 		return value;
 	}
 
+	@Override
 	public Object getObjectParameter(String key) {
 		if (object == null) {
 			return null;
@@ -71,10 +78,12 @@ public class JsonParameters implements Parameters {
 		return object.get(key);
 	}
 
+	@Override
 	public String getParameter(String key) {
 		return getParameter(key, null);
 	}
 
+	@Override
 	public String getParameter(String key, String defaultValue) {
 		if (object == null) {
 			return defaultValue;
@@ -86,6 +95,7 @@ public class JsonParameters implements Parameters {
 		return value;
 	}
 
+	@Override
 	public String toString() {
 		if (json == null) {
 			json = object.toJSONString();
@@ -93,14 +103,17 @@ public class JsonParameters implements Parameters {
 		return json;
 	}
 
+	@Override
 	public JSONObject getJSONObject(String key) {
 		return object.getJSONObject(key);
 	}
 
+	@Override
 	public JSONArray getJSONArray(String key) {
 		return object.getJSONArray(key);
 	}
 
+	@Override
 	public int size() {
 		return object.size();
 	}

@@ -63,6 +63,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!isComplete) {
@@ -81,26 +82,32 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 		return true;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public boolean isSilent() {
 		return !endStream;
 	}
 
+	@Override
 	public Http2FrameType getHttp2FrameType() {
 		return Http2FrameType.FRAME_TYPE_HEADERS;
 	}
 
+	@Override
 	public boolean isE() {
 		return e;
 	}
 
+	@Override
 	public int getStreamDependency() {
 		return streamDependency;
 	}
 
+	@Override
 	public int getWeight() {
 		return weight;
 	}

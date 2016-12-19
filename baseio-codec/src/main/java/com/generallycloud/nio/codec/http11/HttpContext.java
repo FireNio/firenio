@@ -13,6 +13,7 @@ public class HttpContext extends AbstractLifeCycle {
 		return instance;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 		
 		this.httpSessionManager.startup("HTTPSession-Manager");
@@ -20,6 +21,7 @@ public class HttpContext extends AbstractLifeCycle {
 		instance = this;
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(httpSessionManager);
 	}

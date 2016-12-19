@@ -10,6 +10,7 @@ public abstract class AbstractQuery implements DataBaseQuery {
 		setSys_fields();
 	}
 	
+	@Override
 	public String getColumnName(String columnName) {
 		String key = columnName.toUpperCase();
 		if (sys_fields.containsKey(key)) {

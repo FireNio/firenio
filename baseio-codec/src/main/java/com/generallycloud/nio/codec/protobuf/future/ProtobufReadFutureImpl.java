@@ -34,6 +34,7 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 		super(session, buf, limit);
 	}
 
+	@Override
 	public MessageLite getMessage() throws InvalidProtocolBufferException {
 
 		if (message == null) {
@@ -48,10 +49,12 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 		return message;
 	}
 
+	@Override
 	public void writeProtobuf(MessageLite messageLite) throws InvalidProtocolBufferException {
 		writeProtobuf(messageLite.getClass().getName(), messageLite);
 	}
 
+	@Override
 	public void writeProtobuf(String parserName, MessageLite messageLite) throws InvalidProtocolBufferException {
 
 		if (writed) {
@@ -74,6 +77,7 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 		throw new UnsupportedOperationException("use writeProtobuf instead");
 	}
 
+	@Override
 	public String getParserName() {
 		return getText();
 	}

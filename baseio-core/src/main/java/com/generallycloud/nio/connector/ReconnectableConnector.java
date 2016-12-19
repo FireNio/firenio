@@ -71,10 +71,12 @@ public class ReconnectableConnector implements Closeable {
 
 		return new SocketSEListenerAdapter() {
 
+			@Override
 			public void sessionClosed(SocketSession session) {
 
 				ThreadUtil.execute(new Runnable() {
 
+					@Override
 					public void run() {
 
 						ThreadUtil.sleep(retryTime);
@@ -86,6 +88,7 @@ public class ReconnectableConnector implements Closeable {
 		};
 	}
 
+	@Override
 	public void close() {
 		reconnect = false;
 		synchronized (this) {

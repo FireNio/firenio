@@ -17,10 +17,12 @@ public class TransactionSection implements Transaction {
 		this.context = context;
 	}
 
+	@Override
 	public boolean beginTransaction() {
 		return false;
 	}
 
+	@Override
 	public boolean commit() {
 		if (finish.compareAndSet(false, true)) {
 			this.messages.clear();
@@ -29,6 +31,7 @@ public class TransactionSection implements Transaction {
 		return false;
 	}
 
+	@Override
 	public boolean rollback(){
 		if (finish.compareAndSet(false, true)) {
 			MQContext context = this.context;

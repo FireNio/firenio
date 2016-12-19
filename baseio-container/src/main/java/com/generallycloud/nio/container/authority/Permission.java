@@ -66,6 +66,7 @@ public class Permission {
 		}
 	}
 
+	@Override
 	public Permission clone() {
 		Permission p = new Permission();
 
@@ -77,6 +78,7 @@ public class Permission {
 		return p;
 	}
 	
+	@Override
 	public String toString() {
 		return MessageFormatter.format("[id:{},api:{}]", permissionID,permissionAPI);
 	}

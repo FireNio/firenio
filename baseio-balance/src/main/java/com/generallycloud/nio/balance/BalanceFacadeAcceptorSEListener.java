@@ -20,11 +20,13 @@ public class BalanceFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 		this.balanceRouter = balanceContext.getBalanceRouter();
 	}
 
+	@Override
 	public void sessionOpened(SocketSession session) {
 		balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
 		logger.info("客户端来自 [ {} ] 已建立连接.",session.getRemoteSocketAddress());
 	}
 
+	@Override
 	public void sessionClosed(SocketSession session) {
 		
 		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;

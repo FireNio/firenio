@@ -15,6 +15,7 @@ public class NamedThreadFactory implements ThreadFactory {
 		this.namePrefix = namePrefix;
 	}
 
+	@Override
 	public Thread newThread(Runnable r) {
 		Thread t = new PooledThread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
 		if (t.isDaemon())

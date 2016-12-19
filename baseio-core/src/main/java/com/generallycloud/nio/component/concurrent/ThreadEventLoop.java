@@ -24,18 +24,22 @@ public class ThreadEventLoop extends AbstractLifeCycle implements EventLoop {
 		this.singleEventLoopWorker = new SingleEventLoopWorker(queueSize);
 	}
 
+	@Override
 	public void dispatch(Runnable job) {
 		singleEventLoopWorker.dispatch(job);
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 		singleEventLoopWorker.startup(threadName);
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(singleEventLoopWorker);
 	}
 
+	@Override
 	public String toString() {
 		return singleEventLoopWorker.toString();
 	}
@@ -61,6 +65,7 @@ public class ThreadEventLoop extends AbstractLifeCycle implements EventLoop {
 			}
 		}
 
+		@Override
 		public void doLoop() {
 
 			try {
@@ -77,6 +82,7 @@ public class ThreadEventLoop extends AbstractLifeCycle implements EventLoop {
 			}
 		}
 		
+		@Override
 		protected void beforeStop() {
 			for (; jobs.size() > 0;) {
 				ThreadUtil.sleep(8);
@@ -85,6 +91,7 @@ public class ThreadEventLoop extends AbstractLifeCycle implements EventLoop {
 		}
 	}
 
+	@Override
 	public boolean inEventLoop() {
 		return Thread.currentThread() == singleEventLoopWorker.getMonitor();
 	}

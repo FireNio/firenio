@@ -31,14 +31,17 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 		count = 0;
 	}
 
+	@Override
 	public int size() {
 		return count;
 	}
 	
+	@Override
 	public byte [] array(){
 		return cache;
 	}
 
+	@Override
 	public String toString() {
 		if (count == 0) {
 			return null;
@@ -50,6 +53,7 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 		return new String(cache, 0, count, charset);
 	}
 
+	@Override
 	public void write(int b) {
 		int newcount = count + 1;
 		if (newcount > cache.length) {
@@ -59,6 +63,7 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 		count = newcount;
 	}
 
+	@Override
 	public void write(byte bytes[], int offset, int length) {
 		int newcount = count + length;
 		if (newcount > cache.length) {
@@ -69,6 +74,7 @@ public class BufferedOutputStream extends OutputStream implements HeapOutputStre
 		
 	}
 
+	@Override
 	public void write(byte[] bytes) {
 		write(bytes, 0, bytes.length);
 	}

@@ -28,15 +28,17 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 		this.classLoader = classLoader;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		loadPlugins(context, this.classLoader, this.configuration);
 
 		this.initializePlugins(pluginContexts);
 
-		this.configPluginFilterAndServlet((ApplicationContext) context);
+		this.configPluginFilterAndServlet(context);
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 		for (PluginContext plugin : pluginContexts) {
@@ -105,6 +107,7 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 		}
 	}
 
+	@Override
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Plugin配置......");
@@ -133,9 +136,10 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 
 		}
 
-		this.configPluginFilterAndServlet((ApplicationContext) context);
+		this.configPluginFilterAndServlet(context);
 	}
 
+	@Override
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 
 		for (PluginContext plugin : pluginContexts) {

@@ -19,6 +19,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
+	@Override
 	public boolean login(SocketSession session, String username,String password) {
 
 		Authority authority = getAuthority(username,password);
@@ -45,6 +46,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 
 	}
 
+	@Override
 	public boolean isLogined(SocketSession session) {
 		
 		AuthorityContext authorityPlugin = AuthorityContext.getInstance();
@@ -54,11 +56,13 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 		return attachment.getAuthorityManager() != null;
 	}
 
+	@Override
 	public void logout(SocketSession session) {
 		
 		// 需要登出吗
 	}
 
+	@Override
 	public boolean isValidate(String username,String password) {
 
 		return getAuthority(username,password) != null;
@@ -80,6 +84,7 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	}
 	
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
 		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");

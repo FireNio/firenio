@@ -19,11 +19,13 @@ public class FrontFacadeAcceptorSEListener extends SocketSEListenerAdapter {
 		this.frontRouter = balanceContext.getFrontRouter();
 	}
 
+	@Override
 	public void sessionOpened(SocketSession session) {
 		frontRouter.addClientSession((FrontFacadeSocketSession) session);
 		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
 	}
 
+	@Override
 	public void sessionClosed(SocketSession session) {
 
 		FrontFacadeSocketSession fs = (FrontFacadeSocketSession) session;

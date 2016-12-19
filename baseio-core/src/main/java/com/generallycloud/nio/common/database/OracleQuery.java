@@ -9,6 +9,7 @@ public class OracleQuery extends AbstractQuery {
 	private final String SHYINHAO = "\"";
 	private final String SELECTXFROM = "SELECT WKTEMP.* FROM (SELECT ROWNUM ROW_NUM ,WK$TEMP.* FROM (";
 
+	@Override
 	public String getColumnName(String columnName) {
 		if (sys_fields.containsKey(columnName.toUpperCase())) {
 			return SHYINHAO + columnName + SHYINHAO;
@@ -17,6 +18,7 @@ public class OracleQuery extends AbstractQuery {
 		}
 	}
 
+	@Override
 	public String getPagingSQL(String sql) {
 		return new StringBuilder(SELECTXFROM)
 			.append(sql)
@@ -24,6 +26,7 @@ public class OracleQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@Override
 	public String getTopSQL(String sql) {
 		return new StringBuilder(SELECTXFROM)
 			.append(sql)
@@ -31,6 +34,7 @@ public class OracleQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@Override
 	@SuppressWarnings({"serial" })
 	void setSys_fields() {
 		sys_fields = new HashMap<String,String>() {

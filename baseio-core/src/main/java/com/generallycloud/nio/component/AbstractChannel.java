@@ -30,10 +30,12 @@ public abstract class AbstractChannel implements Channel {
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
 
+	@Override
 	public Integer getChannelID() {
 		return channelID;
 	}
 
+	@Override
 	public String getLocalAddr() {
 
 		InetAddress address = getLocalSocketAddress().getAddress();
@@ -45,26 +47,32 @@ public abstract class AbstractChannel implements Channel {
 		return address.getHostAddress();
 	}
 
+	@Override
 	public boolean inSelectorLoop() {
 		return Thread.currentThread() == selectorLoop.getMonitor();
 	}
 
+	@Override
 	public String getLocalHost() {
 		return getLocalSocketAddress().getHostName();
 	}
 
+	@Override
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
 	}
 
+	@Override
 	public int getLocalPort() {
 		return getLocalSocketAddress().getPort();
 	}
 
+	@Override
 	public abstract InetSocketAddress getLocalSocketAddress();
 
 	protected abstract String getMarkPrefix();
 
+	@Override
 	public String getRemoteAddr() {
 
 		InetSocketAddress address = getRemoteSocketAddress();
@@ -82,6 +90,7 @@ public abstract class AbstractChannel implements Channel {
 	 * 
 	 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
 	 */
+	@Override
 	@Deprecated
 	public String getRemoteHost() {
 
@@ -95,6 +104,7 @@ public abstract class AbstractChannel implements Channel {
 		return address.getAddress().getHostName();
 	}
 
+	@Override
 	public int getRemotePort() {
 
 		InetSocketAddress address = getRemoteSocketAddress();
@@ -107,6 +117,7 @@ public abstract class AbstractChannel implements Channel {
 		return address.getPort();
 	}
 
+	@Override
 	public String toString() {
 
 		if (edp_description == null) {
@@ -134,18 +145,22 @@ public abstract class AbstractChannel implements Channel {
 		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
 	}
 
+	@Override
 	public ReentrantLock getChannelLock() {
 		return channelLock;
 	}
 
+	@Override
 	public void active() {
 		this.lastAccess = System.currentTimeMillis();
 	}
 
+	@Override
 	public long getCreationTime() {
 		return creationTime;
 	}
 
+	@Override
 	public long getLastAccessTime() {
 		return lastAccess;
 	}

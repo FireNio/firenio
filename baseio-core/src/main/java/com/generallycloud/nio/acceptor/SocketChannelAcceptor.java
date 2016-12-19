@@ -34,6 +34,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		this.context = context;
 	}
 
+	@Override
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
 
 		try {
@@ -46,10 +47,12 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		initSelectorLoops();
 	}
 
+	@Override
 	public void broadcast(final ReadFuture future) {
 
 		offerSessionMEvent(new SocketSessionManagerEvent() {
 
+			@Override
 			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
 
 				Iterator<SocketSession> ss = sessions.values().iterator();
@@ -77,7 +80,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 				for (; ss.hasNext();) {
 
-					SocketSession s = (SocketSession) ss.next();
+					SocketSession s = ss.next();
 
 					ChannelWriteFuture copy = writeFuture.duplicate();
 
@@ -90,10 +93,12 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		});
 	}
 
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}
 
+	@Override
 	protected void initselectableChannel() throws IOException {
 		// 打开服务器套接字通道
 		this.selectableChannel = ServerSocketChannel.open();
@@ -104,6 +109,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 	}
 
+	@Override
 	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
 		return new ServerSocketChannelSelectorLoop(this, selectorLoops);
 	}
@@ -112,6 +118,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		getContext().getSessionManager().offerSessionMEvent(event);
 	}
 
+	@Override
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();
 	}

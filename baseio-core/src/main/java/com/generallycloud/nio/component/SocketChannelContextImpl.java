@@ -36,10 +36,12 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	private SocketSessionFactory				sessionFactory;
 	private Logger							logger	= LoggerFactory.getLogger(SocketChannelContextImpl.class);
 
+	@Override
 	public int getSessionAttachmentSize() {
 		return sessionAttachmentSize;
 	}
 
+	@Override
 	public void addSessionEventListener(SocketSessionEventListener listener) {
 		if (this.sessionEventListenerLink == null) {
 			this.sessionEventListenerLink = new SocketSEListenerWrapper(listener);
@@ -50,30 +52,37 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		}
 	}
 
+	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 		sessionManager.offerSessionMEvent(event);
 	}
 
+	@Override
 	public Linkable<SocketSessionEventListener> getSessionEventListenerLink() {
 		return sessionEventListenerLink;
 	}
 
+	@Override
 	public SocketSessionManager getSessionManager() {
 		return sessionManager;
 	}
 
+	@Override
 	public void setSessionAttachmentSize(int sessionAttachmentSize) {
 		this.sessionAttachmentSize = sessionAttachmentSize;
 	}
 
+	@Override
 	public BeatFutureFactory getBeatFutureFactory() {
 		return beatFutureFactory;
 	}
 
+	@Override
 	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
 		this.beatFutureFactory = beatFutureFactory;
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return protocolEncoder;
 	}
@@ -82,6 +91,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		super(configuration);
 	}
 	
+	@Override
 	protected void doStart() throws Exception {
 
 		if (ioEventHandleAdaptor == null) {
@@ -182,6 +192,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		}
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 		CloseUtil.close(sessionManager);
@@ -193,30 +204,37 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		LifeCycleUtil.stop(mcByteBufAllocator);
 	}
 
+	@Override
 	public ProtocolFactory getProtocolFactory() {
 		return protocolFactory;
 	}
 
+	@Override
 	public IoEventHandleAdaptor getIoEventHandleAdaptor() {
 		return ioEventHandleAdaptor;
 	}
 
+	@Override
 	public EventLoopGroup getEventLoopGroup() {
 		return eventLoopGroup;
 	}
 
+	@Override
 	public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
 		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
 	}
 
+	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
 	}
 
+	@Override
 	public SslContext getSslContext() {
 		return sslContext;
 	}
 
+	@Override
 	public void setSslContext(SslContext sslContext) {
 		if (sslContext == null) {
 			throw new IllegalArgumentException("null sslContext");
@@ -226,26 +244,32 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		this.sslContext.initialize(this);
 	}
 
+	@Override
 	public boolean isEnableSSL() {
 		return enableSSL;
 	}
 
+	@Override
 	public SocketSessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
 
+	@Override
 	public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
+	@Override
 	public ChannelByteBufReader getChannelByteBufReader() {
 		return channelByteBufReader;
 	}
 
+	@Override
 	public ForeReadFutureAcceptor getForeReadFutureAcceptor() {
 		return foreReadFutureAcceptor;
 	}
 
+	@Override
 	public void setSessionManager(SocketSessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}

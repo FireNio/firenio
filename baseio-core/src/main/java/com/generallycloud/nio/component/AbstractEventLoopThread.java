@@ -18,6 +18,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 
 	private Thread					monitor 		= null;
 
+	@Override
 	public void loop() {
 
 		for (;;) {
@@ -52,6 +53,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	protected void beforeStop() {
 	}
 
+	@Override
 	public void stop() {
 
 		synchronized (this) {
@@ -119,6 +121,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	protected void wakeupThread() {
 	}
 
+	@Override
 	public void startup(String threadName) throws Exception {
 
 		synchronized (this) {
@@ -131,6 +134,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 
 			this.monitor = new Thread(new Runnable() {
 
+				@Override
 				public void run() {
 					loop();
 				}
@@ -142,10 +146,12 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 		}
 	}
 
+	@Override
 	public boolean isMonitor(Thread thread) {
 		return monitor == thread;
 	}
 
+	@Override
 	public Thread getMonitor() {
 		return monitor;
 	}
@@ -154,10 +160,12 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	@Override
 	public boolean isStopping() {
 		return stoping;
 	}

@@ -12,6 +12,7 @@ public abstract class MQServlet extends ProtobaseFutureAcceptorService {
 		return context;
 	}
 
+	@Override
 	public void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		MQSessionAttachment attachment = context.getSessionAttachment(session);

@@ -1,8 +1,6 @@
 package com.generallycloud.nio.codec.linebased.future;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketChannelContext;
@@ -29,6 +27,7 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 		this.complete = true;
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (complete) {
@@ -56,9 +55,11 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 		return false;
 	}
 
+	@Override
 	public void release() {
 	}
 
+	@Override
 	public BufferedOutputStream getLineOutputStream() {
 		return cache;
 	}

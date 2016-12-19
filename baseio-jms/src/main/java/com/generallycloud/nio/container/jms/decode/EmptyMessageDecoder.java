@@ -5,6 +5,7 @@ import com.generallycloud.nio.container.jms.Message;
 
 public class EmptyMessageDecoder implements MessageDecoder{
 
+	@Override
 	public Message decode(ProtobaseReadFuture future) {
 		return null;
 	}

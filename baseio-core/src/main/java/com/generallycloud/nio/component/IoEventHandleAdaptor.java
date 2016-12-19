@@ -10,18 +10,22 @@ public abstract class IoEventHandleAdaptor extends AbstractLifeCycle implements 
 
 	private Logger		logger	= LoggerFactory.getLogger(IoEventHandleAdaptor.class);
 
+	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		logger.error(cause.getMessage(),cause);
 	}
 
+	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {
 		
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 	}

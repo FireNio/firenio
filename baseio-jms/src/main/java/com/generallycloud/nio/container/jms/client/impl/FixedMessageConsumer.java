@@ -33,6 +33,7 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 		this.messageConsumer = new DefaultMessageConsumer(session);
 	}
 
+	@Override
 	public void onReceive(Message message) {
 
 		int msgType = message.getMsgType();
@@ -112,18 +113,22 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 		this.onMappedMessages.put(eventName, onMapByteMessage);
 	}
 
+	@Override
 	public boolean beginTransaction() throws MQException {
 		return messageConsumer.beginTransaction();
 	}
 
+	@Override
 	public boolean commit() throws MQException {
 		return messageConsumer.commit();
 	}
 
+	@Override
 	public boolean rollback() throws MQException {
 		return messageConsumer.rollback();
 	}
 
+	@Override
 	public void receive(OnMessage onMessage) throws MQException {
 
 		if (onMessage != null) {
@@ -133,6 +138,7 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 		messageConsumer.receive(this);
 	}
 
+	@Override
 	public void subscribe(OnMessage onMessage) throws MQException {
 
 		if (onMessage != null) {

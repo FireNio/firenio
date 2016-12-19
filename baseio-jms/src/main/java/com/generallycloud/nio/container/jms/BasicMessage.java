@@ -6,10 +6,12 @@ public abstract class BasicMessage implements Message {
 	private String		queueName	;
 	private String		msgID	;
 
+	@Override
 	public String getMsgID() {
 		return msgID;
 	}
 
+	@Override
 	public String getQueueName() {
 		return queueName;
 	}
@@ -19,10 +21,12 @@ public abstract class BasicMessage implements Message {
 		this.queueName = queueName;
 	}
 
+	@Override
 	public long getTimestamp() {
 		return timestamp;
 	}
 
+	@Override
 	public abstract String toString();
 
 	public Object getKey() {

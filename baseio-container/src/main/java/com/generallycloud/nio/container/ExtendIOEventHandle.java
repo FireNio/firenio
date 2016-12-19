@@ -18,6 +18,7 @@ public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 		this.applicationContext = applicationContext;
 	}
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) {
 
 		try {
@@ -36,6 +37,7 @@ public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 		return applicationContext;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		LifeCycleUtil.start(applicationContext);
@@ -45,6 +47,7 @@ public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 		super.doStart();
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(applicationContext);
 

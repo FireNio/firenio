@@ -10,10 +10,12 @@ public class FixedHttpContext extends AbstractPluginContext{
 	
 	private HttpContext httpContext = new HttpContext();
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		this.httpContext.start();
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		
 		LifeCycleUtil.stop(httpContext);

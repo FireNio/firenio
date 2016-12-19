@@ -15,6 +15,7 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl impl
 		super(channel, sessionID);
 	}
 
+	@Override
 	public BalanceReverseSocketSession getReverseSocketSession() {
 		return reverseSocketSession;
 	}
@@ -32,6 +33,7 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl impl
 		return ++msg_size > size; 
 	}
 
+	@Override
 	public void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession) {
 		this.reverseSocketSession = reverseSocketSession;
 	}

@@ -18,6 +18,7 @@ public class MessageWriterJob implements Runnable {
 		this.message = message;
 	}
 
+	@Override
 	public void run() {
 		try {
 			

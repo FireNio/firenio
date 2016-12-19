@@ -7,6 +7,7 @@ import com.generallycloud.nio.common.SharedBundle;
 
 public class PropertiesSCLoader implements ServerConfigurationLoader {
 
+	@Override
 	public ServerConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
 
 		ServerConfiguration cfg = new ServerConfiguration();

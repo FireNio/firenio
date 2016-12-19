@@ -21,38 +21,47 @@ public class Http2SocketSessionImpl extends UnsafeSocketSessionImpl implements H
 
 	private Http2Headers	http2Headers		= new Http2HeadersImpl();
 
+	@Override
 	public Http2FrameHeader getLastReadFrameHeader() {
 		return lastReadFrameHeader;
 	}
 
+	@Override
 	public void setLastReadFrameHeader(Http2FrameHeader lastReadFrameHeader) {
 		this.lastReadFrameHeader = lastReadFrameHeader;
 	}
 
+	@Override
 	public Http2FrameType getFrameWillBeRead() {
 		return frameWillBeRead;
 	}
 
+	@Override
 	public void setFrameWillBeRead(Http2FrameType frameWillBeRead) {
 		this.frameWillBeRead = frameWillBeRead;
 	}
 
+	@Override
 	public void setFrameWillBeRead(int frameWillBeRead) {
 		this.frameWillBeRead = Http2FrameType.getValue(frameWillBeRead);
 	}
 
+	@Override
 	public long getSettings(int i) {
 		return settings[i];
 	}
 
+	@Override
 	public void setSettings(int key, long value) {
 		settings[key] = value;
 	}
 
+	@Override
 	public long[] getSettings() {
 		return settings;
 	}
 
+	@Override
 	public Http2Headers getHttp2Headers() {
 		return http2Headers;
 	}

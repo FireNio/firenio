@@ -6,6 +6,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
+	@Override
 	public ReadFuture createPINGPacket(SocketSession session) {
 		if ("WebSocket".equals(session.getProtocolID())) {
 			return new WebSocketBeatReadFutureImpl(session.getContext(),true);
@@ -13,6 +14,7 @@ public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 		return null;
 	}
 
+	@Override
 	public ReadFuture createPONGPacket(SocketSession session) {
 		if ("WebSocket".equals(session.getProtocolID())) {
 			return new WebSocketBeatReadFutureImpl(session.getContext(),false);

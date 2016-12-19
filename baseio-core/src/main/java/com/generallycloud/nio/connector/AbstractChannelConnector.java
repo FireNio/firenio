@@ -19,6 +19,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	private Logger 			logger 		= LoggerFactory.getLogger(AbstractChannelConnector.class);
 	
+	@Override
 	public void close() throws IOException {
 		
 		Waiter<IOException> waiter = asynchronousClose();
@@ -29,6 +30,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		}
 	}
 	
+	@Override
 	public Waiter<IOException> asynchronousClose() {
 		if (getSession() == null) {
 			doPhysicalClose();
@@ -38,6 +40,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		return shutDownWaiter;
 	}
 	
+	@Override
 	public void physicalClose() throws IOException {
 
 		if (canSafeClose()) {
@@ -46,6 +49,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		}
 
 		ThreadUtil.execute(new Runnable() {
+			@Override
 			public void run() {
 				doPhysicalClose();
 			}
@@ -58,6 +62,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		cancelService();
 	}
 	
+	@Override
 	protected void initService(ServerConfiguration configuration) throws IOException {
 		
 		String SERVER_HOST = configuration.getSERVER_HOST();
@@ -77,18 +82,22 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 
 	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
+	@Override
 	public boolean isConnected() {
 		return getSession() != null && getSession().isOpened();
 	}
 
+	@Override
 	public boolean isActive() {
 		return isConnected();
 	}
 
+	@Override
 	public long getTimeout() {
 		return timeout;
 	}
 
+	@Override
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}

@@ -15,6 +15,7 @@ public class BrowserExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(BrowserExecutable.class);
 
+	@Override
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();

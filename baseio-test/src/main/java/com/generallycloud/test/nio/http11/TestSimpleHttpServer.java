@@ -17,6 +17,7 @@ public class TestSimpleHttpServer {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				this.acceptAlong(session, future);
 			}

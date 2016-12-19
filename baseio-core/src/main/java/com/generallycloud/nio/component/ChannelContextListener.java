@@ -15,23 +15,28 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 
 	private Logger		logger		= LoggerFactory.getLogger(ChannelContextListener.class);
 
+	@Override
 	public int lifeCycleListenerSortIndex() {
 		return 999;
 	}
 
+	@Override
 	public void lifeCycleStarted(LifeCycle lifeCycle) {
 //		LoggerUtil.prettyNIOServerLog(logger, "CONTEXT加载完成");
 	}
 
+	@Override
 	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 		// NIOConnector connector = (NIOConnector) lifeCycle;
 		logger.error(exception.getMessage(), exception);
 	}
 
+	@Override
 	public void lifeCycleStopped(LifeCycle lifeCycle) {
 		LoggerUtil.prettyNIOServerLog(logger, "服务停止成功");
 	}
 
+	@Override
 	public void lifeCycleStopping(LifeCycle lifeCycle) {
 		ChannelContext context = (ChannelContext) lifeCycle;
 		

@@ -25,6 +25,7 @@ public class TestHttp2Server {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				Http2FrameHeader f = (Http2FrameHeader) future;
 				System.out.println(f);

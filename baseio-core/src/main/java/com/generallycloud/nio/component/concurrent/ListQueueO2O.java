@@ -12,6 +12,7 @@ public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T
 		super();
 	}
 	
+	@Override
 	protected int getAndIncrementEnd() {
 		if (_end == _capability) {
 			_end = 0;

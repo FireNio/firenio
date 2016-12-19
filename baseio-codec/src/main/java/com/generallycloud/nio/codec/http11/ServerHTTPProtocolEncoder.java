@@ -21,6 +21,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 		
 		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;

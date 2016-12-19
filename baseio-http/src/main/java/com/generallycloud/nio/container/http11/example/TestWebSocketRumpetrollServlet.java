@@ -1,5 +1,6 @@
 package com.generallycloud.nio.container.http11.example;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -21,6 +22,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
+	@Override
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
@@ -42,6 +44,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		session.flush(f);
 	}
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		if (future instanceof HttpReadFuture) {
@@ -67,7 +70,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
 			String msg = f.getReadText();
 
-			JSONObject o = JSONObject.parseObject(msg);
+			JSONObject o = JSON.parseObject(msg);
 
 			String name = o.getString("name");
 
@@ -108,6 +111,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		return address;
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		msgAdapter.startup("WebSocketRumpetroll");
@@ -115,6 +119,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		super.initialize(context, config);
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
 		LifeCycleUtil.stop(msgAdapter);

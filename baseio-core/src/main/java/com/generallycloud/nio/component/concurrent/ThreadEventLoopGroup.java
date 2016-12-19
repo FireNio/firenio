@@ -6,6 +6,7 @@ public class ThreadEventLoopGroup extends AbstractEventLoopGroup{
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 	}
 
+	@Override
 	protected EventLoop newEventLoop(String threadName, int eventQueueSize) {
 		return new ThreadEventLoop(threadName, eventQueueSize);
 	}

@@ -68,6 +68,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 		cycle = core -1;
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 		LinkAbleByteBufAllocator first = null;
 		LinkAbleByteBufAllocator last = null;
@@ -94,6 +95,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 		this.allocator = first;
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 
 		for (LinkAbleByteBufAllocator allocator : allocators) {

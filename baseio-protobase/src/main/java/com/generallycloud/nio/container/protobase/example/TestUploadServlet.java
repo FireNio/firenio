@@ -11,6 +11,7 @@ public class TestUploadServlet extends ProtobaseFutureAcceptorService {
 
 	private FileReceiveUtil		fileReceiveUtil	= new FileReceiveUtil("upload-");
 
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		fileReceiveUtil.accept(session, future, true);

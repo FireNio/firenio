@@ -19,6 +19,7 @@ public abstract class AbstractChannelService implements ChannelService {
 	protected Waiter<IOException>	shutDownWaiter		= new Waiter<>();
 	protected ReentrantLock			activeLock		= new ReentrantLock();
 
+	@Override
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
 	}
@@ -114,6 +115,7 @@ public abstract class AbstractChannelService implements ChannelService {
 		}
 	}
 
+	@Override
 	public InetSocketAddress getServerSocketAddress() {
 		return serverAddress;
 	}

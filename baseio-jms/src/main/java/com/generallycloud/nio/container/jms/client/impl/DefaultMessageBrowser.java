@@ -25,6 +25,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		this.session = session;
 	}
 
+	@Override
 	public Message browser(String messageID) throws MQException {
 		JSONObject param = new JSONObject();
 		param.put("messageID", messageID);
@@ -40,6 +41,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		return messageDecoder.decode(future);
 	}
 
+	@Override
 	public int size() throws MQException {
 		String param = "{cmd:\"0\"}";
 
@@ -52,6 +54,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		return Integer.parseInt(future.getReadText());
 	}
 
+	@Override
 	public boolean isOnline(String queueName) throws MQException {
 
 		JSONObject param = new JSONObject();

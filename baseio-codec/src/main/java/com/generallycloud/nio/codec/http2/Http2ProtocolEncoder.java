@@ -20,6 +20,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 	
 	private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 		
 		Http2Frame frame = (Http2Frame) future;

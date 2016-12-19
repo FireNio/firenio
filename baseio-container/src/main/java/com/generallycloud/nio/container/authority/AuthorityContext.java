@@ -18,10 +18,12 @@ public class AuthorityContext extends AbstractPluginContext {
 		return instance;
 	}
 
+	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 		acceptors.put("/login", new SYSTEMAuthorityServlet());
 	}
 
+	@Override
 	public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
 
 		AuthorityFilter authorityFilter = new AuthorityFilter();
@@ -31,6 +33,7 @@ public class AuthorityContext extends AbstractPluginContext {
 		filters.add(authorityFilter);
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		context.setLoginCenter(new AuthorityLoginCenter());

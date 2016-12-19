@@ -21,10 +21,12 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 		super(channel,sessionID);
 	}
 
+	@Override
 	public SocketChannel getSocketChannel() {
 		return channel;
 	}
 
+	@Override
 	public void fireOpend() {
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
@@ -66,6 +68,7 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 
 	}
 
+	@Override
 	public void fireClosed() {
 
 		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
@@ -83,6 +86,7 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 		}
 	}
 
+	@Override
 	public void physicalClose() {
 
 		if (isEnableSSL()) {

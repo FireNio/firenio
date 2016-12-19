@@ -128,6 +128,7 @@ public final class TestProtoBufBean {
 			return com.generallycloud.test.nio.protobuf.TestProtoBufBean.internal_static_com_generallycloud_test_nio_protobuf_SearchRequest_descriptor;
 		}
 
+		@Override
 		protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
 			return com.generallycloud.test.nio.protobuf.TestProtoBufBean.internal_static_com_generallycloud_test_nio_protobuf_SearchRequest_fieldAccessorTable
 					.ensureFieldAccessorsInitialized(
@@ -198,6 +199,7 @@ public final class TestProtoBufBean {
 			 */
 			public static final int	VIDEO_VALUE		= 6;
 
+			@Override
 			public final int getNumber() {
 				if (this == UNRECOGNIZED) {
 					throw new java.lang.IllegalArgumentException("Can't get the number of an unknown enum value.");
@@ -239,6 +241,7 @@ public final class TestProtoBufBean {
 			}
 
 			private static final com.google.protobuf.Internal.EnumLiteMap<Corpus>	internalValueMap	= new com.google.protobuf.Internal.EnumLiteMap<Corpus>() {
+																						@Override
 																						public Corpus findValueByNumber(
 																								int number) {
 																							return Corpus
@@ -246,10 +249,12 @@ public final class TestProtoBufBean {
 																						}
 																					};
 
+			@Override
 			public final com.google.protobuf.Descriptors.EnumValueDescriptor getValueDescriptor() {
 				return getDescriptor().getValues().get(ordinal());
 			}
 
+			@Override
 			public final com.google.protobuf.Descriptors.EnumDescriptor getDescriptorForType() {
 				return getDescriptor();
 			}
@@ -286,6 +291,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional string query = 1;</code>
 		 */
+		@Override
 		public java.lang.String getQuery() {
 			java.lang.Object ref = query_;
 			if (ref instanceof java.lang.String) {
@@ -301,6 +307,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional string query = 1;</code>
 		 */
+		@Override
 		public com.google.protobuf.ByteString getQueryBytes() {
 			java.lang.Object ref = query_;
 			if (ref instanceof java.lang.String) {
@@ -319,6 +326,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional int32 page_number = 2;</code>
 		 */
+		@Override
 		public int getPageNumber() {
 			return pageNumber_;
 		}
@@ -329,6 +337,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional int32 result_per_page = 3;</code>
 		 */
+		@Override
 		public int getResultPerPage() {
 			return resultPerPage_;
 		}
@@ -339,6 +348,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional .com.generallycloud.test.nio.protobuf.SearchRequest.Corpus corpus = 4;</code>
 		 */
+		@Override
 		public int getCorpusValue() {
 			return corpus_;
 		}
@@ -346,6 +356,7 @@ public final class TestProtoBufBean {
 		/**
 		 * <code>optional .com.generallycloud.test.nio.protobuf.SearchRequest.Corpus corpus = 4;</code>
 		 */
+		@Override
 		public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus getCorpus() {
 			com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus result = com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus
 					.valueOf(corpus_);
@@ -355,6 +366,7 @@ public final class TestProtoBufBean {
 
 		private byte	memoizedIsInitialized	= -1;
 
+		@Override
 		public final boolean isInitialized() {
 			byte isInitialized = memoizedIsInitialized;
 			if (isInitialized == 1)
@@ -366,6 +378,7 @@ public final class TestProtoBufBean {
 			return true;
 		}
 
+		@Override
 		public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
 			if (!getQueryBytes().isEmpty()) {
 				com.google.protobuf.GeneratedMessageV3.writeString(output, 1, query_);
@@ -382,6 +395,7 @@ public final class TestProtoBufBean {
 			}
 		}
 
+		@Override
 		public int getSerializedSize() {
 			int size = memoizedSize;
 			if (size != -1)
@@ -501,6 +515,7 @@ public final class TestProtoBufBean {
 			return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
 		}
 
+		@Override
 		public Builder newBuilderForType() {
 			return newBuilder();
 		}
@@ -513,6 +528,7 @@ public final class TestProtoBufBean {
 			return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
 		}
 
+		@Override
 		public Builder toBuilder() {
 			return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
 		}
@@ -534,6 +550,7 @@ public final class TestProtoBufBean {
 				return com.generallycloud.test.nio.protobuf.TestProtoBufBean.internal_static_com_generallycloud_test_nio_protobuf_SearchRequest_descriptor;
 			}
 
+			@Override
 			protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
 				return com.generallycloud.test.nio.protobuf.TestProtoBufBean.internal_static_com_generallycloud_test_nio_protobuf_SearchRequest_fieldAccessorTable
 						.ensureFieldAccessorsInitialized(
@@ -557,6 +574,7 @@ public final class TestProtoBufBean {
 				}
 			}
 
+			@Override
 			public Builder clear() {
 				super.clear();
 				query_ = "";
@@ -570,14 +588,17 @@ public final class TestProtoBufBean {
 				return this;
 			}
 
+			@Override
 			public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
 				return com.generallycloud.test.nio.protobuf.TestProtoBufBean.internal_static_com_generallycloud_test_nio_protobuf_SearchRequest_descriptor;
 			}
 
+			@Override
 			public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest getDefaultInstanceForType() {
 				return com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.getDefaultInstance();
 			}
 
+			@Override
 			public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest build() {
 				com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest result = buildPartial();
 				if (!result.isInitialized()) {
@@ -586,6 +607,7 @@ public final class TestProtoBufBean {
 				return result;
 			}
 
+			@Override
 			public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest buildPartial() {
 				com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest result = new com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest(
 						this);
@@ -597,31 +619,38 @@ public final class TestProtoBufBean {
 				return result;
 			}
 
+			@Override
 			public Builder clone() {
-				return (Builder) super.clone();
+				return super.clone();
 			}
 
+			@Override
 			public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
-				return (Builder) super.setField(field, value);
+				return super.setField(field, value);
 			}
 
+			@Override
 			public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
-				return (Builder) super.clearField(field);
+				return super.clearField(field);
 			}
 
+			@Override
 			public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-				return (Builder) super.clearOneof(oneof);
+				return super.clearOneof(oneof);
 			}
 
+			@Override
 			public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
 					Object value) {
-				return (Builder) super.setRepeatedField(field, index, value);
+				return super.setRepeatedField(field, index, value);
 			}
 
+			@Override
 			public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
-				return (Builder) super.addRepeatedField(field, value);
+				return super.addRepeatedField(field, value);
 			}
 
+			@Override
 			public Builder mergeFrom(com.google.protobuf.Message other) {
 				if (other instanceof com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest) {
 					return mergeFrom((com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest) other);
@@ -652,10 +681,12 @@ public final class TestProtoBufBean {
 				return this;
 			}
 
+			@Override
 			public final boolean isInitialized() {
 				return true;
 			}
 
+			@Override
 			public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
 					com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
 				com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest parsedMessage = null;
@@ -678,6 +709,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional string query = 1;</code>
 			 */
+			@Override
 			public java.lang.String getQuery() {
 				java.lang.Object ref = query_;
 				if (!(ref instanceof java.lang.String)) {
@@ -693,6 +725,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional string query = 1;</code>
 			 */
+			@Override
 			public com.google.protobuf.ByteString getQueryBytes() {
 				java.lang.Object ref = query_;
 				if (ref instanceof String) {
@@ -747,6 +780,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional int32 page_number = 2;</code>
 			 */
+			@Override
 			public int getPageNumber() {
 				return pageNumber_;
 			}
@@ -776,6 +810,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional int32 result_per_page = 3;</code>
 			 */
+			@Override
 			public int getResultPerPage() {
 				return resultPerPage_;
 			}
@@ -805,6 +840,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional .com.generallycloud.test.nio.protobuf.SearchRequest.Corpus corpus = 4;</code>
 			 */
+			@Override
 			public int getCorpusValue() {
 				return corpus_;
 			}
@@ -821,6 +857,7 @@ public final class TestProtoBufBean {
 			/**
 			 * <code>optional .com.generallycloud.test.nio.protobuf.SearchRequest.Corpus corpus = 4;</code>
 			 */
+			@Override
 			public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus getCorpus() {
 				com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus result = com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus
 						.valueOf(corpus_);
@@ -851,10 +888,12 @@ public final class TestProtoBufBean {
 				return this;
 			}
 
+			@Override
 			public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
 				return this;
 			}
 
+			@Override
 			public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
 				return this;
 			}
@@ -873,6 +912,7 @@ public final class TestProtoBufBean {
 		}
 
 		private static final com.google.protobuf.Parser<SearchRequest>	PARSER	= new com.google.protobuf.AbstractParser<SearchRequest>() {
+																		@Override
 																		public SearchRequest parsePartialFrom(
 																				com.google.protobuf.CodedInputStream input,
 																				com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -892,6 +932,7 @@ public final class TestProtoBufBean {
 			return PARSER;
 		}
 
+		@Override
 		public com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest getDefaultInstanceForType() {
 			return DEFAULT_INSTANCE;
 		}
@@ -916,6 +957,7 @@ public final class TestProtoBufBean {
 				+ "\n\n\006IMAGES\020\002\022\t\n\005LOCAL\020\003\022\010\n\004NEWS\020\004\022\014\n\010PROD"
 				+ "UCTS\020\005\022\t\n\005VIDEO\020\006B\022B\020TestProtoBufBeanb\006p" + "roto3" };
 		com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner = new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+			@Override
 			public com.google.protobuf.ExtensionRegistry assignDescriptors(
 					com.google.protobuf.Descriptors.FileDescriptor root) {
 				descriptor = root;

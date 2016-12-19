@@ -58,6 +58,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 		session.setFrameWillBeRead(type);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -76,22 +77,27 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 		return true;
 	}
 
+	@Override
 	public int getLength() {
 		return length;
 	}
 
+	@Override
 	public int getType() {
 		return type;
 	}
 
+	@Override
 	public byte getFlags() {
 		return flags;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public boolean isSilent() {
 		return true;
 	}
@@ -100,6 +106,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 		return Http2FrameType.FRAME_TYPE_FRAME_HEADER;
 	}
 
+	@Override
 	public int getStreamIdentifier() {
 		return streamIdentifier;
 	}

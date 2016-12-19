@@ -18,6 +18,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 
 	private Linkable<T>			tail	= null;
 
+	@Override
 	public boolean offer(T object) {
 
 		ReentrantLock lock = this.lock;
@@ -41,6 +42,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 		}
 	}
 
+	@Override
 	public T poll() {
 
 		ReentrantLock lock = this.lock;
@@ -60,6 +62,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 		}
 	}
 
+	@Override
 	public T poll(long timeout) {
 		
 		ReentrantLock lock = this.lock;
@@ -106,6 +109,7 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 		
 	}
 
+	@Override
 	public int size() {
 		return size;
 	}

@@ -26,6 +26,7 @@ public class TestHttpLoadThread extends ITestThread {
 
 	HttpClient			client;
 
+	@Override
 	public void run() {
 
 		int time = getTime();
@@ -46,6 +47,7 @@ public class TestHttpLoadThread extends ITestThread {
 		}
 	}
 
+	@Override
 	public void prepare() throws Exception {
 
 		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
@@ -65,6 +67,7 @@ public class TestHttpLoadThread extends ITestThread {
 		client = new HttpClient(session);
 	}
 
+	@Override
 	public void stop() {
 		CloseUtil.close(connector);
 	}

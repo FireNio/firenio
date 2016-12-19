@@ -49,6 +49,7 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 		this.limit = limit;
 	}
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(2),limit);

@@ -19,6 +19,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 		this.messageDecoder = messageDecoder;
 	}
 
+	@Override
 	public void onResponse(SocketSession session, ReadFuture future) {
 		
 		ProtobaseReadFuture f = (ProtobaseReadFuture) future;

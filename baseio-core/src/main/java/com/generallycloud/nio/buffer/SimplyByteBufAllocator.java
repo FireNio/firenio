@@ -11,6 +11,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		return Thread.currentThread().getName();
 	}
 
+	@Override
 	protected PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int begin, int end, int size) {
 
 		logger.debug("申请内存____________________________{},{}",size,tName());
@@ -82,6 +83,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 		return null;
 	}
 	
+	@Override
 	protected void doStart() throws Exception {
 		
 		super.doStart();
@@ -112,6 +114,7 @@ public class SimplyByteBufAllocator extends AbstractByteBufAllocator {
 //		}
 	}
 
+	@Override
 	protected void doRelease(ByteBufUnit begin) {
 		
 		ByteBufUnit[] bufs = this.units;

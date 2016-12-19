@@ -10,14 +10,17 @@ public class EmptyServerHttpReadFuture extends ServerHttpReadFuture{
 		super(context);
 	}
 
+	@Override
 	protected void parseFirstLine(String line) {
 		
 	}
 
+	@Override
 	protected void parseContentType(String contentType) {
 		
 	}
 
+	@Override
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
 	}
 }

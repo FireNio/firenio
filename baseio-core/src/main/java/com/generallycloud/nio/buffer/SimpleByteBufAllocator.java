@@ -8,6 +8,7 @@ public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
 	}
 
 	//FIXME 判断余下的是否足够，否则退出循环
+	@Override
 	protected PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int start, int end, int size) {
 
 		ByteBufUnit[] units = this.units;
@@ -50,6 +51,7 @@ public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
 		return null;
 	}
 
+	@Override
 	protected void doRelease(ByteBufUnit buf) {
 
 		ByteBufUnit memoryStart = buf;

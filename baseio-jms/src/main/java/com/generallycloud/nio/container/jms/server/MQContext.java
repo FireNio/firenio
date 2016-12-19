@@ -38,6 +38,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return (MQSessionAttachment) session.getAttachment(this.getPluginIndex());
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		long dueTime = config.getLongParameter("due-time");
@@ -52,6 +53,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		instance = this;
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(p2pProductLine);
 		LifeCycleUtil.stop(subProductLine);
@@ -67,6 +69,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return this.p2pProductLine.messageSize();
 	}
 
+	@Override
 	public void offerMessage(Message message) {
 
 		messageIDs.put(message.getMsgID(), message);
@@ -88,6 +91,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		return messageDecoder.decode(future);
 	}
 
+	@Override
 	public void pollMessage(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) {
 
 		p2pProductLine.pollMessage(session, future, attachment);
@@ -116,6 +120,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		receivers.remove(queueName);
 	}
 
+	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 		putServlet(acceptors,new MQConsumerServlet());
 		putServlet(acceptors,new MQProducerServlet());
@@ -130,6 +135,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		acceptors.put(name, servlet);
 	}
 
+	@Override
 	public void prepare(ApplicationContext context, Configuration config) throws Exception {
 
 		// MQContext old = getInstance();
@@ -146,6 +152,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		instance = this;
 	}
 
+	@Override
 	public void unload(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(p2pProductLine);
 		LifeCycleUtil.stop(subProductLine);

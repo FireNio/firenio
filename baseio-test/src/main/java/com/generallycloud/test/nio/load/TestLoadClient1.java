@@ -22,6 +22,7 @@ public class TestLoadClient1 extends ITestThread {
 
 	private SocketChannelConnector	connector			= null;
 
+	@Override
 	public void run() {
 
 		int time1 = getTime();
@@ -38,11 +39,13 @@ public class TestLoadClient1 extends ITestThread {
 		}
 	}
 
+	@Override
 	public void prepare() throws Exception {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				CountDownLatch latch = getLatch();
 
@@ -68,6 +71,7 @@ public class TestLoadClient1 extends ITestThread {
 		connector.connect();
 	}
 
+	@Override
 	public void stop() {
 		CloseUtil.close(connector);
 	}

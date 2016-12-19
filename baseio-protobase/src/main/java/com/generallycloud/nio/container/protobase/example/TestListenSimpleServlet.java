@@ -10,6 +10,7 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService{
 	
 	public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 	
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		String test = future.getReadText();

@@ -29,11 +29,13 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 
 	private ThreadPoolExecutor	poolExecutor	;
 
+	@Override
 	public void dispatch(Runnable job) {
 		this.poolExecutor.execute(job);
 
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		threadFactory = new NamedThreadFactory(eventLoopName);
@@ -42,6 +44,7 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 				new ArrayBlockingQueue<Runnable>(maxEventQueueSize), threadFactory);
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		
 		if (poolExecutor != null) {
@@ -49,6 +52,7 @@ public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
 		}
 	}
 
+	@Override
 	public boolean inEventLoop() {
 		return threadFactory.inFactory(Thread.currentThread());
 	}

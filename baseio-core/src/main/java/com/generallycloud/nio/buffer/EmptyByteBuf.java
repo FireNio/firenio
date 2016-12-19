@@ -8,10 +8,12 @@ public class EmptyByteBuf extends HeapByteBuf {
 
 	public static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();
 
+	@Override
 	public void release() {
 		
 	}
 
+	@Override
 	public ByteBuf duplicate() {
 		return this;
 	}

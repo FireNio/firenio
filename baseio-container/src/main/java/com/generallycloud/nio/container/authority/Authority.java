@@ -75,6 +75,7 @@ public class Authority {
 		this.uuid = uuid;
 	}
 	
+	@Override
 	public String toString() {
 		return "authority:"+username;
 	}

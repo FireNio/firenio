@@ -12,6 +12,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SYSTEMAuthorityServlet extends FutureAcceptorService {
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();

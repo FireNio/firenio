@@ -16,14 +16,17 @@ public class FixedLengthProtocolFactory implements ProtocolFactory {
 		this.limit = limit;
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return new FixedLengthProtocolDecoder(limit);
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new FixedLengthProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return "FixedLength";
 	}

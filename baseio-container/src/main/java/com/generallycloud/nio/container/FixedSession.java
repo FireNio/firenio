@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.TimeoutException;
@@ -87,7 +88,7 @@ public class FixedSession {
 			param.put("username", username);
 			param.put("password", MD5Token.getInstance().getLongToken(password, Encoding.UTF8));
 
-			String paramString = JSONObject.toJSONString(param);
+			String paramString = JSON.toJSONString(param);
 
 			ProtobaseReadFuture future = request("login", paramString);
 

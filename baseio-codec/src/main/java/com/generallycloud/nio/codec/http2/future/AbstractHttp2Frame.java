@@ -19,14 +19,17 @@ public abstract class AbstractHttp2Frame extends AbstractChannelReadFuture imple
 
 	protected int	streamIdentifier;
 
+	@Override
 	public int getStreamIdentifier() {
 		return streamIdentifier;
 	}
 
+	@Override
 	public void setStreamIdentifier(int streamIdentifier) {
 		this.streamIdentifier = streamIdentifier;
 	}
 
+	@Override
 	public byte getFlags() {
 		return flags;
 	}

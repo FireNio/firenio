@@ -37,22 +37,27 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		}
 	}
 	
+	@Override
 	public SocketChannelContext getContext() {
 		return context;
 	}
 
+	@Override
 	protected Channel getChannel() {
 		return channel;
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return channel.getProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return channel.getProtocolFactory().getProtocolID();
 	}
 
+	@Override
 	public void finishHandshake(Exception e) {
 
 		if (context.getSslContext().isClient()) {
@@ -60,6 +65,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		}
 	}
 	
+	@Override
 	public void setAttachment(int index, Object attachment) {
 		if (attachments == null) {
 			attachments = new Object[getContext().getSessionAttachmentSize()];
@@ -67,6 +73,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		this.attachments[index] = attachment;
 	}
 	
+	@Override
 	public Object getAttachment(int index) {
 		if (attachments == null) {
 			return null;
@@ -74,6 +81,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		return attachments[index];
 	}
 
+	@Override
 	public boolean isEnableSSL() {
 		return context.isEnableSSL();
 	}
@@ -86,10 +94,12 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		}
 	}
 
+	@Override
 	public boolean isBlocking() {
 		return channel.isBlocking();
 	}
 
+	@Override
 	public void flush(ReadFuture future) {
 
 		if (future == null || future.flushed()) {
@@ -135,6 +145,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		}
 	}
 
+	@Override
 	public void flush(ChannelWriteFuture future) {
 
 		try {
@@ -160,34 +171,42 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		}
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return channel.getProtocolDecoder();
 	}
 
+	@Override
 	public ProtocolFactory getProtocolFactory() {
 		return channel.getProtocolFactory();
 	}
 
+	@Override
 	public SSLEngine getSSLEngine() {
 		return sslEngine;
 	}
 
+	@Override
 	public EventLoop getEventLoop() {
 		return channel.getEventLoop();
 	}
 
+	@Override
 	public SslHandler getSslHandler() {
 		return context.getSslContext().getSslHandler();
 	}
 
+	@Override
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
 		channel.setProtocolDecoder(protocolDecoder);
 	}
 
+	@Override
 	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
 		channel.setProtocolEncoder(protocolEncoder);
 	}
 
+	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		channel.setProtocolFactory(protocolFactory);
 	}

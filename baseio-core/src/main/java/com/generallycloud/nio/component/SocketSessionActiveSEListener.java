@@ -9,6 +9,7 @@ public class SocketSessionActiveSEListener extends SocketSEListenerAdapter {
 
 	private Logger		logger	= LoggerFactory.getLogger(SocketSessionActiveSEListener.class);
 
+	@Override
 	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 
 		if (session.getLastAccessTime() < lastIdleTime) {

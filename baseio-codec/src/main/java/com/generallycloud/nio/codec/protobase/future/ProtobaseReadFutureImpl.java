@@ -126,14 +126,17 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		buf.get(binary);
 	}
 
+	@Override
 	public byte[] getBinary() {
 		return binary;
 	}
 
+	@Override
 	public int getBinaryLength() {
 		return binaryLength;
 	}
 
+	@Override
 	public Integer getFutureID() {
 		if (futureID == null) {
 			futureID = 0;
@@ -141,14 +144,17 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		return futureID;
 	}
 
+	@Override
 	public String getFutureName() {
 		return futureName;
 	}
 
+	@Override
 	public int getHashCode() {
 		return hashCode;
 	}
 
+	@Override
 	public Parameters getParameters() {
 		if (parameters == null) {
 			parameters = new JsonParameters(getText());
@@ -156,6 +162,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		return parameters;
 	}
 
+	@Override
 	public String getReadText() {
 		return readText;
 	}
@@ -164,30 +171,37 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		return readText;
 	}
 
+	@Override
 	public int getTextLength() {
 		return textLength;
 	}
 
+	@Override
 	public BufferedOutputStream getWriteBinaryBuffer() {
 		return writeBinaryBuffer;
 	}
 
+	@Override
 	public String getWriteText() {
 		return writeTextBuffer.toString();
 	}
 
+	@Override
 	public StringBuilder getWriteTextBuffer() {
 		return writeTextBuffer;
 	}
 
+	@Override
 	public boolean hasBinary() {
 		return binaryLength > 0;
 	}
 
+	@Override
 	public boolean isBroadcast() {
 		return futureID.intValue() == 0;
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -217,22 +231,27 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		return true;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public void setFutureID(Object futureID) {
 		this.futureID = (Integer) futureID;
 	}
 
+	@Override
 	public void setHashCode(int hashCode) {
 		this.hashCode = hashCode;
 	}
 
+	@Override
 	public String toString() {
 		return futureName + "@" + getText();
 	}
 
+	@Override
 	public BalanceReadFuture translate(){
 
 		if (!translated) {
@@ -244,26 +263,32 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		return this;
 	}
 
+	@Override
 	public void write(boolean b) {
 		writeTextBuffer.append(b);
 	}
 
+	@Override
 	public void write(char c) {
 		writeTextBuffer.append(c);
 	}
 
+	@Override
 	public void write(double d) {
 		writeTextBuffer.append(d);
 	}
 
+	@Override
 	public void write(int i) {
 		writeTextBuffer.append(i);
 	}
 
+	@Override
 	public void write(long l) {
 		writeTextBuffer.append(l);
 	}
 
+	@Override
 	public void write(String text) {
 		if (StringUtil.isNullOrBlank(text)) {
 			return;
@@ -271,6 +296,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		writeTextBuffer.append(text);
 	}
 
+	@Override
 	public void writeBinary(byte b) {
 
 		if (writeBinaryBuffer == null) {
@@ -280,6 +306,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		writeBinaryBuffer.write(b);
 	}
 
+	@Override
 	public void writeBinary(byte[] bytes) {
 		if (bytes == null) {
 			return;
@@ -287,6 +314,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		writeBinary(bytes, 0, bytes.length);
 	}
 
+	@Override
 	public void writeBinary(byte[] bytes, int offset, int length) {
 
 		if (writeBinaryBuffer == null) {

@@ -2,12 +2,14 @@ package com.generallycloud.nio.container.configuration;
 
 import java.io.IOException;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.StringUtil;
 
 public abstract class AbstractACLoader implements ApplicationConfigurationLoader{
 
+	@Override
 	public ApplicationConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
 		
 		ApplicationConfiguration configuration = new ApplicationConfiguration();
@@ -34,7 +36,7 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 			return null;
 		}
 		
-		JSONArray array = JSONArray.parseArray(json);
+		JSONArray array = JSON.parseArray(json);
 		
 		FiltersConfiguration configuration = new FiltersConfiguration();
 		
@@ -55,7 +57,7 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 			return null;
 		}
 		
-		JSONArray array = JSONArray.parseArray(json);
+		JSONArray array = JSON.parseArray(json);
 		
 		PluginsConfiguration configuration = new PluginsConfiguration();
 		
@@ -76,7 +78,7 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 			return null;
 		}
 		
-		JSONArray array = JSONArray.parseArray(json);
+		JSONArray array = JSON.parseArray(json);
 		
 		ServicesConfiguration configuration = new ServicesConfiguration();
 		

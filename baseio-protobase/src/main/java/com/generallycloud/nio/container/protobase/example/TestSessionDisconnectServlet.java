@@ -13,6 +13,7 @@ public class TestSessionDisconnectServlet extends ProtobaseFutureAcceptorService
 	
 //	private AtomicInteger size = new AtomicInteger();
 
+	@Override
 	protected void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
 
 		String test = future.getReadText();

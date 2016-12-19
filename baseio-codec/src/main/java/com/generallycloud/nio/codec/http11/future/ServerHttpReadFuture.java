@@ -20,6 +20,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		super(context);
 	}
 
+	@Override
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
 		
 		if (context.getEncoding() == Encoding.GBK) {
@@ -30,6 +31,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		headers.put("Connection", "keep-alive");
 	}
 
+	@Override
 	protected void parseContentType(String contentType) {
 
 		if (!StringUtil.isNullOrBlank(contentType)) {
@@ -59,6 +61,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		}
 	}
 
+	@Override
 	protected void parseFirstLine(String line) {
 
 		String[] array = line.split(" ");

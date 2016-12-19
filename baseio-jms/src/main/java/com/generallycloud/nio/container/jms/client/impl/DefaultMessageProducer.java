@@ -19,6 +19,7 @@ public class DefaultMessageProducer implements MessageProducer {
 		this.session = session;
 	}
 
+	@Override
 	public boolean offer(Message message) throws MQException {
 		return offer(message, MQProducerServlet.SERVICE_NAME);
 	}
@@ -61,6 +62,7 @@ public class DefaultMessageProducer implements MessageProducer {
 
 	}
 
+	@Override
 	public boolean publish(Message message) throws MQException {
 
 		return offer(message, MQPublishServlet.SERVICE_NAME);

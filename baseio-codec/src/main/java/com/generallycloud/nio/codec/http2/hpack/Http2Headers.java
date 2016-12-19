@@ -70,6 +70,7 @@ public interface Http2Headers extends Iterable<Entry<String, String>>{
 	 * follows: 1. All pseudo headers (order not specified). 2. All non-pseudo
 	 * headers (in insertion order).
 	 */
+	@Override
 	Iterator<Entry<String, String>> iterator();
 
 	/**

@@ -2,6 +2,7 @@ package com.generallycloud.nio.container.configuration;
 
 import java.io.IOException;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.SharedBundle;
@@ -15,6 +16,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 
 	private String	conf_path	= "conf/";
 
+	@Override
 	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException {
 
 		String json = bundle.loadContent(conf_path + "filters.cfg", Encoding.UTF8);
@@ -22,6 +24,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 		return loadFiltersConfiguration(json);
 	}
 
+	@Override
 	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle) throws IOException {
 
 		String json = bundle.loadContent(conf_path + "plugins.cfg", Encoding.UTF8);
@@ -29,6 +32,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 		return loadPluginsConfiguration(json);
 	}
 
+	@Override
 	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle) throws IOException {
 
 		String json = bundle.loadContent(conf_path + "services.cfg", Encoding.UTF8);
@@ -36,6 +40,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 		return loadServletsConfiguration(json);
 	}
 
+	@Override
 	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle) throws IOException {
 
 		String roles = bundle.loadContent(conf_path + "roles.cfg", Encoding.UTF8);
@@ -48,7 +53,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 
 		PermissionConfiguration configuration = new PermissionConfiguration();
 
-		JSONArray array = JSONArray.parseArray(permissions);
+		JSONArray array = JSON.parseArray(permissions);
 
 		for (int i = 0; i < array.size(); i++) {
 
@@ -57,7 +62,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 			configuration.addPermission(permission);
 		}
 
-		array = JSONArray.parseArray(roles);
+		array = JSON.parseArray(roles);
 
 		for (int i = 0; i < array.size(); i++) {
 

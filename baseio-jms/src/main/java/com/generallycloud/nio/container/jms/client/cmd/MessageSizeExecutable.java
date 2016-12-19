@@ -13,6 +13,7 @@ public class MessageSizeExecutable extends MQCommandExecutor {
 
 	private Logger	logger	= LoggerFactory.getLogger(MessageSizeExecutable.class);
 
+	@Override
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();

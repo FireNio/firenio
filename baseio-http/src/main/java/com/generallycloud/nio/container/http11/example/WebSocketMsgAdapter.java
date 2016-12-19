@@ -42,6 +42,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoopThread {
 		return clients.size();
 	}
 
+	@Override
 	protected void doLoop() {
 
 		String msg = msgs.poll(16);

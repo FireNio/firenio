@@ -93,7 +93,7 @@ public class MathUtil {
 
 		checkLength(bytes, 8, offset);
 
-		long v0 = (long) (bytes[offset + 7] & 0xff);
+		long v0 = bytes[offset + 7] & 0xff;
 		long v1 = (long) (bytes[offset + 6] & 0xff) << 8 * 1;
 		long v2 = (long) (bytes[offset + 5] & 0xff) << 8 * 2;
 		long v3 = (long) (bytes[offset + 4] & 0xff) << 8 * 3;
@@ -109,7 +109,7 @@ public class MathUtil {
 
 		checkLength(bytes, 8, offset);
 
-		long v0 = (long) (bytes[offset + 0] & 0xff);
+		long v0 = bytes[offset + 0] & 0xff;
 		long v1 = (long) (bytes[offset + 1] & 0xff) << 8 * 1;
 		long v2 = (long) (bytes[offset + 2] & 0xff) << 8 * 2;
 		long v3 = (long) (bytes[offset + 3] & 0xff) << 8 * 3;

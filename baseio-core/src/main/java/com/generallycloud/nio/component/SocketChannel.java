@@ -40,6 +40,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract boolean isBlocking();
 
+	@Override
 	public abstract SocketChannelContext getContext();
 
 	public abstract ProtocolEncoder getProtocolEncoder();
@@ -58,6 +59,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract boolean needFlush();
 
+	@Override
 	public abstract UnsafeSocketSession getSession();
 
 	public abstract void fireEvent(SelectorLoopEvent event);

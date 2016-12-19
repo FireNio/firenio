@@ -27,6 +27,7 @@ public class TestListenerCallBack {
 
 		consumer.receive( new OnMessage() {
 			
+			@Override
 			public void onReceive(Message message) {
 				System.out.println(message);
 			}

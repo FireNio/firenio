@@ -15,6 +15,7 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 
 	private Logger logger = LoggerFactory.getLogger(AuthorityFilter.class);
 
+	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 		
 		AuthorityContext pluginContext = AuthorityContext.getInstance();

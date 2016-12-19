@@ -9,6 +9,7 @@ public class TestLockSupport {
 		
 		final Thread t1 = new Thread(new Runnable() {
 			
+			@Override
 			public void run() {
 				
 				System.out.println("lock....");
@@ -22,6 +23,7 @@ public class TestLockSupport {
 		
 		final Thread t2 = new Thread(new Runnable() {
 			
+			@Override
 			public void run() {
 				
 				System.out.println("unlock....");

@@ -27,6 +27,7 @@ public class BalanceFacadeConnector implements Closeable{
 				"Balance Facade Connector 连接成功 ...");
 	}
 	
+	@Override
 	public synchronized void close(){
 		CloseUtil.close(connector);
 		connector = null;

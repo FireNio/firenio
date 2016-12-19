@@ -55,6 +55,7 @@ public class StringLexer {
 		return index + 1 == codes.length;
 	}
 	
+	@Override
 	public String toString() {
 		return new String(codes);
 	}

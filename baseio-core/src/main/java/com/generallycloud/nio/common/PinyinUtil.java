@@ -2,6 +2,7 @@ package com.generallycloud.nio.common;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class PinyinUtil {
@@ -11,7 +12,7 @@ public class PinyinUtil {
 	
 	static {
 	
-		special = JSONObject.parseObject(specialJSON);
+		special = JSON.parseObject(specialJSON);
 	
 	}
 	

@@ -68,6 +68,7 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 		buf.reallocate(length, limit);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
@@ -119,10 +120,12 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 		return length;
 	}
 
+	@Override
 	public byte[] getByteArray() {
 		return byteArray;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}

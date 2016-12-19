@@ -15,6 +15,7 @@ public class CachedProviderHandler implements InvocationHandler {
 		this.target = target;
 	}
 
+	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Type[] types = method.getParameterTypes();
 		if (method.getName().matches("get.+") && (types.length == 1) && (types[0] == String.class)) {

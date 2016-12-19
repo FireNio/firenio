@@ -16,14 +16,17 @@ public class ProtobaseProtocolFactory implements ProtocolFactory {
 		this.limit = limit;
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return new ProtobaseProtocolDecoder(limit);
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new ProtobaseProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return "Protobase";
 	}

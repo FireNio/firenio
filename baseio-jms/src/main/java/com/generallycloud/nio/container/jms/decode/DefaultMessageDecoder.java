@@ -17,6 +17,7 @@ public class DefaultMessageDecoder implements MessageDecoder {
 		decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
 	}
 	
+	@Override
 	public Message decode(ProtobaseReadFuture future) throws MQException{
 		int msgType = future.getParameters().getIntegerParameter("msgType");
 		return decoders[msgType].decode(future);

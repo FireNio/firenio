@@ -18,6 +18,7 @@ public class TestLineBasedBroadcastServer {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
 				LineBasedReadFuture f = (LineBasedReadFuture) future;

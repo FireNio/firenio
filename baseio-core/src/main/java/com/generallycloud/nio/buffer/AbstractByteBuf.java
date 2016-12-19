@@ -19,6 +19,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		this.allocator = allocator;
 	}
 
+	@Override
 	public ByteBuf duplicate() {
 
 		synchronized (this) {
@@ -47,34 +48,41 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 	protected abstract AbstractByteBuf newByteBuf();
 
+	@Override
 	public int capacity() {
 		return capacity;
 	}
 
+	@Override
 	public ByteBuf clear() {
 		this.position = 0;
 		this.limit = capacity;
 		return this;
 	}
 
+	@Override
 	public ByteBuf flip() {
 		this.limit = position;
 		this.position = 0;
 		return this;
 	}
 
+	@Override
 	public int forEachByte(ByteProcessor processor) {
 		return forEachByte(position, limit, processor);
 	}
 
+	@Override
 	public int forEachByteDesc(ByteProcessor processor) {
 		return forEachByteDesc(position, limit, processor);
 	}
 
+	@Override
 	public void get(byte[] dst) {
 		get(dst, 0, dst.length);
 	}
 
+	@Override
 	public byte[] getBytes() {
 
 		byte[] bytes = new byte[remaining()];
@@ -86,6 +94,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 	protected abstract ByteBuffer getNioBuffer();
 
+	@Override
 	public boolean hasRemaining() {
 		return position < limit;
 	}
@@ -94,6 +103,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return offset + index;
 	}
 
+	@Override
 	public int limit() {
 		return limit;
 	}
@@ -101,17 +111,20 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	/**
 	 * 注意，该方法会重置position
 	 */
+	@Override
 	public ByteBuf limit(int limit) {
 		this.limit = limit;
 		this.position = 0;
 		return this;
 	}
 
+	@Override
 	public ByteBuffer nioBuffer() {
 		ByteBuffer buffer = getNioBuffer();
 		return (ByteBuffer) buffer.limit(ix(limit)).position(ix(position));
 	}
 
+	@Override
 	public int offset() {
 		return offset;
 	}
@@ -120,15 +133,18 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		this.offset = offset;
 	}
 
+	@Override
 	public int position() {
 		return position;
 	}
 
+	@Override
 	public ByteBuf position(int position) {
 		this.position = position;
 		return this;
 	}
 
+	@Override
 	public PooledByteBuf produce(int begin, int end, int newLimit) {
 		this.offset = begin * allocator.getUnitMemorySize();
 		this.capacity = (end - begin) * allocator.getUnitMemorySize();
@@ -139,6 +155,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return this;
 	}
 	
+	@Override
 	public PooledByteBuf produce(PooledByteBuf buf) {
 		this.offset = buf.offset();
 		this.capacity = buf.capacity();
@@ -150,10 +167,12 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return this;
 	}
 
+	@Override
 	public void put(byte[] src) {
 		put(src, 0, src.length);
 	}
 
+	@Override
 	public int read(SocketChannel channel) throws IOException {
 
 		int length = channel.read(getNioBuffer());
@@ -165,6 +184,7 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		return length;
 	}
 
+	@Override
 	public void release() {
 
 		synchronized (this) {
@@ -187,22 +207,27 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		allocator.release(this);
 	}
 
+	@Override
 	public int remaining() {
 		return limit - position;
 	}
 
+	@Override
 	public void skipBytes(int length) {
 		this.position(position + length);
 	}
 
+	@Override
 	public void reallocate(int limit) {
 		reallocate(limit, false);
 	}
 	
+	@Override
 	public void reallocate(int limit, boolean copyOld) {
 		allocator.reallocate(this, limit, copyOld);
 	}
 
+	@Override
 	public void reallocate(int limit, int maxLimit, boolean copyOld) {
 		
 		if (limit < 1) {
@@ -215,10 +240,12 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		reallocate(limit,copyOld);
 	}
 
+	@Override
 	public void reallocate(int limit, int maxLimit) {
 		reallocate(limit, maxLimit, false);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		b.append(this.getClass().getName());

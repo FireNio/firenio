@@ -6,6 +6,7 @@ import com.generallycloud.nio.common.ArrayUtil;
 
 public class OracleQueryParamUtil implements QueryParamUtil{
 
+	@Override
 	public Object[] page(int firstResult, int pageSize, Object[] params)
 			throws SQLException {
 		if (params == null) {
@@ -15,6 +16,7 @@ public class OracleQueryParamUtil implements QueryParamUtil{
 				.groupArray(params, new Object[] { firstResult, firstResult + pageSize });
 	}
 
+	@Override
 	public Object[] top(int size, Object[] params) throws SQLException {
 		if (params == null) {
 			return new Object[] { size };

@@ -16,14 +16,17 @@ public class LineBasedProtocolFactory implements ProtocolFactory{
 		this.limit = limit;
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return new LineBasedProtocolDecoder(limit);
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new LineBasedProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return "LineBased";
 	}

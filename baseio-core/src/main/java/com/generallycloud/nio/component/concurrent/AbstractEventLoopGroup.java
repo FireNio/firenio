@@ -22,10 +22,12 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 		this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
 	}
 
+	@Override
 	public EventLoop getNext() {
 		return eventLoopArray[eventLoopIndex.getAndIncrement()];
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		eventLoopArray = new EventLoop[eventLoopSize]; 
@@ -44,6 +46,7 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 	
 	protected abstract EventLoop newEventLoop(String threadName,int eventQueueSize);
 
+	@Override
 	protected void doStop() throws Exception {
 		for(EventLoop el : eventLoopArray){
 			LifeCycleUtil.stop(el);

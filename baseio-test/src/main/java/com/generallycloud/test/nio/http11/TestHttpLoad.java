@@ -31,6 +31,7 @@ public class TestHttpLoad {
 		
 		ITestHandle.doTest(new ITest() {
 			
+			@Override
 			public void test(int i) throws Exception {
 				
 				HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");

@@ -7,14 +7,17 @@ public abstract class LinkableChannelByteBufReader implements ChannelByteBufRead
 
 	private Linkable<ChannelByteBufReader> next;
 	
+	@Override
 	public Linkable<ChannelByteBufReader> getNext() {
 		return next;
 	}
 
+	@Override
 	public void setNext(Linkable<ChannelByteBufReader> next) {
 		this.next = next;
 	}
 
+	@Override
 	public ChannelByteBufReader getValue() {
 		return this;
 	}

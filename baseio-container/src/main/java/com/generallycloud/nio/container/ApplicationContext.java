@@ -64,6 +64,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this(configuration, "");
 	}
 
+	@Override
 	protected void doStart() throws Exception {
 
 		if (context == null) {
@@ -102,6 +103,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		context.addSessionEventListener(listener);
 	}
 
+	@Override
 	protected void doStop() throws Exception {
 		LifeCycleUtil.stop(filterService);
 		InitializeUtil.destroy(loginCenter, this, null);

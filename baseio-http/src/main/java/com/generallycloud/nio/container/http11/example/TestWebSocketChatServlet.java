@@ -1,5 +1,6 @@
 package com.generallycloud.nio.container.http11.example;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -17,6 +18,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 	private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
+	@Override
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
@@ -25,6 +27,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 	}
 
+	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		if (future instanceof HttpReadFuture) {
@@ -55,7 +58,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 			String msg = f.getReadText();
 
-			JSONObject obj = JSONObject.parseObject(msg);
+			JSONObject obj = JSON.parseObject(msg);
 
 			String action = obj.getString("action");
 
@@ -133,6 +136,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 		}
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		this.msgAdapter.startup("WebSocketChat");
@@ -140,6 +144,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 		super.initialize(context, config);
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
 		LifeCycleUtil.stop(msgAdapter);

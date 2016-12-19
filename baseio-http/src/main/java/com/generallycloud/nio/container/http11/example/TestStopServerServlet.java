@@ -14,6 +14,7 @@ public class TestStopServerServlet extends HttpFutureAcceptorService {
 
 	private Logger				logger		= LoggerFactory.getLogger(TestStopServerServlet.class);
 
+	@Override
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 		
 		SocketChannelContext context = session.getIoSession().getContext();
@@ -34,6 +35,7 @@ public class TestStopServerServlet extends HttpFutureAcceptorService {
 			this.context = context;
 		}
 
+		@Override
 		public void run() {
 
 			ThreadUtil.sleep(500);

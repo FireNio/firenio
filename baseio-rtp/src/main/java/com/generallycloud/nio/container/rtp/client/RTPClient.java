@@ -66,6 +66,7 @@ public class RTPClient {
 
 		this.consumer.listen("invite", new OnMappedMessage() {
 
+			@Override
 			public void onReceive(MapMessage message) {
 				handle.onInvite(RTPClient.this, message);
 			}
@@ -73,6 +74,7 @@ public class RTPClient {
 
 		this.consumer.listen("invite-reply", new OnMappedMessage() {
 
+			@Override
 			public void onReceive(MapMessage message) {
 				handle.onInviteReplyed(RTPClient.this, message);
 			}
@@ -80,6 +82,7 @@ public class RTPClient {
 
 		this.consumer.listen("break", new OnMappedMessage() {
 
+			@Override
 			public void onReceive(MapMessage message) {
 				handle.onBreak(RTPClient.this, message);
 			}
@@ -259,6 +262,7 @@ public class RTPClient {
 
 		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
 
+			@Override
 			public void onResponse(SocketSession session, ReadFuture future) {
 
 				waiter.setPayload(0);
@@ -269,6 +273,7 @@ public class RTPClient {
 
 		ThreadUtil.execute(new Runnable() {
 
+			@Override
 			public void run() {
 				
 				for (int i = 0; i < 10; i++) {

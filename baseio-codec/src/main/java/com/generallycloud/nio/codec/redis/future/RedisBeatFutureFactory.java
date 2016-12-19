@@ -7,6 +7,7 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class RedisBeatFutureFactory implements BeatFutureFactory{
 
+	@Override
 	public ReadFuture createPINGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
@@ -18,6 +19,7 @@ public class RedisBeatFutureFactory implements BeatFutureFactory{
 		return f;
 	}
 
+	@Override
 	public ReadFuture createPONGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());

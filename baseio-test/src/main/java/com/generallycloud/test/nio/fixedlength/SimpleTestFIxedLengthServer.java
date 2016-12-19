@@ -17,6 +17,7 @@ public class SimpleTestFIxedLengthServer {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				f.write("yes server already accept your message:");

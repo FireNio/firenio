@@ -41,6 +41,7 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 		this.limit = limit;
 	}
 
+	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		return new FixedLengthReadFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);

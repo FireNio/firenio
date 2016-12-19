@@ -26,6 +26,7 @@ public class TestListenerPower {
 		
 		OnMessage onMessage = new OnMessage() {
 			
+			@Override
 			public void onReceive(Message message) {
 				System.out.println(message);
 			}

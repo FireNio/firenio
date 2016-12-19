@@ -26,6 +26,7 @@ public class TestUpload {
 
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println();
@@ -36,6 +37,7 @@ public class TestUpload {
 				
 			}
 
+			@Override
 			public void futureSent(SocketSession session, ReadFuture future) {
 				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				System.out.println("报文已发送："+f.getReadText());

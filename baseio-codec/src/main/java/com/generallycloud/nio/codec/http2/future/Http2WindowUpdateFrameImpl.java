@@ -32,6 +32,7 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 	}
 
+	@Override
 	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		if (!isComplete) {
@@ -50,18 +51,22 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 		return true;
 	}
 
+	@Override
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
 
+	@Override
 	public boolean isSilent() {
 		return true;
 	}
 
+	@Override
 	public Http2FrameType getHttp2FrameType() {
 		return Http2FrameType.FRAME_TYPE_SETTINGS;
 	}
 
+	@Override
 	public int getUpdateValue() {
 		return updateValue;
 	}

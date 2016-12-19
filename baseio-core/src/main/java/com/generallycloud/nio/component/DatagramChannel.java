@@ -11,8 +11,10 @@ public interface DatagramChannel extends Channel {
 
 	public abstract void sendPacket(DatagramPacket packet) throws IOException;
 	
+	@Override
 	public abstract UnsafeDatagramSession getSession();
 	
+	@Override
 	public abstract DatagramChannelContext getContext();
 
 }

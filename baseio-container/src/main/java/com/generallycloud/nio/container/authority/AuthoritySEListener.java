@@ -6,6 +6,7 @@ import com.generallycloud.nio.container.ApplicationContextUtil;
 
 public class AuthoritySEListener extends SocketSEListenerAdapter {
 	
+	@Override
 	public void sessionOpened(SocketSession session) {
 		
 		AuthorityContext context = AuthorityContext.getInstance();
@@ -21,6 +22,7 @@ public class AuthoritySEListener extends SocketSEListenerAdapter {
 
 	}
 
+	@Override
 	public void sessionClosed(SocketSession session) {
 		
 		Authority authority = ApplicationContextUtil.getAuthority(session);

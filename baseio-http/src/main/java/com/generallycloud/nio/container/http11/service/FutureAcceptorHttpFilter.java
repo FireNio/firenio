@@ -36,6 +36,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private Map<String, HttpEntity>	html_cache	= new HashMap<String, HttpEntity>();
 
+	@Override
 	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
 		String _service_name = serviceName;
@@ -100,6 +101,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getInstance(), f);
 	}
 	
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		String rootPath = context.getAppLocalAddress();

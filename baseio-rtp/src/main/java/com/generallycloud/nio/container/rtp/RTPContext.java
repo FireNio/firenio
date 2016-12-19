@@ -44,6 +44,7 @@ private ServerConfiguration socketChannelConfig;
 		return instance;
 	}
 
+	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
 		acceptors.put(RTPJoinRoomServlet.SERVICE_NAME, new RTPJoinRoomServlet());
@@ -51,6 +52,7 @@ private ServerConfiguration socketChannelConfig;
 		acceptors.put(RTPLeaveRoomServlet.SERVICE_NAME, new RTPLeaveRoomServlet());
 	}
 
+	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		context.addSessionEventListener(new RTPSessionEventListener());
@@ -66,6 +68,7 @@ private ServerConfiguration socketChannelConfig;
 		return rtpRoomFactory;
 	}
 
+	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		instance = null;
 	}

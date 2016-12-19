@@ -19,16 +19,19 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		super(session, readBuffer);
 	}
 
+	@Override
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
 		headers.put("Connection", "keep-alive");
 	}
 
+	@Override
 	public void updateWebSocketProtocol() {
 		session.setProtocolFactory(PROTOCOL_FACTORY);
 		session.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
 		session.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
 	}
 
+	@Override
 	protected void parseContentType(String contentType) {
 
 		if (!StringUtil.isNullOrBlank(contentType)) {
@@ -54,6 +57,7 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		}
 	}
 
+	@Override
 	protected void parseFirstLine(String line) {
 		String[] array = line.split(" ");
 		this.version = array[0];

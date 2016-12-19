@@ -14,6 +14,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 		
 		if (future.isHeartbeat()) {

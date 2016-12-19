@@ -8,6 +8,7 @@ import com.generallycloud.nio.container.jms.Message;
 
 public class MapMessageDecoder implements MessageDecoder {
 
+	@Override
 	public Message decode(ProtobaseReadFuture future) {
 		Parameters param = future.getParameters();
 		String messageID = param.getParameter("msgID");

@@ -20,6 +20,7 @@ public class TestSimpleClient {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				System.out.println(future);
 			}

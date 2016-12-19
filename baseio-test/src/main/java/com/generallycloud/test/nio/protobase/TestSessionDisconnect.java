@@ -32,6 +32,7 @@ public class TestSessionDisconnect {
 		System.out.println(future.getReadText());
 
 		session.listen(serviceName, new OnReadFuture() {
+			@Override
 			public void onResponse(SocketSession session, ReadFuture future) {
 				
 				ProtobaseReadFuture f = (ProtobaseReadFuture) future;

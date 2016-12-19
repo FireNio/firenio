@@ -22,6 +22,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		this.context = context;
 	}
 
+	@Override
 	public void open() throws SQLException {
 		if (closed.compareAndSet(true, false)) {
 			this.connection = context.getDataSource().getConnection();
@@ -34,6 +35,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
+	@Override
 	public void beginTransaction() throws SQLException {
 		checkConnection();
 		connection.setAutoCommit(false);
@@ -74,6 +76,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
+	@Override
 	public void commit() throws SQLException {
 		
 		checkConnection();
@@ -105,6 +108,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
+	@Override
 	public <T> List<T> executeQueryCall(final String sql, final Object[] params, Class<T> clazz) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
@@ -125,6 +129,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return list;
 	}
 
+	@Override
 	public <T> List<T> executeQuerySQL(final String sql, final Object[] params, Class<T> clazz) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
@@ -143,6 +148,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return list;
 	}
 
+	@Override
 	public int executeUpdateCall(final String sql, final Object[] params) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
@@ -160,6 +166,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		return count;
 	}
 
+	@Override
 	public int executeUpdateSQL(final String sql, final Object[] params) throws SQLException {
 		this.debugSQLExecute(sql, params);
 		checkConnection();
@@ -213,6 +220,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
+	@Override
 	public void close() {
 		if (this.closed.compareAndSet(false, true)) {
 			
@@ -230,6 +238,7 @@ public class DefaultConnectionProxy implements ConnectionProxy {
 		}
 	}
 
+	@Override
 	public void rollback() throws SQLException {
 		checkConnection();
 		connection.rollback();

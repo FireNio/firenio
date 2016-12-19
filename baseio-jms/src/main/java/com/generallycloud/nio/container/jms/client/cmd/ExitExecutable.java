@@ -10,6 +10,7 @@ import com.generallycloud.nio.connector.ChannelConnector;
 @Deprecated
 public class ExitExecutable extends MQCommandExecutor {
 
+	@Override
 	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
 		CmdResponse response = new CmdResponse();

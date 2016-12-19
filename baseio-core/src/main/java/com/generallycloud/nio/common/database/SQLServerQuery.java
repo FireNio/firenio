@@ -4,10 +4,12 @@ import java.util.HashMap;
 
 public class SQLServerQuery extends AbstractQuery {
 
+	@Override
 	public String getPagingSQL(String sql) {
 		throw new UnsupportedOperationException("SQLSERVER");
 	}
 
+	@Override
 	public String getTopSQL(String sql) {
 		return new StringBuilder(sql.length() + 7)
 			.append("SELECT TOP(?) * FROM (")
@@ -16,6 +18,7 @@ public class SQLServerQuery extends AbstractQuery {
 			.toString();
 	}
 
+	@Override
 	@SuppressWarnings("serial")
 	void setSys_fields() {
 		sys_fields = new HashMap<String, String>() {

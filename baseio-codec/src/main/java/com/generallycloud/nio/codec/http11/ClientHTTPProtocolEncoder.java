@@ -18,6 +18,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 //FIXME post
 public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 
 		HttpReadFuture future = (HttpReadFuture) readFuture;

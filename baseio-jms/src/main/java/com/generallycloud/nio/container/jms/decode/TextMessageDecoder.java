@@ -7,6 +7,7 @@ import com.generallycloud.nio.container.jms.TextMessage;
 
 public class TextMessageDecoder implements MessageDecoder{
 
+	@Override
 	public Message decode(ProtobaseReadFuture future) {
 		Parameters param = future.getParameters();
 		String messageID = param.getParameter("msgID");

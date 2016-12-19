@@ -13,6 +13,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class RedisProtocolEncoder implements ProtocolEncoder {
 
+	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 		
 		RedisReadFuture f = (RedisReadFuture) future;

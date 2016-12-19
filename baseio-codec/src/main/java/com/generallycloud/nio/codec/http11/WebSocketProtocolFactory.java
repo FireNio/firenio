@@ -16,14 +16,17 @@ public class WebSocketProtocolFactory implements ProtocolFactory {
 		this.limit = limit;
 	}
 
+	@Override
 	public ProtocolDecoder getProtocolDecoder() {
 		return new WebSocketProtocolDecoder(limit);
 	}
 
+	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new WebSocketProtocolEncoder();
 	}
 
+	@Override
 	public String getProtocolID() {
 		return "WebSocket";
 	}
