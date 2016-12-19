@@ -1,6 +1,7 @@
 package com.generallycloud.nio.container.http11;
 
 import com.generallycloud.nio.codec.http11.HttpContext;
+import com.generallycloud.nio.codec.http11.future.WebSocketSEListener;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.container.AbstractPluginContext;
 import com.generallycloud.nio.container.ApplicationContext;
@@ -13,6 +14,8 @@ public class FixedHttpContext extends AbstractPluginContext{
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		this.httpContext.start();
+		
+		context.getContext().addSessionEventListener(new WebSocketSEListener());
 	}
 
 	@Override

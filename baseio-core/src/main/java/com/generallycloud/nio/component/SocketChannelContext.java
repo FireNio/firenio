@@ -54,4 +54,6 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
 
+	public abstract void setEventLoopGroup(EventLoopGroup eventLoopGroup);
+
 }

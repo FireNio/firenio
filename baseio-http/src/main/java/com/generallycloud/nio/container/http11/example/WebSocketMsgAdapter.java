@@ -27,11 +27,14 @@ public class WebSocketMsgAdapter extends AbstractEventLoopThread {
 		logger.info("客户端 {} 已加入当前客户端数量：{}", session, clients.size());
 	}
 
-	public synchronized void removeClient(SocketSession session) {
+	public synchronized boolean removeClient(SocketSession session) {
 
-		clients.remove(session);
+		if(clients.remove(session)){
+			logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
+			return true;
+		}
 
-		logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
+		return false;
 	}
 
 	public void sendMsg(String msg) {

@@ -5,6 +5,8 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class WebSocketProtocolFactory implements ProtocolFactory {
+	
+	public static final String PROTOCOL_ID = "WebSocket";
 
 	private int limit;
 
@@ -28,6 +30,6 @@ public class WebSocketProtocolFactory implements ProtocolFactory {
 
 	@Override
 	public String getProtocolID() {
-		return "WebSocket";
+		return PROTOCOL_ID;
 	}
 }

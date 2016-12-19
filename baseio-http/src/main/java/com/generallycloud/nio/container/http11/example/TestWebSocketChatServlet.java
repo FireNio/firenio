@@ -38,9 +38,11 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 		WebSocketReadFuture f = (WebSocketReadFuture) future;
 
 		// CLOSE
-		if (f.getType() == 8) {
-
-			msgAdapter.removeClient(session);
+		if (f.isCloseFrame()) {
+			
+			if (!msgAdapter.removeClient(session)) {
+				return;
+			}
 
 			JSONObject obj = new JSONObject();
 

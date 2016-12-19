@@ -141,15 +141,18 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
-
-		int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-
-		int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 		
-		if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-			this.eventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
-		} else {
-			this.eventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+		if (eventLoopGroup == null) {
+			
+			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
+			
+			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+			
+			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+				this.eventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+			} else {
+				this.eventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+			}
 		}
 		
 		if (foreReadFutureAcceptor == null) {
@@ -227,6 +230,11 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
+	}
+	
+	@Override
+	public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
+		this.eventLoopGroup = eventLoopGroup;
 	}
 
 	@Override

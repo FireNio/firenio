@@ -42,11 +42,26 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		
 		this.buf = buf;
 
-		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+		this.setServiceName(session);
 	}
 
 	public WebSocketReadFutureImpl(SocketChannelContext context) {
 		super(context);
+	}
+	
+	protected WebSocketReadFutureImpl(SocketSession session) {
+		super(session.getContext());
+		this.type = OP_CONNECTION_CLOSE_FRAME;
+		this.setServiceName(session);
+	}
+	
+	private void setServiceName(SocketSession session){
+		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+	}
+	
+	@Override
+	public boolean isCloseFrame() {
+		return OP_CONNECTION_CLOSE_FRAME == type;
 	}
 
 	private void doHeaderComplete(ByteBuf buf) {
