@@ -35,10 +35,10 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
-				f.write("yes server already accept your message:");
-				f.write(f.getReadText());
+				future.write("yes server already accept your message:");
+				future.write(future.getReadText());
 				session.flush(future);
 			}
 		};
@@ -66,11 +66,10 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
+			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getReadText());
+				System.out.println("____________________"+future.getReadText());
 				System.out.println();
 			}
 		};

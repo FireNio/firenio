@@ -1,15 +1,14 @@
 package com.generallycloud.test.nio.linebased;
 
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.codec.linebased.LineBasedProtocolFactory;
 import com.generallycloud.nio.codec.linebased.future.LineBasedReadFuture;
+import com.generallycloud.nio.codec.linebased.future.LineBasedReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -24,9 +23,8 @@ public class TestLineBasedClient {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 
-				LineBasedReadFuture f = (LineBasedReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getReadText());
+				System.out.println("____________________"+future.getReadText());
 				System.out.println();
 			}
 		};
@@ -43,7 +41,7 @@ public class TestLineBasedClient {
 		
 		SocketSession session = connector.connect();
 
-		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
+		LineBasedReadFuture future = new LineBasedReadFutureImpl(context);
 
 		future.write("hello server!");
 

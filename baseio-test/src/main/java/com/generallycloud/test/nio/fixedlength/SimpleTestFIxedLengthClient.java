@@ -22,10 +22,8 @@ public class SimpleTestFIxedLengthClient {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
 				System.out.println();
-				System.out.println("____________________"+f.getReadText());
+				System.out.println("____________________"+future.getReadText());
 				System.out.println();
 			}
 		};

@@ -5,7 +5,6 @@ import java.io.File;
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
@@ -25,9 +24,8 @@ public class TestFIxedLengthServer {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				FixedLengthReadFuture f = (FixedLengthReadFuture) future;
-				String res = "yes server already accept your message:" + f.getReadText();
-				f.write(res);
+				future.write("yes server already accept your message:");
+				future.write(future.getReadText());
 				session.flush(future);
 			}
 		};
