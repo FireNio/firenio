@@ -13,6 +13,8 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  */
 public class LineBasedProtocolDecoder implements ProtocolDecoder {
 
+	public static final byte	LINE_BASE	= '\n';
+
 	private int limit;
 
 	public LineBasedProtocolDecoder(int limit) {

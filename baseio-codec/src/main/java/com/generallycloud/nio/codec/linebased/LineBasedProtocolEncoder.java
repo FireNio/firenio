@@ -14,8 +14,6 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
-	private byte	lineBase	= '\n';
-
 	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 
@@ -37,7 +35,7 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 		buf.put(text_array, 0, size);
 
-		buf.putByte(lineBase);
+		buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
 
 		return new ChannelWriteFutureImpl(future, buf.flip());
 	}

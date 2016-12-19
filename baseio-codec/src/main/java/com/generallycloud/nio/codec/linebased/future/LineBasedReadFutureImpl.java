@@ -1,7 +1,9 @@
 package com.generallycloud.nio.codec.linebased.future;
 
 import java.io.IOException;
+
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.codec.linebased.LineBasedProtocolDecoder;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -18,6 +20,10 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 	public LineBasedReadFutureImpl(SocketChannelContext context,int limit) {
 		super(context);
 		this.limit = limit;
+	}
+	
+	public LineBasedReadFutureImpl(SocketChannelContext context) {
+		super(context);
 	}
 
 	private void doBodyComplete() {
@@ -40,7 +46,7 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 
 			byte b = buffer.getByte();
 
-			if (b == LINE_BASE) {
+			if (b == LineBasedProtocolDecoder.LINE_BASE) {
 				doBodyComplete();
 				return true;
 			}
