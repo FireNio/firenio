@@ -34,11 +34,11 @@ public abstract class ProtobaseFutureAcceptorService extends FutureAcceptorServi
 
 		if (state == IoEventState.HANDLE) {
 
-			ProtobaseReadFuture f = (ProtobaseReadFuture) future;
-
-			f.write(cause.getClass().getName() + ":" + cause.getMessage());
+			future.write(cause.getClass().getName() + ":" + cause.getMessage());
 			
 			session.flush(future);
 		}
+		
+		super.exceptionCaught(session, future, cause, state);
 	}
 }
