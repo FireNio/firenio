@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11;
 
 import java.io.IOException;
@@ -25,10 +25,19 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 
 public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 
+	private int	headerLimit;
+
+	private int	bodyLimit;
+
+	public ClientHTTPProtocolDecoder(int headerLimit, int bodyLimit) {
+		this.headerLimit = headerLimit;
+		this.bodyLimit = bodyLimit;
+	}
+
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new ClientHttpReadFuture(session, buffer);
+		return new ClientHttpReadFuture(session, buffer, headerLimit, bodyLimit);
 	}
 
 }

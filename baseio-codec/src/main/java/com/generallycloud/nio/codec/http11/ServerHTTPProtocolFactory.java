@@ -12,25 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11;
 
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class ServerHTTPProtocolFactory implements ProtocolFactory{
+public class ServerHTTPProtocolFactory implements ProtocolFactory {
+
+	private int	headerLimit;
+
+	private int	bodyLimit;
+
+	public ServerHTTPProtocolFactory() {
+		this(1024 * 8, 1024 * 512);
+	}
+
+	public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit) {
+		this.headerLimit = headerLimit;
+		this.bodyLimit = bodyLimit;
+	}
 
 	@Override
 	public ProtocolDecoder getProtocolDecoder() {
-		return new ServerHTTPProtocolDecoder();
+		return new ServerHTTPProtocolDecoder(headerLimit, bodyLimit);
 	}
 
 	@Override
 	public ProtocolEncoder getProtocolEncoder() {
 		return new ServerHTTPProtocolEncoder();
 	}
-	
+
 	@Override
 	public String getProtocolID() {
 		return "HTTP1.1";

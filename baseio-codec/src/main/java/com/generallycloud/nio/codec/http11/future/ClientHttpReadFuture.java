@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11.future;
 
 import java.util.Map;
@@ -30,8 +30,8 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		this.setRequestURL(url);
 	}
 
-	public ClientHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
-		super(session, readBuffer);
+	public ClientHttpReadFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
+		super(session, buffer, headerLimit, bodyLimit);
 	}
 
 	@Override
@@ -41,34 +41,36 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
 	@Override
 	public void updateWebSocketProtocol() {
-		session.setProtocolFactory(PROTOCOL_FACTORY);
-		session.setProtocolDecoder(WEBSOCKET_PROTOCOL_DECODER);
-		session.setProtocolEncoder(WEBSOCKET_PROTOCOL_ENCODER);
+		session.setProtocolFactory(WS_PROTOCOL_FACTORY);
+		session.setProtocolDecoder(WS_PROTOCOL_DECODER);
+		session.setProtocolEncoder(WS_PROTOCOL_ENCODER);
 	}
 
 	@Override
 	protected void parseContentType(String contentType) {
 
-		if (!StringUtil.isNullOrBlank(contentType)) {
+		if (StringUtil.isNullOrBlank(contentType)) {
 
-			if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-
-				this.contentType = CONTENT_APPLICATION_URLENCODED;
-
-			} else if (contentType.startsWith("multipart/form-data;")) {
-
-				int index = KMP_BOUNDARY.match(contentType);
-
-				if (index != -1) {
-					this.boundary = contentType.substring(index + 9);
-				}
-
-				this.contentType = CONTENT_TYPE_MULTIPART;
-			} else {
-				// FIXME other content-type
-			}
-		} else {
 			this.contentType = CONTENT_APPLICATION_URLENCODED;
+
+			return;
+		}
+
+		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+
+			this.contentType = CONTENT_APPLICATION_URLENCODED;
+
+		} else if (contentType.startsWith("multipart/form-data;")) {
+
+			int index = KMP_BOUNDARY.match(contentType);
+
+			if (index != -1) {
+				this.boundary = contentType.substring(index + 9);
+			}
+
+			this.contentType = CONTENT_TYPE_MULTIPART;
+		} else {
+			// FIXME other content-type
 		}
 	}
 

@@ -38,9 +38,9 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 	private String		serviceName;
 	
-	private boolean	dataComplete;
+	private boolean	data_complete;
 	
-	private boolean	headerComplete;
+	private boolean	header_complete;
 
 	private boolean	remain_header_complete;
 
@@ -81,10 +81,6 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 	private void doHeaderComplete(ByteBuf buf) {
 
-		headerComplete = true;
-
-		buf.flip();
-
 		int remain_header_size = 0;
 
 		byte b = buf.getByte();
@@ -122,7 +118,6 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		}
 
 		buf.limit(remain_header_size);
-
 	}
 
 	private void doRemainHeaderComplete(SocketSession session, ByteBuf buf) throws IOException {
@@ -144,70 +139,71 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 			}
 		}
 
-		buf.flip();
-
 		mask = buf.getBytes();
 
 		buf.reallocate(length, limit);
 	}
+	
+	private void doDataComplete(ByteBuf buf){
+		
+		byte[] array = buf.getBytes();
+
+		if (hasMask) {
+
+			byte[] mask = this.mask;
+
+			for (int i = 0; i < array.length; i++) {
+
+				array[i] = (byte) (array[i] ^ mask[i % 4]);
+			}
+		}
+
+		this.byteArray = array;
+
+		// FIXME 部分数据不是string的
+		this.readText = new String(array, context.getEncoding());
+	}
 
 	@Override
-	public boolean read(SocketSession session, ByteBuf src) throws IOException {
+	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
 		ByteBuf buf = this.buf;
 
-		if (!headerComplete) {
+		if (!header_complete) {
 
-			buf.read(src);
+			buf.read(buffer);
 
 			if (buf.hasRemaining()) {
 				return false;
 			}
+			
+			header_complete = true;
 
-			doHeaderComplete(buf);
+			doHeaderComplete(buf.flip());
 		}
 
 		if (!remain_header_complete) {
 
-			buf.read(src);
+			buf.read(buffer);
 
 			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			doRemainHeaderComplete(session, buf);
+			remain_header_complete = true;
+			
+			doRemainHeaderComplete(session, buf.flip());
 		}
 
-		if (!dataComplete) {
+		if (!data_complete) {
 
-			buf.read(src);
+			buf.read(buffer);
 
 			if (buf.hasRemaining()) {
 				return false;
 			}
 
-			buf.flip();
-
-			byte[] array = buf.getBytes();
-
-			if (hasMask) {
-
-				byte[] mask = this.mask;
-
-				for (int i = 0; i < array.length; i++) {
-
-					array[i] = (byte) (array[i] ^ mask[i % 4]);
-				}
-			}
-
-			this.byteArray = array;
-
-			// FIXME 部分数据不是string的
-			this.readText = new String(array, context.getEncoding());
-
-			dataComplete = true;
-
-			return true;
+			doDataComplete(buf.flip());
 		}
 
 		return true;

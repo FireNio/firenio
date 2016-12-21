@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11.future;
 
 import java.util.HashMap;
@@ -26,8 +26,8 @@ import com.generallycloud.nio.component.SocketSession;
 
 public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
-	public ServerHttpReadFuture(SocketSession session, ByteBuf readBuffer) {
-		super(session, readBuffer);
+	public ServerHttpReadFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
+		super(session, buffer, bodyLimit, bodyLimit);
 		this.params = new HashMap<String, String>();
 	}
 
@@ -37,10 +37,10 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
 	@Override
 	protected void setDefaultResponseHeaders(Map<String, String> headers) {
-		
+
 		if (context.getEncoding() == Encoding.GBK) {
 			headers.put("Content-Type", "text/plain;charset=gbk");
-		}else{
+		} else {
 			headers.put("Content-Type", "text/plain;charset=utf-8");
 		}
 		headers.put("Connection", "keep-alive");
@@ -51,28 +51,30 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
 		if (!StringUtil.isNullOrBlank(contentType)) {
 
-			if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-
-				this.contentType = CONTENT_APPLICATION_URLENCODED;
-
-			} else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
-
-				this.contentType = CONTENT_TYPE_TEXT_PLAIN;
-
-			} else if (contentType.startsWith("multipart/form-data;")) {
-
-				int index = KMP_BOUNDARY.match(contentType);
-
-				if (index != -1) {
-					boundary = contentType.substring(index + 9);
-				}
-
-				this.contentType = CONTENT_TYPE_MULTIPART;
-			} else {
-				// FIXME other content-type
-			}
-		} else {
 			this.contentType = CONTENT_APPLICATION_URLENCODED;
+
+			return;
+		}
+
+		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+
+			this.contentType = CONTENT_APPLICATION_URLENCODED;
+
+		} else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
+
+			this.contentType = CONTENT_TYPE_TEXT_PLAIN;
+
+		} else if (contentType.startsWith("multipart/form-data;")) {
+
+			int index = KMP_BOUNDARY.match(contentType);
+
+			if (index != -1) {
+				boundary = contentType.substring(index + 9);
+			}
+
+			this.contentType = CONTENT_TYPE_MULTIPART;
+		} else {
+			// FIXME other content-type
 		}
 	}
 

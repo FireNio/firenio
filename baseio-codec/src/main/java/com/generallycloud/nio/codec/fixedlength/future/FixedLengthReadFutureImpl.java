@@ -28,12 +28,9 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolException;
 
-//FIXME 2 byte header
 public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture implements FixedLengthReadFuture {
 
 	private ByteBuf	buf;
-
-	private int		length;
 
 	private boolean	header_complete;
 
@@ -54,8 +51,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 	private void doHeaderComplete(Session session, ByteBuf buf) {
 
 		int length = buf.getInt();
-
-		this.length = length;
 
 		if (length < 1) {
 			body_complete = true;
@@ -111,14 +106,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 		CharsetDecoder decoder = context.getEncoding().newDecoder();
 		
 		this.readText = decoder.decode(buf.nioBuffer()).toString();
-	}
-
-	public String getFutureName() {
-		return null;
-	}
-
-	public int getLength() {
-		return length;
 	}
 
 	@Override
