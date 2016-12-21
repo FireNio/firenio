@@ -200,5 +200,13 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public ByteBuf allocate(int limit, int maxLimit) {
+		if (limit > maxLimit) {
+			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
+		}
+		return allocate(limit);
+	}
 
 }

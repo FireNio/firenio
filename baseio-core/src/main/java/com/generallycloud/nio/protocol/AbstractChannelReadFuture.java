@@ -81,6 +81,10 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 	protected ByteBuf allocate(Session session,int capacity){
 		return session.getByteBufAllocator().allocate(capacity);
 	}
+	
+	protected ByteBuf allocate(Session session,int capacity,int maxLimit){
+		return session.getByteBufAllocator().allocate(capacity,maxLimit);
+	}
 
 	@Override
 	public SocketChannelContext getContext() {

@@ -54,6 +54,14 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	public boolean isDirect() {
 		return isDirect;
 	}
+	
+	@Override
+	public ByteBuf allocate(int limit, int maxLimit) {
+		if (limit > maxLimit) {
+			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
+		}
+		return allocate(limit);
+	}
 
 	@Override
 	public ByteBuf allocate(int limit) {
