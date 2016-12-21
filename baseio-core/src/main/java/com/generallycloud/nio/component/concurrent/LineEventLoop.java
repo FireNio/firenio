@@ -35,7 +35,7 @@ public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
 	
 	@Override
 	public boolean inEventLoop() {
-		return Thread.currentThread() == monitor; //FIXME 
+		return Thread.currentThread() == monitor;
 	}
 	
 	public Thread getMonitor() {

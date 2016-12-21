@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.nio.container.authority;
 
-import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.ApplicationContextUtil;
@@ -31,15 +30,10 @@ public class SYSTEMAuthorityServlet extends FutureAcceptorService {
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();
-
+		
 		ParametersReadFuture f = (ParametersReadFuture) future;
 
-		Parameters parameters = f.getParameters();
-
-		String username = parameters.getParameter("username");
-		String password = parameters.getParameter("password");
-		
-		boolean login = loginCenter.login(session, username, password);
+		boolean login = loginCenter.login(session, f.getParameters());
 
 		RESMessage message = RESMessage.UNAUTH;
 

@@ -12,20 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.nio.container;
+ */
+package com.generallycloud.test.nio.others;
 
-import com.generallycloud.nio.component.Parameters;
-import com.generallycloud.nio.component.SocketSession;
+/**
+ * @author wangkai
+ *
+ */
+public class TestShutdownHook {
 
-public interface LoginCenter extends Initializeable {
+	
+	public static void main(String[] args) {
+		
 
-	public abstract boolean isLogined(SocketSession session);
-
-	public abstract void logout(SocketSession session);
-
-	public abstract boolean isValidate(Parameters future);
-
-	public abstract boolean login(SocketSession session, Parameters future);
-
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			
+			public void run() {
+				
+				System.out.println("shutdown.....");
+			}
+		}));
+		
+		System.out.println("before shutdown....");
+		
+	}
+	
+	
+	
+	
+	
 }

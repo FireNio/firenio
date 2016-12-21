@@ -22,6 +22,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.InitializeableImpl;
@@ -35,8 +36,11 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
 
 	@Override
-	public boolean login(SocketSession session, String username,String password) {
+	public boolean login(SocketSession session, Parameters parameters) {
 
+		String username = parameters.getParameter("username");
+		String password = parameters.getParameter("password");
+		
 		Authority authority = getAuthority(username,password);
 		
 		logger.debug("__________________user_login__{}",authority);
@@ -78,7 +82,10 @@ public class AuthorityLoginCenter extends InitializeableImpl implements LoginCen
 	}
 
 	@Override
-	public boolean isValidate(String username,String password) {
+	public boolean isValidate(Parameters parameters) {
+
+		String username = parameters.getParameter("username");
+		String password = parameters.getParameter("password");
 
 		return getAuthority(username,password) != null;
 	}

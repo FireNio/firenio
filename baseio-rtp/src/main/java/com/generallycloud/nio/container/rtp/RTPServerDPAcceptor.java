@@ -85,14 +85,11 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 			Parameters parameters = request.getParameters();
 			
-			String username = parameters.getParameter("username");
-			String password = parameters.getParameter("password");
-			
 			ApplicationContext context = ApplicationContext.getInstance();
 			
 			LoginCenter loginCenter = context.getLoginCenter();
 			
-			if (!loginCenter.isValidate(username,password)) {
+			if (!loginCenter.isValidate(parameters)) {
 				return;
 			}
 			
