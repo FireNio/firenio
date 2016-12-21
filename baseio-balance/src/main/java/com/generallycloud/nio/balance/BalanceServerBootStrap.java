@@ -43,6 +43,7 @@ public class BalanceServerBootStrap {
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
+	private BalanceFacadeAcceptor 			balanceFacadeAcceptor;
 
 	public void startup() throws IOException {
 
@@ -62,7 +63,7 @@ public class BalanceServerBootStrap {
 		
 		balanceContext.initialize();
 		
-		BalanceFacadeAcceptor balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
+		balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
 
 		SocketChannelContext balanceChannelContext = getBalanceChannelContext(balanceContext, balanceServerConfiguration,
 				balanceProtocolFactory);
@@ -77,6 +78,15 @@ public class BalanceServerBootStrap {
 		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 
 		balanceFacadeAcceptor.start(balanceContext, balanceChannelContext, balanceReverseChannelContext);
+	}
+	
+	public void stop(){
+		
+		if (balanceFacadeAcceptor == null) {
+			return;
+		}
+		
+		balanceFacadeAcceptor.stop();
 	}
 
 	private SocketChannelContext getBalanceChannelContext(BalanceContext balanceContext,

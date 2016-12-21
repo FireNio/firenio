@@ -43,6 +43,7 @@ public interface SocketSession extends Session {
 	
 	public abstract void setAttachment(int index, Object attachment);
 	
+	//FIXME 使用继承方式呢
 	public abstract Object getAttachment(int index);
 	
 	@Override

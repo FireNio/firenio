@@ -56,7 +56,7 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 
 			// wait
 
-			if (handshakeWaiter.await(3000000)) {// FIXME test
+			if (handshakeWaiter.await(3000)) {// FIXME test
 				CloseUtil.close(this);
 				throw new RuntimeException("hands shake failed");
 			}
