@@ -37,10 +37,6 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 	}
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
-
-		isComplete = true;
-		
-		buf.flip();
 		
 		this.updateValue = MathUtil.int2int31(buf.getInt());
 
@@ -59,8 +55,10 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 			if (buf.hasRemaining()) {
 				return false;
 			}
-
-			doComplete((Http2SocketSession) session, buf);
+			
+			isComplete = true;
+			
+			doComplete((Http2SocketSession) session, buf.flip());
 		}
 
 		return true;

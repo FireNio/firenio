@@ -28,4 +28,5 @@ public interface Http2HeadersFrame extends Http2Frame {
 
 	public abstract int getWeight();
 	
+	public byte getPadLength();
 }

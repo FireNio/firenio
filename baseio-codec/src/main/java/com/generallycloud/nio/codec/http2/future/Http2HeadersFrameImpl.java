@@ -48,10 +48,6 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		this.isComplete = true;
-		
-		buf.flip();
-
 		byte flags = this.flags;
 		
 		this.endStream = (flags & FLAG_END_STREAM) > 0;
@@ -91,7 +87,9 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 				return false;
 			}
 
-			doComplete((Http2SocketSession) session, buf);
+			this.isComplete = true;
+			
+			doComplete((Http2SocketSession) session, buf.flip());
 		}
 
 		return true;
@@ -127,6 +125,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 		return weight;
 	}
 
+	@Override
 	public byte getPadLength() {
 		return padLength;
 	}

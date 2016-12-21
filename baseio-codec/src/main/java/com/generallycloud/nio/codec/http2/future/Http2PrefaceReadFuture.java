@@ -41,7 +41,6 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 	static{
 		
 		PREFACE_BUF = UnpooledByteBufAllocator.getInstance().wrap(ByteBuffer.wrap(PREFACE_BINARY));
-		
 	}
 
 	public Http2PrefaceReadFuture(SocketChannelContext context,ByteBuf buf) {
@@ -55,8 +54,6 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 	}
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
-
-		this.isComplete = true;
 		
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 
@@ -97,8 +94,10 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 			if (buf.hasRemaining()) {
 				return false;
 			}
+			
+			this.isComplete = true;
 
-			doComplete((Http2SocketSession) session, buf);
+			doComplete((Http2SocketSession) session, buf.flip());
 		}
 
 		return true;

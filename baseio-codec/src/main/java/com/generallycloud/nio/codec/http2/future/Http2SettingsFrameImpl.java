@@ -37,8 +37,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		isComplete = true;
-
 		int settings = buf.limit() / 6;
 
 		for (int i = 0; i < settings; i++) {
@@ -54,7 +52,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 		
 		session.flush(this);
-
 	}
 
 	@Override
@@ -69,8 +66,10 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 			if (buf.hasRemaining()) {
 				return false;
 			}
+			
+			isComplete = true;
 
-			doComplete((Http2SocketSession) session, buf);
+			doComplete((Http2SocketSession) session, buf.flip());
 		}
 
 		return true;

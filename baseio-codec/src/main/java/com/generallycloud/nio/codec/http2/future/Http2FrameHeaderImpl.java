@@ -50,10 +50,6 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 
 	private void doHeaderComplete(Http2SocketSession session, ByteBuf buf) {
 
-		header_complete = true;
-		
-		buf.flip();
-		
 		byte b0 = buf.getByte();
 		byte b1 = buf.getByte();
 		byte b2 = buf.getByte();
@@ -85,8 +81,11 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 			if (buf.hasRemaining()) {
 				return false;
 			}
+			
 
-			doHeaderComplete((Http2SocketSession) session, buf);
+			header_complete = true;
+			
+			doHeaderComplete((Http2SocketSession) session, buf.flip());
 		}
 
 		return true;
