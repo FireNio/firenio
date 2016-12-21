@@ -16,6 +16,8 @@
 package com.generallycloud.nio.codec.fixedlength.future;
 
 import java.io.IOException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolDecoder;
@@ -37,8 +39,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 	private boolean	body_complete;
 
-	private byte[]	byteArray;
-
 	private int		limit;
 
 	public FixedLengthReadFutureImpl(SocketSession session, ByteBuf buf,int limit) {
@@ -53,31 +53,20 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 	private void doHeaderComplete(Session session, ByteBuf buf) {
 
-		header_complete = true;
-
-		int length = buf.getInt(0);
+		int length = buf.getInt();
 
 		this.length = length;
 
 		if (length < 1) {
-
+			body_complete = true;
 			if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-
 				setPING();
-
-				body_complete = true;
-
-				return;
 			} else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
-
 				setPONG();
-
-				body_complete = true;
-
-				return;
+			}else{
+				throw new ProtocolException("illegal length:" + length);
 			}
-
-			throw new ProtocolException("illegal length:" + length);
+			return;
 		} 
 		
 		buf.reallocate(length, limit);
@@ -95,8 +84,10 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 			if (buf.hasRemaining()) {
 				return false;
 			}
-
-			doHeaderComplete(session, buf);
+			
+			header_complete = true;
+			
+			doHeaderComplete(session, buf.flip());
 		}
 
 		if (!body_complete) {
@@ -106,25 +97,20 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 			if (buf.hasRemaining()) {
 				return false;
 			}
-
-			doBodyComplete(buf);
+			
+			body_complete = true;
+			
+			doBodyComplete(buf.flip());
 		}
 
 		return true;
 	}
 
-	//FIXME decode
-	private void doBodyComplete(ByteBuf buf) {
+	private void doBodyComplete(ByteBuf buf) throws CharacterCodingException {
 
-		body_complete = true;
-
-		byteArray = new byte[buf.limit()];
-
-		buf.flip();
-
-		buf.get(byteArray);
+		CharsetDecoder decoder = context.getEncoding().newDecoder();
 		
-		readText = new String(byteArray, context.getEncoding());
+		this.readText = decoder.decode(buf.nioBuffer()).toString();
 	}
 
 	public String getFutureName() {
@@ -133,11 +119,6 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 	public int getLength() {
 		return length;
-	}
-
-	@Override
-	public byte[] getByteArray() {
-		return byteArray;
 	}
 
 	@Override
