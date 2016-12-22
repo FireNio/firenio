@@ -47,7 +47,7 @@ public class TestBalanceClient {
 				
 				ProtobaseReadFuture f = (ProtobaseReadFuture)future;
 				
-				System.out.println(f.getReadText()+"______"+DateUtil.now());
+				System.out.println(f.getReadText()+"______R:"+System.currentTimeMillis());
 				
 				res.incrementAndGet();
 			}
@@ -78,7 +78,7 @@ public class TestBalanceClient {
 			session.flush(future);
 		}
 		
-		ThreadUtil.sleep(500);
+		ThreadUtil.sleep(500000000);
 
 		CloseUtil.close(connector);
 		

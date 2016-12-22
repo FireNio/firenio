@@ -64,11 +64,13 @@ public class TestBalanceBroadcast {
 
 			ProtobaseReadFuture future = ReadFutureFactory.create(session, "broadcast");
 
-			future.write("broadcast msg");
+			String msg = "broadcast msg___S:" + System.currentTimeMillis();
+			
+			future.write(msg);
 
 			session.flush(future);
 
-			ThreadUtil.sleep(2000);
+			ThreadUtil.sleep(1);
 		}
 	}
 
