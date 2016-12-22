@@ -59,7 +59,7 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
 			if (selecting.compareAndSet(false, true)) {
 				
-				selected = selector.select(8);
+				selected = selector.select(16);
 				
 				selecting.set(false);
 			}else{

@@ -53,7 +53,7 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 			
 			if (selecting.compareAndSet(false, true)) {
 				
-				selected = selector.select(1000);//FIXME try
+				selected = selector.select(16);//FIXME try
 				
 				selecting.set(false);
 			}else{
