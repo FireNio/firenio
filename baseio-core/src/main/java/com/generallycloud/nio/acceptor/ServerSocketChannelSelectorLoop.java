@@ -22,6 +22,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.component.AbstractSessionManager;
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
 import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
@@ -54,6 +55,10 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			this.core_index = new FixedAtomicInteger(selectorLoops.length -1);
 			
 			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(this);
+			
+			AbstractSessionManager sessionManager = (AbstractSessionManager) this.context.getSessionManager();
+			
+			sessionManager.initSessionManager(selectorLoopStrategy);
 			
 			return selector;
 		}
@@ -105,7 +110,6 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			
 			lock.unlock();
 		}
-		
 	}
 	
 	private void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{

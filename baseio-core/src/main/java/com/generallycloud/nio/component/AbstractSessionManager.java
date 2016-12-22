@@ -16,12 +16,14 @@
 package com.generallycloud.nio.component;
 
 public abstract class AbstractSessionManager implements SessionManager{
-
+	
+	protected SelectorLoopStrategy			selectorLoopStrategy;
+	
 	private long						current_idle_time	= 0;
 	private long						last_idle_time		= 0;
 	private long						session_idle_time	= 0;
 	private long						next_idle_time		= System.currentTimeMillis();
-
+	
 	public AbstractSessionManager(long session_idle_time) {
 		this.session_idle_time = session_idle_time;
 	}
@@ -49,6 +51,9 @@ public abstract class AbstractSessionManager implements SessionManager{
 	}
 	
 	protected abstract void sessionIdle(long lastIdleTime, long currentTime) ;
-
+	
+	public void initSessionManager(SelectorLoopStrategy strategy){
+		this.selectorLoopStrategy = strategy;
+	}
 	
 }

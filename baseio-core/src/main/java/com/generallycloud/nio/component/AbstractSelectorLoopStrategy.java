@@ -151,13 +151,19 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		
 		if (positiveEvents.getBufferSize() == 1) {
 			
-			if (selecting.compareAndSet(false, true)) {
-				
-				selectorLoop.wakeup();
-				
-				selecting.set(false);
-			}
+			wakeup();
 		}
+	}
+	
+	@Override
+	public void wakeup() {
+		
+		if (selecting.compareAndSet(false, true)) {
+			selecting.set(false);
+			return;
+		}
+		
+		selectorLoop.wakeup();
 	}
 	
 }

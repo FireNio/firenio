@@ -20,7 +20,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
@@ -70,17 +70,6 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 			@Override
 			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
 
-				Iterator<SocketSession> ss = sessions.values().iterator();
-
-				SocketSession session = ss.next();
-
-				if (sessions.size() == 1) {
-
-					session.flush(future);
-
-					return;
-				}
-
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 
 				ByteBufAllocator allocator = UnpooledByteBufAllocator.getInstance();
@@ -88,19 +77,16 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 				ChannelWriteFuture writeFuture;
 				try {
 					writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
-				} catch (IOException e) {
+				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 					return;
 				}
-
-				for (; ss.hasNext();) {
-
-					SocketSession s = ss.next();
-
-					ChannelWriteFuture copy = writeFuture.duplicate();
-
-					s.flush(copy);
-
+				
+				Collection<SocketSession> ss = sessions.values();
+				
+				for(SocketSession s : ss){
+					
+					s.flush(writeFuture.duplicate());
 				}
 
 				ReleaseUtil.release(writeFuture);

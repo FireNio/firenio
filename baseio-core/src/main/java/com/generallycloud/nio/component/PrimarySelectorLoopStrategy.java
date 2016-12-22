@@ -53,7 +53,7 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 			
 			if (selecting.compareAndSet(false, true)) {
 				
-				selected = selector.select(8);//FIXME try
+				selected = selector.select(1000);//FIXME try
 				
 				selecting.set(false);
 			}else{
@@ -82,6 +82,8 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		handlePositiveEvents(looper, true);
 		
 		sessionManager.loop();
+		
+		hasTask = hasTask || sessionManager.hasTask();
 	}
 	
 }

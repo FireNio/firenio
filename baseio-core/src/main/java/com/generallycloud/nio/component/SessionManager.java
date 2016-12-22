@@ -22,5 +22,7 @@ public interface SessionManager extends Closeable{
 	public abstract int getManagedSessionSize();
 	
 	public abstract void loop();
+	
+	public abstract boolean hasTask();
 
 }

@@ -45,22 +45,33 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 
 	@Override
 	public void offerSessionMEvent(DatagramSessionManagerEvent event) {
+		
 		// FIXME throw
 		this.events.offer(event);
+		
+		selectorLoopStrategy.wakeup();
+
 	}
 
 	@Override
 	protected void fireSessionManagerEvent() {
+		
+		int loop = 5;
 
-		DatagramSessionManagerEvent event = events.poll();
+		for (; loop-- > 0;) {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
+			DatagramSessionManagerEvent event = events.poll();
 
-		if (map.size() == 0) {
-			return;
-		}
+			if (event == null) {
+				return;
+			}
 
-		if (event != null) {
+			Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
+
+			if (map.size() == 0) {
+				return;
+			}
+
 			try {
 				event.fire(context, map);
 			} catch (Throwable e) {
@@ -173,6 +184,11 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 		}
 
 		return session;
+	}
+	
+	@Override
+	public boolean hasTask() {
+		return events.size() > 0;
 	}
 
 }

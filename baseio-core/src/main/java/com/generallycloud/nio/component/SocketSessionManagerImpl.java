@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -42,28 +42,44 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 
 	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
+
 		// FIXME throw
 		this.events.offer(event);
+
+		selectorLoopStrategy.wakeup();
+	}
+
+	@Override
+	public boolean hasTask() {
+		return events.size() > 0;
 	}
 
 	@Override
 	protected void fireSessionManagerEvent() {
 
-		SocketSessionManagerEvent event = events.poll();
+		int loop = 5;
 
-		Map<Integer, SocketSession> map = sessions.getSnapshot();
+		for (; loop-- > 0;) {
 
-		if (map.size() == 0) {
-			return;
-		}
+			SocketSessionManagerEvent event = events.poll();
 
-		if (event != null) {
+			if (event == null) {
+				return;
+			}
+
+			Map<Integer, SocketSession> map = sessions.getSnapshot();
+
+			if (map.size() == 0) {
+				return;
+			}
+
 			try {
 				event.fire(context, map);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
+
 	}
 
 	@Override

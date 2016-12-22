@@ -131,7 +131,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 
 			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 	private Selector rebuildSelector0() {

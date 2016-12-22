@@ -49,7 +49,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 	@Override
 	protected void parseContentType(String contentType) {
 
-		if (!StringUtil.isNullOrBlank(contentType)) {
+		if (StringUtil.isNullOrBlank(contentType)) {
 
 			this.contentType = CONTENT_APPLICATION_URLENCODED;
 
