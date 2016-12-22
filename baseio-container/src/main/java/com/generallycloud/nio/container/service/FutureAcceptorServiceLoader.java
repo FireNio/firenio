@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container.service;
 
 import java.util.LinkedHashMap;
@@ -28,18 +28,16 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.DynamicClassLoader;
-import com.generallycloud.nio.container.HotDeploy;
 import com.generallycloud.nio.container.configuration.Configuration;
 import com.generallycloud.nio.container.configuration.ServicesConfiguration;
 
-public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements LifeCycle, HotDeploy {
+public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements LifeCycle {
 
-	private ApplicationContext				context		;
-	private DynamicClassLoader				classLoader	;
-	private Logger							logger		= LoggerFactory
-															.getLogger(FutureAcceptorServiceLoader.class);
-	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
-	private ServicesConfiguration				configuration	;
+	private ApplicationContext				context;
+	private DynamicClassLoader				classLoader;
+	private ServicesConfiguration				configuration;
+	private Logger							logger	= LoggerFactory.getLogger(getClass());
+	private Map<String, FutureAcceptorService>	services	= new LinkedHashMap<String, FutureAcceptorService>();
 
 	public FutureAcceptorServiceLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getServletsConfiguration();
@@ -83,12 +81,12 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	public FutureAcceptorService getFutureAcceptor(String serviceName) {
 		return services.get(serviceName);
 	}
-	
-	public void listen(String serviceName,FutureAcceptorService service){
+
+	public void listen(String serviceName, FutureAcceptorService service) {
 		this.services.put(serviceName, service);
 	}
-	
-	public void listen(Map<String, FutureAcceptorService> services){
+
+	public void listen(Map<String, FutureAcceptorService> services) {
 		this.services.putAll(services);
 	}
 
@@ -149,61 +147,6 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 		}
 		return servlets;
-	}
-
-	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Servlet配置......");
-
-		this.services = loadServlets(configuration, classLoader);
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Servlet配置......");
-
-		this.prepare(services);
-
-		this.softStart();
-
-	}
-
-	private void prepare(Map<String, FutureAcceptorService> servlets) throws Exception {
-
-		Set<Entry<String, FutureAcceptorService>> entries = servlets.entrySet();
-
-		for (Entry<String, FutureAcceptorService> entry : entries) {
-
-			FutureAcceptorService servlet = entry.getValue();
-
-			servlet.prepare(context, servlet.getConfig());
-
-			LoggerUtil.prettyNIOServerLog(logger, "新的Servlet [ {} ] Prepare完成", servlet);
-
-		}
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-
-		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();
-
-		for (Entry<String, FutureAcceptorService> entry : entries) {
-
-			FutureAcceptorService servlet = entry.getValue();
-
-			try {
-
-				servlet.unload(context, servlet.getConfig());
-
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload完成", servlet);
-
-			} catch (Throwable e) {
-
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Servlet [ {} ] Unload失败", servlet);
-
-				logger.error(e.getMessage(), e);
-
-			}
-		}
 	}
 
 }

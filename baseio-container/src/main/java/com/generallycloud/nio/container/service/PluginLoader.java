@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container.service;
 
 import java.util.List;
@@ -24,18 +24,17 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.DynamicClassLoader;
-import com.generallycloud.nio.container.HotDeploy;
 import com.generallycloud.nio.container.PluginContext;
 import com.generallycloud.nio.container.configuration.Configuration;
 import com.generallycloud.nio.container.configuration.PluginsConfiguration;
 
-public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
+public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
-	private ApplicationContext	context		;
-	private DynamicClassLoader	classLoader	;
-	private Logger				logger		= LoggerFactory.getLogger(PluginLoader.class);
-	private PluginContext[]		pluginContexts	;
-	private PluginsConfiguration	configuration	;
+	private ApplicationContext	context;
+	private DynamicClassLoader	classLoader;
+	private Logger				logger	= LoggerFactory.getLogger(PluginLoader.class);
+	private PluginContext[]		pluginContexts;
+	private PluginsConfiguration	configuration;
 
 	public PluginLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getPluginsConfiguration();
@@ -65,8 +64,8 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 			try {
 
 				plugin.destroy(context, plugin.getConfig());
-				
-				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]",plugin);
+
+				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", plugin);
 
 			} catch (Throwable e) {
 
@@ -112,70 +111,12 @@ public class PluginLoader extends AbstractLifeCycle implements HotDeploy, LifeCy
 			try {
 				plugin = (PluginContext) clazz.newInstance();
 			} catch (Exception e) {
-				throw new RuntimeException("class instance failed :"+className,e);
+				throw new RuntimeException("class instance failed :" + className, e);
 			}
 
 			pluginContexts[i] = plugin;
 
 			plugin.setConfig(config);
-
-		}
-	}
-
-	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Plugin配置......");
-
-		loadPlugins(context, classLoader, this.configuration);
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Plugin配置......");
-
-		this.prepare(context, pluginContexts);
-
-		this.softStart();
-
-	}
-
-	private void prepare(ApplicationContext context, PluginContext[] plugins) throws Exception {
-
-		for (PluginContext plugin : plugins) {
-
-			if (plugin == null) {
-				continue;
-			}
-
-			plugin.prepare(context, plugin.getConfig());
-
-			LoggerUtil.prettyNIOServerLog(logger, "新的Plugin [ {} ] Prepare完成", plugin);
-
-		}
-
-		this.configPluginFilterAndServlet(context);
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-
-		for (PluginContext plugin : pluginContexts) {
-
-			if (plugin == null) {
-				continue;
-			}
-
-			try {
-
-				plugin.unload(context, plugin.getConfig());
-
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Plugin [ {} ] Unload完成", plugin);
-
-			} catch (Throwable e) {
-
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Plugin [ {} ] Unload失败", plugin);
-
-				logger.error(e.getMessage(), e);
-
-			}
 
 		}
 	}

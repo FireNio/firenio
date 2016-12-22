@@ -105,20 +105,6 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		LifeCycleUtil.start(acceptorServiceLoader);
 	}
 
-	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-
-		this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context, classLoader);
-
-		this.acceptorServiceLoader.prepare(context, config);
-
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-		this.acceptorServiceLoader.unload(context, config);
-	}
-
 	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
 		return acceptorServiceLoader;
 	}

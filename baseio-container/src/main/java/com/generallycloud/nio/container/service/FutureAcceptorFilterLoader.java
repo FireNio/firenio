@@ -29,11 +29,10 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.DynamicClassLoader;
-import com.generallycloud.nio.container.HotDeploy;
 import com.generallycloud.nio.container.configuration.Configuration;
 import com.generallycloud.nio.container.configuration.FiltersConfiguration;
 
-public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements HotDeploy, LifeCycle {
+public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements LifeCycle {
 
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
 	private Linkable<FutureAcceptorFilter>	rootFilter	;
@@ -180,60 +179,6 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Hot
 	@Override
 	protected void doStop() throws Exception {
 		this.destroyFilters(rootFilter);
-	}
-
-	private void prepare(Linkable<FutureAcceptorFilter> filter) throws Exception {
-
-		for (; filter != null;) {
-
-			FutureAcceptorFilter acceptorFilter = filter.getValue();
-			
-			acceptorFilter.prepare(context, acceptorFilter.getConfig());
-
-			LoggerUtil.prettyNIOServerLog(logger, "新的Filter  [ {} ] Prepare完成", filter);
-
-			filter = filter.getNext();
-		}
-	}
-
-	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试加载新的Filter配置......");
-
-		this.rootFilter = loadFilters(context, classLoader);
-
-		LoggerUtil.prettyNIOServerLog(logger, "尝试启动新的Filter配置......");
-
-		this.prepare(rootFilter);
-
-		this.softStart();
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-
-		Linkable<FutureAcceptorFilter> filter = rootFilter;
-
-		for (; filter != null;) {
-
-			try {
-				
-				FutureAcceptorFilter acceptorFilter = filter.getValue();
-				
-				acceptorFilter.unload(context, acceptorFilter.getConfig());
-
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Filter  [ {} ] Unload完成", filter);
-
-			} catch (Throwable e) {
-				// ignore
-				LoggerUtil.prettyNIOServerLog(logger, "旧的Filter  [ {} ] Unload失败", filter);
-				logger.error(e.getMessage(), e);
-			}
-
-			filter = filter.getNext();
-
-		}
 	}
 
 }

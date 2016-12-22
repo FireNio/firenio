@@ -25,11 +25,11 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.ssl.SSLUtil;
 import com.generallycloud.nio.component.ssl.SslContext;
-import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.configuration.ServerConfigurationLoader;
@@ -38,7 +38,6 @@ import com.generallycloud.nio.container.ExtendIOEventHandle;
 import com.generallycloud.nio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.container.configuration.FileSystemACLoader;
-import com.generallycloud.nio.container.http11.service.FutureAcceptorHttpFilter;
 
 public class Http2ServerStartup {
 	
@@ -63,9 +62,6 @@ public class Http2ServerStartup {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
-			
-			applicationContext
-					.setLastServiceFilter(new FutureAcceptorHttpFilter(applicationContext.getClassLoader()));
 			
 			applicationContext.setContext(context);
 			

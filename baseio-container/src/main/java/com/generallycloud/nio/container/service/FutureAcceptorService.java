@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container.service;
 
 import com.generallycloud.nio.common.Logger;
@@ -21,16 +21,14 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
-import com.generallycloud.nio.container.HotDeploy;
 import com.generallycloud.nio.container.Initializeable;
 import com.generallycloud.nio.container.InitializeableImpl;
 import com.generallycloud.nio.container.configuration.Configuration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, HotDeploy,
-		IoEventHandle {
+public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, IoEventHandle {
 
-	private Logger	logger	= LoggerFactory.getLogger(FutureAcceptorService.class);
+	private Logger logger = LoggerFactory.getLogger(FutureAcceptorService.class);
 
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
@@ -38,20 +36,10 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	}
 
 	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-		this.initialize(context, config);
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-		this.destroy(context, config);
-	}
-
-	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {
 
 	}
-	
+
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
 		logger.error(cause.getMessage(), cause);

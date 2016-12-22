@@ -37,7 +37,6 @@ import com.generallycloud.nio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.container.service.FutureAcceptor;
 import com.generallycloud.nio.container.service.FutureAcceptorFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
-import com.generallycloud.nio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorServiceLoader;
 
 public class ApplicationContext extends AbstractLifeCycle {
@@ -65,7 +64,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private RoleManager						roleManager		= new RoleManager();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
-	private FutureAcceptorServiceFilter		lastServiceFilter	= null;
 
 	public ApplicationContext(ApplicationConfiguration configuration, String basePath) {
 		if (basePath == null) {
@@ -90,11 +88,9 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		SharedBundle bundle = SharedBundle.instance();
 
-		if (lastServiceFilter == null) {
-			lastServiceFilter = new FutureAcceptorServiceFilter(classLoader);
-		}
-
-		filterService = new FutureAcceptor(this, classLoader, lastServiceFilter);
+		this.filterService = new FutureAcceptor(this);
+		
+		this.filterService.setClassLoader(classLoader);
 
 		this.encoding = context.getEncoding();
 		
@@ -183,31 +179,29 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return roleManager;
 	}
 
-	@Deprecated
 	public boolean redeploy() {
+		
+		LifeCycleUtil.stop(filterService);
+		
+		DynamicClassLoader classLoader = new DynamicClassLoader();
 
-		// ApplicationConfiguration configuration;
 		try {
+
 			// FIXME 重新加载configuration
-			// configuration =
-			// configurationLoader.loadConfiguration(SharedBundle.instance());
+			
+			filterService.setClassLoader(classLoader);
+			
+			LifeCycleUtil.start(filterService);
+			
 		} catch (Exception e) {
 			logger.info(e.getMessage(), e);
 			return false;
 		}
 
-		DynamicClassLoader classLoader = new DynamicClassLoader();
 
-		boolean redeployed = filterService.redeploy(classLoader);
+		this.classLoader = classLoader;
 
-		if (redeployed) {
-
-			// this.configuration = configuration;
-
-			this.classLoader = classLoader;
-		}
-
-		return redeployed;
+		return true;
 	}
 
 	public void setContext(SocketChannelContext context) {
@@ -239,10 +233,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public Sequence getSequence() {
 		return sequence;
-	}
-
-	public void setLastServiceFilter(FutureAcceptorServiceFilter lastServiceFilter) {
-		this.lastServiceFilter = lastServiceFilter;
 	}
 
 }

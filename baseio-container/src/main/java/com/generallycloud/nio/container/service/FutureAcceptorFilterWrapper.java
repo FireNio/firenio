@@ -87,16 +87,6 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-		filter.prepare(context, config);
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-		filter.unload(context, config);
-	}
-
-	@Override
 	public Linkable<FutureAcceptorFilter> getNext() {
 		return nextFilter;
 	}

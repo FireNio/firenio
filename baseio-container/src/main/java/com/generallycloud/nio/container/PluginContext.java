@@ -21,7 +21,7 @@ import java.util.Map;
 import com.generallycloud.nio.container.service.FutureAcceptorFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 
-public interface PluginContext extends HotDeploy, Initializeable{
+public interface PluginContext extends Initializeable{
 
 	public abstract void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters);
 	

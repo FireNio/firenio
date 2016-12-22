@@ -150,28 +150,4 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		acceptors.put(name, servlet);
 	}
 
-	@Override
-	public void prepare(ApplicationContext context, Configuration config) throws Exception {
-
-		// MQContext old = getInstance();
-
-		// FIXME 把老的Context中的数据放到这里
-
-		long dueTime = config.getLongParameter("due-time");
-
-		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
-
-		p2pProductLine.startup("MQ-P2P-ProductLine");
-		subProductLine.startup("MQ-SUB-ProductLine");
-
-		instance = this;
-	}
-
-	@Override
-	public void unload(ApplicationContext context, Configuration config) throws Exception {
-		LifeCycleUtil.stop(p2pProductLine);
-		LifeCycleUtil.stop(subProductLine);
-		super.destroy(context, config);
-	}
-
 }
