@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.nio.container;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class RESMessage {
@@ -92,7 +91,7 @@ public class RESMessage {
 							.append(description).append("\"}").toString();
 				}
 			} else {
-				string = JSON.toJSONString(this);
+				string = JSONObject.toJSONString(this);
 			}
 		}
 		return string;

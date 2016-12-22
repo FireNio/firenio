@@ -91,7 +91,6 @@ public final class TestProtoBufBean {
 				com.google.protobuf.ExtensionRegistryLite extensionRegistry)
 				throws com.google.protobuf.InvalidProtocolBufferException {
 			this();
-			int mutable_bitField0_ = 0;
 			try {
 				boolean done = false;
 				while (!done) {
@@ -470,7 +469,6 @@ public final class TestProtoBufBean {
 			hash = (37 * hash) + CORPUS_FIELD_NUMBER;
 			hash = (53 * hash) + corpus_;
 			hash = (29 * hash) + unknownFields.hashCode();
-			memoizedHashCode = hash;
 			return hash;
 		}
 

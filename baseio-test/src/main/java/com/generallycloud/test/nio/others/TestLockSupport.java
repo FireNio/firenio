@@ -29,8 +29,6 @@ public class TestLockSupport {
 				
 				System.out.println("lock....");
 				
-				Thread t = Thread.currentThread();
-				
 				LockSupport.park();
 				
 			}
@@ -44,7 +42,6 @@ public class TestLockSupport {
 				System.out.println("unlock....");
 				
 				LockSupport.unpark(t1);
-				
 			}
 		});
 		

@@ -16,6 +16,8 @@
 package com.generallycloud.test.reconnect;
 
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketChannelContext;
@@ -51,5 +53,8 @@ public class TestReconnectClient {
 		
 		connector.connect();
 		
+		ThreadUtil.sleep(Long.MAX_VALUE);
+		
+		CloseUtil.close(connector);
 	}
 }

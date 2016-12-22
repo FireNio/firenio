@@ -44,7 +44,4 @@ public abstract class BasicMessage implements Message {
 	@Override
 	public abstract String toString();
 
-	public Object getKey() {
-		return getMsgID();
-	}
 }
