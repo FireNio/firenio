@@ -84,6 +84,11 @@ public class NodeGroup {
 	private void machineChange() {
 		
 		if (machines.isEmpty()) {
+			
+			for (Node n : nodes) {
+				n.machine = null;
+			}
+			
 			return;
 		}
 
