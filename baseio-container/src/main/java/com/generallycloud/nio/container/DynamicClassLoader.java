@@ -178,7 +178,7 @@ public class DynamicClassLoader extends ClassLoader {
 		
 		try {
 			
-			DynamicClassLoader.class.getClassLoader().loadClass(className);
+			parent.loadClass(className);
 			
 			throw new DuplicateClassException(className);
 		} catch (ClassNotFoundException e) {

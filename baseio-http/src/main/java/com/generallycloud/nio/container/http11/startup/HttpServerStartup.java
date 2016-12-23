@@ -76,8 +76,6 @@ public class HttpServerStartup {
 			
 			context.addSessionEventListener(new SocketSessionAliveSEListener());
 			
-//			context.addSessionEventListener(new SessionActiveSEListener());
-			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			
 			if (configuration.isSERVER_ENABLE_SSL()) {
@@ -105,4 +103,10 @@ public class HttpServerStartup {
 		}
 	}
 	
+	public static void main(String[] args) throws Exception {
+		
+		HttpServerStartup startup = new HttpServerStartup();
+		
+		startup.launch("http");
+	}
 }

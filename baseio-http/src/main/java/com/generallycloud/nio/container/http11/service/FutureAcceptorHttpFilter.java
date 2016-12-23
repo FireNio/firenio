@@ -135,7 +135,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		super.initialize(context, config);
 	}
 
-	private void scanFolder(SocketChannelContext context,File file, String root, Map<String, String> mapping) throws IOException {
+	private boolean scanFolder(SocketChannelContext context,File file, String root, Map<String, String> mapping) throws IOException {
 
 		if (file.exists()) {
 			if (file.isFile()) {
@@ -159,7 +159,18 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				html_cache.put(staticName, entity);
 
 				LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", staticName, fileName);
+				
 			} else if (file.isDirectory()) {
+				
+				String staticName = getHttpPath(file, root);
+				
+				if ("/_java_lib".equals(staticName)) {
+					return false;
+				}
+
+				if ("".equals(staticName)) {
+					staticName = "/";
+				}
 
 				File[] fs = file.listFiles();
 
@@ -183,7 +194,9 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 				for (File f : fs) {
 
-					scanFolder(context,f, root, mapping);
+					if (!scanFolder(context,f, root, mapping)) {
+						continue;
+					}
 
 					if (f.isDirectory()) {
 						String a = "<a href=\"" + getHttpPath(f, root) + "\">&lt;dir&gt;" + f.getName()+ "</a>\n";
@@ -210,14 +223,13 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				entity.file = file;
 				entity.text = b.toString();
 
-				String staticName = getHttpPath(file, root);
-
-				if ("".equals(staticName)) {
-					staticName = "/";
-				}
 				html_cache.put(staticName, entity);
 			}
+			
+			return true;
 		}
+		
+		return false;
 	}
 
 	private String getHttpPath(File file, String root) throws IOException {
