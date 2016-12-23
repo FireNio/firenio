@@ -249,6 +249,10 @@ public class DynamicClassLoader extends ClassLoader {
 
 	private void unloadClass(Class<?> clazz) {
 		
+		if (clazz == null) {
+			return;
+		}
+		
 		Field[] fields = clazz.getDeclaredFields();
 		
 		for (Field field : fields) {
