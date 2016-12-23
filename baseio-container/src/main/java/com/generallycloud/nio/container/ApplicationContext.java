@@ -121,6 +121,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		LifeCycleUtil.start(sequence);
 		LifeCycleUtil.stop(filterService);
 		InitializeUtil.destroy(loginCenter, this, null);
+		classLoader.unloadClassLoader();
 		instance = null;
 	}
 
@@ -186,13 +187,15 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
 		
+		LifeCycleUtil.stop(sequence);
+		
+		LifeCycleUtil.stop(filterService);
+		
 		pluginFilters.clear();
 		
 		pluginServlets.clear();
 		
-		LifeCycleUtil.stop(sequence);
-		
-		LifeCycleUtil.stop(filterService);
+		classLoader.unloadClassLoader();
 		
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
 		
@@ -213,6 +216,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
 			
 		} catch (Exception e) {
+			
+			classLoader.unloadClassLoader();
 			
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务失败  **********************//\n");
 			

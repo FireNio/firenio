@@ -20,11 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -41,7 +40,7 @@ public class DynamicClassLoader extends ClassLoader {
 	private ClassLoader				systemClassLoader;
 
 	public DynamicClassLoader() {
-
+		
 		ClassLoader parent = getParent();
 
 		if (parent == null) {
@@ -61,10 +60,6 @@ public class DynamicClassLoader extends ClassLoader {
 			return null;
 		}
 
-		if (entry.loadedClass == null) {
-			return defineClass(entry);
-		}
-
 		return entry.loadedClass;
 	}
 
@@ -74,17 +69,7 @@ public class DynamicClassLoader extends ClassLoader {
 		Class<?> clazz = findLoadedClass0(name);
 
 		if (clazz == null) {
-
-			clazz = defineClass(name);
-
-			if (clazz == null) {
-
-				try {
-					return parent.loadClass(name);
-				} catch (Exception e) {
-					return systemClassLoader.loadClass(name);
-				}
-			}
+			return loadClass(name);
 		}
 
 		return clazz;
@@ -92,15 +77,26 @@ public class DynamicClassLoader extends ClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-
+		
 		Class<?> clazz = findLoadedClass0(name);
 
-		if (clazz == null) {
-			return this.parent.loadClass(name);
+		if (clazz != null) {
+
+			return clazz;
 		}
+		
+		clazz = defineClass(name);
 
-		return clazz;
+		if (clazz != null) {
 
+			return clazz;
+		}
+		
+		try {
+			return parent.loadClass(name);
+		} catch (Throwable e) {
+			return systemClassLoader.loadClass(name);
+		}
 	}
 
 	public void scan(String file) throws IOException {
@@ -113,24 +109,29 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void scan0(File file) throws IOException {
-		if (file.exists()) {
-			if (file.isDirectory()) {
-				File[] files = file.listFiles();
-				for (File _file : files) {
-					scan0(_file);
-				}
-			} else {
-				String fileName = file.getName();
-				if (fileName.endsWith(".class")) {
-					LoggerUtil.prettyNIOServerLog(logger, "{} 已经被忽略", fileName);
-				} else if (fileName.endsWith(".jar")) {
-					scanZip(new JarFile(file));
-				}
-			}
-		} else {
+		
+		if (!file.exists()) {
 			LoggerUtil.prettyNIOServerLog(logger, "文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
+			return;
+		} 
+		
+		if (file.isDirectory()) {
+			
+			File[] files = file.listFiles();
+			
+			for (File _file : files) {
+				scan0(_file);
+			}
+			
+			return;
 		}
-
+		
+		String fileName = file.getName();
+		
+		if (fileName.endsWith(".jar")) {
+			scanZip(new JarFile(file));
+		}
+		
 	}
 
 	private void scanZip(JarFile file) throws IOException {
@@ -142,12 +143,17 @@ public class DynamicClassLoader extends ClassLoader {
 			Enumeration<JarEntry> entries = file.entries();
 			
 			for (; entries.hasMoreElements();) {
+				
 				JarEntry entry = entries.nextElement();
-				if (!entry.isDirectory()) {
-					String name = entry.getName();
-					if (name.endsWith(".class") && !matchSystem(name)) {
-						storeClass(file, name, entry);
-					}
+
+				if (entry.isDirectory()) {
+					continue;
+				}
+				
+				String name = entry.getName();
+				
+				if (name.endsWith(".class") && !matchSystem(name)) {
+					storeClass(file, name, entry);
 				}
 			}
 		} finally {
@@ -163,9 +169,7 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	public boolean matchExtend(String name) {
-
-		return name.startsWith("com/gifisan");
-
+		return false;
 	}
 
 	private void storeClass(JarFile file, String name, JarEntry entry) throws IOException {
@@ -199,6 +203,7 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private Class<?> defineClass(String name) throws ClassNotFoundException {
+		
 		ClassEntry entry = clazzEntries.get(name);
 
 		if (entry == null) {
@@ -208,21 +213,15 @@ public class DynamicClassLoader extends ClassLoader {
 		return defineClass(entry);
 	}
 
-	private Class<?> defineClass(ClassEntry entry) throws ClassNotFoundException {
+	private Class<?> defineClass(ClassEntry entry) {
 
 		String name = entry.className;
+		
+		entry.loadedClass = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length);
 
-		try {
-			Class<?> clazz = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length);
+		LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
 
-			entry.loadedClass = clazz;
-
-			LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
-
-			return clazz;
-		} catch (Throwable e) {
-			throw new ClassNotFoundException(e.getMessage(), e);
-		}
+		return entry.loadedClass;
 	}
 
 	public Class<?> forName(String name) throws ClassNotFoundException {
@@ -233,40 +232,38 @@ public class DynamicClassLoader extends ClassLoader {
 
 		private String		className;
 
-		private byte[]		binaryContent;
+		private byte[]	binaryContent;
 
 		private Class<?>	loadedClass;
 
 	}
 
-	public void unload() {
-		this.clazzEntries.clear();
-
-		Set<Entry<String, ClassEntry>> entries = this.clazzEntries.entrySet();
-
-		for (Entry<String, ClassEntry> entry : entries) {
-			ClassEntry classEntry = entry.getValue();
-			if (classEntry.loadedClass != null) {
-				unloadClass(classEntry.loadedClass);
-			}
+	public void unloadClassLoader() {
+		
+		Collection<ClassEntry> es = clazzEntries.values();
+		
+		for(ClassEntry e : es){
+			unloadClass(e.loadedClass);
 		}
-
-		this.logger = null;
-		System.gc();
 	}
 
 	private void unloadClass(Class<?> clazz) {
+		
 		Field[] fields = clazz.getDeclaredFields();
+		
 		for (Field field : fields) {
-			if (Modifier.isStatic(field.getModifiers())) {
-				try {
-					if (!field.isAccessible()) {
-						field.setAccessible(true);
-					}
-					field.set(null, null);
-				} catch (Throwable e) {
-					logger.debug(e);
+			
+			if (!Modifier.isStatic(field.getModifiers())) {
+				continue;
+			}
+			
+			try {
+				if (!field.isAccessible()) {
+					field.setAccessible(true);
 				}
+				field.set(null, null);
+			} catch (Throwable e) {
+				logger.debug(e);
 			}
 		}
 	}

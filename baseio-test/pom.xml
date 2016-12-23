@@ -2,17 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-test</artifactId>
 	<name>${project.artifactId}</name>
+	<version>3.1.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>The test of baseio</description>
-
-	<parent>
-		<groupId>com.generallycloud</groupId>
-		<artifactId>baseio</artifactId>
-		<version>3.1.8-SNAPSHOT</version>
-		<relativePath>../baseio/pom.xml</relativePath>
-	</parent>
 
 	<build>
 		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
@@ -31,7 +26,9 @@
 		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<fork>1.8</fork>
 					<source>1.8</source>
@@ -46,10 +43,17 @@
 	<dependencies>
 	
 		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-all</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>

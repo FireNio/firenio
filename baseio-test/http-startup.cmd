@@ -1,12 +1,15 @@
-rem call build-package.bat
 cd ../baseio
 call build-package.bat
 
-rem call mvn clean compile
 cd ../baseio-test
-call mvn clean compile
+call mvn clean compile -DskipTests
 
-rem call mvn exec:java -Dexec.mainClass="com.generallycloud.test.nio.http11.TestHTTPServer"
+cd ../baseio-sample
+call mvn clean package -DskipTests
+
+copy target\baseio-sample*.jar ..\baseio-test\target\classes\http\app\_java_lib\
+
+cd ../baseio-test
 
 rem set MAVEN_OPTS=-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n
 
