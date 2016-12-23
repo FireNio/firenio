@@ -31,6 +31,8 @@ public class BalanceContext {
 	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
+	private ExceptionCaughtHandle				facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
+	private ExceptionCaughtHandle				reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
 
 	public void initialize() {
 		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
@@ -90,4 +92,20 @@ public class BalanceContext {
 		this.facadeInterceptor = facadeInterceptor;
 	}
 
+	public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
+		return facadeExceptionCaughtHandle;
+	}
+
+	public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
+		this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
+	}
+
+	public ExceptionCaughtHandle getReverseExceptionCaughtHandle() {
+		return reverseExceptionCaughtHandle;
+	}
+
+	public void setReverseExceptionCaughtHandle(ExceptionCaughtHandle reverseExceptionCaughtHandle) {
+		this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
+	}
+	
 }

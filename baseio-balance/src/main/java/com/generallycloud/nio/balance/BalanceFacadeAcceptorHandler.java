@@ -27,10 +27,12 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 	private Logger				logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorHandler.class);
 	private BalanceRouter		balanceRouter;
 	private FacadeInterceptor	facadeInterceptor;
+	private ExceptionCaughtHandle exceptionCaughtHandle;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
 		this.facadeInterceptor = context.getFacadeInterceptor();
+		this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
 	}
 
 	@Override
@@ -63,6 +65,11 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 				rs.getRemoteSocketAddress(),
 				future
 		});
+	}
+	
+	@Override
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}
 
 }

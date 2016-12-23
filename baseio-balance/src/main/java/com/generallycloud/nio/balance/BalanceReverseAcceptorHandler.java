@@ -27,10 +27,12 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 	private Logger				logger	= LoggerFactory.getLogger(BalanceReverseAcceptorHandler.class);
 	private BalanceRouter		balanceRouter;
 	private BalanceFacadeAcceptor	balanceFacadeAcceptor;
+	private ExceptionCaughtHandle exceptionCaughtHandle;
 
-	public BalanceReverseAcceptorHandler(BalanceContext balanceContext) {
-		this.balanceRouter = balanceContext.getBalanceRouter();
-		this.balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
+	public BalanceReverseAcceptorHandler(BalanceContext context) {
+		this.balanceRouter = context.getBalanceRouter();
+		this.balanceFacadeAcceptor = context.getBalanceFacadeAcceptor();
+		this.exceptionCaughtHandle = context.getReverseExceptionCaughtHandle();
 	}
 
 	@Override
@@ -58,6 +60,8 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
+		f.setIOEventHandle(response.getContext().getIoEventHandleAdaptor());
+		
 		response.flush(f.translate());
 
 		logger.info("回复报文：F：[{}]，T：[{}]，报文：{}",
@@ -66,14 +70,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-
-		String msg = future.toString();
-
-		if (msg.length() > 100) {
-			msg = msg.substring(0, 100);
-		}
-
-		logger.error("exceptionCaught,msg=" + msg, cause);
+		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}
 
 }
