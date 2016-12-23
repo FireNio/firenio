@@ -27,7 +27,6 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.sample.protobase.TestSimpleServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBeat {
@@ -37,7 +36,7 @@ public class TestBeat {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		String serviceKey = TestSimpleServlet.SERVICE_NAME;
+		String serviceKey = "TestSimpleServlet";
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 		

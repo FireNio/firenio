@@ -26,7 +26,6 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FileSendUtil;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.sample.protobase.TestUploadServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestUpload {
@@ -37,7 +36,7 @@ public class TestUpload {
 
 		SharedBundle.instance().loadAllProperties("nio");
 		
-		String serviceName = TestUploadServlet.SERVICE_NAME;
+		String serviceName = "TestUploadServlet";
 
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			

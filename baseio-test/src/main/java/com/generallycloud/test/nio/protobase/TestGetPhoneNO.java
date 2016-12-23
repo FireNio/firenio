@@ -22,7 +22,6 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.sample.protobase.TestGetPhoneNOServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestGetPhoneNO {
@@ -32,7 +31,7 @@ public class TestGetPhoneNO {
 		
 		SharedBundle.instance().loadAllProperties("nio");
 
-		String serviceKey = TestGetPhoneNOServlet.SERVICE_NAME;
+		String serviceKey = "TestGetPhoneNOServlet";
 		
 		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 

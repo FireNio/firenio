@@ -21,8 +21,6 @@ public class TestHTTPServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		HttpServerStartup s = new HttpServerStartup();
-		
-		s.launch("http");
+		HttpServerStartup.main(args);
 	}
 }

@@ -27,14 +27,13 @@ import com.generallycloud.nio.container.FileReceiveUtil;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.sample.protobase.TestDownloadServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestDownload {
 	
 	public static void main(String[] args) throws Exception {
 
-		String serviceName = TestDownloadServlet.SERVICE_NAME;
+		String serviceName = "TestDownloadServlet";
 		
 		String fileName = "upload-flashmail-2.4.exe";
 		
