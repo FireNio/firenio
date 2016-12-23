@@ -25,8 +25,8 @@ import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FileSendUtil;
-import com.generallycloud.nio.container.protobase.example.TestUploadServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.nio.sample.protobase.TestUploadServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestUpload {

@@ -44,11 +44,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private FutureAcceptorServiceFilter	serviceFilter;
 	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptor.class);
 
-	public FutureAcceptor(ApplicationContext context) {
-
-		this.context = context;
-	}
-
 	/**
 	 * @param classLoader
 	 *             the classLoader to set
@@ -98,17 +93,28 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 			logger.error(e.getMessage(), e);
 		}
 	}
+	
+	/**
+	 * @param context the context to set
+	 */
+	public void setContext(ApplicationContext context) {
+		this.context = context;
+	}
 
 	@Override
 	protected void doStart() throws Exception {
 
 		this.classLoader.scan(context.getAppLocalAddress());
-
-		this.pluginLoader = new PluginLoader(context, classLoader);
 		
-		this.serviceFilter = new FutureAcceptorServiceFilter(classLoader);
+		this.serviceFilter.setClassLoader(classLoader);
 
-		this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader, serviceFilter);
+		if (pluginLoader == null) {
+			this.pluginLoader = new PluginLoader(context, classLoader);
+		}
+
+		if (filterLoader == null) {
+			this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader, serviceFilter);
+		}
 
 		LifeCycleUtil.start(pluginLoader);
 
@@ -132,6 +138,13 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 	public PluginContext[] getPluginContexts() {
 		return pluginLoader.getPluginContexts();
+	}
+	
+	/**
+	 * @param serviceFilter the serviceFilter to set
+	 */
+	public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
+		this.serviceFilter = serviceFilter;
 	}
 
 }

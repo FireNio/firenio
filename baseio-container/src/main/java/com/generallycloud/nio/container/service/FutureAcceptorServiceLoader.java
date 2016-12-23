@@ -146,6 +146,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 			servlet.setConfig(config);
 
 		}
+		
 		return servlets;
 	}
 

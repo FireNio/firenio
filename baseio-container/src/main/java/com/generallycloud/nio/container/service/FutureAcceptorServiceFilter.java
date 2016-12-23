@@ -35,8 +35,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 	private DynamicClassLoader			classLoader;
 	private FutureAcceptorServiceLoader	acceptorServiceLoader;
 
-	public FutureAcceptorServiceFilter(DynamicClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public FutureAcceptorServiceFilter() {
 		this.setSortIndex(Integer.MAX_VALUE);
 	}
 
@@ -90,11 +89,17 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 		session.flush(future);
 	}
+	
+	/**
+	 * @param classLoader the classLoader to set
+	 */
+	protected void setClassLoader(DynamicClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(acceptorServiceLoader);
-
 	}
 
 	@Override

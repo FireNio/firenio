@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -135,17 +136,17 @@ public class DynamicClassLoader extends ClassLoader {
 	private void scanZip(JarFile file) throws IOException {
 
 		try {
+			
 			LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
 
 			Enumeration<JarEntry> entries = file.entries();
+			
 			for (; entries.hasMoreElements();) {
 				JarEntry entry = entries.nextElement();
 				if (!entry.isDirectory()) {
 					String name = entry.getName();
 					if (name.endsWith(".class") && !matchSystem(name)) {
-
 						storeClass(file, name, entry);
-
 					}
 				}
 			}
@@ -168,31 +169,32 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void storeClass(JarFile file, String name, JarEntry entry) throws IOException {
-		name = name.replace('/', '.').replace(".class", "");
+		
+		String className = name.replace('/', '.').replace(".class", "");
+		
+		if (clazzEntries.containsKey(className)) {
+			throw new DuplicateClassException(className);
+		}
+		
+		try {
+			
+			DynamicClassLoader.class.getClassLoader().loadClass(className);
+			
+			throw new DuplicateClassException(className);
+		} catch (ClassNotFoundException e) {
+		}
 
 		InputStream inputStream = file.getInputStream(entry);
-
-		byte[] binaryContent = new byte[(int) entry.getSize()];
-
-		int pos = 0;
-		try {
-			while (true) {
-				int n = inputStream.read(binaryContent, pos, binaryContent.length - pos);
-				if (n <= 0)
-					break;
-				pos += n;
-			}
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		
+		byte[] binaryContent = FileUtil.toByteArray(inputStream, entry.getSize());
 
 		ClassEntry classEntry = new ClassEntry();
 
 		classEntry.binaryContent = binaryContent;
 
-		classEntry.className = name;
+		classEntry.className = className;
 
-		clazzEntries.put(name, classEntry);
+		clazzEntries.put(className, classEntry);
 
 	}
 

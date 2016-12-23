@@ -38,6 +38,7 @@ import com.generallycloud.nio.container.ExtendIOEventHandle;
 import com.generallycloud.nio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.container.configuration.FileSystemACLoader;
+import com.generallycloud.nio.container.http11.service.FutureAcceptorHttpFilter;
 
 public class HttpServerStartup {
 	
@@ -62,6 +63,8 @@ public class HttpServerStartup {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
+			
+			applicationContext.getFilterService().setServiceFilter(new FutureAcceptorHttpFilter());
 			
 			applicationContext.setContext(context);
 			

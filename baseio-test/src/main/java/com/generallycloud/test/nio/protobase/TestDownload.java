@@ -26,8 +26,8 @@ import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FileReceiveUtil;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.protobase.example.TestDownloadServlet;
 import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.nio.sample.protobase.TestDownloadServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestDownload {

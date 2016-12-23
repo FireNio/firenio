@@ -15,30 +15,21 @@
  */
 package com.generallycloud.nio.container;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.io.IOException;
 
-import com.generallycloud.nio.AbstractLifeCycle;
+/**
+ * @author wangkai
+ *
+ */
+@SuppressWarnings("serial")
+public class DuplicateClassException extends IOException {
 
-public class Sequence extends AbstractLifeCycle {
-
-	public AtomicInteger	AUTO_ROOM_ID;
-
-	public AtomicInteger	AUTO_PLUGIN_INDEX;
-
-	@Override
-	protected void doStart() throws Exception {
-
-		AUTO_ROOM_ID = new AtomicInteger();
-
-		AUTO_PLUGIN_INDEX = new AtomicInteger();
+	public DuplicateClassException(String msg) {
+		super(msg);
 	}
 
-	@Override
-	protected void doStop() throws Exception {
-
-		AUTO_ROOM_ID = null;
-
-		AUTO_PLUGIN_INDEX = null;
+	public DuplicateClassException(String msg, Throwable throwable) {
+		super(msg, throwable);
 	}
 
 }

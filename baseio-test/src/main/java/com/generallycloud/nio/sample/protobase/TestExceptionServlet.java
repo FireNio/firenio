@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.nio.container.protobase.example;
+package com.generallycloud.nio.sample.protobase;
 
 import java.io.IOException;
 

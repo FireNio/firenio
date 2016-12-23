@@ -55,7 +55,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext						context;
 	private Charset						encoding			;
-	private FutureAcceptor					filterService;
+	private FutureAcceptor					filterService		= new FutureAcceptor();
 	private Logger							logger			= LoggerFactory
 																.getLogger(ApplicationContext.class);
 	private LoginCenter						loginCenter		= new AuthorityLoginCenter();
@@ -87,9 +87,9 @@ public class ApplicationContext extends AbstractLifeCycle {
 		instance = this;
 
 		SharedBundle bundle = SharedBundle.instance();
-
-		this.filterService = new FutureAcceptor(this);
 		
+		this.filterService.setContext(this);
+
 		this.filterService.setClassLoader(classLoader);
 
 		this.encoding = context.getEncoding();
@@ -100,6 +100,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
+		LifeCycleUtil.start(sequence);
+		
 		LifeCycleUtil.start(filterService);
 
 		this.roleManager.initialize(this, null);
@@ -116,6 +118,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	@Override
 	protected void doStop() throws Exception {
+		LifeCycleUtil.start(sequence);
 		LifeCycleUtil.stop(filterService);
 		InitializeUtil.destroy(loginCenter, this, null);
 		instance = null;
@@ -181,7 +184,17 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public boolean redeploy() {
 		
+		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
+		
+		pluginFilters.clear();
+		
+		pluginServlets.clear();
+		
+		LifeCycleUtil.stop(sequence);
+		
 		LifeCycleUtil.stop(filterService);
+		
+		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
 		
 		DynamicClassLoader classLoader = new DynamicClassLoader();
 
@@ -189,15 +202,24 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 			// FIXME 重新加载configuration
 			
+			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
+			
+			LifeCycleUtil.start(sequence);
+			
 			filterService.setClassLoader(classLoader);
 			
 			LifeCycleUtil.start(filterService);
 			
+			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
+			
 		} catch (Exception e) {
+			
+			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务失败  **********************//\n");
+			
 			logger.info(e.getMessage(), e);
+			
 			return false;
 		}
-
 
 		this.classLoader = classLoader;
 

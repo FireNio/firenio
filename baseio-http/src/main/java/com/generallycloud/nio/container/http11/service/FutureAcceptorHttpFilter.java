@@ -32,9 +32,7 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
-import com.generallycloud.nio.container.DynamicClassLoader;
 import com.generallycloud.nio.container.configuration.Configuration;
-import com.generallycloud.nio.container.http11.service.FutureAcceptorHttpFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.NamedReadFuture;
@@ -42,10 +40,6 @@ import com.generallycloud.nio.protocol.NamedReadFuture;
 
 //FIXME if-modified-since http code 304 res 
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
-
-	public FutureAcceptorHttpFilter(DynamicClassLoader classLoader) {
-		super(classLoader);
-	}
 
 	private Logger					logger		= LoggerFactory.getLogger(FutureAcceptorHttpFilter.class);
 

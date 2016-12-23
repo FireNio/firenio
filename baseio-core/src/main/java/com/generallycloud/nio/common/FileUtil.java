@@ -577,13 +577,11 @@ public class FileUtil {
 
 	public static byte[] toByteArray(InputStream input, int size)
 			throws IOException {
-		if (size < 0) {
+		if (size < 1) {
 			throw new IllegalArgumentException(
 					"Size must be equal or greater than zero: " + size);
 		}
-		if (size == 0) {
-			return new byte[0];
-		}
+
 		byte[] data = new byte[size];
 		int offset = 0;
 		int readed;

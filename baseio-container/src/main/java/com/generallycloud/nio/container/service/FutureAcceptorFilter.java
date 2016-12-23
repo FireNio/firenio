@@ -34,11 +34,6 @@ public abstract class FutureAcceptorFilter extends InitializeableImpl implements
 	}
 
 	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-
-	}
-
-	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 		this.accept(session, (NamedReadFuture) future);
 	}
