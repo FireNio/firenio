@@ -16,6 +16,7 @@
 package com.generallycloud.nio.container.implementation;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
@@ -28,11 +29,13 @@ import com.generallycloud.nio.protocol.ReadFuture;
  *
  */
 public class SystemRedeployServlet extends FutureAcceptorService {
-	
+
 	public SystemRedeployServlet() {
 		this.setServiceName("/system-redeploy");
 	}
-	
+
+	private AtomicInteger redeployTime = new AtomicInteger();
+
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws IOException {
 
@@ -42,10 +45,12 @@ public class SystemRedeployServlet extends FutureAcceptorService {
 
 			ApplicationContext context = ApplicationContext.getInstance();
 
+			int time = redeployTime.incrementAndGet();
+
 			if (context.redeploy()) {
-				future.write("redeploy successful");
+				future.write("redeploy successful_" + time);
 			} else {
-				future.write("redeploy failed");
+				future.write("redeploy failed_" + time);
 			}
 
 			session.flush(future);

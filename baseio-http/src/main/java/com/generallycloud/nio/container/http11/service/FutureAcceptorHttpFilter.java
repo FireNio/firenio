@@ -73,7 +73,6 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		session.flush(entity.future.duplicate(future));
 	}
 	
-	
 	private void reloadEntity(HttpEntity entity,SocketChannelContext context) throws IOException{
 		
 		EmptyServerHttpReadFuture f = new EmptyServerHttpReadFuture(context);
