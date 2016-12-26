@@ -49,7 +49,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 		this.parent = parent;
 
-		this.systemClassLoader = this.getClass().getClassLoader();
+		this.systemClassLoader = getSystemClassLoader();
 	}
 
 	private Class<?> findLoadedClass0(String name) throws ClassNotFoundException {
@@ -78,17 +78,9 @@ public class DynamicClassLoader extends ClassLoader {
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		
-		Class<?> clazz = findLoadedClass0(name);
+		Class<?> clazz = defineClass(name);
 
 		if (clazz != null) {
-
-			return clazz;
-		}
-		
-		clazz = defineClass(name);
-
-		if (clazz != null) {
-
 			return clazz;
 		}
 		
@@ -194,12 +186,11 @@ public class DynamicClassLoader extends ClassLoader {
 
 		ClassEntry classEntry = new ClassEntry();
 
-		classEntry.binaryContent = binaryContent;
+		classEntry.classBinary = binaryContent;
 
 		classEntry.className = className;
 
 		clazzEntries.put(className, classEntry);
-
 	}
 
 	private Class<?> defineClass(String name) throws ClassNotFoundException {
@@ -214,14 +205,22 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private Class<?> defineClass(ClassEntry entry) {
+		
+		if (entry.loadedClass != null) {
+			return entry.loadedClass;
+		}
 
 		String name = entry.className;
 		
-		entry.loadedClass = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length);
+		byte [] cb = entry.classBinary;
+		
+		Class<?> clazz = defineClass(name, cb, 0, cb.length);
+		
+		entry.loadedClass = clazz;
 
 		LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
 
-		return entry.loadedClass;
+		return clazz;
 	}
 
 	public Class<?> forName(String name) throws ClassNotFoundException {
@@ -232,7 +231,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 		private String		className;
 
-		private byte[]	binaryContent;
+		private byte[]	classBinary;
 
 		private Class<?>	loadedClass;
 

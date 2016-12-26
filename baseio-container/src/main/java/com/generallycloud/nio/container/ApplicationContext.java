@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container;
 
 import java.io.File;
@@ -41,29 +41,28 @@ import com.generallycloud.nio.container.service.FutureAcceptorServiceLoader;
 
 public class ApplicationContext extends AbstractLifeCycle {
 
-	private static ApplicationContext	instance;
+	private static ApplicationContext instance;
 
 	public static ApplicationContext getInstance() {
 		return instance;
 	}
 
-	private String							basePath			= "";
-	private String							appPath			= "app/";
+	private String							basePath		= "";
+	private String							appPath		= "app/";
 	private String							appLocalAddres;
-	private Sequence						sequence			= new Sequence();
-	private DynamicClassLoader				classLoader		= new DynamicClassLoader();
+	private Sequence						sequence		= new Sequence();
+	private DynamicClassLoader				classLoader	= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
-	private SocketChannelContext						context;
-	private Charset						encoding			;
-	private FutureAcceptor					filterService		= new FutureAcceptor();
-	private Logger							logger			= LoggerFactory
-																.getLogger(ApplicationContext.class);
-	private LoginCenter						loginCenter		= new AuthorityLoginCenter();
-	private List<FutureAcceptorFilter>			pluginFilters		= new ArrayList<FutureAcceptorFilter>();
-	private Map<String, FutureAcceptorService>	pluginServlets		= new HashMap<String, FutureAcceptorService>();
-	private RoleManager						roleManager		= new RoleManager();
+	private SocketChannelContext				context;
+	private Charset						encoding;
+	private FutureAcceptor					filterService	= new FutureAcceptor();
+	private Logger							logger		= LoggerFactory.getLogger(getClass());
+	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
+	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
+	private Map<String, FutureAcceptorService>	pluginServlets	= new HashMap<String, FutureAcceptorService>();
+	private RoleManager						roleManager	= new RoleManager();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
-	private Map<String, FutureAcceptorService>	services			= new LinkedHashMap<String, FutureAcceptorService>();
+	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 
 	public ApplicationContext(ApplicationConfiguration configuration, String basePath) {
 		if (basePath == null) {
@@ -87,21 +86,21 @@ public class ApplicationContext extends AbstractLifeCycle {
 		instance = this;
 
 		SharedBundle bundle = SharedBundle.instance();
-		
+
 		this.filterService.setContext(this);
 
 		this.filterService.setClassLoader(classLoader);
 
 		this.encoding = context.getEncoding();
-		
-		File temp = new File( bundle.getClassPath() + basePath + "/" + appPath);
-		
+
+		File temp = new File(bundle.getClassPath() + basePath + "/" + appPath);
+
 		this.appLocalAddres = temp.getCanonicalPath() + "/";
 
 		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
 
 		LifeCycleUtil.start(sequence);
-		
+
 		LifeCycleUtil.start(filterService);
 
 		this.roleManager.initialize(this, null);
@@ -183,52 +182,53 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return roleManager;
 	}
 
-	public boolean redeploy() {
-		
+	
+	//FIXME redeploy roleManager
+	//FIXME redeploy loginCenter
+	public synchronized boolean redeploy() {
+
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
-		
+
 		LifeCycleUtil.stop(sequence);
-		
+
 		LifeCycleUtil.stop(filterService);
-		
+
 		pluginFilters.clear();
-		
+
 		pluginServlets.clear();
-		
+
 		classLoader.unloadClassLoader();
-		
+
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
-		
-		DynamicClassLoader classLoader = new DynamicClassLoader();
+
+		this.classLoader = new DynamicClassLoader();
 
 		try {
 
 			// FIXME 重新加载configuration
-			
+
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
-			
+
 			LifeCycleUtil.start(sequence);
-			
+
 			filterService.setClassLoader(classLoader);
-			
+
 			LifeCycleUtil.start(filterService);
-			
+
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
-			
+
+			return true;
+
 		} catch (Exception e) {
-			
+
 			classLoader.unloadClassLoader();
-			
+
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务失败  **********************//\n");
-			
+
 			logger.info(e.getMessage(), e);
-			
+
 			return false;
 		}
-
-		this.classLoader = classLoader;
-
-		return true;
 	}
 
 	public void setContext(SocketChannelContext context) {
