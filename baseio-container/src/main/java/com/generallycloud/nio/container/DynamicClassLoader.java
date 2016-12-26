@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container;
 
 import java.io.File;
@@ -36,20 +36,25 @@ public class DynamicClassLoader extends ClassLoader {
 
 	private Logger					logger		= LoggerFactory.getLogger(DynamicClassLoader.class);
 	private Map<String, ClassEntry>	clazzEntries	= new HashMap<String, ClassEntry>();
-	private ClassLoader				parent;
+	private ClassLoader				parentClassLoader;
 	private ClassLoader				systemClassLoader;
+	private ClassLoader				appClassLoader;
 
 	public DynamicClassLoader() {
 		
-		ClassLoader parent = getParent();
+		this.appClassLoader = getClass().getClassLoader();
 
-		if (parent == null) {
-			parent = getSystemClassLoader();
-		}
-
-		this.parent = parent;
+		this.parentClassLoader = getParent();
 
 		this.systemClassLoader = getSystemClassLoader();
+		
+		if (parentClassLoader == null) {
+			parentClassLoader = systemClassLoader;
+		}
+
+		if (appClassLoader == null) {
+			appClassLoader = parentClassLoader;
+		}
 	}
 
 	private Class<?> findLoadedClass0(String name) throws ClassNotFoundException {
@@ -77,17 +82,39 @@ public class DynamicClassLoader extends ClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		
+
 		Class<?> clazz = defineClass(name);
 
 		if (clazz != null) {
 			return clazz;
 		}
-		
+
+		clazz = entrustLoadClass(appClassLoader, name);
+
+		if (clazz != null) {
+			return clazz;
+		}
+
+		clazz = entrustLoadClass(parentClassLoader, name);
+
+		if (clazz != null) {
+			return clazz;
+		}
+
+		clazz = entrustLoadClass(systemClassLoader, name);
+
+		if (clazz != null) {
+			return clazz;
+		}
+
+		throw new ClassNotFoundException(name);
+	}
+
+	private Class<?> entrustLoadClass(ClassLoader classLoader, String name) {
 		try {
-			return parent.loadClass(name);
+			return classLoader.loadClass(name);
 		} catch (Throwable e) {
-			return systemClassLoader.loadClass(name);
+			return null;
 		}
 	}
 
@@ -101,49 +128,49 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void scan0(File file) throws IOException {
-		
+
 		if (!file.exists()) {
 			LoggerUtil.prettyNIOServerLog(logger, "文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
 			return;
-		} 
-		
+		}
+
 		if (file.isDirectory()) {
-			
+
 			File[] files = file.listFiles();
-			
+
 			for (File _file : files) {
 				scan0(_file);
 			}
-			
+
 			return;
 		}
-		
+
 		String fileName = file.getName();
-		
+
 		if (fileName.endsWith(".jar")) {
 			scanZip(new JarFile(file));
 		}
-		
+
 	}
 
 	private void scanZip(JarFile file) throws IOException {
 
 		try {
-			
+
 			LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
 
 			Enumeration<JarEntry> entries = file.entries();
-			
+
 			for (; entries.hasMoreElements();) {
-				
+
 				JarEntry entry = entries.nextElement();
 
 				if (entry.isDirectory()) {
 					continue;
 				}
-				
+
 				String name = entry.getName();
-				
+
 				if (name.endsWith(".class") && !matchSystem(name)) {
 					storeClass(file, name, entry);
 				}
@@ -165,23 +192,23 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void storeClass(JarFile file, String name, JarEntry entry) throws IOException {
-		
+
 		String className = name.replace('/', '.').replace(".class", "");
-		
+
 		if (clazzEntries.containsKey(className)) {
 			throw new DuplicateClassException(className);
 		}
-		
+
 		try {
-			
-			parent.loadClass(className);
-			
+
+			parentClassLoader.loadClass(className);
+
 			throw new DuplicateClassException(className);
 		} catch (ClassNotFoundException e) {
 		}
 
 		InputStream inputStream = file.getInputStream(entry);
-		
+
 		byte[] binaryContent = FileUtil.toByteArray(inputStream, entry.getSize());
 
 		ClassEntry classEntry = new ClassEntry();
@@ -194,7 +221,7 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private Class<?> defineClass(String name) throws ClassNotFoundException {
-		
+
 		ClassEntry entry = clazzEntries.get(name);
 
 		if (entry == null) {
@@ -205,17 +232,30 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private Class<?> defineClass(ClassEntry entry) {
-		
+
 		if (entry.loadedClass != null) {
 			return entry.loadedClass;
 		}
 
+		SecurityManager sm = System.getSecurityManager();
+
+		if (sm != null) {
+
+			String name = entry.className;
+
+			int i = name.lastIndexOf('.');
+			
+			if (i != -1) {
+				sm.checkPackageAccess(name.substring(0, i));
+			}
+		}
+
 		String name = entry.className;
-		
-		byte [] cb = entry.classBinary;
-		
+
+		byte[] cb = entry.classBinary;
+
 		Class<?> clazz = defineClass(name, cb, 0, cb.length);
-		
+
 		entry.loadedClass = clazz;
 
 		LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
@@ -231,35 +271,35 @@ public class DynamicClassLoader extends ClassLoader {
 
 		private String		className;
 
-		private byte[]	classBinary;
+		private byte[]		classBinary;
 
 		private Class<?>	loadedClass;
 
 	}
 
 	public void unloadClassLoader() {
-		
+
 		Collection<ClassEntry> es = clazzEntries.values();
-		
-		for(ClassEntry e : es){
+
+		for (ClassEntry e : es) {
 			unloadClass(e.loadedClass);
 		}
 	}
 
 	private void unloadClass(Class<?> clazz) {
-		
+
 		if (clazz == null) {
 			return;
 		}
-		
+
 		Field[] fields = clazz.getDeclaredFields();
-		
+
 		for (Field field : fields) {
-			
+
 			if (!Modifier.isStatic(field.getModifiers())) {
 				continue;
 			}
-			
+
 			try {
 				if (!field.isAccessible()) {
 					field.setAccessible(true);
