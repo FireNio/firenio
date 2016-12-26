@@ -112,6 +112,6 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 * WebSocket小蝌蚪 Demo：https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
  （我写的后端，前端https://github.com/danielmahal/Rumpetroll ）
 
-# License
+## License
 
 BaseIO is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
