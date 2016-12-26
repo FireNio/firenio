@@ -98,9 +98,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 			@Override
 			public boolean handle(SelectorLoop selectLoop) throws IOException {
-
 				CloseUtil.close(NioDatagramChannel.this);
-
 				return false;
 			}
 		});

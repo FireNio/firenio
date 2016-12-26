@@ -58,7 +58,7 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			
 			AbstractSessionManager sessionManager = (AbstractSessionManager) this.context.getSessionManager();
 			
-			sessionManager.initSessionManager(selectorLoopStrategy);
+			sessionManager.initSessionManager(this);
 			
 			return selector;
 		}

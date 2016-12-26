@@ -58,7 +58,8 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 	public interface SelectorLoopEvent extends Closeable {
 
 		/**
-		 * 返回该Event是否结束
+		 * 返回该Event是否需要再次处理
+		 * @return true 需要再次处理，false处理结束后丢弃 
 		 */
 		boolean handle(SelectorLoop selectLoop) throws IOException;
 		

@@ -23,6 +23,7 @@ public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
 
 	@Override
 	public void close() throws IOException {
+		handle(null);
 	}
 
 	@Override

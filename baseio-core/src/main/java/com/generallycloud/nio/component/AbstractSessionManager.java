@@ -12,28 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
-public abstract class AbstractSessionManager implements SessionManager{
-	
-	protected SelectorLoopStrategy			selectorLoopStrategy;
-	
-	private long						current_idle_time	= 0;
-	private long						last_idle_time		= 0;
-	private long						session_idle_time	= 0;
-	private long						next_idle_time		= System.currentTimeMillis();
-	
+public abstract class AbstractSessionManager implements SessionManager {
+
+	protected SelectorLoop	selectorLoop;
+
+	private long			current_idle_time	= 0;
+	private long			last_idle_time		= 0;
+	private long			session_idle_time	= 0;
+	private long			next_idle_time		= System.currentTimeMillis();
+
 	public AbstractSessionManager(long session_idle_time) {
 		this.session_idle_time = session_idle_time;
 	}
 
-	protected abstract void fireSessionManagerEvent();
-
 	@Override
 	public void loop() {
-
-		fireSessionManagerEvent();
 
 		long current_time = System.currentTimeMillis();
 
@@ -49,11 +45,11 @@ public abstract class AbstractSessionManager implements SessionManager{
 
 		sessionIdle(last_idle_time, current_time);
 	}
-	
-	protected abstract void sessionIdle(long lastIdleTime, long currentTime) ;
-	
-	public void initSessionManager(SelectorLoopStrategy strategy){
-		this.selectorLoopStrategy = strategy;
+
+	protected abstract void sessionIdle(long lastIdleTime, long currentTime);
+
+	public void initSessionManager(SelectorLoop selectorLoop) {
+		this.selectorLoop = selectorLoop;
 	}
-	
+
 }

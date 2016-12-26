@@ -23,8 +23,6 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
@@ -32,54 +30,36 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 
 	private SocketChannelContext				context	= null;
 	private ReentrantMap<Integer, SocketSession>	sessions	= new ReentrantMap<Integer, SocketSession>();
-	private ListQueue<SocketSessionManagerEvent>	events	= new ListQueueABQ<SocketSessionManagerEvent>(512);
 	private Logger							logger	= LoggerFactory.getLogger(SocketSessionManagerImpl.class);
 
 	public SocketSessionManagerImpl(SocketChannelContext context) {
 		super(context.getSessionIdleTime());
 		this.context = context;
 	}
-
+	
 	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 
-		// FIXME throw
-		this.events.offer(event);
+		this.selectorLoop.fireEvent(new SelectorLoopEventAdapter() {
+			
+			@Override
+			public boolean handle(SelectorLoop selectLoop) throws IOException {
+				
+				Map<Integer, SocketSession> map = sessions.getSnapshot();
 
-		selectorLoopStrategy.wakeup();
-	}
+				if (map.size() == 0) {
+					return false;
+				}
 
-	@Override
-	public boolean hasTask() {
-		return events.size() > 0;
-	}
-
-	@Override
-	protected void fireSessionManagerEvent() {
-
-		int loop = 5;
-
-		for (; loop-- > 0;) {
-
-			SocketSessionManagerEvent event = events.poll();
-
-			if (event == null) {
-				return;
+				try {
+					event.fire(context, map);
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
+				}
+				
+				return false;
 			}
-
-			Map<Integer, SocketSession> map = sessions.getSnapshot();
-
-			if (map.size() == 0) {
-				return;
-			}
-
-			try {
-				event.fire(context, map);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-
+		});
 	}
 
 	@Override

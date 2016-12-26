@@ -149,7 +149,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		
 		positiveEvents.offer(event);
 		
-		if (positiveEvents.getBufferSize() == 1) {
+		if (positiveEvents.getBufferSize() < 3) {
 			
 			wakeup();
 		}

@@ -82,8 +82,6 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 		handlePositiveEvents(looper, true);
 		
 		sessionManager.loop();
-		
-		hasTask = hasTask || sessionManager.hasTask();
 	}
 	
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -24,19 +24,14 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
 public class DatagramSessionManagerImpl extends AbstractSessionManager implements DatagramSessionManager {
 
 	private DatagramChannelContext						context	= null;
-	private ReentrantMap<InetSocketAddress, DatagramSession>	sessions	= new ReentrantMap<InetSocketAddress, DatagramSession>();
-	private ListQueue<DatagramSessionManagerEvent>			events	= new ListQueueABQ<DatagramSessionManagerEvent>(
-			512);
-	private Logger										logger	= LoggerFactory
-			.getLogger(DatagramSessionManagerImpl.class);
+	private ReentrantMap<InetSocketAddress, DatagramSession>	sessions	= new ReentrantMap<>();
+	private Logger										logger	= LoggerFactory.getLogger(getClass());
 
 	public DatagramSessionManagerImpl(DatagramChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -45,39 +40,32 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 
 	@Override
 	public void offerSessionMEvent(DatagramSessionManagerEvent event) {
-		
-		// FIXME throw
-		this.events.offer(event);
-		
-		selectorLoopStrategy.wakeup();
 
-	}
+		this.selectorLoop.fireEvent(new SelectorLoopEventAdapter() {
 
-	@Override
-	protected void fireSessionManagerEvent() {
-		
-		int loop = 5;
+			@Override
+			public boolean handle(SelectorLoop selectLoop) throws IOException {
 
-		for (; loop-- > 0;) {
+				Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
 
-			DatagramSessionManagerEvent event = events.poll();
+				if (map.size() == 0) {
+					return false;
+				}
 
-			if (event == null) {
-				return;
+				try {
+					event.fire(context, map);
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
+				}
+
+				return false;
 			}
-
-			Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
-
-			if (map.size() == 0) {
-				return;
+			
+			@Override
+			public void close() throws IOException {
+				handle(null);
 			}
-
-			try {
-				event.fire(context, map);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+		});
 	}
 
 	@Override
@@ -184,11 +172,6 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 		}
 
 		return session;
-	}
-	
-	@Override
-	public boolean hasTask() {
-		return events.size() > 0;
 	}
 
 }
