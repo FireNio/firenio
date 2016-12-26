@@ -18,7 +18,6 @@ package com.generallycloud.nio.common;
 //FIXME char util ?
 public class ByteUtil {
 	
-	
 	public static char			FALSE		= 'F';
 	public static char			TRUE			= 'T';
 	

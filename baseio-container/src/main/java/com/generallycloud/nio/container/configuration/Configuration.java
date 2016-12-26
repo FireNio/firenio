@@ -27,5 +27,9 @@ public class Configuration extends JsonParameters{
 	public Configuration(String json) {
 		super(json);
 	}
+	
+	public Configuration(){
+		
+	}
 
 }

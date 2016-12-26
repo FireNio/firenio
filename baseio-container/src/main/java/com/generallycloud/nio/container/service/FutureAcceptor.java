@@ -25,11 +25,11 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
+import com.generallycloud.nio.component.ReadFutureAcceptor;
+import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.DynamicClassLoader;
 import com.generallycloud.nio.container.PluginContext;
-import com.generallycloud.nio.component.ReadFutureAcceptor;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 //FIXME exception
@@ -42,14 +42,11 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private PluginLoader				pluginLoader;
 	private Linkable<FutureAcceptorFilter>	rootFilter;
 	private FutureAcceptorServiceFilter	serviceFilter;
+	private FutureAcceptorService			appRedeployService;
 	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptor.class);
 
-	/**
-	 * @param classLoader
-	 *             the classLoader to set
-	 */
-	public void setClassLoader(DynamicClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public FutureAcceptor(ApplicationContext context) {
+		this.context = context;
 	}
 
 	private void accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
@@ -75,16 +72,14 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws IOException {
 
-		if (deploying) {
-
-			future.write("server is upgrading ...");
-
-			session.flush(future);
-
-			return;
-		}
-
 		try {
+			
+			if (deploying) {
+				
+				appRedeployService.accept(session, future);
+
+				return;
+			}
 
 			accept(rootFilter, session, future);
 
@@ -94,17 +89,14 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		}
 	}
 	
-	/**
-	 * @param context the context to set
-	 */
-	public void setContext(ApplicationContext context) {
-		this.context = context;
-	}
-
 	@Override
 	protected void doStart() throws Exception {
+		
+		this.classLoader = context.getClassLoader();
 
 		this.classLoader.scan(context.getAppLocalAddress());
+		
+		this.appRedeployService = context.getAppRedeployService();
 		
 		this.serviceFilter.setClassLoader(classLoader);
 

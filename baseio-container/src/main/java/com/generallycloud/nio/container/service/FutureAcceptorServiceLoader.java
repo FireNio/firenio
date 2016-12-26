@@ -15,17 +15,17 @@
  */
 package com.generallycloud.nio.container.service;
 
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.LifeCycle;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.DynamicClassLoader;
 import com.generallycloud.nio.container.configuration.Configuration;
@@ -37,7 +37,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	private DynamicClassLoader				classLoader;
 	private ServicesConfiguration				configuration;
 	private Logger							logger	= LoggerFactory.getLogger(getClass());
-	private Map<String, FutureAcceptorService>	services	= new LinkedHashMap<String, FutureAcceptorService>();
+	private Map<String, FutureAcceptorService>	services	= new HashMap<String, FutureAcceptorService>();
 
 	public FutureAcceptorServiceLoader(ApplicationContext context, DynamicClassLoader classLoader) {
 		this.configuration = context.getConfiguration().getServletsConfiguration();
@@ -48,28 +48,23 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	@Override
 	protected void doStart() throws Exception {
 
-		Map<String, FutureAcceptorService> servlets = loadServlets(configuration, classLoader);
+		this.services = loadServlets(configuration, classLoader);
 
-		this.initializeServlets(servlets);
-
-		this.services = servlets;
-
+		this.initializeServices(services);
 	}
 
 	@Override
 	protected void doStop() throws Exception {
 
-		Set<Entry<String, FutureAcceptorService>> entries = services.entrySet();
+		Collection<FutureAcceptorService> entries = services.values();
 
-		for (Entry<String, FutureAcceptorService> entry : entries) {
-
-			FutureAcceptorService servlet = entry.getValue();
+		for (FutureAcceptorService entry : entries) {
 
 			try {
 
-				servlet.destroy(context, servlet.getConfig());
+				entry.destroy(context, entry.getConfig());
 
-				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", servlet);
+				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", entry);
 
 			} catch (Throwable e) {
 
@@ -90,41 +85,29 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		this.services.putAll(services);
 	}
 
-	private void initializeServlets(Map<String, FutureAcceptorService> servlets) throws Exception {
+	private void initializeServices(Map<String, FutureAcceptorService> services) throws Exception {
 
-		Set<Entry<String, FutureAcceptorService>> entries = servlets.entrySet();
+		Collection<FutureAcceptorService> es = services.values();
 
-		for (Entry<String, FutureAcceptorService> entry : entries) {
+		for (FutureAcceptorService e : es) {
 
-			FutureAcceptorService servlet = entry.getValue();
+			e.initialize(context, e.getConfig());
 
-			servlet.initialize(context, servlet.getConfig());
-
-			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", servlet);
-
+			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", e);
 		}
 	}
-
+	
 	private Map<String, FutureAcceptorService> loadServlets(ServicesConfiguration configuration,
 			DynamicClassLoader classLoader) throws Exception {
 
 		List<Configuration> servletConfigurations = configuration.getServlets();
-
-		Map<String, FutureAcceptorService> pluginServlets = context.getPluginServlets();
-
-		Map<String, FutureAcceptorService> servlets = new LinkedHashMap<String, FutureAcceptorService>();
-
-		servlets.putAll(pluginServlets);
-
+		
 		if (servletConfigurations.size() == 0) {
-
-			if (servlets.size() == 0) {
-
-				throw new Error("empty servlet config");
-			}
-			return servlets;
+			logger.info("no servlet configed");
 		}
-
+		
+		Map<String, FutureAcceptorService> servlets = new HashMap<>();
+		
 		for (int i = 0; i < servletConfigurations.size(); i++) {
 
 			Configuration config = servletConfigurations.get(i);
@@ -133,19 +116,26 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			Class<?> clazz = classLoader.forName(className);
 
-			String serviceName = config.getParameter("service-name", clazz.getSimpleName());
+			String serviceName = config.getParameter("service-name");
+			
+			if (StringUtil.isNullOrBlank(serviceName)) {
+				throw new IllegalArgumentException("null service name,"+className);
+			}
 
 			if (servlets.containsKey(serviceName)) {
 				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");
 			}
 
 			FutureAcceptorService servlet = (FutureAcceptorService) clazz.newInstance();
+			
+			servlet.setServiceName(serviceName);
 
 			servlets.put(serviceName, servlet);
 
 			servlet.setConfig(config);
-
 		}
+		
+		servlets.putAll(context.getPluginServlets());
 		
 		return servlets;
 	}

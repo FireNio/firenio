@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.buffer.EmptyByteBuf;
 
 public class FileUtil {
 
@@ -578,8 +579,7 @@ public class FileUtil {
 	public static byte[] toByteArray(InputStream input, int size)
 			throws IOException {
 		if (size < 1) {
-			throw new IllegalArgumentException(
-					"Size must be equal or greater than zero: " + size);
+			return EmptyByteBuf.EMPTY_BYTEBUF.array();
 		}
 
 		byte[] data = new byte[size];

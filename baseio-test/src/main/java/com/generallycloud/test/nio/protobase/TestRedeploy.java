@@ -20,14 +20,13 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.implementation.SYSTEMRedeployServlet;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestRedeploy {
 
 	public static void main(String[] args) throws Exception {
 
-		String serviceKey = SYSTEMRedeployServlet.SERVICE_NAME;
+		String serviceKey = "system-redeploy";
 
 		String param = "{username:\"admin\",password:\"admin100\"}";
 

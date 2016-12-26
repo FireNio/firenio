@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container.implementation;
 
 import com.generallycloud.nio.acceptor.ChannelAcceptor;
@@ -25,24 +25,28 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SYSTEMStopServerServlet extends FutureAcceptorService {
+public class SystemStopServerServlet extends FutureAcceptorService {
 
-	private Logger				logger		= LoggerFactory.getLogger(SYSTEMStopServerServlet.class);
+	private Logger logger = LoggerFactory.getLogger(SystemStopServerServlet.class);
+
+	public SystemStopServerServlet() {
+		this.setServiceName("/system-stop-server.auth");
+	}
 
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
-		
+
 		SocketChannelContext context = session.getContext();
-		
-		new Thread(new StopServer(context)).start();
-		
-		future.write("服务端正在处理停止服务命令...");
-		
+
+		future.write("server is stopping");
+
 		session.flush(future);
+
+		new Thread(new StopServer(context)).start();
 	}
 
 	private class StopServer implements Runnable {
-		
+
 		private SocketChannelContext context = null;
 
 		public StopServer(SocketChannelContext context) {
@@ -63,12 +67,9 @@ public class SYSTEMStopServerServlet extends FutureAcceptorService {
 				logger.info("   [NIOServer] 服务将在" + words[i] + "秒后开始停止，请稍等");
 
 				ThreadUtil.sleep(1000);
-
 			}
-			
-			ChannelAcceptor acceptor = (ChannelAcceptor) context.getChannelService();
-			
-			CloseUtil.unbind(acceptor);
+
+			CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
 		}
 	}
 }

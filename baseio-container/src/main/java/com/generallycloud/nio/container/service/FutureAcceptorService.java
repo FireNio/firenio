@@ -28,7 +28,9 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, IoEventHandle {
 
-	private Logger logger = LoggerFactory.getLogger(FutureAcceptorService.class);
+	private Logger		logger		= LoggerFactory.getLogger(getClass());
+
+	private String		serviceName	= null;
 
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
@@ -48,23 +50,35 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 	@Override
 	public String toString() {
 
-		Configuration configuration = this.getConfig();
+		String serviceName = this.serviceName;
 
-		String serviceName = null;
+		if (serviceName == null) {
 
-		if (configuration == null) {
+			Configuration configuration = this.getConfig();
 
-			serviceName = this.getClass().getSimpleName();
-		} else {
+			if (configuration != null) {
+				serviceName = configuration.getParameter("service-name");
+			}
 
-			serviceName = configuration.getParameter("service-name");
-
-			if (StringUtil.isNullOrBlank(serviceName)) {
-				serviceName = this.getClass().getSimpleName();
+			if (serviceName == null) {
+				serviceName = "unknow";
 			}
 		}
 
 		return "(service-name:" + serviceName + "@class:" + this.getClass().getName() + ")";
+	}
+	
+	public String getServiceName() {
+		return serviceName;
+	}
+	
+	public void setServiceName(String serviceName) {
+		
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			throw new IllegalArgumentException("null future name");
+		}
+		
+		this.serviceName = serviceName;
 	}
 
 }

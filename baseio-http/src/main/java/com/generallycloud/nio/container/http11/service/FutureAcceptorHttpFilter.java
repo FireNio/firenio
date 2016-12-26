@@ -39,6 +39,7 @@ import com.generallycloud.nio.protocol.NamedReadFuture;
 
 
 //FIXME if-modified-since http code 304 res 
+//FIXME limit too large file
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private Logger					logger		= LoggerFactory.getLogger(FutureAcceptorHttpFilter.class);
@@ -48,15 +49,10 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	@Override
 	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
 
-		String _service_name = serviceName;
-
-		// if ("/".equals(_service_name)) {
-		// _service_name = "/index.html";
-		// }
-
-		HttpEntity entity = html_cache.get(_service_name);
+		HttpEntity entity = html_cache.get(serviceName);
 
 		if (entity == null) {
+			//FIXME 404 status
 			entity = html_cache.get("/404.html");
 			if (entity == null) {
 				super.accept404(session, future, serviceName);

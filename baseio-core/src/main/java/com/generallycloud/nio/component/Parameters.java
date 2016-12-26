@@ -41,4 +41,6 @@ public interface Parameters {
 	public abstract String getParameter(String key, String defaultValue);
 
 	public abstract int size();
+	
+	public abstract JSONObject getJsonObject();
 }

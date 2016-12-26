@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.nio.codec.http11;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.codec.http11.future.Cookie;
@@ -86,14 +86,12 @@ public class HttpSessionManager extends AbstractEventLoopThread{
 			
 			Map<String, HttpSession> map = sessions.getSnapshot();
 			
-			Set<Entry<String, HttpSession>> es = map.entrySet();
+			Collection<HttpSession> es = map.values();
 			
-			for(Entry<String, HttpSession> e :es){
-				HttpSession session = e.getValue();
+			for(HttpSession session :es){
 				
 				if (!session.isValidate()) {
-					
-					sessions.remove(e.getKey());
+					sessions.remove(session.getSessionID());
 					CloseUtil.close(session.getIoSession());
 				}
 			}

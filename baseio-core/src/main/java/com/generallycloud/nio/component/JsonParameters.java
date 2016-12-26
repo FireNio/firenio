@@ -22,33 +22,37 @@ import com.generallycloud.nio.common.StringUtil;
 
 public class JsonParameters implements Parameters {
 	
-	private JSONObject	object	;
+	private JSONObject	jsonObject	;
 
 	private String		json		;
 
 	public JsonParameters(String json) {
 		if (!StringUtil.isNullOrBlank(json)) {
 			try {
-				object = JSON.parseObject(json);
+				jsonObject = JSON.parseObject(json);
 			} catch (Exception e) {
 				throw new IllegalArgumentException(json, e);
 			}
 			this.json = json;
 		}else{
-			this.object = new JSONObject();
+			this.jsonObject = new JSONObject();
 		}
 	}
 	
 	public JsonParameters(JSONObject object) {
-		this.object = object;
+		this.jsonObject = object;
+	}
+	
+	public JsonParameters() {
+		this(new JSONObject());
 	}
 
 	@Override
 	public boolean getBooleanParameter(String key) {
-		if (object == null) {
+		if (jsonObject == null) {
 			return false;
 		}
-		return object.getBooleanValue(key);
+		return jsonObject.getBooleanValue(key);
 	}
 
 	@Override
@@ -58,10 +62,10 @@ public class JsonParameters implements Parameters {
 
 	@Override
 	public int getIntegerParameter(String key, int defaultValue) {
-		if (object == null) {
+		if (jsonObject == null) {
 			return defaultValue;
 		}
-		int value = object.getIntValue(key);
+		int value = jsonObject.getIntValue(key);
 		if (value == 0) {
 			return defaultValue;
 		}
@@ -75,10 +79,10 @@ public class JsonParameters implements Parameters {
 
 	@Override
 	public long getLongParameter(String key, long defaultValue) {
-		if (object == null) {
+		if (jsonObject == null) {
 			return defaultValue;
 		}
-		long value = object.getLongValue(key);
+		long value = jsonObject.getLongValue(key);
 		if (value == 0) {
 			return defaultValue;
 		}
@@ -87,10 +91,10 @@ public class JsonParameters implements Parameters {
 
 	@Override
 	public Object getObjectParameter(String key) {
-		if (object == null) {
+		if (jsonObject == null) {
 			return null;
 		}
-		return object.get(key);
+		return jsonObject.get(key);
 	}
 
 	@Override
@@ -100,10 +104,10 @@ public class JsonParameters implements Parameters {
 
 	@Override
 	public String getParameter(String key, String defaultValue) {
-		if (object == null) {
+		if (jsonObject == null) {
 			return defaultValue;
 		}
-		String value = object.getString(key);
+		String value = jsonObject.getString(key);
 		if (StringUtil.isNullOrBlank(value)) {
 			return defaultValue;
 		}
@@ -113,24 +117,28 @@ public class JsonParameters implements Parameters {
 	@Override
 	public String toString() {
 		if (json == null) {
-			json = object.toJSONString();
+			json = jsonObject.toJSONString();
 		}
 		return json;
 	}
 
 	@Override
 	public JSONObject getJSONObject(String key) {
-		return object.getJSONObject(key);
+		return jsonObject.getJSONObject(key);
 	}
 
 	@Override
 	public JSONArray getJSONArray(String key) {
-		return object.getJSONArray(key);
+		return jsonObject.getJSONArray(key);
 	}
 
 	@Override
 	public int size() {
-		return object.size();
+		return jsonObject.size();
+	}
+	
+	public JSONObject getJsonObject(){
+		return jsonObject;
 	}
 	
 }

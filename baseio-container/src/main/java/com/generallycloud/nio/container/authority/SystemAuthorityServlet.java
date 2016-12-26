@@ -24,8 +24,8 @@ import com.generallycloud.nio.container.service.FutureAcceptorService;
 import com.generallycloud.nio.protocol.ParametersReadFuture;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SYSTEMAuthorityServlet extends FutureAcceptorService {
-
+public class SystemAuthorityServlet extends FutureAcceptorService {
+	
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
