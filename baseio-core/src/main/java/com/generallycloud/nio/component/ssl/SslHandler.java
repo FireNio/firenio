@@ -25,22 +25,21 @@ import javax.net.ssl.SSLEngineResult.Status;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
-import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.nio.protocol.EmptyReadFuture;
 
 public class SslHandler {
 
-	private SocketChannelContext	context	= null;
-
-//	private Logger		logger	= LoggerFactory.getLogger(SslHandler.class);
+	private ChannelWriteFuture	EMPTY_CWF	= null;
 
 	public SslHandler(SocketChannelContext context) {
-		this.context = context;
+		this.EMPTY_CWF = new ChannelWriteFutureImpl(
+				EmptyReadFuture.getEmptyReadFuture(context)
+				, EmptyByteBuf.EMPTY_BYTEBUF);
 	}
 
 	private ByteBuf allocate(Session session, int capacity) {
@@ -60,21 +59,18 @@ public class SslHandler {
 				SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
 
 				Status status = result.getStatus();
+				
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
-//				logger.debug("_________________________wrap");
-//				logger.debug("_________________________,{}" , status.name());
-//				logger.debug("_________________________,{}" , handshakeStatus.name());
-				
 				synchByteBuf(result, src, dst);
 
 				if (status == Status.CLOSED) {
-					return gc(session,dst);
+					return gc(session,dst.flip());
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
 					case NOT_HANDSHAKING:
-						return gc(session,dst);
+						return gc(session,dst.flip());
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
@@ -82,9 +78,7 @@ public class SslHandler {
 						session.finishHandshake(null);
 						break;
 					default:
-						// throw new
-						// IllegalStateException("unknown handshake status: "
-						// + handshakeStatus);
+						// continue
 						break;
 					}
 				}
@@ -105,8 +99,6 @@ public class SslHandler {
 	//FIXME 部分buf不需要gc
 	private ByteBuf gc(Session session,ByteBuf buf) throws IOException {
 
-		buf.flip();
-
 		ByteBuf out = allocate(session,buf.limit());
 
 		try {
@@ -122,14 +114,10 @@ public class SslHandler {
 
 		ReleaseUtil.release(buf);
 
-		out.flip();
-
-		return out;
+		return out.flip();
 	}
 
 	public ByteBuf unwrap(SocketSession session, ByteBuf src) throws IOException {
-
-//		logger.debug("__________________________________________________start");
 
 		ByteBuf dst = allocate(session,src.capacity() * 2);
 
@@ -142,26 +130,15 @@ public class SslHandler {
 
 				SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
 				
-//				Status status = result.getStatus();
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
-//				logger.debug("_________________________unwrap");
-//				logger.debug("_________________________,{}" , status.name());
-//				logger.debug("_________________________,{}" , handshakeStatus.name());
-				
 				synchByteBuf(result, src, dst);
 
 				switch (handshakeStatus) {
 				case NEED_UNWRAP:
 					return null;
 				case NEED_WRAP:
-
-					ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
-
-					ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
-
-					session.flush(f);
-
+					session.flush(EMPTY_CWF.duplicate());
 					return null;
 				case NEED_TASK:
 					runDelegatedTasks(sslEngine);
@@ -170,18 +147,12 @@ public class SslHandler {
 					session.finishHandshake(null);
 					return null;
 				case NOT_HANDSHAKING:
-
 					release = false;
-
-					dst.flip();
-
-					return dst;
-
+					return dst.flip();
 				default:
 					throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
 				}
 			}
-
 		} finally {
 
 			if (release) {
@@ -202,23 +173,18 @@ public class SslHandler {
 		if (bytesProduced > 0) {
 			dst.skipBytes(bytesProduced);
 		}
-
-//		logger.debug("_________________________bytesConsumed:{}" , bytesConsumed);
-//		logger.debug("_________________________bytesProduced:{}" , bytesProduced);
-		
 	}
-	
 
 	private void runDelegatedTasks(SSLEngine engine) {
-
+		
 		for (;;) {
-
+		
 			Runnable task = engine.getDelegatedTask();
-
+			
 			if (task == null) {
 				break;
 			}
-
+			
 			task.run();
 		}
 	}

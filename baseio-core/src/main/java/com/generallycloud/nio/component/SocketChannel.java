@@ -71,6 +71,8 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
 	public abstract int getWriteFutureSize();
+	
+	public abstract int getWriteFutureLength();
 
 	public abstract boolean needFlush();
 

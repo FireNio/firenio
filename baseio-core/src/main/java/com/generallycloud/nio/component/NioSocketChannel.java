@@ -166,6 +166,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		return needFlush();
 	}
 	
+	@Override
 	public int getWriteFutureLength() {
 		return writeFutureLength;
 	}
@@ -185,7 +186,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	protected String getMarkPrefix() {
-		return "TCP";
+		return "Tcp";
 	}
 
 	@Override
