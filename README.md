@@ -29,11 +29,21 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
  * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
  
-## 如何使用
+## 快速入门
 
-### 服务端：
+ * Maven引用：
 
-```Java
+  ```xml  
+	<dependency>
+		<groupId>com.generallycloud</groupId>
+		<artifactId>baseio-all</artifactId>
+		<version>3.1.8-SNAPSHOT</version>
+	</dependency>  
+  ```
+  
+* 服务端：
+
+  ```Java
 
 	public static void main(String[] args) throws Exception {
 
@@ -60,11 +70,11 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 		acceptor.bind();
 	}
 
-```
+  ```
 
-### 客户端：
+* 客户端：
 
-```Java
+  ```Java
 
 	public static void main(String[] args) throws Exception {
 
@@ -101,7 +111,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 		CloseUtil.close(connector);
 	}
 
-```
+  ```
 
 ###	详见 {baseio-test}
 
