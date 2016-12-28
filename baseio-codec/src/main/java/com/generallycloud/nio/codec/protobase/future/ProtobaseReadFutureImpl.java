@@ -46,17 +46,17 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	private int				hashCode;
 	private boolean			header_complete;
 	private Parameters			parameters;
-	private String				readText;
-	private int				service_name_length;
+	private int				future_name_length;
 	private int				textLength;
 	private boolean			translated;
 
 	private BufferedOutputStream	writeBinaryBuffer;
-	private StringBuilder		writeTextBuffer	= new StringBuilder();
 
 	// for ping & pong
 	public ProtobaseReadFutureImpl(SocketChannelContext context) {
 		super(context);
+		this.header_complete = true;
+		this.body_complete = true;
 	}
 
 	public ProtobaseReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
@@ -75,16 +75,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;
-		if (!buf.hasRemaining()) {
-			doHeaderComplete(session, buf);
-		}
 	}
-
+	
 	private void doBodyComplete(Session session, ByteBuf buf) {
-
-		body_complete = true;
-
-		buf.flip();
 
 		Charset charset = session.getEncoding();
 
@@ -92,26 +85,22 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 		ByteBuffer memory = buf.nioBuffer();
 
-		memory.limit(offset + service_name_length);
+		memory.limit(offset + future_name_length);
 
 		futureName = StringUtil.decode(charset, memory);
 
 		memory.limit(memory.position() + textLength);
 
 		readText = StringUtil.decode(charset, memory);
-
-		this.gainBinary(buf, offset);
+		
+		gainBinary(buf, offset);
 	}
 
 	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
-
-		header_complete = true;
-		
-		buf.flip();
 		
 		buf.skipBytes(1);
 
-		this.service_name_length = buf.getUnsignedByte();
+		this.future_name_length = buf.getUnsignedByte();
 
 		this.futureID = buf.getInt();
 
@@ -120,25 +109,25 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		this.hashCode = buf.getInt();
 
 		this.textLength = buf.getUnsignedShort();
+		
+		if (buf.hasRemaining()) {
+			this.binaryLength = buf.getInt();
+		}
 
-		this.binaryLength = buf.getInt();
-
-		int all_length = service_name_length + textLength + binaryLength;
+		int all_length = future_name_length + textLength + binaryLength;
 		
 		buf.reallocate(all_length,binaryLimit);
 	}
 
 	private void gainBinary(ByteBuf buf, int offset) {
 
-		if (binaryLength < 1) {
+		if (!hasBinary()) {
 			return;
 		}
 
-		buf.skipBytes(service_name_length + textLength);
+		buf.skipBytes(future_name_length + textLength);
 
-		binary = new byte[binaryLength];
-
-		buf.get(binary);
+		binary = buf.getBytes();
 	}
 
 	@Override
@@ -172,18 +161,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	@Override
 	public Parameters getParameters() {
 		if (parameters == null) {
-			parameters = new JsonParameters(getText());
+			parameters = new JsonParameters(getReadText());
 		}
 		return parameters;
-	}
-
-	@Override
-	public String getReadText() {
-		return readText;
-	}
-
-	public String getText() {
-		return readText;
 	}
 
 	@Override
@@ -197,23 +177,13 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	}
 
 	@Override
-	public String getWriteText() {
-		return writeTextBuffer.toString();
-	}
-
-	@Override
-	public StringBuilder getWriteTextBuffer() {
-		return writeTextBuffer;
-	}
-
-	@Override
 	public boolean hasBinary() {
 		return binaryLength > 0;
 	}
 
 	@Override
 	public boolean isBroadcast() {
-		return futureID.intValue() == 0;
+		return getFutureID().intValue() == 0;
 	}
 
 	@Override
@@ -228,8 +198,10 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 			if (buf.hasRemaining()) {
 				return false;
 			}
-
-			doHeaderComplete(session, buf);
+			
+			header_complete = true;
+			
+			doHeaderComplete(session, buf.flip());
 		}
 
 		if (!body_complete) {
@@ -240,7 +212,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 				return false;
 			}
 
-			doBodyComplete(session, buf);
+			body_complete = true;
+
+			doBodyComplete(session, buf.flip());
 		}
 
 		return true;
@@ -263,7 +237,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 	@Override
 	public String toString() {
-		return futureName + "@" + getText();
+		return getFutureName() + "@" + getReadText();
 	}
 
 	@Override
@@ -276,39 +250,6 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		}
 
 		return this;
-	}
-
-	@Override
-	public void write(boolean b) {
-		writeTextBuffer.append(b);
-	}
-
-	@Override
-	public void write(char c) {
-		writeTextBuffer.append(c);
-	}
-
-	@Override
-	public void write(double d) {
-		writeTextBuffer.append(d);
-	}
-
-	@Override
-	public void write(int i) {
-		writeTextBuffer.append(i);
-	}
-
-	@Override
-	public void write(long l) {
-		writeTextBuffer.append(l);
-	}
-
-	@Override
-	public void write(String text) {
-		if (StringUtil.isNullOrBlank(text)) {
-			return;
-		}
-		writeTextBuffer.append(text);
 	}
 
 	@Override

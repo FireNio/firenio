@@ -94,7 +94,7 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 
 	@Override
 	public String getParserName() {
-		return getText();
+		return getReadText();
 	}
 
 }

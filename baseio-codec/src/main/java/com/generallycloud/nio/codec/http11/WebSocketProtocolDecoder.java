@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11;
 
 import java.io.IOException;
@@ -52,14 +52,16 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  */
 public class WebSocketProtocolDecoder implements ProtocolDecoder {
 
+	public static final int	PROTOCOL_HEADER	= 2;
+
 	public static final int	TYPE_TEXT		= 1;
 	public static final int	TYPE_BINARY		= 2;
 	public static final int	TYPE_CLOSE		= 8;
 	public static final int	TYPE_PING		= 9;
 	public static final int	TYPE_PONG		= 10;
-	
-	private int limit;
-	
+
+	private int			limit;
+
 	public WebSocketProtocolDecoder(int limit) {
 		this.limit = limit;
 	}
@@ -67,7 +69,7 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(2),limit);
+		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
 	}
 
 }
