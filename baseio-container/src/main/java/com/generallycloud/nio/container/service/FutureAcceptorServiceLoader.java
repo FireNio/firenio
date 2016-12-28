@@ -114,16 +114,25 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			String className = config.getParameter("class", "empty");
 
-			Class<?> clazz = classLoader.forName(className);
+			Class<?> clazz;
+			
+			try {
+				clazz = classLoader.forName(className);
+			} catch (Exception e) {
+				printStackTrace(e);
+				continue;
+			}
 
 			String serviceName = config.getParameter("service-name");
 			
 			if (StringUtil.isNullOrBlank(serviceName)) {
-				throw new IllegalArgumentException("null service name,"+className);
+				printStackTrace(new IllegalArgumentException("null service name,class :"+className));
+				continue;
 			}
 
 			if (servlets.containsKey(serviceName)) {
-				throw new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]");
+				printStackTrace(new IllegalArgumentException("repeat servlet[ " + serviceName + "@" + className + " ]"));
+				continue;
 			}
 
 			FutureAcceptorService servlet = (FutureAcceptorService) clazz.newInstance();
@@ -138,6 +147,10 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		servlets.putAll(context.getPluginServlets());
 		
 		return servlets;
+	}
+	
+	private void printStackTrace(Exception e){
+		logger.error(e.getMessage(),e);
 	}
 
 }

@@ -26,6 +26,10 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class SystemAuthorityServlet extends FutureAcceptorService {
 	
+	public SystemAuthorityServlet() {
+		setServiceName("/login");
+	}
+	
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 

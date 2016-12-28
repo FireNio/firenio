@@ -18,6 +18,7 @@ package com.generallycloud.nio.container;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.container.service.FutureAcceptorFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
 
@@ -45,6 +46,19 @@ public abstract class AbstractPluginContext extends InitializeableImpl implement
 	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
+	}
+	
+	protected void putServlet(Map<String, FutureAcceptorService> acceptors,FutureAcceptorService service){
+		
+		String serviceName = service.getServiceName();
+		
+		if (StringUtil.isNullOrBlank(serviceName)) {
+			serviceName = service.getClass().getSimpleName();
+		}
+		
+		service.setServiceName(serviceName);
+		
+		acceptors.put(serviceName, service);
 	}
 
 }

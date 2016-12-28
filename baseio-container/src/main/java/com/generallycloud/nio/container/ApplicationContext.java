@@ -39,6 +39,7 @@ import com.generallycloud.nio.container.implementation.SystemStopServerServlet;
 import com.generallycloud.nio.container.service.FutureAcceptor;
 import com.generallycloud.nio.container.service.FutureAcceptorFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorService;
+import com.generallycloud.nio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.nio.container.service.FutureAcceptorServiceLoader;
 
 public class ApplicationContext extends AbstractLifeCycle {
@@ -58,13 +59,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private SocketChannelContext				context;
 	private Charset						encoding;
 	private FutureAcceptorService				appRedeployService;
-	private FutureAcceptor					filterService	= new FutureAcceptor(this);
+	private FutureAcceptor					filterService	;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
 	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
 	private Map<String, FutureAcceptorService>	pluginServlets	= new HashMap<String, FutureAcceptorService>();
 	private RoleManager						roleManager	= new RoleManager();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
+	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
 	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 
 	public ApplicationContext(ApplicationConfiguration configuration, String basePath) {
@@ -85,12 +87,16 @@ public class ApplicationContext extends AbstractLifeCycle {
 		if (context == null) {
 			throw new IllegalArgumentException("null nio context");
 		}
-
-		instance = this;
+		
+		if (futureAcceptorServiceFilter == null) {
+			this.futureAcceptorServiceFilter = new FutureAcceptorServiceFilter();
+		}
 
 		if (appRedeployService == null) {
 			appRedeployService = new SystemRedeployServlet();
 		}
+		
+		instance = this;
 
 		SharedBundle bundle = SharedBundle.instance();
 
@@ -100,6 +106,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.clearPluginServlets();
 
+		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
+		
 		File temp = new File(bundle.getClassPath() + basePath + "/" + appPath);
 
 		this.appLocalAddres = temp.getCanonicalPath() + "/";
@@ -193,10 +201,10 @@ public class ApplicationContext extends AbstractLifeCycle {
 		pluginServlets.clear();
 		putPluginServices(getAppRedeployService());
 		putPluginServices(new SystemStopServerServlet());
-		
+
 	}
-	
-	private void putPluginServices(FutureAcceptorService service){
+
+	private void putPluginServices(FutureAcceptorService service) {
 		pluginServlets.put(service.getServiceName(), service);
 	}
 
@@ -227,7 +235,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 			// FIXME 重新加载configuration
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
-			
+
 			this.classLoader = new DynamicClassLoader();
 
 			LifeCycleUtil.start(sequence);
@@ -287,6 +295,10 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public void setAppRedeployService(FutureAcceptorService appRedeployService) {
 		this.appRedeployService = appRedeployService;
+	}
+
+	public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
+		this.futureAcceptorServiceFilter = serviceFilter;
 	}
 
 }

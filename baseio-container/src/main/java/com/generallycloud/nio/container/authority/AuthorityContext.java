@@ -35,7 +35,7 @@ public class AuthorityContext extends AbstractPluginContext {
 
 	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		acceptors.put("/login", new SystemAuthorityServlet());
+		putServlet(acceptors, new SystemAuthorityServlet());
 	}
 
 	@Override

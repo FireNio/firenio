@@ -45,8 +45,9 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private FutureAcceptorService			appRedeployService;
 	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptor.class);
 
-	public FutureAcceptor(ApplicationContext context) {
+	public FutureAcceptor(ApplicationContext context, FutureAcceptorServiceFilter serviceFilter) {
 		this.context = context;
+		this.serviceFilter = serviceFilter;
 	}
 
 	private void accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
@@ -73,9 +74,9 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	public void accept(SocketSession session, ReadFuture future) throws IOException {
 
 		try {
-			
+
 			if (deploying) {
-				
+
 				appRedeployService.accept(session, future);
 
 				return;
@@ -88,16 +89,16 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
 	protected void doStart() throws Exception {
-		
+
 		this.classLoader = context.getClassLoader();
 
 		this.classLoader.scan(context.getAppLocalAddress());
-		
+
 		this.appRedeployService = context.getAppRedeployService();
-		
+
 		this.serviceFilter.setClassLoader(classLoader);
 
 		if (pluginLoader == null) {
@@ -130,13 +131,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 	public PluginContext[] getPluginContexts() {
 		return pluginLoader.getPluginContexts();
-	}
-	
-	/**
-	 * @param serviceFilter the serviceFilter to set
-	 */
-	public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
-		this.serviceFilter = serviceFilter;
 	}
 
 }
