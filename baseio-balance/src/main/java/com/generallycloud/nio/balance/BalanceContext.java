@@ -17,6 +17,7 @@ package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.balance.router.BalanceRouter;
 
+//FIXME 增加熔断机制
 public class BalanceContext {
 
 	public static final String				BALANCE_CHANNEL_LOST		= "BALANCE_CHANNEL_LOST";

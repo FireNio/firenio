@@ -124,7 +124,9 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		
 		EmptyReadFuture.initializeReadFuture(this);
 		
-		this.sslContext.initialize(this);
+		if (isEnableSSL()) {
+			this.sslContext.initialize(this);
+		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 

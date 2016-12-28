@@ -80,23 +80,10 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 
 	@Override
 	protected void parseFirstLine(String line) {
-
-		String[] array = line.split(" ");
-
-		if (array.length == 3) {
-			this.method = array[0];
-			this.setRequestURL(array[1]);
-			this.version = array[2];
-		} else if (array.length == 4) {
-			this.method = array[0];
-			this.setRequestURL(array[2]);
-			this.version = array[3];
-		} else if (array.length == 5) {
-			this.method = array[0];
-			this.setRequestURL(array[3]);
-			this.version = array[4];
-		} else {
-			throw new IllegalArgumentException("http header first line breaked,msg is:" + line);
-		}
+		int index1 = line.indexOf(' ');
+		this.method = line.substring(0, index1);
+		int index2 = line.indexOf(' ',index1+1);
+		this.setRequestURL(line.substring(index1 + 1, index2));
+		this.version = line.substring(index2+1);
 	}
 }

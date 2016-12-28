@@ -12,34 +12,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.http11;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.nio.codec.http11.HttpClient;
-import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
+import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestHttpLoadThread extends ITestThread {
 
-	HttpIOEventHandle		eventHandleAdaptor	= new HttpIOEventHandle();
+	private SocketChannelConnector	connector;
 
-	SocketChannelConnector	connector;
-
-	SocketSession			session;
-
-	HttpClient			client;
+	private SocketSession			session;
 
 	@Override
 	public void run() {
@@ -50,36 +48,40 @@ public class TestHttpLoadThread extends ITestThread {
 
 			HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
 
-			try {
-
-				client.request(future, 10000);
-
-				getLatch().countDown();
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			session.flush(future);
 		}
 	}
 
 	@Override
 	public void prepare() throws Exception {
 
-		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+			@Override
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
+				
+				CountDownLatch latch = getLatch();
 
-		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
+				latch.countDown();
+
+//				System.out.println("__________________________"+getLatch().getCount());
+			}
+		};
 		
-		ServerConfiguration c = connector.getContext().getServerConfiguration();
-
-		c.setSERVER_MEMORY_POOL_CAPACITY(128000);
+		ServerConfiguration c = new ServerConfiguration("localhost",80);
+		
+		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
-		c.setSERVER_PORT(18300);
-		c.setSERVER_ENABLE_SSL(false);
 		c.setSERVER_ENABLE_WORK_EVENT_LOOP(false);
 
-		session = connector.connect();
+		SocketChannelContext context = new SocketChannelContextImpl(c);
+		
+		connector = new SocketChannelConnector(context);
 
-		client = new HttpClient(session);
+		context.setProtocolFactory(new ClientHTTPProtocolFactory());
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		context.addSessionEventListener(new LoggerSocketSEListener());
+
+		session = connector.connect();
 	}
 
 	@Override
@@ -89,11 +91,9 @@ public class TestHttpLoadThread extends ITestThread {
 
 	public static void main(String[] args) throws IOException {
 
-		SharedBundle.instance().loadAllProperties("http");
+		int time = 80 * 10000;
 
-		int time = 4 * 10000;
-
-		int core_size = 64;
+		int core_size = 4;
 
 		ITestThreadHandle.doTest(TestHttpLoadThread.class, core_size, time / core_size);
 	}
