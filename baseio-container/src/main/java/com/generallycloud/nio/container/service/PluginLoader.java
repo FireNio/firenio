@@ -62,13 +62,9 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 			}
 
 			try {
-
 				plugin.destroy(context, plugin.getConfig());
-
 				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", plugin);
-
 			} catch (Throwable e) {
-
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -101,24 +97,25 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
 		for (int i = 0; i < plugins.size(); i++) {
 
-			Configuration config = plugins.get(i);
-
-			String className = config.getParameter("class", "empty");
-
-			Class<?> clazz = classLoader.forName(className);
-
-			PluginContext plugin;
 			try {
-				plugin = (PluginContext) clazz.newInstance();
+				pluginContexts[i] = loadPlugin(plugins.get(i));
 			} catch (Exception e) {
-				throw new RuntimeException("class instance failed :" + className, e);
+				logger.error(e.getMessage(),e);
 			}
-
-			pluginContexts[i] = plugin;
-
-			plugin.setConfig(config);
-
 		}
+	}
+	
+	private PluginContext loadPlugin(Configuration config) throws Exception{
+		
+		String className = config.getParameter("class", "empty");
+
+		Class<?> clazz = classLoader.forName(className);
+
+		PluginContext plugin = (PluginContext) clazz.newInstance();
+
+		plugin.setConfig(config);
+		
+		return plugin;
 	}
 
 	private void configPluginFilterAndServlet(ApplicationContext context) {

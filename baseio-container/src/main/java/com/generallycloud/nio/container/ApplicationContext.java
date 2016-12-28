@@ -215,6 +215,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	// FIXME 考虑部署失败后如何再次部署
 	// FIXME redeploy roleManager
 	// FIXME redeploy loginCenter
+	// FIXME keep http session
 	public synchronized boolean redeploy() {
 
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
