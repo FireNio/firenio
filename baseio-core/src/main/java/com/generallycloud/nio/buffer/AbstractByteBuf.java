@@ -218,6 +218,47 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		}
 	}
 	
+
+	@Override
+	public int read(ByteBuffer buffer) {
+
+		int srcRemaining = buffer.remaining();
+
+		if (srcRemaining == 0) {
+			return 0;
+		}
+
+		int remaining = this.remaining();
+		
+		if (remaining == 0) {
+			return 0;
+		}
+
+		return read0(buffer, srcRemaining, remaining);
+	}
+	
+	public abstract int read0(ByteBuffer buffer,int srcRemaining,int remaining) ;
+	
+	@Override
+	public int read(ByteBuf buf) {
+
+		int srcRemaining = buf.remaining();
+
+		if (srcRemaining == 0) {
+			return 0;
+		}
+
+		int remaining = this.remaining();
+		
+		if (remaining == 0) {
+			return 0;
+		}
+
+		return read0(buf, srcRemaining, remaining);
+	}
+	
+	public abstract int read0(ByteBuf buf,int srcRemaining,int remaining) ;
+	
 	protected void doRelease(){
 		allocator.release(this);
 	}
@@ -228,22 +269,22 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	}
 
 	@Override
-	public void skipBytes(int length) {
-		this.position(position + length);
+	public ByteBuf skipBytes(int length) {
+		return position(position + length);
 	}
 
 	@Override
-	public void reallocate(int limit) {
-		reallocate(limit, false);
+	public ByteBuf reallocate(int limit) {
+		return reallocate(limit, false);
 	}
 	
 	@Override
-	public void reallocate(int limit, boolean copyOld) {
-		allocator.reallocate(this, limit, copyOld);
+	public ByteBuf reallocate(int limit, boolean copyOld) {
+		return allocator.reallocate(this, limit, copyOld);
 	}
 
 	@Override
-	public void reallocate(int limit, int maxLimit, boolean copyOld) {
+	public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
 		
 		if (limit < 1) {
 			throw new BufferException("illegal limit:" + limit);
@@ -252,12 +293,12 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
 		}
-		reallocate(limit,copyOld);
+		return reallocate(limit,copyOld);
 	}
 
 	@Override
-	public void reallocate(int limit, int maxLimit) {
-		reallocate(limit, maxLimit, false);
+	public ByteBuf reallocate(int limit, int maxLimit) {
+		return reallocate(limit, maxLimit, false);
 	}
 
 	@Override

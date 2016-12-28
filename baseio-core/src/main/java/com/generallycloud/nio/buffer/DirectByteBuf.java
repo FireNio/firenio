@@ -85,43 +85,76 @@ public class DirectByteBuf extends AbstractByteBuf {
 		memory.put(src, offset, length);
 		this.position += length;
 	}
-
+	
 	@Override
-	public int read(ByteBuffer buffer) {
-
-		int srcRemaining = buffer.remaining();
-
-		if (srcRemaining == 0) {
-			return 0;
-		}
-
-		int remaining = this.remaining();
-
-		if (remaining <= srcRemaining) {
+	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
+		
+		if (remaining > srcRemaining) {
 
 			ByteBuffer buf = this.memory;
+			
+			for (int i = 0; i < srcRemaining; i++) {
+				buf.put(buffer.get());
+			}
+			
+			skipBytes(srcRemaining);
+			
+			return srcRemaining;
+		}
+		
+		ByteBuffer buf = this.memory;
+
+		for (int i = 0; i < remaining; i++) {
+			buf.put(buffer.get());
+		}
+
+		position(this.limit);
+
+		return remaining;
+	}
+
+	@Override
+	public int read0(ByteBuf buf, int srcRemaining, int remaining) {
+		
+		if (remaining > srcRemaining) {
+			
+			if (buf.hasArray()) {
+
+				put(buf.array(), buf.offset() + buf.position(), srcRemaining);
+
+			} else {
+
+				ByteBuffer _this = this.memory;
+
+				for (int i = 0; i < srcRemaining; i++) {
+
+					_this.put(buf.getByte());
+				}
+			}
+
+			skipBytes(srcRemaining);
+
+			return srcRemaining;
+			
+		} 
+		
+		if (buf.hasArray()) {
+
+			put(buf.array(), buf.offset() + buf.position(), remaining);
+			
+		} else {
+
+			ByteBuffer _this = this.memory;
 
 			for (int i = 0; i < remaining; i++) {
 
-				buf.put(buffer.get());
+				_this.put(buf.getByte());
 			}
-
-			this.position(this.limit);
-
-			return remaining;
-		} else {
-
-			ByteBuffer buf = this.memory;
-
-			for (int i = 0; i < srcRemaining; i++) {
-
-				buf.put(buffer.get());
-			}
-
-			this.skipBytes(srcRemaining);
-
-			return srcRemaining;
 		}
+
+		position(this.limit);
+
+		return remaining;
 	}
 
 	@Override
@@ -145,6 +178,7 @@ public class DirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	public byte getByte() {
+		position++;
 		return memory.get();
 	}
 
@@ -199,57 +233,6 @@ public class DirectByteBuf extends AbstractByteBuf {
 	@Override
 	public void putByte(byte b) {
 		memory.put(b);
-	}
-
-	@Override
-	public int read(ByteBuf buf) {
-
-		int srcRemaining = buf.remaining();
-
-		if (srcRemaining == 0) {
-			return 0;
-		}
-
-		int remaining = this.remaining();
-
-		if (remaining <= srcRemaining) {
-
-			if (buf.hasArray()) {
-
-				this.put(buf.array(), buf.offset() + buf.position(), remaining);
-			} else {
-
-				ByteBuffer _this = this.memory;
-
-				for (int i = 0; i < remaining; i++) {
-
-					_this.put(buf.getByte());
-				}
-			}
-
-			this.position(this.limit);
-
-			return remaining;
-		} else {
-
-			if (buf.hasArray()) {
-
-				this.put(buf.array(), buf.offset() + buf.position(), srcRemaining);
-
-			} else {
-
-				ByteBuffer _this = this.memory;
-
-				for (int i = 0; i < srcRemaining; i++) {
-
-					_this.put(buf.getByte());
-				}
-			}
-
-			this.skipBytes(srcRemaining);
-
-			return srcRemaining;
-		}
 	}
 
 	@Override

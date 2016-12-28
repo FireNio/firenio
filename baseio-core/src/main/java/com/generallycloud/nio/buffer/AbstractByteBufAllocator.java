@@ -95,7 +95,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	}
 	
 	@Override
-	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
+	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		
 		if (copyOld) {
 			
@@ -107,47 +107,40 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 				
 				ReleaseUtil.release(buf);
 				
-				buf.newByteBuf(this).produce(newBuf);
-				
-				return;
+				return buf.newByteBuf(this).produce(newBuf);
 			}
 			
 			int oldLimit = buf.limit();
 			
-			buf.limit(limit).skipBytes(oldLimit);
-			
-			return;
+			return buf.limit(limit).skipBytes(oldLimit);
 		}
 		
 		if (limit > buf.capacity()) {
 			
 			ReleaseUtil.release(buf);
 			
-			allocate(buf, limit);
-			
-			return;
+			return allocate(buf, limit);
 		}
 		
-		buf.limit(limit);
-		
+		return buf.limit(limit);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
 		}
-		reallocate(buf,limit,copyOld);
+		return reallocate(buf,limit,copyOld);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit) {
-		reallocate(buf, limit, false);
+	public ByteBuf reallocate(ByteBuf buf, int limit) {
+		return reallocate(buf, limit, false);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
-		reallocate(buf, limit, maxLimit, false);
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
+		return reallocate(buf, limit, maxLimit, false);
 	}
 
 	@Override

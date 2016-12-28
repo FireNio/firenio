@@ -101,13 +101,14 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		}
 
 		@Override
-		public void reallocate(int limit) {
+		public ByteBuf reallocate(int limit) {
 			ReleaseUtil.release(this);
 			this.memory = new byte[limit];
 			this.capacity = limit;
 			this.limit = limit;
 			this.position = 0;
 			this.referenceCount = 1;
+			return this;
 		}
 	}
 
@@ -146,13 +147,14 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		}
 
 		@Override
-		public void reallocate(int limit) {
+		public ByteBuf reallocate(int limit) {
 			ReleaseUtil.release(this);
 			this.memory = ByteBuffer.allocateDirect(limit);
 			this.capacity = limit;
 			this.limit = limit;
 			this.position = 0;
 			this.referenceCount = 1;
+			return this;
 		}
 	}
 
@@ -182,22 +184,22 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit) {
+	public ByteBuf reallocate(ByteBuf buf, int limit) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
+	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
 	

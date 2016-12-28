@@ -87,31 +87,41 @@ public class HeapByteBuf extends AbstractByteBuf {
 	}
 
 	@Override
-	public int read(ByteBuffer buffer) {
-
-		int srcRemaining = buffer.remaining();
-
-		if (srcRemaining == 0) {
-			return 0;
-		}
-
-		int remaining = this.remaining();
-
-		if (remaining <= srcRemaining) {
-
-			buffer.get(memory, ix(position), remaining);
-
-			this.position(this.limit);
-
-			return remaining;
-		} else {
-
+	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
+		
+		if (remaining > srcRemaining) {
+			
 			buffer.get(memory, ix(position), srcRemaining);
-
+			
 			this.position(this.position + srcRemaining);
+			
+			return srcRemaining;
+		} 
+		
+		buffer.get(memory, ix(position), remaining);
+		
+		this.position(this.limit);
+		
+		return remaining;
+	}
 
+	@Override
+	public int read0(ByteBuf buf, int srcRemaining, int remaining) {
+		
+		if (remaining > srcRemaining) {
+			
+			buf.get(memory, ix(position), srcRemaining);
+			
+			position(position + srcRemaining);
+			
 			return srcRemaining;
 		}
+		
+		buf.get(memory, ix(position), remaining);
+
+		position(limit);
+
+		return remaining;
 	}
 
 	@Override
@@ -193,34 +203,6 @@ public class HeapByteBuf extends AbstractByteBuf {
 	@Override
 	public void putByte(byte b) {
 		memory[ix(position++)] = b;
-	}
-
-	@Override
-	public int read(ByteBuf buf) {
-
-		int srcRemaining = buf.remaining();
-
-		if (srcRemaining == 0) {
-			return 0;
-		}
-
-		int remaining = this.remaining();
-
-		if (remaining <= srcRemaining) {
-
-			buf.get(memory, ix(position), remaining);
-
-			position(limit);
-
-			return remaining;
-		} else {
-
-			buf.get(memory, ix(position), srcRemaining);
-
-			position(position + srcRemaining);
-
-			return srcRemaining;
-		}
 	}
 
 	@Override

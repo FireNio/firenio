@@ -27,13 +27,13 @@ public interface ByteBufAllocator extends LifeCycle{
 	
 	public abstract ByteBuf allocate(int limit,int maxLimit);
 	
-	public abstract void reallocate(ByteBuf buf,int limit);
+	public abstract ByteBuf reallocate(ByteBuf buf,int limit);
 	
-	public abstract void reallocate(ByteBuf buf,int limit,boolean copyOld);
+	public abstract ByteBuf reallocate(ByteBuf buf,int limit,boolean copyOld);
 	
-	public abstract void reallocate(ByteBuf buf,int limit,int maxLimit);
+	public abstract ByteBuf reallocate(ByteBuf buf,int limit,int maxLimit);
 	
-	public abstract void reallocate(ByteBuf buf,int limit,int maxLimit,boolean copyOld);
+	public abstract ByteBuf reallocate(ByteBuf buf,int limit,int maxLimit,boolean copyOld);
 	
 	public abstract int getUnitMemorySize();
 	

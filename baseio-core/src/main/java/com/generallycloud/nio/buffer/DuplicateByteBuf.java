@@ -347,8 +347,8 @@ public class DuplicateByteBuf implements ByteBuf {
 	}
 
 	@Override
-	public void skipBytes(int length) {
-		unwrap().skipBytes(length);
+	public ByteBuf skipBytes(int length) {
+		return unwrap().skipBytes(length);
 	}
 
 	@Override
@@ -357,12 +357,12 @@ public class DuplicateByteBuf implements ByteBuf {
 	}
 
 	@Override
-	public void reallocate(int limit) {
+	public ByteBuf reallocate(int limit) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void reallocate(int limit, int maxLimit) {
+	public ByteBuf reallocate(int limit, int maxLimit) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -372,12 +372,12 @@ public class DuplicateByteBuf implements ByteBuf {
 	}
 
 	@Override
-	public void reallocate(int limit, boolean copyOld) {
+	public ByteBuf reallocate(int limit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void reallocate(int limit, int maxLimit, boolean copyOld) {
+	public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
 	

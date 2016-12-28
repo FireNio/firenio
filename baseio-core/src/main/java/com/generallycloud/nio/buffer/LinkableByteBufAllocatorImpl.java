@@ -118,23 +118,23 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit) {
-		unwrap().reallocate(buf, limit);
+	public ByteBuf reallocate(ByteBuf buf, int limit) {
+		return unwrap().reallocate(buf, limit);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit) {
-		unwrap().reallocate(buf, limit, maxLimit);
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
+		return unwrap().reallocate(buf, limit, maxLimit);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, boolean copyOld) {
-		unwrap().reallocate(buf, limit, copyOld);
+	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
+		return unwrap().reallocate(buf, limit, copyOld);
 	}
 
 	@Override
-	public void reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
-		unwrap().reallocate(buf, limit, maxLimit, copyOld);
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+		return unwrap().reallocate(buf, limit, maxLimit, copyOld);
 	}
 	
 	@Override

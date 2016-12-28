@@ -146,15 +146,15 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
 	public abstract int remaining();
 
-	public abstract void reallocate(int limit);
+	public abstract ByteBuf reallocate(int limit);
 
-	public abstract void reallocate(int limit, boolean copyOld);
+	public abstract ByteBuf reallocate(int limit, boolean copyOld);
 
-	public abstract void reallocate(int limit, int maxLimit);
+	public abstract ByteBuf reallocate(int limit, int maxLimit);
 
-	public abstract void reallocate(int limit, int maxLimit, boolean copyOld);
+	public abstract ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
 
-	public abstract void skipBytes(int length);
+	public abstract ByteBuf skipBytes(int length);
 
 	// 往buffer中read
 	public abstract int write(SocketChannel channel) throws IOException;

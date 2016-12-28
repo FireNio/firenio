@@ -15,6 +15,7 @@
  */ 
 package com.generallycloud.nio.protocol;
 
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.IoEventHandle;
 import com.generallycloud.nio.component.SocketChannelContext;
 
@@ -95,6 +96,9 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 
 	@Override
 	public void write(String text) {
+		if (StringUtil.isNullOrBlank(text)) {
+			return;
+		}
 		writeTextBuffer.append(text);
 	}
 
