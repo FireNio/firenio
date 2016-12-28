@@ -64,6 +64,8 @@ public class HttpServerStartup {
 
 		try {
 			
+			applicationContext.setServiceFilter(new FutureAcceptorHttpFilter());
+			
 			applicationContext.setContext(context);
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
