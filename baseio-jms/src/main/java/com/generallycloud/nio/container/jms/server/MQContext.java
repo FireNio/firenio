@@ -108,7 +108,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 	@Override
 	public void pollMessage(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) {
-
 		p2pProductLine.pollMessage(session, future, attachment);
 	}
 
@@ -143,11 +142,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 		putServlet(acceptors,new MQPublishServlet());
 		putServlet(acceptors,new MQTransactionServlet());
 		putServlet(acceptors,new MQBrowserServlet());
-	}
-	
-	protected void putServlet(Map<String, FutureAcceptorService> acceptors,MQServlet servlet){
-		String name = servlet.getClass().getSimpleName();
-		acceptors.put(name, servlet);
 	}
 
 }

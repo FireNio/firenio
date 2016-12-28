@@ -62,9 +62,9 @@ private ServerConfiguration socketChannelConfig;
 	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
-		acceptors.put(RTPJoinRoomServlet.SERVICE_NAME, new RTPJoinRoomServlet());
-		acceptors.put(RTPCreateRoomServlet.SERVICE_NAME, new RTPCreateRoomServlet());
-		acceptors.put(RTPLeaveRoomServlet.SERVICE_NAME, new RTPLeaveRoomServlet());
+		putServlet(acceptors, new RTPJoinRoomServlet());
+		putServlet(acceptors, new RTPCreateRoomServlet());
+		putServlet(acceptors, new RTPLeaveRoomServlet());
 	}
 
 	@Override

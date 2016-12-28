@@ -32,6 +32,7 @@ import com.generallycloud.nio.container.ExtendIOEventHandle;
 import com.generallycloud.nio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.nio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.nio.container.configuration.FileSystemACLoader;
+import com.generallycloud.nio.container.service.FutureAcceptorServiceFilter;
 
 public class ProtobaseServerStartup {
 
@@ -56,6 +57,8 @@ public class ProtobaseServerStartup {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
 		try {
+			
+			applicationContext.setServiceFilter(new FutureAcceptorServiceFilter());
 			
 			configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.12);
 
