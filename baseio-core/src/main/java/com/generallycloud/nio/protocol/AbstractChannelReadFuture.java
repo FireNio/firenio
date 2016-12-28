@@ -35,8 +35,9 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 	protected boolean isSilent;
 
 	@Override
-	public void flush() {
+	public ChannelReadFuture flush() {
 		flushed = true;
+		return this;
 	}
 
 	@Override

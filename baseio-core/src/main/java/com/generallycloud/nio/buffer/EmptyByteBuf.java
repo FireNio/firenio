@@ -21,7 +21,11 @@ public class EmptyByteBuf extends HeapByteBuf {
 		super(UnpooledByteBufAllocator.getInstance(), new byte[] {});
 	}
 
-	public static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();
+	private static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();
+	
+	public static ByteBuf getInstance(){
+		return EMPTY_BYTEBUF;
+	}
 
 	@Override
 	public void release() {

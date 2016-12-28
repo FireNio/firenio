@@ -38,8 +38,8 @@ public class SslHandler {
 
 	public SslHandler(SocketChannelContext context) {
 		this.EMPTY_CWF = new ChannelWriteFutureImpl(
-				EmptyReadFuture.getEmptyReadFuture(context)
-				, EmptyByteBuf.EMPTY_BYTEBUF);
+				EmptyReadFuture.getInstance()
+				, EmptyByteBuf.getInstance());
 	}
 
 	private ByteBuf allocate(Session session, int capacity) {

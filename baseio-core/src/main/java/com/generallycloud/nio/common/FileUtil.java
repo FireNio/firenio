@@ -579,7 +579,7 @@ public class FileUtil {
 	public static byte[] toByteArray(InputStream input, int size)
 			throws IOException {
 		if (size < 1) {
-			return EmptyByteBuf.EMPTY_BYTEBUF.array();
+			return EmptyByteBuf.getInstance().array();
 		}
 
 		byte[] data = new byte[size];

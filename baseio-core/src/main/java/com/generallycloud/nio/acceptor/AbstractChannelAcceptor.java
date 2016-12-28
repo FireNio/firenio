@@ -32,8 +32,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService  im
 	
 	@Override
 	public void bind() throws IOException {
-		
-		this.service();
+		service();
 	}
 	
 	@Override

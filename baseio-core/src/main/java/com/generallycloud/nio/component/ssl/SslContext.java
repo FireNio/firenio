@@ -96,6 +96,9 @@ public abstract class SslContext {
 	}
 
 	public void initialize(SocketChannelContext context){
+		if (sslHandler != null) {
+			return;
+		}
 		this.sslHandler = new SslHandler(context);
 	}
 	

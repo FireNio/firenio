@@ -30,6 +30,7 @@ import com.generallycloud.nio.component.concurrent.LineEventLoopGroup;
 import com.generallycloud.nio.component.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -120,6 +121,10 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		this.clearContext();
 
 		this.serverConfiguration.initializeDefault(this);
+		
+		EmptyReadFuture.initializeReadFuture(this);
+		
+		this.sslContext.initialize(this);
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
@@ -264,7 +269,6 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		}
 		this.sslContext = sslContext;
 		this.enableSSL = true;
-		this.sslContext.initialize(this);
 	}
 
 	@Override

@@ -12,35 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.protocol;
 
 import com.generallycloud.nio.component.SocketChannelContext;
 
-public class EmptyReadFuture extends AbstractReadFuture{
+public class EmptyReadFuture extends AbstractReadFuture {
 
 	private static EmptyReadFuture emptyReadFuture = null;
-	
-	public static EmptyReadFuture getEmptyReadFuture(SocketChannelContext context){
-		
-		if (emptyReadFuture == null) {
-			synchronized (EmptyReadFuture.class) {
-				if (emptyReadFuture == null) {
-					emptyReadFuture = new EmptyReadFuture(context);
-				}
-			}
+
+	public static void initializeReadFuture(SocketChannelContext context) {
+		if (emptyReadFuture != null) {
+			return;
 		}
-		
+		emptyReadFuture = new EmptyReadFuture(context);
+	}
+
+	public static EmptyReadFuture getInstance() {
 		return emptyReadFuture;
 	}
-	
-	protected EmptyReadFuture(SocketChannelContext context) {
+
+	private EmptyReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 
 	@Override
 	public void release() {
-		
+
 	}
-	
+
 }

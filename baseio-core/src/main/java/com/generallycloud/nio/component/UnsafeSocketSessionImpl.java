@@ -23,10 +23,8 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.concurrent.Waiter;
-import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
-import com.generallycloud.nio.protocol.ReadFuture;
 
 public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
 
@@ -43,17 +41,20 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 
 	@Override
 	public void fireOpend() {
+		
+		SocketChannelContext context = channel.getContext();
+		
+		if (context.isEnableSSL()) {
+			this.sslHandler = context.getSslContext().getSslHandler();
+			this.sslEngine = context.getSslContext().newEngine();
+		}
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
 
 			handshakeWaiter = new Waiter<Exception>();
 
-			ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
-
-			ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
-
-			flush(f);
-
+			flush(new ChannelWriteFutureImpl(
+					EmptyReadFuture.getInstance(), EmptyByteBuf.getInstance()));
 			// wait
 
 			if (handshakeWaiter.await(3000)) {// FIXME test
@@ -86,7 +87,7 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 	@Override
 	public void fireClosed() {
 
-		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
+		Linkable<SocketSessionEventListener> linkable = getContext().getSessionEventListenerLink();
 
 		for (; linkable != null;) {
 
@@ -108,13 +109,10 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 
 			sslEngine.closeOutbound();
 
-			if (context.getSslContext().isClient()) {
+			if (getContext().getSslContext().isClient()) {
 
-				ReadFuture future = EmptyReadFuture.getEmptyReadFuture(context);
-
-				ChannelWriteFuture f = new ChannelWriteFutureImpl(future, EmptyByteBuf.EMPTY_BYTEBUF);
-
-				flush(f);
+				flush(new ChannelWriteFutureImpl(
+						EmptyReadFuture.getInstance(), EmptyByteBuf.getInstance()));
 			}
 
 			try {
@@ -124,7 +122,6 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 		}
 
 		fireClosed();
-
 	}
 
 }

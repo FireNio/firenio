@@ -40,21 +40,15 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	protected SSLEngine			sslEngine;
 	protected SslHandler			sslHandler;
 	protected SocketChannel			channel;
-	protected SocketChannelContext	context;
 
 	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(sessionID);
 		this.channel = channel;
-		this.context = channel.getContext();
-		if (context.isEnableSSL()) {
-			this.sslHandler = context.getSslContext().getSslHandler();
-			this.sslEngine = context.getSslContext().newEngine();
-		}
 	}
 	
 	@Override
 	public SocketChannelContext getContext() {
-		return context;
+		return channel.getContext();
 	}
 
 	@Override
@@ -74,9 +68,9 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public void finishHandshake(Exception e) {
-
-		if (context.getSslContext().isClient()) {
+		if (getContext().getSslContext().isClient()) {
 			this.handshakeWaiter.setPayload(e);
+			this.handshakeWaiter = null;
 		}
 	}
 	
@@ -98,7 +92,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public boolean isEnableSSL() {
-		return context.isEnableSSL();
+		return getContext().isEnableSSL();
 	}
 
 	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause, IoEventState state) {
@@ -121,13 +115,13 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 			return;
 		}
 
-		ChannelReadFuture ioReadFuture = (ChannelReadFuture) future;
+		ChannelReadFuture crf = (ChannelReadFuture) future;
 		
 		SocketChannel socketChannel = this.channel;
 
 		if (!socketChannel.isOpened()) {
 			
-			ioReadFuture.flush();
+			crf.flush();
 
 			IoEventHandle handle = future.getIOEventHandle();
 
@@ -136,21 +130,13 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 			return;
 		}
 
-		ChannelWriteFuture writeFuture = null;
-
 		try {
 
 			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
 
-			writeFuture = encoder.encode(getByteBufAllocator(), ioReadFuture);
-			
-			ioReadFuture.flush();
-
-			flush(writeFuture);
+			flush(encoder.encode(getByteBufAllocator(), crf.flush()));
 
 		} catch (Exception e) {
-
-			ReleaseUtil.release(writeFuture);
 
 			logger.debug(e.getMessage(), e);
 
@@ -175,10 +161,10 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		} catch (Exception e) {
 
 			ReleaseUtil.release(future);
+			
+			logger.debug(e.getMessage(), e);
 
 			ReadFuture readFuture = future.getReadFuture();
-
-			logger.debug(e.getMessage(), e);
 
 			IoEventHandle handle = readFuture.getIOEventHandle();
 
@@ -208,7 +194,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public SslHandler getSslHandler() {
-		return context.getSslContext().getSslHandler();
+		return getContext().getSslContext().getSslHandler();
 	}
 
 	@Override

@@ -22,7 +22,7 @@ import com.generallycloud.nio.component.SocketSession;
 
 public interface ChannelReadFuture extends ReadFuture {
 
-	public abstract void flush();
+	public abstract ChannelReadFuture flush();
 
 	public abstract boolean isHeartbeat();
 
