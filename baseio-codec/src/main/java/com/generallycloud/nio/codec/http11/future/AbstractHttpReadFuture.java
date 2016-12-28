@@ -36,6 +36,7 @@ import com.generallycloud.nio.component.Parameters;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 
@@ -186,7 +187,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 	}
 
 	@Override
-	public void flush() {
+	public ChannelReadFuture flush() {
 
 		if (updateWebSocketProtocol) {
 
@@ -197,7 +198,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 			session.setAttribute(WebSocketReadFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
 		}
 
-		super.flush();
+		return super.flush();
 	}
 
 	@Override

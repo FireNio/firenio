@@ -120,7 +120,7 @@ public final class Http2CodecUtil {
 	     */
 	    public static ByteBuf emptyPingBuf() {
 	        // Return a duplicate so that modifications to the reader index will not affect the original buffer.
-	        return EmptyByteBuf.EMPTY_BYTEBUF.duplicate();
+	        return EmptyByteBuf.getInstance().duplicate();
 	    }
 
 	    /**

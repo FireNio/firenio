@@ -53,7 +53,7 @@ public class ServerHTTPProtocolEncoder implements ProtocolEncoder {
 		
 		if (StringUtil.isNullOrBlank(write_text)) {
 			
-			text_array = EmptyByteBuf.EMPTY_BYTEBUF.array();
+			text_array = EmptyByteBuf.getInstance().array();
 			
 			length = 0;
 			
