@@ -76,8 +76,9 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 
 	@Override
 	protected void parseFirstLine(String line) {
-		String[] array = line.split(" ");
-		this.version = array[0];
-		this.status = HttpStatus.getHttpStatus(Integer.parseInt(array[1]));
+		int index = line.indexOf(' ');
+		int status = Integer.parseInt(line.substring(index + 1, index + 4));
+		this.version = line.substring(0, index);
+		this.status = HttpStatus.getHttpStatus(status);
 	}
 }

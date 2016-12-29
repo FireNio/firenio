@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.test.nio.http11;
+package com.generallycloud.test.nio.load.http11;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,7 +28,7 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class TestLoadServer {
+public class TestHttpLoadServer {
 
 	public static void main(String[] args) throws Exception {
 		

@@ -266,7 +266,8 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 			return null;
 		}
 
-		return request_headers.get(name.toLowerCase());
+//		return request_headers.get(name.toLowerCase());
+		return request_headers.get(name);
 	}
 
 	@Override
@@ -448,15 +449,17 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 
 	@Override
 	public void setRequestHeader(String name, String value) {
-		if (StringUtil.isNullOrBlank(name)) {
-			return;
-		}
 
 		if (request_headers == null) {
 			throw new RuntimeException("did you want to set response header ?");
 		}
+		
+		if (StringUtil.isNullOrBlank(name)) {
+			return;
+		}
 
-		request_headers.put(name.toLowerCase(), value);
+//		request_headers.put(name.toLowerCase(), value);
+		request_headers.put(name, value);
 	}
 
 	@Override

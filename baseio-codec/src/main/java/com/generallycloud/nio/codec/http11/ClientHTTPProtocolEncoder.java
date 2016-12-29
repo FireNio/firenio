@@ -28,56 +28,51 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
 
 //FIXME post
-public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
+public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
+	
+	private static final byte [] PROTOCOL = " HTTP/1.1\r\n".getBytes();
+	private static final byte [] COOKIE = "Cookie:".getBytes();
+	private static final byte SEMICOLON = ';';
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 
-		HttpReadFuture future = (HttpReadFuture) readFuture;
+		HttpReadFuture f = (HttpReadFuture) future;
 
-		StringBuilder h = new StringBuilder();
+		ByteBuf buf = allocator.allocate(256);
+		buf.put(f.getMethod().getBytes());
+		buf.putByte(SPACE);
+		buf.put(getRequestURI(f).getBytes());
+		buf.put(PROTOCOL);
+		
+		writeHeaders(f, buf);
 
-		h.append(future.getMethod());
-		h.append(" ");
-		h.append(getRequestURI(future));
-		h.append(" HTTP/1.1\r\n");
+		List<Cookie> cookieList = f.getCookieList();
 
-		Map<String, String> headers = future.getResponseHeaders();
-
-		if (headers != null) {
-			Set<Entry<String, String>> hs = headers.entrySet();
-			for (Entry<String, String> header : hs) {
-				h.append(header.getKey());
-				h.append(":");
-				h.append(header.getValue());
-				h.append("\r\n");
-			}
-		}
-
-		List<Cookie> cookieList = future.getCookieList();
-
-		if (cookieList != null) {
+		if (cookieList != null && cookieList.size() > 0) {
+			
+			buf.put(COOKIE);
 			for (Cookie c : cookieList) {
-				h.append("Set-Cookie:");
-				h.append(c.toString());
-				h.append("\r\n");
+				writeBuf(buf, c.getName().getBytes());
+				writeBuf(buf, COLON);
+				writeBuf(buf, c.getValue().getBytes());
+				writeBuf(buf, SEMICOLON);
 			}
+			
+			buf.position(buf.position() - 1);
 		}
 
-		h.append("\r\n");
+		buf.put(RN);
 
-		ByteBuf buf = allocator.allocate(h.length());
-
-		buf.put(h.toString().getBytes(readFuture.getContext().getEncoding()));
-
-		return new ChannelWriteFutureImpl(readFuture, buf.flip());
+		return new ChannelWriteFutureImpl(f, buf.flip());
 	}
 
 	private String getRequestURI(HttpReadFuture future) {
+		
 		Map<String, String> params = future.getRequestParams();
+		
 		if (params == null) {
 			return future.getRequestURL();
 		}
@@ -89,6 +84,7 @@ public class ClientHTTPProtocolEncoder implements ProtocolEncoder {
 		u.append("?");
 
 		Set<Entry<String, String>> ps = params.entrySet();
+		
 		for (Entry<String, String> p : ps) {
 			u.append(p.getKey());
 			u.append("=");

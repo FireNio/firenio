@@ -172,11 +172,14 @@ public enum HttpStatus {
 	private String description;
 	
 	private String headerText;
+	
+	private byte [] headerBinary;
 
 	private HttpStatus(int status, String description, String headerText) {
 		this.status = status;
 		this.description = description;
 		this.headerText = headerText;
+		this.headerBinary = headerText.getBytes();
 	}
 
 	public int getStatus() {
@@ -189,6 +192,10 @@ public enum HttpStatus {
 
 	public String getHeaderText() {
 		return headerText;
+	}
+	
+	public byte[] getHeaderBinary() {
+		return headerBinary;
 	}
 	
 	public static HttpStatus getHttpStatus(int status){

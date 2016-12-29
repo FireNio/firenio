@@ -12,44 +12,42 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.test.nio.load;
+ */
+package com.generallycloud.test.nio.load.http11;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
+import com.generallycloud.test.nio.common.ReadFutureFactory;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
-public class TestLoadClient1 extends ITestThread {
+public class TestHttpLoadClient extends ITestThread {
 
-	private SocketChannelConnector	connector			= null;
+	private SocketChannelConnector	connector;
+
+	private SocketSession			session;
 
 	@Override
 	public void run() {
 
-		int time1 = getTime();
+		int time = getTime();
 
-		SocketSession session = connector.getSession();
+		for (int i = 0; i < time; i++) {
 
-		for (int i = 0; i < time1; i++) {
-			
-			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
-			
-			future.write("hello server!");
-			
+			HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
+
 			session.flush(future);
 		}
 	}
@@ -57,33 +55,32 @@ public class TestLoadClient1 extends ITestThread {
 	@Override
 	public void prepare() throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
+				
 				CountDownLatch latch = getLatch();
 
 				latch.countDown();
 
-//				 System.out.println("__________________________"+getLatch().getCount());
+//				System.out.println("__________________________"+getLatch().getCount());
 			}
 		};
-
-		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
-
-		SocketChannelContext context = connector.getContext();
-
-		ServerConfiguration c = context.getServerConfiguration();
-
-		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		c.setSERVER_MEMORY_POOL_UNIT(256);
 		
-//		c.setSERVER_HOST("192.168.0.180");
+		ServerConfiguration c = new ServerConfiguration("localhost",80);
+		
+		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+		c.setSERVER_MEMORY_POOL_UNIT(128);
 
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		SocketChannelContext context = new SocketChannelContextImpl(c);
+		
+		connector = new SocketChannelConnector(context);
 
-		connector.connect();
+		context.setProtocolFactory(new ClientHTTPProtocolFactory());
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		context.addSessionEventListener(new LoggerSocketSEListener());
+
+		session = connector.connect();
 	}
 
 	@Override
@@ -93,12 +90,11 @@ public class TestLoadClient1 extends ITestThread {
 
 	public static void main(String[] args) throws IOException {
 
-		SharedBundle.instance().loadAllProperties("nio");
-
-		int time = 256 * 10000;
+		int time = 80 * 10000;
 
 		int core_size = 4;
 
-		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
+		ITestThreadHandle.doTest(TestHttpLoadClient.class, core_size, time / core_size);
 	}
+
 }

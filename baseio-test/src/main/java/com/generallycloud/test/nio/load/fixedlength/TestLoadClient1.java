@@ -12,42 +12,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package com.generallycloud.test.nio.http11;
+ */ 
+package com.generallycloud.test.nio.load.fixedlength;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
+import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
-public class TestHttpLoadThread extends ITestThread {
+public class TestLoadClient1 extends ITestThread {
 
-	private SocketChannelConnector	connector;
-
-	private SocketSession			session;
+	private SocketChannelConnector	connector			= null;
 
 	@Override
 	public void run() {
 
-		int time = getTime();
+		int time1 = getTime();
 
-		for (int i = 0; i < time; i++) {
+		SocketSession session = connector.getSession();
 
-			HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
-
+		for (int i = 0; i < time1; i++) {
+			
+			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
+			
+			future.write("hello server!");
+			
 			session.flush(future);
 		}
 	}
@@ -55,33 +57,33 @@ public class TestHttpLoadThread extends ITestThread {
 	@Override
 	public void prepare() throws Exception {
 
+		SharedBundle.instance().loadAllProperties("nio");
+
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				
 				CountDownLatch latch = getLatch();
 
 				latch.countDown();
 
-//				System.out.println("__________________________"+getLatch().getCount());
+//				 System.out.println("__________________________"+getLatch().getCount());
 			}
 		};
-		
-		ServerConfiguration c = new ServerConfiguration("localhost",80);
-		
+
+		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
+
+		SocketChannelContext context = connector.getContext();
+
+		ServerConfiguration c = context.getServerConfiguration();
+
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		c.setSERVER_MEMORY_POOL_UNIT(128);
-		c.setSERVER_ENABLE_WORK_EVENT_LOOP(false);
-
-		SocketChannelContext context = new SocketChannelContextImpl(c);
+		c.setSERVER_MEMORY_POOL_UNIT(256);
 		
-		connector = new SocketChannelConnector(context);
+//		c.setSERVER_HOST("192.168.0.180");
 
-		context.setProtocolFactory(new ClientHTTPProtocolFactory());
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		session = connector.connect();
+		connector.connect();
 	}
 
 	@Override
@@ -91,11 +93,12 @@ public class TestHttpLoadThread extends ITestThread {
 
 	public static void main(String[] args) throws IOException {
 
-		int time = 80 * 10000;
+		SharedBundle.instance().loadAllProperties("nio");
+
+		int time = 256 * 10000;
 
 		int core_size = 4;
 
-		ITestThreadHandle.doTest(TestHttpLoadThread.class, core_size, time / core_size);
+		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}
-
 }

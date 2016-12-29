@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.test.nio.load;
+package com.generallycloud.test.nio.load.fixedlength;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
