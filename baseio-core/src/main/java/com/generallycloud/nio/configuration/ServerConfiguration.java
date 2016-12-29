@@ -25,7 +25,7 @@ public class ServerConfiguration {
 
 	private int		SERVER_PORT;
 	private String		SERVER_HOST					= "localhost";
-	private int		SERVER_CORE_SIZE				= (Runtime.getRuntime().availableProcessors() + 1) / 2;
+	private int		SERVER_CORE_SIZE				= Runtime.getRuntime().availableProcessors();
 	private Charset	SERVER_ENCODING				= Encoding.UTF8;
 	private int		SERVER_IO_EVENT_QUEUE			= 0;
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
