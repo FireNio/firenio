@@ -46,23 +46,15 @@ public class TestMathUtil {
 		
 //		System.out.println(binaryString2HexString("00111111"));
 //		System.out.println(binaryString2HexString("01111111"));
-//		System.out.println(binaryString2HexString("10000000"));
-		
+		System.out.println(binaryString2HexString("01110000"));
+		System.out.println(binaryString2HexString("01010000"));
+		//0x50=01010000,0x70=01110000
 		int v = Integer.MAX_VALUE >> 1;
 		
 		System.out.println(v);
 		System.out.println(Integer.toBinaryString(v));
 		System.out.println(byte2BinaryString((byte) 0x3F));
 		System.out.println( (Integer.MAX_VALUE + 5) & 0x7fffffff);
-		
-		int s = 19810313;
-		int2Byte(bb, s, 0);
-		System.out.println();
-		
-		long l = 1;
-		
-		System.out.println(1 << 32);
-		System.out.println(l << 32);
 		
 		
 		System.out.println();

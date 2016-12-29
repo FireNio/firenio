@@ -20,25 +20,31 @@ import com.generallycloud.nio.codec.http11.HttpClient;
 import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestSimpleHttpClient {
 
 	public static void main(String[] args) throws Exception {
 		
-		SharedBundle.instance().loadAllProperties("http");
-
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
+		ServerConfiguration c = new ServerConfiguration("localhost",80);
 		
-		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
+		SocketChannelContext context = new SocketChannelContextImpl(c);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		SocketSession session =  connector.connect();
+		context.setProtocolFactory(new ClientHTTPProtocolFactory());
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		context.addSessionEventListener(new LoggerSocketSEListener());
+
+		SocketSession session = connector.connect();
 
 		HttpClient client = new HttpClient(session);
 

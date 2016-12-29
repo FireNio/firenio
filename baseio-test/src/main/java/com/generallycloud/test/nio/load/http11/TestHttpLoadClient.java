@@ -71,6 +71,7 @@ public class TestHttpLoadClient extends ITestThread {
 		
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
+		c.setSERVER_CORE_SIZE(1);
 
 		SocketChannelContext context = new SocketChannelContextImpl(c);
 		

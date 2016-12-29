@@ -18,13 +18,16 @@ package com.generallycloud.test.nio.balance;
 import com.generallycloud.nio.balance.BalanceContext;
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
+import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestBalanceBroadcast {
@@ -51,16 +54,20 @@ public class TestBalanceBroadcast {
 		};
 
 		ServerConfiguration configuration = new ServerConfiguration(8800);
-
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
-
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 		
-		connector.connect();
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 
-		SocketSession session = connector.getSession();
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		for (;;) {
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
+		
+		SocketSession session = connector.connect();
+
+		for (;session.isClosed();) {
 
 			ProtobaseReadFuture future = ReadFutureFactory.create(session, "broadcast");
 
@@ -72,6 +79,9 @@ public class TestBalanceBroadcast {
 
 			ThreadUtil.sleep(1);
 		}
+		
+		CloseUtil.close(connector);
+		
 	}
 
 }
