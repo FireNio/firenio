@@ -66,7 +66,6 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
 
 		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
 
-		cfg.setSERVER_CORE_SIZE(Runtime.getRuntime().availableProcessors());
 		cfg.setSERVER_ENCODING(Charset.forName(encoding));
 
 		return cfg;

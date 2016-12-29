@@ -188,7 +188,6 @@ public class ServerConfiguration {
 			
 			SERVER_IO_EVENT_QUEUE = getSERVER_MEMORY_POOL_CAPACITY() * 2;
 		}
-		
 	}
 
 	public boolean isSERVER_ENABLE_WORK_EVENT_LOOP() {
