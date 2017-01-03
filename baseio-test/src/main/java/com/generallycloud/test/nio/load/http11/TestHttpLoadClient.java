@@ -72,6 +72,7 @@ public class TestHttpLoadClient extends ITestThread {
 		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
 		c.setSERVER_CORE_SIZE(1);
+		c.setSERVER_HOST("192.168.0.180");
 
 		SocketChannelContext context = new SocketChannelContextImpl(c);
 		
@@ -91,7 +92,7 @@ public class TestHttpLoadClient extends ITestThread {
 
 	public static void main(String[] args) throws IOException {
 
-		int time = 80 * 10000;
+		int time = 160 * 10000;
 
 		int core_size = 4;
 
