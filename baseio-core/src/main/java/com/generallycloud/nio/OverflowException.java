@@ -18,15 +18,15 @@ package com.generallycloud.nio;
 import java.io.IOException;
 
 @SuppressWarnings("serial")
-public class WriterOverflowException extends IOException {
+public class OverflowException extends IOException {
 	
-	public static WriterOverflowException INSTANCE = new WriterOverflowException("writer overflow");
+	public static OverflowException INSTANCE = new OverflowException("writer overflow");
 
-	public WriterOverflowException(String message, Exception cause) {
+	public OverflowException(String message, Exception cause) {
 		super(message, cause);
 	}
 
-	public WriterOverflowException(String message) {
+	public OverflowException(String message) {
 		super(message);
 	}
 }

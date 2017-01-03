@@ -12,21 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.balance;
 
-public class FacadeInterceptorImpl implements FacadeInterceptor{
-	
-	private int interceptorLimit;
+public class FacadeInterceptorImpl implements FacadeInterceptor {
 
-	public FacadeInterceptorImpl(int interceptorLimit) {
+	private int	interceptorLimit;
+
+	// 1CPU limit
+	private int	globalLimit;
+
+	private int	check	= 0;
+
+	private long	next_check_time;
+
+	public FacadeInterceptorImpl(int interceptorLimit, int globalLimit) {
+		this.globalLimit = globalLimit;
 		this.interceptorLimit = interceptorLimit;
 	}
 
 	@Override
 	public boolean intercept(BalanceFacadeSocketSession session, BalanceReadFuture future) throws Exception {
-		
-		return session.overfulfil(interceptorLimit);
+
+		long now = System.currentTimeMillis();
+
+		if (now > next_check_time) {
+			next_check_time = now + 1000;
+			check = 0;
+			return session.overfulfil(interceptorLimit);
+		}
+
+		return ++check > globalLimit || session.overfulfil(interceptorLimit);
 	}
 
 }

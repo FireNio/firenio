@@ -17,5 +17,13 @@ package com.generallycloud.nio.balance;
 
 public interface FacadeInterceptor {
 
+	/**
+	 * 是否拦截
+	 * 
+	 * @param session
+	 * @param future
+	 * @return true拦截，false放行
+	 * @throws Exception
+	 */
 	public abstract boolean intercept(BalanceFacadeSocketSession session, BalanceReadFuture future) throws Exception;
 }

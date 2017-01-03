@@ -54,7 +54,7 @@ public class BalanceServerBootStrap {
 		BalanceContext balanceContext = new BalanceContext();
 		
 		if (facadeInterceptor == null) {
-			facadeInterceptor = new FacadeInterceptorImpl(2);
+			facadeInterceptor = new FacadeInterceptorImpl(5,50000);
 		}
 
 		balanceContext.setFacadeInterceptor(facadeInterceptor);
