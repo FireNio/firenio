@@ -24,7 +24,7 @@ public class SocketSEListenerWrapper extends AbstractLinkable<SocketSessionEvent
 	}
 
 	@Override
-	public void sessionOpened(SocketSession session) {
+	public void sessionOpened(SocketSession session) throws Exception {
 		getValue().sessionOpened(session);
 	}
 
@@ -35,7 +35,7 @@ public class SocketSEListenerWrapper extends AbstractLinkable<SocketSessionEvent
 	}
 
 	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception {
 		getValue().sessionIdled(session, lastIdleTime, currentTime);
 	}
 

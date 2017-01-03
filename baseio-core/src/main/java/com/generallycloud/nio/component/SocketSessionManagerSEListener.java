@@ -15,11 +15,12 @@
  */ 
 package com.generallycloud.nio.component;
 
+import com.generallycloud.nio.OverflowException;
 
 public class SocketSessionManagerSEListener extends SocketSEListenerAdapter{
 	
 	@Override
-	public void sessionOpened(SocketSession session) {
+	public void sessionOpened(SocketSession session) throws OverflowException {
 
 		SocketChannelContext context = session.getContext();
 		

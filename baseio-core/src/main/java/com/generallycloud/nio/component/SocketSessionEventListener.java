@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.util.EventListener;
 
-public interface SocketSessionEventListener extends EventListener{
+public interface SocketSessionEventListener extends EventListener {
 
-	public abstract void sessionOpened(SocketSession session);
+	public abstract void sessionOpened(SocketSession session) throws Exception;
 
-	public abstract void sessionClosed(SocketSession session);
-	
-	public abstract void sessionIdled(SocketSession session,long lastIdleTime,long currentTime);
-	
+	public abstract void sessionClosed(SocketSession session) ;
+
+	public abstract void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception;
+
 }

@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
-public class SocketSEListenerAdapter implements SocketSessionEventListener{
+public class SocketSEListenerAdapter implements SocketSessionEventListener {
 
 	@Override
-	public void sessionOpened(SocketSession session) {
-		
+	public void sessionOpened(SocketSession session) throws Exception {
+
 	}
 
 	@Override
 	public void sessionClosed(SocketSession session) {
-		
+
 	}
 
 	@Override
-	public void sessionIdled(SocketSession session,long lastIdleTime, long currentTime) {
-		
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception {
+
 	}
 }

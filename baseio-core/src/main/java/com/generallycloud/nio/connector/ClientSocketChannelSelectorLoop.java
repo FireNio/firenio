@@ -52,9 +52,9 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 	}
 
 	@Override
-	protected void acceptPrepare(SelectionKey selectionKey) throws IOException {
+	protected void accept(SelectionKey selectionKey,SelectableChannel selectableChannel) throws IOException {
 		
-		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectionKey.channel();
+		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectableChannel;
 
 		// does it need connection pending ?
 		if (!channel.isConnectionPending()) {
@@ -62,7 +62,7 @@ public class ClientSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 			return;
 		}
 
-		finishConnect(selectionKey, channel);
+		finishConnect(selectionKey,channel);
 		
 	}
 	

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.generallycloud.nio.Linkable;
+import com.generallycloud.nio.OverflowException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -118,7 +119,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 	}
 
 	@Override
-	public void putSession(SocketSession session) {
+	public void putSession(SocketSession session) throws OverflowException {
 
 		ReentrantMap<Integer, SocketSession> sessions = this.sessions;
 
@@ -131,6 +132,11 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 			removeSession(old);
 		}
 
+		if (sessions.size() >= getSessionSizeLimit()) {
+			throw new OverflowException("session size limit:"
+					+getSessionSizeLimit() +",current:"+sessions.size());
+		}
+		
 		sessions.put(sessionID, session);
 	}
 

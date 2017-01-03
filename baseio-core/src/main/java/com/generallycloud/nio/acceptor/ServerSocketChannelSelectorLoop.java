@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
@@ -32,90 +32,88 @@ import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
 public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
-	
-	private FixedAtomicInteger	core_index;
+
+	private FixedAtomicInteger core_index;
 
 	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
-		super(service,selectorLoops);
+		super(service, selectorLoops);
 	}
 
 	@Override
 	public Selector buildSelector(SelectableChannel channel) throws IOException {
-		
+
 		// 打开selector
 		Selector selector = Selector.open();
 
 		if (selectorLoops[0] == this) {
-			
+
 			// 注册监听事件到该selector
 			channel.register(selector, SelectionKey.OP_ACCEPT);
-			
+
 			this.setMainSelector(true);
-			
-			this.core_index = new FixedAtomicInteger(selectorLoops.length -1);
-			
+
+			this.core_index = new FixedAtomicInteger(selectorLoops.length - 1);
+
 			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(this);
-			
+
 			AbstractSessionManager sessionManager = (AbstractSessionManager) this.context.getSessionManager();
-			
+
 			sessionManager.initSessionManager(this);
-			
+
 			return selector;
 		}
-		
+
 		this.selectorLoopStrategy = new MinorSelectorLoopStrategy(this);
 
 		return selector;
 	}
 
 	@Override
-	protected void acceptPrepare(SelectionKey selectionKey) throws IOException {
+	protected void accept(SelectionKey selectionKey, SelectableChannel selectableChannel) throws IOException {
 
-		ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel();
-		
-		java.nio.channels.SocketChannel channel = server.accept();
+		java.nio.channels.SocketChannel channel = ((ServerSocketChannel) selectableChannel).accept();
 
 		if (channel == null) {
 			return;
 		}
 
 		int next_core_index = core_index.getAndIncrement();
-		
+
 		SelectorLoop selectorLoop = selectorLoops[next_core_index];
 
 		// 配置为非阻塞
 		channel.configureBlocking(false);
-		
+
 		// 注册到selector，等待连接
 		if (selectorLoop.isMainSelector()) {
 			regist(channel, selectorLoop);
 			return;
 		}
-		
+
 		ReentrantLock lock = selectorLoop.getIsWaitForRegistLock();
-		
+
 		lock.lock();
-		
-		try{
-			
+
+		try {
+
 			selectorLoop.setWaitForRegist(true);
 
 			selectorLoop.wakeup();
 
 			regist(channel, selectorLoop);
-			
+
 			selectorLoop.setWaitForRegist(false);
-			
-		}finally{
-			
+
+		} finally {
+
 			lock.unlock();
 		}
 	}
-	
-	private void regist(java.nio.channels.SocketChannel channel,SelectorLoop selectorLoop) throws IOException{
+
+	private void regist(java.nio.channels.SocketChannel channel, SelectorLoop selectorLoop) throws IOException {
 
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
-		
+
 		// 绑定SocketChannel到SelectionKey
 		SocketChannel socketChannel = selectorLoop.buildSocketChannel(sk);
 

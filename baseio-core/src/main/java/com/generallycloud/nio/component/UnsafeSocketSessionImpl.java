@@ -78,10 +78,12 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
+				CloseUtil.close(this);
+				break;
 			}
+			
 			linkable = linkable.getNext();
 		}
-
 	}
 
 	@Override

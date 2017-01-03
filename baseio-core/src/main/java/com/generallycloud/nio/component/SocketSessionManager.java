@@ -17,9 +17,11 @@ package com.generallycloud.nio.component;
 
 import java.util.Map;
 
+import com.generallycloud.nio.OverflowException;
+
 public interface SocketSessionManager extends SessionManager{
 	
-	public abstract void putSession(SocketSession session);
+	public abstract void putSession(SocketSession session) throws OverflowException;
 
 	public abstract void removeSession(SocketSession session);
 
