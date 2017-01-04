@@ -39,7 +39,7 @@ public abstract class AbstractHttpProtocolEncoder implements ProtocolEncoder {
 
 	protected void writeBuf(ByteBuf buf, byte[] array, int offset, int len) {
 		if (buf.remaining() < len) {
-			buf.reallocate(buf.limit() + len, true);
+			buf.reallocate(buf.position() + len, true);
 			buf.limit(buf.capacity());
 		}
 		buf.put(array);

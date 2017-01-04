@@ -117,7 +117,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 			remain_header_size += 4;
 		}
 
-		buf.limit(remain_header_size);
+		buf.reallocate(remain_header_size);
 	}
 
 	private void doRemainHeaderComplete(SocketSession session, ByteBuf buf) throws IOException {

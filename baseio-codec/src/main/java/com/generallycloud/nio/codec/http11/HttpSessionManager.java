@@ -17,7 +17,6 @@ package com.generallycloud.nio.codec.http11;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.codec.http11.future.Cookie;
@@ -28,6 +27,7 @@ import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
+//FIXME 限制最大session数量
 public class HttpSessionManager extends AbstractEventLoopThread{
 	
 	private static final String COOKIE_NAME_SESSIONID = "BSESSIONID";
