@@ -129,7 +129,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	@Override
 	public ByteBuf limit(int limit) {
 		this.limit = limit;
-		this.position = 0;
 		return this;
 	}
 

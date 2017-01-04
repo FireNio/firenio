@@ -12,15 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 
 public abstract class AbstractChannel implements Channel {
 
@@ -28,19 +31,19 @@ public abstract class AbstractChannel implements Channel {
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-	protected long			lastAccess;
+	protected long				lastAccess;
 	protected ByteBufAllocator	byteBufAllocator;
 	protected SelectorLoop		selectorLoop;
 	protected boolean			opened		= true;
 	protected boolean			closing		= false;
-	protected long			creationTime	= System.currentTimeMillis();
+	protected long				creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 
 	public AbstractChannel(SelectorLoop selectorLoop) {
 		ChannelContext context = selectorLoop.getContext();
 		this.selectorLoop = selectorLoop;
 		this.byteBufAllocator = selectorLoop.getByteBufAllocator();
-		// 这里认为在第一次Idle之前，连接都是畅通的
+		// 认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
@@ -60,6 +63,52 @@ public abstract class AbstractChannel implements Channel {
 		}
 
 		return address.getHostAddress();
+	}
+
+	@Override
+	public void close() throws IOException {
+
+		ReentrantLock lock = getChannelLock();
+
+		lock.lock();
+
+		try {
+
+			if (!isOpened()) {
+				return;
+			}
+
+			if (inSelectorLoop()) {
+				physicalClose();
+				return;
+			}
+
+			if (isClosing()) {
+				return;
+			}
+			
+			closing = true;
+
+			fireClose();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void fireEvent(SelectorLoopEvent event) {
+		this.selectorLoop.fireEvent(event);
+	}
+
+	private void fireClose() {
+
+		fireEvent(new SelectorLoopEventAdapter() {
+
+			@Override
+			public boolean handle(SelectorLoop selectLoop) throws IOException {
+				CloseUtil.close(AbstractChannel.this);
+				return false;
+			}
+		});
 	}
 
 	@Override
@@ -136,18 +185,9 @@ public abstract class AbstractChannel implements Channel {
 	public String toString() {
 
 		if (edp_description == null) {
-			edp_description = new StringBuilder("[")
-					.append(getMarkPrefix())
-					.append("(id:")
-					.append(getIdHexString(channelID))
-					.append(") R /")
-					.append(getRemoteAddr())
-					.append(":")
-					.append(getRemotePort())
-					.append("; Lp:")
-					.append(getLocalPort())
-					.append("]")
-					.toString();
+			edp_description = new StringBuilder("[").append(getMarkPrefix()).append("(id:")
+					.append(getIdHexString(channelID)).append(") R /").append(getRemoteAddr()).append(":")
+					.append(getRemotePort()).append("; Lp:").append(getLocalPort()).append("]").toString();
 		}
 
 		return edp_description;

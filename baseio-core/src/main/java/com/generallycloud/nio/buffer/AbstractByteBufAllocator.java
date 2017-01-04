@@ -97,32 +97,29 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		
-		if (copyOld) {
+		if (limit <= buf.capacity()) {
 			
-			if (limit > buf.capacity()) {
-				
-				PooledByteBuf newBuf = allocate(bufFactory,limit);
-				
-				newBuf.read(buf.position(0));
-				
-				ReleaseUtil.release(buf);
-				
-				return buf.newByteBuf(this).produce(newBuf);
+			if (copyOld) {
+				return buf.limit(limit);
 			}
 			
-			int oldLimit = buf.limit();
-			
-			return buf.limit(limit).skipBytes(oldLimit);
+			return buf.position(0).limit(limit);
 		}
 		
-		if (limit > buf.capacity()) {
+		if (copyOld) {
+			
+			PooledByteBuf newBuf = allocate(bufFactory,limit);
+			
+			newBuf.read(buf.flip());
 			
 			ReleaseUtil.release(buf);
 			
-			return allocate(buf, limit);
+			return buf.newByteBuf(this).produce(newBuf);
 		}
 		
-		return buf.limit(limit);
+		ReleaseUtil.release(buf);
+		
+		return allocate(buf, limit);
 	}
 
 	@Override

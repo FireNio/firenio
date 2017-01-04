@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -26,11 +26,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.ClosedChannelException;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
@@ -57,14 +55,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private SocketChannelContext			context;
 	private ChannelWriteFuture			writeFuture;
 	private long						next_network_weak	= Long.MAX_VALUE;
-	private boolean					enableInbound		= true;
-	private int						writeFutureLength	;
+	private int						writeFutureLength;
 	private EventLoop					eventLoop;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
-	
-	private static final Logger logger = LoggerFactory.getLogger(NioSocketChannel.class);
+
+	private static final Logger			logger			= LoggerFactory.getLogger(NioSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -79,7 +76,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-		
+
 		this.protocolFactory = selectorLoop.getProtocolFactory();
 		this.protocolDecoder = selectorLoop.getProtocolDecoder();
 		this.protocolEncoder = selectorLoop.getProtocolEncoder();
@@ -87,55 +84,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public void close() throws IOException {
-
-		ReentrantLock lock = this.channelLock;
-
-		lock.lock();
-
-		try {
-
-			if (!opened) {
-				return;
-			}
-
-			if (inSelectorLoop()) {
-
-				this.session.physicalClose();
-
-				this.physicalClose();
-
-			} else {
-
-				if (closing) {
-					return;
-				}
-				closing = true;
-
-				fireClose();
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-	
-	@Override
 	public SocketChannelContext getContext() {
 		return context;
-	}
-
-	private void fireClose() {
-
-		fireEvent(new SelectorLoopEventAdapter() {
-
-			@Override
-			public boolean handle(SelectorLoop selectLoop) throws IOException {
-
-				CloseUtil.close(NioSocketChannel.this);
-
-				return false;
-			}
-		});
 	}
 
 	@Override
@@ -156,7 +106,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!writeFuture.write(this)) {
 			return true;
 		}
-		
+
 		writeFutureLength -= writeFuture.getBinaryLength();
 
 		writeFuture.onSuccess(session);
@@ -165,7 +115,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		return needFlush();
 	}
-	
+
 	@Override
 	public int getWriteFutureLength() {
 		return writeFutureLength;
@@ -249,41 +199,41 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
+	public boolean isClosing() {
+		return closing;
+	}
+
+	@Override
 	public void offer(ChannelWriteFuture future) {
 
-		ReentrantLock lock = channelLock;
+		ReentrantLock lock = getChannelLock();
 
 		lock.lock();
 
 		try {
 
-			if (!enableInbound) {
-
+			if (!isOpened() || isClosing()) {
 				future.onException(session, new ClosedChannelException(session.toString()));
-
 				return;
 			}
 
 			if (!writeFutures.offer(future)) {
-
 				future.onException(session, new RejectedExecutionException());
-
 				return;
 			}
-			
+
 			this.writeFutureLength += future.getBinaryLength();
-			
+
 			if (writeFutureLength > 1024 * 1024 * 10) {
-				//FIXME 该连接写入过多啦
+				// FIXME 该连接写入过多啦
 			}
 
 			if (writeFutures.size() > 1) {
-
 				return;
 			}
 
 			selectorLoop.fireEvent(this);
-
+			
 		} finally {
 
 			lock.unlock();
@@ -331,8 +281,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	@Override
 	public void physicalClose() {
 
-		this.enableInbound = false;
-
+		getSession().physicalClose();
+		
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);
 
@@ -412,19 +362,19 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public void downNetworkState() {
-		
+
 		long current = System.currentTimeMillis();
 
 		if (next_network_weak < Long.MAX_VALUE) {
-			
+
 			if (networkWeak) {
 				return;
 			}
-			
+
 			if (current > next_network_weak) {
-				
+
 				networkWeak = true;
-				
+
 				fireEvent(this);
 			}
 
@@ -432,7 +382,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 			next_network_weak = current + 64;
 		}
-		
+
 	}
 
 	@Override
@@ -456,11 +406,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public void fireEvent(SelectorLoopEvent event) {
-		this.selectorLoop.fireEvent(event);
-	}
-
-	@Override
 	public boolean isPositive() {
 		return !isNetworkWeak();
 	}
@@ -469,5 +414,5 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public EventLoop getEventLoop() {
 		return eventLoop;
 	}
-	
+
 }

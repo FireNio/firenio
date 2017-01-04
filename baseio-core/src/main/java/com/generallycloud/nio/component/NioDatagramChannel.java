@@ -21,14 +21,11 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
 import com.generallycloud.nio.connector.ChannelConnector;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
@@ -58,55 +55,6 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		session.fireOpend();
 		
 	}
-
-	@Override
-	public void close() throws IOException {
-		
-		ReentrantLock lock = this.channelLock;
-
-		lock.lock();
-
-		try {
-
-			if (!opened) {
-				return;
-			}
-
-			if (inSelectorLoop()) {
-
-				this.session.physicalClose();
-
-				this.physicalClose();
-
-			} else {
-
-				if (closing) {
-					return;
-				}
-				closing = true;
-
-				fireClose();
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-	
-	private void fireClose() {
-
-		fireEvent(new SelectorLoopEventAdapter() {
-
-			@Override
-			public boolean handle(SelectorLoop selectLoop) throws IOException {
-				CloseUtil.close(NioDatagramChannel.this);
-				return false;
-			}
-		});
-	}
-	
-	public void fireEvent(SelectorLoopEvent event) {
-		this.selectorLoop.fireEvent(event);
-	}
 	
 	@Override
 	public DatagramChannelContext getContext() {
@@ -115,6 +63,8 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	@Override
 	public void physicalClose() {
+		
+		getSession().physicalClose();
 
 		DatagramSessionManager manager = context.getSessionManager();
 		
@@ -208,6 +158,11 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		buf.put(data);
 		
 		return buf;
+	}
+	
+	@Override
+	public boolean isClosing() {
+		return closing;
 	}
 
 }

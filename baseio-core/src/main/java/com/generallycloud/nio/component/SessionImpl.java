@@ -175,5 +175,10 @@ public abstract class SessionImpl implements Session {
 	public void close() {
 		CloseUtil.close(getChannel());
 	}
+	
+	@Override
+	public boolean isClosing() {
+		return getChannel().isClosing();
+	}
 
 }

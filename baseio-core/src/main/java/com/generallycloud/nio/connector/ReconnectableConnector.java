@@ -55,10 +55,13 @@ public class ReconnectableConnector implements Closeable {
 			return;
 		}
 
-		if (isConnected()) {
+		SocketSession session = connect2Front.getSession();
+		
+		if (session != null 
+				&& session.isOpened() && !session.isClosing()) {
 			return;
 		}
-
+		
 		// 启动本地服务端口
 		logger.info("启动前端长连接端口服务...");
 

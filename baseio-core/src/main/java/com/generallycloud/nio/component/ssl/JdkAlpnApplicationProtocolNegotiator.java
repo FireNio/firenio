@@ -25,7 +25,8 @@ public final class JdkAlpnApplicationProtocolNegotiator extends JdkBaseApplicati
         {
             if (!JdkAlpnSslEngine.isAvailable()) {
                 throw new RuntimeException("ALPN unsupported. Is your classpatch configured correctly?"
-                        + " See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting");
+                        + "\n See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting；"
+               	    + "\n http://www.cnblogs.com/gifisan/p/6245207.html");
             }
         }
 

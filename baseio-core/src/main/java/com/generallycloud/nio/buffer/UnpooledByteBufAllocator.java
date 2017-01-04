@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.ByteBufferUtil;
-import com.generallycloud.nio.common.ReleaseUtil;
 
 public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
@@ -102,13 +101,25 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 
 		@Override
 		public ByteBuf reallocate(int limit) {
-			ReleaseUtil.release(this);
-			this.memory = new byte[limit];
+			return reallocate(limit, false);
+		}
+
+		@Override
+		public ByteBuf reallocate(int limit, boolean copyOld) {
+			
+			byte [] newMemory = new byte[limit];
+			
+			if (copyOld) {
+				System.arraycopy(memory, 0, newMemory,0, position());
+			}
+			
+			this.memory = newMemory;
 			this.capacity = limit;
 			this.limit = limit;
-			this.position = 0;
+//			this.position = 0;
 			this.referenceCount = 1;
 			return this;
+			
 		}
 	}
 
@@ -148,8 +159,20 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 
 		@Override
 		public ByteBuf reallocate(int limit) {
-			ReleaseUtil.release(this);
-			this.memory = ByteBuffer.allocateDirect(limit);
+			return reallocate(limit, false);
+		}
+
+		@Override
+		public ByteBuf reallocate(int limit, boolean copyOld) {
+			
+			ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
+			
+			if (copyOld) {
+				newMemory.put(memory);
+				ByteBufferUtil.release(memory);
+			}
+			
+			this.memory = newMemory;
 			this.capacity = limit;
 			this.limit = limit;
 			this.position = 0;
@@ -185,12 +208,15 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 
 	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit) {
-		throw new UnsupportedOperationException();
+		return reallocate(buf, limit, false);
 	}
 
 	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
-		throw new UnsupportedOperationException();
+		if (limit > maxLimit) {
+			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
+		}
+		return reallocate(buf, limit);
 	}
 
 	@Override
@@ -200,7 +226,10 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 
 	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
-		throw new UnsupportedOperationException();
+		if (limit > maxLimit) {
+			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
+		}
+		return reallocate(buf,limit,copyOld);
 	}
 	
 	@Override

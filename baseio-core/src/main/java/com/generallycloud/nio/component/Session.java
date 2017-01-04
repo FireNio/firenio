@@ -74,6 +74,8 @@ public interface Session extends Closeable{
 	public abstract Charset getEncoding();
 
 	public abstract boolean isOpened();
+	
+	public abstract boolean isClosing();
 
 	public abstract ByteBufAllocator getByteBufAllocator();
 	
