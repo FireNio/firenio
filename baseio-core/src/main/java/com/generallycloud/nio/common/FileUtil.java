@@ -700,4 +700,32 @@ public class FileUtil {
 		return c;
 	}
 	
+	public static interface OnDirectoryScan{
+		
+		public abstract void onFile(File file) throws Exception;
+		
+		public abstract void onDirectory(File directory) throws Exception;
+	}
+	
+	public static void scanDirectory(File file,OnDirectoryScan onDirectoryScan) throws Exception{
+		
+		if (!file.exists()) {
+			return;
+		}
+		
+		if (file.isDirectory()) {
+			
+			File [] fs = file.listFiles(); 
+			
+			for(File f:fs){
+				scanDirectory(f, onDirectoryScan);
+			}
+
+			onDirectoryScan.onDirectory(file);
+			return;
+		}
+		
+		onDirectoryScan.onFile(file);
+	}
+	
 }
