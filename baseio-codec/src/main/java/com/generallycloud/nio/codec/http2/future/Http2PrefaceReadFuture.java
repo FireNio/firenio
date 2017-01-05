@@ -55,7 +55,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 		
-		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
+		session.setPrefaceRead(false);
 
 		if (!isPreface(buf)) {
 			throw new IOException("not http2 preface");

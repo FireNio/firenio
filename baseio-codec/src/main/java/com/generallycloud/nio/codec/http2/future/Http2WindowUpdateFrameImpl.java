@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http2.future;
 
 import java.io.IOException;
@@ -31,16 +31,14 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 
 	private int		updateValue;
 
-	public Http2WindowUpdateFrameImpl(Http2SocketSession session, ByteBuf buf) {
-		super(session);
+	public Http2WindowUpdateFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
+		super(session, header);
 		this.buf = buf;
 	}
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
-		
-		this.updateValue = MathUtil.int2int31(buf.getInt());
 
-		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
+		this.updateValue = MathUtil.int2int31(buf.getInt());
 	}
 
 	@Override
@@ -55,9 +53,9 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 			if (buf.hasRemaining()) {
 				return false;
 			}
-			
+
 			isComplete = true;
-			
+
 			doComplete((Http2SocketSession) session, buf.flip());
 		}
 

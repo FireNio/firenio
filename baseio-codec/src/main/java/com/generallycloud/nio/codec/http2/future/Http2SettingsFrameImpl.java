@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http2.future;
 
 import java.io.IOException;
@@ -28,10 +28,10 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 	private boolean	isComplete;
 
-	private long[]	settings;
+	private long[]		settings;//FIXME delete
 
-	public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf) {
-		super(session);
+	public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
+		super(session, header);
 		this.buf = buf;
 	}
 
@@ -49,8 +49,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
 		this.settings = session.getSettings();
 
-		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
-		
 		session.flush(this);
 	}
 
@@ -66,7 +64,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 			if (buf.hasRemaining()) {
 				return false;
 			}
-			
+
 			isComplete = true;
 
 			doComplete((Http2SocketSession) session, buf.flip());

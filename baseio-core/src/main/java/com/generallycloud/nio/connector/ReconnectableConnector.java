@@ -32,7 +32,7 @@ public class ReconnectableConnector implements Closeable {
 															.getLogger(ReconnectableConnector.class);
 	private SocketChannelConnector	connect2Front			= null;
 	private long					retryTime				= 15000;
-	private boolean				reconnect				= true;
+	private volatile boolean		reconnect				= true;
 	private ReconnectableConnector	reconnectableConnector	= null;
 
 	public ReconnectableConnector(SocketChannelContext context) {
@@ -99,6 +99,8 @@ public class ReconnectableConnector implements Closeable {
 
 						ThreadUtil.sleep(retryTime);
 
+						logger.error("连接断开，正在尝试重连。。。");
+						
 						reconnectableConnector.connect();
 					}
 				});

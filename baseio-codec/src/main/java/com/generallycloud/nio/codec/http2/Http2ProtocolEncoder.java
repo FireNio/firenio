@@ -87,14 +87,13 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 			
 			long [] settings = sf.getSettings();
 			
-			payload = new byte[6 * settings.length];
+			payload = new byte[6 * 6];
 			
-			for (int i = 1; i < 7; i++) {
-				
+			for (int i = 0; i < 6; i++) {
+				int realI = i + 1;
 				int offset = i * 6;
-				
-				MathUtil.unsignedShort2Byte(payload, i, offset);
-				MathUtil.unsignedInt2Byte(payload, settings[i], offset + 2);
+				MathUtil.unsignedShort2Byte(payload, realI, offset);
+				MathUtil.unsignedInt2Byte(payload, settings[realI], offset + 2);
 			}
 			
 			break;
@@ -118,8 +117,9 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(b1);
 		buf.putByte(b2);
 		buf.putByte(b3);
+		buf.putByte((byte)0);
 		
-		buf.putInt(frame.getStreamIdentifier());
+		buf.putInt(frame.getHeader().getStreamIdentifier());
 		
 		buf.put(payload);
 		

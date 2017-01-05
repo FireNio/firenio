@@ -15,29 +15,12 @@
  */
 package com.generallycloud.nio.codec.http2.future;
 
+import com.generallycloud.nio.protocol.ChannelReadFuture;
+
 /**
- * <pre>
-Name			Code	Initial Value
-HEADER_TABLE_SIZE	0x1	4096
-ENABLE_PUSH		0x2	1
-MAX_CONCURRENT_STREAMS	0x3	(infinite)
-INITIAL_WINDOW_SIZE	0x4	65535
-MAX_FRAME_SIZE		0x5	16384
-MAX_HEADER_LIST_SIZE	0x6	(infinite)
- * </pre>
- * 
  * @author wangkai
  *
  */
-public interface Http2SettingsFrame extends Http2Frame {
-
-	public static final int	SETTINGS_HEADER_TABLE_SIZE			= 0x1;
-	public static final int	SETTINGS_ENABLE_PUSH				= 0x2;
-	public static final int	SETTINGS_MAX_CONCURRENT_STREAMS		= 0x3;
-	public static final int	SETTINGS_INITIAL_WINDOW_SIZE		= 0x4;
-	public static final int	SETTINGS_MAX_FRAME_SIZE			= 0x5;
-	public static final int	SETTINGS_MAX_HEADER_LIST_SIZE		= 0x6;
-
-	public abstract long[] getSettings();
+public interface SocketHttp2Frame extends Http2Frame, ChannelReadFuture {
 
 }

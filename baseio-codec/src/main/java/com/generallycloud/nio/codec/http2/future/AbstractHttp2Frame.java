@@ -18,34 +18,18 @@ package com.generallycloud.nio.codec.http2.future;
 import com.generallycloud.nio.codec.http2.Http2SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 
-public abstract class AbstractHttp2Frame extends AbstractChannelReadFuture implements Http2Frame {
+public abstract class AbstractHttp2Frame extends AbstractChannelReadFuture implements SocketHttp2Frame {
 
-	protected byte flags;
+	private Http2FrameHeader header;
 	
-	protected AbstractHttp2Frame(Http2SocketSession session) {
+	protected AbstractHttp2Frame(Http2SocketSession session,Http2FrameHeader header) {
 		super(session.getContext());
-		
-		Http2FrameHeader header = session.getLastReadFrameHeader();
-		
-		this.flags = header.getFlags();
-		this.streamIdentifier = header.getStreamIdentifier();
-		
-	}
-
-	protected int	streamIdentifier;
-
-	@Override
-	public int getStreamIdentifier() {
-		return streamIdentifier;
+		this.header = header;
 	}
 
 	@Override
-	public void setStreamIdentifier(int streamIdentifier) {
-		this.streamIdentifier = streamIdentifier;
+	public Http2FrameHeader getHeader() {
+		return header;
 	}
 
-	@Override
-	public byte getFlags() {
-		return flags;
-	}
 }

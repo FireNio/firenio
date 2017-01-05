@@ -26,7 +26,7 @@ public interface Http2HeadersFrame extends Http2Frame {
 
 	public abstract int getStreamDependency();
 
-	public abstract int getWeight();
+	public abstract short getWeight();
 	
 	public byte getPadLength();
 }

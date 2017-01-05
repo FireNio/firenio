@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http2.future;
 
 import java.io.IOException;
@@ -25,53 +25,51 @@ import com.generallycloud.nio.component.SocketSession;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
-	private ByteBuf	buf;
+	private ByteBuf		buf;
 
-	private boolean	isComplete;
+	private boolean		isComplete;
 
-	private byte		padLength;
+	private byte			padLength;
 
-	private boolean	e;
+	private boolean		e;
 
-	private int		streamDependency;
+	private int			streamDependency;
 
-	private int		weight;
+	private short			weight;
 
-	private boolean endStream;
-	
-	private static Decoder decoder = new Decoder();
+	private boolean		endStream;
 
-	public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf) {
-		super(session);
+	private static Decoder	decoder	= new Decoder();
+
+	public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
+		super(session, header);
 		this.buf = buf;
 	}
 
 	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		byte flags = this.flags;
-		
+		byte flags = getHeader().getFlags();
+
 		this.endStream = (flags & FLAG_END_STREAM) > 0;
-		
-		if ((flags & FLAG_PADDED)  > 0) {
+
+		if ((flags & FLAG_PADDED) > 0) {
 			padLength = buf.getByte();
 		}
-		
-		if((flags & FLAG_PRIORITY) > 0){
-			
+
+		if ((flags & FLAG_PRIORITY) > 0) {
+
 			streamDependency = buf.getInt();
-			
+
 			e = streamDependency < 0;
-			
+
 			if (e) {
 				streamDependency = streamDependency & 0x7FFFFFFF;
 			}
-			
-			weight = buf.getByte();
+
+			weight = buf.getUnsignedByte();
 		}
-		
+
 		decoder.decode(streamDependency, buf, session.getHttp2Headers());
-		
-		session.setFrameWillBeRead(Http2FrameType.FRAME_TYPE_FRAME_HEADER);
 	}
 
 	@Override
@@ -88,7 +86,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 			}
 
 			this.isComplete = true;
-			
+
 			doComplete((Http2SocketSession) session, buf.flip());
 		}
 
@@ -121,7 +119,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 	}
 
 	@Override
-	public int getWeight() {
+	public short getWeight() {
 		return weight;
 	}
 
@@ -129,5 +127,5 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 	public byte getPadLength() {
 		return padLength;
 	}
-	
+
 }
