@@ -44,6 +44,7 @@ public class BalanceServerBootStrap {
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
 	private BalanceFacadeAcceptor 			balanceFacadeAcceptor;
+	private BalanceReverseLogger				balanceReverseLogger;
 
 	public void startup() throws IOException {
 
@@ -56,6 +57,12 @@ public class BalanceServerBootStrap {
 		if (facadeInterceptor == null) {
 			facadeInterceptor = new FacadeInterceptorImpl(5,50000);
 		}
+		
+		if (balanceReverseLogger == null) {
+			balanceReverseLogger = new BalanceReverseLogger();
+		}
+		
+		balanceContext.setBalanceReverseLogger(balanceReverseLogger);
 
 		balanceContext.setFacadeInterceptor(facadeInterceptor);
 		
@@ -234,4 +241,12 @@ public class BalanceServerBootStrap {
 		this.facadeInterceptor = facadeInterceptor;
 	}
 
+	public BalanceReverseLogger getBalanceReverseLogger() {
+		return balanceReverseLogger;
+	}
+
+	public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
+		this.balanceReverseLogger = balanceReverseLogger;
+	}
+	
 }

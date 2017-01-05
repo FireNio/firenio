@@ -28,9 +28,11 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 	private BalanceRouter		balanceRouter;
 	private BalanceFacadeAcceptor	balanceFacadeAcceptor;
 	private ExceptionCaughtHandle exceptionCaughtHandle;
+	private BalanceReverseLogger	balanceReverseLogger;
 
 	public BalanceReverseAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
+		this.balanceReverseLogger = context.getBalanceReverseLogger();
 		this.balanceFacadeAcceptor = context.getBalanceFacadeAcceptor();
 		this.exceptionCaughtHandle = context.getReverseExceptionCaughtHandle();
 	}
@@ -44,8 +46,8 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			
 			balanceFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
-			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), f);
-
+			balanceReverseLogger.logBroadcast(session, future, logger);
+			
 			return;
 		}
 
@@ -55,7 +57,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
 		if (response == null || response.isClosed()) {
 
-			logger.info("连接丢失：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+			balanceReverseLogger.logPushLost(session, future, logger);
 
 			return;
 		}
@@ -64,8 +66,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 		
 		response.flush(f.translate());
 
-		logger.info("回复报文：F：[{}]，T：[{}]，报文：{}",
-				new Object[] { session.getRemoteSocketAddress(), response.getRemoteSocketAddress(), f });
+		balanceReverseLogger.logPush(session, response, future, logger);
 	}
 
 	@Override

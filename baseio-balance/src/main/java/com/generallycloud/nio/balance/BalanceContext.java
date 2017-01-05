@@ -32,6 +32,7 @@ public class BalanceContext {
 	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
+	private BalanceReverseLogger				balanceReverseLogger;
 	private ExceptionCaughtHandle				facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
 	private ExceptionCaughtHandle				reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
 
@@ -107,6 +108,14 @@ public class BalanceContext {
 
 	public void setReverseExceptionCaughtHandle(ExceptionCaughtHandle reverseExceptionCaughtHandle) {
 		this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
+	}
+
+	public BalanceReverseLogger getBalanceReverseLogger() {
+		return balanceReverseLogger;
+	}
+
+	public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
+		this.balanceReverseLogger = balanceReverseLogger;
 	}
 	
 }
