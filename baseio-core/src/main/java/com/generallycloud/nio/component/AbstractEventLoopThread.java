@@ -24,12 +24,10 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	private static final Logger		logger		= LoggerFactory.getLogger(AbstractEventLoopThread.class);
 
 	private volatile boolean		running		= false;
-
+	
 	private boolean				working		= false;
-
+	
 	private boolean				stoping		= false;
-
-	private byte[]				workingLock	= new byte[] {};
 
 	private Thread					monitor 		= null;
 
@@ -39,26 +37,22 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 		for (;;) {
 
 			if (!running) {
-				notify4Free();
 				return;
 			}
-
+			
 			working = true;
-
+			
 			if (stoping) {
 				working = false;
-				notify4Free();
 				return;
 			}
 
 			try {
-
 				doLoop();
-
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
-
+			
 			working = false;
 		}
 	}
@@ -77,60 +71,26 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 				return;
 			}
 
+			running = false;
+			
+			stoping = true;
+			
 			try {
 				beforeStop();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-
-			running = false;
-
-			stoping = true;
-
+			
+			
 			if (working) {
-
-				notify4Free();
-
 				wakeupThread();
-
-				wait4Free();
 			}
-
-			stoping = false;
 
 			doStop();
 		}
 	}
 
 	protected void doStop() {
-	}
-
-	private void wait4Free() {
-		synchronized (workingLock) {
-			if (working) {
-				try {
-					workingLock.wait();
-				} catch (InterruptedException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-	}
-
-	private void notify4Free() {
-		synchronized (workingLock) {
-			workingLock.notify();
-		}
-	}
-
-	protected void sleep(long time) {
-		synchronized (workingLock) {
-			try {
-				workingLock.wait(time);
-			} catch (InterruptedException e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
 	}
 
 	protected void wakeupThread() {
@@ -144,8 +104,10 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			if (running) {
 				return;
 			}
-
+			
 			running = true;
+			
+			working = true;
 
 			this.monitor = new Thread(new Runnable() {
 
@@ -176,13 +138,13 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running;
-	}
-
-	@Override
 	public boolean isStopping() {
 		return stoping;
+	}
+	
+	@Override
+	public boolean isRunning() {
+		return running;
 	}
 
 }

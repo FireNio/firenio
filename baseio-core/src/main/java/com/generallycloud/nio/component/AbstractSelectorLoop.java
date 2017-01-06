@@ -185,10 +185,8 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	// 执行stop的时候如果确保不会再有数据进来
 	@Override
 	protected void wakeupThread() {
-
+		wakeup();
 		super.wakeupThread();
-
-		this.selector.wakeup();
 	}
 
 	@Override
@@ -199,24 +197,45 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	@Override
 	public void fireEvent(SelectorLoopEvent event) {
 		
+		if (inSelectorLoop()) {
+			
+			if (!isRunning()) {
+				CloseUtil.close(event);
+				return;
+			}
+			
+			getSelectorLoopStrategy().handleEvent(this, event);
+			
+			return;
+		}
+		
 		ReentrantLock lock = this.runLock;
 		
 		lock.lock();
 		
 		try{
 			
-			if (!isRunning()) {
-				CloseUtil.close(event);
-				return;
-			}
-
-			selectorLoopStrategy.fireEvent(event);
+			fireEvent0(event);
 			
 		}finally{
 			
 			lock.unlock();
 		}
+	}
+	
+	private void fireEvent0(SelectorLoopEvent event){
 		
+		if (!isRunning()) {
+			CloseUtil.close(event);
+			return;
+		}
+
+		selectorLoopStrategy.fireEvent(event);
+	}
+	
+	@Override
+	public boolean inSelectorLoop() {
+		return Thread.currentThread() == getMonitor();
 	}
 
 	@Override

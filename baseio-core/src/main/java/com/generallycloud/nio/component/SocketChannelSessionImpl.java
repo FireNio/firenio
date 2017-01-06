@@ -70,7 +70,6 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	public void finishHandshake(Exception e) {
 		if (getContext().getSslContext().isClient()) {
 			this.handshakeWaiter.setPayload(e);
-			this.handshakeWaiter = null;
 		}
 	}
 	

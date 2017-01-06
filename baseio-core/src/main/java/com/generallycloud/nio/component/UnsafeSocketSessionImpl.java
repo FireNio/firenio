@@ -65,6 +65,8 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 			if (handshakeWaiter.getPayload() != null) {
 				throw new RuntimeException(handshakeWaiter.getPayload());
 			}
+			
+			handshakeWaiter = null;
 			// success
 		}
 

@@ -55,7 +55,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		return shutDownWaiter;
 	}
 	
-	@Override
+	//FIXME 考虑手动关闭 connector
 	public void physicalClose() throws IOException {
 
 		if (canSafeClose()) {

@@ -26,7 +26,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.connector.ChannelConnector;
+import com.generallycloud.nio.connector.AbstractChannelConnector;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
 
@@ -72,13 +72,14 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		
 		ChannelService service = context.getChannelService();
 
-		if (service instanceof ChannelConnector) {
-
-			try {
-				((ChannelConnector) service).physicalClose();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+		if (!(service instanceof AbstractChannelConnector)) {
+			return;
+		}
+		
+		try {
+			((AbstractChannelConnector) service).physicalClose();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 

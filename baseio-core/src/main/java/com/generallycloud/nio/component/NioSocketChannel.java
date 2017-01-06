@@ -32,7 +32,7 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
-import com.generallycloud.nio.connector.ChannelConnector;
+import com.generallycloud.nio.connector.AbstractChannelConnector;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -212,7 +212,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		try {
 
-			if (!isOpened() || isClosing()) {
+			if (!isOpened()) {
 				future.onException(session, new ClosedChannelException(session.toString()));
 				return;
 			}
@@ -282,15 +282,19 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public void physicalClose() {
 
 		getSession().physicalClose();
-		
-		ReleaseUtil.release(readFuture);
-		ReleaseUtil.release(sslReadFuture);
 
 		// 最后一轮 //FIXME once
 		try {
 			this.handle(selectorLoop);
 		} catch (IOException e) {
 		}
+		
+		this.opened = false;
+		
+		this.closing = false;
+		
+		ReleaseUtil.release(readFuture);
+		ReleaseUtil.release(sslReadFuture);
 
 		this.releaseWriteFutures();
 
@@ -301,21 +305,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		} catch (Exception e) {
 		}
 
-		this.opened = false;
-
-		this.closing = false;
-
 		this.selectionKey.cancel();
 
 		ChannelService service = context.getChannelService();
 
-		if (service instanceof ChannelConnector) {
-
-			try {
-				((ChannelConnector) service).physicalClose();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+		if (!(service instanceof AbstractChannelConnector)) {
+			return;
+		}
+		
+		try {
+			((AbstractChannelConnector) service).physicalClose();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 

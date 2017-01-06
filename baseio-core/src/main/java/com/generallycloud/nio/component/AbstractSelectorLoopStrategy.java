@@ -72,27 +72,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			return;
 		}
 
-		for (SelectorLoopEvent event : eventBuffer) {
-
-			try {
-
-				if (event.handle(looper)) {
-					
-					//FIXME xiaolv hui jiangdi
-					if (event.isPositive()) {
-						positiveEvents.offer(event);
-					}else{
-						negativeEvents.offer(event);
-					}
-				}
-				
-			} catch (IOException e) {
-
-				CloseUtil.close(event);
-
-				continue;
-			}
-		}
+		handleEvents(looper, eventBuffer);
 
 		hasTask = positiveEvents.getBufferSize() > 0;
 
@@ -100,6 +80,36 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			runTask = 5;
 		}
 		
+	}
+	
+	private void handleEvents(SelectorLoop looper,List<SelectorLoopEvent> eventBuffer){
+		
+		for (SelectorLoopEvent event : eventBuffer) {
+
+			handleEvent(looper, event);
+		}
+	}
+	
+	@Override
+	public void handleEvent(SelectorLoop looper,SelectorLoopEvent event){
+		
+		try {
+
+			if (!event.handle(looper)) {
+				return;
+			}
+
+			//FIXME xiaolv hui jiangdi
+			if (event.isPositive()) {
+				positiveEvents.offer(event);
+			}else{
+				negativeEvents.offer(event);
+			}
+			
+		} catch (IOException e) {
+
+			CloseUtil.close(event);
+		}
 	}
 
 	protected void handleNegativeEvents(SelectorLoop looper) {
@@ -110,27 +120,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 			return;
 		}
 
-		for (SelectorLoopEvent event : eventBuffer) {
-
-			try {
-
-				if (event.handle(looper)) {
-					
-					//FIXME xiaolv hui jiangdi
-					if (event.isPositive()) {
-						positiveEvents.offer(event);
-					}else{
-						negativeEvents.offer(event);
-					}
-				}
-				
-			} catch (IOException e) {
-
-				CloseUtil.close(event);
-
-				continue;
-			}
-		}
+		handleEvents(looper, eventBuffer);
 	}
 
 	@Override

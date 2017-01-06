@@ -25,6 +25,8 @@ public interface SelectorLoopStrategy{
 	
 	public abstract void fireEvent(SelectorLoopEvent event);
 	
+	public abstract void handleEvent(SelectorLoop looper,SelectorLoopEvent event);
+	
 	public abstract void wakeup();
 	
 	public abstract void stop();

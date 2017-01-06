@@ -33,7 +33,5 @@ public interface ChannelConnector extends ChannelService, Connectable, Closeable
 
 	public abstract void setTimeout(long timeout) ;
 	
-	public abstract void physicalClose() throws IOException;
-	
 	public abstract Waiter<IOException> asynchronousClose();
 }

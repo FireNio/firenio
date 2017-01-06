@@ -54,6 +54,8 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 	public abstract ReentrantLock getIsWaitForRegistLock();
 
 	public abstract void setMainSelector(boolean isMainSelector);
+	
+	public abstract boolean inSelectorLoop();
 
 	public interface SelectorLoopEvent extends Closeable {
 
