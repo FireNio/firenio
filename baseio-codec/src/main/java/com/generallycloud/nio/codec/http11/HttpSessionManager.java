@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
@@ -104,6 +105,22 @@ public class HttpSessionManager extends AbstractEventLoopThread{
 		sleep(30 * 60 * 1000);
 	}
 	
+	private void sleep(long time){
+		synchronized (this) {
+			try {
+				this.wait(time);
+			} catch (InterruptedException e) {
+				DebugUtil.debug(e);
+			}
+		}
+	}
+	
+	protected void wakeupThread() {
+		synchronized (this) {
+			this.notify();
+		}
+	}
+
 	public int getManagedSessionSize(){
 		return sessions.size();
 	}
