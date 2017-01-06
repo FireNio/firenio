@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.FileUtil;
+import com.generallycloud.nio.common.FileUtil.OnDirectoryScan;
 
 /**
  * @author wangkai
@@ -27,7 +28,7 @@ import com.generallycloud.nio.common.FileUtil;
  */
 public class AddCommont {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		String commont = "/*" + "\n * Copyright 2015 GenerallyCloud.com" + "\n *  "
 				+ "\n * Licensed under the Apache License, Version 2.0 (the \"License\");"
@@ -47,32 +48,31 @@ public class AddCommont {
 		
 	}
 	
-	static void addCommont(File file,String c) throws IOException{
+	static void addCommont(File file,String c) throws Exception{
 		
-		if (!file.exists()) {
-			return;
-		}
-		
-		if (file.isDirectory()) {
+		FileUtil.scanDirectory(file, new OnDirectoryScan() {
 			
-			File [] fs = file.listFiles(); 
-			
-			for(File f:fs){
-				addCommont(f, c);
+			@Override
+			public void onFile(File file) throws IOException {
+				
+				if (file.getName().endsWith(".java")) {
+					
+					String content = FileUtil.readFileToString(file, Encoding.UTF8);
+					
+					content = c + content;
+					
+					FileUtil.write(file, content.getBytes(Encoding.UTF8),false);
+					
+					System.out.println("File:"+file.getAbsolutePath());
+				}
+				
 			}
 			
-		}else{
-			if (file.getName().endsWith(".java")) {
+			@Override
+			public void onDirectory(File directory) {
 				
-				String content = FileUtil.readFileToString(file, Encoding.UTF8);
-				
-				content = c + content;
-				
-				FileUtil.write(file, content.getBytes(Encoding.UTF8),false);
-				
-				System.out.println("File:"+file.getAbsolutePath());
 			}
-		}
+		});
 	}
 
 }

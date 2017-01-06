@@ -16,8 +16,9 @@
 package com.generallycloud.nio.codec.http2.hpack;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
+
+import com.generallycloud.nio.common.CloseUtil;
 
 public class ThrowableUtil {
 
@@ -49,11 +50,8 @@ public class ThrowableUtil {
 		try {
 			return new String(out.toByteArray());
 		} finally {
-			try {
-				out.close();
-			} catch (IOException ignore) {
-				// ignore as should never happen
-			}
+			CloseUtil.close(pout);
+			CloseUtil.close(out);
 		}
 	}
 

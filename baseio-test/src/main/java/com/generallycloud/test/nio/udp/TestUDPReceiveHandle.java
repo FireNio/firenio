@@ -16,6 +16,7 @@
 package com.generallycloud.test.nio.udp;
 
 import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;
@@ -68,7 +69,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
 			client.inviteReply(inviteUsername, markInterval, currentMark, groupSize);
 		} catch (RTPException e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 
 		RTPClientDPAcceptor acceptor = new RTPClientDPAcceptor(markInterval, currentMark, groupSize, this, client);
@@ -86,7 +87,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 			try {
 				client.sendDatagramPacket(packet);
 			} catch (RTPException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			}
 			
 //			logger.debug("________________________send_packet:{}",packet);
@@ -121,7 +122,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 			try {
 				client.sendDatagramPacket(packet);
 			} catch (RTPException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			}
 
 //			logger.debug("________________________send_packet:{}",packet);

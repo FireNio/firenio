@@ -181,7 +181,7 @@ public class SharedBundle {
 					}
 					properties.putAll(temp);
 				} catch (IOException e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 				}
 			}
 		}

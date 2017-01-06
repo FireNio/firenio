@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DebugUtil;
 
 public abstract class Command {
 
@@ -60,7 +61,7 @@ public abstract class Command {
 
 			CONTINUE = response.isContinue();
 
-			System.out.println(response.getResponse());
+			DebugUtil.debug(response.getResponse());
 
 			printPrefix(context);
 

@@ -75,9 +75,9 @@ public class HttpServerLoadStartup {
 
 		try {
 			acceptor.bind();
-		} catch (Throwable e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 			acceptor.unbind();
+			throw e;
 		}
 	}
 }

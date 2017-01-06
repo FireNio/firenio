@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.common;
 
 import java.io.BufferedReader;
@@ -40,13 +40,13 @@ import com.generallycloud.nio.buffer.EmptyByteBuf;
 
 public class FileUtil {
 
-	private static Charset ENCODING = Encoding.UTF8;
+	private static Charset		ENCODING			= Encoding.UTF8;
 
-	private static byte[] SKIP_BYTE_BUFFER;
+	private static byte[]		SKIP_BYTE_BUFFER;
 
-	private static char[] SKIP_CHAR_BUFFER;
+	private static char[]		SKIP_CHAR_BUFFER;
 
-	private static final char SYSTEM_SEPARATOR = File.separatorChar;
+	private static final char	SYSTEM_SEPARATOR	= File.separatorChar;
 
 	public static void cleanDirectory(File directory) throws IOException {
 		if (!directory.exists()) {
@@ -73,14 +73,12 @@ public class FileUtil {
 			throw exception;
 		}
 	}
-	
-	public static void createDirectory(File file) throws IOException{
+
+	public static void createDirectory(File file) throws IOException {
 		if (!file.exists()) {
 			File parent = file.getParentFile();
-			if ((parent != null) && (!parent.mkdirs())
-					&& (!parent.isDirectory())) {
-				throw new IOException("Directory '" + parent
-						+ "' could not be created");
+			if ((parent != null) && (!parent.mkdirs()) && (!parent.isDirectory())) {
+				throw new IOException("Directory '" + parent + "' could not be created");
 			}
 		}
 	}
@@ -111,24 +109,20 @@ public class FileUtil {
 		}
 	}
 
-	public static void copy(InputStream input, Writer output)
-			throws IOException {
+	public static void copy(InputStream input, Writer output) throws IOException {
 		copy(input, output, ENCODING);
 	}
 
-	public static void copy(InputStream input, Writer output, Charset encoding)
-			throws IOException {
+	public static void copy(InputStream input, Writer output, Charset encoding) throws IOException {
 		InputStreamReader in = new InputStreamReader(input, encoding);
 		copy(in, output);
 	}
 
-	public static void copy(Reader input, OutputStream output)
-			throws IOException {
+	public static void copy(Reader input, OutputStream output) throws IOException {
 		copy(input, output, ENCODING);
 	}
 
-	public static void copy(Reader input, OutputStream output, Charset encoding)
-			throws IOException {
+	public static void copy(Reader input, OutputStream output, Charset encoding) throws IOException {
 		OutputStreamWriter out = new OutputStreamWriter(output, encoding);
 		copy(input, out);
 
@@ -143,13 +137,11 @@ public class FileUtil {
 		return (int) count;
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output)
-			throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output) throws IOException {
 		return copyLarge(input, output, new byte[4096]);
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output,
-			byte[] buffer) throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, byte[] buffer) throws IOException {
 		long count = 0L;
 		int n = 0;
 		while (-1 != (n = input.read(buffer))) {
@@ -159,13 +151,13 @@ public class FileUtil {
 		return count;
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output,
-			long inputOffset, long length) throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length)
+			throws IOException {
 		return copyLarge(input, output, inputOffset, length, new byte[4096]);
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output,
-			long inputOffset, long length, byte[] buffer) throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length, byte[] buffer)
+			throws IOException {
 		if (inputOffset > 0L) {
 			skipFully(input, inputOffset);
 		}
@@ -179,8 +171,7 @@ public class FileUtil {
 		}
 		long totalRead = 0L;
 		int read;
-		while ((bytesToRead > 0)
-				&& (-1 != (read = input.read(buffer, 0, bytesToRead)))) {
+		while ((bytesToRead > 0) && (-1 != (read = input.read(buffer, 0, bytesToRead)))) {
 			output.write(buffer, 0, read);
 			totalRead += read;
 			if (length > 0L) {
@@ -190,13 +181,11 @@ public class FileUtil {
 		return totalRead;
 	}
 
-	public static long copyLarge(Reader input, Writer output)
-			throws IOException {
+	public static long copyLarge(Reader input, Writer output) throws IOException {
 		return copyLarge(input, output, new char[4096]);
 	}
 
-	public static long copyLarge(Reader input, Writer output, char[] buffer)
-			throws IOException {
+	public static long copyLarge(Reader input, Writer output, char[] buffer) throws IOException {
 		long count = 0L;
 		int n = 0;
 		while (-1 != (n = input.read(buffer))) {
@@ -205,13 +194,13 @@ public class FileUtil {
 		}
 		return count;
 	}
-	public static long copyLarge(Reader input, Writer output, long inputOffset,
-			long length) throws IOException {
+
+	public static long copyLarge(Reader input, Writer output, long inputOffset, long length) throws IOException {
 		return copyLarge(input, output, inputOffset, length, new char[4096]);
 	}
 
-	public static long copyLarge(Reader input, Writer output, long inputOffset,
-			long length, char[] buffer) throws IOException {
+	public static long copyLarge(Reader input, Writer output, long inputOffset, long length, char[] buffer)
+			throws IOException {
 		if (inputOffset > 0L) {
 			skipFully(input, inputOffset);
 		}
@@ -224,8 +213,7 @@ public class FileUtil {
 		}
 		long totalRead = 0L;
 		int read;
-		while ((bytesToRead > 0)
-				&& (-1 != (read = input.read(buffer, 0, bytesToRead)))) {
+		while ((bytesToRead > 0) && (-1 != (read = input.read(buffer, 0, bytesToRead)))) {
 			output.write(buffer, 0, read);
 			totalRead += read;
 			if (length > 0L) {
@@ -249,8 +237,7 @@ public class FileUtil {
 		}
 	}
 
-	private static void deleteDirectoryOnExit(File directory)
-			throws IOException {
+	private static void deleteDirectoryOnExit(File directory) throws IOException {
 		if (!directory.exists()) {
 			return;
 		}
@@ -268,8 +255,7 @@ public class FileUtil {
 		}
 	}
 
-	public static void deleteDirectoryOrFileByCls(String file)
-			throws IOException {
+	public static void deleteDirectoryOrFileByCls(String file) throws IOException {
 		File realFile = readFileByCls(file);
 		deleteDirectoryOrFile(realFile);
 	}
@@ -298,8 +284,7 @@ public class FileUtil {
 			boolean filePresent = file.exists();
 			if (!file.delete()) {
 				if (!filePresent) {
-					throw new FileNotFoundException("File does not exist: "
-							+ file);
+					throw new FileNotFoundException("File does not exist: " + file);
 				}
 				String message = "Unable to delete file: " + file;
 
@@ -316,11 +301,10 @@ public class FileUtil {
 		}
 	}
 
-	public static String input2String(InputStream input, Charset encoding)
-			throws IOException {
-		byte [] bytes = new byte[input.available()];
+	public static String input2String(InputStream input, Charset encoding) throws IOException {
+		byte[] bytes = new byte[input.available()];
 		input.read(bytes);
-		return new String(bytes,encoding);
+		return new String(bytes, encoding);
 	}
 
 	public static boolean isSymlink(File file) throws IOException {
@@ -337,8 +321,7 @@ public class FileUtil {
 			File canonicalDir = file.getParentFile().getCanonicalFile();
 			fileInCanonicalDir = new File(canonicalDir, file.getName());
 		}
-		if (fileInCanonicalDir.getCanonicalFile().equals(
-				fileInCanonicalDir.getAbsoluteFile())) {
+		if (fileInCanonicalDir.getCanonicalFile().equals(fileInCanonicalDir.getAbsoluteFile())) {
 			return false;
 		}
 		return true;
@@ -351,41 +334,33 @@ public class FileUtil {
 	public static FileInputStream openInputStream(File file) throws IOException {
 		if (file.exists()) {
 			if (file.isDirectory()) {
-				throw new IOException("File '" + file
-						+ "' exists but is a directory");
+				throw new IOException("File '" + file + "' exists but is a directory");
 			}
 			if (!file.canRead()) {
 				throw new IOException("File '" + file + "' cannot be read");
 			}
 		} else {
-			throw new FileNotFoundException("File '" + file
-					+ "' does not exist");
+			throw new FileNotFoundException("File '" + file + "' does not exist");
 		}
 		return new FileInputStream(file);
 	}
 
-	public static FileOutputStream openOutputStream(File file)
-			throws IOException {
+	public static FileOutputStream openOutputStream(File file) throws IOException {
 		return openOutputStream(file, false);
 	}
 
-	public static FileOutputStream openOutputStream(File file, boolean append)
-			throws IOException {
+	public static FileOutputStream openOutputStream(File file, boolean append) throws IOException {
 		if (file.exists()) {
 			if (file.isDirectory()) {
-				throw new IOException("File '" + file
-						+ "' exists but is a directory");
+				throw new IOException("File '" + file + "' exists but is a directory");
 			}
 			if (!file.canWrite()) {
-				throw new IOException("File '" + file
-						+ "' cannot be written to");
+				throw new IOException("File '" + file + "' cannot be written to");
 			}
 		} else {
 			File parent = file.getParentFile();
-			if ((parent != null) && (!parent.mkdirs())
-					&& (!parent.isDirectory())) {
-				throw new IOException("Directory '" + parent
-						+ "' could not be created");
+			if ((parent != null) && (!parent.mkdirs()) && (!parent.isDirectory())) {
+				throw new IOException("Directory '" + parent + "' could not be created");
 			}
 		}
 		return new FileOutputStream(file, append);
@@ -399,8 +374,7 @@ public class FileUtil {
 		return null;
 	}
 
-	public static String readContentByCls(String file, Charset encoding)
-			throws IOException {
+	public static String readContentByCls(String file, Charset encoding) throws IOException {
 		File file2 = readFileByCls(file);
 		if (file2.exists()) {
 			return readFileToString(file2, encoding);
@@ -408,8 +382,7 @@ public class FileUtil {
 		return null;
 	}
 
-	public static File readFileByCls(String file)
-			throws UnsupportedEncodingException {
+	public static File readFileByCls(String file) throws UnsupportedEncodingException {
 		ClassLoader classLoader = FileUtil.class.getClassLoader();
 		String path = classLoader.getResource(".").getFile();
 		return new File(URLDecoder.decode(path + file, ENCODING.name()));
@@ -425,8 +398,7 @@ public class FileUtil {
 		}
 	}
 
-	public static String readFileToString(File file, Charset encoding)
-			throws IOException {
+	public static String readFileToString(File file, Charset encoding) throws IOException {
 		InputStream in = null;
 		try {
 			in = openInputStream(file);
@@ -441,8 +413,7 @@ public class FileUtil {
 		return readLines(file, ENCODING);
 	}
 
-	public static List<String> readLines(File file, Charset encoding)
-			throws IOException {
+	public static List<String> readLines(File file, Charset encoding) throws IOException {
 		InputStream in = null;
 		try {
 			in = openInputStream(file);
@@ -456,8 +427,7 @@ public class FileUtil {
 		return readLines(input, ENCODING);
 	}
 
-	public static List<String> readLines(InputStream input, Charset encoding)
-			throws IOException {
+	public static List<String> readLines(InputStream input, Charset encoding) throws IOException {
 		InputStreamReader reader = new InputStreamReader(input, encoding);
 		return readLines(reader);
 	}
@@ -482,27 +452,25 @@ public class FileUtil {
 		return properties;
 	}
 
-	public static Properties readProperties(InputStream inputStream)
-			throws IOException {
+	public static Properties readProperties(InputStream inputStream) throws IOException {
 		Properties properties = new Properties();
 		try {
 			if (inputStream == null) {
 				throw new IOException("null inputstream!");
 			}
-			InputStreamReader inputStreamReader = new InputStreamReader(
-					inputStream, ENCODING);
+			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, ENCODING);
 			properties.load(inputStreamReader);
 			return properties;
 		} finally {
-			if (inputStream != null) {
-				inputStream.close();
-			}
+			CloseUtil.close(inputStream);
 		}
 	}
 
 	public static Properties readProperties(String path) throws IOException {
-		InputStream inputStream = FileUtil.class.getClassLoader()
-				.getResourceAsStream(path);
+		InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(path);
+		if (inputStream == null) {
+			throw new IOException("resource not found:"+path);
+		}
 		Properties properties = readProperties(inputStream);
 		if (properties == null) {
 			throw new IOException(path + " not found!");
@@ -512,16 +480,14 @@ public class FileUtil {
 
 	public static long skip(InputStream input, long toSkip) throws IOException {
 		if (toSkip < 0L) {
-			throw new IllegalArgumentException(
-					"Skip count must be non-negative, actual: " + toSkip);
+			throw new IllegalArgumentException("Skip count must be non-negative, actual: " + toSkip);
 		}
 		if (SKIP_BYTE_BUFFER == null) {
 			SKIP_BYTE_BUFFER = new byte[2048];
 		}
 		long remain = toSkip;
 		while (remain > 0L) {
-			long n = input.read(SKIP_BYTE_BUFFER, 0,
-					(int) Math.min(remain, 2048L));
+			long n = input.read(SKIP_BYTE_BUFFER, 0, (int) Math.min(remain, 2048L));
 			if (n < 0L) {
 				break;
 			}
@@ -532,16 +498,14 @@ public class FileUtil {
 
 	public static long skip(Reader input, long toSkip) throws IOException {
 		if (toSkip < 0L) {
-			throw new IllegalArgumentException(
-					"Skip count must be non-negative, actual: " + toSkip);
+			throw new IllegalArgumentException("Skip count must be non-negative, actual: " + toSkip);
 		}
 		if (SKIP_CHAR_BUFFER == null) {
 			SKIP_CHAR_BUFFER = new char[2048];
 		}
 		long remain = toSkip;
 		while (remain > 0L) {
-			long n = input.read(SKIP_CHAR_BUFFER, 0,
-					(int) Math.min(remain, 2048L));
+			long n = input.read(SKIP_CHAR_BUFFER, 0, (int) Math.min(remain, 2048L));
 			if (n < 0L) {
 				break;
 			}
@@ -550,34 +514,28 @@ public class FileUtil {
 		return toSkip - remain;
 	}
 
-	public static void skipFully(InputStream input, long toSkip)
-			throws IOException {
+	public static void skipFully(InputStream input, long toSkip) throws IOException {
 		if (toSkip < 0L) {
-			throw new IllegalArgumentException(
-					"Bytes to skip must not be negative: " + toSkip);
+			throw new IllegalArgumentException("Bytes to skip must not be negative: " + toSkip);
 		}
 		long skipped = skip(input, toSkip);
 		if (skipped != toSkip) {
-			throw new EOFException("Bytes to skip: " + toSkip + " actual: "
-					+ skipped);
+			throw new EOFException("Bytes to skip: " + toSkip + " actual: " + skipped);
 		}
 	}
 
 	public static void skipFully(Reader input, long toSkip) throws IOException {
 		long skipped = skip(input, toSkip);
 		if (skipped != toSkip) {
-			throw new EOFException("Chars to skip: " + toSkip + " actual: "
-					+ skipped);
+			throw new EOFException("Chars to skip: " + toSkip + " actual: " + skipped);
 		}
 	}
 
 	public static BufferedReader toBufferedReader(Reader reader) {
-		return (reader instanceof BufferedReader) ? (BufferedReader) reader
-				: new BufferedReader(reader);
+		return (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
 	}
 
-	public static byte[] toByteArray(InputStream input, int size)
-			throws IOException {
+	public static byte[] toByteArray(InputStream input, int size) throws IOException {
 		if (size < 1) {
 			return EmptyByteBuf.getInstance().array();
 		}
@@ -585,40 +543,33 @@ public class FileUtil {
 		byte[] data = new byte[size];
 		int offset = 0;
 		int readed;
-		while ((offset < size)
-				&& ((readed = input.read(data, offset, size - offset)) != -1)) {
+		while ((offset < size) && ((readed = input.read(data, offset, size - offset)) != -1)) {
 			offset += readed;
 		}
 		if (offset != size) {
-			throw new IOException("Unexpected readed size. current: " + offset
-					+ ", excepted: " + size);
+			throw new IOException("Unexpected readed size. current: " + offset + ", excepted: " + size);
 		}
 		return data;
 	}
 
-	public static byte[] toByteArray(InputStream input, long size)
-			throws IOException {
+	public static byte[] toByteArray(InputStream input, long size) throws IOException {
 		if (size > 2147483647L) {
-			throw new IllegalArgumentException(
-					"Size cannot be greater than Integer max value: " + size);
+			throw new IllegalArgumentException("Size cannot be greater than Integer max value: " + size);
 		}
 		return toByteArray(input, (int) size);
 	}
 
-	public static void write(byte[] data, OutputStream output)
-			throws IOException {
+	public static void write(byte[] data, OutputStream output) throws IOException {
 		if (data != null) {
 			output.write(data);
 		}
 	}
 
-	public static void write(char[] data, OutputStream output)
-			throws IOException {
+	public static void write(char[] data, OutputStream output) throws IOException {
 		write(data, output, ENCODING);
 	}
 
-	public static void write(char[] data, OutputStream output, Charset encoding)
-			throws IOException {
+	public static void write(char[] data, OutputStream output, Charset encoding) throws IOException {
 		if (data != null) {
 			output.write(new String(data).getBytes(encoding));
 		}
@@ -630,68 +581,59 @@ public class FileUtil {
 		}
 	}
 
-	public static void write(File file, byte[] data)throws IOException {
+	public static void write(File file, byte[] data) throws IOException {
 		write(file, data, false);
 	}
 
-	public static void write(File file, byte[] data,boolean append) throws IOException {
+	public static void write(File file, byte[] data, boolean append) throws IOException {
 		OutputStream out = null;
 		try {
 			out = openOutputStream(file, append);
 			out.write(data);
-			out.close();
 		} finally {
 			CloseUtil.close(out);
 		}
 	}
-	
-	
-	
 
-	public static void writeByCls(String file, byte[] bytes, boolean append)
-			throws IOException {
+	public static void writeByCls(String file, byte[] bytes, boolean append) throws IOException {
 		File realFile = readFileByCls(file);
 		write(realFile, bytes, append);
 	}
 
-	public static void writeByCls(String file, String content,
-			Charset encoding, boolean append) throws IOException {
+	public static void writeByCls(String file, String content, Charset encoding, boolean append) throws IOException {
 		File realFile = readFileByCls(file);
 		write(realFile, content, encoding, append);
 	}
 
-	public static void writeProperties(Properties properties, String path)
-			throws IOException {
+	public static void writeProperties(Properties properties, String path) throws IOException {
 		File file = readFileByCls(path);
 		FileOutputStream fos = new FileOutputStream(file);
 		properties.store(fos, "# this is admin's properties");
+		CloseUtil.close(fos);
 	}
 
-	public static void write(File file, String content)
-			throws IOException {
+	public static void write(File file, String content) throws IOException {
 		write(file, content, ENCODING, false);
 
 	}
 
-	public static void write(File file, String data, boolean append)
-			throws IOException {
+	public static void write(File file, String data, boolean append) throws IOException {
 		write(file, data, ENCODING, append);
 	}
 
-	public static void write(File file, String content,Charset encoding) throws IOException {
+	public static void write(File file, String content, Charset encoding) throws IOException {
 		write(file, content, encoding, false);
 	}
 
-	public static void write(File file, String content,Charset encoding,
-			boolean append) throws IOException {
+	public static void write(File file, String content, Charset encoding, boolean append) throws IOException {
 		write(content.getBytes(encoding), openOutputStream(file, append));
 	}
-	
-	public static int readFromtInputStream(InputStream inputStream,byte [] cache) throws IOException{
+
+	public static int readFromtInputStream(InputStream inputStream, byte[] cache) throws IOException {
 		int c = 0;
 		int s = cache.length;
-		for(;c < s;){
-			int r = inputStream.read(cache,c,s-c);
+		for (; c < s;) {
+			int r = inputStream.read(cache, c, s - c);
 			if (r == -1) {
 				return c;
 			}
@@ -699,33 +641,33 @@ public class FileUtil {
 		}
 		return c;
 	}
-	
-	public static interface OnDirectoryScan{
-		
+
+	public static interface OnDirectoryScan {
+
 		public abstract void onFile(File file) throws Exception;
-		
+
 		public abstract void onDirectory(File directory) throws Exception;
 	}
-	
-	public static void scanDirectory(File file,OnDirectoryScan onDirectoryScan) throws Exception{
-		
+
+	public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) throws Exception {
+
 		if (!file.exists()) {
 			return;
 		}
-		
+
 		if (file.isDirectory()) {
-			
-			File [] fs = file.listFiles(); 
-			
-			for(File f:fs){
+
+			File[] fs = file.listFiles();
+
+			for (File f : fs) {
 				scanDirectory(f, onDirectoryScan);
 			}
 
 			onDirectoryScan.onDirectory(file);
 			return;
 		}
-		
+
 		onDirectoryScan.onFile(file);
 	}
-	
+
 }

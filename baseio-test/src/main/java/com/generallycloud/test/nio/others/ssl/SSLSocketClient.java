@@ -25,6 +25,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.generallycloud.nio.common.CloseUtil;
+
 public class SSLSocketClient {
 
 	public static void main(String [] args) throws Exception {
@@ -64,6 +66,9 @@ public class SSLSocketClient {
 
 		byte[] buf = new byte[1024];
 		int len = input.read(buf);
+		
+		CloseUtil.close(output);
+		CloseUtil.close(input);
 		System.out.println("received:" + new String(buf, 0, len));
 	}
 }

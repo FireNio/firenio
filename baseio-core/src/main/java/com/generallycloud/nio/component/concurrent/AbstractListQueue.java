@@ -121,10 +121,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 				_notEmpty.await(timeout, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e1) {
 
-				e1.printStackTrace();
-
 				_notEmpty.signal();
-
 			}
 			
 			_locked = false;

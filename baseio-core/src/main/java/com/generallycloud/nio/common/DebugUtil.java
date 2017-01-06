@@ -21,7 +21,7 @@ public class DebugUtil {
 
 	public static void debug(Throwable e) {
 		if (enableDebug) {
-			e.printStackTrace();
+			printStackTrace(e);
 		}
 	}
 
@@ -38,7 +38,7 @@ public class DebugUtil {
 
 	public static void main(String[] args) {
 		Exception e = new Exception("999999");
-		e.printStackTrace();
+		printStackTrace(e);
 		String msg = exception2string(e);
 		System.out.println(msg);
 	}
@@ -92,11 +92,11 @@ public class DebugUtil {
 		}
 	}
 
-	public static void error(String className, String message, Throwable throwable) {
+	public static void error(String className, String message, Throwable e) {
 		if (message != null) {
 			System.err.println(message);
 		}
-		throwable.printStackTrace();
+		printStackTrace(e);
 	}
 
 	public static void error(String message) {
@@ -150,11 +150,15 @@ public class DebugUtil {
 		}
 	}
 
-	public static void error(String message, Throwable throwable) {
+	public static void error(String message, Throwable e) {
 		if (message != null) {
 			System.err.println(message);
 		}
-		throwable.printStackTrace();
+		printStackTrace(e);
+	}
+	
+	private static void printStackTrace(Throwable t){
+		t.printStackTrace();
 	}
 
 }

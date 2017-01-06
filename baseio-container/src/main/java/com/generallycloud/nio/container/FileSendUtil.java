@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.component.SocketSession;
 
@@ -66,5 +67,7 @@ public class FileSendUtil {
 		f.writeBinary(cache,0,r);
 		
 		session.flush(f);
+		
+		CloseUtil.close(inputStream);
 	}
 }

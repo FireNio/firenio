@@ -17,6 +17,7 @@ package com.generallycloud.test.nio.jms;
 
 import java.io.IOException;
 
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
@@ -40,7 +41,7 @@ public class TestSubscribe {
 					try {
 						TestSubscribe.test();
 					} catch (Exception e) {
-						e.printStackTrace();
+						DebugUtil.debug(e);
 					}
 				}
 			}).start();

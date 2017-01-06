@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
@@ -58,7 +59,7 @@ public class TestDownload {
 				try {
 					fileReceiveUtil.accept(session, (ProtobaseReadFuture) future,false);
 				} catch (Exception e) {
-					e.printStackTrace();
+					DebugUtil.debug(e);
 				}
 			}
 		});

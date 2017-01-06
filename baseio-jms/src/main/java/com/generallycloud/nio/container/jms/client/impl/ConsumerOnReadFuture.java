@@ -16,6 +16,7 @@
 package com.generallycloud.nio.container.jms.client.impl;
 
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.component.OnReadFuture;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.jms.MQException;
@@ -46,7 +47,7 @@ public class ConsumerOnReadFuture implements OnReadFuture {
 			onMessage.onReceive(message);
 
 		} catch (MQException e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 	}
 }

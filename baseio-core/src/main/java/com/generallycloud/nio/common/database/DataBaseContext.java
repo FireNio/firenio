@@ -73,8 +73,8 @@ public class DataBaseContext extends AbstractLifeCycle {
 		if (ORACLE_DRIVER_CLASS.equals(driverClass)) {
 			this.dataBaseQuery = new OracleQuery();
 			this.queryParamUtil = new OracleQueryParamUtil();
-		} else if (ORACLE_DRIVER_CLASS.equals(driverClass)) {
-			this.dataBaseQuery = new OracleQuery();
+		}else{
+			
 		}
 		
 		this.registBean(COUNT.class);

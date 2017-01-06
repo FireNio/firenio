@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
+import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -53,7 +54,7 @@ public class SSLUtil {
 			try {
 				sslContext = SslContextBuilder.forClient().build();
 			} catch (SSLException e) {
-				e.printStackTrace();
+				DebugUtil.debug(e);
 			}
 		}
 		return sslContext;

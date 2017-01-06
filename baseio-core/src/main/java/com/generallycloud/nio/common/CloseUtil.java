@@ -49,7 +49,7 @@ public class CloseUtil {
 		try {
 			unbindable.unbind();
 		} catch (Exception e) {
-			e.printStackTrace();
+			DebugUtil.debug(e);
 		}
 	}
 }

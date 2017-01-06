@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -177,7 +178,7 @@ public class DynamicClassLoader extends ClassLoader {
 			}
 		} finally {
 
-			file.close();
+			CloseUtil.close(file);
 		}
 	}
 
