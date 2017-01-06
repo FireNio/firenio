@@ -113,7 +113,7 @@ public abstract class AbstractChannel implements Channel {
 
 	@Override
 	public boolean inSelectorLoop() {
-		return selectorLoop.inSelectorLoop();
+		return selectorLoop.inEventLoop();
 	}
 
 	@Override

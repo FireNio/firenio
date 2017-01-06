@@ -19,7 +19,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.LifeCycle;
 
-
+//FIXME 考虑 继承 loop ，取消 eventLoopThread，增加ThreadEventLoop
 public interface EventLoop extends LifeCycle{
 
 	public abstract void dispatch(Runnable job) throws RejectedExecutionException;

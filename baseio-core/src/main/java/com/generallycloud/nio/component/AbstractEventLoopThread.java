@@ -124,7 +124,12 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	}
 
 	@Override
-	public boolean isMonitor(Thread thread) {
+	public boolean inEventLoop() {
+		return inEventLoop(Thread.currentThread());
+	}
+
+	@Override
+	public boolean inEventLoop(Thread thread) {
 		return monitor == thread;
 	}
 

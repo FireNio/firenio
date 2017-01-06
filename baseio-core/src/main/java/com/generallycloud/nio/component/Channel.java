@@ -66,5 +66,6 @@ public interface Channel extends Closeable{
 	public abstract ByteBufAllocator getByteBufAllocator();
 
 	public abstract boolean inSelectorLoop();
+
 	
 }

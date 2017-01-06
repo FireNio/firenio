@@ -197,7 +197,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	@Override
 	public void fireEvent(SelectorLoopEvent event) {
 		
-		if (inSelectorLoop()) {
+		if (inEventLoop()) {
 			
 			if (!isRunning()) {
 				CloseUtil.close(event);
@@ -233,11 +233,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		selectorLoopStrategy.fireEvent(event);
 	}
 	
-	@Override
-	public boolean inSelectorLoop() {
-		return Thread.currentThread() == getMonitor();
-	}
-
 	@Override
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;

@@ -18,8 +18,10 @@ package com.generallycloud.nio.component.concurrent;
 import com.generallycloud.nio.Looper;
 
 public interface EventLoopThread extends Looper {
+	
+	public abstract boolean inEventLoop();
 
-	public abstract boolean isMonitor(Thread thread);
+	public abstract boolean inEventLoop(Thread thread);
 
 	public abstract Thread getMonitor();
 	

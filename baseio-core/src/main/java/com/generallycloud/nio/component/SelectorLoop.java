@@ -55,8 +55,6 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 
 	public abstract void setMainSelector(boolean isMainSelector);
 	
-	public abstract boolean inSelectorLoop();
-
 	public interface SelectorLoopEvent extends Closeable {
 
 		/**
