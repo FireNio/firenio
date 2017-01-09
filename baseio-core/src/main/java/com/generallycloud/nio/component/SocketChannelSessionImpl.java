@@ -22,7 +22,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -155,7 +155,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 				future.wrapSSL(this, sslHandler);
 			}
 
-			channel.offer(future);
+			channel.flush(future);
 
 		} catch (Exception e) {
 
@@ -187,8 +187,8 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	}
 
 	@Override
-	public EventLoop getEventLoop() {
-		return channel.getEventLoop();
+	public ExecutorEventLoop getExecutorEventLoop() {
+		return channel.getExecutorEventLoop();
 	}
 
 	@Override

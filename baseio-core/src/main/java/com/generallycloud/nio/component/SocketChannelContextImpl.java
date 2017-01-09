@@ -25,7 +25,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.nio.component.concurrent.LineEventLoopGroup;
 import com.generallycloud.nio.component.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
@@ -40,7 +40,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	private ProtocolFactory					protocolFactory;
 	private BeatFutureFactory				beatFutureFactory;
 	private int							sessionAttachmentSize;
-	private EventLoopGroup					eventLoopGroup;
+	private ExecutorEventLoopGroup			executorEventLoopGroup;
 	private ProtocolEncoder					protocolEncoder;
 	private SslContext						sslContext;
 	private boolean						enableSSL;
@@ -164,16 +164,16 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 		
-		if (eventLoopGroup == null) {
+		if (executorEventLoopGroup == null) {
 			
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
 			
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 			
 			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-				this.eventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 			} else {
-				this.eventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
 			}
 		}
 		
@@ -202,7 +202,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 		LifeCycleUtil.start(mcByteBufAllocator);
 
-		LifeCycleUtil.start(eventLoopGroup);
+		LifeCycleUtil.start(executorEventLoopGroup);
 	}
 
 	private ChannelByteBufReader getLastChannelByteBufReader(ChannelByteBufReader value) {
@@ -222,7 +222,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 		CloseUtil.close(sessionManager);
 
-		LifeCycleUtil.stop(eventLoopGroup);
+		LifeCycleUtil.stop(executorEventLoopGroup);
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
@@ -240,8 +240,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	}
 
 	@Override
-	public EventLoopGroup getEventLoopGroup() {
-		return eventLoopGroup;
+	public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
+		return executorEventLoopGroup;
 	}
 
 	@Override
@@ -255,8 +255,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	}
 	
 	@Override
-	public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
-		this.eventLoopGroup = eventLoopGroup;
+	public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
+		this.executorEventLoopGroup = executorEventLoopGroup;
 	}
 
 	@Override

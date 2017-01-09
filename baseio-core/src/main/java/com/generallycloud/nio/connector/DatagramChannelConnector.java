@@ -20,10 +20,11 @@ import java.net.InetSocketAddress;
 
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.DatagramChannelContext;
+import com.generallycloud.nio.component.DatagramChannelSELFactory;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.DatagramSession;
 import com.generallycloud.nio.component.NioDatagramChannel;
-import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.UnsafeDatagramSession;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
@@ -51,10 +52,12 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
 
-		initSelectorLoops();
+		initSelectorLoops(new DatagramChannelSELFactory(this));
+		
+		DatagramChannelSelectorLoop selectorLoop = (DatagramChannelSelectorLoop) selectorEventLoopGroup.getNext();
 
 		@SuppressWarnings("resource")
-		DatagramChannel channel = new NioDatagramChannel((DatagramChannelSelectorLoop) selectorLoops[0],
+		DatagramChannel channel = new NioDatagramChannel(selectorLoop,
 				(java.nio.channels.DatagramChannel) selectableChannel, socketAddress);
 		
 		this.session = channel.getSession();
@@ -89,7 +92,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 
 	@Override
-	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
 		return new DatagramChannelSelectorLoop(this, selectorLoops);
 	}
 

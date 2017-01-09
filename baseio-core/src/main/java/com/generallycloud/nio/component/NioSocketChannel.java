@@ -29,7 +29,7 @@ import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLink;
 import com.generallycloud.nio.connector.AbstractChannelConnector;
@@ -56,7 +56,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ChannelWriteFuture			writeFuture;
 	private long						next_network_weak	= Long.MAX_VALUE;
 	private int						writeFutureLength;
-	private EventLoop					eventLoop;
+	private ExecutorEventLoop			executorEventLoop;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
@@ -69,7 +69,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.selectionKey = selectionKey;
-		this.eventLoop = selectorLoop.getEventLoop();
+		this.executorEventLoop = selectorLoop.getExecutorEventLoop();
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.socket = channel.socket();
 		this.local = getLocalSocketAddress();
@@ -89,7 +89,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public boolean handle(SelectorLoop selectorLoop) throws IOException {
+	public boolean handle(SelectorEventLoop selectorLoop) throws IOException {
 
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
@@ -204,7 +204,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public void offer(ChannelWriteFuture future) {
+	public void flush(ChannelWriteFuture future) {
 
 		ReentrantLock lock = getChannelLock();
 
@@ -232,7 +232,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				return;
 			}
 
-			selectorLoop.fireEvent(this);
+			selectorEventLoop.dispatch(this);
 			
 		} finally {
 
@@ -285,7 +285,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		// 最后一轮 //FIXME once
 		try {
-			this.handle(selectorLoop);
+			this.handle(selectorEventLoop);
 		} catch (IOException e) {
 		}
 		
@@ -412,8 +412,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public EventLoop getEventLoop() {
-		return eventLoop;
+	public ExecutorEventLoop getExecutorEventLoop() {
+		return executorEventLoop;
 	}
 
 }

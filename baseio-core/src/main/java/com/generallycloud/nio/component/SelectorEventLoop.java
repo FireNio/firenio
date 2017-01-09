@@ -21,12 +21,15 @@ import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 
-public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
+public interface SelectorEventLoop extends SelectionAcceptor, EventLoop {
+	
+	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
 
 	public abstract Selector buildSelector(SelectableChannel channel) throws IOException;
 
@@ -43,10 +46,6 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 
 	public abstract ByteBufAllocator getByteBufAllocator();
 
-	public abstract void wakeup();
-
-	public abstract void fireEvent(SelectorLoopEvent event);
-
 	public abstract boolean isWaitForRegist();
 
 	public abstract void setWaitForRegist(boolean isWaitForRegist);
@@ -61,7 +60,7 @@ public interface SelectorLoop extends SelectionAcceptor, EventLoopThread {
 		 * 返回该Event是否需要再次处理
 		 * @return true 需要再次处理，false处理结束后丢弃 
 		 */
-		boolean handle(SelectorLoop selectLoop) throws IOException;
+		boolean handle(SelectorEventLoop selectLoop) throws IOException;
 		
 		boolean isPositive();
 	}

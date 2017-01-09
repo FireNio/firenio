@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.component.concurrent;
+package com.generallycloud.nio.component;
 
-public class LineEventLoopGroup extends AbstractExecutorEventLoopGroup {
+/**
+ * @author wangkai
+ *
+ */
+public interface SelectorEventLoopFactory {
 
-	public LineEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
-	}
-
-	@Override
-	protected ExecutorEventLoop newEventLoop(int eventQueueSize) {
-		return new LineEventLoop();
-	}
+	public abstract SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize);
 
 }

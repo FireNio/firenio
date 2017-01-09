@@ -22,12 +22,12 @@ import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 
-public class WebSocketMsgAdapter extends AbstractEventLoopThread {
+public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 	private Logger				logger	= LoggerFactory.getLogger(WebSocketMsgAdapter.class);
 

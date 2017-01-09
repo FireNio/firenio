@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
+import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.BufferedArrayList;
 
 public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrategy {
@@ -32,17 +32,17 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 
 	protected boolean							hasTask	= false;
 	protected int								runTask	= 0;
-	protected SelectorLoop						selectorLoop;
+	protected SelectorEventLoop						selectorLoop;
 	protected AtomicBoolean						selecting = new AtomicBoolean();
 	protected BufferedArrayList<SelectorLoopEvent>	positiveEvents	= new BufferedArrayList<SelectorLoopEvent>();
 	protected BufferedArrayList<SelectorLoopEvent>	negativeEvents	= new BufferedArrayList<SelectorLoopEvent>();
 	
 	
-	protected AbstractSelectorLoopStrategy(SelectorLoop selectorLoop) {
+	protected AbstractSelectorLoopStrategy(SelectorEventLoop selectorLoop) {
 		this.selectorLoop = selectorLoop;
 	}
 
-	protected void selectEmpty(SelectorLoop looper,long last_select) {
+	protected void selectEmpty(SelectorEventLoop looper,long last_select) {
 
 		long past = System.currentTimeMillis() - last_select;
 
@@ -61,7 +61,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		}
 	}
 	
-	protected void handlePositiveEvents(SelectorLoop looper, boolean refresh){
+	protected void handlePositiveEvents(SelectorEventLoop looper, boolean refresh){
 		
 		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
 
@@ -82,7 +82,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		
 	}
 	
-	private void handleEvents(SelectorLoop looper,List<SelectorLoopEvent> eventBuffer){
+	private void handleEvents(SelectorEventLoop looper,List<SelectorLoopEvent> eventBuffer){
 		
 		for (SelectorLoopEvent event : eventBuffer) {
 
@@ -91,7 +91,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 	}
 	
 	@Override
-	public void handleEvent(SelectorLoop looper,SelectorLoopEvent event){
+	public void handleEvent(SelectorEventLoop looper,SelectorLoopEvent event){
 		
 		try {
 
@@ -112,7 +112,7 @@ public abstract class AbstractSelectorLoopStrategy implements SelectorLoopStrate
 		}
 	}
 
-	protected void handleNegativeEvents(SelectorLoop looper) {
+	protected void handleNegativeEvents(SelectorEventLoop looper) {
 
 		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
 

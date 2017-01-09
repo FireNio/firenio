@@ -12,103 +12,59 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component.concurrent;
 
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.AbstractEventLoopThread;
 
-public class ThreadEventLoop extends AbstractLifeCycle implements EventLoop {
+public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
-	private static Logger		logger				= LoggerFactory.getLogger(ThreadEventLoop.class);
+	private static Logger logger = LoggerFactory.getLogger(ThreadEventLoop.class);
 
-	private String				threadName			= null;
-
-	private SingleEventLoopWorker	singleEventLoopWorker	= null;
-
-	public ThreadEventLoop(String threadName, int queueSize) {
-		
-		this.threadName = threadName;
-
-		this.singleEventLoopWorker = new SingleEventLoopWorker(queueSize);
+	public ThreadEventLoop(int queueSize) {
+		this.jobs = new ListQueueABQ<Runnable>(queueSize);
 	}
 
-	@Override
+	private boolean			stoped	= false;
+
+	private ListQueue<Runnable>	jobs;
+
 	public void dispatch(Runnable job) {
-		singleEventLoopWorker.dispatch(job);
-	}
 
-	@Override
-	protected void doStart() throws Exception {
-		singleEventLoopWorker.startup(threadName);
-	}
-
-	@Override
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(singleEventLoopWorker);
-	}
-
-	@Override
-	public String toString() {
-		return singleEventLoopWorker.toString();
-	}
-
-	// AtomicInteger integer = new AtomicInteger();
-
-	class SingleEventLoopWorker extends AbstractEventLoopThread {
-
-		private boolean stoped = false;
-
-		protected SingleEventLoopWorker(int queueSize) {
-			this.jobs = new ListQueueABQ<Runnable>(queueSize);
+		if (stoped || !jobs.offer(job)) {
+			throw new RejectedExecutionException();
 		}
+	}
 
-		private ListQueue<Runnable> jobs;
+	@Override
+	public void doLoop() {
 
-		public void dispatch(Runnable job) {
+		try {
 
-			// logger.debug("dispatch {}",integer.incrementAndGet());
+			Runnable runnable = jobs.poll(32);
 
-			if (stoped || !jobs.offer(job)) {
-				throw new RejectedExecutionException();
+			if (runnable == null) {
+				return;
 			}
+
+			runnable.run();
+			
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		}
+	}
 
-		@Override
-		public void doLoop() {
-
-			try {
-
-				Runnable runnable = jobs.poll(32);
-
-				if (runnable == null) {
-					return;
-				}
-
-				runnable.run();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+	@Override
+	protected void beforeStop() {
+		//FIXME __clean jobs
 		
-		@Override
-		protected void beforeStop() {
-			for (; jobs.size() > 0;) {
-				ThreadUtil.sleep(8);
-			}
-			super.beforeStop();
-		}
-	}
-
-	@Override
-	public boolean inEventLoop() {
-		return Thread.currentThread() == singleEventLoopWorker.getMonitor();
+		
+		
+		
+		super.beforeStop();
 	}
 
 }

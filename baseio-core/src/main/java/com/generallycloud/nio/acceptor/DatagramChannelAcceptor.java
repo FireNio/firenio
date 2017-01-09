@@ -22,8 +22,9 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.component.DatagramChannelContext;
+import com.generallycloud.nio.component.DatagramChannelSELFactory;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
-import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
@@ -46,7 +47,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
 
-		initSelectorLoops();
+		initSelectorLoops(new DatagramChannelSELFactory(this));
 	}
 
 	@Override
@@ -70,7 +71,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	}
 
 	@Override
-	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
 		return new DatagramChannelSelectorLoop(this, selectorLoops);
 	}
 

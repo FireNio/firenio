@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component.concurrent;
 
-public class ThreadEventLoopGroup extends AbstractEventLoopGroup{
+public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
 	public ThreadEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 	}
 
 	@Override
-	protected EventLoop newEventLoop(String threadName, int eventQueueSize) {
-		return new ThreadEventLoop(threadName, eventQueueSize);
+	protected ExecutorEventLoop newEventLoop(int eventQueueSize) {
+		return new ThreadEventLoop(eventQueueSize);
 	}
-	
+
 }

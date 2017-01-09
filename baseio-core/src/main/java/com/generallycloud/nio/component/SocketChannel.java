@@ -18,8 +18,8 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -51,7 +51,7 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract int write(ByteBuffer buffer) throws IOException;
 
-	public abstract void offer(ChannelWriteFuture future);
+	public abstract void flush(ChannelWriteFuture future);
 
 	public abstract boolean isBlocking();
 
@@ -81,5 +81,5 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract void fireEvent(SelectorLoopEvent event);
 	
-	public abstract EventLoop getEventLoop();
+	public abstract ExecutorEventLoop getExecutorEventLoop();
 }

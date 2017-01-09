@@ -30,9 +30,9 @@ public abstract class AbstractChannelService implements ChannelService {
 	protected InetSocketAddress		serverAddress		= null;
 	protected boolean				active			= false;
 	protected SelectableChannel		selectableChannel	= null;
-	protected SelectorLoop[]		selectorLoops		= null;
 	protected Waiter<IOException>	shutDownWaiter		= new Waiter<>();
 	protected ReentrantLock			activeLock		= new ReentrantLock();
+	protected SelectorEventLoopGroup	selectorEventLoopGroup;
 
 	@Override
 	public SelectableChannel getSelectableChannel() {
@@ -41,32 +41,7 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected abstract void initselectableChannel() throws IOException;
 
-	protected abstract SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException;
-
-	protected void initSelectorLoops() throws IOException {
-
-		ServerConfiguration configuration = getContext().getServerConfiguration();
-
-		int core_size = configuration.getSERVER_CORE_SIZE();
-
-		this.selectorLoops = new SelectorLoop[core_size];
-
-		for (int i = 0; i < core_size; i++) {
-
-			selectorLoops[i] = newSelectorLoop(selectorLoops);
-		}
-
-		for (int i = 0; i < core_size; i++) {
-			try {
-				selectorLoops[i].startup(getServiceDescription(i));
-			} catch (Exception e) {
-				if (e instanceof IOException) {
-					throw (IOException) e;
-				}
-				throw new IOException(e.getMessage(), e);
-			}
-		}
-	}
+	protected abstract SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException;
 
 	protected void cancelService() {
 
@@ -75,7 +50,6 @@ public abstract class AbstractChannelService implements ChannelService {
 		lock.lock();
 
 		try {
-
 			// just close
 			destroySelectorLoops();
 
@@ -89,7 +63,21 @@ public abstract class AbstractChannelService implements ChannelService {
 
 			lock.unlock();
 		}
+	}
+	
+	private void destroySelectorLoops() {
+		LifeCycleUtil.stop(selectorEventLoopGroup);
+	}
 
+	protected void initSelectorLoops(SelectorEventLoopFactory factory){
+		
+		ServerConfiguration configuration = getContext().getServerConfiguration();
+
+		int core_size = configuration.getSERVER_CORE_SIZE();
+		//FIXME __limit eventQueueSize
+		this.selectorEventLoopGroup = 
+				new SelectorEventLoopGroupImpl("io-process", 0, core_size, factory);
+		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 
 	protected void service() throws IOException {
@@ -129,6 +117,10 @@ public abstract class AbstractChannelService implements ChannelService {
 			lock.unlock();
 		}
 	}
+	
+	protected SelectorEventLoop [] getSelectorEventLoops(){
+		return selectorEventLoopGroup.getSelectorEventLoops();
+	}
 
 	@Override
 	public InetSocketAddress getServerSocketAddress() {
@@ -137,19 +129,4 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
-	protected void destroySelectorLoops() {
-
-		if (selectorLoops == null) {
-			return;
-		}
-
-		for (int i = 0; i < selectorLoops.length; i++) {
-
-			LifeCycleUtil.stop(selectorLoops[i]);
-		}
-	}
-
-	private String getServiceDescription(int i) {
-		return "io-process-" + i;
-	}
 }

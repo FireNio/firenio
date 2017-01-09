@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.SelectorLoop.SelectorLoopEvent;
+import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 
 public abstract class AbstractChannel implements Channel {
 
@@ -31,18 +31,18 @@ public abstract class AbstractChannel implements Channel {
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-	protected long				lastAccess;
+	protected long			lastAccess;
 	protected ByteBufAllocator	byteBufAllocator;
-	protected SelectorLoop		selectorLoop;
+	protected SelectorEventLoop	selectorEventLoop;
 	protected boolean			opened		= true;
 	protected boolean			closing		= false;
-	protected long				creationTime	= System.currentTimeMillis();
+	protected long			creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 
-	public AbstractChannel(SelectorLoop selectorLoop) {
-		ChannelContext context = selectorLoop.getContext();
-		this.selectorLoop = selectorLoop;
-		this.byteBufAllocator = selectorLoop.getByteBufAllocator();
+	public AbstractChannel(SelectorEventLoop selectorEventLoop) {
+		ChannelContext context = selectorEventLoop.getContext();
+		this.selectorEventLoop = selectorEventLoop;
+		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
 		// 认为在第一次Idle之前，连接都是畅通的
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
@@ -86,7 +86,7 @@ public abstract class AbstractChannel implements Channel {
 			if (isClosing()) {
 				return;
 			}
-			
+
 			closing = true;
 
 			fireClose();
@@ -96,7 +96,7 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	public void fireEvent(SelectorLoopEvent event) {
-		this.selectorLoop.fireEvent(event);
+		this.selectorEventLoop.dispatch(event);
 	}
 
 	private void fireClose() {
@@ -104,7 +104,7 @@ public abstract class AbstractChannel implements Channel {
 		fireEvent(new SelectorLoopEventAdapter() {
 
 			@Override
-			public boolean handle(SelectorLoop selectLoop) throws IOException {
+			public boolean handle(SelectorEventLoop selectLoop) throws IOException {
 				CloseUtil.close(AbstractChannel.this);
 				return false;
 			}
@@ -113,7 +113,7 @@ public abstract class AbstractChannel implements Channel {
 
 	@Override
 	public boolean inSelectorLoop() {
-		return selectorLoop.inEventLoop();
+		return selectorEventLoop.inEventLoop();
 	}
 
 	@Override

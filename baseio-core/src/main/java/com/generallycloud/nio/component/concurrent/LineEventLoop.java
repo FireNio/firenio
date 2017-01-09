@@ -12,48 +12,67 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component.concurrent;
 
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.nio.AbstractLifeCycle;
+public class LineEventLoop implements ExecutorEventLoop {
 
-public class LineEventLoop extends AbstractLifeCycle implements EventLoop{
-	
-	private Thread monitor;
+	private EventLoop	eventLoop;
 
 	@Override
 	public void dispatch(Runnable job) throws RejectedExecutionException {
-		
+
 		if (job == null) {
-			return ;
+			return;
 		}
+
 		job.run();
 	}
 
-	
+	public Thread getMonitor() {
+		return unwrap().getMonitor();
+	}
+
+	public void setMonitor(EventLoop eventLoop) {
+		this.eventLoop = eventLoop;
+	}
+
 	@Override
 	public boolean inEventLoop() {
-		return Thread.currentThread() == monitor;
-	}
-	
-	public Thread getMonitor() {
-		return monitor;
-	}
-
-	public void setMonitor(Thread monitor) {
-		this.monitor = monitor;
+		return inEventLoop(Thread.currentThread());
 	}
 
 	@Override
-	protected void doStart() throws Exception {
-		
+	public boolean inEventLoop(Thread thread) {
+		return getMonitor() == thread;
 	}
 
 	@Override
-	protected void doStop() throws Exception {
-		
+	public boolean isRunning() {
+		return unwrap().isRunning();
+	}
+
+	@Override
+	public void startup(String threadName) throws Exception {
+	}
+
+	@Override
+	public void loop() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void stop() {
 	}
 	
+	private EventLoop unwrap(){
+		return eventLoop;
+	}
+
+	@Override
+	public void wakeup() {
+		unwrap().wakeup();
+	}
 }

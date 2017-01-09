@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -22,14 +22,16 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 
-public abstract class AbstractSelectorLoop extends AbstractEventLoopThread implements SelectorLoop {
+public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
 
 	private boolean				isMainSelector			= false;
 	private boolean				isWaitForRegist		= false;
@@ -39,7 +41,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	protected SelectableChannel		selectableChannel		= null;
 	protected Selector				selector				= null;
 	protected SelectorLoopStrategy	selectorLoopStrategy	= null;
-	protected SelectorLoop[]		selectorLoops			= null;
+	protected SelectorEventLoop[]	selectorLoops			= null;
 	protected ReentrantLock			runLock				= new ReentrantLock();
 
 	private static final Logger		logger				= LoggerFactory.getLogger(AbstractSelectorLoop.class);
@@ -64,7 +66,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 		this.isMainSelector = isMainSelector;
 	}
 
-	protected AbstractSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
+	protected AbstractSelectorLoop(ChannelService service, SelectorEventLoop[] selectorLoops) {
 
 		ChannelContext context = service.getContext();
 
@@ -78,15 +80,14 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable t) {
 
 		Object attachment = selectionKey.attachment();
-		
+
 		if (attachment == null) {
 			return;
 		}
-		
+
 		logger.error(t.getMessage() + " channel:" + attachment, t);
 
 		CloseUtil.close((Channel) attachment);
-		
 
 	}
 
@@ -184,47 +185,43 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
 	// 执行stop的时候如果确保不会再有数据进来
 	@Override
-	protected void wakeupThread() {
-		wakeup();
-		super.wakeupThread();
-	}
-
-	@Override
 	public void wakeup() {
 		selector.wakeup();
+		super.wakeup();
 	}
 
 	@Override
-	public void fireEvent(SelectorLoopEvent event) {
-		
+	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
+
 		if (inEventLoop()) {
-			
+
 			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
 			}
-			
+
 			getSelectorLoopStrategy().handleEvent(this, event);
-			
+
 			return;
 		}
-		
+
 		ReentrantLock lock = this.runLock;
-		
+
 		lock.lock();
-		
-		try{
-			
-			fireEvent0(event);
-			
-		}finally{
-			
+
+		try {
+
+			dispatch0(event);
+
+		} finally {
+
 			lock.unlock();
 		}
+
 	}
-	
-	private void fireEvent0(SelectorLoopEvent event){
-		
+
+	private void dispatch0(SelectorLoopEvent event) {
+
 		if (!isRunning()) {
 			CloseUtil.close(event);
 			return;
@@ -232,7 +229,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoopThread imple
 
 		selectorLoopStrategy.fireEvent(event);
 	}
-	
+
 	@Override
 	public SelectorLoopStrategy getSelectorLoopStrategy() {
 		return selectorLoopStrategy;

@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.component.concurrent;
+package com.generallycloud.nio.acceptor;
+
+import com.generallycloud.nio.component.AbstractSelectorEventLoopFactory;
+import com.generallycloud.nio.component.ChannelService;
+import com.generallycloud.nio.component.SelectorEventLoop;
 
 /**
  * @author wangkai
  *
  */
-public interface ExecutorEventLoopGroup extends EventLoopGroup{
+public class ServerSocketChannelSELFactory extends AbstractSelectorEventLoopFactory {
+
+	public ServerSocketChannelSELFactory(ChannelService channelService) {
+		super(channelService);
+	}
 
 	@Override
-	public abstract ExecutorEventLoop getNext() ;
-	
+	protected SelectorEventLoop newEventLoop(ChannelService channelService, SelectorEventLoop[] selectorEventLoops,
+			int eventQueueSize) {
+		return new ServerSocketChannelSelectorLoop(channelService, selectorEventLoops);
+	}
+
 }

@@ -25,13 +25,13 @@ public class PrimarySelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 	
 	private SessionManager sessionManager = null;
 
-	public PrimarySelectorLoopStrategy(SelectorLoop selectorLoop) {
+	public PrimarySelectorLoopStrategy(SelectorEventLoop selectorLoop) {
 		super(selectorLoop);
 		this.sessionManager = selectorLoop.getContext().getSessionManager();
 	}
 
 	@Override
-	public void loop(SelectorLoop looper) throws IOException {
+	public void loop(SelectorEventLoop looper) throws IOException {
 
 		Selector selector = looper.getSelector();
 

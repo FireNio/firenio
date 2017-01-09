@@ -15,15 +15,31 @@
  */
 package com.generallycloud.nio.component.concurrent;
 
-public class LineEventLoopGroup extends AbstractExecutorEventLoopGroup {
+/**
+ * @author wangkai
+ *
+ */
+public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGroup implements ExecutorEventLoopGroup {
 
-	public LineEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
+	private ExecutorEventLoop[] executorEventLoops;
+
+	public AbstractExecutorEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 	}
 
 	@Override
-	protected ExecutorEventLoop newEventLoop(int eventQueueSize) {
-		return new LineEventLoop();
+	public ExecutorEventLoop getNext() {
+		return executorEventLoops[getNextEventLoopIndex()];
 	}
 
+	@Override
+	protected EventLoop[] initEventLoops() {
+		executorEventLoops = new ExecutorEventLoop[getEventLoopSize()];
+		return executorEventLoops;
+	}
+
+	@Override
+	protected EventLoop[] getEventLoops() {
+		return executorEventLoops;
+	}
 }

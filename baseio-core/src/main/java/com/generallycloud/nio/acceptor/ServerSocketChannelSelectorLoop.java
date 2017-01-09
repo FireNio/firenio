@@ -26,7 +26,7 @@ import com.generallycloud.nio.component.AbstractSessionManager;
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
 import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
-import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
 import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
@@ -35,7 +35,7 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
 	private FixedAtomicInteger core_index;
 
-	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
+	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorEventLoop[] selectorLoops) {
 		super(service, selectorLoops);
 	}
 
@@ -79,7 +79,7 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
 		int next_core_index = core_index.getAndIncrement();
 
-		SelectorLoop selectorLoop = selectorLoops[next_core_index];
+		SelectorEventLoop selectorLoop = selectorLoops[next_core_index];
 
 		// 配置为非阻塞
 		channel.configureBlocking(false);
@@ -110,7 +110,7 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 		}
 	}
 
-	private void regist(java.nio.channels.SocketChannel channel, SelectorLoop selectorLoop) throws IOException {
+	private void regist(java.nio.channels.SocketChannel channel, SelectorEventLoop selectorLoop) throws IOException {
 
 		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
 

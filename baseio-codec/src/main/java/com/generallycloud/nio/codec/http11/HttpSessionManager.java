@@ -24,12 +24,12 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //FIXME 限制最大session数量
-public class HttpSessionManager extends AbstractEventLoopThread{
+public class HttpSessionManager extends AbstractEventLoop{
 	
 	private static final String COOKIE_NAME_SESSIONID = "BSESSIONID";
 

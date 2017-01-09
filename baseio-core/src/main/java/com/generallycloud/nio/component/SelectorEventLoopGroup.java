@@ -12,23 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.nio.component.concurrent;
+ */
+package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.component.concurrent.EventLoopGroup;
 
-public interface EventLoopThread extends Looper {
+/**
+ * @author wangkai
+ *
+ */
+public interface SelectorEventLoopGroup extends EventLoopGroup{
+
+	@Override
+	public abstract SelectorEventLoop getNext() ;
 	
-	public abstract boolean inEventLoop();
-
-	public abstract boolean inEventLoop(Thread thread);
-
-	public abstract Thread getMonitor();
+	public abstract SelectorEventLoop [] getSelectorEventLoops();
 	
-	public abstract boolean isRunning();
-	
-	public abstract boolean isStopping();
-	
-	public abstract void startup(String threadName) throws Exception;
-
 }

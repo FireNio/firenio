@@ -12,64 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component.concurrent;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.nio.AbstractLifeCycle;
+/**
+ * @author wangkai
+ *
+ */
+public interface ExecutorEventLoop extends EventLoop{
 
-public class ExecutorEventLoop extends AbstractLifeCycle implements EventLoop{
-
-	private int		eventLoopSize		;
-	private int		maxEventLoopSize	;
-	private long		keepAliveTime		;
-	private String		eventLoopName		;
-	private int		maxEventQueueSize	;
-	private NamedThreadFactory threadFactory;
-
-	public ExecutorEventLoop(String eventLoopName,
-			int eventLoopSize, 
-			int maxEventLoopSize, 
-			int maxEventQueueSize,
-			long keepAliveTime) {
-		this.eventLoopSize = eventLoopSize;
-		this.maxEventLoopSize = maxEventLoopSize;
-		this.maxEventQueueSize = maxEventQueueSize;
-		this.keepAliveTime = keepAliveTime;
-		this.eventLoopName = eventLoopName;
-	}
-
-	private ThreadPoolExecutor	poolExecutor	;
-
-	@Override
-	public void dispatch(Runnable job) {
-		this.poolExecutor.execute(job);
-
-	}
-
-	@Override
-	protected void doStart() throws Exception {
-
-		threadFactory = new NamedThreadFactory(eventLoopName);
-
-		poolExecutor = new ThreadPoolExecutor(eventLoopSize, maxEventLoopSize, keepAliveTime, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<Runnable>(maxEventQueueSize), threadFactory);
-	}
-
-	@Override
-	protected void doStop() throws Exception {
-		
-		if (poolExecutor != null) {
-			poolExecutor.shutdown();
-		}
-	}
-
-	@Override
-	public boolean inEventLoop() {
-		return threadFactory.inFactory(Thread.currentThread());
-	}
-
+	public void dispatch(Runnable job) throws RejectedExecutionException;
+	
 }

@@ -16,7 +16,7 @@
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 
 public class EventLoopReadFutureAcceptor extends AbstractReadFutureAcceptor{
@@ -24,7 +24,7 @@ public class EventLoopReadFutureAcceptor extends AbstractReadFutureAcceptor{
 	@Override
 	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {
 		
-		EventLoop eventLoop = session.getEventLoop();
+		ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
 
 		eventLoop.dispatch(new Runnable() {
 

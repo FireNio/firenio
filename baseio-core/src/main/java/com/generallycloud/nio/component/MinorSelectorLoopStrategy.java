@@ -24,11 +24,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 
-	public MinorSelectorLoopStrategy(SelectorLoop selectorLoop) {
+	public MinorSelectorLoopStrategy(SelectorEventLoop selectorLoop) {
 		super(selectorLoop);
 	}
 
-	private void waitForRegist(SelectorLoop looper) {
+	private void waitForRegist(SelectorEventLoop looper) {
 		ReentrantLock lock = looper.getIsWaitForRegistLock();
 
 		lock.lock();
@@ -37,7 +37,7 @@ public class MinorSelectorLoopStrategy extends AbstractSelectorLoopStrategy{
 	}
 
 	@Override
-	public void loop(SelectorLoop looper) throws IOException {
+	public void loop(SelectorEventLoop looper) throws IOException {
 
 		Selector selector = looper.getSelector();
 

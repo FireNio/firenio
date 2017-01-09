@@ -12,23 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component.concurrent;
 
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.LifeCycleUtil;
 
-public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup{
-	
-	private String eventLoopName;
-	
-	private int eventQueueSize;
-	
-	private int eventLoopSize;
-	
-	private EventLoop []eventLoopArray;
-	
-	private FixedAtomicInteger eventLoopIndex;
+public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
+
+	private String				eventLoopName;
+
+	private int				eventQueueSize;
+
+	private int				eventLoopSize;
+
+	private FixedAtomicInteger	eventLoopIndex;
 
 	public AbstractEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
 		this.eventLoopName = eventLoopName;
@@ -38,32 +36,41 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 	}
 
 	@Override
-	public EventLoop getNext() {
-		return eventLoopArray[eventLoopIndex.getAndIncrement()];
-	}
-
-	@Override
 	protected void doStart() throws Exception {
 
-		eventLoopArray = new EventLoop[eventLoopSize]; 
-		
+		EventLoop[] eventLoopArray = initEventLoops();
+
 		for (int i = 0; i < eventLoopArray.length; i++) {
-			
-			String threadName = eventLoopName + "-" + i+"(max:"+eventQueueSize+")";
-			
-			eventLoopArray[i] = newEventLoop(threadName, eventQueueSize);
+
+			eventLoopArray[i] = newEventLoop(eventQueueSize);
 		}
-		
-		for(EventLoop el : eventLoopArray){
-			el.start();
+
+		for (int i = 0; i < eventLoopArray.length; i++) {
+
+			eventLoopArray[i].startup(eventLoopName + "-" + i + "(max:" + eventQueueSize + ")");
 		}
 	}
-	
-	protected abstract EventLoop newEventLoop(String threadName,int eventQueueSize);
+
+	protected abstract EventLoop[] initEventLoops();
+
+	protected abstract EventLoop[] getEventLoops();
+
+	protected int getNextEventLoopIndex() {
+		return eventLoopIndex.getAndIncrement();
+	}
+
+	protected int getEventLoopSize() {
+		return eventLoopSize;
+	}
+
+	protected abstract EventLoop newEventLoop(int eventQueueSize);
 
 	@Override
 	protected void doStop() throws Exception {
-		for(EventLoop el : eventLoopArray){
+
+		EventLoop[] eventLoopArray = getEventLoops();
+
+		for (EventLoop el : eventLoopArray) {
 			LifeCycleUtil.stop(el);
 		}
 	}

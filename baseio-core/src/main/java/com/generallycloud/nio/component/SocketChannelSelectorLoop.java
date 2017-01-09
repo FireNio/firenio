@@ -27,7 +27,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.concurrent.EventLoop;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
@@ -49,15 +49,15 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 	protected ProtocolFactory		protocolFactory	= null;
 
-	protected EventLoop				eventLoop			= null;
+	protected ExecutorEventLoop		executorEventLoop	= null;
 
-	public SocketChannelSelectorLoop(ChannelService service, SelectorLoop[] selectorLoops) {
+	public SocketChannelSelectorLoop(ChannelService service, SelectorEventLoop[] selectorLoops) {
 
 		super(service, selectorLoops);
 
 		this.context = (SocketChannelContext) service.getContext();
 
-		this.eventLoop = context.getEventLoopGroup().getNext();
+		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
 
 		this.protocolFactory = context.getProtocolFactory();
 
@@ -71,8 +71,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
 
-		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);// FIXME
-																	// 使用direct
+		// FIXME 使用direct
+		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);
 	}
 
 	@Override
@@ -150,8 +150,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 	@Override
 	public void doStartup() throws IOException {
 
-		if (eventLoop instanceof LineEventLoop) {
-			((LineEventLoop) eventLoop).setMonitor(getMonitor());
+		if (executorEventLoop instanceof LineEventLoop) {
+			((LineEventLoop) executorEventLoop).setMonitor(this);
 		}
 
 		super.doStartup();
@@ -199,8 +199,8 @@ public abstract class SocketChannelSelectorLoop extends AbstractSelectorLoop {
 		return protocolFactory;
 	}
 
-	public EventLoop getEventLoop() {
-		return eventLoop;
+	public ExecutorEventLoop getExecutorEventLoop() {
+		return executorEventLoop;
 	}
 
 }

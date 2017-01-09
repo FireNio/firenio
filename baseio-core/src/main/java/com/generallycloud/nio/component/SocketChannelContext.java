@@ -17,7 +17,7 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
-import com.generallycloud.nio.component.concurrent.EventLoopGroup;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -31,7 +31,7 @@ public interface SocketChannelContext extends ChannelContext {
 
 	public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();
 
-	public abstract EventLoopGroup getEventLoopGroup();
+	public abstract ExecutorEventLoopGroup getExecutorEventLoopGroup();
 
 	public abstract int getSessionAttachmentSize();
 	
@@ -69,6 +69,6 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
 
-	public abstract void setEventLoopGroup(EventLoopGroup eventLoopGroup);
+	public abstract void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
 
 }

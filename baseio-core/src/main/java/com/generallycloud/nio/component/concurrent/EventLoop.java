@@ -15,15 +15,20 @@
  */ 
 package com.generallycloud.nio.component.concurrent;
 
-import java.util.concurrent.RejectedExecutionException;
+import com.generallycloud.nio.Looper;
 
-import com.generallycloud.nio.LifeCycle;
-
-//FIXME 考虑 继承 loop ，取消 eventLoopThread，增加ThreadEventLoop
-public interface EventLoop extends LifeCycle{
-
-	public abstract void dispatch(Runnable job) throws RejectedExecutionException;
+public interface EventLoop extends Looper{
 	
 	public abstract boolean inEventLoop();
+
+	public abstract boolean inEventLoop(Thread thread);
+
+	public abstract Thread getMonitor();
+	
+	public abstract boolean isRunning();
+	
+	public abstract void wakeup();
+	
+	public abstract void startup(String threadName) throws Exception;
 	
 }

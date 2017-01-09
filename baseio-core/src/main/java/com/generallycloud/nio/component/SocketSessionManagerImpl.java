@@ -41,10 +41,10 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 
-		this.selectorLoop.fireEvent(new SelectorLoopEventAdapter() {
+		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 			
 			@Override
-			public boolean handle(SelectorLoop selectLoop) throws IOException {
+			public boolean handle(SelectorEventLoop selectLoop) throws IOException {
 				
 				Map<Integer, SocketSession> map = sessions.getSnapshot();
 

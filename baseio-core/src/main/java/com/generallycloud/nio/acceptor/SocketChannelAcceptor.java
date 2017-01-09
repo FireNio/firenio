@@ -28,7 +28,7 @@ import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
@@ -59,7 +59,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
 
-		initSelectorLoops();
+		initSelectorLoops(new ServerSocketChannelSELFactory(this));
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 	}
 
 	@Override
-	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
 		return new ServerSocketChannelSelectorLoop(this, selectorLoops);
 	}
 

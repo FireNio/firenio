@@ -22,13 +22,12 @@ import java.nio.channels.SocketChannel;
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MessageFormatter;
-import com.generallycloud.nio.component.SelectorLoop;
+import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.UnsafeSocketSession;
 import com.generallycloud.nio.component.concurrent.Waiter;
 
-//FIXME 重连的时候不需要重新加载BaseContext
 public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	private SocketChannelContext	context;
@@ -58,7 +57,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
 
-		initSelectorLoops();
+		initSelectorLoops(new ClientSocketChannelSELFactory(this));
 
 		if (waiter.await(getTimeout())) {
 
@@ -99,7 +98,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 	
 	@Override
 	protected boolean canSafeClose() {
-		return session == null || (!session.inSelectorLoop() && !session.getEventLoop().inEventLoop());
+		return session == null || (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
 	}
 
 	@Override
@@ -126,7 +125,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 	}
 
 	@Override
-	protected SelectorLoop newSelectorLoop(SelectorLoop[] selectorLoops) throws IOException {
+	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
 		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
 	}
 

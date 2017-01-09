@@ -13,15 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.component.concurrent;
+package com.generallycloud.test.nio.others;
+
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 
 /**
  * @author wangkai
  *
  */
-public interface ExecutorEventLoopGroup extends EventLoopGroup{
+public class TestJettyHttp2 {
 
-	@Override
-	public abstract ExecutorEventLoop getNext() ;
 	
+	public static void main(String[] args) throws Exception{
+		
+		HttpClient client = new HttpClient();
+		
+		String url = "https://www.taobao.com/";
+		
+//		url = "https://localhost:443/test";
+		
+		client.start();
+		
+		Request request = client.newRequest(url);
+		
+		ContentResponse response = request.send();
+		
+		String res = response.getContentAsString();
+		
+		System.out.println(res);
+	}
 }

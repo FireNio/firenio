@@ -12,23 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
+/**
+ * @author wangkai
+ *
+ */
+public abstract class AbstractSelectorEventLoopFactory implements SelectorEventLoopFactory {
 
-import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
+	private ChannelService channelService;
 
-public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
-
-	@Override
-	public void close() throws IOException {
-		handle(null);
+	public AbstractSelectorEventLoopFactory(ChannelService channelService) {
+		this.channelService = channelService;
 	}
 
 	@Override
-	public boolean isPositive() {
-		return true;
+	public SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize) {
+		return newEventLoop(channelService, eventLoopGroup.getSelectorEventLoops(), eventQueueSize);
 	}
-	
+
+	protected abstract SelectorEventLoop newEventLoop(ChannelService channelService,
+			SelectorEventLoop[] selectorEventLoops, int eventQueueSize);
+
 }

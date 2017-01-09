@@ -12,24 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.nio.component;
+ */
+package com.generallycloud.nio.component.concurrent;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.concurrent.EventLoopThread;
 
-public abstract class AbstractEventLoopThread implements EventLoopThread {
+public abstract class AbstractEventLoop implements EventLoop {
 
-	private static final Logger		logger		= LoggerFactory.getLogger(AbstractEventLoopThread.class);
+	private static final Logger		logger	= LoggerFactory.getLogger(AbstractEventLoop.class);
 
-	private volatile boolean		running		= false;
-	
-	private boolean				working		= false;
-	
-	private boolean				stoping		= false;
+	private volatile boolean		running	= false;
 
-	private Thread					monitor 		= null;
+	private boolean				working	= false;
+
+	private boolean				stoping	= false;
+
+	private Thread					monitor	= null;
 
 	@Override
 	public void loop() {
@@ -39,9 +38,9 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			if (!running) {
 				return;
 			}
-			
+
 			working = true;
-			
+
 			if (stoping) {
 				working = false;
 				return;
@@ -52,7 +51,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
-			
+
 			working = false;
 		}
 	}
@@ -72,18 +71,17 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			}
 
 			running = false;
-			
+
 			stoping = true;
-			
+
 			try {
 				beforeStop();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			
-			
+
 			if (working) {
-				wakeupThread();
+				wakeup();
 			}
 
 			doStop();
@@ -93,7 +91,7 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	protected void doStop() {
 	}
 
-	protected void wakeupThread() {
+	public void wakeup() {
 	}
 
 	@Override
@@ -104,9 +102,9 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 			if (running) {
 				return;
 			}
-			
+
 			running = true;
-			
+
 			working = true;
 
 			this.monitor = new Thread(new Runnable() {
@@ -124,16 +122,6 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	}
 
 	@Override
-	public boolean inEventLoop() {
-		return inEventLoop(Thread.currentThread());
-	}
-
-	@Override
-	public boolean inEventLoop(Thread thread) {
-		return monitor == thread;
-	}
-
-	@Override
 	public Thread getMonitor() {
 		return monitor;
 	}
@@ -143,13 +131,17 @@ public abstract class AbstractEventLoopThread implements EventLoopThread {
 	}
 
 	@Override
-	public boolean isStopping() {
-		return stoping;
-	}
-	
-	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	@Override
+	public boolean inEventLoop() {
+		return inEventLoop(Thread.currentThread());
+	}
+
+	@Override
+	public boolean inEventLoop(Thread thread) {
+		return getMonitor() == thread;
+	}
 }

@@ -41,10 +41,10 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 	@Override
 	public void offerSessionMEvent(DatagramSessionManagerEvent event) {
 
-		this.selectorLoop.fireEvent(new SelectorLoopEventAdapter() {
+		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 
 			@Override
-			public boolean handle(SelectorLoop selectLoop) throws IOException {
+			public boolean handle(SelectorEventLoop selectLoop) throws IOException {
 
 				Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
 

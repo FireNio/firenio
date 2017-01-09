@@ -22,13 +22,13 @@ import com.generallycloud.nio.Looper;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.AbstractEventLoopThread;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 import com.generallycloud.nio.container.ApplicationContextUtil;
 import com.generallycloud.nio.container.authority.Authority;
 import com.generallycloud.nio.container.jms.Message;
 
-public abstract class AbstractProductLine extends AbstractEventLoopThread implements MessageQueue, Looper {
+public abstract class AbstractProductLine extends AbstractEventLoop implements MessageQueue, Looper {
 
 	protected MQContext					context;
 	protected MessageStorage				storage;
