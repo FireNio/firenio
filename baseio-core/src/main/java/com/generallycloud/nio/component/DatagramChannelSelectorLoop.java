@@ -12,33 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
-
 //FIXME 定时清理DatagramChannel
-public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
+public class DatagramChannelSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
 
 	private Logger					logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
 	private SelectionAcceptor		_read_acceptor;
 	private DatagramChannelContext	context;
 
-	public DatagramChannelSelectorLoop(ChannelService service, SelectorEventLoop[] selectorLoops) {
-		super(service, selectorLoops);
+	public DatagramChannelSelectorLoop(ChannelService service, SelectorEventLoopGroup group) {
+		super(service, group);
 		this.context = (DatagramChannelContext) service.getContext();
 		this._read_acceptor = new DatagramChannelSelectionReader(this);
-		this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(this);
 	}
-	
-	@Override
+
 	public DatagramChannelContext getContext() {
 		return context;
 	}
@@ -46,7 +42,6 @@ public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 	@Override
 	public void accept(SelectionKey selectionKey) {
 		if (!selectionKey.isValid()) {
-			cancelSelectionKey(selectionKey);
 			return;
 		}
 
@@ -68,14 +63,25 @@ public class DatagramChannelSelectorLoop extends AbstractSelectorLoop {
 		}
 	}
 
-	@Override
+	private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
+
+	}
+
 	public Selector buildSelector(SelectableChannel channel) throws IOException {
 		// 打开selector
-		Selector selector = Selector.open();
+		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
 		// 注册监听事件到该selector
 		channel.register(selector, SelectionKey.OP_READ);
 
-		return selector;
+//		return selector;
+		return null;
 	}
-	
+
+	@Override
+	public void accept(SocketChannel channel) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

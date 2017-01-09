@@ -17,17 +17,14 @@ package com.generallycloud.nio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 
-public interface SelectorEventLoop extends SelectionAcceptor, EventLoop {
+public interface SelectorEventLoop extends ChannelAcceptor, EventLoop {
 	
 	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
 
@@ -37,10 +34,10 @@ public interface SelectorEventLoop extends SelectionAcceptor, EventLoop {
 
 	public abstract boolean isMainSelector();
 
-	@Override
-	public abstract void accept(SelectionKey key);
-	
 	public abstract ChannelContext getContext();
+	
+	@Override
+	public void accept(SocketChannel channel);
 
 	public abstract SelectableChannel getSelectableChannel();
 
@@ -67,8 +64,4 @@ public interface SelectorEventLoop extends SelectionAcceptor, EventLoop {
 
 	public abstract void rebuildSelector();
 	
-	public abstract SelectorLoopStrategy getSelectorLoopStrategy();
-
-	public abstract SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException;
-
 }

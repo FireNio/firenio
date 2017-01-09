@@ -18,32 +18,27 @@ package com.generallycloud.nio.acceptor;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.AbstractSessionManager;
 import com.generallycloud.nio.component.ChannelService;
-import com.generallycloud.nio.component.MinorSelectorLoopStrategy;
-import com.generallycloud.nio.component.PrimarySelectorLoopStrategy;
+import com.generallycloud.nio.component.Selector;
 import com.generallycloud.nio.component.SelectorEventLoop;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.SelectorEventLoopGroup;
 import com.generallycloud.nio.component.SocketChannelSelectorLoop;
-import com.generallycloud.nio.component.concurrent.FixedAtomicInteger;
 
 public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
-	private FixedAtomicInteger core_index;
-
-	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorEventLoop[] selectorLoops) {
-		super(service, selectorLoops);
+	public ServerSocketChannelSelectorLoop(ChannelService service, SelectorEventLoopGroup selectorEventLoopGroup) {
+		super(service, selectorEventLoopGroup);
 	}
 
 	@Override
 	public Selector buildSelector(SelectableChannel channel) throws IOException {
 
 		// 打开selector
-		Selector selector = Selector.open();
+		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+		
+		SelectorEventLoop[] selectorLoops = selectorEventLoopGroup.getSelectorEventLoops();
 
 		if (selectorLoops[0] == this) {
 
@@ -52,74 +47,14 @@ public class ServerSocketChannelSelectorLoop extends SocketChannelSelectorLoop {
 
 			this.setMainSelector(true);
 
-			this.core_index = new FixedAtomicInteger(selectorLoops.length - 1);
-
-			this.selectorLoopStrategy = new PrimarySelectorLoopStrategy(this);
-
 			AbstractSessionManager sessionManager = (AbstractSessionManager) this.context.getSessionManager();
 
 			sessionManager.initSessionManager(this);
 
-			return selector;
+			return new ServerNioSelector(this, selector, channel, selectorEventLoopGroup);
 		}
 
-		this.selectorLoopStrategy = new MinorSelectorLoopStrategy(this);
-
-		return selector;
-	}
-
-	@Override
-	protected void accept(SelectionKey selectionKey, SelectableChannel selectableChannel) throws IOException {
-
-		java.nio.channels.SocketChannel channel = ((ServerSocketChannel) selectableChannel).accept();
-
-		if (channel == null) {
-			return;
-		}
-
-		int next_core_index = core_index.getAndIncrement();
-
-		SelectorEventLoop selectorLoop = selectorLoops[next_core_index];
-
-		// 配置为非阻塞
-		channel.configureBlocking(false);
-
-		// 注册到selector，等待连接
-		if (selectorLoop.isMainSelector()) {
-			regist(channel, selectorLoop);
-			return;
-		}
-
-		ReentrantLock lock = selectorLoop.getIsWaitForRegistLock();
-
-		lock.lock();
-
-		try {
-
-			selectorLoop.setWaitForRegist(true);
-
-			selectorLoop.wakeup();
-
-			regist(channel, selectorLoop);
-
-			selectorLoop.setWaitForRegist(false);
-
-		} finally {
-
-			lock.unlock();
-		}
-	}
-
-	private void regist(java.nio.channels.SocketChannel channel, SelectorEventLoop selectorLoop) throws IOException {
-
-		SelectionKey sk = channel.register(selectorLoop.getSelector(), SelectionKey.OP_READ);
-
-		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = selectorLoop.buildSocketChannel(sk);
-
-		// fire session open event
-		socketChannel.getSession().fireOpend();
-		// logger.debug("__________________chanel____gen____{}", channel);
+		return new ServerNioSelector(this, selector, channel, selectorEventLoopGroup);
 	}
 
 }

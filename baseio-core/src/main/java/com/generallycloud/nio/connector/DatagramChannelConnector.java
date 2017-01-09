@@ -24,7 +24,6 @@ import com.generallycloud.nio.component.DatagramChannelSELFactory;
 import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
 import com.generallycloud.nio.component.DatagramSession;
 import com.generallycloud.nio.component.NioDatagramChannel;
-import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.UnsafeDatagramSession;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
@@ -89,11 +88,6 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 
 		this.selectableChannel.configureBlocking(false);
-	}
-
-	@Override
-	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
-		return new DatagramChannelSelectorLoop(this, selectorLoops);
 	}
 
 	public void sendDatagramPacket(DatagramPacket packet) throws IOException {

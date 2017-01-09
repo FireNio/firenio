@@ -19,6 +19,5 @@ import java.nio.channels.SelectionKey;
 
 public interface SelectionAcceptor {
 
-	public void accept(SelectionKey selectionKey) throws Exception;
-	
+	public void accept(SelectionKey channel) throws Exception;
 }

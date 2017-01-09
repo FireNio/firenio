@@ -18,6 +18,7 @@ package com.generallycloud.nio.acceptor;
 import com.generallycloud.nio.component.AbstractSelectorEventLoopFactory;
 import com.generallycloud.nio.component.ChannelService;
 import com.generallycloud.nio.component.SelectorEventLoop;
+import com.generallycloud.nio.component.SelectorEventLoopGroup;
 
 /**
  * @author wangkai
@@ -30,9 +31,8 @@ public class ServerSocketChannelSELFactory extends AbstractSelectorEventLoopFact
 	}
 
 	@Override
-	protected SelectorEventLoop newEventLoop(ChannelService channelService, SelectorEventLoop[] selectorEventLoops,
-			int eventQueueSize) {
-		return new ServerSocketChannelSelectorLoop(channelService, selectorEventLoops);
+	public SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize) {
+		return new ServerSocketChannelSelectorLoop(channelService, eventLoopGroup);
 	}
 
 }

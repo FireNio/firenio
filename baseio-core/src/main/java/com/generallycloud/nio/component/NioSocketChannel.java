@@ -76,7 +76,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (socket == null) {
 			throw new SocketException("socket is empty");
 		}
-
 		this.protocolFactory = selectorLoop.getProtocolFactory();
 		this.protocolDecoder = selectorLoop.getProtocolDecoder();
 		this.protocolEncoder = selectorLoop.getProtocolEncoder();
@@ -414,6 +413,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	@Override
 	public ExecutorEventLoop getExecutorEventLoop() {
 		return executorEventLoop;
+	}
+	
+	@Override
+	public boolean isReadable() {
+		return selectionKey.isReadable();
 	}
 
 }

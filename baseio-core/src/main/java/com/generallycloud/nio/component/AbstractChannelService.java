@@ -41,8 +41,6 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected abstract void initselectableChannel() throws IOException;
 
-	protected abstract SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException;
-
 	protected void cancelService() {
 
 		ReentrantLock lock = this.activeLock;

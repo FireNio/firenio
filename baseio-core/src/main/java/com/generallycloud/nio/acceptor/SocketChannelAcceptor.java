@@ -28,7 +28,6 @@ import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
@@ -108,11 +107,6 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 		// 检索与此通道关联的服务器套接字
 		this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
 
-	}
-
-	@Override
-	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
-		return new ServerSocketChannelSelectorLoop(this, selectorLoops);
 	}
 
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {

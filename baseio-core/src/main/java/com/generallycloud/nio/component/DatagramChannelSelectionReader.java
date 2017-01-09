@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.nio.component;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -42,7 +41,7 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 	}
 
 	@Override
-	public void accept(SelectionKey selectionKey) throws IOException {
+	public void accept(SelectionKey selectionKey) throws Exception {
 
 		DatagramChannelContext context = this.context;
 

@@ -12,23 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 
-import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
+/**
+ * @author wangkai
+ *
+ */
+public interface Selector extends Closeable{
 
-public interface SelectorLoopStrategy{
+	public abstract int selectNow() throws IOException;
 
-	public abstract void loop(SelectorEventLoop looper) throws IOException;
-	
-	public abstract void fireEvent(SelectorLoopEvent event);
-	
-	public abstract void handleEvent(SelectorEventLoop looper,SelectorLoopEvent event);
-	
+	public abstract int select(long timeout) throws IOException;
+
+	public abstract List<SocketChannel> selectedChannels() throws IOException;
+
+	public abstract void clearSelectedChannels();
+
 	public abstract void wakeup();
-	
-	public abstract void stop();
-	
+
 }

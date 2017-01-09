@@ -19,13 +19,7 @@ package com.generallycloud.nio.component;
  * @author wangkai
  *
  */
-public abstract class AbstractSelectorEventLoopFactory implements SelectorEventLoopFactory {
+public interface ChannelAcceptor {
 
-	protected ChannelService channelService;
-
-	public AbstractSelectorEventLoopFactory(ChannelService channelService) {
-		this.channelService = channelService;
-	}
-
-	
+	public void accept(SocketChannel channel) throws Exception;
 }

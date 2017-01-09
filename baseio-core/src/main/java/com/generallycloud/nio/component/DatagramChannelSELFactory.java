@@ -26,10 +26,11 @@ public class DatagramChannelSELFactory extends AbstractSelectorEventLoopFactory{
 	}
 
 	@Override
-	protected SelectorEventLoop newEventLoop(ChannelService channelService, SelectorEventLoop[] selectorEventLoops,
-			int eventQueueSize) {
-		return new DatagramChannelSelectorLoop(channelService, selectorEventLoops);
+	public SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize) {
+		return new DatagramChannelSelectorLoop(channelService, eventLoopGroup);
 	}
+
+
 
 	
 }

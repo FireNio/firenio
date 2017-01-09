@@ -82,4 +82,6 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract void fireEvent(SelectorLoopEvent event);
 	
 	public abstract ExecutorEventLoop getExecutorEventLoop();
+	
+	public abstract boolean isReadable();
 }

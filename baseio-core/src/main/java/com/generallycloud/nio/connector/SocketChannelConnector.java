@@ -22,7 +22,6 @@ import java.nio.channels.SocketChannel;
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.MessageFormatter;
-import com.generallycloud.nio.component.SelectorEventLoop;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.UnsafeSocketSession;
@@ -122,11 +121,6 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		this.selectableChannel = SocketChannel.open();
 
 		this.selectableChannel.configureBlocking(false);
-	}
-
-	@Override
-	protected SelectorEventLoop newSelectorLoop(SelectorEventLoop[] selectorLoops) throws IOException {
-		return new ClientSocketChannelSelectorLoop(this, selectorLoops);
 	}
 
 }
