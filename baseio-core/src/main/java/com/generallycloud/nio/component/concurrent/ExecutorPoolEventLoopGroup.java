@@ -18,7 +18,7 @@ package com.generallycloud.nio.component.concurrent;
 import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.LifeCycleUtil;
 
-public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup{
+public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements ExecutorEventLoopGroup{
 	
 	private String eventLoopName;
 	
@@ -28,7 +28,7 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements Eve
 	
 	private int eventLoopSize;
 	
-	private EventLoop eventLoop;
+	private ExecutorEventLoop eventLoop;
 	
 	private long keepAliveTime;
 	
@@ -45,7 +45,7 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements Eve
 	}
 
 	@Override
-	public EventLoop getNext() {
+	public ExecutorEventLoop getNext() {
 		return eventLoop;
 	}
 
@@ -53,6 +53,7 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements Eve
 	protected void doStart() throws Exception {
 
 		eventLoop = new ExecutorPoolEventLoop(
+				this,
 				eventLoopSize, 
 				maxEventLoopSize,
 				maxEventQueueSize, 

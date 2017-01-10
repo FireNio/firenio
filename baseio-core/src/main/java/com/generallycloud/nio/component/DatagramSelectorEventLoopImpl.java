@@ -19,19 +19,22 @@ import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 
+import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
 //FIXME 定时清理DatagramChannel
-public class DatagramChannelSelectorLoop extends AbstractSelectorLoop implements SelectionAcceptor {
+public class DatagramSelectorEventLoopImpl extends AbstractSelectorLoop implements DatagramSelectorEventLoop {
 
-	private Logger					logger	= LoggerFactory.getLogger(DatagramChannelSelectorLoop.class);
-	private SelectionAcceptor		_read_acceptor;
-	private DatagramChannelContext	context;
+	private Logger						logger	= LoggerFactory.getLogger(getClass());
+	private SelectionAcceptor			_read_acceptor;
+	private DatagramChannelContext		context;
+	private DatagramSelectorEventLoopGroup	eventLoopGroup;
 
-	public DatagramChannelSelectorLoop(ChannelService service, SelectorEventLoopGroup group) {
-		super(service, group);
-		this.context = (DatagramChannelContext) service.getContext();
+	public DatagramSelectorEventLoopImpl(DatagramSelectorEventLoopGroup group) {
+		super(group.getChannelContext());
+		this.eventLoopGroup = group;
+		this.context = group.getChannelContext();
 		this._read_acceptor = new DatagramChannelSelectionReader(this);
 	}
 
@@ -63,25 +66,46 @@ public class DatagramChannelSelectorLoop extends AbstractSelectorLoop implements
 		}
 	}
 
-	private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
+	protected void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
 
+		Object attachment = selectionKey.attachment();
+
+		if (attachment instanceof Channel) {
+
+			CloseUtil.close((Channel) attachment);
+		}
+
+		logger.error(e.getMessage(), e);
 	}
 
-	public Selector buildSelector(SelectableChannel channel) throws IOException {
+	public SocketSelector buildSelector(SelectableChannel channel) throws IOException {
 		// 打开selector
 		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
 		// 注册监听事件到该selector
 		channel.register(selector, SelectionKey.OP_READ);
 
-//		return selector;
+		// return selector;
 		return null;
 	}
 
 	@Override
-	public void accept(SocketChannel channel) {
-		// TODO Auto-generated method stub
-		
+	public DatagramChannelContext getChannelContext() {
+		return context;
 	}
 
+	@Override
+	protected void doLoop() {
+		// FIXME datagram
+	}
+
+	@Override
+	public DatagramSelectorEventLoopGroup getEventLoopGroup() {
+		return eventLoopGroup;
+	}
+
+	@Override
+	protected SocketSelector rebuildSelector0() throws IOException {
+		throw new IOException("FIXME");
+	}
 
 }

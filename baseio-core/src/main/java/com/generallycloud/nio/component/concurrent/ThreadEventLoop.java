@@ -22,9 +22,11 @@ import com.generallycloud.nio.common.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
-	private static Logger logger = LoggerFactory.getLogger(ThreadEventLoop.class);
+	private static Logger			logger	= LoggerFactory.getLogger(ThreadEventLoop.class);
 
-	public ThreadEventLoop(int queueSize) {
+	private ExecutorEventLoopGroup	executorEventLoopGroup;
+
+	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int queueSize) {
 		this.jobs = new ListQueueABQ<Runnable>(queueSize);
 	}
 
@@ -51,7 +53,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 			}
 
 			runnable.run();
-			
+
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -59,12 +61,14 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
 	@Override
 	protected void beforeStop() {
-		//FIXME __clean jobs
-		
-		
-		
-		
+		// FIXME __clean jobs
+
 		super.beforeStop();
+	}
+
+	@Override
+	public ExecutorEventLoopGroup getEventLoopGroup() {
+		return executorEventLoopGroup;
 	}
 
 }

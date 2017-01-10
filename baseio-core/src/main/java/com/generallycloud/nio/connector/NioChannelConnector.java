@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.component;
+package com.generallycloud.nio.connector;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.List;
+import java.nio.channels.SelectableChannel;
 
 /**
  * @author wangkai
  *
  */
-public interface Selector extends Closeable{
+public interface NioChannelConnector extends ChannelConnector{
 
-	public abstract int selectNow() throws IOException;
-
-	public abstract int select(long timeout) throws IOException;
-
-	public abstract List<SocketChannel> selectedChannels() throws IOException;
-
-	public abstract void clearSelectedChannels();
-
-	public abstract void wakeup();
-
+	public abstract SelectableChannel getSelectableChannel();
 }

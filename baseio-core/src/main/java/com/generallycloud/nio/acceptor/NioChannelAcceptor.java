@@ -15,24 +15,14 @@
  */
 package com.generallycloud.nio.acceptor;
 
-import com.generallycloud.nio.component.AbstractSelectorEventLoopFactory;
-import com.generallycloud.nio.component.ChannelService;
-import com.generallycloud.nio.component.SelectorEventLoop;
-import com.generallycloud.nio.component.SelectorEventLoopGroup;
+import java.nio.channels.SelectableChannel;
 
 /**
  * @author wangkai
  *
  */
-public class ServerSocketChannelSELFactory extends AbstractSelectorEventLoopFactory {
+public interface NioChannelAcceptor extends ChannelAcceptor{
 
-	public ServerSocketChannelSELFactory(ChannelService channelService) {
-		super(channelService);
-	}
-
-	@Override
-	public SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize) {
-		return new ServerSocketChannelSelectorLoop(channelService, eventLoopGroup);
-	}
-
+	public abstract SelectableChannel getSelectableChannel();
+	
 }

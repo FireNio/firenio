@@ -16,8 +16,6 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,47 +34,15 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 			.getLogger(AbstractSelectorLoop.class);
 	protected ByteBufAllocator					byteBufAllocator		= null;
 	protected boolean							hasTask				= false;
-	private boolean							isMainSelector			= false;
-	private boolean							isWaitForRegist		= false;
-	private ReentrantLock						isWaitForRegistLock		= new ReentrantLock();
 	protected BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<SelectorLoopEvent>();
 	protected BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<SelectorLoopEvent>();
 	protected ReentrantLock						runLock				= new ReentrantLock();
 	protected int								runTask				= 0;
-	protected SelectableChannel					selectableChannel		= null;
-	protected SelectorEventLoopGroup				selectorEventLoopGroup	= null;
 	protected AtomicBoolean						selecting				= new AtomicBoolean();
-	protected Selector							selector				= null;
-	private SessionManager						sessionManager			= null;
+	protected SocketSelector							selector				= null;
 
-	protected AbstractSelectorLoop(ChannelService service, SelectorEventLoopGroup group) {
-
-		ChannelContext context = service.getContext();
-
-		this.selectorEventLoopGroup = group;
-
-		this.sessionManager = context.getSessionManager();
-
-		this.selectableChannel = service.getSelectableChannel();
-
+	protected AbstractSelectorLoop(ChannelContext context) {
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
-	}
-
-	protected void cancelSelectionKey(SelectionKey selectionKey) {
-
-		Object attachment = selectionKey.attachment();
-
-		if (attachment instanceof Channel) {
-
-			CloseUtil.close((Channel) attachment);
-		}
-	}
-
-	protected void cancelSelectionKey(SocketChannel channel, Throwable t) {
-
-		logger.error(t.getMessage() + " channel:" + channel, t);
-
-		CloseUtil.close(channel);
 	}
 
 	@Override
@@ -106,7 +72,13 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 
 			lock.unlock();
 		}
+	}
 
+	protected void cancelSelectionKey(SocketChannel channel, Throwable t) {
+
+		logger.error(t.getMessage() + " channel:" + channel, t);
+
+		CloseUtil.close(channel);
 	}
 
 	private void dispatch0(SelectorLoopEvent event) {
@@ -120,76 +92,8 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	}
 
 	@Override
-	protected void doLoop() {
-
-		try {
-
-			Selector selector = getSelector();
-
-			int selected;
-
-			// long last_select = System.currentTimeMillis();
-
-			if (hasTask) {
-
-				if (runTask-- > 0) {
-
-					handlePositiveEvents(false);
-
-					return;
-				}
-
-				selected = selector.selectNow();
-			} else {
-
-				if (selecting.compareAndSet(false, true)) {
-
-					selected = selector.select(16);// FIXME try
-
-					selecting.set(false);
-				} else {
-
-					selected = selector.selectNow();
-				}
-			}
-
-			if (isWaitForRegist()) {
-
-				waitForRegist();
-			}
-
-			if (selected < 1) {
-
-				handleNegativeEvents();
-
-				// selectEmpty(last_select);
-			} else {
-
-				List<SocketChannel> selectedChannels = selector.selectedChannels();
-
-				for (SocketChannel channel : selectedChannels) {
-
-					accept(channel);
-				}
-
-				selector.clearSelectedChannels();
-			}
-
-			handlePositiveEvents(true);
-
-			if (isMainSelector()) {
-				sessionManager.loop();
-			}
-
-		} catch (Throwable e) {
-
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	@Override
 	public void doStartup() throws IOException {
-		this.selector = buildSelector(selectableChannel);
+		rebuildSelector();
 	}
 
 	public void fireEvent(SelectorLoopEvent event) {
@@ -208,17 +112,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	}
 
 	@Override
-	public ReentrantLock getIsWaitForRegistLock() {
-		return isWaitForRegistLock;
-	}
-
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
-	}
-
-	@Override
-	public Selector getSelector() {
+	public SocketSelector getSelector() {
 		return selector;
 	}
 
@@ -284,57 +178,11 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	}
 
 	@Override
-	public boolean isMainSelector() {
-		return isMainSelector;
-	}
-
-	@Override
-	public boolean isWaitForRegist() {
-		return isWaitForRegist;
-	}
-
-	@Override
-	public void rebuildSelector() {
+	public void rebuildSelector() throws IOException {
 		this.selector = rebuildSelector0();
 	}
 
-	private Selector rebuildSelector0() {
-
-		Selector selector;
-		try {
-			selector = buildSelector(selectableChannel);
-		} catch (IOException e) {
-			throw new Error(e);
-		}
-
-		// Selector old = this.selector;
-
-		// Set<SelectionKey> sks = old.keys();
-		//
-		// if (sks.size() == 0) {
-		// logger.debug("sk size 0");
-		// CloseUtil.close(old);
-		// return selector;
-		// }
-		//
-		// for (SelectionKey sk : sks) {
-		//
-		// if (!sk.isValid() || sk.attachment() == null) {
-		// cancelSelectionKey(sk);
-		// continue;
-		// }
-		//
-		// try {
-		// sk.channel().register(selector, SelectionKey.OP_READ);
-		// } catch (ClosedChannelException e) {
-		// cancelSelectionKey(sk, e);
-		// }
-		// }
-		//
-		// CloseUtil.close(old);
-
-		return selector;
-	}
+	protected abstract SocketSelector rebuildSelector0() throws IOException;
 
 	protected void selectEmpty(SelectorEventLoop looper, long last_select) {
 
@@ -351,27 +199,12 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 			logger.error(e.getMessage(), e);
 			logger.debug("last={},past={}", last_select, past);
 
-			looper.rebuildSelector();
+			try {
+				looper.rebuildSelector();
+			} catch (IOException e1) {
+				logger.error(e1.getMessage(), e1);
+			}
 		}
-	}
-
-	@Override
-	public void setMainSelector(boolean isMainSelector) {
-		this.isMainSelector = isMainSelector;
-	}
-
-	@Override
-	public void setWaitForRegist(boolean isWaitForRegist) {
-		this.isWaitForRegist = isWaitForRegist;
-	}
-
-	private void waitForRegist() {
-
-		ReentrantLock lock = getIsWaitForRegistLock();
-
-		lock.lock();
-
-		lock.unlock();
 	}
 
 	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完

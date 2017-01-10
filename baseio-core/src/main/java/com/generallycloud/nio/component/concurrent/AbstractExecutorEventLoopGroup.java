@@ -22,7 +22,7 @@ package com.generallycloud.nio.component.concurrent;
 public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGroup implements ExecutorEventLoopGroup {
 
 	private ExecutorEventLoop[] executorEventLoops;
-
+	
 	public AbstractExecutorEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 	}

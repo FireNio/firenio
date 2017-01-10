@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -27,19 +27,13 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
-	protected InetSocketAddress		serverAddress		= null;
-	protected boolean				active			= false;
-	protected SelectableChannel		selectableChannel	= null;
-	protected Waiter<IOException>	shutDownWaiter		= new Waiter<>();
-	protected ReentrantLock			activeLock		= new ReentrantLock();
-	protected SelectorEventLoopGroup	selectorEventLoopGroup;
-
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
-	}
-
-	protected abstract void initselectableChannel() throws IOException;
+	protected boolean				active				= false;
+	protected ReentrantLock			activeLock			= new ReentrantLock();
+	protected SelectableChannel		selectableChannel		= null;
+	protected SocketSelectorBuilder	selectorBuilder		= null;
+	protected SelectorEventLoopGroup	selectorEventLoopGroup	= null;
+	protected InetSocketAddress		serverAddress			= null;
+	protected Waiter<IOException>	shutDownWaiter			= new Waiter<>();
 
 	protected void cancelService() {
 
@@ -62,21 +56,40 @@ public abstract class AbstractChannelService implements ChannelService {
 			lock.unlock();
 		}
 	}
-	
+
 	private void destroySelectorLoops() {
 		LifeCycleUtil.stop(selectorEventLoopGroup);
 	}
 
-	protected void initSelectorLoops(SelectorEventLoopFactory factory){
-		
+	@Override
+	public SocketSelectorBuilder getSelectorBuilder() {
+		return selectorBuilder;
+	}
+
+	protected SelectorEventLoop[] getSelectorEventLoops() {
+		return selectorEventLoopGroup.getSelectorEventLoops();
+	}
+
+	@Override
+	public InetSocketAddress getServerSocketAddress() {
+		return serverAddress;
+	}
+
+	protected abstract void initselectableChannel() throws IOException;
+
+	protected void initSelectorLoops() {
+
+		//FIXME socket selector event loop ?
 		ServerConfiguration configuration = getContext().getServerConfiguration();
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
-		//FIXME __limit eventQueueSize
-		this.selectorEventLoopGroup = 
-				new SelectorEventLoopGroupImpl("io-process", 0, core_size, factory);
+		// FIXME __limit eventQueueSize
+		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup((SocketChannelContext) getContext(),
+				"io-process", 0, core_size);
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
+
+	protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
 	protected void service() throws IOException {
 
@@ -115,16 +128,5 @@ public abstract class AbstractChannelService implements ChannelService {
 			lock.unlock();
 		}
 	}
-	
-	protected SelectorEventLoop [] getSelectorEventLoops(){
-		return selectorEventLoopGroup.getSelectorEventLoops();
-	}
-
-	@Override
-	public InetSocketAddress getServerSocketAddress() {
-		return serverAddress;
-	}
-
-	protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
 }

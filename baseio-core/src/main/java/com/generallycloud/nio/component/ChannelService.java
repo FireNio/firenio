@@ -16,7 +16,6 @@
 package com.generallycloud.nio.component;
 
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
 
 public interface ChannelService {
 
@@ -26,5 +25,5 @@ public interface ChannelService {
 	
 	public abstract boolean isActive();
 	
-	public abstract SelectableChannel getSelectableChannel();
+	public abstract SocketSelectorBuilder getSelectorBuilder();
 }

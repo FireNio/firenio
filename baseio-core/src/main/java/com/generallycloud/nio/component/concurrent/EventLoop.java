@@ -27,8 +27,15 @@ public interface EventLoop extends Looper{
 	
 	public abstract boolean isRunning();
 	
+	public abstract EventLoopGroup getEventLoopGroup();
+	
 	public abstract void wakeup();
 	
 	public abstract void startup(String threadName) throws Exception;
+	
+
+	public abstract boolean isMainEventLoop();
+
+	public abstract void setMainEventLoop(boolean mainEventLoop);
 	
 }

@@ -27,7 +27,7 @@ public interface DatagramSessionManager extends SessionManager {
 
 	public abstract DatagramSession getSession(InetSocketAddress remote);
 
-	public abstract DatagramSession getSession(DatagramChannelSelectorLoop selectorLoop,
+	public abstract DatagramSession getSession(DatagramSelectorEventLoopImpl selectorLoop,
 			java.nio.channels.DatagramChannel nioChannel, InetSocketAddress remote) throws IOException;
 
 	public abstract void offerSessionMEvent(DatagramSessionManagerEvent event);

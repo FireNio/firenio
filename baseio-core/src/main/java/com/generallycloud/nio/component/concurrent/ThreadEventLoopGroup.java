@@ -23,7 +23,7 @@ public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
 	@Override
 	protected ExecutorEventLoop newEventLoop(int eventQueueSize) {
-		return new ThreadEventLoop(eventQueueSize);
+		return new ThreadEventLoop(this, eventQueueSize);
 	}
 
 }

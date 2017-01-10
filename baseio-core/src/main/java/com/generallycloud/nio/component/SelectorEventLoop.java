@@ -12,56 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.EventLoop;
 
-public interface SelectorEventLoop extends ChannelAcceptor, EventLoop {
-	
+public interface SelectorEventLoop extends EventLoop {
+
 	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
 
-	public abstract Selector buildSelector(SelectableChannel channel) throws IOException;
-
-	public abstract Selector getSelector();
-
-	public abstract boolean isMainSelector();
-
-	public abstract ChannelContext getContext();
+	public abstract SocketSelector getSelector();
 	
-	@Override
-	public void accept(SocketChannel channel);
-
-	public abstract SelectableChannel getSelectableChannel();
-
+	public abstract ChannelContext getChannelContext();
+	
 	public abstract ByteBufAllocator getByteBufAllocator();
 
-	public abstract boolean isWaitForRegist();
-
-	public abstract void setWaitForRegist(boolean isWaitForRegist);
-
-	public abstract ReentrantLock getIsWaitForRegistLock();
-
-	public abstract void setMainSelector(boolean isMainSelector);
-	
 	public interface SelectorLoopEvent extends Closeable {
 
 		/**
 		 * 返回该Event是否需要再次处理
-		 * @return true 需要再次处理，false处理结束后丢弃 
+		 * 
+		 * @return true 需要再次处理，false处理结束后丢弃
 		 */
 		boolean handle(SelectorEventLoop selectLoop) throws IOException;
-		
+
 		boolean isPositive();
 	}
 
-	public abstract void rebuildSelector();
-	
+	public abstract void rebuildSelector() throws IOException;
+
 }

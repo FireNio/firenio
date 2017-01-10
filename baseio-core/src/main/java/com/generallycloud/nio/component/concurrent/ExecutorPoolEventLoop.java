@@ -27,12 +27,15 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 	private int				maxEventQueueSize;
 	private NamedThreadFactory	threadFactory;
 	private boolean			running	= false;
+	private ExecutorEventLoopGroup eventLoopGroup;
 
 	public ExecutorPoolEventLoop(
+			ExecutorEventLoopGroup eventLoopGroup,
 			int eventLoopSize, 
 			int maxEventLoopSize, 
 			int maxEventQueueSize, 
 			long keepAliveTime) {
+		this.eventLoopGroup = eventLoopGroup;
 		this.eventLoopSize = eventLoopSize;
 		this.maxEventLoopSize = maxEventLoopSize;
 		this.maxEventQueueSize = maxEventQueueSize;
@@ -92,6 +95,21 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 	
 	@Override
 	public void wakeup() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public ExecutorEventLoopGroup getEventLoopGroup() {
+		return eventLoopGroup;
+	}
+
+	@Override
+	public boolean isMainEventLoop() {
+		return true;
+	}
+
+	@Override
+	public void setMainEventLoop(boolean isMainEventLoop) {
 		throw new UnsupportedOperationException();
 	}
 

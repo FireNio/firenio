@@ -15,17 +15,24 @@
  */
 package com.generallycloud.nio.component;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.List;
+
 /**
  * @author wangkai
  *
  */
-public abstract class AbstractSelectorEventLoopFactory implements SelectorEventLoopFactory {
+public interface SocketSelector extends Closeable{
 
-	protected ChannelService channelService;
+	public abstract int selectNow() throws IOException;
 
-	public AbstractSelectorEventLoopFactory(ChannelService channelService) {
-		this.channelService = channelService;
-	}
+	public abstract int select(long timeout) throws IOException;
 
-	
+	public abstract List<SocketChannel> selectedChannels() throws IOException;
+
+	public abstract void clearSelectedChannels();
+
+	public abstract void wakeup();
+
 }

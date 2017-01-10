@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.component.DatagramChannelContext;
-import com.generallycloud.nio.component.DatagramChannelSELFactory;
 import com.generallycloud.nio.protocol.ReadFuture;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
@@ -32,6 +31,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	private DatagramSocket			datagramSocket	= null;
 
 	public DatagramChannelAcceptor(DatagramChannelContext context) {
+		this.selectorBuilder = new ServerNioSelectorBuilder();
 		this.context = context;
 	}
 
@@ -45,7 +45,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
 
-		initSelectorLoops(new DatagramChannelSELFactory(this));
+		initSelectorLoops();
 	}
 
 	@Override

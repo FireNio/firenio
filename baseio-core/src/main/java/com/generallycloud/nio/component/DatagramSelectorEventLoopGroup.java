@@ -22,35 +22,31 @@ import com.generallycloud.nio.component.concurrent.EventLoop;
  * @author wangkai
  *
  */
-public class SelectorEventLoopGroupImpl extends AbstractEventLoopGroup implements SelectorEventLoopGroup{
-	
-	public SelectorEventLoopGroupImpl(String eventLoopName, int eventQueueSize, int eventLoopSize) {
+public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup implements SelectorEventLoopGroup {
+
+	private DatagramSelectorEventLoop[]	selectorEventLoops	= null;
+
+	private DatagramChannelContext		channelContext;
+
+	public DatagramSelectorEventLoopGroup(DatagramChannelContext context, String eventLoopName, int eventQueueSize,
+			int eventLoopSize) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
-	}
-	
-	protected SelectorEventLoop[]	selectorEventLoops		= null;
-	
-	public SelectorEventLoopGroupImpl(String eventLoopName, int eventQueueSize, int eventLoopSize,
-			SelectorEventLoopFactory selectorEventLoopFactory) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
-		this.selectorEventLoopFactory = selectorEventLoopFactory;
+		this.channelContext = context;
 	}
 
-	private SelectorEventLoopFactory selectorEventLoopFactory = null;
-	
 	@Override
-	public SelectorEventLoop getNext() {
+	public DatagramSelectorEventLoop getNext() {
 		return selectorEventLoops[getNextEventLoopIndex()];
 	}
 
 	@Override
-	public SelectorEventLoop[] getSelectorEventLoops() {
+	public DatagramSelectorEventLoop[] getSelectorEventLoops() {
 		return selectorEventLoops;
 	}
 
 	@Override
 	protected EventLoop[] initEventLoops() {
-		selectorEventLoops = new SelectorEventLoop[getEventLoopSize()];
+		selectorEventLoops = new DatagramSelectorEventLoop[getEventLoopSize()];
 		return selectorEventLoops;
 	}
 
@@ -60,8 +56,12 @@ public class SelectorEventLoopGroupImpl extends AbstractEventLoopGroup implement
 	}
 
 	@Override
-	protected SelectorEventLoop newEventLoop(int eventQueueSize) {
-		return selectorEventLoopFactory.newEventLoop(this,eventQueueSize);
+	protected DatagramSelectorEventLoop newEventLoop(int eventQueueSize) {
+		return new DatagramSelectorEventLoopImpl(this);
 	}
-	
+
+	@Override
+	public DatagramChannelContext getChannelContext() {
+		return channelContext;
+	}
 }

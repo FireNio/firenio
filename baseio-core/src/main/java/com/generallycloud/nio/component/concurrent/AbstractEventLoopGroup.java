@@ -43,6 +43,8 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 		for (int i = 0; i < eventLoopArray.length; i++) {
 
 			eventLoopArray[i] = newEventLoop(eventQueueSize);
+			
+			eventLoopArray[i].setMainEventLoop(i == 0);
 		}
 
 		for (int i = 0; i < eventLoopArray.length; i++) {

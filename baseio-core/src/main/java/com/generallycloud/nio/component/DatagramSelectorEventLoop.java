@@ -19,7 +19,9 @@ package com.generallycloud.nio.component;
  * @author wangkai
  *
  */
-public interface ChannelAcceptor {
+public interface DatagramSelectorEventLoop extends SelectorEventLoop, SelectionAcceptor {
 
-	public void accept(SocketChannel channel) throws Exception;
+	@Override
+	public abstract DatagramChannelContext getChannelContext();
+
 }

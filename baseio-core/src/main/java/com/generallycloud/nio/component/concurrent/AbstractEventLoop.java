@@ -15,20 +15,91 @@
  */
 package com.generallycloud.nio.component.concurrent;
 
+import com.generallycloud.nio.AbstractLifeCycle;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
 
-	private static final Logger		logger	= LoggerFactory.getLogger(AbstractEventLoop.class);
+	private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-	private volatile boolean		running	= false;
+		private EventLoop eventLoop;
 
-	private boolean				working	= false;
+		public SingleEventLoopGroup(EventLoop eventLoop) {
+			this.eventLoop = eventLoop;
+		}
 
-	private boolean				stoping	= false;
+		@Override
+		protected void doStart() throws Exception {
 
-	private Thread					monitor	= null;
+		}
+
+		@Override
+		protected void doStop() throws Exception {
+
+		}
+
+		@Override
+		public EventLoop getNext() {
+			return eventLoop;
+		}
+	}
+
+	private static final Logger	logger				= LoggerFactory.getLogger(AbstractEventLoop.class);
+
+	private boolean			mainEventLoop			= true;
+
+	private Thread				monitor				= null;
+
+	private volatile boolean	running				= false;
+
+	private EventLoopGroup		singleEventLoopGroup	= new SingleEventLoopGroup(this);
+
+	private boolean			stoping				= false;
+
+	private boolean			working				= false;
+
+	protected void beforeStop() {
+	}
+
+	protected abstract void doLoop();
+
+	protected void doStartup() throws Exception {
+
+	}
+
+	protected void doStop() {
+	}
+
+	@Override
+	public EventLoopGroup getEventLoopGroup() {
+		return singleEventLoopGroup;
+	}
+
+	@Override
+	public Thread getMonitor() {
+		return monitor;
+	}
+
+	@Override
+	public boolean inEventLoop() {
+		return inEventLoop(Thread.currentThread());
+	}
+
+	@Override
+	public boolean inEventLoop(Thread thread) {
+		return getMonitor() == thread;
+	}
+
+	@Override
+	public boolean isMainEventLoop() {
+		return mainEventLoop;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return running;
+	}
 
 	@Override
 	public void loop() {
@@ -56,42 +127,9 @@ public abstract class AbstractEventLoop implements EventLoop {
 		}
 	}
 
-	protected abstract void doLoop();
-
-	protected void beforeStop() {
-	}
-
 	@Override
-	public void stop() {
-
-		synchronized (this) {
-
-			if (!running) {
-				return;
-			}
-
-			running = false;
-
-			stoping = true;
-
-			try {
-				beforeStop();
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-
-			if (working) {
-				wakeup();
-			}
-
-			doStop();
-		}
-	}
-
-	protected void doStop() {
-	}
-
-	public void wakeup() {
+	public void setMainEventLoop(boolean mainEventLoop) {
+		this.mainEventLoop = mainEventLoop;
 	}
 
 	@Override
@@ -122,26 +160,33 @@ public abstract class AbstractEventLoop implements EventLoop {
 	}
 
 	@Override
-	public Thread getMonitor() {
-		return monitor;
+	public void stop() {
+
+		synchronized (this) {
+
+			if (!running) {
+				return;
+			}
+
+			running = false;
+
+			stoping = true;
+
+			try {
+				beforeStop();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+
+			if (working) {
+				wakeup();
+			}
+
+			doStop();
+		}
 	}
 
-	protected void doStartup() throws Exception {
-
+	public void wakeup() {
 	}
 
-	@Override
-	public boolean isRunning() {
-		return running;
-	}
-
-	@Override
-	public boolean inEventLoop() {
-		return inEventLoop(Thread.currentThread());
-	}
-
-	@Override
-	public boolean inEventLoop(Thread thread) {
-		return getMonitor() == thread;
-	}
 }

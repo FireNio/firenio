@@ -31,19 +31,18 @@ public abstract class AbstractChannel implements Channel {
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-	protected long			lastAccess;
-	protected ByteBufAllocator	byteBufAllocator;
+	protected long				lastAccess;
 	protected SelectorEventLoop	selectorEventLoop;
 	protected boolean			opened		= true;
 	protected boolean			closing		= false;
-	protected long			creationTime	= System.currentTimeMillis();
+	protected long				creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
+	protected ByteBufAllocator	byteBufAllocator;
 
 	public AbstractChannel(SelectorEventLoop selectorEventLoop) {
-		ChannelContext context = selectorEventLoop.getContext();
-		this.selectorEventLoop = selectorEventLoop;
-		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
 		// 认为在第一次Idle之前，连接都是畅通的
+		ChannelContext context = selectorEventLoop.getChannelContext();
+		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
 		this.lastAccess = this.creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
@@ -63,6 +62,11 @@ public abstract class AbstractChannel implements Channel {
 		}
 
 		return address.getHostAddress();
+	}
+	
+	@Override
+	public ByteBufAllocator getByteBufAllocator() {
+		return byteBufAllocator;
 	}
 
 	@Override
@@ -112,6 +116,11 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	@Override
+	public boolean isClosing() {
+		return closing;
+	}
+
+	@Override
 	public boolean inSelectorLoop() {
 		return selectorEventLoop.inEventLoop();
 	}
@@ -119,11 +128,6 @@ public abstract class AbstractChannel implements Channel {
 	@Override
 	public String getLocalHost() {
 		return getLocalSocketAddress().getHostName();
-	}
-
-	@Override
-	public ByteBufAllocator getByteBufAllocator() {
-		return byteBufAllocator;
 	}
 
 	@Override

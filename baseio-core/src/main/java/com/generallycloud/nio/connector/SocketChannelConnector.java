@@ -35,7 +35,9 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	private Waiter<Object> waiter;
 
+	//FIXME 优化
 	public SocketChannelConnector(SocketChannelContext context) {
+		this.selectorBuilder = new ClientNioSelectorBuilder(this);
 		this.context = context;
 	}
 
@@ -56,7 +58,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
 
-		initSelectorLoops(new ClientSocketChannelSELFactory(this));
+		initSelectorLoops();
 
 		if (waiter.await(getTimeout())) {
 
@@ -83,6 +85,8 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		if (exception == null) {
 
 			this.session = session;
+			
+			fireSessionOpend();
 
 			this.waiter.setPayload(null);
 

@@ -65,9 +65,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(SocketChannelSelectorLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
+	public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey) throws SocketException {
 		super(selectorLoop);
-		this.context = selectorLoop.getContext();
+		this.selectorEventLoop = selectorLoop;
+		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
+		this.context = selectorLoop.getChannelContext();
 		this.selectionKey = selectionKey;
 		this.executorEventLoop = selectorLoop.getExecutorEventLoop();
 		this.channel = (SocketChannel) selectionKey.channel();
@@ -198,11 +200,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public boolean isClosing() {
-		return closing;
-	}
-
-	@Override
 	public void flush(ChannelWriteFuture future) {
 
 		ReentrantLock lock = getChannelLock();
@@ -232,7 +229,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			}
 
 			selectorEventLoop.dispatch(this);
-			
+
 		} finally {
 
 			lock.unlock();
@@ -287,11 +284,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			this.handle(selectorEventLoop);
 		} catch (IOException e) {
 		}
-		
+
 		this.opened = false;
-		
+
 		this.closing = false;
-		
+
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);
 
@@ -311,7 +308,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!(service instanceof AbstractChannelConnector)) {
 			return;
 		}
-		
+
 		try {
 			((AbstractChannelConnector) service).physicalClose();
 		} catch (IOException e) {
@@ -414,7 +411,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public ExecutorEventLoop getExecutorEventLoop() {
 		return executorEventLoop;
 	}
-	
+
 	@Override
 	public boolean isReadable() {
 		return selectionKey.isReadable();

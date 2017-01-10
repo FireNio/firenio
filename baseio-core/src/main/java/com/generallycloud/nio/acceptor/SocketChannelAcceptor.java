@@ -40,11 +40,12 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 	private SocketChannelContext	context		= null;
 
-	private Logger				logger		= LoggerFactory.getLogger(SocketChannelAcceptor.class);
+	private Logger				logger		= LoggerFactory.getLogger(getClass());
 
 	private ServerSocket		serverSocket	= null;
 
 	public SocketChannelAcceptor(SocketChannelContext context) {
+		this.selectorBuilder = new ServerNioSelectorBuilder();
 		this.context = context;
 	}
 
@@ -58,7 +59,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
 
-		initSelectorLoops(new ServerSocketChannelSELFactory(this));
+		initSelectorLoops();
 	}
 
 	@Override
@@ -117,5 +118,6 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();
 	}
+	
 
 }

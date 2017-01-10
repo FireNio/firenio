@@ -156,7 +156,7 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 	}
 
 	@Override
-	public DatagramSession getSession(DatagramChannelSelectorLoop selectorLoop,
+	public DatagramSession getSession(DatagramSelectorEventLoopImpl selectorLoop,
 			java.nio.channels.DatagramChannel nioChannel, InetSocketAddress remote) throws IOException {
 
 		DatagramSession session = sessions.get(remote);

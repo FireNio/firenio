@@ -15,22 +15,14 @@
  */
 package com.generallycloud.nio.component;
 
+import java.io.IOException;
+
 /**
  * @author wangkai
  *
  */
-public class DatagramChannelSELFactory extends AbstractSelectorEventLoopFactory{
+public interface SocketSelectorBuilder {
 
-	public DatagramChannelSELFactory(ChannelService channelService) {
-		super(channelService);
-	}
+	public abstract SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException;
 
-	@Override
-	public SelectorEventLoop newEventLoop(SelectorEventLoopGroup eventLoopGroup, int eventQueueSize) {
-		return new DatagramChannelSelectorLoop(channelService, eventLoopGroup);
-	}
-
-
-
-	
 }

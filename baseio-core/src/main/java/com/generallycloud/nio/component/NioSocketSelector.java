@@ -30,19 +30,19 @@ import com.generallycloud.nio.common.LoggerFactory;
  * @author wangkai
  *
  */
-public abstract class NioSelector implements Selector {
+public abstract class NioSocketSelector implements SocketSelector {
 
-	private static final Logger logger = LoggerFactory.getLogger(NioSelector.class);
-	
-	private java.nio.channels.Selector		selector;
+	private static final Logger		logger			= LoggerFactory.getLogger(NioSocketSelector.class);
 
-	private List<SocketChannel>			selectedChannels	= new ArrayList<>(4096);
+	private java.nio.channels.Selector	selector			= null;
 
-	protected SocketChannelSelectorLoop	selectorEventLoop;
+	private List<SocketChannel>		selectedChannels	= new ArrayList<>(4096);
 
-	protected SelectableChannel			selectableChannel;
+	protected SocketSelectorEventLoop	selectorEventLoop;
 
-	public NioSelector(SocketChannelSelectorLoop selectorEventLoop, java.nio.channels.Selector selector,
+	protected SelectableChannel		selectableChannel;
+
+	public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, java.nio.channels.Selector selector,
 			SelectableChannel selectableChannel) {
 		this.selectorEventLoop = selectorEventLoop;
 		this.selector = selector;
@@ -65,27 +65,27 @@ public abstract class NioSelector implements Selector {
 		Set<SelectionKey> sks = selector.selectedKeys();
 
 		for (SelectionKey k : sks) {
-			
+
 			if (!k.isReadable()) {
-				
+
 				initSocketChannel(k);
-				
+
 				continue;
 			}
 
 			selectedChannels.add((SocketChannel) k.attachment());
 		}
-		
+
 		sks.clear();
 
 		return selectedChannels;
 	}
-	
-	private void initSocketChannel(SelectionKey k){
+
+	private void initSocketChannel(SelectionKey k) {
 		try {
 			buildChannel(k);
 		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 

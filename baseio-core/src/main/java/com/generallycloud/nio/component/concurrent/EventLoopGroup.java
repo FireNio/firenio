@@ -16,8 +16,11 @@
 package com.generallycloud.nio.component.concurrent;
 
 import com.generallycloud.nio.LifeCycle;
+import com.generallycloud.nio.component.ChannelContext;
 
 public interface EventLoopGroup extends LifeCycle{
 
 	public abstract EventLoop getNext();
+	
+//	public abstract ChannelContext getChannelContext();
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
@@ -29,18 +29,17 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.connector.AbstractChannelConnector;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
-
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.nio.component.DatagramChannel {
 
-	private static final Logger logger = LoggerFactory.getLogger(NioDatagramChannel.class);
-	
+	private static final Logger		logger	= LoggerFactory.getLogger(NioDatagramChannel.class);
+
 	private DatagramChannel			channel;
 	private DatagramSocket			socket;
 	private DatagramChannelContext	context;
 	private UnsafeDatagramSession		session;
 
-	public NioDatagramChannel(DatagramChannelSelectorLoop selectorLoop, DatagramChannel channel, InetSocketAddress remote)
-			throws IOException {
+	public NioDatagramChannel(DatagramSelectorEventLoopImpl selectorLoop, DatagramChannel channel,
+			InetSocketAddress remote) throws IOException {
 		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.channel = channel;
@@ -51,11 +50,11 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		}
 
 		session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
-	
+
 		session.fireOpend();
-		
+
 	}
-	
+
 	@Override
 	public DatagramChannelContext getContext() {
 		return context;
@@ -63,19 +62,19 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	@Override
 	public void physicalClose() {
-		
+
 		getSession().physicalClose();
 
 		DatagramSessionManager manager = context.getSessionManager();
-		
+
 		manager.removeSession(session);
-		
+
 		ChannelService service = context.getChannelService();
 
 		if (!(service instanceof AbstractChannelConnector)) {
 			return;
 		}
-		
+
 		try {
 			((AbstractChannelConnector) service).physicalClose();
 		} catch (IOException e) {
@@ -89,11 +88,6 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 			local = (InetSocketAddress) socket.getLocalSocketAddress();
 		}
 		return local;
-	}
-
-	@Override
-	protected String getMarkPrefix() {
-		return "UDP";
 	}
 
 	@Override
@@ -116,6 +110,11 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	@Override
+	protected String getMarkPrefix() {
+		return "udp";
+	}
+
+	@Override
 	public boolean isOpened() {
 		return channel.isConnected() || channel.isOpen();
 	}
@@ -123,9 +122,9 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	@Override
 	public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
 		ByteBuf buf = allocate(packet);
-		try{
+		try {
 			sendPacket(buf.flip(), socketAddress);
-		}finally{
+		} finally {
 			ReleaseUtil.release(buf);
 		}
 	}
@@ -134,13 +133,13 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	public void sendPacket(DatagramPacket packet) throws IOException {
 		sendPacket(packet, remote);
 	}
-	
+
 	private ByteBuf allocate(DatagramPacket packet) {
-		
+
 		if (packet.getTimestamp() == -1) {
-			
+
 			int length = packet.getData().length;
-			
+
 			ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_HEADER + length);
 			buf.skipBytes(DatagramPacket.PACKET_HEADER);
 			buf.put(packet.getData());
@@ -153,17 +152,12 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private ByteBuf allocate(long timestamp, int sequenceNO, byte[] data) {
 
 		ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_MAX);
-		
+
 		buf.putLong(0);
 		buf.putInt(sequenceNO);
 		buf.put(data);
-		
+
 		return buf;
-	}
-	
-	@Override
-	public boolean isClosing() {
-		return closing;
 	}
 
 }

@@ -21,11 +21,13 @@ import com.generallycloud.nio.component.concurrent.EventLoopGroup;
  * @author wangkai
  *
  */
-public interface SelectorEventLoopGroup extends EventLoopGroup{
+public interface SelectorEventLoopGroup extends EventLoopGroup {
 
 	@Override
-	public abstract SelectorEventLoop getNext() ;
-	
-	public abstract SelectorEventLoop [] getSelectorEventLoops();
-	
+	public abstract SelectorEventLoop getNext();
+
+	public abstract SelectorEventLoop[] getSelectorEventLoops();
+
+	public abstract ChannelContext getChannelContext();
+
 }

@@ -20,17 +20,17 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
-import com.generallycloud.nio.component.NioSelector;
+import com.generallycloud.nio.component.NioSocketSelector;
 import com.generallycloud.nio.component.SocketChannel;
-import com.generallycloud.nio.component.SocketChannelSelectorLoop;
+import com.generallycloud.nio.component.SocketSelectorEventLoop;
 
 /**
  * @author wangkai
  *
  */
-public class ClientNioSelector extends NioSelector {
+public class ClientNioSocketSelector extends NioSocketSelector {
 
-	public ClientNioSelector(SocketChannelSelectorLoop selectorEventLoop, Selector selector,
+	public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
 			SelectableChannel selectableChannel, SocketChannelConnector connector) {
 		super(selectorEventLoop, selector, selectableChannel);
 		this.connector = connector;
@@ -50,8 +50,7 @@ public class ClientNioSelector extends NioSelector {
 		finishConnect(selectionKey, channel);
 	}
 
-	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel)
-			throws IOException {
+	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) throws IOException {
 
 		try {
 

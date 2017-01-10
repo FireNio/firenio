@@ -29,12 +29,12 @@ import com.generallycloud.nio.protocol.DatagramPacket;
 public class DatagramChannelSelectionReader implements SelectionAcceptor {
 
 	private DatagramChannelContext		context		= null;
-	private DatagramChannelSelectorLoop	selectorLoop	= null;
+	private DatagramSelectorEventLoopImpl	selectorLoop	= null;
 	private ByteBuf					cacheBuffer	= null;
 	private Logger						logger		= LoggerFactory
 			.getLogger(DatagramChannelSelectionReader.class);
 
-	public DatagramChannelSelectionReader(DatagramChannelSelectorLoop selectorLoop) {
+	public DatagramChannelSelectionReader(DatagramSelectorEventLoopImpl selectorLoop) {
 		this.selectorLoop = selectorLoop;
 		this.context = selectorLoop.getContext();
 		this.cacheBuffer = UnpooledByteBufAllocator.getInstance().allocate(DatagramPacket.PACKET_MAX);

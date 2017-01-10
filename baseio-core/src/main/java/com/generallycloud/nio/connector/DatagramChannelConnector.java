@@ -20,8 +20,7 @@ import java.net.InetSocketAddress;
 
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.DatagramChannelContext;
-import com.generallycloud.nio.component.DatagramChannelSELFactory;
-import com.generallycloud.nio.component.DatagramChannelSelectorLoop;
+import com.generallycloud.nio.component.DatagramSelectorEventLoopImpl;
 import com.generallycloud.nio.component.DatagramSession;
 import com.generallycloud.nio.component.NioDatagramChannel;
 import com.generallycloud.nio.component.UnsafeDatagramSession;
@@ -51,9 +50,9 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
 
-		initSelectorLoops(new DatagramChannelSELFactory(this));
+		initSelectorLoops();
 		
-		DatagramChannelSelectorLoop selectorLoop = (DatagramChannelSelectorLoop) selectorEventLoopGroup.getNext();
+		DatagramSelectorEventLoopImpl selectorLoop = (DatagramSelectorEventLoopImpl) selectorEventLoopGroup.getNext();
 
 		@SuppressWarnings("resource")
 		DatagramChannel channel = new NioDatagramChannel(selectorLoop,

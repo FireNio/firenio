@@ -19,7 +19,9 @@ import java.util.concurrent.RejectedExecutionException;
 
 public class LineEventLoop implements ExecutorEventLoop {
 
-	private EventLoop	eventLoop;
+	private ExecutorEventLoopGroup	eventLoopGroup;
+
+	private EventLoop				eventLoop;
 
 	@Override
 	public void dispatch(Runnable job) throws RejectedExecutionException {
@@ -66,8 +68,8 @@ public class LineEventLoop implements ExecutorEventLoop {
 	@Override
 	public void stop() {
 	}
-	
-	private EventLoop unwrap(){
+
+	private EventLoop unwrap() {
 		return eventLoop;
 	}
 
@@ -75,4 +77,21 @@ public class LineEventLoop implements ExecutorEventLoop {
 	public void wakeup() {
 		unwrap().wakeup();
 	}
+
+	@Override
+	public ExecutorEventLoopGroup getEventLoopGroup() {
+		return eventLoopGroup;
+	}
+
+	@Override
+	public boolean isMainEventLoop() {
+		return unwrap().isMainEventLoop();
+	}
+
+	@Override
+	public void setMainEventLoop(boolean mainEventLoop) {
+	}
+	
+	
+
 }
