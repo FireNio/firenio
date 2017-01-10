@@ -21,9 +21,6 @@ import java.nio.channels.SelectableChannel;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.concurrent.Waiter;
@@ -32,8 +29,6 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
 public abstract class AbstractChannelConnector extends AbstractChannelService implements NioChannelConnector {
 
 	protected long			timeout		= 3000;
-	
-	private Logger 			logger 		= LoggerFactory.getLogger(getClass());
 	
 	@Override
 	public void close() throws IOException {
@@ -88,8 +83,6 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 		
 		this.connect(getServerSocketAddress());
-		
-		LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 		
 	}
 	

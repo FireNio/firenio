@@ -18,6 +18,9 @@ package com.generallycloud.nio.connector;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.component.DatagramChannel;
 import com.generallycloud.nio.component.DatagramChannelContext;
 import com.generallycloud.nio.component.DatagramSelectorEventLoopImpl;
@@ -30,6 +33,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 	private DatagramChannelContext	context	= null;
 	private UnsafeDatagramSession		session	= null;
+	private Logger 				logger	= LoggerFactory.getLogger(getClass());
 
 	public DatagramChannelConnector(DatagramChannelContext context) {
 		this.context = context;
@@ -59,6 +63,8 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 				(java.nio.channels.DatagramChannel) selectableChannel, socketAddress);
 		
 		this.session = channel.getSession();
+		
+		LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 	}
 	
 	@Override

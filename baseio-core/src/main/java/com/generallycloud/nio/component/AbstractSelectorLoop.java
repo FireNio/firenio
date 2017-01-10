@@ -174,7 +174,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 		if (hasTask && refresh) {
 			runTask = 5;
 		}
-
 	}
 
 	@Override

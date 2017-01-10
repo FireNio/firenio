@@ -21,6 +21,9 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.MessageFormatter;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -34,6 +37,8 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 	private UnsafeSocketSession	session;
 
 	private Waiter<Object> waiter;
+	
+	private Logger 			logger 		= LoggerFactory.getLogger(getClass());
 
 	//FIXME 优化
 	public SocketChannelConnector(SocketChannelContext context) {
@@ -85,6 +90,8 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 		if (exception == null) {
 
 			this.session = session;
+			
+			LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}",getServerSocketAddress());
 			
 			fireSessionOpend();
 
