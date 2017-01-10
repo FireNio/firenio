@@ -1,0 +1,57 @@
+C:\Users\Test2\Desktop\httpd\bin>ab -n 16000000 -c 160 -k http://127.0.0.1:80/test
+This is ApacheBench, Version 2.3 <$Revision: 1604373 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 1600000 requests
+Completed 3200000 requests
+Completed 4800000 requests
+Completed 6400000 requests
+Completed 8000000 requests
+Completed 9600000 requests
+Completed 11200000 requests
+Completed 12800000 requests
+Completed 14400000 requests
+Completed 16000000 requests
+Finished 16000000 requests
+
+
+Server Software:        aseio/0.0.1
+Server Hostname:        127.0.0.1
+Server Port:            80
+
+Document Path:          /test
+Document Length:        44 bytes
+
+Concurrency Level:      160
+Time taken for tests:   103.922 seconds
+Complete requests:      16000000
+Failed requests:        0
+Keep-Alive requests:    16000000
+Total transferred:      2640000000 bytes
+HTML transferred:       704000000 bytes
+Requests per second:    153961.12 [#/sec] (mean)
+Time per request:       1.039 [ms] (mean)
+Time per request:       0.006 [ms] (mean, across all concurrent requests)
+Transfer rate:          24808.19 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0     500
+Processing:     0    1   4.2      0     522
+Waiting:        0    1   4.2      0     522
+Total:          0    1   4.2      0     522
+
+Percentage of the requests served within a certain time (ms)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      0
+  95%     16
+  98%     16
+  99%     16
+ 100%    522 (longest request)
+
+C:\Users\Test2\Desktop\httpd\bin>
