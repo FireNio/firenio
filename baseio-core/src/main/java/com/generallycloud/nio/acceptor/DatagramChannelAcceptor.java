@@ -31,7 +31,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	private DatagramSocket			datagramSocket	= null;
 
 	public DatagramChannelAcceptor(DatagramChannelContext context) {
-		this.selectorBuilder = new ServerNioSelectorBuilder();
+		this.selectorBuilder = new ServerNioSocketSelectorBuilder();
 		this.context = context;
 	}
 

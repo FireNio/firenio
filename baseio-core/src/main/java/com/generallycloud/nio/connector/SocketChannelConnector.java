@@ -37,7 +37,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	//FIXME 优化
 	public SocketChannelConnector(SocketChannelContext context) {
-		this.selectorBuilder = new ClientNioSelectorBuilder(this);
+		this.selectorBuilder = new ClientNioSocketSelectorBuilder(this);
 		this.context = context;
 	}
 

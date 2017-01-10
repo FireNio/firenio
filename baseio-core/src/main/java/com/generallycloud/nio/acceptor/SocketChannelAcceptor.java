@@ -45,7 +45,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 	private ServerSocket		serverSocket	= null;
 
 	public SocketChannelAcceptor(SocketChannelContext context) {
-		this.selectorBuilder = new ServerNioSelectorBuilder();
+		this.selectorBuilder = new ServerNioSocketSelectorBuilder();
 		this.context = context;
 	}
 
