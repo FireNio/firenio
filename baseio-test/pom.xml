@@ -60,6 +60,24 @@
 			<artifactId>protobuf-java</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+		    <groupId>com.squareup.okhttp3</groupId>
+		    <artifactId>okhttp</artifactId>
+		    <version>3.5.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.http2/http2-http-client-transport -->
+		<dependency>
+		    <groupId>org.eclipse.jetty.http2</groupId>
+		    <artifactId>http2-http-client-transport</artifactId>
+		    <version>9.4.0.v20161208</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+		<dependency>
+		    <groupId>javax.servlet</groupId>
+		    <artifactId>javax.servlet-api</artifactId>
+		    <version>4.0.0-b01</version>
+		</dependency>
 
 	</dependencies>
 

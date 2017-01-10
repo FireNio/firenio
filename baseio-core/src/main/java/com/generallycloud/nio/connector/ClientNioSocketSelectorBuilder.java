@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.acceptor;
+package com.generallycloud.nio.connector;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
-import com.generallycloud.nio.component.AbstractSessionManager;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSelector;
 import com.generallycloud.nio.component.SocketSelectorBuilder;
@@ -29,33 +28,33 @@ import com.generallycloud.nio.component.SocketSelectorEventLoop;
  * @author wangkai
  *
  */
-public class ServerNioSelectorBuilder implements SocketSelectorBuilder{
+public class ClientNioSocketSelectorBuilder implements SocketSelectorBuilder {
 
+	private SocketChannelConnector connector;
+
+	public ClientNioSocketSelectorBuilder(SocketChannelConnector connector) {
+		this.connector = connector;
+	}
+
+	// FIXME open channel
 	@Override
 	public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
-		
+
 		SocketChannelContext context = selectorLoop.getChannelContext();
-		
-		NioChannelAcceptor nioChannelAcceptor = (NioChannelAcceptor) context.getChannelService();
-		
-		ServerSocketChannel channel = (ServerSocketChannel)nioChannelAcceptor.getSelectableChannel();
-		
+
+		NioChannelConnector nioChannelAcceptor = (NioChannelConnector) context.getChannelService();
+
+		SocketChannel channel = (SocketChannel) nioChannelAcceptor.getSelectableChannel();
+
 		// 打开selector
 		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
-		
-		if (selectorLoop.isMainEventLoop()) {
 
-			// 注册监听事件到该selector
-			channel.register(selector, SelectionKey.OP_ACCEPT);
+		channel.register(selector, SelectionKey.OP_CONNECT);
 
-			AbstractSessionManager sessionManager = (AbstractSessionManager) context.getSessionManager();
-
-			sessionManager.initSessionManager(selectorLoop);
-
-			return new ServerNioSocketSelector(selectorLoop, selector, channel, selectorLoop.getEventLoopGroup());
-		}
-
-		return new ServerNioSocketSelector(selectorLoop, selector, channel, selectorLoop.getEventLoopGroup());
+		return new ClientNioSocketSelector(selectorLoop, selector, channel, connector);
 	}
-	
+
+	public void setConnector(SocketChannelConnector connector) {
+		this.connector = connector;
+	}
 }

@@ -46,6 +46,8 @@ public class SimpleTestFIxedLengthClient {
 		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		connector.setTimeout(99999999);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
