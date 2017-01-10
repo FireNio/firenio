@@ -72,8 +72,15 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 				continue;
 			}
+			
+			SocketChannel channel = (SocketChannel) k.attachment();
 
-			selectedChannels.add((SocketChannel) k.attachment());
+			if (channel == null) {
+				//FIXME __找出这里为空的原因
+				continue; 
+			}
+			
+			selectedChannels.add(channel);
 		}
 
 		sks.clear();
