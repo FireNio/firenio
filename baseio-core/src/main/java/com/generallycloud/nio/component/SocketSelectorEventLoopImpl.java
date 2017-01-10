@@ -264,6 +264,10 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 				for (SocketChannel channel : selectedChannels) {
 
+					if (channel == null) {
+						continue;//FIXME __找出这里为空的原因
+					}
+					
 					accept(channel);
 				}
 
