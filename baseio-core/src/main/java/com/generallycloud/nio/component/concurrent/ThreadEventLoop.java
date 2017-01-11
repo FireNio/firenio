@@ -19,6 +19,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.ThreadUtil;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
@@ -30,19 +31,17 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		this.jobs = new ListQueueABQ<Runnable>(queueSize);
 	}
 
-	private boolean			stoped	= false;
-
 	private ListQueue<Runnable>	jobs;
 
-	public void dispatch(Runnable job) {
+	public void dispatch(Runnable job) throws RejectedExecutionException{
 
-		if (stoped || !jobs.offer(job)) {
+		if (!isRunning() || !jobs.offer(job)) {
 			throw new RejectedExecutionException();
 		}
 	}
 
 	@Override
-	public void doLoop() {
+	protected void doLoop() {
 
 		try {
 
@@ -61,8 +60,25 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
 	@Override
 	protected void beforeStop() {
-		// FIXME __clean jobs
 
+		//FIXME __与dispatch互斥
+		ThreadUtil.sleep(8);
+		
+		for(;;){
+			
+			Runnable runnable = jobs.poll();
+			
+			if (runnable == null) {
+				break;
+			}
+			
+			try {
+				runnable.run();
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+			}
+		}
+		
 		super.beforeStop();
 	}
 
