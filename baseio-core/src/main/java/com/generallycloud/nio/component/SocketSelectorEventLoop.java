@@ -34,6 +34,8 @@ public interface SocketSelectorEventLoop extends SelectorEventLoop {
 	public abstract SocketChannelContext getChannelContext();
 
 	public abstract ProtocolDecoder getProtocolDecoder();
+	
+	public abstract SocketSelector getSelector();
 
 	public abstract ProtocolEncoder getProtocolEncoder();
 

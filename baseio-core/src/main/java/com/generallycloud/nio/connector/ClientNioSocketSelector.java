@@ -58,7 +58,7 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 
 			channel.register(getSelector(), SelectionKey.OP_READ);
 
-			SocketChannel socketChannel = buildSocketChannel(selectionKey);
+			SocketChannel socketChannel = newChannel(selectionKey);
 
 			connector.finishConnect(socketChannel.getSession(), null);
 

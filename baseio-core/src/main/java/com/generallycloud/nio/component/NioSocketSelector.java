@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 	private static final Logger		logger			= LoggerFactory.getLogger(NioSocketSelector.class);
 
-	private java.nio.channels.Selector	selector			= null;
+	private Selector				selector			= null;
 
 	private List<SocketChannel>		selectedChannels	= new ArrayList<>(4096);
 
@@ -42,7 +43,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 	protected SelectableChannel		selectableChannel;
 
-	public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, java.nio.channels.Selector selector,
+	public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
 			SelectableChannel selectableChannel) {
 		this.selectorEventLoop = selectorEventLoop;
 		this.selector = selector;
@@ -72,14 +73,14 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 				continue;
 			}
-			
+
 			SocketChannel channel = (SocketChannel) k.attachment();
 
 			if (channel == null) {
-				//FIXME __找出这里为空的原因
-				continue; 
+				// channel为空说明该链接已关闭
+				continue;
 			}
-			
+
 			selectedChannels.add(channel);
 		}
 
@@ -117,7 +118,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 		selector.wakeup();
 	}
 
-	public SocketChannel buildSocketChannel(SelectionKey selectionKey) throws SocketException {
+	protected SocketChannel newChannel(SelectionKey selectionKey) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 

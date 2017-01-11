@@ -25,8 +25,6 @@ import com.generallycloud.nio.component.concurrent.EventLoop;
 public interface SelectorEventLoop extends EventLoop {
 
 	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
-
-	public abstract SocketSelector getSelector();
 	
 	public abstract ChannelContext getChannelContext();
 	

@@ -17,6 +17,8 @@ package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBuf;
@@ -25,6 +27,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.concurrent.BufferedArrayList;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -58,6 +61,20 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 	private SocketSelectorBuilder			selectorBuilder	= null;
 
+	private SocketSelector				selector			= null;
+
+	private ReentrantLock				runLock			= new ReentrantLock();
+
+	private int						runTask			= 0;
+	
+	private boolean							hasTask				= false;
+	
+	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<SelectorLoopEvent>();
+	
+	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<SelectorLoopEvent>();
+
+	private AtomicBoolean				selecting			= new AtomicBoolean();
+
 	private ReentrantLock				isWaitForRegistLock	= new ReentrantLock();
 
 	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group) {
@@ -67,7 +84,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 		this.eventLoopGroup = group;
 
 		this.context = group.getChannelContext();
-		
+
 		this.selectorBuilder = context.getChannelService().getSelectorBuilder();
 
 		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
@@ -101,6 +118,16 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	@Override
 	public void setWaitForRegist(boolean isWaitForRegist) {
 		this.isWaitForRegist = isWaitForRegist;
+	}
+
+	@Override
+	public SocketSelector getSelector() {
+		return selector;
+	}
+
+	@Override
+	public void rebuildSelector() throws IOException {
+		this.selector = rebuildSelector0();
 	}
 
 	private void waitForRegist() {
@@ -263,7 +290,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 				List<SocketChannel> selectedChannels = selector.selectedChannels();
 
 				for (SocketChannel channel : selectedChannels) {
-
+					
 					accept(channel);
 				}
 
@@ -282,8 +309,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 		}
 	}
 
-	@Override
-	protected SocketSelector rebuildSelector0() throws IOException {
+	private SocketSelector rebuildSelector0() throws IOException {
 		SocketSelector selector = selectorBuilder.build(this);
 
 		// Selector old = this.selector;
@@ -318,6 +344,153 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	@Override
 	public SocketSelectorEventLoopGroup getEventLoopGroup() {
 		return eventLoopGroup;
+	}
+
+	// FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
+	// 执行stop的时候如果确保不会再有数据进来
+	@Override
+	public void wakeup() {
+
+		if (selecting.compareAndSet(false, true)) {
+			selecting.set(false);
+			return;
+		}
+
+		getSelector().wakeup();
+
+		super.wakeup();
+	}
+
+	@Override
+	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
+
+		if (inEventLoop()) {
+
+			if (!isRunning()) {
+				CloseUtil.close(event);
+				return;
+			}
+
+			handleEvent(event);
+
+			return;
+		}
+
+		ReentrantLock lock = this.runLock;
+
+		lock.lock();
+
+		try {
+
+			dispatch0(event);
+
+		} finally {
+
+			lock.unlock();
+		}
+	}
+
+	private void dispatch0(SelectorLoopEvent event) {
+
+		if (!isRunning()) {
+			CloseUtil.close(event);
+			return;
+		}
+
+		fireEvent(event);
+	}
+
+	private void fireEvent(SelectorLoopEvent event) {
+
+		positiveEvents.offer(event);
+
+		if (positiveEvents.getBufferSize() < 3) {
+
+			wakeup();
+		}
+	}
+
+	private void handleEvent(SelectorLoopEvent event) {
+
+		try {
+
+			if (!event.handle(this)) {
+				return;
+			}
+
+			// FIXME xiaolv hui jiangdi
+			if (event.isPositive()) {
+				positiveEvents.offer(event);
+			} else {
+				negativeEvents.offer(event);
+			}
+
+		} catch (IOException e) {
+
+			CloseUtil.close(event);
+		}
+	}
+
+	private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
+
+		for (SelectorLoopEvent event : eventBuffer) {
+
+			handleEvent(event);
+		}
+	}
+
+	private void handleNegativeEvents() {
+
+		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
+
+		if (eventBuffer.size() == 0) {
+			return;
+		}
+
+		handleEvents(eventBuffer);
+	}
+
+	private void handlePositiveEvents(boolean refresh) {
+
+		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
+
+		if (eventBuffer.size() == 0) {
+
+			hasTask = false;
+
+			return;
+		}
+
+		handleEvents(eventBuffer);
+
+		hasTask = positiveEvents.getBufferSize() > 0;
+
+		if (hasTask && refresh) {
+			runTask = 5;
+		}
+	}
+
+	protected void selectEmpty(SelectorEventLoop looper, long last_select) {
+
+		long past = System.currentTimeMillis() - last_select;
+
+		if (past < 1000) {
+
+			if (!looper.isRunning() || past < 0) {
+				return;
+			}
+
+			// JDK bug fired ?
+			IOException e = new IOException("JDK bug fired ?");
+			logger.error(e.getMessage(), e);
+			logger.debug("last={},past={}", last_select, past);
+
+			try {
+				looper.rebuildSelector();
+			} catch (IOException e1) {
+				logger.error(e1.getMessage(), e1);
+			}
+		}
 	}
 
 }

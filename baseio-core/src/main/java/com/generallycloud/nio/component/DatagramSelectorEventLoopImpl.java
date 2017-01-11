@@ -18,6 +18,7 @@ package com.generallycloud.nio.component;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
@@ -104,8 +105,15 @@ public class DatagramSelectorEventLoopImpl extends AbstractSelectorLoop implemen
 	}
 
 	@Override
-	protected SocketSelector rebuildSelector0() throws IOException {
-		throw new IOException("FIXME");
+	public void rebuildSelector() throws IOException {
+		throw new UnsupportedOperationException("FIXME");
 	}
 
+	@Override
+	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

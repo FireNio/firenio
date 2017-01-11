@@ -85,7 +85,7 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
 
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = buildSocketChannel(sk);
+		SocketChannel socketChannel = newChannel(sk);
 
 		// fire session open event
 		socketChannel.getSession().fireOpend();
