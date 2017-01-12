@@ -36,9 +36,9 @@ public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
 		
 		SocketChannelContext context = selectorLoop.getChannelContext();
 		
-		NioChannelAcceptor nioChannelAcceptor = (NioChannelAcceptor) context.getChannelService();
+		NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
 		
-		ServerSocketChannel channel = (ServerSocketChannel)nioChannelAcceptor.getSelectableChannel();
+		ServerSocketChannel channel = (ServerSocketChannel)nioChannelService.getSelectableChannel();
 		
 		// 打开selector
 		java.nio.channels.Selector selector = java.nio.channels.Selector.open();

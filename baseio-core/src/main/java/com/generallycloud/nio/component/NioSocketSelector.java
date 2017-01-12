@@ -66,18 +66,21 @@ public abstract class NioSocketSelector implements SocketSelector {
 		Set<SelectionKey> sks = selector.selectedKeys();
 
 		for (SelectionKey k : sks) {
-
-			if (!k.isReadable()) {
-
-				initSocketChannel(k);
-
+			
+			if (!k.isValid()) {
 				continue;
 			}
 
 			SocketChannel channel = (SocketChannel) k.attachment();
 
 			if (channel == null) {
-				// channel为空说明该链接已关闭
+				// channel为空说明该链接未打开
+//				if (!k.isReadable()) {
+//					
+//				}
+				
+				initSocketChannel(k);
+				
 				continue;
 			}
 

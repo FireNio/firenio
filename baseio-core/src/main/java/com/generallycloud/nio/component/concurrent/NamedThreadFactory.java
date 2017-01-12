@@ -32,7 +32,7 @@ public class NamedThreadFactory implements ThreadFactory {
 
 	@Override
 	public Thread newThread(Runnable r) {
-		Thread t = new PooledThread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+		Thread t = new PooledThread(group, r, namePrefix + "-" + threadNumber.getAndIncrement(), 0);
 		if (t.isDaemon())
 			t.setDaemon(false);
 		if (t.getPriority() != Thread.NORM_PRIORITY)

@@ -15,13 +15,12 @@
  */
 package com.generallycloud.nio.connector;
 
-import java.nio.channels.SelectableChannel;
+import com.generallycloud.nio.acceptor.NioChannelService;
 
 /**
  * @author wangkai
  *
  */
-public interface NioChannelConnector extends ChannelConnector{
+public interface NioChannelConnector extends ChannelConnector , NioChannelService{
 
-	public abstract SelectableChannel getSelectableChannel();
 }

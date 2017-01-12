@@ -55,7 +55,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private SocketChannelContext			context;
 	private ChannelWriteFuture			writeFuture;
 	private long						next_network_weak	= Long.MAX_VALUE;
-	private int						writeFutureLength;
+	private int						writeFutureLength	= 0;
 	private ExecutorEventLoop			executorEventLoop;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减

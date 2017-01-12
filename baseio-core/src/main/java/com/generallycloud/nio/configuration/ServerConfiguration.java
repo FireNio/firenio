@@ -34,7 +34,7 @@ public class ServerConfiguration {
 	private boolean	SERVER_ENABLE_SSL;
 	private boolean	SERVER_ENABLE_WORK_EVENT_LOOP;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
-	private int		SERVER_CHANNEL_READ_BUFFER				= 1024 * 100;
+	private int		SERVER_CHANNEL_READ_BUFFER		= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
 
 	public ServerConfiguration() {

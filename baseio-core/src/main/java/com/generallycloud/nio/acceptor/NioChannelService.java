@@ -15,10 +15,16 @@
  */
 package com.generallycloud.nio.acceptor;
 
+import java.nio.channels.SelectableChannel;
+
+import com.generallycloud.nio.component.ChannelService;
+
 /**
  * @author wangkai
  *
  */
-public interface NioChannelAcceptor extends ChannelAcceptor ,NioChannelService{
-	
+public interface NioChannelService extends ChannelService{
+
+	//FIXME channel instead
+	public abstract SelectableChannel getSelectableChannel();
 }

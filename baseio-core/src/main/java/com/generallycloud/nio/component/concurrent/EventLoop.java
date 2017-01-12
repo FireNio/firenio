@@ -32,7 +32,6 @@ public interface EventLoop extends Looper{
 	public abstract void wakeup();
 	
 	public abstract void startup(String threadName) throws Exception;
-	
 
 	public abstract boolean isMainEventLoop();
 

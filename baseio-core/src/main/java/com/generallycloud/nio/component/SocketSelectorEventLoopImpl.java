@@ -67,7 +67,9 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 	private int						runTask			= 0;
 	
-	private boolean							hasTask				= false;
+	private boolean					hasTask			= false;
+	
+	private int						eventQueueSize		= 0;
 	
 	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<SelectorLoopEvent>();
 	
@@ -77,7 +79,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 	private ReentrantLock				isWaitForRegistLock	= new ReentrantLock();
 
-	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group) {
+	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group,int eventQueueSize) {
 
 		super(group.getChannelContext());
 
@@ -99,8 +101,10 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 		this.sessionManager = context.getSessionManager();
 
+		this.eventQueueSize = eventQueueSize;
+		
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-
+		
 		// FIXME 使用direct
 		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);
 	}
@@ -402,6 +406,10 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 	private void fireEvent(SelectorLoopEvent event) {
 
+		if (positiveEvents.getBufferSize() > eventQueueSize) {
+			throw new RejectedExecutionException();
+		}
+		
 		positiveEvents.offer(event);
 
 		if (positiveEvents.getBufferSize() < 3) {

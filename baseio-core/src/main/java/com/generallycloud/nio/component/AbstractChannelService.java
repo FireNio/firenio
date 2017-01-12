@@ -83,9 +83,11 @@ public abstract class AbstractChannelService implements ChannelService {
 		ServerConfiguration configuration = getContext().getServerConfiguration();
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
-		// FIXME __limit eventQueueSize
+		
+		int eventQueueSize = configuration.getSERVER_IO_EVENT_QUEUE();
+		
 		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup((SocketChannelContext) getContext(),
-				"io-process", 0, core_size);
+				"io-process", eventQueueSize, core_size);
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 

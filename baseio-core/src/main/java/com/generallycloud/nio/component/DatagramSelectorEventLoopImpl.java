@@ -79,6 +79,7 @@ public class DatagramSelectorEventLoopImpl extends AbstractSelectorLoop implemen
 		logger.error(e.getMessage(), e);
 	}
 
+	// 
 	public SocketSelector buildSelector(SelectableChannel channel) throws IOException {
 		// 打开selector
 		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
