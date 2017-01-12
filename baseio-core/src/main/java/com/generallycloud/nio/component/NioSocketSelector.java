@@ -75,10 +75,6 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 			if (channel == null) {
 				// channel为空说明该链接未打开
-//				if (!k.isReadable()) {
-//					
-//				}
-				
 				initSocketChannel(k);
 				
 				continue;
@@ -121,7 +117,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 		selector.wakeup();
 	}
 
-	protected SocketChannel newChannel(SelectionKey selectionKey) throws SocketException {
+	protected SocketChannel newChannel(SelectionKey selectionKey,SocketSelectorEventLoop selectorLoop) throws SocketException {
 
 		SocketChannel channel = (SocketChannel) selectionKey.attachment();
 
@@ -130,7 +126,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 			return channel;
 		}
 
-		channel = new NioSocketChannel(selectorEventLoop, selectionKey);
+		channel = new NioSocketChannel(selectorLoop, selectionKey);
 
 		selectionKey.attach(channel);
 

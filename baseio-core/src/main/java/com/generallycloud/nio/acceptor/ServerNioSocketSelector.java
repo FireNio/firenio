@@ -44,7 +44,9 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 	@Override
 	protected void buildChannel(SelectionKey k) throws IOException {
 
-		java.nio.channels.SocketChannel channel = ((ServerSocketChannel) selectableChannel).accept();
+		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
+
+		java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
 
 		SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
 
@@ -77,15 +79,15 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 		}
 	}
 
-	private void regist(java.nio.channels.SocketChannel channel, SocketSelectorEventLoop selectorLoop)
-			throws IOException {
+	private void regist(java.nio.channels.SocketChannel channel,
+			SocketSelectorEventLoop selectorLoop) throws IOException {
 
 		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
 
 		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
 
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = newChannel(sk);
+		SocketChannel socketChannel = newChannel(sk, selectorLoop);
 
 		// fire session open event
 		socketChannel.getSession().fireOpend();
