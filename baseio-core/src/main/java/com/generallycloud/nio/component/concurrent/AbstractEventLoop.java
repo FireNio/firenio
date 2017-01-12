@@ -47,8 +47,6 @@ public abstract class AbstractEventLoop implements EventLoop {
 
 	private static final Logger	logger				= LoggerFactory.getLogger(AbstractEventLoop.class);
 
-	private boolean			mainEventLoop			= true;
-
 	private Thread				monitor				= null;
 
 	private volatile boolean	running				= false;
@@ -92,11 +90,6 @@ public abstract class AbstractEventLoop implements EventLoop {
 	}
 
 	@Override
-	public boolean isMainEventLoop() {
-		return mainEventLoop;
-	}
-
-	@Override
 	public boolean isRunning() {
 		return running;
 	}
@@ -125,11 +118,6 @@ public abstract class AbstractEventLoop implements EventLoop {
 
 			working = false;
 		}
-	}
-
-	@Override
-	public void setMainEventLoop(boolean mainEventLoop) {
-		this.mainEventLoop = mainEventLoop;
 	}
 
 	@Override

@@ -32,8 +32,8 @@ public class DatagramSelectorEventLoopImpl extends AbstractSelectorLoop implemen
 	private DatagramChannelContext		context;
 	private DatagramSelectorEventLoopGroup	eventLoopGroup;
 
-	public DatagramSelectorEventLoopImpl(DatagramSelectorEventLoopGroup group) {
-		super(group.getChannelContext());
+	public DatagramSelectorEventLoopImpl(DatagramSelectorEventLoopGroup group,int coreIndex) {
+		super(group.getChannelContext(),coreIndex);
 		this.eventLoopGroup = group;
 		this.context = group.getChannelContext();
 		this._read_acceptor = new DatagramChannelSelectionReader(this);

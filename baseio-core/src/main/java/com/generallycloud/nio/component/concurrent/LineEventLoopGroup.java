@@ -22,7 +22,7 @@ public class LineEventLoopGroup extends AbstractExecutorEventLoopGroup {
 	}
 
 	@Override
-	protected ExecutorEventLoop newEventLoop(int eventQueueSize) {
+	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
 		return new LineEventLoop();
 	}
 

@@ -56,8 +56,8 @@ public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup imple
 	}
 
 	@Override
-	protected DatagramSelectorEventLoop newEventLoop(int eventQueueSize) {
-		return new DatagramSelectorEventLoopImpl(this);
+	protected DatagramSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
+		return new DatagramSelectorEventLoopImpl(this,coreIndex);
 	}
 
 	@Override

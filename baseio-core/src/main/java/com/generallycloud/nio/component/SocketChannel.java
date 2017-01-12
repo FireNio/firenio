@@ -29,10 +29,6 @@ import com.generallycloud.nio.protocol.SslReadFuture;
 
 public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
-	public abstract void setWriteFuture(ChannelWriteFuture future);
-
-	public abstract ChannelWriteFuture getWriteFuture();
-
 	public abstract boolean isNetworkWeak();
 
 	public abstract void upNetworkState();

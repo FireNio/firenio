@@ -79,9 +79,9 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 
 	private ReentrantLock				isWaitForRegistLock	= new ReentrantLock();
 
-	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group,int eventQueueSize) {
+	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group,int eventQueueSize,int coreIndex) {
 
-		super(group.getChannelContext());
+		super(group.getChannelContext(),coreIndex);
 
 		this.eventLoopGroup = group;
 
@@ -368,17 +368,18 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	@Override
 	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
 
-		if (inEventLoop()) {
-
-			if (!isRunning()) {
-				CloseUtil.close(event);
-				return;
-			}
-
-			handleEvent(event);
-
-			return;
-		}
+		//FIXME 找出这里出问题的原因
+//		if (inEventLoop()) {
+//
+//			if (!isRunning()) {
+//				CloseUtil.close(event);
+//				return;
+//			}
+//
+//			handleEvent(event);
+//
+//			return;
+//		}
 
 		ReentrantLock lock = this.runLock;
 

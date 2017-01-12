@@ -95,24 +95,39 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
-
-		if (writeFuture == null) {
-			writeFuture = writeFutures.poll();
+		
+		ChannelWriteFuture writeFuture = this.writeFuture;
+		
+		if (writeFuture != null) {
+			
+			if (!writeFuture.write(this)) {
+				return true;
+			}
+			
+			this.writeFuture = null;
+			
+			return onWriteSuccess(writeFuture);
 		}
+		
+		writeFuture = writeFutures.poll();
 
 		if (writeFuture == null) {
 			return false;
 		}
 
 		if (!writeFuture.write(this)) {
+			this.writeFuture = writeFuture;
 			return true;
 		}
-
+		
+		return onWriteSuccess(writeFuture);
+	}
+	
+	private boolean onWriteSuccess(ChannelWriteFuture writeFuture){
+		
 		writeFutureLength -= writeFuture.getBinaryLength();
 
 		writeFuture.onSuccess(session);
-
-		writeFuture = null;
 
 		return needFlush();
 	}
@@ -120,11 +135,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	@Override
 	public int getWriteFutureLength() {
 		return writeFutureLength;
-	}
-
-	@Override
-	public ChannelWriteFuture getWriteFuture() {
-		return writeFuture;
 	}
 
 	@Override
@@ -322,11 +332,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public void setWriteFuture(ChannelWriteFuture future) {
-		this.writeFuture = future;
-	}
-
-	@Override
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
 		this.protocolDecoder = protocolDecoder;
 	}
@@ -399,7 +404,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public boolean needFlush() {
-		return writeFuture != null || writeFutures.size() > 0;
+		return writeFutures.size() > 0;
 	}
 
 	@Override

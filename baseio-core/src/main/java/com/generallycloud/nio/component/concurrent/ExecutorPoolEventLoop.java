@@ -103,14 +103,4 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 		return eventLoopGroup;
 	}
 
-	@Override
-	public boolean isMainEventLoop() {
-		return true;
-	}
-
-	@Override
-	public void setMainEventLoop(boolean isMainEventLoop) {
-		throw new UnsupportedOperationException();
-	}
-
 }

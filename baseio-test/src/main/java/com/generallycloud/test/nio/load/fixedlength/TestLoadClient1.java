@@ -66,7 +66,11 @@ public class TestLoadClient1 extends ITestThread {
 
 				latch.countDown();
 
-//				 System.out.println("__________________________"+getLatch().getCount());
+				long c = latch.getCount();
+				
+				if (c % 40000 == 0) {
+					System.out.println("__________________________"+c);
+				}
 			}
 		};
 

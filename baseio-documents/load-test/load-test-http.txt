@@ -1,47 +1,47 @@
-C:\Users\Test2\Desktop\httpd\bin>ab -n 16000000 -c 160 -k http://127.0.0.1:80/test
+C:\Users\Test2\Desktop\httpd\bin>ab -n 20000000 -c 200 -k http://localhost:80/test
 This is ApacheBench, Version 2.3 <$Revision: 1604373 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
 
-Benchmarking 127.0.0.1 (be patient)
-Completed 1600000 requests
-Completed 3200000 requests
-Completed 4800000 requests
-Completed 6400000 requests
+Benchmarking localhost (be patient)
+Completed 2000000 requests
+Completed 4000000 requests
+Completed 6000000 requests
 Completed 8000000 requests
-Completed 9600000 requests
-Completed 11200000 requests
-Completed 12800000 requests
-Completed 14400000 requests
+Completed 10000000 requests
+Completed 12000000 requests
+Completed 14000000 requests
 Completed 16000000 requests
-Finished 16000000 requests
+Completed 18000000 requests
+Completed 20000000 requests
+Finished 20000000 requests
 
 
 Server Software:        aseio/0.0.1
-Server Hostname:        127.0.0.1
+Server Hostname:        localhost
 Server Port:            80
 
 Document Path:          /test
 Document Length:        44 bytes
 
-Concurrency Level:      160
-Time taken for tests:   103.922 seconds
-Complete requests:      16000000
+Concurrency Level:      200
+Time taken for tests:   88.771 seconds
+Complete requests:      20000000
 Failed requests:        0
-Keep-Alive requests:    16000000
-Total transferred:      2640000000 bytes
-HTML transferred:       704000000 bytes
-Requests per second:    153961.12 [#/sec] (mean)
-Time per request:       1.039 [ms] (mean)
-Time per request:       0.006 [ms] (mean, across all concurrent requests)
-Transfer rate:          24808.19 [Kbytes/sec] received
+Keep-Alive requests:    20000000
+Total transferred:      3300000000 bytes
+HTML transferred:       880000000 bytes
+Requests per second:    225299.83 [#/sec] (mean)
+Time per request:       0.888 [ms] (mean)
+Time per request:       0.004 [ms] (mean, across all concurrent requests)
+Transfer rate:          36303.20 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.1      0     500
-Processing:     0    1   4.2      0     522
-Waiting:        0    1   4.2      0     522
-Total:          0    1   4.2      0     522
+Connect:        0    0   0.1      0     516
+Processing:     0    1   3.9      0     535
+Waiting:        0    1   3.9      0     535
+Total:          0    1   3.9      0     535
 
 Percentage of the requests served within a certain time (ms)
   50%      0
@@ -52,6 +52,6 @@ Percentage of the requests served within a certain time (ms)
   95%     16
   98%     16
   99%     16
- 100%    522 (longest request)
+ 100%    535 (longest request)
 
 C:\Users\Test2\Desktop\httpd\bin>

@@ -83,15 +83,4 @@ public class LineEventLoop implements ExecutorEventLoop {
 		return eventLoopGroup;
 	}
 
-	@Override
-	public boolean isMainEventLoop() {
-		return unwrap().isMainEventLoop();
-	}
-
-	@Override
-	public void setMainEventLoop(boolean mainEventLoop) {
-	}
-	
-	
-
 }

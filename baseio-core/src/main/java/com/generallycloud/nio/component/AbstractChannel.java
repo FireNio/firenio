@@ -189,9 +189,19 @@ public abstract class AbstractChannel implements Channel {
 	public String toString() {
 
 		if (edp_description == null) {
-			edp_description = new StringBuilder("[").append(getMarkPrefix()).append("(id:")
-					.append(getIdHexString(channelID)).append(") R /").append(getRemoteAddr()).append(":")
-					.append(getRemotePort()).append("; Lp:").append(getLocalPort()).append("]").toString();
+			edp_description = new StringBuilder("[")
+				.append("Id(")
+				.append(getIdHexString(channelID))
+				.append(")R/")
+				.append(getRemoteAddr())
+				.append(":")
+				.append(getRemotePort())
+				.append("; L:")
+				.append(getLocalPort())
+				.append(" c:")
+				.append(selectorEventLoop.getCoreIndex())
+				.append("]")
+				.toString();
 		}
 
 		return edp_description;

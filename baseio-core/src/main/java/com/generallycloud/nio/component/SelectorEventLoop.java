@@ -44,4 +44,8 @@ public interface SelectorEventLoop extends EventLoop {
 
 	public abstract void rebuildSelector() throws IOException;
 
+	public abstract boolean isMainEventLoop();
+
+	public abstract int getCoreIndex();
+
 }

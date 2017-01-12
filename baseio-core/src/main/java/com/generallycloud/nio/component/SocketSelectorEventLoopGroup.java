@@ -16,7 +16,6 @@
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.component.concurrent.AbstractEventLoopGroup;
-import com.generallycloud.nio.component.concurrent.EventLoop;
 
 /**
  * @author wangkai
@@ -45,19 +44,19 @@ public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup impleme
 	}
 
 	@Override
-	protected EventLoop[] initEventLoops() {
+	protected SelectorEventLoop[] initEventLoops() {
 		selectorEventLoops = new SocketSelectorEventLoop[getEventLoopSize()];
 		return selectorEventLoops;
 	}
 
 	@Override
-	protected EventLoop[] getEventLoops() {
+	protected SelectorEventLoop[] getEventLoops() {
 		return getSelectorEventLoops();
 	}
 
 	@Override
-	protected SocketSelectorEventLoop newEventLoop(int eventQueueSize) {
-		return new SocketSelectorEventLoopImpl(this,eventQueueSize);
+	protected SocketSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
+		return new SocketSelectorEventLoopImpl(this, eventQueueSize, coreIndex);
 	}
 
 	@Override

@@ -25,29 +25,48 @@ import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 
 public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
 
-	private static final Logger					logger				= LoggerFactory
-			.getLogger(AbstractSelectorLoop.class);
-	protected ByteBufAllocator					byteBufAllocator		= null;
+	private static final Logger	logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
+	protected ByteBufAllocator	byteBufAllocator	= null;
 
-	protected AbstractSelectorLoop(ChannelContext context) {
+	private int				coreIndex;
+
+	private boolean			mainEventLoop			= true;
+
+	@Override
+	public boolean isMainEventLoop() {
+		return mainEventLoop;
+	}
+
+	protected AbstractSelectorLoop(ChannelContext context,int coreIndex) {
 		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
+		this.setCoreIndex(coreIndex);
 	}
 
 	@Override
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
 	}
-	
+
 	protected void cancelSelectionKey(SocketChannel channel, Throwable t) {
-		
+
 		logger.error(t.getMessage() + " channel:" + channel, t);
-		
+
 		CloseUtil.close(channel);
 	}
-	
+
 	@Override
 	public void doStartup() throws IOException {
 		rebuildSelector();
+	}
+
+	@Override
+	public int getCoreIndex() {
+		return coreIndex;
+	}
+
+	private void setCoreIndex(int coreIndex) {
+		this.coreIndex = coreIndex;
+		this.mainEventLoop = coreIndex == 0;
 	}
 
 }

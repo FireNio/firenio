@@ -42,9 +42,7 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
 		for (int i = 0; i < eventLoopArray.length; i++) {
 
-			eventLoopArray[i] = newEventLoop(eventQueueSize);
-			
-			eventLoopArray[i].setMainEventLoop(i == 0);
+			eventLoopArray[i] = newEventLoop(i,eventQueueSize);
 		}
 
 		for (int i = 0; i < eventLoopArray.length; i++) {
@@ -65,7 +63,7 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 		return eventLoopSize;
 	}
 
-	protected abstract EventLoop newEventLoop(int eventQueueSize);
+	protected abstract EventLoop newEventLoop(int coreIndex,int eventQueueSize);
 
 	@Override
 	protected void doStop() throws Exception {
