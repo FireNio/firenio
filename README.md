@@ -9,8 +9,6 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 ## 项目特色
 
 * 轻松实现断线重连(轻松实现心跳机制)
-* 超过64W QPS的处理速度(Socket,I7-4790,Win10)
-* 超过40W QPS的处理速度(Http1.1,I7-4790,Win10)
 * 简易应用容器：
  * 支持简易热部署，示例： https://www.generallycloud.com/system-redeploy
  * 支持部署WEB，微服务等（依据协议而定）
@@ -29,6 +27,9 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
  * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
  * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
+* 压力测试
+ * 超过64W QPS的处理速度(Socket,I7-4790,Win10)
+ * 超过40W QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测结果](/baseio-documents/load-test/load-test-http.txt)
  
 ## 快速入门
 
