@@ -34,54 +34,56 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements SocketSelectorEventLoop {
+public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
+		implements SocketSelectorEventLoop {
 
-	private static final Logger			logger			= LoggerFactory
+	private static final Logger				logger			= LoggerFactory
 			.getLogger(SocketSelectorEventLoopImpl.class);
 
-	private ByteBuf					buf				= null;
+	private ByteBuf						buf				= null;
 
-	private ChannelByteBufReader			byteBufReader		= null;
+	private ChannelByteBufReader				byteBufReader		= null;
 
-	private SocketChannelContext			context			= null;
+	private SocketChannelContext				context			= null;
 
-	private ProtocolDecoder				protocolDecoder	= null;
+	private ProtocolDecoder					protocolDecoder	= null;
 
-	private ProtocolEncoder				protocolEncoder	= null;
+	private ProtocolEncoder					protocolEncoder	= null;
 
-	private ProtocolFactory				protocolFactory	= null;
+	private ProtocolFactory					protocolFactory	= null;
 
-	private ExecutorEventLoop			executorEventLoop	= null;
+	private ExecutorEventLoop				executorEventLoop	= null;
 
-	private boolean					isWaitForRegist	= false;
+	private boolean						isWaitForRegist	= false;
 
-	private SessionManager				sessionManager		= null;
+	private SessionManager					sessionManager		= null;
 
-	private SocketSelectorEventLoopGroup	eventLoopGroup		= null;
+	private SocketSelectorEventLoopGroup		eventLoopGroup		= null;
 
-	private SocketSelectorBuilder			selectorBuilder	= null;
+	private SocketSelectorBuilder				selectorBuilder	= null;
 
-	private SocketSelector				selector			= null;
+	private SocketSelector					selector			= null;
 
-	private ReentrantLock				runLock			= new ReentrantLock();
+	private ReentrantLock					runLock			= new ReentrantLock();
 
-	private int						runTask			= 0;
-	
-	private boolean					hasTask			= false;
-	
-	private int						eventQueueSize		= 0;
-	
-	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<SelectorLoopEvent>();
-	
-	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<SelectorLoopEvent>();
+	private int							runTask			= 0;
 
-	private AtomicBoolean				selecting			= new AtomicBoolean();
+	private boolean						hasTask			= false;
 
-	private ReentrantLock				isWaitForRegistLock	= new ReentrantLock();
+	private int							eventQueueSize		= 0;
 
-	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group,int eventQueueSize,int coreIndex) {
+	private BufferedArrayList<SelectorLoopEvent>	negativeEvents		= new BufferedArrayList<SelectorLoopEvent>();
 
-		super(group.getChannelContext(),coreIndex);
+	private BufferedArrayList<SelectorLoopEvent>	positiveEvents		= new BufferedArrayList<SelectorLoopEvent>();
+
+	private AtomicBoolean					selecting			= new AtomicBoolean();
+
+	private ReentrantLock					isWaitForRegistLock	= new ReentrantLock();
+
+	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group, int eventQueueSize,
+			int coreIndex) {
+
+		super(group.getChannelContext(), coreIndex);
 
 		this.eventLoopGroup = group;
 
@@ -102,9 +104,9 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 		this.sessionManager = context.getSessionManager();
 
 		this.eventQueueSize = eventQueueSize;
-		
+
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-		
+
 		// FIXME 使用direct
 		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);
 	}
@@ -161,11 +163,6 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	}
 
 	public void accept0(SocketChannel channel) throws Exception {
-
-		if (channel == null || !channel.isOpened()) {
-			// 该channel已经被关闭
-			return;
-		}
 
 		ByteBuf buf = this.buf;
 
@@ -294,7 +291,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 				List<SocketChannel> selectedChannels = selector.selectedChannels();
 
 				for (SocketChannel channel : selectedChannels) {
-					
+
 					accept(channel);
 				}
 
@@ -316,31 +313,31 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	private SocketSelector rebuildSelector0() throws IOException {
 		SocketSelector selector = selectorBuilder.build(this);
 
-		// Selector old = this.selector;
-
-		// Set<SelectionKey> sks = old.keys();
-		//
-		// if (sks.size() == 0) {
-		// logger.debug("sk size 0");
-		// CloseUtil.close(old);
-		// return selector;
-		// }
-		//
-		// for (SelectionKey sk : sks) {
-		//
-		// if (!sk.isValid() || sk.attachment() == null) {
-		// cancelSelectionKey(sk);
-		// continue;
-		// }
-		//
-		// try {
-		// sk.channel().register(selector, SelectionKey.OP_READ);
-		// } catch (ClosedChannelException e) {
-		// cancelSelectionKey(sk, e);
-		// }
-		// }
-		//
-		// CloseUtil.close(old);
+//		Selector old = this.selector;
+//
+//		Set<SelectionKey> sks = old.keys();
+//
+//		if (sks.size() == 0) {
+//			logger.debug("sk size 0");
+//			CloseUtil.close(old);
+//			return selector;
+//		}
+//
+//		for (SelectionKey sk : sks) {
+//
+//			if (!sk.isValid() || sk.attachment() == null) {
+//				cancelSelectionKey(sk);
+//				continue;
+//			}
+//
+//			try {
+//				sk.channel().register(selector, SelectionKey.OP_READ);
+//			} catch (ClosedChannelException e) {
+//				cancelSelectionKey(sk, e);
+//			}
+//		}
+//
+//		CloseUtil.close(old);
 
 		return selector;
 	}
@@ -369,17 +366,17 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
 
 		//FIXME 找出这里出问题的原因
-//		if (inEventLoop()) {
-//
-//			if (!isRunning()) {
-//				CloseUtil.close(event);
-//				return;
-//			}
-//
-//			handleEvent(event);
-//
-//			return;
-//		}
+		//		if (inEventLoop()) {
+		//
+		//			if (!isRunning()) {
+		//				CloseUtil.close(event);
+		//				return;
+		//			}
+		//
+		//			handleEvent(event);
+		//
+		//			return;
+		//		}
 
 		ReentrantLock lock = this.runLock;
 
@@ -410,7 +407,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 		if (positiveEvents.getBufferSize() > eventQueueSize) {
 			throw new RejectedExecutionException();
 		}
-		
+
 		positiveEvents.offer(event);
 
 		if (positiveEvents.getBufferSize() < 3) {
@@ -430,9 +427,10 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop implements
 			// FIXME xiaolv hui jiangdi
 			if (event.isPositive()) {
 				positiveEvents.offer(event);
-			} else {
-				negativeEvents.offer(event);
+				return;
 			}
+
+			negativeEvents.offer(event);
 
 		} catch (IOException e) {
 

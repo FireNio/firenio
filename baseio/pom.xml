@@ -53,7 +53,7 @@
 	<properties>
 		<project.sourceEncoding>UTF-8</project.sourceEncoding>
 		<project.version>3.1.8-SNAPSHOT</project.version>
-		<project.JdkVersion>1.7</project.JdkVersion>
+		<project.JdkVersion>1.8</project.JdkVersion>
 	</properties>
 	<dependencies>
 
