@@ -120,9 +120,9 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 ## 演示及用例
 * HTTP Demo：https://www.generallycloud.com/index.html
 * WebSocket聊天室 Demo：https://www.generallycloud.com/web-socket/chat/index.html                                
- （我写的后端，前端https://github.com/socketio/socket.io/ ）
+ （后端基于baseio，前端基于：https://github.com/socketio/socket.io/ ）
 * WebSocket小蝌蚪 Demo：https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
- （我写的后端，前端https://github.com/danielmahal/Rumpetroll ）
+ （后端基于baseio，前端基于：https://github.com/danielmahal/Rumpetroll ）
 
 ## License
 
