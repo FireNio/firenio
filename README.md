@@ -28,8 +28,8 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
  * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
 * 压力测试
- * 超过64W QPS的处理速度(Socket,I7-4790,Win10)
- * 超过40W QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测结果](/baseio-documents/load-test/load-test-http.txt)
+ * 超过32W QPS的处理速度(Socket,I7-4790,Win10)
+ * 超过20W QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测结果](/baseio-documents/load-test/load-test-http.txt)
  
 ## 快速入门
 
@@ -120,9 +120,9 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 ## 演示及用例
 * HTTP Demo：https://www.generallycloud.com/index.html
 * WebSocket聊天室 Demo：https://www.generallycloud.com/web-socket/chat/index.html                                
- （我写的后端，前端https://github.com/socketio/socket.io/ ）
+ （后端基于baseio，前端基于：https://github.com/socketio/socket.io/ ）
 * WebSocket小蝌蚪 Demo：https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
- （我写的后端，前端https://github.com/danielmahal/Rumpetroll ）
+ （后端基于baseio，前端基于：https://github.com/danielmahal/Rumpetroll ）
 
 ## License
 
