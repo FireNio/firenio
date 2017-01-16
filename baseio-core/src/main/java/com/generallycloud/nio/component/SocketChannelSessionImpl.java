@@ -17,7 +17,7 @@ package com.generallycloud.nio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.nio.DisconnectException;
+import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -124,7 +124,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 			IoEventHandle handle = future.getIOEventHandle();
 
-			exceptionCaught(handle, future, new DisconnectException("disconnected"), IoEventState.WRITE);
+			exceptionCaught(handle, future, new ClosedChannelException(toString()), IoEventState.WRITE);
 
 			return;
 		}

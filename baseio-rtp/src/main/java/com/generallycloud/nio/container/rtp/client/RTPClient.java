@@ -18,7 +18,7 @@ package com.generallycloud.nio.container.rtp.client;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.DisconnectException;
+import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.ByteUtil;
 import com.generallycloud.nio.common.CloseUtil;
@@ -315,9 +315,10 @@ public class RTPClient {
 		});
 
 		if (waiter.await(3000)) {
+			
 			CloseUtil.close(connector);
 
-			throw new DisconnectException("disconnected");
+			throw new ClosedChannelException("disconnected");
 		}
 	}
 	
