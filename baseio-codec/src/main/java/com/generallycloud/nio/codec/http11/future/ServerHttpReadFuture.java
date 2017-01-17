@@ -18,8 +18,8 @@ package com.generallycloud.nio.codec.http11.future;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;

@@ -15,8 +15,6 @@
  */ 
 package com.generallycloud.nio.component.concurrent;
 
-import com.generallycloud.nio.Looper;
-
 public interface EventLoop extends Looper{
 	
 	public abstract boolean inEventLoop();

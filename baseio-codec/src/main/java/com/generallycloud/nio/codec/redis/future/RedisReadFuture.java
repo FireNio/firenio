@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.nio.codec.redis.future;
 
-import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ReadFuture;
 

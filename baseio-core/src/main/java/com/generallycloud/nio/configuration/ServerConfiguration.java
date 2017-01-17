@@ -17,7 +17,7 @@ package com.generallycloud.nio.configuration;
 
 import java.nio.charset.Charset;
 
-import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.component.ChannelContext;
 
 //FIXME 校验参数

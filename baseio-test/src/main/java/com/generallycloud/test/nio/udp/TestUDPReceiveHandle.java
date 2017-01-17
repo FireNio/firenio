@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.test.nio.udp;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.DebugUtil;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ThreadUtil;

@@ -17,8 +17,8 @@ package com.generallycloud.test.nio.udp;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.DatagramChannelContext;
 import com.generallycloud.nio.component.DatagramChannelContextImpl;

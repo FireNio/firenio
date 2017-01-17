@@ -22,13 +22,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.nio.common.BeanUtil;
 import com.generallycloud.nio.common.ClassUtil;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.MD5Token;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.OnReadFuture;

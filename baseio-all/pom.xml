@@ -5,7 +5,7 @@
 	<artifactId>baseio-all</artifactId>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The all in one project of baseio</description>  
+	<description>The all in one project of baseio</description>
 
 	<parent>
 		<groupId>com.generallycloud</groupId>
@@ -13,22 +13,9 @@
 		<version>3.1.8-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
-	
+
 	<build>
 		<plugins>
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>package</phase>
-					</execution>
-				</executions>
-			</plugin>
-			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -40,14 +27,14 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<createSourcesJar>false</createSourcesJar>
+							<createSourcesJar>true</createSourcesJar>
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
 							<artifactSet>
 								<includes>
 									<include>com.generallycloud:baseio-balance</include>
 									<include>com.generallycloud:baseio-codec</include>
 									<include>com.generallycloud:baseio-container</include>
-								    <include>com.generallycloud:baseio-core</include>
+									<include>com.generallycloud:baseio-core</include>
 									<include>com.generallycloud:baseio-front</include>
 									<include>com.generallycloud:baseio-http</include>
 									<include>com.generallycloud:baseio-jms</include>
@@ -59,21 +46,36 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.6</version>
 				<configuration>
-				  <descriptors>
-					<descriptor>source.xml</descriptor>
-				  </descriptors>
+					<descriptors>
+						<descriptor>source.xml</descriptor>
+					</descriptors>
 				</configuration>
-		  </plugin>
+			</plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<inherited>true</inherited>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-balance</artifactId>
@@ -85,43 +87,43 @@
 			<artifactId>baseio-codec</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-container</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-				
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-front</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-http</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-jms</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-protobase</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-rtp</artifactId>

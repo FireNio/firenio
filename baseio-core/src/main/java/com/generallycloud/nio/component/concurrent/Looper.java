@@ -13,30 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.nio.common.database;
+package com.generallycloud.nio.component.concurrent;
 
-import java.util.Map;
-
-public abstract class AbstractQuery implements DataBaseQuery {
-
-	protected Map<String, String> sys_fields = null;
+public interface Looper{
 	
-	protected AbstractQuery (){
-		setSys_fields();
-	}
+	public abstract void loop();
 	
-	@Override
-	public String getColumnName(String columnName) {
-		String key = columnName.toUpperCase();
-		if (sys_fields.containsKey(key)) {
-			return sys_fields.get(key);
-		} else {
-			return columnName;
-		}
-	}
-	
-	abstract void setSys_fields();;
-	
-	
-	
+	//FIXME stop 之前处理剩下的资源
+	public abstract void stop();
 }

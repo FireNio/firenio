@@ -25,9 +25,9 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.Encoding;
 import com.generallycloud.nio.common.BASE64Util;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.FileUtil;
 
 final class PemReader {

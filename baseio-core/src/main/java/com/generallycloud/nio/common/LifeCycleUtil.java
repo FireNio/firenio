@@ -16,7 +16,7 @@
 package com.generallycloud.nio.common;
 
 import com.generallycloud.nio.LifeCycle;
-import com.generallycloud.nio.Looper;
+import com.generallycloud.nio.component.concurrent.Looper;
 
 public class LifeCycleUtil {
 

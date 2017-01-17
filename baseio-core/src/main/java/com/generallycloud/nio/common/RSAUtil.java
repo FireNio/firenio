@@ -34,8 +34,6 @@ import java.util.Map;
 
 import javax.crypto.Cipher;
 
-import com.generallycloud.nio.Encoding;
-
 public class RSAUtil {
 
 	private static KeyFactory	keyFactory;

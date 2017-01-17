@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.nio.common.database;
+package com.generallycloud.nio.common;
 
-public class COUNT {
+import java.nio.charset.Charset;
 
-	private long	count;
+public class Encoding {
 
-	public void setCount(long count) {
-		this.count = count;
-	}
-
-	public long getCount() {
-		return count;
-	}
-
+	public static Charset UTF8 = Charset.forName("UTF-8");
+	
+	public static Charset GBK = Charset.forName("GBK");
+	
+	public static Charset ASCII = Charset.forName("ASCII");
+	
 }

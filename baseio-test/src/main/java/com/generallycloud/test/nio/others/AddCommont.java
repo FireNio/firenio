@@ -18,7 +18,7 @@ package com.generallycloud.test.nio.others;
 import java.io.File;
 import java.io.IOException;
 
-import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.FileUtil;
 import com.generallycloud.nio.common.FileUtil.OnDirectoryScan;
 

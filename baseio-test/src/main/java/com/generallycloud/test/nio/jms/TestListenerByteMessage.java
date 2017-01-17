@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.test.nio.jms;
 
-import com.generallycloud.nio.Encoding;
+import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.connector.SocketChannelConnector;
