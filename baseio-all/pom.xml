@@ -16,19 +16,37 @@
 
 	<build>
 		<plugins>
+			<!-- Javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>aggregate</goal>
+						</goals>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam><!-- 防止生成docs时报错 -->
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.4</version>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
 						<configuration>
 							<createSourcesJar>true</createSourcesJar>
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+							<createDependencyReducedPom>true</createDependencyReducedPom>
 							<artifactSet>
 								<includes>
 									<include>com.generallycloud:baseio-balance</include>
@@ -43,31 +61,6 @@
 								</includes>
 							</artifactSet>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<descriptors>
-						<descriptor>source.xml</descriptor>
-					</descriptors>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
-				<inherited>true</inherited>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
