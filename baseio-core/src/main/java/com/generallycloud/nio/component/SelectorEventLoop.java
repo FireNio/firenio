@@ -37,7 +37,7 @@ public interface SelectorEventLoop extends EventLoop {
 		 * 
 		 * @return true 需要再次处理，false处理结束后丢弃
 		 */
-		boolean handle(SelectorEventLoop selectLoop) throws IOException;
+		boolean fireEvent(SelectorEventLoop selectLoop) throws IOException;
 
 		boolean isPositive();
 	}

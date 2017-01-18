@@ -2,19 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-test</artifactId>
 	<name>${project.artifactId}</name>
-	<version>${project.version}</version>
+	<version>3.1.8-Alpha1</version>
 	<packaging>jar</packaging>
 	<description>The test of baseio</description>
 	
-	<parent>
-		<groupId>com.generallycloud</groupId>
-		<artifactId>baseio</artifactId>
-		<version>3.1.8-SNAPSHOT</version>
-		<relativePath>../baseio/pom.xml</relativePath>
-	</parent>
-
 	<build>
 		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
 		<resources>
@@ -36,8 +30,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>${project.JdkVersion}</source>
-					<target>${project.JdkVersion}</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 					<attach>true</attach>
 				</configuration>
@@ -56,7 +50,7 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-all</artifactId>
-			<version>${project.version}</version>
+			<version>3.1.8-Alpha1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
@@ -97,7 +91,6 @@
 			<artifactId>jedis</artifactId>
 			<version>2.4.2</version>
 		</dependency>
-
 
 	</dependencies>
 

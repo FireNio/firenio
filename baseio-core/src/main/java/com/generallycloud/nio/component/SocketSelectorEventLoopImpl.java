@@ -420,7 +420,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		try {
 
-			if (!event.handle(this)) {
+			if (!event.fireEvent(this)) {
 				return;
 			}
 

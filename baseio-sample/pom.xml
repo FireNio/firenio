@@ -2,17 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-sample</artifactId>
 	<name>${project.artifactId}</name>
+	<version>3.1.8-Alpha1</version>
 	<packaging>jar</packaging>
 	<description>The sample of baseio</description>
-
-	<parent>
-		<groupId>com.generallycloud</groupId>
-		<artifactId>baseio</artifactId>
-		<version>3.1.8-SNAPSHOT</version>
-		<relativePath>../baseio/pom.xml</relativePath>
-	</parent>
 
 	<build>
 		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
@@ -47,7 +42,7 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-all</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
+			<version>3.1.8-Alpha1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 		<dependency>

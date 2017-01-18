@@ -108,7 +108,7 @@ public abstract class AbstractChannel implements Channel {
 		fireEvent(new SelectorLoopEventAdapter() {
 
 			@Override
-			public boolean handle(SelectorEventLoop selectLoop) throws IOException {
+			public boolean fireEvent(SelectorEventLoop selectLoop) throws IOException {
 				CloseUtil.close(AbstractChannel.this);
 				return false;
 			}

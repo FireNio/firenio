@@ -44,7 +44,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 			
 			@Override
-			public boolean handle(SelectorEventLoop selectLoop) throws IOException {
+			public boolean fireEvent(SelectorEventLoop selectLoop) throws IOException {
 				
 				Map<Integer, SocketSession> map = sessions.getSnapshot();
 

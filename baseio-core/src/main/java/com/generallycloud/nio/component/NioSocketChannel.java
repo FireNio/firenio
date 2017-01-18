@@ -90,7 +90,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	}
 
 	@Override
-	public boolean handle(SelectorEventLoop selectorLoop) throws IOException {
+	public boolean fireEvent(SelectorEventLoop selectorLoop) throws IOException {
 
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
@@ -291,7 +291,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 		// 最后一轮 //FIXME once
 		try {
-			this.handle(selectorEventLoop);
+			this.fireEvent(selectorEventLoop);
 		} catch (IOException e) {
 		}
 
