@@ -22,4 +22,6 @@ public interface LinkAbleByteBufAllocator extends ByteBufAllocator, Linkable<Lin
 	public abstract int getIndex();
 
 	public abstract ByteBufAllocator unwrap();
+	
+	public abstract ByteBuf allocate(int capacity,LinkAbleByteBufAllocator allocator);
 }

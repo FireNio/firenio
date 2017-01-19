@@ -27,12 +27,9 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 
 	private ByteBufAllocator					allocator;
 
-	private MCByteBufAllocator				mcByteBufAllocator;
-
-	public LinkableByteBufAllocatorImpl(MCByteBufAllocator mcByteBufAllocator, ByteBufAllocator allocator, int index) {
+	public LinkableByteBufAllocatorImpl(ByteBufAllocator allocator, int index) {
 		this.index = index;
 		this.allocator = allocator;
-		this.mcByteBufAllocator = mcByteBufAllocator;
 	}
 
 	@Override
@@ -71,7 +68,24 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 		ByteBuf buf = unwrap().allocate(capacity);
 
 		if (buf == null) {
-			buf = mcByteBufAllocator.allocate(capacity, this);
+			return getNext().getValue().allocate(capacity, this);
+		}
+
+		return buf;
+	}
+	
+	@Override
+	public ByteBuf allocate(int capacity,LinkAbleByteBufAllocator allocator) {
+
+		if (allocator == this) {
+			return null;
+		}
+		
+		ByteBuf buf = unwrap().allocate(capacity);
+
+		if (buf == null) {
+			
+			return getNext().getValue().allocate(capacity,allocator);
 		}
 
 		return buf;

@@ -110,6 +110,10 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 			
 			PooledByteBuf newBuf = allocate(bufFactory,limit);
 			
+			if (newBuf == null) {
+				throw new BufferException("reallocate failed");
+			}
+			
 			newBuf.read(buf.flip());
 			
 			ReleaseUtil.release(buf);
@@ -119,7 +123,13 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle impleme
 		
 		ReleaseUtil.release(buf);
 		
-		return allocate(buf, limit);
+		ByteBuf newBuf = allocate(buf, limit);
+		
+		if (newBuf == null) {
+			throw new BufferException("reallocate failed");
+		}
+		
+		return newBuf;
 	}
 
 	@Override

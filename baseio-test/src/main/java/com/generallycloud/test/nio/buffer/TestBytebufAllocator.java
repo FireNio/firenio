@@ -17,7 +17,10 @@ package com.generallycloud.test.nio.buffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.SimpleByteBufAllocator;
+import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.component.ChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class TestBytebufAllocator {
 
@@ -30,13 +33,21 @@ public class TestBytebufAllocator {
 	
 	static void test() throws Exception{
 		
-		ByteBufAllocator allocator = new SimpleByteBufAllocator(20, 1, false);
+		ServerConfiguration configuration = new ServerConfiguration();
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY(10);
+		
+		configuration.setSERVER_MEMORY_POOL_UNIT(1);
+		
+		ChannelContext context = new SocketChannelContextImpl(configuration);
+		
+		MCByteBufAllocator allocator = new MCByteBufAllocator(context);
 		
 		allocator.start();
 		
-		ByteBuf buf = allocator.allocate(2);
+		ByteBufAllocator allocator2 = allocator.getNextBufAllocator();
 		
-		buf.reallocate(4);
+		ByteBuf buf = allocator2.allocate(15);
 		
 		System.out.println(buf);
 	}

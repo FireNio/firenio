@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.buffer;
 
 import com.generallycloud.nio.AbstractLifeCycle;
@@ -26,38 +26,44 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 	private LinkAbleByteBufAllocator[]	allocators	= null;
 
 	private LinkAbleByteBufAllocator	allocator		= null;
-	
-	private int cycle;
+
+	private ChannelContext			context		= null;
+
+	private int					cycle		= 0;
 
 	public MCByteBufAllocator(ChannelContext context) {
-		createLinkAbleByteBufAllocator(context);
+		this.context = context;
 	}
 
 	public ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator) {
 
 		int cycle = this.cycle;
-		
+
 		for (int i = 0; i < cycle; i++) {
-			
+
 			LinkAbleByteBufAllocator temp = allocator.getNext().getValue();
-			
+
 			ByteBuf buf = temp.unwrap().allocate(capacity);
-			
+
 			if (buf == null) {
-				
+
 				allocator = temp;
-				
+
 				continue;
 			}
-			
+
 			return buf;
 		}
-		
+
 		return UnpooledByteBufAllocator.getInstance().allocate(capacity);
-		
+
 	}
 
-	private void createLinkAbleByteBufAllocator(ChannelContext context) {
+	private void createByteBufAllocator(ChannelContext context) {
+		
+		if (allocators != null) {
+			return;
+		}
 
 		ServerConfiguration c = context.getServerConfiguration();
 
@@ -73,18 +79,22 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		for (int i = 0; i < allocators.length; i++) {
 
-//			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
-			
-			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
+			//			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
 
-			allocators[i] = new LinkableByteBufAllocatorImpl(this,allocator, i);
+			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,
+					direct);
+
+			allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
 		}
-		
-		cycle = core -1;
+
+		cycle = core - 1;
 	}
 
 	@Override
 	protected void doStart() throws Exception {
+
+		createByteBufAllocator(context);
+
 		LinkAbleByteBufAllocator first = null;
 		LinkAbleByteBufAllocator last = null;
 
@@ -135,10 +145,10 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 		return value;
 	}
-	
-	public String toDebugString(){
+
+	public String toDebugString() {
 		StringBuilder builder = new StringBuilder();
-		for (ByteBufAllocator allocator :allocators) {
+		for (ByteBufAllocator allocator : allocators) {
 			builder.append("\n</BR>");
 			builder.append(allocator.toString());
 		}
