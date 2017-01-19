@@ -85,7 +85,7 @@
 				<version>2.9.1</version>
 				<executions>
 					<execution>
-						<phase>deploy</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>jar</goal>
 						</goals>
