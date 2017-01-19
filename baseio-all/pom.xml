@@ -46,7 +46,7 @@
 						<configuration>
 							<createSourcesJar>true</createSourcesJar>
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-							<createDependencyReducedPom>true</createDependencyReducedPom>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 								<includes>
 									<include>com.generallycloud:baseio-balance</include>

@@ -1,8 +1,8 @@
 
 call cmd /c build-package.bat
 
-cd ..\baseio-all
-call cmd /c build-assembly.bat
+rem cd ..\baseio-all
+rem call cmd /c build-assembly.bat
 
 cd ..\baseio
 call cmd /c .\move-resources.bat 
