@@ -10,12 +10,39 @@
 	<parent>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio</artifactId>
-		<version>3.1.8-Alpha1</version>
+		<version>3.1.8-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.12</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>../baseio-balance/src/main/java</source>
+								<source>../baseio-codec/src/main/java</source>
+								<source>../baseio-container/src/main/java</source>
+								<source>../baseio-core/src/main/java</source>
+								<source>../baseio-front/src/main/java</source>
+								<source>../baseio-http/src/main/java</source>
+								<source>../baseio-jms/src/main/java</source>
+								<source>../baseio-protobase/src/main/java</source>
+								<source>../baseio-rtp/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Javadoc -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -23,9 +50,9 @@
 				<version>2.9.1</version>
 				<executions>
 					<execution>
-						<phase>verify</phase>
+						<phase>deploy</phase>
 						<goals>
-							<goal>aggregate</goal>
+							<goal>jar</goal>
 						</goals>
 						<configuration>
 							<additionalparam>-Xdoclint:none</additionalparam><!-- 防止生成docs时报错 -->
@@ -35,34 +62,12 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<createSourcesJar>true</createSourcesJar>
-							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-							<createDependencyReducedPom>false</createDependencyReducedPom>
-							<artifactSet>
-								<includes>
-									<include>com.generallycloud:baseio-balance</include>
-									<include>com.generallycloud:baseio-codec</include>
-									<include>com.generallycloud:baseio-container</include>
-									<include>com.generallycloud:baseio-core</include>
-									<include>com.generallycloud:baseio-front</include>
-									<include>com.generallycloud:baseio-http</include>
-									<include>com.generallycloud:baseio-jms</include>
-									<include>com.generallycloud:baseio-protobase</include>
-									<include>com.generallycloud:baseio-rtp</include>
-								</includes>
-							</artifactSet>
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+				<configuration>
+					<deployAtEnd>true</deployAtEnd>
+					<retryFailedDeploymentCount>10</retryFailedDeploymentCount>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
