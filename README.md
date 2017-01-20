@@ -39,7 +39,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.1.8-SNAPSHOT</version>
+		<version>3.1.8-Alpha1</version>
 	</dependency>  
   ```
   
