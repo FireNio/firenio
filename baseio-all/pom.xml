@@ -14,93 +14,35 @@
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<generatedSourceDir>${project.build.directory}/src</generatedSourceDir>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<!-- Unpack all source files -->
-					<execution>
-						<id>unpack-sources</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<classifier>sources</classifier>
-							<includes>com/generallycloud/**</includes>
-							<includeScope>runtime</includeScope>
-							<includeGroupIds>${project.groupId}</includeGroupIds>
-							<outputDirectory>${generatedSourceDir}</outputDirectory>
-						</configuration>
-					</execution>
-
-					<!-- Unpack all class files -->
-					<execution>
-						<id>unpack-jars</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<includes>com/generallycloud/**</includes>
-							<includeScope>runtime</includeScope>
-							<includeGroupIds>${project.groupId}</includeGroupIds>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Include the directory where the source files were unpacked -->
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.12</version>
 				<executions>
 					<execution>
 						<id>add-source</id>
-						<phase>prepare-package</phase>
+						<phase>generate-sources</phase>
 						<goals>
 							<goal>add-source</goal>
 						</goals>
 						<configuration>
 							<sources>
-								<source>${generatedSourceDir}</source>
+								<source>../baseio-balance/src/main/java</source>
+								<source>../baseio-codec/src/main/java</source>
+								<source>../baseio-container/src/main/java</source>
+								<source>../baseio-core/src/main/java</source>
+								<source>../baseio-front/src/main/java</source>
+								<source>../baseio-http/src/main/java</source>
+								<source>../baseio-jms/src/main/java</source>
+								<source>../baseio-protobase/src/main/java</source>
+								<source>../baseio-rtp/src/main/java</source>
 							</sources>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- Override the default JAR configuration -->
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>default-jar</id>
-						<phase>none</phase>
-					</execution>
-					<execution>
-						<id>all-in-one-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<archive>
-								<manifest>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								</manifest>
-								<index>true</index>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>		
 		</plugins>
 	</build>
 
@@ -161,5 +103,4 @@
 		</dependency>
 
 	</dependencies>
-
 </project>

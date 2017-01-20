@@ -1,1 +1,0 @@
-mvn clean assembly:assembly -DskipTests
