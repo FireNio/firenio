@@ -132,4 +132,4 @@ BaseIO is released under the [Apache License 2.0](http://www.apache.org/licenses
 ## 了解更多，加入该项目QQ群，更多java相关技术均可在此讨论
  * QQ群号码：540637859
  * 点击链接加入：[![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
- * 扫码加入：<br />  ![image](/baseio-documents/popularize/java-io-group-code-small.png)
+ * 扫码加入：<br />  ![image](/baseio-documents/popularize/java-io-group-code-big.png)

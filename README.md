@@ -133,4 +133,4 @@ BaseIO is released under the [Apache License 2.0](http://www.apache.org/licenses
 ## For learn more, join this QQ group, more java technique can talk at there.
  * QQ group NO: 540637859
  * Join by click this link: [![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
- * Scan QR code:<br />  ![image](/baseio-documents/popularize/java-io-group-code-small.png)
+ * Scan QR code:<br />  ![image](/baseio-documents/popularize/java-io-group-code-big.png)
