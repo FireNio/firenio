@@ -2,6 +2,7 @@
 # BaseIO Project
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
+[![Maven central](https://img.shields.io/badge/maven%20central-3.1.8.Alpha1-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
 [![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
 
 BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -116,9 +117,9 @@ BaseIO is an io framework which can build network project fast, it based on java
 
   ```
 
-###	more sample {baseio-test}
+###	more samples {baseio-test}
 
-## sample at website:
+## Sample at website:
 * HTTP Demo:https://www.generallycloud.com/index.html
 * WebSocket Chat Demo:https://www.generallycloud.com/web-socket/chat/index.html                                
  (server based on baseio,client based on: https://github.com/socketio/socket.io/ )
