@@ -2,38 +2,39 @@
 # BaseIO Project
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
-[![License](https://img.shields.io/badge/contact-email-green.svg)](mailto:wangkaicloud@163.com)
+[![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
 
-BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
+BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
 
-## 项目特色
+## Features
 
-* 轻松实现断线重连(轻松实现心跳机制)
-* 简易应用容器：
- * 支持简易热部署，示例： https://www.generallycloud.com/system-redeploy
- * 支持部署WEB，微服务等（依据协议而定）
-* 轻松实现简易负载均衡(可定制)，已知策略:
- * 基于hash的虚拟节点策略
- * 轮询负载节点策略
-* 支持组件扩展，已知的扩展插件有：
- * 简易MQ，offer msg，poll msg
- * 简易实时UDP通讯，用作音/视频实时交互
- * 简易权限认证系统，用于限制单位时间内API调用次数
-* 支持协议扩展，已知的扩展协议有：
- * Redis协议，示例：详见 {baseio-test}
- * Protobuf协议，示例：详见 {baseio-test}
- * LineBased协议（基于换行符的消息分割），示例：详见 {baseio-test}
- * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
- * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
- * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
- * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
-* 压力测试
- * 超过32W QPS的处理速度(Socket,I7-4790,Win10)
- * 超过20W QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测结果](/baseio-documents/load-test/load-test-http.txt)
+* easy to support reconnect (easy to support heart beat)
+* simple application container
+ * simple hot deploy , eg: https://www.generallycloud.com/system-redeploy
+ * support deploy http , micro service (depend on your protocol)
+* easy to supprot load balance, known:
+ * 	virtual node based on hash
+ * loop balance node 
+* support component extend, known:
+ * simple mq service, offer msg, poll msg
+ * simple rtp service, for real time voice/video 
+ * simple invoke limit, for limit inovke times in unit time
+* support protocol extend, known:
+ * Redis protocol, for detail {baseio-test}
+ * Redis protocol, for detail {baseio-test}
+ * Protobuf protocol, for detail {baseio-test}
+ * LineBased protocol, for detail {baseio-test}
+ * FixedLength protocol, for detail {baseio-test}
+ * HTTP1.1 protocol, for detail: https://www.generallycloud.com/
+ * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
+ * protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
+* load test
+ * over 320K QPS (Socket,I7-4790,Win10)
+ * over 200K QPS (Http1.1,I7-4790,Win10)  [ab load test](/baseio-documents/load-test/load-test-http.txt)
  
-## 快速入门
+## Quick Start
 
- * Maven引用：
+ * Maven Dependency
 
   ```xml  
 	<dependency>
@@ -43,7 +44,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 	</dependency>  
   ```
   
-* 服务端：
+* A simple server:
 
   ```Java
 
@@ -74,7 +75,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
   ```
 
-* 客户端：
+* A simple client:
 
   ```Java
 
@@ -115,20 +116,20 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
 
   ```
 
-###	详见 {baseio-test}
+###	more sample {baseio-test}
 
-## 演示及用例
-* HTTP Demo：https://www.generallycloud.com/index.html
-* WebSocket聊天室 Demo：https://www.generallycloud.com/web-socket/chat/index.html                                
- （后端基于baseio，前端基于：https://github.com/socketio/socket.io/ ）
-* WebSocket小蝌蚪 Demo：https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
- （后端基于baseio，前端基于：https://github.com/danielmahal/Rumpetroll ）
+## sample at website:
+* HTTP Demo:https://www.generallycloud.com/index.html
+* WebSocket Chat Demo:https://www.generallycloud.com/web-socket/chat/index.html                                
+ (server based on baseio,client based on: https://github.com/socketio/socket.io/ )
+* WebSocket Rumpetroll Demo:https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
+ (server based on baseio,client based on:https://github.com/danielmahal/Rumpetroll )
 
 ## License
 
 BaseIO is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-## 了解更多，加入该项目QQ群，更多java相关技术均可在此讨论
- * QQ群号码：540637859
- * 点击链接加入：[![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
- * 扫码加入：<br />  ![image](/baseio-documents/popularize/java-io-group-code.png)
+## For learn more, join this QQ group, more java technique can talk at there.
+ * QQ group NO: 540637859
+ * Join by click this link: [![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
+ * Scan QR code:<br />  ![image](/baseio-documents/popularize/java-io-group-code.png)
