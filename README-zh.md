@@ -27,7 +27,7 @@ BaseIO是基于Java NIO开发的一款可快速构建网络通讯项目的异步
  * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
  * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
- * 私有协议（自己定义的协议报文头/协议报文体），支持传输文本和二进制数据及混合数据
+ * Protobase（自定义协议），支持传输文本和二进制数据及混合数据
 * 压力测试
  * 超过320K QPS的处理速度(Socket,I7-4790,Win10)
  * 超过200K QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测](/baseio-documents/load-test/load-test-http.txt)

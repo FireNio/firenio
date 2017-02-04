@@ -22,13 +22,12 @@ BaseIO is an io framework which can build network project fast, it based on java
  * simple invoke limit, for limit inovke times in unit time
 * support protocol extend, known:
  * Redis protocol, for detail {baseio-test}
- * Redis protocol, for detail {baseio-test}
  * Protobuf protocol, for detail {baseio-test}
  * LineBased protocol, for detail {baseio-test}
  * FixedLength protocol, for detail {baseio-test}
  * HTTP1.1 protocol, for detail: https://www.generallycloud.com/
  * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
- * protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
+ * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
 * load test
  * over 320K QPS (Socket,I7-4790,Win10)
  * over 200K QPS (Http1.1,I7-4790,Win10)  [ab load test](/baseio-documents/load-test/load-test-http.txt)
