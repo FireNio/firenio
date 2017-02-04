@@ -17,11 +17,13 @@ package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class Test404 {
@@ -43,6 +45,10 @@ public class Test404 {
 		ProtobaseReadFuture future = session.request(serviceKey, null);
 
 		System.out.println(future.getReadText());
+		
+		ReadFuture future1 = new ProtobaseReadFutureImpl(connector.getContext()).setPING();
+				
+		session.getSession().flush(future1);
 
 		CloseUtil.close(connector);
 	}

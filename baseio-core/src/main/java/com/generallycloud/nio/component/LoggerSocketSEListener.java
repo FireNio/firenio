@@ -31,9 +31,5 @@ public class LoggerSocketSEListener implements SocketSessionEventListener{
 	public void sessionClosed(SocketSession session) {
 		logger.info("session closed:{}",session);
 	}
-
-	@Override
-	public void sessionIdled(SocketSession session,long lastIdleTime, long currentTime) {
-//		logger.debug("session Idled:{}",session);
-	}
+	
 }

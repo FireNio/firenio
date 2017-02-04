@@ -185,7 +185,6 @@ public class DynamicClassLoader extends ClassLoader {
 	public boolean matchSystem(String name) {
 
 		return name.startsWith("java") || name.startsWith("sun") || name.startsWith("com/sun") || matchExtend(name);
-
 	}
 
 	public boolean matchExtend(String name) {

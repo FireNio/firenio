@@ -18,10 +18,10 @@ package com.generallycloud.nio.container;
 import java.util.HashSet;
 
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class IPFilter extends SocketSEListenerAdapter{
+public class IPFilter extends SocketSessionEventListenerAdapter{
 
 	private HashSet<String> blackIPs;
 	

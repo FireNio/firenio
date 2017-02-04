@@ -15,16 +15,23 @@
  */ 
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.AbstractLinkable;
 
-public class SocketSessionAliveSEListener implements SocketSessionIdleEventListener{
+public class SocketSessionEventListenerWrapper extends AbstractLinkable<SocketSessionEventListener> implements SocketSessionEventListener {
+
+	public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
+		super(value);
+	}
 
 	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
-		
-		if (session.getLastAccessTime() < lastIdleTime) {
-			
-			CloseUtil.close(session);
-		}
+	public void sessionOpened(SocketSession session) throws Exception {
+		getValue().sessionOpened(session);
 	}
+
+	@Override
+	public void sessionClosed(SocketSession session) {
+		getValue().sessionClosed(session);
+
+	}
+
 }

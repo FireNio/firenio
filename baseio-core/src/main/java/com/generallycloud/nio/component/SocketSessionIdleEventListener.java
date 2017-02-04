@@ -15,20 +15,10 @@
  */
 package com.generallycloud.nio.component;
 
-public class SocketSEListenerAdapter implements SocketSessionEventListener {
+import java.util.EventListener;
 
-	@Override
-	public void sessionOpened(SocketSession session) throws Exception {
+public interface SocketSessionIdleEventListener extends EventListener {
 
-	}
+	public abstract void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception;
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-
-	}
-
-	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception {
-
-	}
 }

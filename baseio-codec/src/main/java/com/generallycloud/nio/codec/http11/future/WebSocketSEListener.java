@@ -18,10 +18,10 @@ package com.generallycloud.nio.codec.http11.future;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class WebSocketSEListener extends SocketSEListenerAdapter{
+public class WebSocketSEListener extends SocketSessionEventListenerAdapter{
 	
 	private Logger logger = LoggerFactory.getLogger(WebSocketSEListener.class);
 

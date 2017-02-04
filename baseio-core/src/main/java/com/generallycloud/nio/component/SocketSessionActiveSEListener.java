@@ -20,7 +20,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class SocketSessionActiveSEListener extends SocketSEListenerAdapter {
+public class SocketSessionActiveSEListener implements SocketSessionIdleEventListener {
 
 	private Logger		logger	= LoggerFactory.getLogger(SocketSessionActiveSEListener.class);
 

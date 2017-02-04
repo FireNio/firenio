@@ -17,6 +17,7 @@ package com.generallycloud.nio.container.protobase.startup;
 
 import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.nio.codec.protobase.future.ProtobaseBeatFutureFactory;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -69,6 +70,8 @@ public class ProtobaseServerStartup {
 			context.addSessionEventListener(new LoggerSocketSEListener());
 
 			context.setProtocolFactory(new ProtobaseProtocolFactory());
+			
+			context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
 			
 			acceptor.bind();
 

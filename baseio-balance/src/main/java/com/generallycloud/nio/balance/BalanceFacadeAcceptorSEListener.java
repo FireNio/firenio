@@ -18,11 +18,11 @@ package com.generallycloud.nio.balance;
 import com.generallycloud.nio.balance.router.BalanceRouter;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class BalanceFacadeAcceptorSEListener extends SocketSEListenerAdapter {
+public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
 	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorSEListener.class);
 

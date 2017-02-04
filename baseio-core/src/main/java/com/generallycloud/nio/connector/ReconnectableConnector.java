@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
 public class ReconnectableConnector implements Closeable {
@@ -85,9 +85,9 @@ public class ReconnectableConnector implements Closeable {
 		}
 	}
 
-	private SocketSEListenerAdapter getReconnectSEListener() {
+	private SocketSessionEventListenerAdapter getReconnectSEListener() {
 
-		return new SocketSEListenerAdapter() {
+		return new SocketSessionEventListenerAdapter() {
 
 			@Override
 			public void sessionClosed(SocketSession session) {

@@ -86,7 +86,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 	protected void sessionIdle(SocketChannelContext context, SocketSession session, long lastIdleTime,
 			long currentTime) {
 
-		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
+		Linkable<SocketSessionIdleEventListener> linkable = context.getSessionIdleEventListenerLink();
 
 		for (; linkable != null;) {
 

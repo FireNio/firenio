@@ -23,6 +23,4 @@ public interface SocketSessionEventListener extends EventListener {
 
 	public abstract void sessionClosed(SocketSession session) ;
 
-	public abstract void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception;
-
 }

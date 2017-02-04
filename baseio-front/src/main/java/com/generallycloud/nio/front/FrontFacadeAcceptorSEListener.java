@@ -17,11 +17,11 @@ package com.generallycloud.nio.front;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ReadFuture;
 
-public class FrontFacadeAcceptorSEListener extends SocketSEListenerAdapter {
+public class FrontFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
 	private Logger			logger	= LoggerFactory.getLogger(FrontFacadeAcceptorSEListener.class);
 

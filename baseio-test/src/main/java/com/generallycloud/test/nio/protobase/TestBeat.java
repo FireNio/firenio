@@ -15,46 +15,43 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
+import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseBeatFutureFactory;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSessionActiveSEListener;
-import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.configuration.ServerConfigurationLoader;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
 import com.generallycloud.nio.container.SimpleIOEventHandle;
 import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBeat {
 	
 	
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-
 		String serviceKey = "TestSimpleServlet";
 		
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
-		
-		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
-		
-		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
+		ServerConfiguration configuration = new ServerConfiguration(18300);
 
 		configuration.setSERVER_SESSION_IDLE_TIME(100);
 		
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle,configuration);
+		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 		
-		connector.getContext().addSessionEventListener(new SocketSessionActiveSEListener());
+		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
-		connector.getContext().setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+		context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
+		
+		context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+		
+		context.setIoEventHandleAdaptor(new SimpleIOEventHandle());
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
 		
 		FixedSession session = new FixedSession(connector.connect());
-		
-		session.login("admin", "admin100");
 		
 		String param = "tttt";
 		

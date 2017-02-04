@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.nio.container.authority;
 
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContextUtil;
 
-public class AuthoritySEListener extends SocketSEListenerAdapter {
+public class AuthoritySEListener extends SocketSessionEventListenerAdapter {
 	
 	@Override
 	public void sessionOpened(SocketSession session) {

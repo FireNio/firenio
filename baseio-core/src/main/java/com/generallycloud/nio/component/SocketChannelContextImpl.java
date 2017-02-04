@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.math.BigDecimal;
@@ -34,23 +34,24 @@ import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
-public class SocketChannelContextImpl extends AbstractChannelContext implements SocketChannelContext {
+public class SocketChannelContextImpl extends AbstractChannelContext
+		implements SocketChannelContext {
 
-	private IoEventHandleAdaptor				ioEventHandleAdaptor;
-	private ProtocolFactory					protocolFactory;
-	private BeatFutureFactory				beatFutureFactory;
-	private int							sessionAttachmentSize;
-	private ExecutorEventLoopGroup			executorEventLoopGroup;
-	private ProtocolEncoder					protocolEncoder;
-	private SslContext						sslContext;
-	private boolean						enableSSL;
-	private ChannelByteBufReader				channelByteBufReader;
-	private ForeReadFutureAcceptor			foreReadFutureAcceptor;
-	private SocketSessionManager				sessionManager;
-	private Linkable<SocketSessionEventListener>	lastSessionEventListener;
-	private Linkable<SocketSessionEventListener>	sessionEventListenerLink;
-	private SocketSessionFactory				sessionFactory;
-	private Logger							logger	= LoggerFactory.getLogger(SocketChannelContextImpl.class);
+	private IoEventHandleAdaptor						ioEventHandleAdaptor;
+	private ProtocolFactory							protocolFactory;
+	private BeatFutureFactory						beatFutureFactory;
+	private int									sessionAttachmentSize;
+	private ExecutorEventLoopGroup					executorEventLoopGroup;
+	private ProtocolEncoder							protocolEncoder;
+	private SslContext								sslContext;
+	private boolean								enableSSL;
+	private ChannelByteBufReader						channelByteBufReader;
+	private ForeReadFutureAcceptor					foreReadFutureAcceptor;
+	private SocketSessionManager						sessionManager;
+	private SocketSessionFactory						sessionFactory;
+	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
+	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
+	private Logger									logger					= LoggerFactory.getLogger(SocketChannelContextImpl.class);
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -59,13 +60,13 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 	@Override
 	public void addSessionEventListener(SocketSessionEventListener listener) {
-		if (this.sessionEventListenerLink == null) {
-			this.sessionEventListenerLink = new SocketSEListenerWrapper(listener);
-			this.lastSessionEventListener = this.sessionEventListenerLink;
-		} else {
-			this.lastSessionEventListener.setNext(new SocketSEListenerWrapper(listener));
-			this.lastSessionEventListener = this.lastSessionEventListener.getNext();
-		}
+		sessionEventListenerGroup.addLink(new SocketSessionEventListenerWrapper(listener));
+	}
+
+	@Override
+	public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
+		sessionIdleEventListenerGroup
+				.addLink(new SocketSessionIdleEventListenerWrapper(listener));
 	}
 
 	@Override
@@ -75,7 +76,12 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 
 	@Override
 	public Linkable<SocketSessionEventListener> getSessionEventListenerLink() {
-		return sessionEventListenerLink;
+		return sessionEventListenerGroup.getRootLink();
+	}
+
+	@Override
+	public Linkable<SocketSessionIdleEventListener> getSessionIdleEventListenerLink() {
+		return sessionIdleEventListenerGroup.getRootLink();
 	}
 
 	@Override
@@ -108,6 +114,13 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	}
 	
 	@Override
+	protected void clearContext() {
+		sessionEventListenerGroup.clear();
+		sessionIdleEventListenerGroup.clear();
+		super.clearContext();
+	}
+
+	@Override
 	protected void doStart() throws Exception {
 
 		if (ioEventHandleAdaptor == null) {
@@ -117,24 +130,25 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		if (protocolFactory == null) {
 			throw new IllegalArgumentException("null protocolFactory");
 		}
-		
-		this.clearContext();
 
 		this.serverConfiguration.initializeDefault(this);
-		
+
 		EmptyReadFuture.initializeReadFuture(this);
-		
+
 		if (isEnableSSL()) {
 			this.sslContext.initialize(this);
 		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
 
-		long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY() * SERVER_CORE_SIZE;
+		long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
+				* SERVER_CORE_SIZE;
 		long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 
-		double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
-				.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		double MEMORY_POOL_SIZE = new BigDecimal(
+				SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
+						.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
+						.doubleValue();
 
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
@@ -146,37 +160,41 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		if (mcByteBufAllocator == null) {
 
 			this.mcByteBufAllocator = new MCByteBufAllocator(this);
-			
+
 			this.addSessionEventListener(new SocketSessionManagerSEListener());
 		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "协议名称           ：{ {} }", protocolFactory.getProtocolID());
+		LoggerUtil.prettyNIOServerLog(logger, "协议名称           ：{ {} }",
+				protocolFactory.getProtocolID());
 		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "启用SSL加密        ：{ {} }", isEnableSSL());
 		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
 				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }",
-				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }",
+				serverConfiguration.getSERVER_PORT());
+		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", new Object[] {
+				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
-		
+
 		if (executorEventLoopGroup == null) {
-			
+
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-			
+
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-			
+
 			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-				this.executorEventLoopGroup = new ThreadEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new ThreadEventLoopGroup("event-process",
+						eventQueueSize, eventLoopSize);
 			} else {
-				this.executorEventLoopGroup = new LineEventLoopGroup("event-process", eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new LineEventLoopGroup("event-process",
+						eventQueueSize, eventLoopSize);
 			}
 		}
-		
+
 		if (foreReadFutureAcceptor == null) {
 			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
 		}
@@ -184,12 +202,14 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		if (channelByteBufReader == null) {
 
 			this.channelByteBufReader = new IoLimitChannelByteBufReader();
-			
+
 			if (enableSSL) {
-				getLastChannelByteBufReader(channelByteBufReader).setNext(new SslChannelByteBufReader());
+				getLastChannelByteBufReader(channelByteBufReader)
+						.setNext(new SslChannelByteBufReader());
 			}
-			
-			getLastChannelByteBufReader(channelByteBufReader).setNext(new TransparentByteBufReader(this));
+
+			getLastChannelByteBufReader(channelByteBufReader)
+					.setNext(new TransparentByteBufReader(this));
 		}
 
 		if (sessionManager == null) {
@@ -227,6 +247,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
 		LifeCycleUtil.stop(mcByteBufAllocator);
+		
+		clearContext();
 	}
 
 	@Override
@@ -253,7 +275,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext implements 
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		this.protocolFactory = protocolFactory;
 	}
-	
+
 	@Override
 	public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
 		this.executorEventLoopGroup = executorEventLoopGroup;

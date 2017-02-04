@@ -33,7 +33,7 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	protected ChannelService					channelService;
 	protected Map<Object, Object>				attributes	= new HashMap<Object, Object>();
 	protected long							startupTime	;
-	protected Sequence							sequence		;
+	protected Sequence							sequence		= new Sequence();
 
 	@Override
 	public MCByteBufAllocator getMcByteBufAllocator() {

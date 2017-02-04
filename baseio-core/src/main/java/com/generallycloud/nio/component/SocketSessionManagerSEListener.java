@@ -17,7 +17,7 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.OverflowException;
 
-public class SocketSessionManagerSEListener extends SocketSEListenerAdapter{
+public class SocketSessionManagerSEListener extends SocketSessionEventListenerAdapter{
 	
 	@Override
 	public void sessionOpened(SocketSession session) throws OverflowException {

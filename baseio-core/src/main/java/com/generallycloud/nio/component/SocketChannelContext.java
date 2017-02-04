@@ -65,7 +65,11 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract Linkable<SocketSessionEventListener> getSessionEventListenerLink();
 	
+	public abstract Linkable<SocketSessionIdleEventListener> getSessionIdleEventListenerLink();
+	
 	public abstract void addSessionEventListener(SocketSessionEventListener listener);
+	
+	public abstract void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
 	
 	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
 

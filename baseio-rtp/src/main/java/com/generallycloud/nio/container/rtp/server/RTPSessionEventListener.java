@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.nio.container.rtp.server;
 
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.rtp.RTPContext;
 
-public class RTPSessionEventListener extends SocketSEListenerAdapter {
+public class RTPSessionEventListener extends SocketSessionEventListenerAdapter {
 	
 	@Override
 	public void sessionOpened(SocketSession session) {

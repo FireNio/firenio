@@ -74,7 +74,7 @@ public class HttpServerStartup {
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
 			
-			context.addSessionEventListener(new SocketSessionAliveSEListener());
+			context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
 			
 			context.setProtocolFactory(new ServerHTTPProtocolFactory());
 			

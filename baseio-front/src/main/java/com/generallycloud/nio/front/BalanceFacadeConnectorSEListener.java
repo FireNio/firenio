@@ -17,10 +17,10 @@ package com.generallycloud.nio.front;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.component.SocketSEListenerAdapter;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
 
-public class BalanceFacadeConnectorSEListener extends SocketSEListenerAdapter {
+public class BalanceFacadeConnectorSEListener extends SocketSessionEventListenerAdapter {
 
 	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeConnectorSEListener.class);
 

@@ -12,30 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.AbstractLinkable;
 
-public class SocketSEListenerWrapper extends AbstractLinkable<SocketSessionEventListener> implements SocketSessionEventListener {
+public class SocketSessionIdleEventListenerWrapper
+		extends AbstractLinkable<SocketSessionIdleEventListener>
+		implements SocketSessionIdleEventListener {
 
-	public SocketSEListenerWrapper(SocketSessionEventListener value) {
+	public SocketSessionIdleEventListenerWrapper(SocketSessionIdleEventListener value) {
 		super(value);
 	}
 
 	@Override
-	public void sessionOpened(SocketSession session) throws Exception {
-		getValue().sessionOpened(session);
-	}
-
-	@Override
-	public void sessionClosed(SocketSession session) {
-		getValue().sessionClosed(session);
-
-	}
-
-	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) throws Exception {
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime)
+			throws Exception {
 		getValue().sessionIdled(session, lastIdleTime, currentTime);
 	}
 
