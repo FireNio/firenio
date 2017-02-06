@@ -18,7 +18,7 @@ package com.generallycloud.nio.component;
 import java.math.BigDecimal;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
@@ -77,9 +77,9 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 			this.sessionManager = new DatagramSessionManagerImpl(this);
 		}
 		
-		if (mcByteBufAllocator == null) {
+		if (getByteBufAllocatorManager() == null) {
 
-			this.mcByteBufAllocator = new MCByteBufAllocator(this);
+			this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
 			
 			this.addSessionEventListener(new DatagramSessionManagerSEListener());
 		}
@@ -94,7 +94,7 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }",
 				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
-		LifeCycleUtil.start(mcByteBufAllocator);
+		LifeCycleUtil.start(byteBufAllocatorManager);
 	}
 	
 	@Override
@@ -117,7 +117,7 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 
 		CloseUtil.close(sessionManager);
 
-		LifeCycleUtil.stop(mcByteBufAllocator);
+		LifeCycleUtil.stop(byteBufAllocatorManager);
 	}
 
 	@Override

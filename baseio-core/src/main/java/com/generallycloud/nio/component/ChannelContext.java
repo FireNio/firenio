@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.nio.Attributes;
 import com.generallycloud.nio.LifeCycle;
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public interface ChannelContext extends Attributes, LifeCycle {
@@ -32,6 +32,10 @@ public interface ChannelContext extends Attributes, LifeCycle {
 
 	public abstract ChannelService getChannelService();
 
+	public abstract ByteBufAllocatorManager getByteBufAllocatorManager();
+	
+	public abstract void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
+
 	public abstract void setChannelService(ChannelService service);
 
 	public abstract Sequence getSequence();
@@ -39,7 +43,5 @@ public interface ChannelContext extends Attributes, LifeCycle {
 	public abstract long getSessionIdleTime();
 
 	public abstract long getStartupTime();
-
-	public abstract MCByteBufAllocator getMcByteBufAllocator();
 	
 }

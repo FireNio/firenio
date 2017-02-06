@@ -104,7 +104,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		this.sessionManager = context.getSessionManager();
 
 		this.eventQueueSize = eventQueueSize;
-
+		
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
 
 		// FIXME 使用direct

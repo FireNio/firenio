@@ -26,9 +26,10 @@ import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
 
 	private static final Logger	logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
-	protected ByteBufAllocator	byteBufAllocator	= null;
 
 	private int				coreIndex;
+	
+	private ByteBufAllocator		byteBufAllocator	= null;
 
 	private boolean			mainEventLoop			= true;
 
@@ -38,9 +39,10 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	}
 
 	protected AbstractSelectorLoop(ChannelContext context,int coreIndex) {
-		this.byteBufAllocator = context.getMcByteBufAllocator().getNextBufAllocator();
 		this.setCoreIndex(coreIndex);
+		this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
 	}
+	
 
 	@Override
 	public ByteBufAllocator getByteBufAllocator() {

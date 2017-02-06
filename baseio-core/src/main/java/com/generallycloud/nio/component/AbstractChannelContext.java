@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.nio.charset.Charset;
@@ -21,28 +21,30 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.buffer.ByteBufAllocatorManager;
+import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
+import com.generallycloud.nio.buffer.UnpooledByteBufAllocatorManager;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelContext extends AbstractLifeCycle implements ChannelContext {
 
-	protected Charset							encoding;
-	protected ServerConfiguration				serverConfiguration;
-	protected long							sessionIdleTime;
-	protected MCByteBufAllocator					mcByteBufAllocator;
-	protected ChannelService					channelService;
-	protected Map<Object, Object>				attributes	= new HashMap<Object, Object>();
-	protected long							startupTime	= System.currentTimeMillis();
-	protected Sequence							sequence		= new Sequence();
+	protected Charset					encoding;
+	protected ServerConfiguration		serverConfiguration;
+	protected long					sessionIdleTime;
+	protected ChannelService			channelService;
+	protected ByteBufAllocatorManager		byteBufAllocatorManager;
+	protected Map<Object, Object>		attributes	= new HashMap<Object, Object>();
+	protected long					startupTime	= System.currentTimeMillis();
+	protected Sequence					sequence		= new Sequence();
 
-	@Override
-	public MCByteBufAllocator getMcByteBufAllocator() {
-		return mcByteBufAllocator;
-	}
-	
-	protected void clearContext(){
+	protected void clearContext() {
 		this.clearAttributes();
 		this.sequence = new Sequence();
+	}
+	
+	@Override
+	public ByteBufAllocatorManager getByteBufAllocatorManager() {
+		return byteBufAllocatorManager;
 	}
 
 	public AbstractChannelContext(ServerConfiguration configuration) {
@@ -54,6 +56,18 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 		this.serverConfiguration = configuration;
 
 		this.addLifeCycleListener(new ChannelContextListener());
+	}
+	
+	protected void initializeByteBufAllocator(){
+		
+		if (getByteBufAllocatorManager() == null) {
+			
+			if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+				this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
+			}else{
+				this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);
+			}
+		}
 	}
 
 	@Override
@@ -114,6 +128,11 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	@Override
 	public void setChannelService(ChannelService channelService) {
 		this.channelService = channelService;
+	}
+	
+	@Override
+	public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
+		this.byteBufAllocatorManager = byteBufAllocatorManager;
 	}
 
 }

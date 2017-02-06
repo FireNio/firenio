@@ -18,7 +18,8 @@ package com.generallycloud.nio.sample.http11;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.buffer.ByteBufAllocatorManager;
+import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.nio.codec.http11.HttpContext;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -39,9 +40,13 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 		
-		MCByteBufAllocator allocator = context.getMcByteBufAllocator();
+		ByteBufAllocatorManager allocator = context.getByteBufAllocatorManager();
 
-		String allocatorDes = allocator.toDebugString();
+		String allocatorDes = "unpooled";
+		
+		if (allocator instanceof PooledByteBufAllocatorManager) {
+			allocatorDes = ((PooledByteBufAllocatorManager) allocator).toDebugString();
+		}
 		
 		ServerConfiguration configuration = context.getServerConfiguration();
 		

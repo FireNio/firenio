@@ -16,7 +16,7 @@
 package com.generallycloud.nio.buffer;
 
 
-public class SimpleByteBufAllocator extends AbstractByteBufAllocator {
+public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
 
 	public SimpleByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(capacity, unitMemorySize, isDirect);

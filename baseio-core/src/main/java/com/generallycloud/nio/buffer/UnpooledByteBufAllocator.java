@@ -17,31 +17,25 @@ package com.generallycloud.nio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.nio.AbstractLifeCycle;
+public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
-public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
+	public UnpooledByteBufAllocator(boolean isDirect) {
+		super(isDirect);
+	}
 
-	private boolean isDirect;
+	private static UnpooledByteBufAllocator allocator;
 	
-	private static UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator();
+	private UnpooledByteBufFactory unpooledByteBufferFactory;
+	
+	private UnpooledByteBufFactory unpooledDirectByteBufFactory;
 
 	public static UnpooledByteBufAllocator getInstance() {
 		return allocator;
 	}
 
 	@Override
-	protected void doStart() throws Exception {
-
-	}
-
-	@Override
-	protected void doStop() throws Exception {
-
-	}
-
-	@Override
 	public ByteBuf allocate(int capacity) {
-		return new UnpooledHeapByteBuf(new byte[capacity]);
+		return unpooledByteBufferFactory.allocate(capacity);
 	}
 
 	public ByteBuf wrap(ByteBuffer buffer) {
@@ -49,6 +43,17 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 			return new UnpooledDirectByteBuf(buffer);
 		}
 		return wrap(buffer.array(), buffer.position(), buffer.remaining());
+	}
+	
+	@Override
+	protected void doStart() throws Exception {
+		unpooledDirectByteBufFactory = new UnpooledDirectByteBufferFactory();
+		if (isDirect) {
+			unpooledByteBufferFactory = unpooledDirectByteBufFactory;
+			return;
+		}
+		unpooledByteBufferFactory = new UnpooledHeapByteBufferFactory();
+		allocator = this;
 	}
 
 	public ByteBuf wrap(byte[] data) {
@@ -64,7 +69,7 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 	}
 
 	public ByteBuf allocateDirect(int capacity) {
-		return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
+		return unpooledDirectByteBufFactory.allocate(capacity);
 	}
 
 	@Override
@@ -88,42 +93,26 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 	}
 
 	@Override
-	public boolean isDirect() {
-		return isDirect;
-	}
-
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit) {
-		return reallocate(buf, limit, false);
-	}
-
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
-		if (limit > maxLimit) {
-			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
-		}
-		return reallocate(buf, limit);
-	}
-
-	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
 		throw new UnsupportedOperationException();
 	}
-
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
-		if (limit > maxLimit) {
-			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
-		}
-		return reallocate(buf,limit,copyOld);
+	
+	interface UnpooledByteBufFactory{
+		abstract ByteBuf allocate(int capacity);
 	}
 	
-	@Override
-	public ByteBuf allocate(int limit, int maxLimit) {
-		if (limit > maxLimit) {
-			throw new BufferException("limit:"+limit+",maxLimit:"+maxLimit);
+	class UnpooledHeapByteBufferFactory implements UnpooledByteBufFactory{
+		@Override
+		public ByteBuf allocate(int capacity) {
+			return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
 		}
-		return allocate(limit);
+	}
+	
+	class UnpooledDirectByteBufferFactory implements UnpooledByteBufFactory{
+		@Override
+		public ByteBuf allocate(int capacity) {
+			return new UnpooledHeapByteBuf(new byte[capacity]);
+		}
 	}
 
 }

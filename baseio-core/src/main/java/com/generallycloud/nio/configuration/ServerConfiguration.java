@@ -33,6 +33,7 @@ public class ServerConfiguration {
 	private boolean	SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	private boolean	SERVER_ENABLE_SSL;
 	private boolean	SERVER_ENABLE_WORK_EVENT_LOOP;
+	private boolean	SERVER_ENABLE_MEMORY_POOL;
 	private int		SERVER_MEMORY_POOL_CAPACITY;
 	private int		SERVER_CHANNEL_READ_BUFFER		= 1024 * 100;
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
@@ -196,6 +197,14 @@ public class ServerConfiguration {
 
 	public void setSERVER_ENABLE_WORK_EVENT_LOOP(boolean SERVER_ENABLE_WORK_EVENT_LOOP) {
 		this.SERVER_ENABLE_WORK_EVENT_LOOP = SERVER_ENABLE_WORK_EVENT_LOOP;
+	}
+
+	public boolean isSERVER_ENABLE_MEMORY_POOL() {
+		return SERVER_ENABLE_MEMORY_POOL;
+	}
+
+	public void setSERVER_ENABLE_MEMORY_POOL(boolean SERVER_ENABLE_MEMORY_POOL) {
+		this.SERVER_ENABLE_MEMORY_POOL = SERVER_ENABLE_MEMORY_POOL;
 	}
 
 }

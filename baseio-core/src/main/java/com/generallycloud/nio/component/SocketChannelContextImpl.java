@@ -18,7 +18,6 @@ package com.generallycloud.nio.component;
 import java.math.BigDecimal;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
@@ -51,7 +50,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 	private SocketSessionFactory						sessionFactory;
 	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
 	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
-	private Logger									logger					= LoggerFactory.getLogger(SocketChannelContextImpl.class);
+	private Logger									logger					= LoggerFactory
+			.getLogger(SocketChannelContextImpl.class);
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -112,7 +112,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 	public SocketChannelContextImpl(ServerConfiguration configuration) {
 		super(configuration);
 	}
-	
+
 	@Override
 	protected void clearContext() {
 		sessionEventListenerGroup.clear();
@@ -157,12 +157,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 			this.protocolEncoder = protocolFactory.getProtocolEncoder();
 		}
 
-		if (mcByteBufAllocator == null) {
-
-			this.mcByteBufAllocator = new MCByteBufAllocator(this);
-
-			this.addSessionEventListener(new SocketSessionManagerSEListener());
-		}
+		this.initializeByteBufAllocator();
 
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= 服务开始启动 =======================================");
@@ -197,6 +192,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 
 		if (foreReadFutureAcceptor == null) {
 			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
+			this.addSessionEventListener(new SocketSessionManagerSEListener());
 		}
 
 		if (channelByteBufReader == null) {
@@ -220,7 +216,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 			sessionFactory = new SocketSessionFactoryImpl();
 		}
 
-		LifeCycleUtil.start(mcByteBufAllocator);
+		LifeCycleUtil.start(byteBufAllocatorManager);
 
 		LifeCycleUtil.start(executorEventLoopGroup);
 	}
@@ -246,8 +242,8 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 
 		LifeCycleUtil.stop(ioEventHandleAdaptor);
 
-		LifeCycleUtil.stop(mcByteBufAllocator);
-		
+		LifeCycleUtil.stop(byteBufAllocatorManager);
+
 		clearContext();
 	}
 

@@ -27,7 +27,7 @@ public interface SelectorEventLoop extends EventLoop {
 	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
 	
 	public abstract ChannelContext getChannelContext();
-	
+
 	public abstract ByteBufAllocator getByteBufAllocator();
 
 	public interface SelectorLoopEvent extends Closeable {

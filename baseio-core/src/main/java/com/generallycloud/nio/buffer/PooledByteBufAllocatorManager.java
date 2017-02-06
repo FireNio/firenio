@@ -21,7 +21,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.ChannelContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public class MCByteBufAllocator extends AbstractLifeCycle {
+public class PooledByteBufAllocatorManager extends AbstractLifeCycle implements ByteBufAllocatorManager {
 
 	private LinkAbleByteBufAllocator[]	allocators	= null;
 
@@ -29,34 +29,8 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 	private ChannelContext			context		= null;
 
-	private int					cycle		= 0;
-
-	public MCByteBufAllocator(ChannelContext context) {
+	public PooledByteBufAllocatorManager(ChannelContext context) {
 		this.context = context;
-	}
-
-	@Deprecated
-	public ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator) {
-
-		int cycle = this.cycle;
-
-		for (int i = 0; i < cycle; i++) {
-
-			LinkAbleByteBufAllocator temp = allocator.getNext().getValue();
-
-			ByteBuf buf = temp.unwrap().allocate(capacity);
-
-			if (buf == null) {
-
-				allocator = temp;
-
-				continue;
-			}
-
-			return buf;
-		}
-
-		return UnpooledByteBufAllocator.getInstance().allocate(capacity);
 	}
 
 	private void createByteBufAllocator(ChannelContext context) {
@@ -87,8 +61,6 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 			allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
 		}
-
-		cycle = core - 1;
 	}
 
 	@Override
