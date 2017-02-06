@@ -16,15 +16,14 @@
 package com.generallycloud.test.nio.load.fixedlength;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -36,7 +35,7 @@ import com.generallycloud.test.test.ITestThreadHandle;
 public class TestLoadClient1 extends ITestThread {
 
 	private SocketChannelConnector	connector			= null;
-
+	
 	@Override
 	public void run() {
 
@@ -62,15 +61,8 @@ public class TestLoadClient1 extends ITestThread {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				CountDownLatch latch = getLatch();
-
-				latch.countDown();
-
-				long c = latch.getCount();
 				
-				if (c % 40000 == 0) {
-					System.out.println("__________________________"+c);
-				}
+				addCount();
 			}
 		};
 
@@ -80,8 +72,8 @@ public class TestLoadClient1 extends ITestThread {
 
 		ServerConfiguration c = context.getServerConfiguration();
 
-		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		c.setSERVER_MEMORY_POOL_UNIT(256);
+		c.setSERVER_MEMORY_POOL_CAPACITY(5120000);
+		c.setSERVER_MEMORY_POOL_UNIT(128);
 		
 //		c.setSERVER_HOST("192.168.0.180");
 

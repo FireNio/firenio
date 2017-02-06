@@ -66,7 +66,7 @@ public class TestHttpLoadServer {
 		
 		ServerConfiguration c = new ServerConfiguration(80);
 		
-		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+		c.setSERVER_MEMORY_POOL_CAPACITY(5120000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
 		c.setSERVER_CORE_SIZE(2);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);

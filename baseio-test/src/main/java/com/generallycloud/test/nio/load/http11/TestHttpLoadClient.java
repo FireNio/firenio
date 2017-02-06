@@ -16,7 +16,6 @@
 package com.generallycloud.test.nio.load.http11;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
@@ -58,12 +57,7 @@ public class TestHttpLoadClient extends ITestThread {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				
-				CountDownLatch latch = getLatch();
-
-				latch.countDown();
-
-//				System.out.println("__________________________"+getLatch().getCount());
+				addCount();
 			}
 		};
 		

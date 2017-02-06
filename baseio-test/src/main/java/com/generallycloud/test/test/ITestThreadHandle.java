@@ -16,7 +16,6 @@
 package com.generallycloud.test.test;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CountDownLatch;
 
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -31,16 +30,13 @@ public class ITestThreadHandle{
 		
 		int allTime = time * threads;
 		
-		CountDownLatch latch = new CountDownLatch(allTime);
-		
 		ITestThread  []ts = new ITestThread[threads]; 
 		
 		for (int i = 0; i < threads; i++) {
 			
 			try {
-				ITestThread t = clazz.newInstance();
 				
-				t.setLatch(latch);
+				ITestThread t = clazz.newInstance();
 				
 				t.setTime(time);
 				
@@ -61,7 +57,9 @@ public class ITestThreadHandle{
 		}
 		
 		try {
-			latch.await();
+			for(ITestThread t : ts){
+				t.getLatch().await();
+			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
