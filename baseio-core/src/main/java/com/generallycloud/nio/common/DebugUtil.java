@@ -49,7 +49,7 @@ public class DebugUtil {
 
 	public static void debug(String className, String message) {
 		if (enableDebug) {
-			System.out.println(className + "===" + message);
+			System.out.println(className + ":" + message);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class DebugUtil {
 
 	public static void debug(String message) {
 		if (enableDebug) {
-			System.out.println("===" + message);
+			System.out.println(message);
 		}
 	}
 
