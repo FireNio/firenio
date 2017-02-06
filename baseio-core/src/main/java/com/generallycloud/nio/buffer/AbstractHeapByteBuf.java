@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
@@ -23,7 +23,9 @@ import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
-	protected byte[]	memory;
+	protected byte[]		memory;
+
+	protected ByteBuffer	nioBuffer;
 
 	public AbstractHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
 		super(allocator);
@@ -83,35 +85,35 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
-		
+
 		if (remaining > srcRemaining) {
-			
+
 			buffer.get(memory, ix(position), srcRemaining);
-			
+
 			this.position(this.position + srcRemaining);
-			
+
 			return srcRemaining;
-		} 
-		
+		}
+
 		buffer.get(memory, ix(position), remaining);
-		
+
 		this.position(this.limit);
-		
+
 		return remaining;
 	}
 
 	@Override
 	public int read0(ByteBuf buf, int srcRemaining, int remaining) {
-		
+
 		if (remaining > srcRemaining) {
-			
+
 			buf.get(memory, ix(position), srcRemaining);
-			
+
 			position(position + srcRemaining);
-			
+
 			return srcRemaining;
 		}
-		
+
 		buf.get(memory, ix(position), remaining);
 
 		position(limit);
@@ -317,61 +319,61 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 	@Override
 	public void putShort(short value) {
 		MathUtil.short2Byte(memory, value, ix(position));
-		position +=2;
+		position += 2;
 	}
 
 	@Override
 	public void putShortLE(short value) {
 		MathUtil.short2ByteLE(memory, value, ix(position));
-		position +=2;
+		position += 2;
 	}
 
 	@Override
 	public void putUnsignedShort(int value) {
 		MathUtil.unsignedShort2Byte(memory, value, ix(position));
-		position +=2;
+		position += 2;
 	}
 
 	@Override
 	public void putUnsignedShortLE(int value) {
 		MathUtil.unsignedShort2ByteLE(memory, value, ix(position));
-		position +=2;
+		position += 2;
 	}
 
 	@Override
 	public void putInt(int value) {
 		MathUtil.int2Byte(memory, value, ix(position));
-		position +=4;
+		position += 4;
 	}
 
 	@Override
 	public void putIntLE(int value) {
 		MathUtil.int2ByteLE(memory, value, ix(position));
-		position +=4;
+		position += 4;
 	}
 
 	@Override
 	public void putUnsignedInt(long value) {
 		MathUtil.unsignedInt2Byte(memory, value, ix(position));
-		position +=4;
+		position += 4;
 	}
 
 	@Override
 	public void putUnsignedIntLE(long value) {
 		MathUtil.unsignedInt2ByteLE(memory, value, ix(position));
-		position +=4;
+		position += 4;
 	}
 
 	@Override
 	public void putLong(long value) {
 		MathUtil.long2Byte(memory, value, ix(position));
-		position +=8;
+		position += 8;
 	}
 
 	@Override
 	public void putLongLE(long value) {
 		MathUtil.long2ByteLE(memory, value, ix(position));
-		position +=8;
+		position += 8;
 	}
-	
+
 }

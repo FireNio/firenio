@@ -155,7 +155,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	@Override
 	public int write(SocketChannel channel) throws IOException {
 
-		int length = channel.write(nioBuffer);
+		int length = channel.write(memory);
 
 		if (length > 0) {
 
@@ -370,7 +370,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	protected ByteBuffer getNioBuffer() {
-		return nioBuffer;
+		return memory;
 	}
 
 	@Override

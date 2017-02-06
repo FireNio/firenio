@@ -25,7 +25,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected ByteBufAllocator	allocator;
 	protected int				capacity;
 	protected int				limit;
-	protected ByteBuffer		nioBuffer;
 	protected int				offset;
 	protected int				position		= 0;
 	protected int				referenceCount	= 0;

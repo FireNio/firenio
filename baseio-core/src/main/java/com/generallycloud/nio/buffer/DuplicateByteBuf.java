@@ -38,7 +38,7 @@ public class DuplicateByteBuf implements ByteBuf {
 
 	@Override
 	public void release() {
-		ReleaseUtil.release(prototype);
+		ReleaseUtil.release(unwrap());
 	}
 
 	@Override

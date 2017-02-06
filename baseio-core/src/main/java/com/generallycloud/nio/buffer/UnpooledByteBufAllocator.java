@@ -104,14 +104,14 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 	class UnpooledHeapByteBufferFactory implements UnpooledByteBufFactory{
 		@Override
 		public ByteBuf allocate(int capacity) {
-			return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
+			return new UnpooledHeapByteBuf(new byte[capacity]);
 		}
 	}
 	
 	class UnpooledDirectByteBufferFactory implements UnpooledByteBufFactory{
 		@Override
 		public ByteBuf allocate(int capacity) {
-			return new UnpooledHeapByteBuf(new byte[capacity]);
+			return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
 		}
 	}
 
