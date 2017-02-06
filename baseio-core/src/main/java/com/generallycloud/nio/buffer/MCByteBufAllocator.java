@@ -35,6 +35,7 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 		this.context = context;
 	}
 
+	@Deprecated
 	public ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator) {
 
 		int cycle = this.cycle;
@@ -56,7 +57,6 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 		}
 
 		return UnpooledByteBufAllocator.getInstance().allocate(capacity);
-
 	}
 
 	private void createByteBufAllocator(ChannelContext context) {
@@ -81,8 +81,9 @@ public class MCByteBufAllocator extends AbstractLifeCycle {
 
 			//			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
 
-			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,
-					direct);
+			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,direct);
+			
+//			ByteBufAllocator allocator = new UnpooledByteBufAllocator();
 
 			allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
 		}

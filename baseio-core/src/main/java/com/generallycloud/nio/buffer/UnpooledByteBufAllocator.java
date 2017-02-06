@@ -18,10 +18,11 @@ package com.generallycloud.nio.buffer;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.AbstractLifeCycle;
-import com.generallycloud.nio.common.ByteBufferUtil;
 
 public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteBufAllocator {
 
+	private boolean isDirect;
+	
 	private static UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator();
 
 	public static UnpooledByteBufAllocator getInstance() {
@@ -66,144 +67,29 @@ public class UnpooledByteBufAllocator extends AbstractLifeCycle implements ByteB
 		return new UnpooledDirectByteBuf(ByteBuffer.allocateDirect(capacity));
 	}
 
-	class UnpooledHeapByteBuf extends HeapByteBuf {
-
-		protected UnpooledHeapByteBuf(byte[] memory) {
-			super(getInstance(), memory);
-			this.produce(memory.length);
-		}
-
-		protected void produce(int capacity) {
-			this.capacity = capacity;
-			this.limit = capacity;
-			this.referenceCount = 1;
-		}
-
-		@Override
-		public void doRelease() {
-			this.memory = null;
-		}
-
-		/**
-		 * NOTICE 该方法非线程安全
-		 */
-		@Override
-		public ByteBuf doDuplicate() {
-
-			UnpooledHeapByteBuf buf = new UnpooledHeapByteBuf(memory);
-
-			buf.limit = limit;
-			buf.offset = offset;
-			buf.position = position;
-
-			return new DuplicateByteBuf(buf, this);
-		}
-
-		@Override
-		public ByteBuf reallocate(int limit) {
-			return reallocate(limit, false);
-		}
-
-		@Override
-		public ByteBuf reallocate(int limit, boolean copyOld) {
-			
-			byte [] newMemory = new byte[limit];
-			
-			if (copyOld) {
-				System.arraycopy(memory, 0, newMemory,0, position());
-			}
-			
-			this.memory = newMemory;
-			this.capacity = limit;
-			this.limit = limit;
-//			this.position = 0;
-			this.referenceCount = 1;
-			return this;
-			
-		}
-	}
-
-	class UnpooledDirectByteBuf extends DirectByteBuf {
-
-		protected UnpooledDirectByteBuf(ByteBuffer memory) {
-			super(getInstance(), memory);
-			this.produce(memory.capacity());
-		}
-
-		protected void produce(int capacity) {
-			this.capacity = capacity;
-			this.limit = capacity;
-			this.referenceCount = 1;
-		}
-
-		/**
-		 * NOTICE 该方法非线程安全
-		 */
-		@Override
-		protected ByteBuf doDuplicate() {
-
-			UnpooledDirectByteBuf buf = new UnpooledDirectByteBuf(memory.duplicate());
-
-			buf.beginUnit = beginUnit;
-			buf.limit = limit;
-			buf.offset = offset;
-			buf.position = position;
-
-			return new DuplicateByteBuf(buf, this);
-		}
-
-		@Override
-		protected void doRelease() {
-			ByteBufferUtil.release(memory);
-		}
-
-		@Override
-		public ByteBuf reallocate(int limit) {
-			return reallocate(limit, false);
-		}
-
-		@Override
-		public ByteBuf reallocate(int limit, boolean copyOld) {
-			
-			ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
-			
-			if (copyOld) {
-				newMemory.put(memory);
-				ByteBufferUtil.release(memory);
-			}
-			
-			this.memory = newMemory;
-			this.capacity = limit;
-			this.limit = limit;
-			this.position = 0;
-			this.referenceCount = 1;
-			return this;
-		}
-	}
-
 	@Override
 	public void release(ByteBuf buf) {
-
+		
 	}
 
 	@Override
 	public int getUnitMemorySize() {
-		return 0;
+		return -1;
 	}
 
 	@Override
 	public void freeMemory() {
-
+		
 	}
 
 	@Override
 	public int getCapacity() {
-		return 0;
+		return -1;
 	}
 
 	@Override
 	public boolean isDirect() {
-		return false;
+		return isDirect;
 	}
 
 	@Override

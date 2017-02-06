@@ -28,7 +28,7 @@ public class DirectByteBufFactory implements ByteBufFactory {
 
 	@Override
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return new DirectByteBuf(allocator, memory);
+		return new PooledDirectByteBuf(allocator, memory);
 	}
 
 	@Override

@@ -17,91 +17,94 @@ package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-import com.generallycloud.nio.common.MathUtil;
 import com.generallycloud.nio.component.SocketChannel;
 
-public class HeapByteBuf extends AbstractByteBuf {
+public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
-	protected byte[]	memory;
-
-	public HeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+	protected ByteBuffer	memory;
+	
+	public AbstractDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
 		super(allocator);
 		this.memory = memory;
 	}
 
 	@Override
 	public byte[] array() {
-		return memory;
-	}
-
-	@Override
-	protected AbstractByteBuf newByteBuf() {
-		return new HeapByteBuf(allocator, memory);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public byte getByte(int index) {
-		return memory[ix(index)];
+		return memory.get(ix(index));
 	}
 
 	@Override
 	public void get(byte[] dst, int offset, int length) {
-		System.arraycopy(memory, ix(position), dst, offset, length);
+		memory.get(dst, offset, length);
 		this.position += length;
 	}
 
 	@Override
 	public int getInt() {
-		int v = MathUtil.byte2Int(memory, ix(position));
+		int v = memory.getInt();
 		this.position += 4;
 		return v;
 	}
 
 	@Override
 	public int getInt(int index) {
-		return MathUtil.byte2Int(memory, ix(index));
+		return memory.getInt(ix(index));
 	}
 
 	@Override
 	public long getLong() {
-		long v = MathUtil.byte2Long(memory, ix(position));
+		long v = memory.getLong();
 		this.position += 8;
 		return v;
 	}
 
 	@Override
 	public long getLong(int index) {
-		return MathUtil.byte2Long(memory, ix(index));
+		return memory.getLong(ix(index));
 	}
 
 	@Override
 	public boolean hasArray() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public void put(byte[] src, int offset, int length) {
-		System.arraycopy(src, offset, memory, ix(position), length);
+		memory.put(src, offset, length);
 		this.position += length;
 	}
-
+	
 	@Override
 	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
 		
 		if (remaining > srcRemaining) {
+
+			ByteBuffer buf = this.memory;
 			
-			buffer.get(memory, ix(position), srcRemaining);
+			for (int i = 0; i < srcRemaining; i++) {
+				buf.put(buffer.get());
+			}
 			
-			this.position(this.position + srcRemaining);
+			skipBytes(srcRemaining);
 			
 			return srcRemaining;
-		} 
+		}
 		
-		buffer.get(memory, ix(position), remaining);
-		
-		this.position(this.limit);
-		
+		ByteBuffer buf = this.memory;
+
+		for (int i = 0; i < remaining; i++) {
+			buf.put(buffer.get());
+		}
+
+		position(this.limit);
+
 		return remaining;
 	}
 
@@ -110,16 +113,41 @@ public class HeapByteBuf extends AbstractByteBuf {
 		
 		if (remaining > srcRemaining) {
 			
-			buf.get(memory, ix(position), srcRemaining);
-			
-			position(position + srcRemaining);
-			
-			return srcRemaining;
-		}
-		
-		buf.get(memory, ix(position), remaining);
+			if (buf.hasArray()) {
 
-		position(limit);
+				put(buf.array(), buf.offset() + buf.position(), srcRemaining);
+
+			} else {
+
+				ByteBuffer _this = this.memory;
+
+				for (int i = 0; i < srcRemaining; i++) {
+
+					_this.put(buf.getByte());
+				}
+			}
+
+			skipBytes(srcRemaining);
+
+			return srcRemaining;
+			
+		} 
+		
+		if (buf.hasArray()) {
+
+			put(buf.array(), buf.offset() + buf.position(), remaining);
+			
+		} else {
+
+			ByteBuffer _this = this.memory;
+
+			for (int i = 0; i < remaining; i++) {
+
+				_this.put(buf.getByte());
+			}
+		}
+
+		position(this.limit);
 
 		return remaining;
 	}
@@ -145,13 +173,12 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public byte getByte() {
-		return memory[ix(position++)];
+		position++;
+		return memory.get();
 	}
 
 	@Override
 	public int forEachByte(int index, int length, ByteProcessor processor) {
-
-		byte[] array = memory;
 
 		int start = ix(index);
 
@@ -161,7 +188,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 			for (int i = start; i < end; i++) {
 
-				if (!processor.process(array[i])) {
+				if (!processor.process(getByte(i))) {
 
 					return i - start;
 				}
@@ -177,8 +204,6 @@ public class HeapByteBuf extends AbstractByteBuf {
 	@Override
 	public int forEachByteDesc(int index, int length, ByteProcessor processor) {
 
-		byte[] array = memory;
-
 		int start = ix(index);
 
 		int end = start + length;
@@ -187,7 +212,7 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 			for (int i = end; i >= start; i--) {
 
-				if (!processor.process(array[i])) {
+				if (!processor.process(getByte(i))) {
 
 					return i - start;
 				}
@@ -202,55 +227,70 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public void putByte(byte b) {
-		memory[ix(position++)] = b;
+		memory.put(b);
 	}
 
 	@Override
 	public int getIntLE() {
-		int v = MathUtil.byte2IntLE(memory, ix(position));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		int v = memory.getInt();
+		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 4;
 		return v;
 	}
 
 	@Override
-	public int getIntLE(int offset) {
-		return MathUtil.byte2IntLE(memory, ix(offset));
+	public int getIntLE(int index) {
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		int v = memory.getInt(ix(index));
+		memory.order(ByteOrder.BIG_ENDIAN);
+		return v;
 	}
 
 	@Override
 	public long getLongLE() {
-		long v = MathUtil.byte2LongLE(memory, ix(position));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		long v = memory.getLong();
+		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 8;
 		return v;
 	}
 
 	@Override
 	public long getLongLE(int index) {
-		return MathUtil.byte2LongLE(memory, ix(index));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		long v = memory.getLong(ix(index));
+		memory.order(ByteOrder.BIG_ENDIAN);
+		return v;
 	}
 
 	@Override
 	public short getShort() {
-		short v = MathUtil.byte2Short(memory, ix(position));
+		short v = memory.getShort();
 		this.position += 2;
 		return v;
 	}
 
 	@Override
 	public short getShort(int index) {
-		return MathUtil.byte2Short(memory, ix(index));
+		return memory.getShort(ix(index));
 	}
 
 	@Override
 	public short getShortLE() {
-		short v = MathUtil.byte2ShortLE(memory, ix(position));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		short v = memory.getShort();
+		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 2;
 		return v;
 	}
 
 	@Override
 	public short getShortLE(int index) {
-		return MathUtil.byte2ShortLE(memory, ix(index));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		short v = memory.getShort(ix(index));
+		memory.order(ByteOrder.BIG_ENDIAN);
+		return v;
 	}
 
 	@Override
@@ -265,118 +305,158 @@ public class HeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public long getUnsignedInt() {
-		long v = MathUtil.byte2UnsignedInt(memory, ix(position));
+		long v = toUnsignedInt(memory.getInt());
 		this.position += 4;
 		return v;
 	}
 
+	private long toUnsignedInt(int value) {
+		if (value < 0) {
+			return value & 0xffffffffffffffffL;
+		}
+		return value;
+	}
+
 	@Override
 	public long getUnsignedInt(int index) {
-		return MathUtil.byte2UnsignedInt(memory, ix(index));
+		return toUnsignedInt(memory.getInt(ix(index)));
 	}
 
 	@Override
 	public long getUnsignedIntLE() {
-		long v = MathUtil.byte2UnsignedIntLE(memory, ix(position));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		long v = toUnsignedInt(memory.getInt());
+		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 4;
 		return v;
 	}
 
 	@Override
 	public long getUnsignedIntLE(int index) {
-		return MathUtil.byte2UnsignedIntLE(memory, ix(index));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		long v = toUnsignedInt(memory.getInt(ix(index)));
+		memory.order(ByteOrder.BIG_ENDIAN);
+		return v;
 	}
 
 	@Override
 	public int getUnsignedShort() {
-		int v = MathUtil.byte2UnsignedShort(memory, ix(position));
+		int v = memory.getShort() & 0xffff;
 		this.position += 2;
 		return v;
 	}
 
 	@Override
 	public int getUnsignedShort(int index) {
-		return MathUtil.byte2UnsignedShort(memory, ix(index));
+		return memory.getShort(ix(index) & 0xffff);
 	}
 
 	@Override
 	public int getUnsignedShortLE() {
-		int v = MathUtil.byte2UnsignedShortLE(memory, ix(position));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		int v = memory.getShort() & 0xffff;
+		memory.order(ByteOrder.BIG_ENDIAN);
 		this.position += 2;
 		return v;
 	}
 
 	@Override
 	public int getUnsignedShortLE(int index) {
-		return MathUtil.byte2UnsignedShortLE(memory, ix(index));
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		int v = memory.getShort(ix(index)) & 0xff;
+		memory.order(ByteOrder.BIG_ENDIAN);
+		return v;
 	}
 
 	@Override
 	protected ByteBuffer getNioBuffer() {
-		if (nioBuffer == null) {
-			nioBuffer = ByteBuffer.wrap(memory, offset, capacity);
-		}
 		return nioBuffer;
 	}
 
 	@Override
 	public void putShort(short value) {
-		MathUtil.short2Byte(memory, value, ix(position));
-		position +=2;
+		memory.putShort(value);
+		position += 2;
 	}
 
 	@Override
 	public void putShortLE(short value) {
-		MathUtil.short2ByteLE(memory, value, ix(position));
-		position +=2;
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putShort(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 2;
 	}
 
 	@Override
 	public void putUnsignedShort(int value) {
-		MathUtil.unsignedShort2Byte(memory, value, ix(position));
-		position +=2;
+		byte b1 = (byte) (value & 0xff);
+		byte b0 = (byte) (value >> 8 * 1);
+		memory.put(b0);
+		memory.put(b1);
+		position += 2;
 	}
 
 	@Override
 	public void putUnsignedShortLE(int value) {
-		MathUtil.unsignedShort2ByteLE(memory, value, ix(position));
-		position +=2;
+		byte b0 = (byte) (value & 0xff);
+		byte b1 = (byte) (value >> 8 * 1);
+		memory.put(b0);
+		memory.put(b1);
+		position += 2;
 	}
 
 	@Override
 	public void putInt(int value) {
-		MathUtil.int2Byte(memory, value, ix(position));
-		position +=4;
+		memory.putInt(value);
+		position += 4;
 	}
 
 	@Override
 	public void putIntLE(int value) {
-		MathUtil.int2ByteLE(memory, value, ix(position));
-		position +=4;
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putInt(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 4;
 	}
 
 	@Override
 	public void putUnsignedInt(long value) {
-		MathUtil.unsignedInt2Byte(memory, value, ix(position));
-		position +=4;
+		byte b3 = (byte) ((value & 0xff));
+		byte b2 = (byte) ((value >> 8 * 1) & 0xff);
+		byte b1 = (byte) ((value >> 8 * 2) & 0xff);
+		byte b0 = (byte) ((value >> 8 * 3));
+		memory.put(b0);
+		memory.put(b1);
+		memory.put(b2);
+		memory.put(b3);
+		position += 4;
 	}
 
 	@Override
 	public void putUnsignedIntLE(long value) {
-		MathUtil.unsignedInt2ByteLE(memory, value, ix(position));
-		position +=4;
+		byte b0 = (byte) ((value & 0xff));
+		byte b1 = (byte) ((value >> 8 * 1) & 0xff);
+		byte b2 = (byte) ((value >> 8 * 2) & 0xff);
+		byte b3 = (byte) ((value >> 8 * 3));
+		memory.put(b0);
+		memory.put(b1);
+		memory.put(b2);
+		memory.put(b3);
+		position += 4;
 	}
 
 	@Override
 	public void putLong(long value) {
-		MathUtil.long2Byte(memory, value, ix(position));
-		position +=8;
+		memory.putLong(value);
+		position += 8;
 	}
 
 	@Override
 	public void putLongLE(long value) {
-		MathUtil.long2ByteLE(memory, value, ix(position));
-		position +=8;
+		memory.order(ByteOrder.LITTLE_ENDIAN);
+		memory.putLong(value);
+		memory.order(ByteOrder.BIG_ENDIAN);
+		position += 8;
 	}
-	
+
 }

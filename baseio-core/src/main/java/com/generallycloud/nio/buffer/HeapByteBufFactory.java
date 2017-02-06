@@ -31,7 +31,7 @@ public class HeapByteBufFactory implements ByteBufFactory {
 
 	@Override
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return new HeapByteBuf(allocator, memory);
+		return new PooledHeapByteBuf(allocator, memory);
 	}
 
 }

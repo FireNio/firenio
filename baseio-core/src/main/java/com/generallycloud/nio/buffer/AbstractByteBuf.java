@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.SocketChannel;
 
-public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
+public abstract class AbstractByteBuf implements ByteBuf {
 
 	protected ByteBufAllocator	allocator;
 	protected int				capacity;
@@ -33,35 +33,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
 		this.allocator = allocator;
 	}
-
-	@Override
-	public ByteBuf duplicate() {
-
-		synchronized (this) {
-
-			if (released) {
-				throw new ReleasedException("");
-			}
-
-			this.referenceCount++;
-
-			return doDuplicate();
-		}
-	}
-	
-	protected ByteBuf doDuplicate() {
-		
-		AbstractByteBuf buf = newByteBuf();
-		
-		buf.beginUnit = beginUnit;
-		buf.limit = limit;
-		buf.offset = offset;
-		buf.position = position;
-
-		return new DuplicateByteBuf(buf, this);
-	}
-
-	protected abstract AbstractByteBuf newByteBuf();
 
 	@Override
 	public int capacity() {
@@ -159,29 +130,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	}
 
 	@Override
-	public PooledByteBuf produce(int begin, int end, int newLimit) {
-		this.offset = begin * allocator.getUnitMemorySize();
-		this.capacity = (end - begin) * allocator.getUnitMemorySize();
-		this.limit = newLimit;
-		this.position = 0;
-		this.beginUnit = begin;
-		this.referenceCount = 1;
-		return this;
-	}
-	
-	@Override
-	public PooledByteBuf produce(PooledByteBuf buf) {
-		this.offset = buf.offset();
-		this.capacity = buf.capacity();
-		this.limit = buf.limit();
-		this.position = buf.position();
-		this.beginUnit = buf.getBeginUnit();
-		this.referenceCount = 1;
-		this.released = false;
-		return this;
-	}
-
-	@Override
 	public void put(byte[] src) {
 		put(src, 0, src.length);
 	}
@@ -197,26 +145,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 
 		return length;
 	}
-
-	@Override
-	public void release() {
-
-		synchronized (this) {
-
-			if (released) {
-				return;
-			}
-
-			if (--referenceCount != 0) {
-				return;
-			}
-
-			released = true;
-
-			doRelease();
-		}
-	}
-	
 
 	@Override
 	public int read(ByteBuffer buffer) {
@@ -258,10 +186,6 @@ public abstract class AbstractByteBuf extends AbstractPooledByteBuf {
 	
 	public abstract int read0(ByteBuf buf,int srcRemaining,int remaining) ;
 	
-	protected void doRelease(){
-		allocator.release(this);
-	}
-
 	@Override
 	public int remaining() {
 		return limit - position;

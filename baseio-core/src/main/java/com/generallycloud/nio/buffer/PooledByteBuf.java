@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.buffer;
 
 public interface PooledByteBuf extends ByteBuf {
@@ -20,7 +20,7 @@ public interface PooledByteBuf extends ByteBuf {
 	public abstract int getBeginUnit();
 
 	public abstract PooledByteBuf produce(int begin, int end, int newLimit);
-	
+
 	public abstract PooledByteBuf produce(PooledByteBuf buf);
 
 }
