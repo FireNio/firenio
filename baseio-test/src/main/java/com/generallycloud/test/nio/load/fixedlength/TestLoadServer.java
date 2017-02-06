@@ -61,8 +61,8 @@ public class TestLoadServer {
 		
 		ServerConfiguration c = acceptor.getContext().getServerConfiguration();
 		
-		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		c.setSERVER_MEMORY_POOL_UNIT(256);
+		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+		c.setSERVER_MEMORY_POOL_UNIT(128);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(1);
 		c.setSERVER_CORE_SIZE(4);
 		

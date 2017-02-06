@@ -36,8 +36,8 @@ public abstract class ITestThread implements Runnable {
 		return time;
 	}
 
-	public CountDownLatch getLatch() {
-		return latch;
+	public void await() throws InterruptedException {
+		latch.await();
 	}
 
 	public abstract void prepare() throws Exception;

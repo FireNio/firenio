@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.buffer;
 
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.MCByteBufAllocator;
+import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.nio.component.ChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -41,7 +41,7 @@ public class TestBytebufAllocator {
 		
 		ChannelContext context = new SocketChannelContextImpl(configuration);
 		
-		MCByteBufAllocator allocator = new MCByteBufAllocator(context);
+		PooledByteBufAllocatorManager allocator = new PooledByteBufAllocatorManager(context);
 		
 		allocator.start();
 		

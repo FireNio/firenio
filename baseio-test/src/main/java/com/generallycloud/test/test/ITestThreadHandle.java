@@ -58,7 +58,7 @@ public class ITestThreadHandle{
 		
 		try {
 			for(ITestThread t : ts){
-				t.getLatch().await();
+				t.await();
 			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
