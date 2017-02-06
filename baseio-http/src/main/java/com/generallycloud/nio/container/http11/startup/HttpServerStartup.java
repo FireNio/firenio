@@ -58,7 +58,7 @@ public class HttpServerStartup {
 		
 		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		configuration.setSERVER_ENABLE_MEMORY_POOL(false);
+//		configuration.setSERVER_ENABLE_MEMORY_POOL(false);
 		
 		SocketChannelContext context = new SocketChannelContextImpl(configuration);
 		
