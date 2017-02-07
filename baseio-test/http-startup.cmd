@@ -1,13 +1,13 @@
 cd ../baseio
 call build-package.bat
 
+cd ../baseio-sample
+call mvn clean install -DskipTests
+
 cd ../baseio-test
 call mvn clean compile -DskipTests
 
-cd ../baseio-sample
-call mvn clean package -DskipTests
-
-copy target\baseio-sample*.jar ..\baseio-test\target\classes\http\app\_java_lib\
+copy ..\baseio-sample\target\baseio-sample*.jar ..\baseio-test\target\classes\http\app\_java_lib\
 
 cd ../baseio-test
 
