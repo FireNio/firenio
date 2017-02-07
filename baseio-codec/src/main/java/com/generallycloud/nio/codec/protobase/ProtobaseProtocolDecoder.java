@@ -32,8 +32,8 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  *  +      -       -       -       -       -       -       -       -      +
  *  |      0       1       2       3       4       5       6       7      | 
  *  +      -       -       -       -       -       -       -       -      +
- *  |       Message     | PUSH |  has  |                                 |
- *  |       T Y P E     | TYPE | binary|                                 |
+ *  |       Message     | PUSH |  has  |                                  |
+ *  |       T Y P E     | TYPE | binary|                                  |
  *  +---------------------------------------------------------------------+
  *  
  *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]
@@ -46,16 +46,19 @@ import com.generallycloud.nio.protocol.ProtocolDecoder;
  *  B10 - B13 	: hash    code
  *  B14 - B15 	：text          length
  *  B16 - B19 	：binary        length //FIXME 是否应该设置为两字节？
- * 
+ *  
  * </pre>
  */
 public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER	= 20;
+	public static final int	PROTOCOL_HEADER			= 20;
+	public static final int	PROTOCOL_HEADER_NO_BINARY	= 16;
 
-	public static final int	PROTOCOL_PACKET	= 1;
-	public static final int	PROTOCOL_PING		= 2;
-	public static final int	PROTOCOL_PONG		= 3;
+	public static final int	PROTOCOL_PACKET			= 1;
+	public static final byte	PROTOCOL_PING				= (byte) 0b10000000;
+	public static final int	PROTOCOL_PONG				= (byte) 0b11000000;
+	public static final int	PROTOCOL_HAS_BINARY		= (byte) 0b00010000;
+	public static final int	PROTOCOL_IS_PUSH			= (byte) 0b00100000;
 
 	private int			limit;
 
@@ -72,18 +75,16 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 
 		byte byte0 = buffer.getByte(0);
 
-		int type = (byte0 & 0xff) >> 6;
-
-		if (type == PROTOCOL_PING) {
+		if (byte0 == PROTOCOL_PING) {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPING();
-		} else if (type == PROTOCOL_PONG) {
+		} else if (byte0 == PROTOCOL_PONG) {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		if ((byte0 & 0x10) > 0) {
-			buf.reallocate(PROTOCOL_HEADER).skipBytes(1);
+		if ((byte0 & PROTOCOL_HAS_BINARY) > 0) {
+			buf.reallocate(PROTOCOL_HEADER - 1);
 		}else{
-			buf.reallocate(PROTOCOL_HEADER - 4).skipBytes(1);
+			buf.reallocate(PROTOCOL_HEADER_NO_BINARY - 1);
 		}
 		
 		return new ProtobaseReadFutureImpl(session, buf, limit);

@@ -25,7 +25,7 @@ public class DefaultHttp2HeadersEncoder implements Http2HeadersEncoder, Http2Hea
 	    private final Encoder encoder;
 	    private final SensitivityDetector sensitivityDetector;
 	    private final Http2HeaderTable headerTable;
-	    private final ByteBuf tableSizeChangeOutput = UnpooledByteBufAllocator.getInstance().allocate(1024 * 8);
+	    private final ByteBuf tableSizeChangeOutput = UnpooledByteBufAllocator.getHeapInstance().allocate(1024 * 8);
 
 	    public DefaultHttp2HeadersEncoder() {
 	        this(NEVER_SENSITIVE);

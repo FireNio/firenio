@@ -98,8 +98,6 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
 		
-		buf.skipBytes(1);
-
 		this.future_name_length = buf.getUnsignedByte();
 
 		this.futureID = buf.getInt();

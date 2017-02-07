@@ -40,9 +40,9 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		if (readFuture.isHeartbeat()) {
 
-			byte b = (byte) ((readFuture.isPING() ? 
+			byte b = readFuture.isPING() ? 
 					ProtobaseProtocolDecoder.PROTOCOL_PING
-					: ProtobaseProtocolDecoder.PROTOCOL_PONG) << 6);
+					: ProtobaseProtocolDecoder.PROTOCOL_PONG ;
 
 			ByteBuf buf = allocator.allocate(1);
 
@@ -86,11 +86,10 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		int text_length = text_array.length;
 		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER - 4;
-		byte byte0 = 0x40;
+		byte byte0 = 0b01000000;
 
-		//0x40=01000000,0x60=01100000
 		if (f.isBroadcast()) {
-			byte0 = 0x60;
+			byte0 = 0b01100000;
 		}
 
 		int all_length = header_length + future_name_length + text_length;
