@@ -41,7 +41,6 @@ public class TestGetPhoneNO {
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		session.login("admin", "admin100");
 		
 		ProtobaseReadFuture future = session.request(serviceKey, null);
 		

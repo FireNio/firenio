@@ -41,6 +41,8 @@ public class SimpleTestFIxedLengthServer {
 		
 		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration(18300));
 		
+		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());

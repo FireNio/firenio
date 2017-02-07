@@ -45,6 +45,8 @@ public class SimpleTestFIxedLengthClient {
 		
 		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
 
+		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
 		connector.setTimeout(99999999);

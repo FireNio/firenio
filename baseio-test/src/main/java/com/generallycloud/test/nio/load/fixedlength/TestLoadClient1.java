@@ -72,8 +72,9 @@ public class TestLoadClient1 extends ITestThread {
 
 		ServerConfiguration c = context.getServerConfiguration();
 
-		c.setSERVER_MEMORY_POOL_CAPACITY(5120000);
+		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
+		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		
 //		c.setSERVER_HOST("192.168.0.180");
 
@@ -91,7 +92,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 256 * 10000;
+		int time = 4 * 10000;
 
 		int core_size = 4;
 
