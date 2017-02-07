@@ -5,7 +5,7 @@
 	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-sample</artifactId>
 	<name>${project.artifactId}</name>
-	<version>3.1.8-Alpha1</version>
+	<version>3.1.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>The sample of baseio</description>
 

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.sample.http11;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 	private List<SocketSession>	clients	= new ArrayList<SocketSession>();
 
-	private ListQueue<String>	msgs		= new ListQueueABQ<String>(1024 * 4);
+	private ListQueue<Msg>		msgs		= new ListQueueABQ<Msg>(1024 * 4);
 
 	public synchronized void addClient(SocketSession session) {
 
@@ -44,7 +44,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 	public synchronized boolean removeClient(SocketSession session) {
 
-		if(clients.remove(session)){
+		if (clients.remove(session)) {
 			logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
 			return true;
 		}
@@ -53,7 +53,11 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 	}
 
 	public void sendMsg(String msg) {
-		msgs.offer(msg);
+		sendMsg(null, msg);
+	}
+
+	public void sendMsg(SocketSession session, String msg) {
+		msgs.offer(new Msg(session, msg));
 	}
 
 	public int getClientSize() {
@@ -63,13 +67,26 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 	@Override
 	protected void doLoop() {
 
-		String msg = msgs.poll(16);
+		Msg msg = msgs.poll(16);
 
 		if (msg == null) {
 			return;
 		}
 
 		synchronized (this) {
+
+			SocketSession session = msg.session;
+
+			if (session != null) {
+
+				WebSocketReadFuture f = new WebSocketTextReadFutureImpl(session.getContext());
+
+				f.write(msg.msg);
+
+				session.flush(f);
+
+				return;
+			}
 
 			for (int i = 0; i < clients.size(); i++) {
 
@@ -79,7 +96,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 					WebSocketReadFuture f = new WebSocketTextReadFutureImpl(s.getContext());
 
-					f.write(msg);
+					f.write(msg.msg);
 
 					s.flush(f);
 				} else {
@@ -90,5 +107,16 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 				}
 			}
 		}
+	}
+
+	class Msg {
+
+		Msg(SocketSession session, String msg) {
+			this.msg = msg;
+			this.session = session;
+		}
+
+		String		msg;
+		SocketSession	session;
 	}
 }

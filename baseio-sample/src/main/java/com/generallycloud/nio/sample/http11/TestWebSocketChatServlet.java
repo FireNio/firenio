@@ -32,14 +32,13 @@ import com.generallycloud.nio.protocol.ReadFuture;
 public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 	private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
-
+	
 	@Override
 	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
 
 		session.flush(future);
-
 	}
 
 	@Override
@@ -49,6 +48,8 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 			super.accept(session, future);
 			return;
 		}
+		
+		int x = 1;
 
 		WebSocketReadFuture f = (WebSocketReadFuture) future;
 
@@ -71,8 +72,6 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 		} else {
 
-			// String msg = getMsg(session, );
-
 			String msg = f.getReadText();
 
 			JSONObject obj = JSON.parseObject(msg);
@@ -86,7 +85,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 				String msg1 = obj.toJSONString();
 
 				msgAdapter.sendMsg(msg1);
-
+				
 			} else if ("add-user".equals(action)) {
 
 				msgAdapter.addClient(session);
@@ -105,10 +104,8 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 				obj.put("action", "login");
 
 				String msg1 = obj.toJSONString();
-
-				WebSocketReadFutureImpl f2 = new WebSocketTextReadFutureImpl(session.getContext());
-				f2.write(msg1);
-				session.flush(f2);
+				
+				msgAdapter.sendMsg(session, msg1);
 
 				obj.put("username", username);
 				obj.put("action", "user-joined");
@@ -116,7 +113,17 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 				String msg2 = obj.toJSONString();
 
 				msgAdapter.sendMsg(msg2);
-
+				
+				JSONObject obj1 = JSON.parseObject(msg);
+				
+				obj1.put("action", "new-message");
+				
+				obj1.put("username", "管理员");
+				
+				obj1.put("message", "欢迎加入QQ群讨论io相关技术：540637859(该消息为自动发送)");
+				
+				msgAdapter.sendMsg(session, obj1.toJSONString());
+				
 			} else if ("typing".equals(action)) {
 
 				obj.put("username", session.getAttribute("username"));
