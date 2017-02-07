@@ -28,6 +28,7 @@ import com.generallycloud.nio.common.HtmlUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -89,20 +90,24 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			
 			entity.lastModify = System.currentTimeMillis();
 			
-			entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getInstance(), f);
+			ReleaseUtil.release(entity.future);
 			
-		}else{
+			entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getDirectInstance(), f);
 			
-			byte [] data = FileUtil.readFileToByteArray(file);
-			
-			f.setResponseHeader("Content-Type", entity.contentType);
-			f.setResponseHeader("Connection", "keep-alive");
-			f.writeBinary(data);
+			return;
 		}
+			
+		byte [] data = FileUtil.readFileToByteArray(file);
+		
+		f.setResponseHeader("Content-Type", entity.contentType);
+		f.setResponseHeader("Connection", "keep-alive");
+		f.writeBinary(data);
 		
 		entity.lastModify = file.lastModified();
 		
-		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getInstance(), f);
+		ReleaseUtil.release(entity.future);
+		
+		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getDirectInstance(), f);
 	}
 	
 	@Override
