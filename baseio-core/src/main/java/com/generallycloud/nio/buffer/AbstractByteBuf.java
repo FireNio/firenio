@@ -23,10 +23,8 @@ import com.generallycloud.nio.component.SocketChannel;
 public abstract class AbstractByteBuf implements ByteBuf {
 
 	protected ByteBufAllocator	allocator;
-	protected int				capacity;
-	protected int				limit;
 	protected int				offset;
-	protected int				position		= 0;
+	protected int				capacity;
 	protected int				referenceCount	= 0;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
@@ -34,32 +32,13 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	}
 
 	@Override
-	public int capacity() {
-		return capacity;
-	}
-
-	@Override
-	public ByteBuf clear() {
-		this.position = 0;
-		this.limit = capacity;
-		return this;
-	}
-
-	@Override
-	public ByteBuf flip() {
-		this.limit = position;
-		this.position = 0;
-		return this;
-	}
-
-	@Override
 	public int forEachByte(ByteProcessor processor) {
-		return forEachByte(position, limit, processor);
+		return forEachByte(position(), limit(), processor);
 	}
 
 	@Override
 	public int forEachByteDesc(ByteProcessor processor) {
-		return forEachByteDesc(position, limit, processor);
+		return forEachByteDesc(position(), limit(), processor);
 	}
 
 	@Override
@@ -78,34 +57,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	}
 
 	protected abstract ByteBuffer getNioBuffer();
-
-	@Override
-	public boolean hasRemaining() {
-		return position < limit;
-	}
-
+	
 	protected int ix(int index) {
 		return offset + index;
 	}
 
 	@Override
-	public int limit() {
-		return limit;
-	}
-
-	/**
-	 * 注意，该方法会重置position
-	 */
-	@Override
-	public ByteBuf limit(int limit) {
-		this.limit = limit;
-		return this;
-	}
-
-	@Override
-	public ByteBuffer nioBuffer() {
-		ByteBuffer buffer = getNioBuffer();
-		return (ByteBuffer) buffer.limit(ix(limit)).position(ix(position));
+	public int capacity() {
+		return capacity;
 	}
 
 	@Override
@@ -115,17 +74,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	protected void offset(int offset) {
 		this.offset = offset;
-	}
-
-	@Override
-	public int position() {
-		return position;
-	}
-
-	@Override
-	public ByteBuf position(int position) {
-		this.position = position;
-		return this;
 	}
 
 	@Override
@@ -139,36 +87,16 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		int length = channel.read(getNioBuffer());
 
 		if (length > 0) {
-			position += length;
+			skipBytes(length);
 		}
 
 		return length;
 	}
 
 	@Override
-	public int read(ByteBuffer buffer) {
+	public int read(ByteBuffer src) {
 
-		int srcRemaining = buffer.remaining();
-
-		if (srcRemaining == 0) {
-			return 0;
-		}
-
-		int remaining = this.remaining();
-		
-		if (remaining == 0) {
-			return 0;
-		}
-
-		return read0(buffer, srcRemaining, remaining);
-	}
-	
-	public abstract int read0(ByteBuffer buffer,int srcRemaining,int remaining) ;
-	
-	@Override
-	public int read(ByteBuf buf) {
-
-		int srcRemaining = buf.remaining();
+		int srcRemaining = src.remaining();
 
 		if (srcRemaining == 0) {
 			return 0;
@@ -180,19 +108,34 @@ public abstract class AbstractByteBuf implements ByteBuf {
 			return 0;
 		}
 
-		return read0(buf, srcRemaining, remaining);
+		return read0(src, srcRemaining, remaining);
 	}
 	
-	public abstract int read0(ByteBuf buf,int srcRemaining,int remaining) ;
+	protected abstract int read0(ByteBuffer src,int srcRemaining,int remaining) ;
 	
 	@Override
-	public int remaining() {
-		return limit - position;
-	}
+	public int read(ByteBuf src) {
 
+		int srcRemaining = src.remaining();
+
+		if (srcRemaining == 0) {
+			return 0;
+		}
+
+		int remaining = this.remaining();
+		
+		if (remaining == 0) {
+			return 0;
+		}
+
+		return read0(src, srcRemaining, remaining);
+	}
+	
+	protected abstract int read0(ByteBuf src,int srcRemaining,int remaining) ;
+	
 	@Override
 	public ByteBuf skipBytes(int length) {
-		return position(position + length);
+		return position(position() + length);
 	}
 
 	@Override
@@ -228,11 +171,11 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		StringBuilder b = new StringBuilder();
 		b.append(this.getClass().getName());
 		b.append("[pos=");
-		b.append(position);
+		b.append(position());
 		b.append(",lim=");
-		b.append(limit);
+		b.append(limit());
 		b.append(",cap=");
-		b.append(capacity);
+		b.append(capacity());
 		b.append(",remaining=");
 		b.append(remaining());
 		b.append(",offset=");

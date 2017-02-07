@@ -79,7 +79,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 
 		if (allocator == this) {
 			//FIXME 是否申请java内存
-			return UnpooledByteBufAllocator.getInstance().allocate(capacity);
+			return UnpooledByteBufAllocator.getHeapInstance().allocate(capacity);
 //			return null;
 		}
 		

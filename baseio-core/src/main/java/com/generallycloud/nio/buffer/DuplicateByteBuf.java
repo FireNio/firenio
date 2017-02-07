@@ -381,4 +381,9 @@ public class DuplicateByteBuf implements ByteBuf {
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public ByteBuf reverse() {
+		return unwrap().reverse();
+	}
+	
 }

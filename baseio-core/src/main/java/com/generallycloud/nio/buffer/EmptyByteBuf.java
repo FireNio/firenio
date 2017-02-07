@@ -18,7 +18,7 @@ package com.generallycloud.nio.buffer;
 public class EmptyByteBuf extends UnpooledHeapByteBuf {
 
 	private EmptyByteBuf() {
-		super(new byte[] {});
+		super(UnpooledByteBufAllocator.getHeapInstance(),new byte[] {});
 	}
 
 	private static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();

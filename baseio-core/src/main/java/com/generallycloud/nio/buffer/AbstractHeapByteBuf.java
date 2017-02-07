@@ -24,8 +24,9 @@ import com.generallycloud.nio.component.SocketChannel;
 public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
 	protected byte[]		memory;
-
 	protected ByteBuffer	nioBuffer;
+	protected int			limit;
+	protected int			position;
 
 	public AbstractHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
 		super(allocator);
@@ -47,7 +48,59 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 		System.arraycopy(memory, ix(position), dst, offset, length);
 		this.position += length;
 	}
+	
+	@Override
+	public boolean hasRemaining() {
+		return position < limit;
+	}
 
+	@Override
+	public int limit() {
+		return limit;
+	}
+	
+	@Override
+	public int remaining() {
+		return limit - position;
+	}
+	
+	@Override
+	public ByteBuffer nioBuffer() {
+		ByteBuffer buffer = getNioBuffer();
+		return (ByteBuffer) buffer.limit(ix(limit)).position(ix(position));
+	}
+
+	@Override
+	public int position() {
+		return position;
+	}
+
+	@Override
+	public ByteBuf position(int position) {
+		this.position = position;
+		return this;
+	}
+	
+	@Override
+	public ByteBuf limit(int limit) {
+		this.limit = limit;
+		return this;
+	}
+
+	@Override
+	public ByteBuf clear() {
+		this.position = 0;
+		this.limit = capacity;
+		return this;
+	}
+
+	@Override
+	public ByteBuf flip() {
+		this.limit = position;
+		this.position = 0;
+		return this;
+	}
+	
 	@Override
 	public int getInt() {
 		int v = MathUtil.byte2Int(memory, ix(position));
@@ -84,40 +137,40 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 	}
 
 	@Override
-	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
+	public int read0(ByteBuffer src, int srcRemaining, int remaining) {
 
 		if (remaining > srcRemaining) {
 
-			buffer.get(memory, ix(position), srcRemaining);
+			src.get(memory, ix(position), srcRemaining);
 
-			this.position(this.position + srcRemaining);
+			skipBytes(srcRemaining);
 
 			return srcRemaining;
 		}
 
-		buffer.get(memory, ix(position), remaining);
+		src.get(memory, ix(position), remaining);
 
-		this.position(this.limit);
+		position(limit);
 
 		return remaining;
 	}
 
 	@Override
-	public int read0(ByteBuf buf, int srcRemaining, int remaining) {
+	public int read0(ByteBuf src, int srcRemaining, int remaining) {
 
 		if (remaining > srcRemaining) {
 
-			buf.get(memory, ix(position), srcRemaining);
+			src.get(memory, ix(position), srcRemaining);
 
-			position(position + srcRemaining);
+			skipBytes(srcRemaining);
 
 			return srcRemaining;
 		}
 
-		buf.get(memory, ix(position), remaining);
+		src.get(memory, ix(position), remaining);
 
 		position(limit);
-
+		
 		return remaining;
 	}
 
@@ -374,6 +427,12 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 	public void putLongLE(long value) {
 		MathUtil.long2ByteLE(memory, value, ix(position));
 		position += 8;
+	}
+	
+	@Override
+	public ByteBuf reverse() {
+		position = nioBuffer.position() - offset;
+		return this;
 	}
 
 }

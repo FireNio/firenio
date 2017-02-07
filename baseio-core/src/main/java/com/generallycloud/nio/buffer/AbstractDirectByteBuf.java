@@ -43,14 +43,11 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	@Override
 	public void get(byte[] dst, int offset, int length) {
 		memory.get(dst, offset, length);
-		this.position += length;
 	}
 
 	@Override
 	public int getInt() {
-		int v = memory.getInt();
-		this.position += 4;
-		return v;
+		return memory.getInt();
 	}
 
 	@Override
@@ -60,9 +57,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	public long getLong() {
-		long v = memory.getLong();
-		this.position += 8;
-		return v;
+		return memory.getLong();
 	}
 
 	@Override
@@ -78,76 +73,87 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	@Override
 	public void put(byte[] src, int offset, int length) {
 		memory.put(src, offset, length);
-		this.position += length;
 	}
 	
 	@Override
-	public int read0(ByteBuffer buffer, int srcRemaining, int remaining) {
+	protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
 		
 		if (remaining > srcRemaining) {
+			
+			if (src.hasArray()) {
+				
+				put(src.array(), src.position(), srcRemaining);
+				
+				src.position(src.limit());
+				
+				return srcRemaining;
+			}
 
 			ByteBuffer buf = this.memory;
 			
 			for (int i = 0; i < srcRemaining; i++) {
-				buf.put(buffer.get());
+				buf.put(src.get());
 			}
 			
-			skipBytes(srcRemaining);
-			
 			return srcRemaining;
+		}
+		
+		if (src.hasArray()) {
+
+			put(src.array(), src.position(), remaining);
+			
+			src.position(src.position() + remaining);
+			
+			return remaining;
 		}
 		
 		ByteBuffer buf = this.memory;
 
 		for (int i = 0; i < remaining; i++) {
-			buf.put(buffer.get());
+			buf.put(src.get());
 		}
-
-		position(this.limit);
 
 		return remaining;
 	}
 
 	@Override
-	public int read0(ByteBuf buf, int srcRemaining, int remaining) {
+	protected int read0(ByteBuf src, int srcRemaining, int remaining) {
 		
 		if (remaining > srcRemaining) {
 			
-			if (buf.hasArray()) {
+			if (src.hasArray()) {
 
-				put(buf.array(), buf.offset() + buf.position(), srcRemaining);
-
-			} else {
-
-				ByteBuffer _this = this.memory;
-
-				for (int i = 0; i < srcRemaining; i++) {
-
-					_this.put(buf.getByte());
-				}
+				put(src.array(), src.offset() + src.position(), srcRemaining);
+				
+				src.position(src.limit());
+				
+				return srcRemaining;
 			}
-
-			skipBytes(srcRemaining);
-
-			return srcRemaining;
-			
-		} 
-		
-		if (buf.hasArray()) {
-
-			put(buf.array(), buf.offset() + buf.position(), remaining);
-			
-		} else {
 
 			ByteBuffer _this = this.memory;
 
-			for (int i = 0; i < remaining; i++) {
-
-				_this.put(buf.getByte());
+			for (int i = 0; i < srcRemaining; i++) {
+				_this.put(src.getByte());
 			}
+
+			return srcRemaining;
+		} 
+		
+		if (src.hasArray()) {
+
+			put(src.array(), src.offset() + src.position(), remaining);
+			
+			src.skipBytes(remaining);
+			
+			return remaining;
 		}
 
-		position(this.limit);
+		ByteBuffer _this = this.memory;
+
+		for (int i = 0; i < remaining; i++) {
+
+			_this.put(src.getByte());
+		}
 
 		return remaining;
 	}
@@ -158,8 +164,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		int length = channel.write(memory);
 
 		if (length > 0) {
-
-			position += length;
 
 			channel.upNetworkState();
 
@@ -173,7 +177,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	public byte getByte() {
-		position++;
 		return memory.get();
 	}
 
@@ -189,12 +192,9 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 			for (int i = start; i < end; i++) {
 
 				if (!processor.process(getByte(i))) {
-
 					return i - start;
 				}
-
 			}
-
 		} catch (Exception e) {
 		}
 
@@ -213,12 +213,9 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 			for (int i = end; i >= start; i--) {
 
 				if (!processor.process(getByte(i))) {
-
 					return i - start;
 				}
-
 			}
-
 		} catch (Exception e) {
 		}
 
@@ -235,7 +232,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		int v = memory.getInt();
 		memory.order(ByteOrder.BIG_ENDIAN);
-		this.position += 4;
 		return v;
 	}
 
@@ -252,7 +248,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		long v = memory.getLong();
 		memory.order(ByteOrder.BIG_ENDIAN);
-		this.position += 8;
 		return v;
 	}
 
@@ -266,9 +261,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	public short getShort() {
-		short v = memory.getShort();
-		this.position += 2;
-		return v;
+		return memory.getShort();
 	}
 
 	@Override
@@ -281,7 +274,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		short v = memory.getShort();
 		memory.order(ByteOrder.BIG_ENDIAN);
-		this.position += 2;
 		return v;
 	}
 
@@ -306,7 +298,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	@Override
 	public long getUnsignedInt() {
 		long v = toUnsignedInt(memory.getInt());
-		this.position += 4;
 		return v;
 	}
 
@@ -327,7 +318,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		long v = toUnsignedInt(memory.getInt());
 		memory.order(ByteOrder.BIG_ENDIAN);
-		this.position += 4;
 		return v;
 	}
 
@@ -341,14 +331,12 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
 	@Override
 	public int getUnsignedShort() {
-		int v = memory.getShort() & 0xffff;
-		this.position += 2;
-		return v;
+		return memory.getShort() & 0xffff;
 	}
 
 	@Override
 	public int getUnsignedShort(int index) {
-		return memory.getShort(ix(index) & 0xffff);
+		return memory.getShort(ix(index)) & 0xffff;
 	}
 
 	@Override
@@ -356,7 +344,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		int v = memory.getShort() & 0xffff;
 		memory.order(ByteOrder.BIG_ENDIAN);
-		this.position += 2;
 		return v;
 	}
 
@@ -376,7 +363,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	@Override
 	public void putShort(short value) {
 		memory.putShort(value);
-		position += 2;
 	}
 
 	@Override
@@ -384,7 +370,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		memory.putShort(value);
 		memory.order(ByteOrder.BIG_ENDIAN);
-		position += 2;
 	}
 
 	@Override
@@ -393,7 +378,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		byte b0 = (byte) (value >> 8 * 1);
 		memory.put(b0);
 		memory.put(b1);
-		position += 2;
 	}
 
 	@Override
@@ -402,13 +386,11 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		byte b1 = (byte) (value >> 8 * 1);
 		memory.put(b0);
 		memory.put(b1);
-		position += 2;
 	}
 
 	@Override
 	public void putInt(int value) {
 		memory.putInt(value);
-		position += 4;
 	}
 
 	@Override
@@ -416,7 +398,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		memory.putInt(value);
 		memory.order(ByteOrder.BIG_ENDIAN);
-		position += 4;
 	}
 
 	@Override
@@ -429,7 +410,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.put(b1);
 		memory.put(b2);
 		memory.put(b3);
-		position += 4;
 	}
 
 	@Override
@@ -442,13 +422,11 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.put(b1);
 		memory.put(b2);
 		memory.put(b3);
-		position += 4;
 	}
 
 	@Override
 	public void putLong(long value) {
 		memory.putLong(value);
-		position += 8;
 	}
 
 	@Override
@@ -456,7 +434,60 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		memory.order(ByteOrder.LITTLE_ENDIAN);
 		memory.putLong(value);
 		memory.order(ByteOrder.BIG_ENDIAN);
-		position += 8;
 	}
 
+	@Override
+	public ByteBuf clear() {
+		memory.position(offset).limit(ix(capacity));
+		return this;
+	}
+
+	@Override
+	public ByteBuf flip() {
+		memory.limit(memory.position());
+		memory.position(offset);
+		return this;
+	}
+
+	@Override
+	public boolean hasRemaining() {
+		return memory.hasRemaining();
+	}
+
+	@Override
+	public int limit() {
+		return memory.limit() - offset;
+	}
+
+	@Override
+	public ByteBuf limit(int limit) {
+		memory.limit(ix(limit));
+		return this;
+	}
+
+	@Override
+	public ByteBuffer nioBuffer() {
+		return memory;
+	}
+
+	@Override
+	public int position() {
+		return memory.position() - offset;
+	}
+
+	@Override
+	public ByteBuf position(int position) {
+		memory.position(ix(position));
+		return this;
+	}
+
+	@Override
+	public int remaining() {
+		return memory.remaining();
+	}
+	
+	@Override
+	public ByteBuf reverse() {
+		return this;
+	}
 }

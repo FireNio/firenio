@@ -163,16 +163,20 @@ public class SslHandler {
 	
 	private void synchByteBuf(SSLEngineResult result,ByteBuf src,ByteBuf dst){
 		
-		int bytesConsumed = result.bytesConsumed();
-		int bytesProduced = result.bytesProduced();
+		//FIXME 同步。。。。。
+		src.reverse();
+		dst.reverse();
 		
-		if (bytesConsumed > 0) {
-			src.skipBytes(bytesConsumed);
-		}
-
-		if (bytesProduced > 0) {
-			dst.skipBytes(bytesProduced);
-		}
+//		int bytesConsumed = result.bytesConsumed();
+//		int bytesProduced = result.bytesProduced();
+//		
+//		if (bytesConsumed > 0) {
+//			src.skipBytes(bytesConsumed);
+//		}
+//
+//		if (bytesProduced > 0) {
+//			dst.skipBytes(bytesProduced);
+//		}
 	}
 
 	private void runDelegatedTasks(SSLEngine engine) {

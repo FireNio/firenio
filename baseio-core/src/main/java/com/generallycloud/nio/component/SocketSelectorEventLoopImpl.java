@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
@@ -79,6 +80,8 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	private AtomicBoolean					selecting			= new AtomicBoolean();
 
 	private ReentrantLock					isWaitForRegistLock	= new ReentrantLock();
+	
+	private UnpooledByteBufAllocator			unpooledByteBufAllocator;
 
 	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group, int eventQueueSize,
 			int coreIndex) {
@@ -105,10 +108,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		this.eventQueueSize = eventQueueSize;
 		
-		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-
-		// FIXME 使用direct
-		this.buf = UnpooledByteBufAllocator.getInstance().allocate(readBuffer);
+		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
 	}
 
 	@Override
@@ -191,6 +191,13 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		if (executorEventLoop instanceof LineEventLoop) {
 			((LineEventLoop) executorEventLoop).setMonitor(this);
 		}
+		
+		LifeCycleUtil.start(unpooledByteBufAllocator);
+		
+		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
+		
+		// FIXME 使用direct
+		this.buf = unpooledByteBufAllocator.allocate(readBuffer);
 
 		super.doStartup();
 	}
@@ -219,6 +226,8 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		CloseUtil.close(selector);
 
 		ReleaseUtil.release(buf);
+		
+		LifeCycleUtil.stop(unpooledByteBufAllocator);
 	}
 
 	@Override

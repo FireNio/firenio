@@ -37,7 +37,7 @@ public class DatagramChannelSelectionReader implements SelectionAcceptor {
 	public DatagramChannelSelectionReader(DatagramSelectorEventLoopImpl selectorLoop) {
 		this.selectorLoop = selectorLoop;
 		this.context = selectorLoop.getContext();
-		this.cacheBuffer = UnpooledByteBufAllocator.getInstance().allocate(DatagramPacket.PACKET_MAX);
+		this.cacheBuffer = UnpooledByteBufAllocator.getDirectInstance().allocate(DatagramPacket.PACKET_MAX);
 	}
 
 	@Override

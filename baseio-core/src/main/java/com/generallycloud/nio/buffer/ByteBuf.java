@@ -145,6 +145,8 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 	public abstract int read(SocketChannel channel) throws IOException;
 
 	public abstract int remaining();
+	
+	public abstract ByteBuf reverse();
 
 	public abstract ByteBuf reallocate(int limit);
 

@@ -212,6 +212,8 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		b.append(free);
 		b.append(",memory=");
 		b.append(capacity);
+		b.append(",isDirect=");
+		b.append(isDirect);
 		b.append("]");
 
 		return b.toString();

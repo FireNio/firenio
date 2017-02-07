@@ -21,8 +21,8 @@ package com.generallycloud.nio.buffer;
  */
 public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
-	protected UnpooledHeapByteBuf(byte[] memory) {
-		super(UnpooledByteBufAllocator.getInstance(), memory);
+	protected UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+		super(allocator, memory);
 		this.produce(memory.length);
 	}
 
@@ -55,7 +55,7 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 	 */
 	@Override
 	public ByteBuf duplicate() {
-		UnpooledHeapByteBuf buf = new UnpooledHeapByteBuf(memory);
+		UnpooledHeapByteBuf buf = new UnpooledHeapByteBuf(allocator, memory);
 		buf.limit = limit;
 		buf.offset = offset;
 		buf.position = position;

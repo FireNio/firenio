@@ -25,31 +25,33 @@ import com.generallycloud.nio.common.ByteBufferUtil;
  */
 public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 
-	protected UnpooledDirectByteBuf(ByteBuffer memory) {
-		super(UnpooledByteBufAllocator.getInstance(), memory);
+	protected UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+		super(allocator, memory);
 		this.produce(memory.capacity());
 	}
 
 	protected void produce(int capacity) {
 		this.capacity = capacity;
-		this.limit = capacity;
+		this.limit(capacity);
 		this.referenceCount = 1;
 	}
 
 	@Override
 	public ByteBuf reallocate(int limit, boolean copyOld) {
-		
+
 		ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
-		
+
 		if (copyOld) {
+			memory.flip();
 			newMemory.put(memory);
 			ByteBufferUtil.release(memory);
+		}else{
+			this.position(0);
 		}
-		
+
 		this.memory = newMemory;
 		this.capacity = limit;
-		this.limit = limit;
-		this.position = 0;
+		this.limit(limit);
 		this.referenceCount = 1;
 		return this;
 	}
@@ -59,10 +61,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 	 */
 	@Override
 	public ByteBuf duplicate() {
-		UnpooledDirectByteBuf buf = new UnpooledDirectByteBuf(memory.duplicate());
-		buf.limit = limit;
-		buf.offset = offset;
-		buf.position = position;
+		UnpooledDirectByteBuf buf = new UnpooledDirectByteBuf(allocator, memory.duplicate());
 		return new DuplicateByteBuf(buf, this);
 	}
 
@@ -75,5 +74,5 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }
