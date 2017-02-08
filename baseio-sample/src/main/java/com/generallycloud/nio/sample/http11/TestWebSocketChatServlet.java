@@ -76,6 +76,8 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 			String action = obj.getString("action");
 
 			if ("new-message".equals(action)) {
+				
+				String owner = (String) session.getAttribute("username");
 
 				String message = obj.getString("message");
 				
@@ -91,12 +93,16 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 						
 						if (s == null) {
 							obj.put("message", "用户不存在或者已离线");
+							obj.put("username", owner);
 							msgAdapter.sendMsg(session, obj.toJSONString());
 							return;
 						}
 						
-						String owner = (String)session.getAttribute("username");
-						obj.put("username", owner+"@"+"你");
+						obj.put("username", owner);
+						
+						msgAdapter.sendMsg(session, obj.toJSONString());
+						
+						obj.put("username", owner+"@你");
 						obj.put("message", message.substring(nIndex));
 						msgAdapter.sendMsg(s, obj.toJSONString());
 						
@@ -104,7 +110,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 					}
 				}
 				
-				obj.put("username", session.getAttribute("username"));
+				obj.put("username", owner);
 
 				String msg1 = obj.toJSONString();
 
