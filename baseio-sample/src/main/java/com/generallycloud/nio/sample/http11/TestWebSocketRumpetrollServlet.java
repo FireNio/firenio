@@ -44,7 +44,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		
 		session.flush(future);
 
-		msgAdapter.addClient(session.getIoSession());
+		msgAdapter.addClient(getAddress(session.getIoSession()),session.getIoSession());
 
 		SocketSession ioSession = session.getIoSession();
 

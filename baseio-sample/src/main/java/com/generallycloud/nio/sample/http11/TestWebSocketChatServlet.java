@@ -20,9 +20,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
-import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.LifeCycleUtil;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.container.ApplicationContext;
 import com.generallycloud.nio.container.configuration.Configuration;
@@ -49,8 +48,6 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 			return;
 		}
 		
-		int x = 1;
-
 		WebSocketReadFuture f = (WebSocketReadFuture) future;
 
 		// CLOSE
@@ -80,6 +77,33 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
 			if ("new-message".equals(action)) {
 
+				String message = obj.getString("message");
+				
+				if (message.charAt(0) == '@') {
+					
+					int nIndex = message.indexOf(' ');
+					
+					if (nIndex > 1) {
+
+						String username = message.substring(1, nIndex);
+						
+						SocketSession s = msgAdapter.getSession(username);
+						
+						if (s == null) {
+							obj.put("message", "用户不存在或者已离线");
+							msgAdapter.sendMsg(session, obj.toJSONString());
+							return;
+						}
+						
+						String owner = (String)session.getAttribute("username");
+						obj.put("username", owner+"@"+"你");
+						obj.put("message", message.substring(nIndex));
+						msgAdapter.sendMsg(s, obj.toJSONString());
+						
+						return;
+					}
+				}
+				
 				obj.put("username", session.getAttribute("username"));
 
 				String msg1 = obj.toJSONString();
@@ -88,41 +112,39 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 				
 			} else if ("add-user".equals(action)) {
 
-				msgAdapter.addClient(session);
-
 				String username = (String) session.getAttribute("username");
 
 				if (username != null) {
 					return;
 				}
-
+				
 				username = obj.getString("username");
+
+				if (StringUtil.isNullOrBlank(username)) {
+					return;
+				}
+				
+				msgAdapter.addClient(username,session);
 
 				session.setAttribute("username", username);
 
 				obj.put("numUsers", msgAdapter.getClientSize());
 				obj.put("action", "login");
 
-				String msg1 = obj.toJSONString();
-				
-				msgAdapter.sendMsg(session, msg1);
+				msgAdapter.sendMsg(session, obj.toJSONString());
 
 				obj.put("username", username);
 				obj.put("action", "user-joined");
 
-				String msg2 = obj.toJSONString();
-
-				msgAdapter.sendMsg(msg2);
+				msgAdapter.sendMsg(obj.toJSONString());
 				
-				JSONObject obj1 = JSON.parseObject(msg);
+				obj.put("action", "new-message");
 				
-				obj1.put("action", "new-message");
+				obj.put("username", "系统消息");
 				
-				obj1.put("username", "管理员");
+				obj.put("message", "欢迎加入QQ群讨论java io相关技术：540637859，@某人可以单独向他发送消息。");
 				
-				obj1.put("message", "欢迎加入QQ群讨论io相关技术：540637859(该消息为自动发送)");
-				
-				msgAdapter.sendMsg(session, obj1.toJSONString());
+				msgAdapter.sendMsg(session, obj.toJSONString());
 				
 			} else if ("typing".equals(action)) {
 

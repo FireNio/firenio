@@ -16,12 +16,15 @@
 package com.generallycloud.nio.sample.http11;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.concurrent.AbstractEventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
@@ -29,15 +32,19 @@ import com.generallycloud.nio.component.concurrent.ListQueueABQ;
 
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
-	private Logger				logger	= LoggerFactory.getLogger(WebSocketMsgAdapter.class);
+	private Logger					logger		= LoggerFactory.getLogger(WebSocketMsgAdapter.class);
 
-	private List<SocketSession>	clients	= new ArrayList<SocketSession>();
+	private List<SocketSession>		clients		= new ArrayList<SocketSession>();
 
-	private ListQueue<Msg>		msgs		= new ListQueueABQ<Msg>(1024 * 4);
+	private Map<String, SocketSession>	clientsMap	= new HashMap<>();
 
-	public synchronized void addClient(SocketSession session) {
+	private ListQueue<Msg>			msgs			= new ListQueueABQ<Msg>(1024 * 4);
+
+	public synchronized void addClient(String username,SocketSession session) {
 
 		clients.add(session);
+		
+		clientsMap.put(username, session);
 
 		logger.info("客户端 {} 已加入当前客户端数量：{}", session, clients.size());
 	}
@@ -45,11 +52,22 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 	public synchronized boolean removeClient(SocketSession session) {
 
 		if (clients.remove(session)) {
+
+			String username = (String)session.getAttribute("username");
+			
+			if (!StringUtil.isNullOrBlank(username)) {
+				clientsMap.remove(username);
+			}
+			
 			logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
 			return true;
 		}
 
 		return false;
+	}
+	
+	public SocketSession getSession(String username){
+		return clientsMap.get(username);
 	}
 
 	public void sendMsg(String msg) {
