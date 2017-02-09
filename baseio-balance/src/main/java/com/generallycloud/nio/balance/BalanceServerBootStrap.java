@@ -25,6 +25,7 @@ import com.generallycloud.nio.component.BeatFutureFactory;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSessionEventListener;
+import com.generallycloud.nio.component.SocketSessionIdleEventListener;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ProtocolFactory;
@@ -36,7 +37,9 @@ public class BalanceServerBootStrap {
 	private ServerConfiguration				balanceServerConfiguration;
 	private ServerConfiguration				balanceReverseServerConfiguration;
 	private List<SocketSessionEventListener>	balanceSessionEventListeners;
+	private List<SocketSessionIdleEventListener>	balanceSessionIdleEventListeners;
 	private List<SocketSessionEventListener>	balanceReverseSessionEventListeners;
+	private List<SocketSessionIdleEventListener>	balanceReverseSessionIdleEventListeners;
 	private BeatFutureFactory				balanceBeatFutureFactory;
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
@@ -112,6 +115,10 @@ public class BalanceServerBootStrap {
 		if (balanceSessionEventListeners != null) {
 			addSessionEventListener2Context(context, balanceSessionEventListeners);
 		}
+		
+		if (balanceSessionIdleEventListeners != null) {
+			addSessionIdleEventListener2Context(context, balanceSessionIdleEventListeners);
+		}
 
 		if (sslContext != null) {
 			context.setSslContext(sslContext);
@@ -135,6 +142,10 @@ public class BalanceServerBootStrap {
 
 		if (balanceReverseSessionEventListeners != null) {
 			addSessionEventListener2Context(context, balanceReverseSessionEventListeners);
+		}
+		
+		if (balanceReverseSessionIdleEventListeners != null) {
+			addSessionIdleEventListener2Context(context, balanceReverseSessionIdleEventListeners);
 		}
 
 		return context;
@@ -171,17 +182,31 @@ public class BalanceServerBootStrap {
 	public void setBalanceReverseServerConfiguration(ServerConfiguration balanceReverseServerConfiguration) {
 		this.balanceReverseServerConfiguration = balanceReverseServerConfiguration;
 	}
+	
+	public void addBalanceSessionIdleEventListener(SocketSessionIdleEventListener listener) {
+		if (balanceSessionIdleEventListeners == null) {
+			balanceSessionIdleEventListeners = new ArrayList<>();
+		}
+		balanceSessionIdleEventListeners.add(listener);
+	}
 
 	public void addBalanceSessionEventListener(SocketSessionEventListener listener) {
 		if (balanceSessionEventListeners == null) {
-			balanceSessionEventListeners = new ArrayList<SocketSessionEventListener>();
+			balanceSessionEventListeners = new ArrayList<>();
 		}
 		balanceSessionEventListeners.add(listener);
+	}
+	
+	public void addBalanceReverseSessionIdleEventListener(SocketSessionIdleEventListener listener) {
+		if (balanceReverseSessionIdleEventListeners == null) {
+			balanceReverseSessionIdleEventListeners = new ArrayList<>();
+		}
+		balanceReverseSessionIdleEventListeners.add(listener);
 	}
 
 	public void addBalanceReverseSessionEventListener(SocketSessionEventListener listener) {
 		if (balanceReverseSessionEventListeners == null) {
-			balanceReverseSessionEventListeners = new ArrayList<SocketSessionEventListener>();
+			balanceReverseSessionEventListeners = new ArrayList<>();
 		}
 		balanceReverseSessionEventListeners.add(listener);
 	}
@@ -190,6 +215,13 @@ public class BalanceServerBootStrap {
 			List<SocketSessionEventListener> listeners) {
 		for (SocketSessionEventListener l : listeners) {
 			context.addSessionEventListener(l);
+		}
+	}
+	
+	private void addSessionIdleEventListener2Context(SocketChannelContext context,
+			List<SocketSessionIdleEventListener> listeners) {
+		for (SocketSessionIdleEventListener l : listeners) {
+			context.addSessionIdleEventListener(l);
 		}
 	}
 
