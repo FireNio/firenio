@@ -42,6 +42,11 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 		return heapAllocator;
 	}
 
+	/**
+	 * 不稳定，待改进
+	 * @return
+	 */
+	@Deprecated
 	public static UnpooledByteBufAllocator getDirectInstance() {
 		return directAllocator;
 	}

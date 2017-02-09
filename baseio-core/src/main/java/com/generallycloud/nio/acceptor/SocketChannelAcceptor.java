@@ -72,7 +72,7 @@ public final class SocketChannelAcceptor extends AbstractChannelAcceptor {
 
 				ProtocolEncoder encoder = context.getProtocolEncoder();
 
-				ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirectInstance();
+				ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
 
 				ChannelWriteFuture writeFuture;
 				try {

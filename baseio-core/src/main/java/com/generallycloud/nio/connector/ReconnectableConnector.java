@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.connector;
 
 import java.io.Closeable;
@@ -28,11 +28,10 @@ import com.generallycloud.nio.component.SocketSession;
 
 public class ReconnectableConnector implements Closeable {
 
-	private Logger					logger				= LoggerFactory
-															.getLogger(ReconnectableConnector.class);
+	private Logger					logger				= LoggerFactory.getLogger(ReconnectableConnector.class);
 	private SocketChannelConnector	connect2Front			= null;
 	private long					retryTime				= 15000;
-	private volatile boolean		reconnect				= true;
+	private volatile boolean			reconnect				= true;
 	private ReconnectableConnector	reconnectableConnector	= null;
 
 	public ReconnectableConnector(SocketChannelContext context) {
@@ -56,16 +55,25 @@ public class ReconnectableConnector implements Closeable {
 		}
 
 		SocketSession session = connect2Front.getSession();
-		
-		if (session != null 
-				&& session.isOpened() && !session.isClosing()) {
+
+		if (session != null && session.isOpened() && !session.isClosing()) {
 			return;
 		}
-		
-		// 启动本地服务端口
-		logger.info("启动前端长连接端口服务...");
+
+		ThreadUtil.sleep(300);
+
+		logger.info("开始尝试重连...");
 
 		for (;;) {
+
+			if (session != null && session.isClosing()) {
+
+				logger.error("连接尚未完整关闭，稍后尝试重连。。。");
+
+				ThreadUtil.sleep(retryTime);
+
+				continue;
+			}
 
 			try {
 
@@ -73,9 +81,9 @@ public class ReconnectableConnector implements Closeable {
 
 				break;
 			} catch (Throwable e) {
-				
+
 				CloseUtil.close(connect2Front);
-				
+
 				logger.error(e.getMessage(), e);
 			}
 
@@ -91,21 +99,19 @@ public class ReconnectableConnector implements Closeable {
 
 			@Override
 			public void sessionClosed(SocketSession session) {
-
-				ThreadUtil.execute(new Runnable() {
-
-					@Override
-					public void run() {
-
-						ThreadUtil.sleep(retryTime);
-
-						logger.error("连接断开，正在尝试重连。。。");
-						
-						reconnectableConnector.connect();
-					}
-				});
+				reconnect();
 			}
 		};
+	}
+
+	private void reconnect() {
+		ThreadUtil.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				reconnectableConnector.connect();
+			}
+		});
 	}
 
 	@Override

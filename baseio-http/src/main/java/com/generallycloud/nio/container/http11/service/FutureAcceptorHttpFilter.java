@@ -92,7 +92,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			
 			ReleaseUtil.release(entity.future);
 			
-			entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getDirectInstance(), f);
+			entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getHeapInstance(), f);
 			
 			return;
 		}
@@ -107,7 +107,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		
 		ReleaseUtil.release(entity.future);
 		
-		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getDirectInstance(), f);
+		entity.future = context.getProtocolEncoder().encode(UnpooledByteBufAllocator.getHeapInstance(), f);
 	}
 	
 	@Override

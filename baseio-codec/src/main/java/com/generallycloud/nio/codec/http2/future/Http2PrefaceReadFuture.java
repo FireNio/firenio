@@ -40,7 +40,7 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 	
 	static{
 		
-		PREFACE_BUF = UnpooledByteBufAllocator.getDirectInstance().wrap(ByteBuffer.wrap(PREFACE_BINARY));
+		PREFACE_BUF = UnpooledByteBufAllocator.getHeapInstance().wrap(ByteBuffer.wrap(PREFACE_BINARY));
 	}
 
 	public Http2PrefaceReadFuture(SocketChannelContext context,ByteBuf buf) {
