@@ -44,6 +44,7 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 	private ProtocolEncoder							protocolEncoder;
 	private SslContext								sslContext;
 	private boolean								enableSSL;
+	private boolean								initialized;
 	private ChannelByteBufReader						channelByteBufReader;
 	private ForeReadFutureAcceptor					foreReadFutureAcceptor;
 	private SocketSessionManager						sessionManager;
@@ -115,8 +116,6 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 
 	@Override
 	protected void clearContext() {
-		sessionEventListenerGroup.clear();
-		sessionIdleEventListenerGroup.clear();
 		super.clearContext();
 	}
 
@@ -130,8 +129,16 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 		if (protocolFactory == null) {
 			throw new IllegalArgumentException("null protocolFactory");
 		}
+		
+		if (!initialized) {
+			
+			initialized = true;
+			
+			this.serverConfiguration.initializeDefault(this);
+			
+			this.addSessionEventListener(new SocketSessionManagerSEListener());
+		}
 
-		this.serverConfiguration.initializeDefault(this);
 
 		EmptyReadFuture.initializeReadFuture(this);
 
@@ -140,15 +147,6 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-
-		long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
-				* SERVER_CORE_SIZE;
-		long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
-
-		double MEMORY_POOL_SIZE = new BigDecimal(
-				SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
-						.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
-						.doubleValue();
 
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
@@ -170,8 +168,22 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
 		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }",
 				serverConfiguration.getSERVER_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", new Object[] {
-				SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+		
+		if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+			
+			long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
+					* SERVER_CORE_SIZE;
+			long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
+
+			double MEMORY_POOL_SIZE = new BigDecimal(
+					SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
+							.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
+							.doubleValue();
+
+			LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }", new Object[] {
+					SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+		}
+		
 
 		LifeCycleUtil.start(ioEventHandleAdaptor);
 
@@ -192,7 +204,6 @@ public class SocketChannelContextImpl extends AbstractChannelContext
 
 		if (foreReadFutureAcceptor == null) {
 			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
-			this.addSessionEventListener(new SocketSessionManagerSEListener());
 		}
 
 		if (channelByteBufReader == null) {
