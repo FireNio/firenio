@@ -31,6 +31,14 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 		this.limit = capacity;
 		this.referenceCount = 1;
 	}
+	
+	protected UnpooledHeapByteBuf produce(ByteBuf buf) {
+		this.capacity = buf.capacity();
+		this.limit = buf.limit();
+		this.position = buf.position();
+		this.referenceCount = 1;
+		return this;
+	}
 
 	@Override
 	public ByteBuf reallocate(int limit, boolean copyOld) {
@@ -50,20 +58,13 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 		return this;
 	}
 
-	/**
-	 * NOTICE 该方法非线程安全
-	 */
 	@Override
-	public ByteBuf duplicate() {
-		UnpooledHeapByteBuf buf = new UnpooledHeapByteBuf(allocator, memory);
-		buf.limit = limit;
-		buf.offset = offset;
-		buf.position = position;
-		return new DuplicateByteBuf(buf, this);
+	public ByteBuf doDuplicate() {
+		return new DuplicateByteBuf(new UnpooledHeapByteBuf(allocator, memory).produce(this), this);
 	}
 
 	@Override
-	public void release() {
+	protected void doRelease() {
 		this.memory = null;
 	}
 

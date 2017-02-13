@@ -23,8 +23,6 @@ public class PooledDirectByteBuf extends AbstractDirectByteBuf implements Pooled
 		super(allocator,memory);
 	}
 
-	private boolean	released;
-
 	private int		beginUnit;
 
 	@Override
@@ -37,28 +35,10 @@ public class PooledDirectByteBuf extends AbstractDirectByteBuf implements Pooled
 		return this;
 	}
 
-	@Override
-	public ByteBuf duplicate() {
-
-		synchronized (this) {
-
-			if (released) {
-				throw new ReleasedException("released");
-			}
-
-			this.referenceCount++;
-
-			return doDuplicate();
-		}
-	}
-
-	private ByteBuf doDuplicate() {
+	protected ByteBuf doDuplicate() {
 		
-		PooledDirectByteBuf buf = new PooledDirectByteBuf(allocator, memory.duplicate());
+		PooledDirectByteBuf buf = new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this);
 		
-		buf.beginUnit = beginUnit;
-		buf.offset = offset;
-
 		return new DuplicateByteBuf(buf, this);
 	}
 	
@@ -74,7 +54,7 @@ public class PooledDirectByteBuf extends AbstractDirectByteBuf implements Pooled
 	}
 	
 	@Override
-	public PooledByteBuf produce(PooledByteBuf buf) {
+	public PooledDirectByteBuf produce(PooledByteBuf buf) {
 		this.offset = buf.offset();
 		this.capacity = buf.capacity();
 		this.limit(buf.limit());
@@ -84,24 +64,10 @@ public class PooledDirectByteBuf extends AbstractDirectByteBuf implements Pooled
 		this.released = false;
 		return this;
 	}
-	
+
 	@Override
-	public void release() {
-
-		synchronized (this) {
-
-			if (released) {
-				return;
-			}
-
-			if (--referenceCount != 0) {
-				return;
-			}
-
-			released = true;
-
-			allocator.release(this);
-		}
+	protected void doRelease() {
+		allocator.release(this);
 	}
 	
 }

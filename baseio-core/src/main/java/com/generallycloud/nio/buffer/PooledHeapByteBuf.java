@@ -21,8 +21,6 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 		super(allocator, memory);
 	}
 
-	private boolean	released;
-
 	private int		beginUnit;
 
 	@Override
@@ -35,35 +33,12 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 		return this;
 	}
 
-	@Override
-	public ByteBuf duplicate() {
-
-		synchronized (this) {
-
-			if (released) {
-				throw new ReleasedException("released");
-			}
-
-			this.referenceCount++;
-
-			return doDuplicate();
-		}
-	}
-
-	private ByteBuf doDuplicate() {
-
-		PooledHeapByteBuf buf = new PooledHeapByteBuf(allocator, memory);
-
-		buf.beginUnit = beginUnit;
-		buf.limit = limit;
-		buf.offset = offset;
-		buf.position = position;
-
-		return new DuplicateByteBuf(buf, this);
+	protected ByteBuf doDuplicate() {
+		return new DuplicateByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this), this);
 	}
 
 	@Override
-	public PooledByteBuf produce(int begin, int end, int newLimit) {
+	public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
 		this.offset = begin * allocator.getUnitMemorySize();
 		this.capacity = (end - begin) * allocator.getUnitMemorySize();
 		this.limit = newLimit;
@@ -71,6 +46,11 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 		this.beginUnit = begin;
 		this.referenceCount = 1;
 		return this;
+	}
+	
+	@Override
+	protected void doRelease() {
+		allocator.release(this);
 	}
 
 	@Override
@@ -85,23 +65,5 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 		return this;
 	}
 
-	@Override
-	public void release() {
-
-		synchronized (this) {
-
-			if (released) {
-				return;
-			}
-
-			if (--referenceCount != 0) {
-				return;
-			}
-
-			released = true;
-
-			allocator.release(this);
-		}
-	}
 
 }

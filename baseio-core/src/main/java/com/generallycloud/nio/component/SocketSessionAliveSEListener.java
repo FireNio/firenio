@@ -16,14 +16,18 @@
 package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 
 public class SocketSessionAliveSEListener implements SocketSessionIdleEventListener{
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 		
 		if (session.getLastAccessTime() < lastIdleTime) {
-			
+			logger.info("心跳周期内未检测到心跳消息，准备断开连接：{}",session);
 			CloseUtil.close(session);
 		}
 	}

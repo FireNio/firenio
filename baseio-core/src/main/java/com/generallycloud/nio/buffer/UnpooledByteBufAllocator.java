@@ -42,6 +42,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 		return heapAllocator;
 	}
 
+	//FIXME 回收机制
 	/**
 	 * 不稳定，待改进
 	 * @return

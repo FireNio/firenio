@@ -60,13 +60,12 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 	 * NOTICE 该方法非线程安全
 	 */
 	@Override
-	public ByteBuf duplicate() {
-		UnpooledDirectByteBuf buf = new UnpooledDirectByteBuf(allocator, memory.duplicate());
-		return new DuplicateByteBuf(buf, this);
+	public ByteBuf doDuplicate() {
+		return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()), this);
 	}
 
 	@Override
-	public void release() {
+	public void doRelease() {
 		ByteBufferUtil.release(memory);
 	}
 

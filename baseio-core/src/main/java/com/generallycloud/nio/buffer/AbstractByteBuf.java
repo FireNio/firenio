@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.buffer;
 
 import java.io.IOException;
@@ -25,6 +25,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	protected ByteBufAllocator	allocator;
 	protected int				offset;
 	protected int				capacity;
+	protected boolean			released;
 	protected int				referenceCount	= 0;
 
 	protected AbstractByteBuf(ByteBufAllocator allocator) {
@@ -57,7 +58,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	}
 
 	protected abstract ByteBuffer getNioBuffer();
-	
+
 	protected int ix(int index) {
 		return offset + index;
 	}
@@ -103,16 +104,16 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		}
 
 		int remaining = this.remaining();
-		
+
 		if (remaining == 0) {
 			return 0;
 		}
 
 		return read0(src, srcRemaining, remaining);
 	}
-	
-	protected abstract int read0(ByteBuffer src,int srcRemaining,int remaining) ;
-	
+
+	protected abstract int read0(ByteBuffer src, int srcRemaining, int remaining);
+
 	@Override
 	public int read(ByteBuf src) {
 
@@ -123,16 +124,16 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		}
 
 		int remaining = this.remaining();
-		
+
 		if (remaining == 0) {
 			return 0;
 		}
 
 		return read0(src, srcRemaining, remaining);
 	}
-	
-	protected abstract int read0(ByteBuf src,int srcRemaining,int remaining) ;
-	
+
+	protected abstract int read0(ByteBuf src, int srcRemaining, int remaining);
+
 	@Override
 	public ByteBuf skipBytes(int length) {
 		return position(position() + length);
@@ -142,7 +143,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	public ByteBuf reallocate(int limit) {
 		return reallocate(limit, false);
 	}
-	
+
 	@Override
 	public ByteBuf reallocate(int limit, boolean copyOld) {
 		return allocator.reallocate(this, limit, copyOld);
@@ -150,21 +151,62 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
-		
+
 		if (limit < 1) {
 			throw new BufferException("illegal limit:" + limit);
 		}
-		
+
 		if (limit > maxLimit) {
-			throw new BufferException("limit:" + limit +",maxLimit:"+maxLimit);
+			throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
 		}
-		return reallocate(limit,copyOld);
+		return reallocate(limit, copyOld);
 	}
 
 	@Override
 	public ByteBuf reallocate(int limit, int maxLimit) {
 		return reallocate(limit, maxLimit, false);
 	}
+
+	@Override
+	public void release() {
+
+		synchronized (this) {
+
+			if (released) {
+				return;
+			}
+
+			if (--referenceCount != 0) {
+				return;
+			}
+
+			released = true;
+
+			doRelease();
+		}
+	}
+
+	protected abstract void doRelease();
+	
+	/**
+	 * NOTICE 该方法非线程安全
+	 */
+	@Override
+	public ByteBuf duplicate() {
+
+		synchronized (this) {
+
+			if (released) {
+				throw new ReleasedException("released");
+			}
+
+			this.referenceCount++;
+
+			return doDuplicate();
+		}
+	}
+
+	protected abstract ByteBuf doDuplicate() ;
 
 	@Override
 	public String toString() {

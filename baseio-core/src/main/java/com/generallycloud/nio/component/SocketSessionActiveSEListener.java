@@ -29,6 +29,7 @@ public class SocketSessionActiveSEListener implements SocketSessionIdleEventList
 
 		if (session.getLastAccessTime() < lastIdleTime) {
 
+			logger.info("心跳周期内未检测到心跳消息，准备断开连接：{}",session);
 			CloseUtil.close(session);
 
 		} else {

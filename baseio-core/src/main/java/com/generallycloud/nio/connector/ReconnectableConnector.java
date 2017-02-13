@@ -31,7 +31,7 @@ public class ReconnectableConnector implements Closeable {
 	private Logger					logger				= LoggerFactory.getLogger(ReconnectableConnector.class);
 	private SocketChannelConnector	connect2Front			= null;
 	private long					retryTime				= 15000;
-	private volatile boolean			reconnect				= true;
+	private volatile boolean		reconnect				= true;
 	private ReconnectableConnector	reconnectableConnector	= null;
 
 	public ReconnectableConnector(SocketChannelContext context) {
@@ -51,24 +51,26 @@ public class ReconnectableConnector implements Closeable {
 	public synchronized void connect() {
 
 		if (!reconnect) {
+			logger.info("连接已经关闭，停止重连");
 			return;
 		}
 
 		SocketSession session = connect2Front.getSession();
 
 		if (session != null && session.isOpened() && !session.isClosing()) {
+			logger.info("该session未关闭，取消连接");
 			return;
 		}
 
 		ThreadUtil.sleep(300);
-
-		logger.info("开始尝试重连...");
+		
+		logger.info("开始尝试建立连接");
 
 		for (;;) {
 
 			if (session != null && session.isClosing()) {
 
-				logger.error("连接尚未完整关闭，稍后尝试重连。。。");
+				logger.error("连接尚未完整关闭，稍后尝试重连");
 
 				ThreadUtil.sleep(retryTime);
 
@@ -87,7 +89,7 @@ public class ReconnectableConnector implements Closeable {
 				logger.error(e.getMessage(), e);
 			}
 
-			logger.error("连接失败，正在尝试重连。。。");
+			logger.error("连接失败，正在尝试重连");
 
 			ThreadUtil.sleep(retryTime);
 		}
@@ -99,16 +101,18 @@ public class ReconnectableConnector implements Closeable {
 
 			@Override
 			public void sessionClosed(SocketSession session) {
-				reconnect();
+				reconnect(reconnectableConnector);
 			}
 		};
 	}
 
-	private void reconnect() {
+	private void reconnect(ReconnectableConnector reconnectableConnector) {
+		
 		ThreadUtil.execute(new Runnable() {
 
 			@Override
 			public void run() {
+				logger.info("开始尝试重连");
 				reconnectableConnector.connect();
 			}
 		});
