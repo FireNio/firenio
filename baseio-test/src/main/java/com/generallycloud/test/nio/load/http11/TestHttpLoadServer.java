@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 GenerallyCloud.com
+ * Copyright 2015-2017 GenerallyCloud.com
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class TestHttpLoadServer {
 		c.setSERVER_MEMORY_POOL_UNIT(256);
 		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		c.setSERVER_CORE_SIZE(2);
-		c.setSERVER_ENABLE_MEMORY_POOL(true);
+		c.setSERVER_ENABLE_MEMORY_POOL(false);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 
 		SocketChannelContext context = new SocketChannelContextImpl(c);

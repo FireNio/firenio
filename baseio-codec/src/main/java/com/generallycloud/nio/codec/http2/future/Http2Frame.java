@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 GenerallyCloud.com
+ * Copyright 2015-2017 GenerallyCloud.com
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ public interface Http2Frame extends ReadFuture{
 // ENHANCE_YOUR_CALM	0xb		Processing capacity exceeded
 // INADEQUATE_SECURITY	0xc		Negotiated TLS parameters not acceptable
 // HTTP_1_1_REQUIRED	0xd		Use HTTP/1.1 for the request
-
 
 
 

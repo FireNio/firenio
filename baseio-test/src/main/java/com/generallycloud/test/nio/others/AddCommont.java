@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 GenerallyCloud.com
+ * Copyright 2015-2017 GenerallyCloud.com
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import com.generallycloud.nio.common.Encoding;
 import com.generallycloud.nio.common.FileUtil;
@@ -30,7 +31,21 @@ public class AddCommont {
 
 	public static void main(String[] args) throws Exception {
 
-		String commont = "/*" + "\n * Copyright 2015 GenerallyCloud.com" + "\n *  "
+		replaceCommont();
+		
+	}
+	
+	static void replaceCommont() throws Exception{
+		
+		String commont = " * Copyright 2015-2017 GenerallyCloud.com";
+		
+		replaceCommont0(new File("D:/GIT/baseio-master/baseio"), commont);
+		
+	}
+	
+	static void addCommontAll() throws Exception{
+		
+		String commont = "/*\n * Copyright 2015 GenerallyCloud.com" + "\n *  "
 				+ "\n * Licensed under the Apache License, Version 2.0 (the \"License\");"
 				+ "\n * you may not use this file except in compliance with the License."
 				+ "\n * You may obtain a copy of the License at" + "\n *  "
@@ -44,11 +59,10 @@ public class AddCommont {
 		
 		System.out.println(commont);
 		
-		addCommont(new File("D:/GIT/baseio-master/baseio"), commont);
-		
+		addCommontAll0(new File("D:/GIT/baseio-master/baseio"), commont);
 	}
 	
-	static void addCommont(File file,String c) throws Exception{
+	static void addCommontAll0(File file,String commont) throws Exception{
 		
 		FileUtil.scanDirectory(file, new OnDirectoryScan() {
 			
@@ -59,13 +73,52 @@ public class AddCommont {
 					
 					String content = FileUtil.readFileToString(file, Encoding.UTF8);
 					
-					content = c + content;
+					content = commont + content;
 					
 					FileUtil.write(file, content.getBytes(Encoding.UTF8),false);
 					
 					System.out.println("File:"+file.getAbsolutePath());
 				}
 				
+			}
+			
+			@Override
+			public void onDirectory(File directory) {
+				
+			}
+		});
+	}
+	
+	static void replaceCommont0(File file,String commont) throws Exception{
+		
+		FileUtil.scanDirectory(file, new OnDirectoryScan() {
+			
+			@Override
+			public void onFile(File file) throws IOException {
+				
+				if (file.getName().endsWith(".java")) {
+					
+					List<String> list = FileUtil.readLines(file);
+					
+					StringBuilder ss = new StringBuilder();
+					
+					for (int i = 0; i < list.size(); i++) {
+						
+						if (i == 1) {
+							ss.append(commont);
+						}else{
+							ss.append(list.get(i));
+						}
+						
+//						if (i != list.size() - 1) {
+							ss.append("\n");
+//						}
+					}
+					
+					FileUtil.write(file, ss.toString().getBytes(Encoding.UTF8),false);
+					
+					System.out.println("File:"+file.getAbsolutePath());
+				}
 			}
 			
 			@Override

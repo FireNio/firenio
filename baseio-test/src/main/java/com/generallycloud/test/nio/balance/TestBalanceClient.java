@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 GenerallyCloud.com
+ * Copyright 2015-2017 GenerallyCloud.com
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,11 +77,13 @@ public class TestBalanceClient {
 			session.flush(future);
 		}
 		
+		ThreadUtil.sleep(100);
+		
+		System.out.println("=========="+res.get());
+		
 		ThreadUtil.sleep(500000000);
 
 		CloseUtil.close(connector);
-		
-		System.out.println("=========="+res.get());
 	}
 
 }
