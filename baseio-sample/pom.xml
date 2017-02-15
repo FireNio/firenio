@@ -41,14 +41,14 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-all</artifactId>
+			<artifactId>baseio-http</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+		
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.1.0</version>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-protobase</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

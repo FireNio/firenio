@@ -18,12 +18,6 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>

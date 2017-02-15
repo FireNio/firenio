@@ -42,41 +42,24 @@
 	<dependencies>
 	
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.7</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-all</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-sample</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+		
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.1.0</version>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-front</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
 		<dependency>
 		    <groupId>com.squareup.okhttp3</groupId>
 		    <artifactId>okhttp</artifactId>
 		    <version>3.5.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.http2/http2-http-client-transport -->
-		<dependency>
-		    <groupId>org.eclipse.jetty.http2</groupId>
-		    <artifactId>http2-http-client-transport</artifactId>
-		    <version>9.4.0.v20161208</version>
-		</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
 		<dependency>
 		    <groupId>javax.servlet</groupId>
