@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.balance;
 
 import com.generallycloud.nio.balance.router.BalanceRouter;
@@ -24,10 +24,10 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(BalanceReverseAcceptorHandler.class);
+	private Logger				logger	= LoggerFactory.getLogger(getClass());
 	private BalanceRouter		balanceRouter;
 	private BalanceFacadeAcceptor	balanceFacadeAcceptor;
-	private ExceptionCaughtHandle exceptionCaughtHandle;
+	private ExceptionCaughtHandle	exceptionCaughtHandle;
 	private BalanceReverseLogger	balanceReverseLogger;
 
 	public BalanceReverseAcceptorHandler(BalanceContext context) {
@@ -43,11 +43,11 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (f.isBroadcast()) {
-			
+
 			balanceFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
 			balanceReverseLogger.logBroadcast(session, future, logger);
-			
+
 			return;
 		}
 
@@ -63,14 +63,15 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 		}
 
 		f.setIOEventHandle(response.getContext().getIoEventHandleAdaptor());
-		
+
 		response.flush(f.translate());
 
 		balanceReverseLogger.logPush(session, response, future, logger);
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+			IoEventState state) {
 		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}
 

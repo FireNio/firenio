@@ -56,8 +56,6 @@ public class TestLoadClient1 extends ITestThread {
 	@Override
 	public void prepare() throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
@@ -75,6 +73,7 @@ public class TestLoadClient1 extends ITestThread {
 		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
 		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+		c.setSERVER_ENABLE_MEMORY_POOL(false);
 		
 //		c.setSERVER_HOST("192.168.0.180");
 
@@ -92,7 +91,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		SharedBundle.instance().loadAllProperties("nio");
 
-		int time = 4 * 10000;
+		int time = 256 * 10000;
 
 		int core_size = 4;
 

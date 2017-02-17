@@ -15,7 +15,7 @@
 	<licenses>
 		<license>
 			<name>Apache 2</name>
-			<url>https://github.com/generallycloud/baseio/blob/master/LICENSE.txt</url>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
 			<distribution>repo</distribution>
 			<comments>A business-friendly OSS license</comments>
 		</license>
@@ -183,6 +183,8 @@
             <roles>
                 <role>Developer</role>
             </roles>
+			<organization>The generallycloud team</organization>
+			<organizationUrl>https://github.com/generallycloud</organizationUrl>
             <timezone>+8</timezone>
         </developer>
 	</developers>
