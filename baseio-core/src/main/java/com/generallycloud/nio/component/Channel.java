@@ -61,8 +61,6 @@ public interface Channel extends Closeable {
 
 	public abstract InetSocketAddress getRemoteSocketAddress();
 
-	public abstract int getMaxIdleTime() throws SocketException;
-
 	public abstract ReentrantLock getChannelLock();
 
 	public abstract boolean inSelectorLoop();

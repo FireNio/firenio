@@ -26,6 +26,8 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 
 public abstract class AbstractChannel implements Channel {
+	
+	static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
 
 	protected String			edp_description;
 	protected Integer			channelID;

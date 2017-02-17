@@ -17,7 +17,6 @@ package com.generallycloud.nio.component;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -50,8 +49,6 @@ public interface Session extends Closeable{
 	public abstract int getLocalPort();
 
 	public abstract InetSocketAddress getLocalSocketAddress();
-
-	public abstract int getMaxIdleTime() throws SocketException;
 
 	public abstract String getRemoteAddr();
 

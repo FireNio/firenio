@@ -16,7 +16,6 @@
 package com.generallycloud.nio.component;
 
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
@@ -94,11 +93,6 @@ public abstract class SessionImpl implements Session {
 	@Override
 	public InetSocketAddress getLocalSocketAddress() {
 		return getChannel().getLocalSocketAddress();
-	}
-
-	@Override
-	public int getMaxIdleTime() throws SocketException {
-		return getChannel().getMaxIdleTime();
 	}
 
 	@Override

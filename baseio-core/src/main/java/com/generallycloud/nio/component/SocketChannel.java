@@ -16,6 +16,7 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
+import java.net.SocketOption;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
@@ -80,4 +81,9 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 	
 	public abstract boolean isReadable();
+	
+	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
+	
+	public abstract <T> java.nio.channels.SocketChannel setOption(SocketOption<T> name, T value) throws IOException;
+	
 }

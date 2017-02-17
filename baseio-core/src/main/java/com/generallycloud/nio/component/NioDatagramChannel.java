@@ -16,10 +16,8 @@
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import com.generallycloud.nio.buffer.ByteBuf;
@@ -34,25 +32,17 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private static final Logger		logger	= LoggerFactory.getLogger(NioDatagramChannel.class);
 
 	private DatagramChannel			channel;
-	private DatagramSocket			socket;
 	private DatagramChannelContext	context;
 	private UnsafeDatagramSession		session;
 
 	public NioDatagramChannel(DatagramSelectorEventLoopImpl selectorLoop, DatagramChannel channel,
-			InetSocketAddress remote) throws IOException {
+			InetSocketAddress remote){
 		super(selectorLoop);
 		this.context = selectorLoop.getContext();
 		this.channel = channel;
 		this.remote = remote;
-		this.socket = channel.socket();
-		if (socket == null) {
-			throw new SocketException("null socket");
-		}
-
-		session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
-
-		session.fireOpend();
-
+		this.session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
+		this.session.fireOpend();
 	}
 
 	@Override
@@ -85,14 +75,13 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	@Override
 	public InetSocketAddress getLocalSocketAddress() {
 		if (local == null) {
-			local = (InetSocketAddress) socket.getLocalSocketAddress();
+			try {
+				local = (InetSocketAddress) channel.getLocalAddress();
+			} catch (IOException e) {
+				local = ERROR_SOCKET_ADDRESS;
+			}
 		}
 		return local;
-	}
-
-	@Override
-	public int getMaxIdleTime() throws SocketException {
-		return socket.getSoTimeout();
 	}
 
 	@Override
