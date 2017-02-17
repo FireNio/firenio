@@ -44,12 +44,12 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 			
 			@Override
-			public boolean fireEvent(SelectorEventLoop selectLoop) throws IOException {
+			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
 				
 				Map<Integer, SocketSession> map = sessions.getSnapshot();
 
 				if (map.size() == 0) {
-					return false;
+					return ;
 				}
 
 				try {
@@ -57,8 +57,6 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}
-				
-				return false;
 			}
 		});
 	}
@@ -80,7 +78,6 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 
 			sessionIdle(context, session, lastIdleTime, currentTime);
 		}
-
 	}
 
 	protected void sessionIdle(SocketChannelContext context, SocketSession session, long lastIdleTime,

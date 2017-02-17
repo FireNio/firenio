@@ -28,7 +28,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.concurrent.BufferedArrayList;
+import com.generallycloud.nio.component.concurrent.BufferedArrayListUnsafe;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -38,50 +38,50 @@ import com.generallycloud.nio.protocol.ProtocolFactory;
 public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		implements SocketSelectorEventLoop {
 
-	private static final Logger				logger			= LoggerFactory
+	private static final Logger						logger			= LoggerFactory
 			.getLogger(SocketSelectorEventLoopImpl.class);
 
-	private ByteBuf						buf				= null;
+	private ByteBuf								buf				= null;
 
-	private ChannelByteBufReader				byteBufReader		= null;
+	private ChannelByteBufReader						byteBufReader		= null;
 
-	private SocketChannelContext				context			= null;
+	private SocketChannelContext						context			= null;
 
-	private ProtocolDecoder					protocolDecoder	= null;
+	private ProtocolDecoder							protocolDecoder	= null;
 
-	private ProtocolEncoder					protocolEncoder	= null;
+	private ProtocolEncoder							protocolEncoder	= null;
 
-	private ProtocolFactory					protocolFactory	= null;
+	private ProtocolFactory							protocolFactory	= null;
 
-	private ExecutorEventLoop				executorEventLoop	= null;
+	private ExecutorEventLoop						executorEventLoop	= null;
 
-	private boolean						isWaitForRegist	= false;
+	private boolean								isWaitForRegist	= false;
 
-	private SessionManager					sessionManager		= null;
+	private SessionManager							sessionManager		= null;
 
-	private SocketSelectorEventLoopGroup		eventLoopGroup		= null;
+	private SocketSelectorEventLoopGroup				eventLoopGroup		= null;
 
-	private SocketSelectorBuilder				selectorBuilder	= null;
+	private SocketSelectorBuilder						selectorBuilder	= null;
 
-	private SocketSelector					selector			= null;
+	private SocketSelector							selector			= null;
 
-	private ReentrantLock					runLock			= new ReentrantLock();
+	private ReentrantLock							runLock			= new ReentrantLock();
 
-	private int							runTask			= 0;
+	private int									runTask			= 0;
 
-	private boolean						hasTask			= false;
+	private boolean								hasTask			= false;
 
-	private int							eventQueueSize		= 0;
+	private int									eventQueueSize		= 0;
 
-	private BufferedArrayList<SelectorLoopEvent>	negativeEvents		= new BufferedArrayList<SelectorLoopEvent>();
+	private BufferedArrayListUnsafe<SelectorLoopEvent>	negativeEvents		= new BufferedArrayListUnsafe<>();
 
-	private BufferedArrayList<SelectorLoopEvent>	positiveEvents		= new BufferedArrayList<SelectorLoopEvent>();
+	private BufferedArrayListUnsafe<SelectorLoopEvent>	positiveEvents		= new BufferedArrayListUnsafe<>();
 
-	private AtomicBoolean					selecting			= new AtomicBoolean();
+	private AtomicBoolean							selecting			= new AtomicBoolean();
 
-	private ReentrantLock					isWaitForRegistLock	= new ReentrantLock();
-	
-	private UnpooledByteBufAllocator			unpooledByteBufAllocator;
+	private ReentrantLock							isWaitForRegistLock	= new ReentrantLock();
+
+	private UnpooledByteBufAllocator					unpooledByteBufAllocator;
 
 	public SocketSelectorEventLoopImpl(SocketSelectorEventLoopGroup group, int eventQueueSize,
 			int coreIndex) {
@@ -107,7 +107,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		this.sessionManager = context.getSessionManager();
 
 		this.eventQueueSize = eventQueueSize;
-		
+
 		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
 	}
 
@@ -191,11 +191,11 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		if (executorEventLoop instanceof LineEventLoop) {
 			((LineEventLoop) executorEventLoop).setMonitor(this);
 		}
-		
+
 		LifeCycleUtil.start(unpooledByteBufAllocator);
-		
+
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-		
+
 		// FIXME 使用direct
 		this.buf = unpooledByteBufAllocator.allocate(readBuffer);
 
@@ -205,29 +205,25 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	@Override
 	protected void doStop() {
 
-		ReentrantLock lock = this.runLock;
+		closeEvents(positiveEvents);
 
-		lock.lock();
-
-		try {
-
-			List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
-
-			for (SelectorLoopEvent event : eventBuffer) {
-
-				CloseUtil.close(event);
-			}
-
-		} finally {
-
-			lock.unlock();
-		}
+		closeEvents(negativeEvents);
 
 		CloseUtil.close(selector);
 
 		ReleaseUtil.release(buf);
-		
+
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
+	}
+
+	private void closeEvents(BufferedArrayListUnsafe<SelectorLoopEvent> bufferedList) {
+
+		List<SelectorLoopEvent> events = getEventBuffer(bufferedList);
+
+		for (SelectorLoopEvent event : events) {
+
+			CloseUtil.close(event);
+		}
 	}
 
 	@Override
@@ -322,31 +318,31 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	private SocketSelector rebuildSelector0() throws IOException {
 		SocketSelector selector = selectorBuilder.build(this);
 
-//		Selector old = this.selector;
-//
-//		Set<SelectionKey> sks = old.keys();
-//
-//		if (sks.size() == 0) {
-//			logger.debug("sk size 0");
-//			CloseUtil.close(old);
-//			return selector;
-//		}
-//
-//		for (SelectionKey sk : sks) {
-//
-//			if (!sk.isValid() || sk.attachment() == null) {
-//				cancelSelectionKey(sk);
-//				continue;
-//			}
-//
-//			try {
-//				sk.channel().register(selector, SelectionKey.OP_READ);
-//			} catch (ClosedChannelException e) {
-//				cancelSelectionKey(sk, e);
-//			}
-//		}
-//
-//		CloseUtil.close(old);
+		//		Selector old = this.selector;
+		//
+		//		Set<SelectionKey> sks = old.keys();
+		//
+		//		if (sks.size() == 0) {
+		//			logger.debug("sk size 0");
+		//			CloseUtil.close(old);
+		//			return selector;
+		//		}
+		//
+		//		for (SelectionKey sk : sks) {
+		//
+		//			if (!sk.isValid() || sk.attachment() == null) {
+		//				cancelSelectionKey(sk);
+		//				continue;
+		//			}
+		//
+		//			try {
+		//				sk.channel().register(selector, SelectionKey.OP_READ);
+		//			} catch (ClosedChannelException e) {
+		//				cancelSelectionKey(sk, e);
+		//			}
+		//		}
+		//
+		//		CloseUtil.close(old);
 
 		return selector;
 	}
@@ -393,7 +389,12 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		try {
 
-			dispatch0(event);
+			if (!isRunning()) {
+				CloseUtil.close(event);
+				return;
+			}
+
+			fireEvent(event);
 
 		} finally {
 
@@ -401,35 +402,26 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		}
 	}
 
-	private void dispatch0(SelectorLoopEvent event) {
-
-		if (!isRunning()) {
-			CloseUtil.close(event);
-			return;
-		}
-
-		fireEvent(event);
-	}
-
 	private void fireEvent(SelectorLoopEvent event) {
 
-		if (positiveEvents.getBufferSize() > eventQueueSize) {
+		BufferedArrayListUnsafe<SelectorLoopEvent> events = positiveEvents;
+
+		if (events.getBufferSize() > eventQueueSize) {
 			throw new RejectedExecutionException();
 		}
 
-		positiveEvents.offer(event);
+		events.offer(event);
 
-		if (positiveEvents.getBufferSize() < 3) {
-
-			wakeup();
-		}
+		wakeup();
 	}
 
 	private void handleEvent(SelectorLoopEvent event) {
 
 		try {
 
-			if (!event.fireEvent(this)) {
+			event.fireEvent(this);
+
+			if (event.isComplete()) {
 				return;
 			}
 
@@ -457,7 +449,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 	private void handleNegativeEvents() {
 
-		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
+		List<SelectorLoopEvent> eventBuffer = getEventBuffer(negativeEvents);
 
 		if (eventBuffer.size() == 0) {
 			return;
@@ -468,7 +460,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 	private void handlePositiveEvents(boolean refresh) {
 
-		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
+		List<SelectorLoopEvent> eventBuffer = getEventBuffer(positiveEvents);
 
 		if (eventBuffer.size() == 0) {
 
@@ -483,6 +475,17 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		if (hasTask && refresh) {
 			runTask = 5;
+		}
+	}
+
+	private List<SelectorLoopEvent> getEventBuffer(
+			BufferedArrayListUnsafe<SelectorLoopEvent> bufferedList) {
+		ReentrantLock lock = this.runLock;
+		lock.lock();
+		try {
+			return bufferedList.getBuffer();
+		} finally {
+			lock.unlock();
 		}
 	}
 

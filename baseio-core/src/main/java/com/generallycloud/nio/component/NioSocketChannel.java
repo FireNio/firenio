@@ -31,7 +31,7 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueLink;
+import com.generallycloud.nio.component.concurrent.ListQueueLinkUnsafe;
 import com.generallycloud.nio.connector.AbstractChannelConnector;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -59,7 +59,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ExecutorEventLoop			executorEventLoop;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
-	private ListQueue<ChannelWriteFuture>	writeFutures		= new ListQueueLink<ChannelWriteFuture>();
+	private ListQueue<ChannelWriteFuture>	writeFutureLink		= new ListQueueLinkUnsafe<ChannelWriteFuture>();
 
 	private static final Logger			logger			= LoggerFactory.getLogger(NioSocketChannel.class);
 
@@ -88,50 +88,45 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public SocketChannelContext getContext() {
 		return context;
 	}
+	
+	@Override
+	public boolean isComplete() {
+		ReentrantLock lock = getChannelLock();
+		lock.lock();
+		try{
+			return writeFuture == null && writeFutureLink.size() == 0;
+		}finally{
+			lock.unlock();
+		}
+	}
 
 	@Override
-	public boolean fireEvent(SelectorEventLoop selectorLoop) throws IOException {
+	public void fireEvent(SelectorEventLoop selectorLoop) throws IOException {
 
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
 		
-		ChannelWriteFuture writeFuture = this.writeFuture;
-		
-		if (writeFuture != null) {
-			
-			if (!writeFuture.write(this)) {
-				return true;
-			}
-			
-			this.writeFuture = null;
-			
-			return onWriteSuccess(writeFuture);
-		}
-		
-		writeFuture = writeFutures.poll();
-
 		if (writeFuture == null) {
-			return false;
+			
+			writeFuture = writeFutureLink.poll();
+			
+			if (writeFuture == null) {
+				return;
+			}
 		}
 
 		if (!writeFuture.write(this)) {
-			this.writeFuture = writeFuture;
-			return true;
+			return;
 		}
-		
-		return onWriteSuccess(writeFuture);
-	}
-	
-	private boolean onWriteSuccess(ChannelWriteFuture writeFuture){
 		
 		writeFutureLength -= writeFuture.getBinaryLength();
 
 		writeFuture.onSuccess(session);
-
-		return needFlush();
+		
+		writeFuture = null;
 	}
-
+	
 	@Override
 	public int getWriteFutureLength() {
 		return writeFutureLength;
@@ -190,7 +185,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public int getWriteFutureSize() {
-		return writeFutures.size();
+		return writeFutureLink.size();
 	}
 
 	@Override
@@ -211,19 +206,21 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public void flush(ChannelWriteFuture future) {
-
+		
+		UnsafeSocketSession session = getSession();
+		
+		if (!isOpened()) {
+			future.onException(session, new ClosedChannelException(session.toString()));
+			return;
+		}
+		
 		ReentrantLock lock = getChannelLock();
 
 		lock.lock();
 
 		try {
-
-			if (!isOpened()) {
-				future.onException(session, new ClosedChannelException(session.toString()));
-				return;
-			}
-
-			if (!writeFutures.offer(future)) {
+			
+			if (!writeFutureLink.offer(future)) {
 				future.onException(session, new RejectedExecutionException());
 				return;
 			}
@@ -234,7 +231,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				// FIXME 该连接写入过多啦
 			}
 
-			if (writeFutures.size() > 1) {
+			if (writeFuture == null && writeFutureLink.size() > 1) {
 				return;
 			}
 
@@ -259,7 +256,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			writeFuture.onException(session, e);
 		}
 
-		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
+		ListQueue<ChannelWriteFuture> writeFutures = this.writeFutureLink;
 
 		if (writeFutures.size() == 0) {
 			return;
@@ -404,7 +401,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public boolean needFlush() {
-		return writeFutures.size() > 0;
+		return writeFutureLink.size() > 0;
 	}
 
 	@Override

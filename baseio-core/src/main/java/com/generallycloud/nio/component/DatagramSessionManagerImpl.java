@@ -44,12 +44,12 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 
 			@Override
-			public boolean fireEvent(SelectorEventLoop selectLoop) throws IOException {
+			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
 
 				Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
 
 				if (map.size() == 0) {
-					return false;
+					return;
 				}
 
 				try {
@@ -57,8 +57,6 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}
-
-				return false;
 			}
 		});
 	}

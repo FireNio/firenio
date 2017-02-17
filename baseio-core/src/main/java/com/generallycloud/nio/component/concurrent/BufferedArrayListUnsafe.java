@@ -12,28 +12,45 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.nio.component;
+ */
+package com.generallycloud.nio.component.concurrent;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
+public class BufferedArrayListUnsafe<T> {
 
-public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
+	private List<T>	list1	= new ArrayList<T>();
 
-	@Override
-	public void close() throws IOException {
-		fireEvent(null);
+	private List<T>	list2	= new ArrayList<T>();
+
+	private List<T>	buffer	= list1;
+
+	public void offer(T t) {
+		buffer.add(t);
 	}
 
-	@Override
-	public boolean isPositive() {
-		return true;
+	public List<T> getBuffer() {
+
+		if (buffer == list1) {
+
+			buffer = list2;
+
+			buffer.clear();
+
+			return list1;
+		} else {
+
+			buffer = list1;
+
+			buffer.clear();
+
+			return list2;
+		}
 	}
 
-	@Override
-	public boolean isComplete() {
-		return true;
+	public int getBufferSize() {
+		return list1.size() + list2.size();
 	}
-	
+
 }
