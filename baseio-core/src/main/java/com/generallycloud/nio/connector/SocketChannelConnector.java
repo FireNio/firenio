@@ -113,7 +113,7 @@ public final class SocketChannelConnector extends AbstractChannelConnector {
 
 	@Override
 	protected void fireSessionOpend() {
-		session.fireOpend();
+		session.getSocketChannel().fireOpend();
 	}
 
 	@Override

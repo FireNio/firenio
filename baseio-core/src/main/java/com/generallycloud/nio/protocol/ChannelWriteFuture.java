@@ -38,5 +38,5 @@ public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFu
 	
 	public abstract int getBinaryLength();
 
-	public abstract void wrapSSL(SocketSession session, SslHandler handler) throws SSLException, IOException;
+	public abstract void wrapSSL(SocketChannel channel, SslHandler handler) throws SSLException, IOException;
 }

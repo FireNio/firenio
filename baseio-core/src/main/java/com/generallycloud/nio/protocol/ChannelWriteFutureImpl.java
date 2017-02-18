@@ -44,10 +44,10 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 	@Override
 	public void onException(SocketSession session, Exception e) {
+		
+		ReleaseUtil.release(this);
 
 		ReadFuture readFuture = this.getReadFuture();
-
-		ReleaseUtil.release(this);
 
 		IoEventHandle handle = readFuture.getIOEventHandle();
 
@@ -60,10 +60,10 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 	@Override
 	public void onSuccess(SocketSession session) {
+		
+		ReleaseUtil.release(this);
 
 		ReadFuture readFuture = this.getReadFuture();
-
-		ReleaseUtil.release(this);
 
 		IoEventHandle handle = readFuture.getIOEventHandle();
 
@@ -87,10 +87,6 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	@Override
 	public ReadFuture getReadFuture() {
 		return readFuture;
-	}
-
-	public void setReadFuture(ReadFuture readFuture) {
-		this.readFuture = readFuture;
 	}
 
 	@Override
@@ -129,13 +125,13 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	}
 
 	@Override
-	public void wrapSSL(SocketSession session, SslHandler handler) throws IOException {
+	public void wrapSSL(SocketChannel channel, SslHandler handler) throws IOException {
 
 		ByteBuf old = this.buf;
 
 		try {
 
-			ByteBuf _buf = handler.wrap(session, old);
+			ByteBuf _buf = handler.wrap(channel, old);
 
 			if (_buf == null) {
 				throw new IOException("closed ssl");

@@ -90,7 +90,7 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 		SocketChannel socketChannel = newChannel(sk, selectorLoop);
 
 		// fire session open event
-		socketChannel.getSession().fireOpend();
+		socketChannel.fireOpend();
 	}
 
 }

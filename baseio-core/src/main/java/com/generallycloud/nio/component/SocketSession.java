@@ -33,8 +33,6 @@ public interface SocketSession extends Session {
 
 	public abstract SslHandler getSslHandler();
 
-	public abstract void finishHandshake(Exception e);
-
 	public abstract ProtocolDecoder getProtocolDecoder();
 
 	public abstract ProtocolEncoder getProtocolEncoder();

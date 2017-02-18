@@ -23,7 +23,6 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
-import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -36,9 +35,6 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	private static final Logger		logger	= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
 
-	protected Waiter<Exception>		handshakeWaiter;
-	protected SSLEngine			sslEngine;
-	protected SslHandler			sslHandler;
 	protected SocketChannel			channel;
 
 	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
@@ -48,29 +44,22 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	
 	@Override
 	public SocketChannelContext getContext() {
-		return channel.getContext();
+		return getChannel().getContext();
 	}
 
 	@Override
-	protected Channel getChannel() {
+	protected SocketChannel getChannel() {
 		return channel;
 	}
 
 	@Override
 	public ProtocolEncoder getProtocolEncoder() {
-		return channel.getProtocolEncoder();
+		return getChannel().getProtocolEncoder();
 	}
 
 	@Override
 	public String getProtocolID() {
-		return channel.getProtocolFactory().getProtocolID();
-	}
-
-	@Override
-	public void finishHandshake(Exception e) {
-		if (getContext().getSslContext().isClient()) {
-			this.handshakeWaiter.setPayload(e);
-		}
+		return getChannel().getProtocolFactory().getProtocolID();
 	}
 	
 	@Override
@@ -91,7 +80,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public boolean isEnableSSL() {
-		return getContext().isEnableSSL();
+		return getChannel().isEnableSSL();
 	}
 
 	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause, IoEventState state) {
@@ -104,7 +93,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public boolean isBlocking() {
-		return channel.isBlocking();
+		return getChannel().isBlocking();
 	}
 
 	@Override
@@ -116,7 +105,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 		ChannelReadFuture crf = (ChannelReadFuture) future;
 		
-		SocketChannel socketChannel = this.channel;
+		SocketChannel socketChannel = getChannel();
 
 		if (!socketChannel.isOpened()) {
 			
@@ -150,11 +139,6 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 		try {
 
-			// FIXME 部分情况下可以不在业务线程做wrapssl
-			if (isEnableSSL()) {
-				future.wrapSSL(this, sslHandler);
-			}
-
 			channel.flush(future);
 
 		} catch (Exception e) {
@@ -173,22 +157,22 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public ProtocolDecoder getProtocolDecoder() {
-		return channel.getProtocolDecoder();
+		return getChannel().getProtocolDecoder();
 	}
 
 	@Override
 	public ProtocolFactory getProtocolFactory() {
-		return channel.getProtocolFactory();
+		return getChannel().getProtocolFactory();
 	}
 
 	@Override
 	public SSLEngine getSSLEngine() {
-		return sslEngine;
+		return getChannel().getSSLEngine();
 	}
 
 	@Override
 	public ExecutorEventLoop getExecutorEventLoop() {
-		return channel.getExecutorEventLoop();
+		return getChannel().getExecutorEventLoop();
 	}
 
 	@Override
@@ -198,17 +182,17 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		channel.setProtocolDecoder(protocolDecoder);
+		getChannel().setProtocolDecoder(protocolDecoder);
 	}
 
 	@Override
 	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		channel.setProtocolEncoder(protocolEncoder);
+		getChannel().setProtocolEncoder(protocolEncoder);
 	}
 
 	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		channel.setProtocolFactory(protocolFactory);
+		getChannel().setProtocolFactory(protocolFactory);
 	}
 
 }

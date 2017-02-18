@@ -25,9 +25,8 @@ import javax.net.ssl.SSLEngineResult.Status;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
@@ -42,15 +41,15 @@ public class SslHandler {
 				, EmptyByteBuf.getInstance());
 	}
 
-	private ByteBuf allocate(Session session, int capacity) {
-		return session.getByteBufAllocator().allocate(capacity);
+	private ByteBuf allocate(SocketChannel channel, int capacity) {
+		return channel.getByteBufAllocator().allocate(capacity);
 	}
 
-	public ByteBuf wrap(SocketSession session,ByteBuf src) throws IOException {
+	public ByteBuf wrap(SocketChannel channel,ByteBuf src) throws IOException {
 		
-		SSLEngine engine = session.getSSLEngine();
+		SSLEngine engine = channel.getSSLEngine();
 		
-		ByteBuf dst = allocate(session,engine.getSession().getPacketBufferSize() * 2);
+		ByteBuf dst = allocate(channel,engine.getSession().getPacketBufferSize() * 2);
 
 		try {
 
@@ -65,17 +64,17 @@ public class SslHandler {
 				synchByteBuf(result, src, dst);
 
 				if (status == Status.CLOSED) {
-					return gc(session,dst.flip());
+					return gc(channel,dst.flip());
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
 					case NOT_HANDSHAKING:
-						return gc(session,dst.flip());
+						return gc(channel,dst.flip());
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
 					case FINISHED:
-						session.finishHandshake(null);
+						channel.finishHandshake(null);
 						break;
 					default:
 						// continue
@@ -97,9 +96,9 @@ public class SslHandler {
 	}
 
 	//FIXME 部分buf不需要gc
-	private ByteBuf gc(Session session,ByteBuf buf) throws IOException {
+	private ByteBuf gc(SocketChannel channel,ByteBuf buf) throws IOException {
 
-		ByteBuf out = allocate(session,buf.limit());
+		ByteBuf out = allocate(channel,buf.limit());
 
 		try {
 
@@ -117,13 +116,13 @@ public class SslHandler {
 		return out.flip();
 	}
 
-	public ByteBuf unwrap(SocketSession session, ByteBuf src) throws IOException {
+	public ByteBuf unwrap(SocketChannel channel, ByteBuf src) throws IOException {
 
-		ByteBuf dst = allocate(session,src.capacity() * 2);
+		ByteBuf dst = allocate(channel,src.capacity() * 2);
 
 		boolean release = true;
 
-		SSLEngine sslEngine = session.getSSLEngine();
+		SSLEngine sslEngine = channel.getSSLEngine();
 
 		try {
 			for (;;) {
@@ -138,13 +137,13 @@ public class SslHandler {
 				case NEED_UNWRAP:
 					return null;
 				case NEED_WRAP:
-					session.flush(EMPTY_CWF.duplicate());
+					channel.flush(EMPTY_CWF.duplicate());
 					return null;
 				case NEED_TASK:
 					runDelegatedTasks(sslEngine);
 					continue;
 				case FINISHED:
-					session.finishHandshake(null);
+					channel.finishHandshake(null);
 					return null;
 				case NOT_HANDSHAKING:
 					release = false;

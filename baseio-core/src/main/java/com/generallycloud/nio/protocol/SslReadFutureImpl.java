@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.Session;
+import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.ssl.SslHandler;
 
@@ -34,14 +35,17 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 	private int		length;
 
 	private int		limit;
+	
+	private SocketChannel channel;
 
-	public SslReadFutureImpl(SocketSession session, ByteBuf buf, int limit) {
-		super(session.getContext());
+	public SslReadFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
+		super(channel.getContext());
 		this.buf = buf;
 		this.limit = limit;
+		this.channel = channel;
 	}
 
-	private void doBodyComplete(SocketSession session, ByteBuf buf) throws IOException {
+	private void doBodyComplete(ByteBuf buf) throws IOException {
 
 		body_complete = true;
 
@@ -53,7 +57,7 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 		try {
 
-			this.buf = handler.unwrap(session, buf);
+			this.buf = handler.unwrap(channel, buf);
 
 		} finally {
 			ReleaseUtil.release(old);
@@ -170,7 +174,7 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 				return false;
 			}
 
-			doBodyComplete(session, buf);
+			doBodyComplete(buf);
 		}
 
 		return true;

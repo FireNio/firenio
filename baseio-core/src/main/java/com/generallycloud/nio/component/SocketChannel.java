@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
 
+import javax.net.ssl.SSLEngine;
+
 import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -85,5 +87,15 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
 	
 	public abstract <T> java.nio.channels.SocketChannel setOption(SocketOption<T> name, T value) throws IOException;
+
+	public abstract boolean isEnableSSL();
+
+	public abstract SSLEngine getSSLEngine();
+	
+	public abstract void finishHandshake(Exception e);
+
+	public abstract void fireOpend();
+
+	public abstract void physicalClose();
 	
 }

@@ -23,6 +23,7 @@ import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.codec.http11.future.Cookie;
 import com.generallycloud.nio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.component.BufferedOutputStream;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -66,28 +67,35 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 
 		ByteBuf buf = allocator.allocate(256);
 
-		buf.put(PROTOCOL);
-		buf.put(f.getStatus().getHeaderBinary());
-		buf.put(SERVER_CL);
-		buf.put(String.valueOf(length).getBytes());
-		buf.put(RN);
+		try {
+			
+			buf.put(PROTOCOL);
+			buf.put(f.getStatus().getHeaderBinary());
+			buf.put(SERVER_CL);
+			buf.put(String.valueOf(length).getBytes());
+			buf.put(RN);
 
-		writeHeaders(f, buf);
-		
-		List<Cookie> cookieList = f.getCookieList();
+			writeHeaders(f, buf);
+			
+			List<Cookie> cookieList = f.getCookieList();
 
-		if (cookieList != null) {
-			for (Cookie c : cookieList) {
-				writeBuf(buf, SET_COOKIE);
-				writeBuf(buf, c.toString().getBytes());
-				writeBuf(buf, RN);
+			if (cookieList != null) {
+				for (Cookie c : cookieList) {
+					writeBuf(buf, SET_COOKIE);
+					writeBuf(buf, c.toString().getBytes());
+					writeBuf(buf, RN);
+				}
 			}
-		}
 
-		writeBuf(buf, RN);
+			writeBuf(buf, RN);
 
-		if (length != 0) {
-			writeBuf(buf, array, 0, length);
+			if (length != 0) {
+				writeBuf(buf, array, 0, length);
+			}
+			
+		} catch (Exception e) {
+			ReleaseUtil.release(buf);
+			throw e;
 		}
 
 		return new ChannelWriteFutureImpl(f, buf.flip());
