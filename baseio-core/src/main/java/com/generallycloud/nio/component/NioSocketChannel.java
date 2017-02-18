@@ -252,20 +252,20 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			return;
 		}
 		
+		// FIXME 部分情况下可以不在业务线程做wrapssl
+		if (isEnableSSL()) {
+			try {
+				future.wrapSSL(this, sslHandler);
+			}  catch (IOException e) {
+				future.onException(session, e);
+			}
+		}
+		
 		ReentrantLock lock = getChannelLock();
 
 		lock.lock();
 
 		try {
-			
-			// FIXME 部分情况下可以不在业务线程做wrapssl
-			if (isEnableSSL()) {
-				try {
-					future.wrapSSL(this, sslHandler);
-				}  catch (IOException e) {
-					future.onException(session, e);
-				}
-			}
 			
 			if (!write_futures.offer(future)) {
 				future.onException(session, new RejectedExecutionException());
