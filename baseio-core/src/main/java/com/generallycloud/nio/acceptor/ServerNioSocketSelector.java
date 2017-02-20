@@ -23,7 +23,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.component.NioSocketSelector;
-import com.generallycloud.nio.component.SocketChannel;
+import com.generallycloud.nio.component.NioSocketChannel;
 import com.generallycloud.nio.component.SocketSelectorEventLoop;
 import com.generallycloud.nio.component.SocketSelectorEventLoopGroup;
 
@@ -87,7 +87,7 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
 
 		// 绑定SocketChannel到SelectionKey
-		SocketChannel socketChannel = newChannel(sk, selectorLoop);
+		NioSocketChannel socketChannel = newChannel(sk, selectorLoop);
 
 		// fire session open event
 		socketChannel.fireOpend();

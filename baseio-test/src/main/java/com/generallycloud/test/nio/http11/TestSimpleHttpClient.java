@@ -21,8 +21,8 @@ import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -36,7 +36,7 @@ public class TestSimpleHttpClient {
 
 		ServerConfiguration c = new ServerConfiguration("localhost",80);
 		
-		SocketChannelContext context = new SocketChannelContextImpl(c);
+		NioSocketChannelContext context = new NioSocketChannelContext(c);
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

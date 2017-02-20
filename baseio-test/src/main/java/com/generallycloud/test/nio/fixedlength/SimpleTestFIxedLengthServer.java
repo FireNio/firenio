@@ -19,8 +19,7 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -39,7 +38,7 @@ public class SimpleTestFIxedLengthServer {
 			}
 		};
 		
-		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration(18300));
+		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 		
 		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		

@@ -22,10 +22,10 @@ import com.generallycloud.nio.codec.fixedlength.future.FixedLengthReadFutureImpl
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.DebugUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.component.ssl.SSLUtil;
 import com.generallycloud.nio.component.ssl.SslContext;
@@ -49,7 +49,7 @@ public class TestFIxedLengthClient {
 		
 		SslContext sslContext = SSLUtil.initClient();
 		
-		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
+		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

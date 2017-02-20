@@ -20,8 +20,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.ReconnectableConnector;
@@ -39,7 +38,7 @@ public class TestReconnectClient {
 			}
 		};
 		
-		SocketChannelContext context = new SocketChannelContextImpl(new ServerConfiguration("localhost", 18300));
+		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
 
 		ReconnectableConnector connector = new ReconnectableConnector(context);
 		

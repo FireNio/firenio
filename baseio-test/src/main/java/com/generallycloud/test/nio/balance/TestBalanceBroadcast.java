@@ -22,8 +22,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -55,7 +54,7 @@ public class TestBalanceBroadcast {
 
 		ServerConfiguration configuration = new ServerConfiguration(8800);
 		
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		NioSocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		

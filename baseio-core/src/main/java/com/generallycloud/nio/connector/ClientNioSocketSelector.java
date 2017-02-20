@@ -23,6 +23,7 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.component.NioSocketSelector;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketSelectorEventLoop;
+import com.generallycloud.nio.connector.SocketChannelConnector.NioSocketChannelConnector;
 
 /**
  * @author wangkai
@@ -31,12 +32,12 @@ import com.generallycloud.nio.component.SocketSelectorEventLoop;
 public class ClientNioSocketSelector extends NioSocketSelector {
 
 	public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
-			SelectableChannel selectableChannel, SocketChannelConnector connector) {
+			SelectableChannel selectableChannel, NioSocketChannelConnector connector) {
 		super(selectorEventLoop, selector, selectableChannel);
 		this.connector = connector;
 	}
 
-	private SocketChannelConnector connector;
+	private NioSocketChannelConnector connector;
 
 	protected void buildChannel(SelectionKey selectionKey) throws IOException {
 

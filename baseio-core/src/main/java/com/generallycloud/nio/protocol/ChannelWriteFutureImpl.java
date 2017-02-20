@@ -41,7 +41,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 		this.buf = buf;
 		this.buf.nioBuffer();
 	}
-
+	
 	@Override
 	public void onException(SocketSession session, Exception e) {
 		
@@ -75,12 +75,12 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	}
 
 	@Override
-	public boolean write(SocketChannel channel) throws IOException {
-
-		ByteBuf buf = this.buf;
-
+	public void write(SocketChannel channel) throws IOException {
 		channel.write(buf);
-
+	}
+	
+	@Override
+	public boolean isCompleted() {
 		return !buf.hasRemaining();
 	}
 
@@ -149,6 +149,11 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 	@Override
 	public int getBinaryLength() {
 		return buf.limit();
+	}
+	
+	@Override
+	public ByteBuf getByteBuf() {
+		return buf;
 	}
 	
 }

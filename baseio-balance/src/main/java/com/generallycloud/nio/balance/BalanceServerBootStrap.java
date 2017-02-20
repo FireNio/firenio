@@ -22,8 +22,8 @@ import java.util.List;
 import com.generallycloud.nio.balance.router.BalanceRouter;
 import com.generallycloud.nio.balance.router.SimpleNextRouter;
 import com.generallycloud.nio.component.BeatFutureFactory;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSessionEventListener;
 import com.generallycloud.nio.component.SocketSessionIdleEventListener;
 import com.generallycloud.nio.component.ssl.SslContext;
@@ -102,7 +102,7 @@ public class BalanceServerBootStrap {
 	private SocketChannelContext getBalanceChannelContext(BalanceContext balanceContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(balanceContext.getBalanceFacadeAcceptorHandler());
 
@@ -130,7 +130,7 @@ public class BalanceServerBootStrap {
 	private SocketChannelContext getBalanceReverseChannelContext(BalanceContext balanceContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(balanceContext.getBalanceReverseAcceptorHandler());
 

@@ -21,84 +21,38 @@ import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
-
 import com.generallycloud.nio.ClosedChannelException;
-import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.IoEventHandle.IoEventState;
-import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
-import com.generallycloud.nio.component.concurrent.ListQueue;
-import com.generallycloud.nio.component.concurrent.ListQueueLinkUnsafe;
-import com.generallycloud.nio.component.concurrent.Waiter;
-import com.generallycloud.nio.component.ssl.SslHandler;
-import com.generallycloud.nio.connector.AbstractChannelConnector;
-import com.generallycloud.nio.protocol.ChannelReadFuture;
+import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
-import com.generallycloud.nio.protocol.ChannelWriteFutureImpl;
-import com.generallycloud.nio.protocol.EmptyReadFuture;
-import com.generallycloud.nio.protocol.ProtocolDecoder;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ProtocolFactory;
-import com.generallycloud.nio.protocol.ReadFuture;
-import com.generallycloud.nio.protocol.SslReadFuture;
 
-public class NioSocketChannel extends AbstractChannel
-		implements com.generallycloud.nio.component.SocketChannel {
+public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
 	private SocketChannel				channel;
-	private UnsafeSocketSession			session;
-	private ChannelReadFuture			readFuture;
-	private SslReadFuture				sslReadFuture;
 	private SelectionKey				selectionKey;
 	private boolean					networkWeak;
-	private ProtocolDecoder				protocolDecoder;
-	private ProtocolEncoder				protocolEncoder;
-	private ProtocolFactory				protocolFactory;
-	private SocketChannelContext			context;
-	private ChannelWriteFuture			write_future;
+	private NioSocketChannelContext		context;
 	private int						writeFutureLength;
-	private ExecutorEventLoop			executorEventLoop;
-	private Waiter<Exception>			handshakeWaiter;
-	private SSLEngine					sslEngine;
-	private SslHandler					sslHandler;
+	private SocketSelectorEventLoop		selectorEventLoop;
 	private long						next_network_weak	= Long.MAX_VALUE;
-
-	// FIXME 这里最好不要用ABQ，使用链式可增可减
-	private ListQueue<ChannelWriteFuture>	write_futures		= new ListQueueLinkUnsafe<ChannelWriteFuture>();
-
-	private static final Logger			logger			= LoggerFactory
-			.getLogger(NioSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
 	public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey) {
 		super(selectorLoop);
 		this.selectorEventLoop = selectorLoop;
-		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
 		this.context = selectorLoop.getChannelContext();
 		this.selectionKey = selectionKey;
-		this.executorEventLoop = selectorLoop.getExecutorEventLoop();
 		this.channel = (SocketChannel) selectionKey.channel();
 		this.local = getLocalSocketAddress();
-		this.protocolFactory = selectorLoop.getProtocolFactory();
-		this.protocolDecoder = selectorLoop.getProtocolDecoder();
-		this.protocolEncoder = selectorLoop.getProtocolEncoder();
-		this.session = context.getSessionFactory().newUnsafeSession(this);
 	}
 
 	@Override
-	public SocketChannelContext getContext() {
+	public NioSocketChannelContext getContext() {
 		return context;
 	}
 
@@ -111,6 +65,31 @@ public class NioSocketChannel extends AbstractChannel
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	@Override
+	public <T> T getOption(SocketOption<T> name) throws IOException {
+		return channel.getOption(name);
+	}
+
+	@Override
+	public <T> void setOption(SocketOption<T> name, T value) throws IOException {
+		channel.setOption(name, value);
+	}
+
+	@Override
+	protected InetSocketAddress getRemoteSocketAddress0() throws IOException {
+		return (InetSocketAddress) channel.getRemoteAddress();
+	}
+
+	@Override
+	protected InetSocketAddress getLocalSocketAddress0() throws IOException {
+		return (InetSocketAddress) channel.getLocalAddress();
+	}
+
+	@Override
+	protected void doFlush(ChannelWriteFuture future) {
+		selectorEventLoop.dispatch(this);
 	}
 
 	@Override
@@ -129,7 +108,9 @@ public class NioSocketChannel extends AbstractChannel
 			}
 		}
 
-		if (!write_future.write(this)) {
+		write_future.write(this);
+
+		if (!write_future.isCompleted()) {
 			return;
 		}
 
@@ -146,173 +127,7 @@ public class NioSocketChannel extends AbstractChannel
 	}
 
 	@Override
-	public InetSocketAddress getLocalSocketAddress() {
-		if (local == null) {
-			try {
-				local = (InetSocketAddress) channel.getLocalAddress();
-			} catch (IOException e) {
-				local = ERROR_SOCKET_ADDRESS;
-			}
-		}
-		return local;
-	}
-
-	@Override
-	public void finishHandshake(Exception e) {
-		if (getContext().getSslContext().isClient()) {
-			this.handshakeWaiter.setPayload(e);
-		}
-	}
-
-	@Override
-	protected String getMarkPrefix() {
-		return "Tcp";
-	}
-
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
-
-	@Override
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
-	}
-
-	@Override
-	public ChannelReadFuture getReadFuture() {
-		return readFuture;
-	}
-
-	@Override
-	public InetSocketAddress getRemoteSocketAddress() {
-		if (remote == null) {
-			try {
-				remote = (InetSocketAddress) channel.getRemoteAddress();
-			} catch (IOException e) {
-				remote = ERROR_SOCKET_ADDRESS;
-			}
-		}
-		return remote;
-	}
-
-	@Override
-	public UnsafeSocketSession getSession() {
-		return session;
-	}
-
-	@Override
-	public int getWriteFutureSize() {
-		return write_futures.size();
-	}
-
-	@Override
-	public boolean isBlocking() {
-		return channel.isBlocking();
-	}
-
-	@Override
-	public boolean isNetworkWeak() {
-		return networkWeak;
-	}
-
-	// FIXME 是否使用channel.isOpen()
-	@Override
-	public boolean isOpened() {
-		return opened;
-	}
-
-	@Override
-	public <T> T getOption(SocketOption<T> name) throws IOException {
-		return channel.getOption(name);
-	}
-
-	@Override
-	public <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException {
-		return channel.setOption(name, value);
-	}
-
-	@Override
-	public boolean isEnableSSL() {
-		return getContext().isEnableSSL();
-	}
-
-	@Override
-	public SSLEngine getSSLEngine() {
-		return sslEngine;
-	}
-
-	@Override
-	public void flush(ChannelReadFuture future) {
-
-		if (future == null || future.flushed()) {
-			return;
-		}
-
-		ChannelReadFuture crf = (ChannelReadFuture) future;
-
-		if (!isOpened()) {
-
-			crf.flush();
-
-			IoEventHandle handle = future.getIOEventHandle();
-
-			exceptionCaught(handle, future, new ClosedChannelException(toString()),
-					IoEventState.WRITE);
-
-			return;
-		}
-
-		try {
-
-			ProtocolEncoder encoder = getProtocolEncoder();
-
-			ByteBufAllocator allocator = getByteBufAllocator();
-
-			flush(encoder.encode(allocator, crf.flush()));
-
-		} catch (Exception e) {
-
-			logger.error(e.getMessage(), e);
-
-			IoEventHandle handle = future.getIOEventHandle();
-
-			exceptionCaught(handle, future, e, IoEventState.WRITE);
-		}
-	}
-
-	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause,
-			IoEventState state) {
-		try {
-			handle.exceptionCaught(getSession(), future, cause, state);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	@Override
-	public void flush(ChannelWriteFuture future) {
-
-		UnsafeSocketSession session = getSession();
-
-		if (!isOpened()) {
-			future.onException(session, new ClosedChannelException(session.toString()));
-			return;
-		}
-
-		// FIXME 部分情况下可以不在业务线程做wrapssl
-		if (isEnableSSL()) {
-			try {
-				future.wrapSSL(this, sslHandler);
-			} catch (IOException e) {
-				future.onException(session, e);
-			}
-		}
+	public void close() throws IOException {
 
 		ReentrantLock lock = getChannelLock();
 
@@ -320,71 +135,53 @@ public class NioSocketChannel extends AbstractChannel
 
 		try {
 
-			if (!write_futures.offer(future)) {
-				future.onException(session, new RejectedExecutionException());
+			if (!isOpened()) {
 				return;
 			}
 
-			this.writeFutureLength += future.getBinaryLength();
-
-			if (writeFutureLength > 1024 * 1024 * 10) {
-				// FIXME 该连接写入过多啦
-			}
-
-			if (write_future == null && write_futures.size() > 1) {
+			if (inSelectorLoop()) {
+				physicalClose();
 				return;
 			}
 
-			selectorEventLoop.dispatch(this);
+			if (isClosing()) {
+				return;
+			}
 
-		} catch (Exception e) {
+			closing = true;
 
-			future.onException(session, e);
-
+			fireClose();
 		} finally {
-
 			lock.unlock();
 		}
 	}
 
-	private void releaseWriteFutures() {
+	private void fireClose() {
 
-		ClosedChannelException e = null;
+		final NioSocketChannel _channel = this;
 
-		if (write_future != null) {
+		fireEvent(new SelectorLoopEventAdapter() {
 
-			e = new ClosedChannelException(session.toString());
+			@Override
+			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
+				CloseUtil.close(_channel);
+			}
+		});
+	}
 
-			write_future.onException(session, e);
-		}
+	public boolean isBlocking() {
+		return channel.isBlocking();
+	}
 
-		ListQueue<ChannelWriteFuture> writeFutures = this.write_futures;
-
-		if (writeFutures.size() == 0) {
-			return;
-		}
-
-		ChannelWriteFuture f = writeFutures.poll();
-
-		UnsafeSocketSession session = this.session;
-
-		if (e == null) {
-			e = new ClosedChannelException(session.toString());
-		}
-
-		for (; f != null;) {
-
-			f.onException(session, e);
-
-			ReleaseUtil.release(f);
-
-			f = writeFutures.poll();
-		}
+	private boolean isNetworkWeak() {
+		return networkWeak;
 	}
 
 	// FIXME 这里有问题
 	@Override
 	protected void physicalClose() {
+
+		closeSSL();
 
 		// 最后一轮 //FIXME once
 		try {
@@ -410,44 +207,17 @@ public class NioSocketChannel extends AbstractChannel
 
 		this.selectionKey.cancel();
 
-		if (isEnableSSL()) {
-
-			sslEngine.closeOutbound();
-
-			if (getContext().getSslContext().isClient()) {
-
-				flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
-						EmptyByteBuf.getInstance()));
-			}
-
-			try {
-				sslEngine.closeInbound();
-			} catch (SSLException e) {
-			}
-		}
-
 		fireClosed();
 
-		ChannelService service = context.getChannelService();
-
-		if (!(service instanceof AbstractChannelConnector)) {
-			return;
-		}
-
-		try {
-			((AbstractChannelConnector) service).physicalClose();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		closeConnector();
 	}
 
-	@Override
-	public int read(ByteBuffer buffer) throws IOException {
-		return this.channel.read(buffer);
+	private int read(ByteBuffer buffer) throws IOException {
+		return channel.read(buffer);
 	}
-	
-	public int read(ByteBuf buf) throws IOException{
-		
+
+	public int read(ByteBuf buf) throws IOException {
+
 		int length = read(buf.getNioBuffer());
 
 		if (length > 0) {
@@ -457,47 +227,24 @@ public class NioSocketChannel extends AbstractChannel
 		return length;
 	}
 
-	public int write(ByteBuf buf) throws IOException{
-		
+	public void write(ByteBuf buf) throws IOException {
+
 		int length = write(buf.getNioBuffer());
 
 		if (length < 1) {
 
 			downNetworkState();
 
-			return length;
+			return;
 
 		}
-		
-		buf.skipBytes(length);
-		
+
+		buf.reverse();
+
 		upNetworkState();
-
-		return length;
 	}
 
-	@Override
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		this.protocolDecoder = protocolDecoder;
-	}
-
-	@Override
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		this.protocolEncoder = protocolEncoder;
-	}
-
-	@Override
-	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		this.protocolFactory = protocolFactory;
-	}
-
-	@Override
-	public void setReadFuture(ChannelReadFuture readFuture) {
-		this.readFuture = readFuture;
-	}
-
-	@Override
-	public void upNetworkState() {
+	private void upNetworkState() {
 
 		if (next_network_weak != Long.MAX_VALUE) {
 
@@ -507,8 +254,7 @@ public class NioSocketChannel extends AbstractChannel
 		}
 	}
 
-	@Override
-	public void downNetworkState() {
+	private void downNetworkState() {
 
 		long current = System.currentTimeMillis();
 
@@ -529,27 +275,14 @@ public class NioSocketChannel extends AbstractChannel
 
 			next_network_weak = current + 64;
 		}
-
 	}
 
-	@Override
-	public int write(ByteBuffer buffer) throws IOException {
+	public void fireEvent(SelectorLoopEvent event) {
+		this.selectorEventLoop.dispatch(event);
+	}
+
+	private int write(ByteBuffer buffer) throws IOException {
 		return channel.write(buffer);
-	}
-
-	@Override
-	public SslReadFuture getSslReadFuture() {
-		return sslReadFuture;
-	}
-
-	@Override
-	public void setSslReadFuture(SslReadFuture future) {
-		this.sslReadFuture = future;
-	}
-
-	@Override
-	public boolean needFlush() {
-		return write_futures.size() > 0;
 	}
 
 	@Override
@@ -557,85 +290,12 @@ public class NioSocketChannel extends AbstractChannel
 		return !isNetworkWeak();
 	}
 
-	@Override
-	public ExecutorEventLoop getExecutorEventLoop() {
-		return executorEventLoop;
-	}
-
-	@Override
 	public boolean isReadable() {
 		return selectionKey.isReadable();
 	}
 
-	@Override
-	public void fireOpend() {
-
-		SocketChannelContext context = getContext();
-
-		if (context.isEnableSSL()) {
-			this.sslHandler = context.getSslContext().getSslHandler();
-			this.sslEngine = context.getSslContext().newEngine();
-		}
-
-		if (isEnableSSL() && context.getSslContext().isClient()) {
-
-			handshakeWaiter = new Waiter<Exception>();
-
-			flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
-					EmptyByteBuf.getInstance()));
-			// wait
-
-			if (handshakeWaiter.await(3000)) {// FIXME test
-				CloseUtil.close(this);
-				throw new RuntimeException("hands shake failed");
-			}
-
-			if (handshakeWaiter.getPayload() != null) {
-				throw new RuntimeException(handshakeWaiter.getPayload());
-			}
-
-			handshakeWaiter = null;
-			// success
-		}
-
-		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
-
-		UnsafeSocketSession session = getSession();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionOpened(session);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				CloseUtil.close(this);
-				break;
-			}
-
-			linkable = linkable.getNext();
-		}
-	}
-
-	private void fireClosed() {
-
-		Linkable<SocketSessionEventListener> linkable = getContext()
-				.getSessionEventListenerLink();
-
-		UnsafeSocketSession session = getSession();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionClosed(session);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
-		}
+	public boolean inSelectorLoop() {
+		return selectorEventLoop.inEventLoop();
 	}
 
 }

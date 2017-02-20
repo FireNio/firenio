@@ -78,11 +78,6 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	}
 
 	@Override
-	public boolean isBlocking() {
-		return getChannel().isBlocking();
-	}
-
-	@Override
 	public void flush(ReadFuture future) {
 		getChannel().flush((ChannelReadFuture)future);
 	}

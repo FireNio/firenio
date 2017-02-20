@@ -17,38 +17,25 @@ package com.generallycloud.nio.component;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
-import com.generallycloud.nio.protocol.ProtocolDecoder;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ProtocolFactory;
-
 /**
  * @author wangkai
  *
  */
-public interface SocketSelectorEventLoop extends SelectorEventLoop {
+public interface SocketSelectorEventLoop extends SelectorEventLoop, SocketChannelThreadContext {
 
-	public void accept(SocketChannel channel);
+	public void accept(NioSocketChannel channel);
 
 	@Override
-	public abstract SocketChannelContext getChannelContext();
+	public abstract NioSocketChannelContext getChannelContext();
 
-	public abstract ProtocolDecoder getProtocolDecoder();
-	
 	public abstract SocketSelector getSelector();
-
-	public abstract ProtocolEncoder getProtocolEncoder();
-
-	public abstract ProtocolFactory getProtocolFactory();
-
-	public abstract ExecutorEventLoop getExecutorEventLoop();
 
 	public abstract boolean isWaitForRegist();
 
 	public abstract void setWaitForRegist(boolean isWaitForRegist);
 
 	public abstract ReentrantLock getIsWaitForRegistLock();
-	
+
 	@Override
 	public abstract SocketSelectorEventLoopGroup getEventLoopGroup();
 

@@ -17,16 +17,17 @@ package com.generallycloud.nio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public abstract class AbstractChannelConnector extends AbstractChannelService implements NioChannelConnector {
+public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
 
 	protected long			timeout		= 3000;
 	
@@ -38,6 +39,28 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		if(waiter.await()){
 			//FIXME never timeout
 			throw new TimeoutException("timeout to close");
+		}
+	}
+	
+	protected void cancelService() {
+
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+			// just close
+			this.destroyChannel();
+
+			LifeCycleUtil.stop(getContext());
+
+			shutDownWaiter.setPayload(null);
+
+		} finally {
+
+			active = false;
+
+			lock.unlock();
 		}
 	}
 	
@@ -73,8 +96,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		cancelService();
 	}
 	
-	@Override
-	protected void initService(ServerConfiguration configuration) throws IOException {
+	private void initService(ServerConfiguration configuration) throws IOException {
 		
 		String SERVER_HOST = configuration.getSERVER_HOST();
 		
@@ -86,8 +108,6 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		
 	}
 	
-	protected abstract void fireSessionOpend();
-
 	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
 	@Override
@@ -110,8 +130,44 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		this.timeout = timeout;
 	}
 	
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
+	protected abstract void initChannel() throws IOException;
+	
+	protected abstract void destroyChannel();
+
+	protected void service() throws IOException {
+
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+
+			if (active) {
+				return;
+			}
+
+			if (getContext() == null) {
+				throw new IllegalArgumentException("null nio context");
+			}
+			
+			getContext().setChannelService(this);
+
+			ServerConfiguration configuration = getContext().getServerConfiguration();
+
+			configuration.setSERVER_CORE_SIZE(1);
+
+			LifeCycleUtil.start(getContext());
+
+			this.initChannel();
+
+			this.initService(configuration);
+
+			this.active = true;
+
+		} finally {
+
+			lock.unlock();
+		}
 	}
+	
 }

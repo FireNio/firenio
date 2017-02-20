@@ -28,7 +28,7 @@ import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.concurrent.BufferedArrayListUnsafe;
+import com.generallycloud.nio.component.concurrent.BufferedArrayList;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
@@ -45,7 +45,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 	private ChannelByteBufReader						byteBufReader		= null;
 
-	private SocketChannelContext						context			= null;
+	private NioSocketChannelContext					context			= null;
 
 	private ProtocolDecoder							protocolDecoder	= null;
 
@@ -73,9 +73,9 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 	private int									eventQueueSize		= 0;
 
-	private BufferedArrayListUnsafe<SelectorLoopEvent>	negativeEvents		= new BufferedArrayListUnsafe<>();
+	private BufferedArrayList<SelectorLoopEvent>	negativeEvents		= new BufferedArrayList<>();
 
-	private BufferedArrayListUnsafe<SelectorLoopEvent>	positiveEvents		= new BufferedArrayListUnsafe<>();
+	private BufferedArrayList<SelectorLoopEvent>	positiveEvents		= new BufferedArrayList<>();
 
 	private AtomicBoolean							selecting			= new AtomicBoolean();
 
@@ -91,8 +91,8 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		this.eventLoopGroup = group;
 
 		this.context = group.getChannelContext();
-
-		this.selectorBuilder = context.getChannelService().getSelectorBuilder();
+		
+		this.selectorBuilder = ((NioChannelService) context.getChannelService()).getSelectorBuilder();
 
 		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
 
@@ -146,7 +146,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	}
 
 	@Override
-	public void accept(SocketChannel channel) {
+	public void accept(NioSocketChannel channel) {
 
 		if (!channel.isOpened()) {
 			return;
@@ -162,7 +162,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		}
 	}
 
-	public void accept0(SocketChannel channel) throws Exception {
+	public void accept0(NioSocketChannel channel) throws Exception {
 
 		ByteBuf buf = this.buf;
 
@@ -170,7 +170,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		buf.nioBuffer();
 
-		int length =  channel.read(buf);
+		int length = channel.read(buf);
 
 		if (length < 1) {
 
@@ -216,7 +216,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
 	}
 
-	private void closeEvents(BufferedArrayListUnsafe<SelectorLoopEvent> bufferedList) {
+	private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
 
 		List<SelectorLoopEvent> events = getEventBuffer(bufferedList);
 
@@ -227,7 +227,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	}
 
 	@Override
-	public SocketChannelContext getChannelContext() {
+	public NioSocketChannelContext getChannelContext() {
 		return context;
 	}
 
@@ -293,9 +293,9 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 				// selectEmpty(last_select);
 			} else {
 
-				List<SocketChannel> selectedChannels = selector.selectedChannels();
+				List<NioSocketChannel> selectedChannels = selector.selectedChannels();
 
-				for (SocketChannel channel : selectedChannels) {
+				for (NioSocketChannel channel : selectedChannels) {
 
 					accept(channel);
 				}
@@ -404,7 +404,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 	private void fireEvent(SelectorLoopEvent event) {
 
-		BufferedArrayListUnsafe<SelectorLoopEvent> events = positiveEvents;
+		BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
 
 		if (events.getBufferSize() > eventQueueSize) {
 			throw new RejectedExecutionException();
@@ -479,7 +479,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	}
 
 	private List<SelectorLoopEvent> getEventBuffer(
-			BufferedArrayListUnsafe<SelectorLoopEvent> bufferedList) {
+			BufferedArrayList<SelectorLoopEvent> bufferedList) {
 		ReentrantLock lock = this.runLock;
 		lock.lock();
 		try {

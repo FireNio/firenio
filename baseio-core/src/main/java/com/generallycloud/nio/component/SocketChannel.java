@@ -12,17 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.component;
 
 import java.io.IOException;
 import java.net.SocketOption;
-import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelWriteFuture;
@@ -31,13 +29,7 @@ import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 import com.generallycloud.nio.protocol.SslReadFuture;
 
-public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
-
-	public abstract boolean isNetworkWeak();
-
-	public abstract void upNetworkState();
-
-	public abstract void downNetworkState();
+public interface SocketChannel extends DuplexChannel {
 
 	public abstract ChannelReadFuture getReadFuture();
 
@@ -47,15 +39,9 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract void setSslReadFuture(SslReadFuture future);
 
-	public abstract int read(ByteBuffer buffer) throws IOException;
-
-	public abstract int write(ByteBuffer buffer) throws IOException;
-
 	public abstract void flush(ChannelWriteFuture future);
-	
-	public abstract void flush(ChannelReadFuture future);
 
-	public abstract boolean isBlocking();
+	public abstract void flush(ChannelReadFuture future);
 
 	@Override
 	public abstract SocketChannelContext getContext();
@@ -73,34 +59,27 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
 	public abstract int getWriteFutureSize();
-	
-	public abstract int getWriteFutureLength();
 
-	public abstract boolean needFlush();
+	public abstract int getWriteFutureLength();
 
 	@Override
 	public abstract UnsafeSocketSession getSession();
 
-	public abstract void fireEvent(SelectorLoopEvent event);
-	
 	public abstract ExecutorEventLoop getExecutorEventLoop();
-	
-	public abstract boolean isReadable();
-	
+
 	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
-	
-	public abstract <T> java.nio.channels.SocketChannel setOption(SocketOption<T> name, T value) throws IOException;
+
+	public abstract <T> void setOption(SocketOption<T> name, T value)
+			throws IOException;
 
 	public abstract boolean isEnableSSL();
 
 	public abstract SSLEngine getSSLEngine();
-	
+
 	public abstract void finishHandshake(Exception e);
 
 	public abstract void fireOpend();
 
-	public abstract int read(ByteBuf buf) throws IOException;
+	public abstract void write(ByteBuf buf) throws IOException;
 
-	public abstract int write(ByteBuf buf) throws IOException;
-	
 }

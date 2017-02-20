@@ -24,8 +24,8 @@ import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.UUIDGenerator;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -63,7 +63,7 @@ public class HttpServerLoadStartup {
 
 		ServerConfiguration configuration = new ServerConfiguration(80);
 		
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		

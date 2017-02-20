@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.nio.component.BeatFutureFactory;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.SocketSessionEventListener;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -65,7 +65,7 @@ public class FrontServerBootStrap {
 	private SocketChannelContext getFrontFacadeChannelContext(FrontContext frontContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(frontContext.getFrontFacadeAcceptorHandler());
 
@@ -89,7 +89,7 @@ public class FrontServerBootStrap {
 	private SocketChannelContext getBalanceFacadeChannelContext(FrontContext frontContext,
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(frontContext.getBalanceFacadeConnectorHandler());
 

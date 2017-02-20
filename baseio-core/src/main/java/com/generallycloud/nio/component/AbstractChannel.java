@@ -21,31 +21,32 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.nio.common.Logger;
+import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
-import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
+import com.generallycloud.nio.connector.AbstractChannelConnector;
 
 public abstract class AbstractChannel implements Channel {
 	
 	static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
+	
+	private static final Logger logger = LoggerFactory.getLogger(AbstractChannel.class);
 
 	protected String			edp_description;
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	protected long			lastAccess;
-	protected SelectorEventLoop	selectorEventLoop;
 	protected boolean			opened		= true;
 	protected boolean			closing		= false;
 	protected long			creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 	protected ByteBufAllocator	byteBufAllocator;
 
-	public AbstractChannel(SelectorEventLoop selectorEventLoop) {
+	public AbstractChannel(ByteBufAllocator allocator,ChannelContext context) {
 		// 认为在第一次Idle之前，连接都是畅通的
-		ChannelContext context = selectorEventLoop.getChannelContext();
-		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
-		this.lastAccess = this.creationTime + context.getSessionIdleTime();
+		this.byteBufAllocator = allocator;
+		this.lastAccess = creationTime + context.getSessionIdleTime();
 		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
 
@@ -74,58 +75,8 @@ public abstract class AbstractChannel implements Channel {
 	protected abstract void physicalClose();
 
 	@Override
-	public void close() throws IOException {
-
-		ReentrantLock lock = getChannelLock();
-
-		lock.lock();
-
-		try {
-
-			if (!isOpened()) {
-				return;
-			}
-
-			if (inSelectorLoop()) {
-				physicalClose();
-				return;
-			}
-
-			if (isClosing()) {
-				return;
-			}
-
-			closing = true;
-
-			fireClose();
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	public void fireEvent(SelectorLoopEvent event) {
-		this.selectorEventLoop.dispatch(event);
-	}
-
-	private void fireClose() {
-
-		fireEvent(new SelectorLoopEventAdapter() {
-
-			@Override
-			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
-				CloseUtil.close(AbstractChannel.this);
-			}
-		});
-	}
-
-	@Override
 	public boolean isClosing() {
 		return closing;
-	}
-
-	@Override
-	public boolean inSelectorLoop() {
-		return selectorEventLoop.inEventLoop();
 	}
 
 	@Override
@@ -201,8 +152,6 @@ public abstract class AbstractChannel implements Channel {
 				.append(getRemotePort())
 				.append("; L:")
 				.append(getLocalPort())
-				.append(" c:")
-				.append(selectorEventLoop.getCoreIndex())
 				.append("]")
 				.toString();
 		}
@@ -235,6 +184,22 @@ public abstract class AbstractChannel implements Channel {
 	@Override
 	public long getLastAccessTime() {
 		return lastAccess;
+	}
+
+	//FIXME __________
+	protected void closeConnector() {
+
+		ChannelService service = getContext().getChannelService();
+
+		if (!(service instanceof AbstractChannelConnector)) {
+			return;
+		}
+
+		try {
+			((AbstractChannelConnector) service).physicalClose();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 }

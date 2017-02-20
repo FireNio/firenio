@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.connector.AbstractChannelConnector;
 import com.generallycloud.nio.protocol.DatagramPacket;
 
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.nio.component.DatagramChannel {
@@ -34,15 +35,39 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private DatagramChannel			channel;
 	private DatagramChannelContext	context;
 	private UnsafeDatagramSession		session;
+	private DatagramSelectorEventLoop selectorLoop;
 
 	public NioDatagramChannel(DatagramSelectorEventLoopImpl selectorLoop, DatagramChannel channel,
 			InetSocketAddress remote){
-		super(selectorLoop);
+		super(selectorLoop.getByteBufAllocator(),selectorLoop.getChannelContext());
+		this.selectorLoop = selectorLoop;
 		this.context = selectorLoop.getContext();
 		this.channel = channel;
 		this.remote = remote;
 		this.session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
-		this.session.fireOpend();
+		this.fireOpend();
+	}
+	
+	@Override
+	public void close() throws IOException {
+
+		ReentrantLock lock = getChannelLock();
+
+		lock.lock();
+
+		try {
+
+			if (!isOpened()) {
+				return;
+			}
+			
+			this.opened = false;
+			
+			physicalClose();
+
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
@@ -53,23 +78,11 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	@Override
 	protected void physicalClose() {
 
-		getSession().physicalClose();
+		context.getSessionManager().removeSession(session);
 
-		DatagramSessionManager manager = context.getSessionManager();
-
-		manager.removeSession(session);
-
-		ChannelService service = context.getChannelService();
-
-		if (!(service instanceof AbstractChannelConnector)) {
-			return;
-		}
-
-		try {
-			((AbstractChannelConnector) service).physicalClose();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		fireClosed();
+		
+		closeConnector();
 	}
 
 	@Override
@@ -147,6 +160,45 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		buf.put(data);
 
 		return buf;
+	}
+	
+	private void fireOpend() {
+		
+		Linkable<DatagramSessionEventListener> linkable = context.getSessionEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionOpened(getSession());
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
+	}
+
+	private void fireClosed() {
+		
+		Linkable<DatagramSessionEventListener> linkable = context.getSessionEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionClosed(getSession());
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
+	}
+
+	@Override
+	public boolean inSelectorLoop() {
+		return selectorLoop.inEventLoop();
 	}
 
 }

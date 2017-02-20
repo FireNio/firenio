@@ -17,9 +17,10 @@ package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.TimeoutException;
+import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -27,7 +28,7 @@ import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.concurrent.Waiter;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
-public abstract class AbstractChannelAcceptor extends AbstractChannelService implements NioChannelAcceptor {
+public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor{
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -35,12 +36,47 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	public void bind() throws IOException {
 		service();
 	}
+	
+	protected void service() throws IOException {
 
-	@Override
-	protected void initService(ServerConfiguration configuration) throws IOException {
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+
+			if (active) {
+				return;
+			}
+
+			if (getContext() == null) {
+				throw new IllegalArgumentException("null nio context");
+			}
+			
+			getContext().setChannelService(this);
+
+			ServerConfiguration configuration = getContext().getServerConfiguration();
+			
+			if (this instanceof DatagramChannelAcceptor) {
+				configuration.setSERVER_CORE_SIZE(1);
+			}
+
+			LifeCycleUtil.start(getContext());
+
+			this.initService(configuration);
+
+			this.active = true;
+
+		} finally {
+
+			lock.unlock();
+		}
+	}
+
+	private void initService(ServerConfiguration configuration) throws IOException {
 
 		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
-
+		
 		this.bind(getServerSocketAddress());
 
 		LoggerUtil.prettyNIOServerLog(logger, "监听已启动 @{}", getServerSocketAddress());
@@ -63,20 +99,37 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 			throw new TimeoutException("timeout to unbind");
 		}
 	}
-
+	
 	@Override
 	public Waiter<IOException> asynchronousUnbind() {
-		cancelService();
+		
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+			// just close
+			this.destroyChannel();
+
+			LifeCycleUtil.stop(getContext());
+
+			shutDownWaiter.setPayload(null);
+
+		} finally {
+
+			active = false;
+
+			lock.unlock();
+		}
+		
 		return shutDownWaiter;
 	}
+	
+	protected abstract void destroyChannel();
 
 	@Override
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();
 	}
 
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
-	}
 }

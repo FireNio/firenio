@@ -29,7 +29,7 @@ public interface SocketSelector extends Closeable{
 
 	public abstract int select(long timeout) throws IOException;
 
-	public abstract List<SocketChannel> selectedChannels() throws IOException;
+	public abstract List<NioSocketChannel> selectedChannels() throws IOException;
 
 	public abstract void clearSelectedChannels();
 

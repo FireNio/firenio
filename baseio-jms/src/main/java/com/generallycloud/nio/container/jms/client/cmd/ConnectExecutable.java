@@ -22,9 +22,8 @@ import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
 import com.generallycloud.nio.common.cmd.CmdResponse;
 import com.generallycloud.nio.common.cmd.CommandContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.container.FixedSession;
@@ -66,11 +65,9 @@ public class ConnectExecutable extends MQCommandExecutor {
 		
 		try {
 			
-			SocketChannelContext baseContext = new SocketChannelContextImpl(new ServerConfiguration(Integer.parseInt(port)));
+			NioSocketChannelContext baseContext = new NioSocketChannelContext(new ServerConfiguration(Integer.parseInt(port)));
 			
 			connector = new SocketChannelConnector(baseContext);
-
-//			String serviceName = SYSTEMStopServerServlet.SERVICE_NAME;
 
 			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
 			

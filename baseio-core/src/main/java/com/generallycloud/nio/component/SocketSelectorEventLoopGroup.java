@@ -21,14 +21,15 @@ import com.generallycloud.nio.component.concurrent.AbstractEventLoopGroup;
  * @author wangkai
  *
  */
-public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup implements SelectorEventLoopGroup {
+public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup
+		implements SelectorEventLoopGroup {
 
 	private SocketSelectorEventLoop[]	selectorEventLoops	= null;
 
-	private SocketChannelContext		channelContext;
+	private NioSocketChannelContext	channelContext;
 
-	public SocketSelectorEventLoopGroup(SocketChannelContext context, String eventLoopName, int eventQueueSize,
-			int eventLoopSize) {
+	public SocketSelectorEventLoopGroup(NioSocketChannelContext context, String eventLoopName,
+			int eventQueueSize, int eventLoopSize) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 		this.channelContext = context;
 	}
@@ -60,7 +61,7 @@ public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup impleme
 	}
 
 	@Override
-	public SocketChannelContext getChannelContext() {
+	public NioSocketChannelContext getChannelContext() {
 		return channelContext;
 	}
 

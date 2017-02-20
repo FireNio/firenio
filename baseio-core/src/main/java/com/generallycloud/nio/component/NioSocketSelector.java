@@ -37,7 +37,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 	private Selector				selector			= null;
 
-	private List<SocketChannel>		selectedChannels	= new ArrayList<>(4096);
+	private List<NioSocketChannel>		selectedChannels	= new ArrayList<>(4096);
 
 	protected SocketSelectorEventLoop	selectorEventLoop;
 
@@ -61,7 +61,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 	}
 
 	@Override
-	public List<SocketChannel> selectedChannels() throws IOException {
+	public List<NioSocketChannel> selectedChannels() throws IOException {
 
 		Set<SelectionKey> sks = selector.selectedKeys();
 
@@ -71,7 +71,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 				continue;
 			}
 
-			SocketChannel channel = (SocketChannel) k.attachment();
+			NioSocketChannel channel = (NioSocketChannel) k.attachment();
 
 			if (channel == null) {
 				// channel为空说明该链接未打开
@@ -117,9 +117,9 @@ public abstract class NioSocketSelector implements SocketSelector {
 		selector.wakeup();
 	}
 
-	protected SocketChannel newChannel(SelectionKey selectionKey,SocketSelectorEventLoop selectorLoop) throws SocketException {
+	protected NioSocketChannel newChannel(SelectionKey selectionKey,SocketSelectorEventLoop selectorLoop) throws SocketException {
 
-		SocketChannel channel = (SocketChannel) selectionKey.attachment();
+		NioSocketChannel channel = (NioSocketChannel) selectionKey.attachment();
 
 		if (channel != null) {
 

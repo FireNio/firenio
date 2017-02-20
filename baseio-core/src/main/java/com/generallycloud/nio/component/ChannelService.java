@@ -24,6 +24,4 @@ public interface ChannelService {
 	public abstract InetSocketAddress getServerSocketAddress();
 	
 	public abstract boolean isActive();
-	
-	public abstract SocketSelectorBuilder getSelectorBuilder();
 }

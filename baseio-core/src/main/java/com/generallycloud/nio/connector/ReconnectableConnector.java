@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
 
 public class ReconnectableConnector implements Closeable {
 
@@ -39,7 +39,7 @@ public class ReconnectableConnector implements Closeable {
 		this.connect2Front = new SocketChannelConnector(context);
 		this.reconnectableConnector = this;
 	}
-
+	
 	public boolean isConnected() {
 		return connect2Front.isConnected();
 	}
@@ -133,5 +133,5 @@ public class ReconnectableConnector implements Closeable {
 	public void setRetryTime(long retryTime) {
 		this.retryTime = retryTime;
 	}
-
+	
 }

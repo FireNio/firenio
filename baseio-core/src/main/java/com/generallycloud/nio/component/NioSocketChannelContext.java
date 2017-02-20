@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.connector;
+package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.acceptor.NioChannelService;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
-/**
- * @author wangkai
- *
- */
-public interface NioChannelConnector extends ChannelConnector , NioChannelService{
+public class NioSocketChannelContext extends AbstractSocketChannelContext {
+
+	public NioSocketChannelContext(ServerConfiguration configuration) {
+		super(configuration);
+	}
+
+
 
 }

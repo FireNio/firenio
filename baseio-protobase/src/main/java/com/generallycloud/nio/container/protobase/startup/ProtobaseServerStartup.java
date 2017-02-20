@@ -23,7 +23,7 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
@@ -53,7 +53,7 @@ public class ProtobaseServerStartup {
 		
 		ServerConfiguration configuration = configurationLoader.loadConfiguration(SharedBundle.instance());
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.nio.acceptor;
+package com.generallycloud.nio.component;
 
 import java.nio.channels.SelectableChannel;
-
-import com.generallycloud.nio.component.ChannelService;
 
 /**
  * @author wangkai
@@ -25,6 +23,7 @@ import com.generallycloud.nio.component.ChannelService;
  */
 public interface NioChannelService extends ChannelService{
 
-	//FIXME channel instead
+	public abstract SocketSelectorBuilder getSelectorBuilder();
+
 	public abstract SelectableChannel getSelectableChannel();
 }

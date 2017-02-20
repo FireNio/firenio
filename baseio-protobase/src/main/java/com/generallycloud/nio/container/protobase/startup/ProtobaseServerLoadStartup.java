@@ -20,7 +20,7 @@ import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContextImpl;
+import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.SocketSession;
@@ -49,7 +49,7 @@ public class ProtobaseServerLoadStartup {
 		
 		ServerConfiguration configuration = loader.loadConfiguration(SharedBundle.instance());
 
-		SocketChannelContext context = new SocketChannelContextImpl(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
