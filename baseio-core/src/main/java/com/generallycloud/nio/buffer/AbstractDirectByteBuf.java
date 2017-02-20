@@ -15,11 +15,8 @@
  */ 
 package com.generallycloud.nio.buffer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
@@ -156,23 +153,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 		}
 
 		return remaining;
-	}
-
-	@Override
-	public int write(SocketChannel channel) throws IOException {
-
-		int length = channel.write(memory);
-
-		if (length > 0) {
-
-			channel.upNetworkState();
-
-		} else {
-
-			channel.downNetworkState();
-		}
-
-		return length;
 	}
 
 	@Override
@@ -356,7 +336,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 	}
 
 	@Override
-	protected ByteBuffer getNioBuffer() {
+	public ByteBuffer getNioBuffer() {
 		return memory;
 	}
 

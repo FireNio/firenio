@@ -25,7 +25,6 @@ import com.generallycloud.nio.common.CloseUtil;
 public abstract class SessionImpl implements Session {
 
 	protected Object				attachment;
-	protected Object[]				attachments;
 	protected Integer				sessionID;
 	protected HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
 

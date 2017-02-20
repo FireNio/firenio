@@ -62,7 +62,7 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 		return encode(allocator, f, text_array.length, text_array);
 	}
 
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ServerHttpReadFuture f, int length, byte[] array)
+	private ChannelWriteFuture encode(ByteBufAllocator allocator, ServerHttpReadFuture f, int length, byte[] array)
 			throws IOException {
 
 		ByteBuf buf = allocator.allocate(256);

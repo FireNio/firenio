@@ -29,11 +29,14 @@ import javax.net.ssl.SSLException;
 
 import com.generallycloud.nio.ClosedChannelException;
 import com.generallycloud.nio.Linkable;
+import com.generallycloud.nio.buffer.ByteBuf;
+import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.buffer.EmptyByteBuf;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.ReleaseUtil;
+import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.ListQueue;
 import com.generallycloud.nio.component.concurrent.ListQueueLinkUnsafe;
@@ -47,9 +50,11 @@ import com.generallycloud.nio.protocol.EmptyReadFuture;
 import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
+import com.generallycloud.nio.protocol.ReadFuture;
 import com.generallycloud.nio.protocol.SslReadFuture;
 
-public class NioSocketChannel extends AbstractChannel implements com.generallycloud.nio.component.SocketChannel {
+public class NioSocketChannel extends AbstractChannel
+		implements com.generallycloud.nio.component.SocketChannel {
 
 	private SocketChannel				channel;
 	private UnsafeSocketSession			session;
@@ -62,21 +67,22 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	private ProtocolFactory				protocolFactory;
 	private SocketChannelContext			context;
 	private ChannelWriteFuture			write_future;
-	private long						next_network_weak	= Long.MAX_VALUE;
-	private int						writeFutureLength	= 0;
+	private int						writeFutureLength;
 	private ExecutorEventLoop			executorEventLoop;
-	private Waiter<Exception>		handshakeWaiter;
-	private SSLEngine			sslEngine;
-	private SslHandler			sslHandler;
+	private Waiter<Exception>			handshakeWaiter;
+	private SSLEngine					sslEngine;
+	private SslHandler					sslHandler;
+	private long						next_network_weak	= Long.MAX_VALUE;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
 	private ListQueue<ChannelWriteFuture>	write_futures		= new ListQueueLinkUnsafe<ChannelWriteFuture>();
 
-	private static final Logger			logger			= LoggerFactory.getLogger(NioSocketChannel.class);
+	private static final Logger			logger			= LoggerFactory
+			.getLogger(NioSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey){
+	public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey) {
 		super(selectorLoop);
 		this.selectorEventLoop = selectorLoop;
 		this.byteBufAllocator = selectorEventLoop.getByteBufAllocator();
@@ -95,14 +101,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public SocketChannelContext getContext() {
 		return context;
 	}
-	
+
 	@Override
 	public boolean isComplete() {
 		ReentrantLock lock = getChannelLock();
 		lock.lock();
-		try{
+		try {
 			return write_future == null && write_futures.size() == 0;
-		}finally{
+		} finally {
 			lock.unlock();
 		}
 	}
@@ -113,11 +119,11 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
-		
+
 		if (write_future == null) {
-			
+
 			write_future = write_futures.poll();
-			
+
 			if (write_future == null) {
 				return;
 			}
@@ -126,14 +132,14 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		if (!write_future.write(this)) {
 			return;
 		}
-		
+
 		writeFutureLength -= write_future.getBinaryLength();
 
 		write_future.onSuccess(session);
-		
+
 		write_future = null;
 	}
-	
+
 	@Override
 	public int getWriteFutureLength() {
 		return writeFutureLength;
@@ -150,7 +156,6 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 		}
 		return local;
 	}
-	
 
 	@Override
 	public void finishHandshake(Exception e) {
@@ -221,52 +226,100 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	public boolean isOpened() {
 		return opened;
 	}
-	
+
 	@Override
 	public <T> T getOption(SocketOption<T> name) throws IOException {
 		return channel.getOption(name);
 	}
 
 	@Override
-	public <T> SocketChannel setOption(SocketOption<T> name,T value) throws IOException {
+	public <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException {
 		return channel.setOption(name, value);
 	}
-	
+
 	@Override
 	public boolean isEnableSSL() {
 		return getContext().isEnableSSL();
 	}
-	
+
 	@Override
 	public SSLEngine getSSLEngine() {
 		return sslEngine;
 	}
-	
+
+	@Override
+	public void flush(ChannelReadFuture future) {
+
+		if (future == null || future.flushed()) {
+			return;
+		}
+
+		ChannelReadFuture crf = (ChannelReadFuture) future;
+
+		if (!isOpened()) {
+
+			crf.flush();
+
+			IoEventHandle handle = future.getIOEventHandle();
+
+			exceptionCaught(handle, future, new ClosedChannelException(toString()),
+					IoEventState.WRITE);
+
+			return;
+		}
+
+		try {
+
+			ProtocolEncoder encoder = getProtocolEncoder();
+
+			ByteBufAllocator allocator = getByteBufAllocator();
+
+			flush(encoder.encode(allocator, crf.flush()));
+
+		} catch (Exception e) {
+
+			logger.error(e.getMessage(), e);
+
+			IoEventHandle handle = future.getIOEventHandle();
+
+			exceptionCaught(handle, future, e, IoEventState.WRITE);
+		}
+	}
+
+	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause,
+			IoEventState state) {
+		try {
+			handle.exceptionCaught(getSession(), future, cause, state);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
 	@Override
 	public void flush(ChannelWriteFuture future) {
-		
+
 		UnsafeSocketSession session = getSession();
-		
+
 		if (!isOpened()) {
 			future.onException(session, new ClosedChannelException(session.toString()));
 			return;
 		}
-		
+
 		// FIXME 部分情况下可以不在业务线程做wrapssl
 		if (isEnableSSL()) {
 			try {
 				future.wrapSSL(this, sslHandler);
-			}  catch (IOException e) {
+			} catch (IOException e) {
 				future.onException(session, e);
 			}
 		}
-		
+
 		ReentrantLock lock = getChannelLock();
 
 		lock.lock();
 
 		try {
-			
+
 			if (!write_futures.offer(future)) {
 				future.onException(session, new RejectedExecutionException());
 				return;
@@ -283,6 +336,10 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			}
 
 			selectorEventLoop.dispatch(this);
+
+		} catch (Exception e) {
+
+			future.onException(session, e);
 
 		} finally {
 
@@ -327,7 +384,7 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	// FIXME 这里有问题
 	@Override
-	public void physicalClose() {
+	protected void physicalClose() {
 
 		// 最后一轮 //FIXME once
 		try {
@@ -359,8 +416,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 			if (getContext().getSslContext().isClient()) {
 
-				flush(new ChannelWriteFutureImpl(
-						EmptyReadFuture.getInstance(), EmptyByteBuf.getInstance()));
+				flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+						EmptyByteBuf.getInstance()));
 			}
 
 			try {
@@ -387,6 +444,36 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 	@Override
 	public int read(ByteBuffer buffer) throws IOException {
 		return this.channel.read(buffer);
+	}
+	
+	public int read(ByteBuf buf) throws IOException{
+		
+		int length = read(buf.getNioBuffer());
+
+		if (length > 0) {
+			buf.skipBytes(length);
+		}
+
+		return length;
+	}
+
+	public int write(ByteBuf buf) throws IOException{
+		
+		int length = write(buf.getNioBuffer());
+
+		if (length < 1) {
+
+			downNetworkState();
+
+			return length;
+
+		}
+		
+		buf.skipBytes(length);
+		
+		upNetworkState();
+
+		return length;
 	}
 
 	@Override
@@ -482,9 +569,9 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 	@Override
 	public void fireOpend() {
-		
+
 		SocketChannelContext context = getContext();
-		
+
 		if (context.isEnableSSL()) {
 			this.sslHandler = context.getSslContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
@@ -494,8 +581,8 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 
 			handshakeWaiter = new Waiter<Exception>();
 
-			flush(new ChannelWriteFutureImpl(
-					EmptyReadFuture.getInstance(), EmptyByteBuf.getInstance()));
+			flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+					EmptyByteBuf.getInstance()));
 			// wait
 
 			if (handshakeWaiter.await(3000)) {// FIXME test
@@ -506,13 +593,13 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 			if (handshakeWaiter.getPayload() != null) {
 				throw new RuntimeException(handshakeWaiter.getPayload());
 			}
-			
+
 			handshakeWaiter = null;
 			// success
 		}
 
 		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
-		
+
 		UnsafeSocketSession session = getSession();
 
 		for (; linkable != null;) {
@@ -526,17 +613,18 @@ public class NioSocketChannel extends AbstractChannel implements com.generallycl
 				CloseUtil.close(this);
 				break;
 			}
-			
+
 			linkable = linkable.getNext();
 		}
 	}
 
 	private void fireClosed() {
 
-		Linkable<SocketSessionEventListener> linkable = getContext().getSessionEventListenerLink();
+		Linkable<SocketSessionEventListener> linkable = getContext()
+				.getSessionEventListenerLink();
 
 		UnsafeSocketSession session = getSession();
-		
+
 		for (; linkable != null;) {
 
 			try {

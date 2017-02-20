@@ -170,7 +170,7 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 
 		buf.nioBuffer();
 
-		int length = buf.read(channel);
+		int length =  channel.read(buf);
 
 		if (length < 1) {
 

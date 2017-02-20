@@ -17,7 +17,6 @@ package com.generallycloud.nio.component;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
@@ -46,8 +45,6 @@ public interface Channel extends Closeable {
 	public abstract String getRemoteHost();
 
 	public abstract int getRemotePort();
-
-	public abstract void physicalClose();
 
 	public abstract ChannelContext getContext();
 

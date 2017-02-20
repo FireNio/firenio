@@ -15,11 +15,9 @@
  */ 
 package com.generallycloud.nio.buffer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.SocketChannel;
 
 public class DuplicateByteBuf implements ByteBuf {
 
@@ -337,11 +335,6 @@ public class DuplicateByteBuf implements ByteBuf {
 	}
 
 	@Override
-	public int read(SocketChannel channel) throws IOException {
-		return unwrap().read(channel);
-	}
-
-	@Override
 	public int remaining() {
 		return unwrap().remaining();
 	}
@@ -349,11 +342,6 @@ public class DuplicateByteBuf implements ByteBuf {
 	@Override
 	public ByteBuf skipBytes(int length) {
 		return unwrap().skipBytes(length);
-	}
-
-	@Override
-	public int write(SocketChannel channel) throws IOException {
-		return unwrap().write(channel);
 	}
 
 	@Override
@@ -384,6 +372,11 @@ public class DuplicateByteBuf implements ByteBuf {
 	@Override
 	public ByteBuf reverse() {
 		return unwrap().reverse();
+	}
+	
+	@Override
+	public ByteBuffer getNioBuffer() {
+		return unwrap().getNioBuffer();
 	}
 	
 }

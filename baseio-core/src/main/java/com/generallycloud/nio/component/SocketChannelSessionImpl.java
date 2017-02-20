@@ -17,11 +17,6 @@ package com.generallycloud.nio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.nio.ClosedChannelException;
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.component.IoEventHandle.IoEventState;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.ssl.SslHandler;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -33,9 +28,8 @@ import com.generallycloud.nio.protocol.ReadFuture;
 
 public abstract class SocketChannelSessionImpl extends SessionImpl implements SocketSession {
 
-	private static final Logger		logger	= LoggerFactory.getLogger(SocketChannelSessionImpl.class);
-
 	protected SocketChannel			channel;
+	protected Object[]				attachments;
 
 	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
 		super(sessionID);
@@ -83,14 +77,6 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 		return getChannel().isEnableSSL();
 	}
 
-	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause, IoEventState state) {
-		try {
-			handle.exceptionCaught(this, future, cause, state);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
 	@Override
 	public boolean isBlocking() {
 		return getChannel().isBlocking();
@@ -98,61 +84,12 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 
 	@Override
 	public void flush(ReadFuture future) {
-
-		if (future == null || future.flushed()) {
-			return;
-		}
-
-		ChannelReadFuture crf = (ChannelReadFuture) future;
-		
-		SocketChannel socketChannel = getChannel();
-
-		if (!socketChannel.isOpened()) {
-			
-			crf.flush();
-
-			IoEventHandle handle = future.getIOEventHandle();
-
-			exceptionCaught(handle, future, new ClosedChannelException(toString()), IoEventState.WRITE);
-
-			return;
-		}
-
-		try {
-
-			ProtocolEncoder encoder = socketChannel.getProtocolEncoder();
-
-			flush(encoder.encode(getByteBufAllocator(), crf.flush()));
-
-		} catch (Exception e) {
-
-			logger.debug(e.getMessage(), e);
-
-			IoEventHandle handle = future.getIOEventHandle();
-
-			exceptionCaught(handle, future, e, IoEventState.WRITE);
-		}
+		getChannel().flush((ChannelReadFuture)future);
 	}
 
 	@Override
 	public void flush(ChannelWriteFuture future) {
-
-		try {
-
-			channel.flush(future);
-
-		} catch (Exception e) {
-
-			ReleaseUtil.release(future);
-			
-			logger.debug(e.getMessage(), e);
-
-			ReadFuture readFuture = future.getReadFuture();
-
-			IoEventHandle handle = readFuture.getIOEventHandle();
-
-			handle.exceptionCaught(this, readFuture, e, IoEventState.WRITE);
-		}
+		getChannel().flush(future);
 	}
 
 	@Override

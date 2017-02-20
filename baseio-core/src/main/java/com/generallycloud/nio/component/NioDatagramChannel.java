@@ -51,7 +51,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	@Override
-	public void physicalClose() {
+	protected void physicalClose() {
 
 		getSession().physicalClose();
 

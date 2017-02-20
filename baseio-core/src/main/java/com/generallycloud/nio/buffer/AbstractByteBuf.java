@@ -15,10 +15,7 @@
  */
 package com.generallycloud.nio.buffer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import com.generallycloud.nio.component.SocketChannel;
 
 public abstract class AbstractByteBuf implements ByteBuf {
 
@@ -57,8 +54,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 		return bytes;
 	}
 
-	protected abstract ByteBuffer getNioBuffer();
-
 	protected int ix(int index) {
 		return offset + index;
 	}
@@ -80,18 +75,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
 	@Override
 	public void put(byte[] src) {
 		put(src, 0, src.length);
-	}
-
-	@Override
-	public int read(SocketChannel channel) throws IOException {
-
-		int length = channel.read(getNioBuffer());
-
-		if (length > 0) {
-			skipBytes(length);
-		}
-
-		return length;
 	}
 
 	@Override

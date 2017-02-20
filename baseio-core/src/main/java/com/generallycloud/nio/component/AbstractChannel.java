@@ -33,11 +33,11 @@ public abstract class AbstractChannel implements Channel {
 	protected Integer			channelID;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
-	protected long				lastAccess;
+	protected long			lastAccess;
 	protected SelectorEventLoop	selectorEventLoop;
 	protected boolean			opened		= true;
 	protected boolean			closing		= false;
-	protected long				creationTime	= System.currentTimeMillis();
+	protected long			creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 	protected ByteBufAllocator	byteBufAllocator;
 
@@ -70,6 +70,8 @@ public abstract class AbstractChannel implements Channel {
 	public ByteBufAllocator getByteBufAllocator() {
 		return byteBufAllocator;
 	}
+	
+	protected abstract void physicalClose();
 
 	@Override
 	public void close() throws IOException {

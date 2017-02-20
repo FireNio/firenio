@@ -15,11 +15,9 @@
  */
 package com.generallycloud.nio.buffer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.generallycloud.nio.Releasable;
-import com.generallycloud.nio.component.SocketChannel;
 
 public interface ByteBuf extends ByteBufNew, Releasable {
 
@@ -102,6 +100,8 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 	public abstract int limit();
 
 	public abstract ByteBuf limit(int limit);
+	
+	public abstract ByteBuffer getNioBuffer();
 
 	public abstract ByteBuffer nioBuffer();
 
@@ -141,9 +141,6 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
 	public abstract int read(ByteBuffer buffer);
 
-	// 往buffer中write
-	public abstract int read(SocketChannel channel) throws IOException;
-
 	public abstract int remaining();
 	
 	public abstract ByteBuf reverse();
@@ -157,8 +154,5 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 	public abstract ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
 
 	public abstract ByteBuf skipBytes(int length);
-
-	// 往buffer中read
-	public abstract int write(SocketChannel channel) throws IOException;
 
 }

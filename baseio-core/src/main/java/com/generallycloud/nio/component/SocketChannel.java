@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.nio.buffer.ByteBuf;
 import com.generallycloud.nio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
@@ -51,6 +52,8 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 	public abstract int write(ByteBuffer buffer) throws IOException;
 
 	public abstract void flush(ChannelWriteFuture future);
+	
+	public abstract void flush(ChannelReadFuture future);
 
 	public abstract boolean isBlocking();
 
@@ -96,6 +99,8 @@ public interface SocketChannel extends DuplexChannel, SelectorLoopEvent {
 
 	public abstract void fireOpend();
 
-	public abstract void physicalClose();
+	public abstract int read(ByteBuf buf) throws IOException;
+
+	public abstract int write(ByteBuf buf) throws IOException;
 	
 }

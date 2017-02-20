@@ -79,7 +79,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 		ByteBuf buf = this.buf;
 
-		buf.write(channel);
+		channel.write(buf);
 
 		return !buf.hasRemaining();
 	}
