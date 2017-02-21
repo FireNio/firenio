@@ -60,7 +60,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected SSLEngine				sslEngine;
 	protected SslHandler				sslHandler;
 
-	protected UnsafeSocketSession			session;
+	protected UnsafeSocketSession		session;
 	protected ChannelWriteFuture			write_future;
 
 	// FIXME 这里最好不要用ABQ，使用链式可增可减
@@ -73,9 +73,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	// FIXME network weak check
 	public AbstractSocketChannel(SocketChannelThreadContext context) {
 		super(context.getByteBufAllocator(), context.getChannelContext());
-		this.protocolFactory = context.getProtocolFactory();
-		this.protocolDecoder = context.getProtocolDecoder();
-		this.protocolEncoder = context.getProtocolEncoder();
+		SocketChannelContext socketChannelContext = context.getChannelContext();
+		this.protocolFactory = socketChannelContext.getProtocolFactory();
+		this.protocolDecoder = socketChannelContext.getProtocolDecoder();
+		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
 		this.executorEventLoop = context.getExecutorEventLoop();
 		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
 	}

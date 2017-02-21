@@ -30,6 +30,7 @@ import com.generallycloud.nio.component.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.EmptyReadFuture;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -42,6 +43,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private int									sessionAttachmentSize;
 	private ExecutorEventLoopGroup					executorEventLoopGroup;
 	private ProtocolEncoder							protocolEncoder;
+	private ProtocolDecoder							protocolDecoder;
 	private SslContext								sslContext;
 	private boolean								enableSSL;
 	private boolean								initialized;
@@ -109,6 +111,10 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	public ProtocolEncoder getProtocolEncoder() {
 		return protocolEncoder;
 	}
+	
+	public ProtocolDecoder getProtocolDecoder() {
+		return protocolDecoder;
+	}
 
 	public AbstractSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
@@ -152,6 +158,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		if (protocolEncoder == null) {
 			this.protocolEncoder = protocolFactory.getProtocolEncoder();
+			this.protocolDecoder = protocolFactory.getProtocolDecoder();
 		}
 
 		this.initializeByteBufAllocator();

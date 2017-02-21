@@ -19,6 +19,7 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.nio.component.ssl.SslContext;
+import com.generallycloud.nio.protocol.ProtocolDecoder;
 import com.generallycloud.nio.protocol.ProtocolEncoder;
 import com.generallycloud.nio.protocol.ProtocolFactory;
 
@@ -48,6 +49,8 @@ public interface SocketChannelContext extends ChannelContext {
 	public abstract ProtocolFactory getProtocolFactory();
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
+	
+	public abstract ProtocolDecoder getProtocolDecoder();
 	
 	public abstract SslContext getSslContext() ;
 

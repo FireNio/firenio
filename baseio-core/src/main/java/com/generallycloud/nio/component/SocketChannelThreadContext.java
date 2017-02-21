@@ -17,9 +17,6 @@ package com.generallycloud.nio.component;
 
 import com.generallycloud.nio.buffer.ByteBufAllocator;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
-import com.generallycloud.nio.protocol.ProtocolDecoder;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ProtocolFactory;
 
 /**
  * @author wangkai
@@ -30,12 +27,6 @@ public interface SocketChannelThreadContext {
 	public abstract SocketChannelContext getChannelContext();
 
 	public abstract ByteBufAllocator getByteBufAllocator();
-
-	public abstract ProtocolDecoder getProtocolDecoder();
-
-	public abstract ProtocolEncoder getProtocolEncoder();
-
-	public abstract ProtocolFactory getProtocolFactory();
 
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 
