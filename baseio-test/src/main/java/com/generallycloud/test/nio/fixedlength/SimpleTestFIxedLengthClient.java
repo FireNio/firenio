@@ -23,9 +23,9 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.connector.SocketChannelConnector;
 import com.generallycloud.nio.protocol.ReadFuture;
 
@@ -43,14 +43,12 @@ public class SimpleTestFIxedLengthClient {
 			}
 		};
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-
-		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+		//use java aio
+//		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+				
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
-		connector.setTimeout(99999999);
-
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
