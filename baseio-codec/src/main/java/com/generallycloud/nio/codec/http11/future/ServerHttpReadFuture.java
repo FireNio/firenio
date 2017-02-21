@@ -44,7 +44,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 			headers.put("Content-Type", "text/plain;charset=utf-8");
 		}
 		headers.put("Connection", "keep-alive");
-		headers.put("Connection", "close");
+//		headers.put("Connection", "close");
 	}
 
 	@Override
