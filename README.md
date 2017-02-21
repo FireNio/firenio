@@ -5,7 +5,7 @@
 [![Maven central](https://img.shields.io/badge/maven%20central-3.1.8.Alpha1-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
 [![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
 
-BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
+BaseIO is an io framework which can build network project fast, it based on java nio/aio, it is popular with Developers because of simple and easy of use APIs and high-performance.
 
 ## Features
 
