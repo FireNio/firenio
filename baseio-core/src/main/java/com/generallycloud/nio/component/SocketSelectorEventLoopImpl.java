@@ -31,9 +31,6 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.concurrent.BufferedArrayList;
 import com.generallycloud.nio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.nio.component.concurrent.LineEventLoop;
-import com.generallycloud.nio.protocol.ProtocolDecoder;
-import com.generallycloud.nio.protocol.ProtocolEncoder;
-import com.generallycloud.nio.protocol.ProtocolFactory;
 
 public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		implements SocketSelectorEventLoop {
@@ -46,12 +43,6 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	private ChannelByteBufReader						byteBufReader		= null;
 
 	private NioSocketChannelContext					context			= null;
-
-	private ProtocolDecoder							protocolDecoder	= null;
-
-	private ProtocolEncoder							protocolEncoder	= null;
-
-	private ProtocolFactory							protocolFactory	= null;
 
 	private ExecutorEventLoop						executorEventLoop	= null;
 
@@ -95,12 +86,6 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 		this.selectorBuilder = ((NioChannelService) context.getChannelService()).getSelectorBuilder();
 
 		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-
-		this.protocolFactory = context.getProtocolFactory();
-
-		this.protocolDecoder = protocolFactory.getProtocolDecoder();
-
-		this.protocolEncoder = protocolFactory.getProtocolEncoder();
 
 		this.byteBufReader = context.getChannelByteBufReader();
 
@@ -229,18 +214,6 @@ public class SocketSelectorEventLoopImpl extends AbstractSelectorLoop
 	@Override
 	public NioSocketChannelContext getChannelContext() {
 		return context;
-	}
-
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
-
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
-
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
 	}
 
 	public ExecutorEventLoop getExecutorEventLoop() {
