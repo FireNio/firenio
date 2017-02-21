@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.balance;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import com.generallycloud.nio.component.SocketChannelContext;
 
 public class BalanceFacadeAcceptor {
 
-	private byte[]			runLock			= new byte[] {};
+	private byte[]				runLock			= new byte[] {};
 	private boolean			running			= false;
 	private BalanceContext		balanceContext		= null;
 	private SocketChannelAcceptor	channelAcceptor	= null;
@@ -36,7 +36,7 @@ public class BalanceFacadeAcceptor {
 		if (balanceContext == null) {
 			throw new IllegalArgumentException("null configuration");
 		}
-		
+
 		synchronized (runLock) {
 
 			if (running) {

@@ -17,13 +17,14 @@ package com.generallycloud.test.nio.load.http11;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.nio.acceptor.AioChannelAcceptor;
+import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AioSocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -73,13 +74,13 @@ public class TestHttpLoadServerAio {
 		c.setSERVER_ENABLE_MEMORY_POOL(true);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 
-		AioSocketChannelContext context = new AioSocketChannelContext(c);
+		SocketChannelContext context = new AioSocketChannelContext(c);
 
 		context.setProtocolFactory(new ServerHTTPProtocolFactory());
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
-		new AioChannelAcceptor(context).bind();
+		new SocketChannelAcceptor(context).bind();
 		
 		ThreadUtil.sleep(99999999);
 	}

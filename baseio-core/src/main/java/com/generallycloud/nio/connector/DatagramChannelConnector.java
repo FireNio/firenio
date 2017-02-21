@@ -58,7 +58,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 	}
 
 	@Override
-	protected void destroyChannel() {
+	protected void destroyService() {
 		CloseUtil.close(selectableChannel);
 		LifeCycleUtil.stop(selectorEventLoopGroup);
 	}
@@ -68,7 +68,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 
 		this.session = null;
 
-		this.service();
+		this.initChannel();
 
 		return getSession();
 	}
@@ -122,8 +122,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 		return session;
 	}
 
-	@Override
-	protected void initChannel() throws IOException {
+	private void initChannel() throws IOException {
 
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
 

@@ -48,9 +48,9 @@ import com.generallycloud.nio.configuration.ServerConfiguration;
  * @author wangkai
  *
  */
-public class SocketChannelConnector extends AbstractChannelConnector {
+public class SocketChannelConnector implements ChannelConnector {
 
-	private _SocketChannelConnector	_connector;
+	private AbstractSocketChannelConnector	_connector;
 	
 	private SocketChannelContext context;
 
@@ -58,15 +58,14 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		this.context = context;
 		this._connector = buildConnector(context);
 	}
+	
+	private ChannelConnector unwrap(){
+		return _connector;
+	}
 
 	@Override
 	public SocketSession getSession() {
 		return _connector.getSession();
-	}
-
-	@Override
-	protected boolean canSafeClose() {
-		return _connector.canSafeClose();
 	}
 
 	@Override
@@ -78,23 +77,43 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 	public SocketChannelContext getContext() {
 		return context;
 	}
-
-	@Override
-	protected void connect(InetSocketAddress socketAddress) throws IOException {
-		_connector.connect(socketAddress);
-	}
-
-	@Override
-	protected void initChannel() throws IOException {
-		_connector.initChannel();
-	}
-
-	@Override
-	protected void destroyChannel() {
-		_connector.destroyChannel();
-	}
 	
-	abstract class _SocketChannelConnector extends AbstractChannelConnector {
+	@Override
+	public void close() throws IOException {
+		unwrap().close();
+	}
+
+	@Override
+	public InetSocketAddress getServerSocketAddress() {
+		return unwrap().getServerSocketAddress();
+	}
+
+	@Override
+	public boolean isActive() {
+		return unwrap().isActive();
+	}
+
+	@Override
+	public boolean isConnected() {
+		return unwrap().isConnected();
+	}
+
+	@Override
+	public long getTimeout() {
+		return unwrap().getTimeout();
+	}
+
+	@Override
+	public void setTimeout(long timeout) {
+		unwrap().setTimeout(timeout);
+	}
+
+	@Override
+	public Waiter<IOException> asynchronousClose() {
+		return unwrap().asynchronousClose();
+	}
+
+	abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
 
 		protected UnsafeSocketSession		session;
 
@@ -122,23 +141,48 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 			this.session = null;
 
-			this.service();
+			this.initialize();
 
 			return getSession();
 		}
+		
+		protected void wait4connect() throws TimeoutException{
+			
+			if (waiter.await(getTimeout())) {
+
+				CloseUtil.close(this);
+
+				throw new TimeoutException(
+						"connect to " + getServerSocketAddress().toString() + " time out");
+			}
+
+			Object o = waiter.getPayload();
+
+			if (o instanceof Exception) {
+
+				CloseUtil.close(this);
+
+				Exception t = (Exception) o;
+
+				throw new TimeoutException(MessageFormatter.format(
+						"connect faild,connector:[{}],nested exception is {}", getServerSocketAddress(),
+						t.getMessage()), t);
+			}
+			
+		}
+		
 	}
 	
-	
-	private _SocketChannelConnector buildConnector(SocketChannelContext context) {
+	private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
 		if (context instanceof NioSocketChannelContext) {
 			return new NioSocketChannelConnector((NioSocketChannelContext) context);
 		} else if (context instanceof AioSocketChannelContext) {
 			return new AioSocketChannelConnector((AioSocketChannelContext) context);
 		}
-		return null;
+		throw new IllegalArgumentException("context");
 	}
 
-	class AioSocketChannelConnector extends _SocketChannelConnector {
+	class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
 		private AioSocketChannelContext context;
 
@@ -180,27 +224,7 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 						}
 					});
 
-			if (waiter.await(getTimeout())) {
-
-				CloseUtil.close(this);
-
-				throw new TimeoutException(
-						"connect to " + socketAddress.toString() + " time out");
-			}
-
-			Object o = waiter.getPayload();
-
-			if (o instanceof Exception) {
-
-				CloseUtil.close(this);
-
-				Exception t = (Exception) o;
-
-				throw new TimeoutException(MessageFormatter.format(
-						"connect faild,connector:[{}],nested exception is {}", socketAddress,
-						t.getMessage()), t);
-			}
-
+			wait4connect();
 		}
 
 		protected void finishConnect(UnsafeSocketSession session, Throwable exception) {
@@ -231,18 +255,12 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 		}
 
 		@Override
-		protected void initChannel() throws IOException {
-			
-		}
-
-		@Override
-		protected void destroyChannel() {
-			
+		protected void destroyService() {
 		}
 		
 	}
 
-	class NioSocketChannelConnector extends _SocketChannelConnector implements NioChannelService {
+	class NioSocketChannelConnector extends AbstractSocketChannelConnector implements NioChannelService {
 
 		private NioSocketChannelContext	context;
 
@@ -256,13 +274,13 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 				.getLogger(getClass());
 
 		//FIXME 优化
-		public NioSocketChannelConnector(NioSocketChannelContext context) {
+		protected NioSocketChannelConnector(NioSocketChannelContext context) {
 			this.selectorBuilder = new ClientNioSocketSelectorBuilder(this);
 			this.context = context;
 		}
 
 		@Override
-		protected void destroyChannel() {
+		protected void destroyService() {
 			CloseUtil.close(selectableChannel);
 			LifeCycleUtil.stop(selectorEventLoopGroup);
 		}
@@ -284,31 +302,14 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 
 		@Override
 		protected void connect(InetSocketAddress socketAddress) throws IOException {
+			
+			this.initChannel();
 
 			((SocketChannel) this.selectableChannel).connect(socketAddress);
 
-			initSelectorLoops();
+			this.initSelectorLoops();
 
-			if (waiter.await(getTimeout())) {
-
-				CloseUtil.close(this);
-
-				throw new TimeoutException(
-						"connect to " + socketAddress.toString() + " time out");
-			}
-
-			Object o = waiter.getPayload();
-
-			if (o instanceof Exception) {
-
-				CloseUtil.close(this);
-
-				Exception t = (Exception) o;
-
-				throw new TimeoutException(MessageFormatter.format(
-						"connect faild,connector:[{}],nested exception is {}", socketAddress,
-						t.getMessage()), t);
-			}
+			wait4connect();
 		}
 
 		protected void finishConnect(UnsafeSocketSession session, Exception exception) {
@@ -338,11 +339,8 @@ public class SocketChannelConnector extends AbstractChannelConnector {
 			return context;
 		}
 
-		@Override
-		protected void initChannel() throws IOException {
-
+		private void initChannel() throws IOException {
 			this.selectableChannel = SocketChannel.open();
-
 			this.selectableChannel.configureBlocking(false);
 		}
 

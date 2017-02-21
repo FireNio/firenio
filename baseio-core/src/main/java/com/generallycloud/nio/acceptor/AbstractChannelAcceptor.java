@@ -17,10 +17,8 @@ package com.generallycloud.nio.acceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.TimeoutException;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.LoggerUtil;
@@ -34,46 +32,10 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 	@Override
 	public void bind() throws IOException {
-		service();
-	}
-	
-	protected void service() throws IOException {
-
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-
-			if (active) {
-				return;
-			}
-
-			if (getContext() == null) {
-				throw new IllegalArgumentException("null nio context");
-			}
-			
-			getContext().setChannelService(this);
-
-			ServerConfiguration configuration = getContext().getServerConfiguration();
-			
-			if (this instanceof DatagramChannelAcceptor) {
-				configuration.setSERVER_CORE_SIZE(1);
-			}
-
-			LifeCycleUtil.start(getContext());
-
-			this.initService(configuration);
-
-			this.active = true;
-
-		} finally {
-
-			lock.unlock();
-		}
+		this.initialize();
 	}
 
-	private void initService(ServerConfiguration configuration) throws IOException {
+	protected void initService(ServerConfiguration configuration) throws IOException {
 
 		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
 		
@@ -101,32 +63,17 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	}
 	
 	@Override
-	public Waiter<IOException> asynchronousUnbind() {
-		
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-			// just close
-			this.destroyChannel();
-
-			LifeCycleUtil.stop(getContext());
-
-			shutDownWaiter.setPayload(null);
-
-		} finally {
-
-			active = false;
-
-			lock.unlock();
+	protected void setServerCoreSize(ServerConfiguration configuration) {
+		if (this instanceof DatagramChannelAcceptor) {
+			configuration.setSERVER_CORE_SIZE(1);
 		}
-		
-		return shutDownWaiter;
 	}
 	
-	protected abstract void destroyChannel();
-
+	@Override
+	public Waiter<IOException> asynchronousUnbind() {
+		return destroy();
+	}
+	
 	@Override
 	public int getManagedSessionSize() {
 		return getContext().getSessionManager().getManagedSessionSize();

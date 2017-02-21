@@ -19,7 +19,6 @@ import com.generallycloud.nio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;

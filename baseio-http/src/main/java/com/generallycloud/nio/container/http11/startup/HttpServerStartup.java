@@ -25,8 +25,8 @@ import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSessionAliveSEListener;
 import com.generallycloud.nio.component.ssl.SSLUtil;
 import com.generallycloud.nio.component.ssl.SslContext;
@@ -61,6 +61,7 @@ public class HttpServerStartup {
 //		configuration.setSERVER_ENABLE_MEMORY_POOL(false);
 		
 		SocketChannelContext context = new NioSocketChannelContext(configuration);
+//		SocketChannelContext context = new AioSocketChannelContext(configuration);
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 

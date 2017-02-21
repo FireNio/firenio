@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.component.concurrent.Waiter;
+import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
@@ -32,5 +34,69 @@ public abstract class AbstractChannelService implements ChannelService {
 	public InetSocketAddress getServerSocketAddress() {
 		return serverAddress;
 	}
+	
+	protected void initialize() throws IOException {
+
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+
+			if (isActive()) {
+				return;
+			}
+
+			if (getContext() == null) {
+				throw new IllegalArgumentException("null nio context");
+			}
+			
+			ChannelContext context = getContext();
+			
+			context.setChannelService(this);
+			
+			setServerCoreSize(context.getServerConfiguration());
+
+			LifeCycleUtil.start(getContext());
+
+			this.initService(context.getServerConfiguration());
+
+			this.active = true;
+
+		} finally {
+
+			lock.unlock();
+		}
+	}
+	
+	protected abstract void initService(ServerConfiguration configuration) throws IOException;
+	
+	protected abstract void destroyService();
+
+	protected Waiter<IOException> destroy(){
+		
+		ReentrantLock lock = this.activeLock;
+
+		lock.lock();
+
+		try {
+			// just close
+			this.destroyService();
+
+			LifeCycleUtil.stop(getContext());
+
+			shutDownWaiter.setPayload(null);
+
+		} finally {
+
+			active = false;
+
+			lock.unlock();
+		}
+		
+		return shutDownWaiter;
+	}
+	
+	protected abstract void setServerCoreSize(ServerConfiguration configuration);
 
 }

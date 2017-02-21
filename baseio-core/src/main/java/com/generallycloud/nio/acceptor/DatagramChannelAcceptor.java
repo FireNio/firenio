@@ -100,8 +100,11 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor imple
 		return selectableChannel;
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.generallycloud.nio.component.AbstractChannelService#destroyService()
+	 */
 	@Override
-	protected void destroyChannel() {
+	protected void destroyService() {
 		CloseUtil.close(datagramSocket);
 		CloseUtil.close(selectableChannel);
 		LifeCycleUtil.stop(selectorEventLoopGroup);

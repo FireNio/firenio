@@ -17,11 +17,9 @@ package com.generallycloud.nio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.nio.TimeoutException;
 import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.AbstractChannelService;
 import com.generallycloud.nio.component.concurrent.Waiter;
@@ -42,33 +40,10 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		}
 	}
 	
-	protected void cancelService() {
-
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-			// just close
-			this.destroyChannel();
-
-			LifeCycleUtil.stop(getContext());
-
-			shutDownWaiter.setPayload(null);
-
-		} finally {
-
-			active = false;
-
-			lock.unlock();
-		}
-	}
-	
 	@Override
 	public Waiter<IOException> asynchronousClose() {
 		if (getSession() == null) {
-			doPhysicalClose();
-			return shutDownWaiter;
+			return destroy();
 		}
 		CloseUtil.close(getSession());
 		return shutDownWaiter;
@@ -78,25 +53,21 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	public void physicalClose() throws IOException {
 
 		if (canSafeClose()) {
-			doPhysicalClose();
+			destroy();
 			return;
 		}
 
 		ThreadUtil.execute(new Runnable() {
 			@Override
 			public void run() {
-				doPhysicalClose();
+				destroy();
 			}
 		});
 	}
 	
 	protected abstract boolean canSafeClose();
 
-	private void doPhysicalClose(){
-		cancelService();
-	}
-	
-	private void initService(ServerConfiguration configuration) throws IOException {
+	protected void initService(ServerConfiguration configuration) throws IOException {
 		
 		String SERVER_HOST = configuration.getSERVER_HOST();
 		
@@ -105,7 +76,6 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 		
 		this.connect(getServerSocketAddress());
-		
 	}
 	
 	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
@@ -130,44 +100,9 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		this.timeout = timeout;
 	}
 	
-	protected abstract void initChannel() throws IOException;
-	
-	protected abstract void destroyChannel();
-
-	protected void service() throws IOException {
-
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-
-			if (active) {
-				return;
-			}
-
-			if (getContext() == null) {
-				throw new IllegalArgumentException("null nio context");
-			}
-			
-			getContext().setChannelService(this);
-
-			ServerConfiguration configuration = getContext().getServerConfiguration();
-
-			configuration.setSERVER_CORE_SIZE(1);
-
-			LifeCycleUtil.start(getContext());
-
-			this.initChannel();
-
-			this.initService(configuration);
-
-			this.active = true;
-
-		} finally {
-
-			lock.unlock();
-		}
+	@Override
+	protected void setServerCoreSize(ServerConfiguration configuration) {
+		configuration.setSERVER_CORE_SIZE(1);
 	}
-	
+
 }
