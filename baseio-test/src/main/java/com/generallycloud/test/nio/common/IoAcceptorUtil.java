@@ -22,6 +22,7 @@ import com.generallycloud.nio.common.SharedBundle;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.configuration.PropertiesSCLoader;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
@@ -42,7 +43,7 @@ public class IoAcceptorUtil {
 			configuration = loader.loadConfiguration(SharedBundle.instance());
 		}
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 

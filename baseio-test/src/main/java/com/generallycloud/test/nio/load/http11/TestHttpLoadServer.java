@@ -23,7 +23,7 @@ import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -73,7 +73,7 @@ public class TestHttpLoadServer {
 		c.setSERVER_ENABLE_MEMORY_POOL(true);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 
-		NioSocketChannelContext context = new NioSocketChannelContext(c);
+		SocketChannelContext context = new NioSocketChannelContext(c);
 
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		

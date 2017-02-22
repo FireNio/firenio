@@ -103,6 +103,8 @@ public class BalanceServerBootStrap {
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+//		SocketChannelContext context = new AioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(balanceContext.getBalanceFacadeAcceptorHandler());
 
@@ -131,6 +133,8 @@ public class BalanceServerBootStrap {
 			ServerConfiguration configuration, ProtocolFactory protocolFactory) {
 
 		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+//		SocketChannelContext context = new AioSocketChannelContext(configuration);
 
 		context.setIoEventHandleAdaptor(balanceContext.getBalanceReverseAcceptorHandler());
 

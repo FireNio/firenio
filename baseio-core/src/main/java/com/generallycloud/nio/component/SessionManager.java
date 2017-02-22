@@ -15,12 +15,10 @@
  */ 
 package com.generallycloud.nio.component;
 
-import java.io.Closeable;
+import com.generallycloud.nio.component.concurrent.Looper;
 
-public interface SessionManager extends Closeable{
+public interface SessionManager extends Looper{
 
 	public abstract int getManagedSessionSize();
-	
-	public abstract void loop();
 	
 }

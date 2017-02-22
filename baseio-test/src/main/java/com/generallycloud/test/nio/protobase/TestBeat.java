@@ -20,7 +20,7 @@ import com.generallycloud.nio.codec.protobase.future.ProtobaseBeatFutureFactory;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSessionActiveSEListener;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -39,7 +39,7 @@ public class TestBeat {
 
 		configuration.setSERVER_SESSION_IDLE_TIME(100);
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		

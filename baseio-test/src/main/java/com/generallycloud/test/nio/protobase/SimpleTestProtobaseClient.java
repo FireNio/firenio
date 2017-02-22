@@ -23,6 +23,7 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -42,7 +43,7 @@ public class SimpleTestProtobaseClient {
 			}
 		};
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
 
 		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		

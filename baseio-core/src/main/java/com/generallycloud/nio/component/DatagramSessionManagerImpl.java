@@ -24,14 +24,18 @@ import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
-public class DatagramSessionManagerImpl extends AbstractSessionManager implements DatagramSessionManager {
+public class DatagramSessionManagerImpl extends AbstractSessionManager
+		implements DatagramSessionManager {
 
-	private DatagramChannelContext						context	= null;
-	private ReentrantMap<InetSocketAddress, DatagramSession>	sessions	= new ReentrantMap<>();
-	private Logger										logger	= LoggerFactory.getLogger(getClass());
+	private SelectorEventLoop							selectorLoop	= null;
+	private DatagramChannelContext						context		= null;
+	private ReentrantMap<InetSocketAddress, DatagramSession>	sessions		= new ReentrantMap<>();
+	private Logger										logger		= LoggerFactory
+			.getLogger(getClass());
 
 	public DatagramSessionManagerImpl(DatagramChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -81,8 +85,8 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 
 	}
 
-	protected void sessionIdle(DatagramChannelContext context, DatagramSession session, long lastIdleTime,
-			long currentTime) {
+	protected void sessionIdle(DatagramChannelContext context, DatagramSession session,
+			long lastIdleTime, long currentTime) {
 
 		Linkable<DatagramSessionEventListener> linkable = context.getSessionEventListenerLink();
 
@@ -100,7 +104,7 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void stop() {
 
 		Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
 
@@ -148,9 +152,14 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager implement
 		return sessions.get(sessionID);
 	}
 
+	public void initSessionManager(EventLoop eventLoop) {
+		this.selectorLoop = (SelectorEventLoop) eventLoop;
+	}
+
 	@Override
 	public DatagramSession getSession(DatagramSelectorEventLoopImpl selectorLoop,
-			java.nio.channels.DatagramChannel nioChannel, InetSocketAddress remote) throws IOException {
+			java.nio.channels.DatagramChannel nioChannel, InetSocketAddress remote)
+			throws IOException {
 
 		DatagramSession session = sessions.get(remote);
 

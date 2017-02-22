@@ -24,32 +24,36 @@ import com.generallycloud.nio.OverflowException;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.component.concurrent.EventLoop;
 import com.generallycloud.nio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
-public class SocketSessionManagerImpl extends AbstractSessionManager implements SocketSessionManager {
+public class NioSocketSessionManager extends AbstractSessionManager
+		implements SocketSessionManager {
 
-	private SocketChannelContext				context	= null;
-	private ReentrantMap<Integer, SocketSession>	sessions	= new ReentrantMap<Integer, SocketSession>();
-	private Logger							logger	= LoggerFactory.getLogger(SocketSessionManagerImpl.class);
+	private SelectorEventLoop				selectorLoop	= null;
+	private SocketChannelContext				context		= null;
+	private ReentrantMap<Integer, SocketSession>	sessions		= new ReentrantMap<Integer, SocketSession>();
+	private Logger							logger		= LoggerFactory
+			.getLogger(NioSocketSessionManager.class);
 
-	public SocketSessionManagerImpl(SocketChannelContext context) {
+	public NioSocketSessionManager(SocketChannelContext context) {
 		super(context.getSessionIdleTime());
 		this.context = context;
 	}
-	
+
 	@Override
 	public void offerSessionMEvent(SocketSessionManagerEvent event) {
 
 		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
-			
+
 			@Override
 			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
-				
+
 				Map<Integer, SocketSession> map = sessions.getSnapshot();
 
 				if (map.size() == 0) {
-					return ;
+					return;
 				}
 
 				try {
@@ -80,10 +84,11 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		}
 	}
 
-	protected void sessionIdle(SocketChannelContext context, SocketSession session, long lastIdleTime,
-			long currentTime) {
+	protected void sessionIdle(SocketChannelContext context, SocketSession session,
+			long lastIdleTime, long currentTime) {
 
-		Linkable<SocketSessionIdleEventListener> linkable = context.getSessionIdleEventListenerLink();
+		Linkable<SocketSessionIdleEventListener> linkable = context
+				.getSessionIdleEventListenerLink();
 
 		for (; linkable != null;) {
 
@@ -99,7 +104,7 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void stop() {
 
 		Map<Integer, SocketSession> map = sessions.getSnapshot();
 
@@ -130,10 +135,10 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 		}
 
 		if (sessions.size() >= getSessionSizeLimit()) {
-			throw new OverflowException("session size limit:"
-					+getSessionSizeLimit() +",current:"+sessions.size());
+			throw new OverflowException("session size limit:" + getSessionSizeLimit()
+					+ ",current:" + sessions.size());
 		}
-		
+
 		sessions.put(sessionID, session);
 	}
 
@@ -150,6 +155,10 @@ public class SocketSessionManagerImpl extends AbstractSessionManager implements 
 	@Override
 	public SocketSession getSession(Integer sessionID) {
 		return sessions.get(sessionID);
+	}
+
+	public void initSessionManager(EventLoop eventLoop) {
+		this.selectorLoop = (SelectorEventLoop) eventLoop;
 	}
 
 }

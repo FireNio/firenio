@@ -20,9 +20,9 @@ import com.generallycloud.nio.codec.redis.future.RedisClient;
 import com.generallycloud.nio.codec.redis.future.RedisIOEventHandle;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.NioSocketChannelContext;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -31,7 +31,7 @@ public class TestRedisClient {
 
 	public static void main(String[] args) throws Exception {
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(6379));
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(6379));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

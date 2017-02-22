@@ -57,18 +57,18 @@ import com.generallycloud.nio.protocol.ReadFuture;
  * @author wangkai
  *
  */
-public class SocketChannelAcceptor implements ChannelAcceptor{
+public class SocketChannelAcceptor implements ChannelAcceptor {
 
 	private AbstractSocketChannelAcceptor _channelAcceptor;
-	
+
 	public SocketChannelAcceptor(SocketChannelContext context) {
 		this._channelAcceptor = buildConnector(context);
 	}
 
-	private AbstractSocketChannelAcceptor unwrap(){
+	private AbstractSocketChannelAcceptor unwrap() {
 		return _channelAcceptor;
 	}
-	
+
 	@Override
 	public void unbind() throws IOException {
 		unwrap().unbind();
@@ -108,8 +108,7 @@ public class SocketChannelAcceptor implements ChannelAcceptor{
 	public int getManagedSessionSize() {
 		return unwrap().getManagedSessionSize();
 	}
-	
-	
+
 	private AbstractSocketChannelAcceptor buildConnector(SocketChannelContext context) {
 		if (context instanceof NioSocketChannelContext) {
 			return new NioSocketChannelAcceptor((NioSocketChannelContext) context);
@@ -118,11 +117,13 @@ public class SocketChannelAcceptor implements ChannelAcceptor{
 		}
 		throw new IllegalArgumentException("context");
 	}
-	
-	abstract class AbstractSocketChannelAcceptor extends AbstractChannelAcceptor{
-		
-		private SocketChannelContext context;
-		
+
+	abstract class AbstractSocketChannelAcceptor extends AbstractChannelAcceptor {
+
+		private Logger				logger	= LoggerFactory.getLogger(getClass());
+
+		private SocketChannelContext	context;
+
 		AbstractSocketChannelAcceptor(SocketChannelContext context) {
 			this.context = context;
 		}
@@ -131,96 +132,9 @@ public class SocketChannelAcceptor implements ChannelAcceptor{
 		public SocketChannelContext getContext() {
 			return context;
 		}
-	}
-	
-	class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
-		
-		private AsynchronousServerSocketChannel serverSocketChannel;
-		
-		public AioSocketChannelAcceptor(AioSocketChannelContext context) {
-			super(context);
-		}
 
-		private Logger logger = LoggerFactory.getLogger(getClass());
-
-		@Override
-		public void broadcast(ReadFuture future) {
-			//FIXME _____aio broadcast
-		}
-
-		@Override
-		protected void bind(InetSocketAddress socketAddress) throws IOException {
-			
-			AioSocketChannelContext context = (AioSocketChannelContext) getContext();
-			
-			AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
-			
-			serverSocketChannel = AsynchronousServerSocketChannel.open(group);
-			
-			serverSocketChannel.bind(socketAddress);
-
-			serverSocketChannel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
-
-				@Override
-				public void completed(AsynchronousSocketChannel _channel, Void attachment) {
-
-					serverSocketChannel.accept(null, this); // 接受下一个连接
-
-					CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
-					
-					AioSocketChannel channel = new AioSocketChannel(aioThread, _channel);
-
-					channel.fireOpend();
-
-					aioThread.getReadCompletionHandler().completed(0, channel);
-				}
-
-				@Override
-				public void failed(Throwable exc, Void attachment) {
-					logger.error(exc.getMessage(),exc);
-				}
-			});
-			
-			logger.info("22222222222222222");
-		}
-		
-		@Override
-		protected void destroyService() {
-			CloseUtil.close(serverSocketChannel);
-		}
-	}
-	
-	class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor implements NioChannelService{
-
-		private ServerSocket			serverSocket			= null;
-
-		private SelectableChannel		selectableChannel		= null;
-
-		private SocketSelectorBuilder		selectorBuilder		= null;
-
-		private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
-
-		private Logger					logger				= LoggerFactory
-				.getLogger(getClass());
-
-		public NioSocketChannelAcceptor(SocketChannelContext context) {
-			super(context);
-			this.selectorBuilder = new ServerNioSocketSelectorBuilder();
-		}
-
-		@Override
-		protected void bind(InetSocketAddress socketAddress) throws IOException {
-			
-			initChannel();
-
-			try {
-				// 进行服务的绑定
-				this.serverSocket.bind(socketAddress, 50);
-			} catch (BindException e) {
-				throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
-			}
-
-			initSelectorLoops();
+		private void offerSessionMEvent(SocketSessionManagerEvent event) {
+			getContext().getSessionManager().offerSessionMEvent(event);
 		}
 
 		@Override
@@ -255,6 +169,94 @@ public class SocketChannelAcceptor implements ChannelAcceptor{
 				}
 			});
 		}
+	}
+
+	class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
+
+		private AsynchronousServerSocketChannel serverSocketChannel;
+
+		public AioSocketChannelAcceptor(AioSocketChannelContext context) {
+			super(context);
+		}
+
+		private Logger logger = LoggerFactory.getLogger(getClass());
+
+		@Override
+		protected void bind(InetSocketAddress socketAddress) throws IOException {
+
+			AioSocketChannelContext context = (AioSocketChannelContext) getContext();
+
+			AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
+
+			serverSocketChannel = AsynchronousServerSocketChannel.open(group);
+
+			serverSocketChannel.bind(socketAddress);
+
+			serverSocketChannel.accept(null,
+					new CompletionHandler<AsynchronousSocketChannel, Void>() {
+
+						@Override
+						public void completed(AsynchronousSocketChannel _channel,
+								Void attachment) {
+
+							serverSocketChannel.accept(null, this); // 接受下一个连接
+
+							CachedAioThread aioThread = (CachedAioThread) Thread
+									.currentThread();
+
+							AioSocketChannel channel = new AioSocketChannel(aioThread,
+									_channel);
+
+							channel.fireOpend();
+
+							aioThread.getReadCompletionHandler().completed(0, channel);
+						}
+
+						@Override
+						public void failed(Throwable exc, Void attachment) {
+							logger.error(exc.getMessage(), exc);
+						}
+					});
+
+			logger.info("22222222222222222");
+		}
+
+		@Override
+		protected void destroyService() {
+			CloseUtil.close(serverSocketChannel);
+		}
+	}
+
+	class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
+			implements NioChannelService {
+
+		private ServerSocket			serverSocket			= null;
+
+		private SelectableChannel		selectableChannel		= null;
+
+		private SocketSelectorBuilder		selectorBuilder		= null;
+
+		private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
+
+		public NioSocketChannelAcceptor(SocketChannelContext context) {
+			super(context);
+			this.selectorBuilder = new ServerNioSocketSelectorBuilder();
+		}
+
+		@Override
+		protected void bind(InetSocketAddress socketAddress) throws IOException {
+
+			initChannel();
+
+			try {
+				// 进行服务的绑定
+				this.serverSocket.bind(socketAddress, 50);
+			} catch (BindException e) {
+				throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
+			}
+
+			initSelectorLoops();
+		}
 
 		private void initChannel() throws IOException {
 			// 打开服务器套接字通道
@@ -280,10 +282,6 @@ public class SocketChannelAcceptor implements ChannelAcceptor{
 			LifeCycleUtil.start(selectorEventLoopGroup);
 		}
 
-		public void offerSessionMEvent(SocketSessionManagerEvent event) {
-			getContext().getSessionManager().offerSessionMEvent(event);
-		}
-		
 		@Override
 		protected void destroyService() {
 			CloseUtil.close(serverSocket);

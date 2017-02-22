@@ -23,7 +23,7 @@ import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -44,7 +44,7 @@ public class TestLineBasedClient {
 			}
 		};
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 

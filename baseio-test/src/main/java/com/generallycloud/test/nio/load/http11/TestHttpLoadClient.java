@@ -23,7 +23,7 @@ import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -68,7 +68,7 @@ public class TestHttpLoadClient extends ITestThread {
 		c.setSERVER_CORE_SIZE(1);
 		c.setSERVER_HOST("192.168.0.180");
 
-		NioSocketChannelContext context = new NioSocketChannelContext(c);
+		SocketChannelContext context = new NioSocketChannelContext(c);
 		
 		connector = new SocketChannelConnector(context);
 

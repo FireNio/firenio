@@ -15,17 +15,29 @@
  */
 package com.generallycloud.nio.component;
 
-import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.nio.component.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.nio.component.concurrent.ThreadEventLoop;
 
-public class NioSocketChannelContext extends AbstractSocketChannelContext {
+/**
+ * @author wangkai
+ *
+ */
+public class AioSessionManagerEventLoop extends ThreadEventLoop {
 
-	public NioSocketChannelContext(ServerConfiguration configuration) {
-		super(configuration);
+	private SocketSessionManager sessionManager;
+
+	public AioSessionManagerEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize,
+			SocketSessionManager sessionManager) {
+		super(eventLoopGroup, eventQueueSize);
+		this.sessionManager = sessionManager;
 	}
 
 	@Override
-	protected void initSessionManager() {
-		sessionManager = new NioSocketSessionManager(this);
+	protected void doLoop() {
+
+		super.doLoop();
+
+		sessionManager.loop();
 	}
 
 }

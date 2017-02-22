@@ -20,9 +20,10 @@ import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.nio.component.AioSocketChannelContext;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.connector.SocketChannelConnector;
@@ -54,7 +55,7 @@ public class TestBalanceBroadcast {
 
 		ServerConfiguration configuration = new ServerConfiguration(8800);
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new AioSocketChannelContext(configuration);
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
@@ -69,6 +70,8 @@ public class TestBalanceBroadcast {
 		for (;session.isOpened();) {
 
 			ProtobaseReadFuture future = ReadFutureFactory.create(session, "broadcast");
+			
+			future.setBroadcast(true);
 
 			String msg = "broadcast msg___S:" + System.currentTimeMillis();
 			

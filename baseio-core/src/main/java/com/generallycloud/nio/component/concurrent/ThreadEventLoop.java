@@ -27,8 +27,9 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
 	private ExecutorEventLoopGroup	executorEventLoopGroup;
 
-	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int queueSize) {
-		this.jobs = new ListQueueABQ<Runnable>(queueSize);
+	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize) {
+		this.jobs = new ListQueueABQ<Runnable>(eventQueueSize);
+		this.executorEventLoopGroup = eventLoopGroup;
 	}
 
 	private ListQueue<Runnable>	jobs;

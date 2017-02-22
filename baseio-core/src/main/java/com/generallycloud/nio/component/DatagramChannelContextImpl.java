@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 
 import com.generallycloud.nio.Linkable;
 import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -115,7 +114,7 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 	@Override
 	protected void doStop() throws Exception {
 
-		CloseUtil.close(sessionManager);
+		LifeCycleUtil.stop(sessionManager);
 
 		LifeCycleUtil.stop(byteBufAllocatorManager);
 	}

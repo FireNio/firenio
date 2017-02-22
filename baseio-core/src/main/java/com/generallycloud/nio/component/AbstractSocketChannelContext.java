@@ -18,7 +18,6 @@ package com.generallycloud.nio.component;
 import java.math.BigDecimal;
 
 import com.generallycloud.nio.Linkable;
-import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -49,7 +48,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private boolean								initialized;
 	private ChannelByteBufReader						channelByteBufReader;
 	private ForeReadFutureAcceptor					foreReadFutureAcceptor;
-	private SocketSessionManager						sessionManager;
+	protected SocketSessionManager						sessionManager;
 	private SocketSessionFactory						sessionFactory;
 	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
 	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
@@ -226,7 +225,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		if (sessionManager == null) {
-			sessionManager = new SocketSessionManagerImpl(this);
+			initSessionManager();
 		}
 
 		if (sessionFactory == null) {
@@ -239,6 +238,8 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		doStartModule();
 	}
+	
+	protected abstract void initSessionManager();
 
 	protected void doStartModule() throws Exception {
 
@@ -262,8 +263,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 	@Override
 	protected void doStop() throws Exception {
-
-		CloseUtil.close(sessionManager);
 
 		LifeCycleUtil.stop(executorEventLoopGroup);
 

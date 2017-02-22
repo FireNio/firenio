@@ -77,7 +77,7 @@ public class TestBalanceClient {
 			session.flush(future);
 		}
 		
-		ThreadUtil.sleep(100);
+		ThreadUtil.sleep(300);
 		
 		System.out.println("=========="+res.get());
 		

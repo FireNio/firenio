@@ -15,9 +15,10 @@
  */
 package com.generallycloud.nio.component;
 
-public abstract class AbstractSessionManager implements SessionManager {
+import com.generallycloud.nio.component.concurrent.EventLoop;
 
-	protected SelectorEventLoop	selectorLoop;
+public abstract class AbstractSessionManager implements SessionManager {
+	
 	protected int			sessionSizeLimit	= 100 * 10000;
 
 	private long			current_idle_time	= 0;
@@ -49,10 +50,6 @@ public abstract class AbstractSessionManager implements SessionManager {
 
 	protected abstract void sessionIdle(long lastIdleTime, long currentTime);
 
-	public void initSessionManager(SelectorEventLoop selectorLoop) {
-		this.selectorLoop = selectorLoop;
-	}
-
 	public int getSessionSizeLimit() {
 		return sessionSizeLimit;
 	}
@@ -60,5 +57,7 @@ public abstract class AbstractSessionManager implements SessionManager {
 	public void setSessionSizeLimit(int sessionSizeLimit) {
 		this.sessionSizeLimit = sessionSizeLimit;
 	}
+	
+	public abstract void initSessionManager(EventLoop eventLoop);
 	
 }

@@ -21,7 +21,7 @@ import com.generallycloud.nio.codec.linebased.LineBasedProtocolFactory;
 import com.generallycloud.nio.component.IoEventHandleAdaptor;
 import com.generallycloud.nio.component.LoggerSocketSEListener;
 import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 import com.generallycloud.nio.protocol.ReadFuture;
@@ -61,7 +61,7 @@ public class TestLineBasedBroadcastServer {
 		
 		configuration.setSERVER_MEMORY_POOL_UNIT(64);
 		
-		NioSocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		

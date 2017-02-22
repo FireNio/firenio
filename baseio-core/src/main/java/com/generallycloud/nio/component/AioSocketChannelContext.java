@@ -19,19 +19,22 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.spi.AsynchronousChannelProvider;
 
+import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.configuration.ServerConfiguration;
 
 public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
-	private AsynchronousChannelGroup	asynchronousChannelGroup;
+	private AsynchronousChannelGroup			asynchronousChannelGroup;
 
-	private ReadCompletionHandler		readCompletionHandler;
+	private ReadCompletionHandler				readCompletionHandler;
 
-	private WriteCompletionHandler	writeCompletionHandler;
+	private WriteCompletionHandler			writeCompletionHandler;
 
-	private Logger					logger	= LoggerFactory.getLogger(getClass());
+	private AioSessionManangerEventLoopGroup	sessionManangerEventLoopGroup;
+
+	private Logger							logger	= LoggerFactory.getLogger(getClass());
 
 	public AioSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
@@ -39,7 +42,11 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
 	@Override
 	protected void doStartModule() throws Exception {
+		
+		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 8 * 1024, 1, getSessionManager());
 
+		LifeCycleUtil.start(sessionManangerEventLoopGroup);
+		
 		initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
 
 		super.doStartModule();
@@ -53,8 +60,15 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
+		
+		LifeCycleUtil.stop(sessionManangerEventLoopGroup);
 
 		super.doStopModule();
+	}
+	
+	@Override
+	protected void initSessionManager() {
+		sessionManager = new AioSocketSessionManager(this);
 	}
 
 	private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
