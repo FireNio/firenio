@@ -62,6 +62,8 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		this.serverConfiguration.initializeDefault(this);
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+		int server_port = serverConfiguration.getSERVER_PORT();
+		long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
 		long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY() * SERVER_CORE_SIZE;
 		long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
@@ -84,14 +86,14 @@ public class DatagramChannelContextImpl extends AbstractChannelContext implement
 		}
 
 		LoggerUtil.prettyNIOServerLog(logger,
-				"======================================= 服务开始启动 =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
-		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
-				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }", serverConfiguration.getSERVER_PORT());
-		LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }",
-				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+				"======================================= service begin to start =======================================");
+		LoggerUtil.prettyNIOServerLog(logger, "encoding              ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "cpu size              ：{ cpu * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "session idle          ：{ {} }",session_idle);
+		LoggerUtil.prettyNIOServerLog(logger, "listen port(udp)      ：{ {} }",server_port);
+		LoggerUtil.prettyNIOServerLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }",
+				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
+						MEMORY_POOL_SIZE });
 
 		LifeCycleUtil.start(byteBufAllocatorManager);
 	}

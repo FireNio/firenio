@@ -169,7 +169,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 				"======================================= service begin to start =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "encoding              ：{ {} }", encoding);
 		LoggerUtil.prettyNIOServerLog(logger, "protocol              ：{ {} }",protocolId);
-		LoggerUtil.prettyNIOServerLog(logger, "cpu size              ：{ CPU * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "cpu size              ：{ cpu * {} }", SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "enable ssl            ：{ {} }", isEnableSSL());
 		LoggerUtil.prettyNIOServerLog(logger, "session idle          ：{ {} }",session_idle);
 		LoggerUtil.prettyNIOServerLog(logger, "listen port(tcp)      ：{ {} }",server_port);
