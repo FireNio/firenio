@@ -43,14 +43,14 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (facadeInterceptor.intercept(fs, f)) {
-			logger.info("报文被拦截：[ {} ]，报文：{}", fs.getRemoteSocketAddress(), f);
+			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
 
 		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
 
-		if (rs == null) {
-			logger.info("无负载节点：[ {} ]，报文：{}", fs.getRemoteSocketAddress(), f);
+		if (rs == null || rs.isClosed()) {
+			logger.info("none load node found: [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
 
@@ -60,7 +60,7 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 		rs.flush(f);
 
-		logger.info("分发报文：F：[ {} ]，T：[ {} ]，报文：{}", new Object[]{
+		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[]{
 				session.getRemoteSocketAddress(),
 				rs.getRemoteSocketAddress(),
 				future

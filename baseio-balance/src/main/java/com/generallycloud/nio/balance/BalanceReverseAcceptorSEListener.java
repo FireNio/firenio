@@ -32,13 +32,13 @@ public class BalanceReverseAcceptorSEListener extends SocketSessionEventListener
 
 	@Override
 	public void sessionOpened(SocketSession session) {
-		logger.info("负载服务器来自 [ {} ] 已建立连接.", session);
+		logger.info("load node from [ {} ] connected.", session);
 		context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
 	}
 
 	@Override
 	public void sessionClosed(SocketSession session) {
-		logger.info("负载服务器来自 [ {} ] 已断开连接.", session);
+		logger.info("load node from [ {} ] disconnected.", session);
 		context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
 	}
 }

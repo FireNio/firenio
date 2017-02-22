@@ -37,7 +37,7 @@ public class FrontFacadeAcceptorSEListener extends SocketSessionEventListenerAda
 	@Override
 	public void sessionOpened(SocketSession session) {
 		frontRouter.addClientSession((FrontFacadeSocketSession) session);
-		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已建立连接.");
+		logger.info("client from [ {} ] connected.",session.getRemoteSocketAddress());
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class FrontFacadeAcceptorSEListener extends SocketSessionEventListenerAda
 
 		frontRouter.removeClientSession(fs);
 
-		logger.info("客户端来自 [ " + session.getRemoteSocketAddress() + " ] 已断开连接.");
+		logger.info("client from [ {} ] disconnected.",session.getRemoteSocketAddress());
 		
 		ChannelLostReadFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
 		

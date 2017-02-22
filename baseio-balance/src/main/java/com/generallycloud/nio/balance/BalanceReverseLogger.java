@@ -26,15 +26,15 @@ import com.generallycloud.nio.protocol.ReadFuture;
 public class BalanceReverseLogger {
 
 	public void logBroadcast(SocketSession session, ReadFuture future, Logger logger) {
-		logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+		logger.info("broadcast msg: F:{}, msg:{}", session.getRemoteSocketAddress(), future);
 	}
 
 	public void logPushLost(SocketSession session, ReadFuture future, Logger logger) {
-		logger.info("连接丢失：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+		logger.info("connection lost: F:{}, msg:{}", session.getRemoteSocketAddress(), future);
 	}
 
 	public void logPush(SocketSession session, SocketSession response, ReadFuture future, Logger logger) {
-		logger.info("回复报文：F：[{}]，T：[{}]，报文：{}",
+		logger.info("reply msg: F:[{}], T:[{}], msg: {}",
 				new Object[] { session.getRemoteSocketAddress(), response.getRemoteSocketAddress(), future });
 	}
 

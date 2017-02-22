@@ -46,7 +46,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 		
 		clientsMap.put(username, session);
 
-		logger.info("客户端 {} 已加入当前客户端数量：{}", session, clients.size());
+		logger.info("client joined {} ,clients size: {}", session, clients.size());
 	}
 
 	public synchronized boolean removeClient(SocketSession session) {
@@ -59,7 +59,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 				clientsMap.remove(username);
 			}
 			
-			logger.info("客户端 {} 已离开当前客户端数量：{}", session, clients.size());
+			logger.info("client left {} ,clients size: {}", session, clients.size());
 			return true;
 		}
 

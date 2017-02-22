@@ -54,7 +54,7 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 
 		if (future.isPING()) {
 
-			logger.info("收到心跳请求!来自：{}", session);
+			logger.info("heart beat request from: {}", session);
 
 			SocketChannelContext context = session.getContext();
 
@@ -75,7 +75,7 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 
 			session.flush(f);
 		} else {
-			logger.info("收到心跳回报!来自：{}", session);
+			logger.info("heart beat response from: {}", session);
 		}
 
 	}

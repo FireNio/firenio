@@ -61,8 +61,7 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 			String readText = future.getReadText();
 			
 			if (!StringUtil.isNullOrBlank(readText)) {
-
-				logger.info("已拒绝请求：请求IP：{}，服务名称：{}，请求内容：{}", new String[] { remoteAddr, futureName, readText });
+				logger.info("refuse connection, ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, readText });
 				return;
 			}
 			
@@ -71,15 +70,12 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 				Parameters parameters = ((ParametersReadFuture) future).getParameters();
 				
 				if (parameters.size() > 0) {
-					
-					logger.info("已拒绝请求：请求IP：{}，服务名称：{}，请求内容：{}", new String[] { remoteAddr, futureName, parameters.toString() });
-					
+					logger.info("refuse connection, ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, parameters.toString() });
 					return;
 				}
 			}
 
-			logger.info("已拒绝请求：请求IP：{}，服务名称：{}",remoteAddr, futureName);
-			
+			logger.info("refuse connection, ip:{}, service name:{}", remoteAddr, futureName);
 		}
 	}
 

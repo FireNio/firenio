@@ -51,26 +51,26 @@ public class ReconnectableConnector implements Closeable {
 	public synchronized void connect() {
 
 		if (!reconnect) {
-			logger.info("连接已经关闭，停止重连");
+			logger.info("connection is closed, stop to reconnect");
 			return;
 		}
 
 		SocketSession session = connect2Front.getSession();
 
 		if (session != null && session.isOpened() && !session.isClosing()) {
-			logger.info("该session未关闭，取消连接");
+			logger.info("connection did not closed, cancel reconnect");
 			return;
 		}
 
 		ThreadUtil.sleep(300);
 		
-		logger.info("开始尝试建立连接");
+		logger.info("begin try to connect");
 
 		for (;;) {
 
 			if (session != null && session.isClosing()) {
 
-				logger.error("连接尚未完整关闭，稍后尝试重连");
+				logger.error("connection did not closed, reconnect later on");
 
 				ThreadUtil.sleep(retryTime);
 
@@ -89,7 +89,7 @@ public class ReconnectableConnector implements Closeable {
 				logger.error(e.getMessage(), e);
 			}
 
-			logger.error("连接失败，正在尝试重连");
+			logger.error("reconnect failed,try reconnect later on");
 
 			ThreadUtil.sleep(retryTime);
 		}
@@ -112,7 +112,7 @@ public class ReconnectableConnector implements Closeable {
 
 			@Override
 			public void run() {
-				logger.info("开始尝试重连");
+				logger.info("begin try to reconnect");
 				reconnectableConnector.connect();
 			}
 		});

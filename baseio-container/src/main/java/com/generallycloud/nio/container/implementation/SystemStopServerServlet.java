@@ -19,6 +19,7 @@ import com.generallycloud.nio.acceptor.ChannelAcceptor;
 import com.generallycloud.nio.common.CloseUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.nio.common.LoggerUtil;
 import com.generallycloud.nio.common.ThreadUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
@@ -58,13 +59,13 @@ public class SystemStopServerServlet extends FutureAcceptorService {
 
 			ThreadUtil.sleep(500);
 
-			logger.info("   [NIOServer] 执行命令：<停止服务>");
-
-			String[] words = new String[] { "五", "四", "三", "二", "一" };
+			LoggerUtil.prettyNIOServerLog(logger, "execute stop service");
+			
+			String[] words = new String[] { "5", "4", "3", "2", "1" };
 
 			for (int i = 0; i < 5; i++) {
 
-				logger.info("   [NIOServer] 服务将在" + words[i] + "秒后开始停止，请稍等");
+				LoggerUtil.prettyNIOServerLog(logger,"service will stop after {} seconds", words[i]);
 
 				ThreadUtil.sleep(1000);
 			}

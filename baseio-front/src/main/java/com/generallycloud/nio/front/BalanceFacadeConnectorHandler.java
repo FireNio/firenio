@@ -42,7 +42,7 @@ public class BalanceFacadeConnectorHandler extends IoEventHandleAdaptor {
 
 			frontFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
-			logger.info("广播报文：F：{}，报文：{}", session.getRemoteSocketAddress(), f);
+			logger.info("broadcast msg, F: {}, msg: {}", session.getRemoteSocketAddress(), f);
 
 			return;
 		}
@@ -56,15 +56,14 @@ public class BalanceFacadeConnectorHandler extends IoEventHandleAdaptor {
 		SocketSession response = frontRouter.getClientSession(sessionID);
 
 		if (response == null || response.isClosed()) {
-
-			logger.info("连接丢失：F：{}，报文：{}", session.getRemoteSocketAddress(), future);
+			logger.info("none load node found: [ {} ], msg: {}", response.getRemoteSocketAddress(), f);
 			return;
 
 		}
 
 		response.flush(f.translate());
 
-		logger.info("回复报文：F：[{}]，T：[{}]，报文：{}",
+		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", 
 				new Object[] { session.getRemoteSocketAddress(), response.getRemoteSocketAddress(), f });
 	}
 

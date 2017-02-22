@@ -38,7 +38,7 @@ public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerA
 	@Override
 	public void sessionOpened(SocketSession session) {
 		balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
-		logger.info("客户端来自 [ {} ] 已建立连接.",session.getRemoteSocketAddress());
+		logger.info("client from [ {} ] connected.",session.getRemoteSocketAddress());
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerA
 
 		balanceRouter.removeClientSession(fs);
 
-		logger.info("客户端来自 [ {} ] 已断开连接.",session.getRemoteSocketAddress());
+		logger.info("client from [ {} ] disconnected.",session.getRemoteSocketAddress());
 
 		BalanceRouter balanceRouter = balanceContext.getBalanceRouter();
 
