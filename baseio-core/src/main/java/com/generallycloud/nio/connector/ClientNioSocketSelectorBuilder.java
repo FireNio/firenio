@@ -24,7 +24,6 @@ import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSelector;
 import com.generallycloud.nio.component.SocketSelectorBuilder;
 import com.generallycloud.nio.component.SocketSelectorEventLoop;
-import com.generallycloud.nio.connector.SocketChannelConnector.NioSocketChannelConnector;
 
 /**
  * @author wangkai

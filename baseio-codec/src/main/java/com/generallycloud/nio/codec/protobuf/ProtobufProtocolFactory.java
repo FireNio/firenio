@@ -32,7 +32,7 @@ public class ProtobufProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "Protobuf";
 	}
 

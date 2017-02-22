@@ -21,6 +21,8 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Test {
+	
+	static final int i = 0b01111111111111111111111111111111;
 
 	public static void main(String[] args) throws InvalidProtocolBufferException {
 		
@@ -41,6 +43,8 @@ public class Test {
 		
 		System.out.println(r2.toString());
 		
+		int i = 0b011111111111111111111111;
 		
+		System.out.println(i);
 	}
 }

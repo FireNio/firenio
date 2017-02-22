@@ -32,7 +32,7 @@ public class RedisProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "Redis";
 	}
 

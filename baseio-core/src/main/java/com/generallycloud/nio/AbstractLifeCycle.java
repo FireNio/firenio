@@ -184,7 +184,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 			this.doStart();
 
 			if (logger()) {
-				LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", this.toString());
+				LoggerUtil.prettyNIOServerLog(logger, "loaded [ {} ]", this.toString());
 			}
 
 		} catch (Exception e) {
@@ -228,7 +228,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 			this.doStop();
 
 			if (logger()) {
-				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", this.toString());
+				LoggerUtil.prettyNIOServerLog(logger, "unloaded [ {} ]", this.toString());
 			}
 
 		} catch (Exception e) {

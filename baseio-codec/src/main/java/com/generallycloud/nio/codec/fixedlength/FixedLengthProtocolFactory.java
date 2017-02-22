@@ -42,7 +42,7 @@ public class FixedLengthProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "FixedLength";
 	}
 

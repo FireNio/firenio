@@ -23,7 +23,6 @@ import java.nio.channels.Selector;
 import com.generallycloud.nio.component.NioSocketSelector;
 import com.generallycloud.nio.component.SocketChannel;
 import com.generallycloud.nio.component.SocketSelectorEventLoop;
-import com.generallycloud.nio.connector.SocketChannelConnector.NioSocketChannelConnector;
 
 /**
  * @author wangkai

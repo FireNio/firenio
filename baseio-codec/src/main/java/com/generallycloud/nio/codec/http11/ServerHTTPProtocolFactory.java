@@ -45,7 +45,7 @@ public class ServerHTTPProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "HTTP1.1";
 	}
 }

@@ -27,7 +27,7 @@ public class WebSocketSEListener extends SocketSessionEventListenerAdapter{
 
 	public void sessionClosed(SocketSession session) {
 		
-		if(!WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolID())){
+		if(!WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())){
 			return;
 		}
 		

@@ -42,7 +42,7 @@ public class ProtobaseProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "Protobase";
 	}
 }

@@ -47,7 +47,7 @@ public interface SocketSession extends Session {
 	@Override
 	public abstract SocketChannelContext getContext();
 	
-	public abstract String getProtocolID();
+	public abstract String getProtocolId();
 
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 	

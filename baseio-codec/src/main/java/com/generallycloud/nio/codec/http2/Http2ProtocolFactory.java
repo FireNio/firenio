@@ -32,7 +32,7 @@ public class Http2ProtocolFactory implements ProtocolFactory{
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "FixedLength";
 	}
 	

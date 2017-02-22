@@ -42,7 +42,7 @@ public class LineBasedProtocolFactory implements ProtocolFactory{
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "LineBased";
 	}
 	

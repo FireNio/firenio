@@ -24,7 +24,7 @@ public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
 	@Override
 	public ReadFuture createPINGPacket(SocketSession session) {
-		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolID())) {
+		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
 			return new WebSocketBeatReadFutureImpl(session.getContext(),true);
 		}
 		return null;
@@ -32,7 +32,7 @@ public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
 	@Override
 	public ReadFuture createPONGPacket(SocketSession session) {
-		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolID())) {
+		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
 			return new WebSocketBeatReadFutureImpl(session.getContext(),false);
 		}
 		return null;

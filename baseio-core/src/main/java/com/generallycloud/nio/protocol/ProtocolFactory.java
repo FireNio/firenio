@@ -22,5 +22,5 @@ public interface ProtocolFactory {
 	
 	public abstract ProtocolEncoder getProtocolEncoder();
 	
-	public abstract String getProtocolID();
+	public abstract String getProtocolId();
 }

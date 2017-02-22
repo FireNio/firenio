@@ -45,7 +45,7 @@ public class ClientHTTPProtocolFactory implements ProtocolFactory {
 	}
 
 	@Override
-	public String getProtocolID() {
+	public String getProtocolId() {
 		return "HTTP11";
 	}
 }

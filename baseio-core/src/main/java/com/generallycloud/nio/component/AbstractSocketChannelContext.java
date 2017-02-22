@@ -151,6 +151,9 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+		int server_port = serverConfiguration.getSERVER_PORT();
+		long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+		String protocolId = protocolFactory.getProtocolId();
 
 		this.encoding = serverConfiguration.getSERVER_ENCODING();
 		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
@@ -163,16 +166,13 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		this.initializeByteBufAllocator();
 
 		LoggerUtil.prettyNIOServerLog(logger,
-				"======================================= 服务开始启动 =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "项目编码           ：{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "协议名称           ：{ {} }",
-				protocolFactory.getProtocolID());
-		LoggerUtil.prettyNIOServerLog(logger, "CPU核心数          ：{ CPU * {} }", SERVER_CORE_SIZE);
-		LoggerUtil.prettyNIOServerLog(logger, "启用SSL加密        ：{ {} }", isEnableSSL());
-		LoggerUtil.prettyNIOServerLog(logger, "SESSION_IDLE       ：{ {} }",
-				serverConfiguration.getSERVER_SESSION_IDLE_TIME());
-		LoggerUtil.prettyNIOServerLog(logger, "监听端口(TCP)      ：{ {} }",
-				serverConfiguration.getSERVER_PORT());
+				"======================================= service begin to start =======================================");
+		LoggerUtil.prettyNIOServerLog(logger, "encoding              ：{ {} }", encoding);
+		LoggerUtil.prettyNIOServerLog(logger, "protocol              ：{ {} }",protocolId);
+		LoggerUtil.prettyNIOServerLog(logger, "cpu size              ：{ CPU * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "enable ssl            ：{ {} }", isEnableSSL());
+		LoggerUtil.prettyNIOServerLog(logger, "session idle          ：{ {} }",session_idle);
+		LoggerUtil.prettyNIOServerLog(logger, "listen port(tcp)      ：{ {} }",server_port);
 
 		if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
 
@@ -185,7 +185,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 							.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
 							.doubleValue();
 
-			LoggerUtil.prettyNIOServerLog(logger, "内存池容量         ：{ {} * {} ≈ {} M }",
+			LoggerUtil.prettyNIOServerLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }",
 					new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
 							MEMORY_POOL_SIZE });
 		}

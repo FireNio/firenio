@@ -52,8 +52,8 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	}
 
 	@Override
-	public String getProtocolID() {
-		return getChannel().getProtocolFactory().getProtocolID();
+	public String getProtocolId() {
+		return getChannel().getProtocolFactory().getProtocolId();
 	}
 	
 	@Override

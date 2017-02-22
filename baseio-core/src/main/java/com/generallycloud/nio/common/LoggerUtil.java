@@ -18,7 +18,9 @@ package com.generallycloud.nio.common;
 
 public class LoggerUtil {
 
-	private static int	maxNameLength	= "FutureAcceptorServiceLoader".length();
+	private static int	maxNameLength	= "AbstractSocketChannelContext".length();
+	
+	private static String prefix_log = "[baseio] ";
 
 	private static String getSpace(Logger logger) {
 
@@ -45,26 +47,26 @@ public class LoggerUtil {
 
 	public static void prettyNIOServerLog(Logger logger, String msg) {
 
-		msg = getSpace(logger) + "[NIOServer] " + msg;
+		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg);
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object param1) {
 
-		msg = getSpace(logger) + "[NIOServer] " + msg;
+		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg, param1);
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object param1, Object param2) {
-		msg = getSpace(logger) + "[NIOServer] " + msg;
+		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg, param1, param2);
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object[] param) {
-		msg = getSpace(logger) + "[NIOServer] " + msg;
+		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg, param);
 	}
