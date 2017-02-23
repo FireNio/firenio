@@ -23,10 +23,11 @@ import com.generallycloud.nio.common.ReleaseUtil;
 import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
+import com.generallycloud.nio.protocol.ChannelReadFuture;
 
 public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implements WebSocketReadFuture {
 
-	protected int		type;
+	private int		type;
 
 	private boolean	eof;
 
@@ -62,6 +63,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 	public WebSocketReadFutureImpl(SocketChannelContext context) {
 		super(context);
+		this.type = WebSocketProtocolDecoder.TYPE_TEXT;
 	}
 	
 	protected WebSocketReadFutureImpl(SocketSession session) {
@@ -237,6 +239,22 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 	@Override
 	public byte[] getByteArray() {
 		return byteArray;
+	}
+	
+	@Override
+	public ChannelReadFuture setPING() {
+
+		this.type = WebSocketProtocolDecoder.TYPE_PING;
+
+		return super.setPING();
+	}
+
+	@Override
+	public ChannelReadFuture setPONG() {
+
+		this.type = WebSocketProtocolDecoder.TYPE_PONG;
+
+		return super.setPONG();
 	}
 
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
+import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.common.StringUtil;
@@ -97,7 +97,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 			if (session != null) {
 
-				WebSocketReadFuture f = new WebSocketTextReadFutureImpl(session.getContext());
+				WebSocketReadFuture f = new WebSocketReadFutureImpl(session.getContext());
 
 				f.write(msg.msg);
 
@@ -112,7 +112,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 				if (s.isOpened()) {
 
-					WebSocketReadFuture f = new WebSocketTextReadFutureImpl(s.getContext());
+					WebSocketReadFuture f = new WebSocketReadFutureImpl(s.getContext());
 
 					f.write(msg.msg);
 

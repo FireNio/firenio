@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.nio.codec.http11.HttpSession;
 import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.codec.http11.future.WebSocketTextReadFutureImpl;
+import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.nio.common.LifeCycleUtil;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
@@ -52,7 +52,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		o.put("type", "welcome");
 		o.put("id", ioSession.getSessionID());
 
-		WebSocketReadFuture f = new WebSocketTextReadFutureImpl(ioSession.getContext());
+		WebSocketReadFuture f = new WebSocketReadFutureImpl(ioSession.getContext());
 
 		f.write(o.toJSONString());
 
