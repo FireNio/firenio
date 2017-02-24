@@ -115,10 +115,12 @@ public class HttpSessionManager extends AbstractEventLoop{
 		}
 	}
 	
-	protected void wakeupThread() {
+	@Override
+	public void wakeup() {
 		synchronized (this) {
 			this.notify();
 		}
+		super.wakeup();
 	}
 
 	public int getManagedSessionSize(){
