@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.codec.http11.future;
 
 import java.io.IOException;
@@ -25,7 +25,8 @@ import com.generallycloud.nio.component.SocketSession;
 import com.generallycloud.nio.protocol.AbstractChannelReadFuture;
 import com.generallycloud.nio.protocol.ChannelReadFuture;
 
-public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implements WebSocketReadFuture {
+public class WebSocketReadFutureImpl extends AbstractChannelReadFuture
+		implements WebSocketReadFuture {
 
 	private int		type;
 
@@ -38,9 +39,9 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 	private ByteBuf	buf;
 
 	private String		serviceName;
-	
+
 	private boolean	data_complete;
-	
+
 	private boolean	header_complete;
 
 	private boolean	remain_header_complete;
@@ -51,11 +52,11 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 	private byte[]		byteArray;
 
-	public WebSocketReadFutureImpl(SocketSession session, ByteBuf buf,int limit) {
+	public WebSocketReadFutureImpl(SocketSession session, ByteBuf buf, int limit) {
 		super(session.getContext());
 
 		this.limit = limit;
-		
+
 		this.buf = buf;
 
 		this.setServiceName(session);
@@ -65,11 +66,11 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		super(context);
 		this.type = WebSocketProtocolDecoder.TYPE_TEXT;
 	}
-	
-	protected void setServiceName(SocketSession session){
+
+	protected void setServiceName(SocketSession session) {
 		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
 	}
-	
+
 	@Override
 	public boolean isCloseFrame() {
 		return OP_CONNECTION_CLOSE_FRAME == type;
@@ -84,6 +85,24 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		eof = ((b & 0xFF) >> 7) == 1;
 
 		type = (b & 0xF);
+
+//		switch (type) {
+//		case WebSocketProtocolDecoder.TYPE_PING:
+//			setPING();
+//			break;
+//		case WebSocketProtocolDecoder.TYPE_PONG:
+//			setPONG();
+//			break;
+//		case WebSocketProtocolDecoder.TYPE_TEXT:
+//			break;
+//		case WebSocketProtocolDecoder.TYPE_BINARY:
+//			break;
+//		case WebSocketProtocolDecoder.TYPE_CLOSE:
+//			break;
+//
+//		default:
+//			break;
+//		}
 
 		if (type == WebSocketProtocolDecoder.TYPE_PING) {
 			setPING();
@@ -138,15 +157,15 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 		buf.reallocate(length, limit);
 	}
-	
-	private void doDataComplete(ByteBuf buf){
-		
+
+	private void doDataComplete(ByteBuf buf) {
+
 		byte[] array = buf.getBytes();
 
 		if (hasMask) {
 
 			byte[] mask = this.mask;
-			
+
 			int length = array.length;
 
 			for (int i = 0; i < length; i++) {
@@ -156,8 +175,12 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		}
 
 		this.byteArray = array;
-
-		// FIXME 部分数据不是string的
+		
+		if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
+			// FIXME 处理binary
+			return;
+		}
+		
 		this.readText = new String(array, context.getEncoding());
 	}
 
@@ -173,7 +196,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 			if (buf.hasRemaining()) {
 				return false;
 			}
-			
+
 			header_complete = true;
 
 			doHeaderComplete(buf.flip());
@@ -188,7 +211,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 			}
 
 			remain_header_complete = true;
-			
+
 			doRemainHeaderComplete(session, buf.flip());
 		}
 
@@ -235,7 +258,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 	public byte[] getByteArray() {
 		return byteArray;
 	}
-	
+
 	@Override
 	public ChannelReadFuture setPING() {
 
@@ -251,8 +274,8 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 
 		return super.setPONG();
 	}
-	
-	protected void setType(int type){
+
+	protected void setType(int type) {
 		this.type = type;
 	}
 
