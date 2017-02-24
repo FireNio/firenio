@@ -50,7 +50,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		this.context = aioThread.getChannelContext();
 		this.readCompletionHandler = aioThread.getReadCompletionHandler();
 		this.writeCompletionHandler = aioThread.getWriteCompletionHandler();
-		this.local = getLocalSocketAddress();
 	}
 
 	@Override
@@ -137,8 +136,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		this.flush(false);
 
 		this.opened = false;
-
-		this.closing = false;
 
 		ReleaseUtil.release(readFuture);
 		ReleaseUtil.release(sslReadFuture);

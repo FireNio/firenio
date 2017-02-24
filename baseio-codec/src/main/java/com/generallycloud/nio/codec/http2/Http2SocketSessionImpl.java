@@ -22,8 +22,8 @@ import com.generallycloud.nio.component.UnsafeSocketSessionImpl;
 
 public class Http2SocketSessionImpl extends UnsafeSocketSessionImpl implements Http2SocketSession {
 
-	public Http2SocketSessionImpl(SocketChannel channel, Integer sessionID) {
-		super(channel, sessionID);
+	public Http2SocketSessionImpl(SocketChannel channel) {
+		super(channel);
 	}
 
 	private boolean		prefaceRead	= true;

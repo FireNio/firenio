@@ -23,7 +23,7 @@ public class BalanceFacadeSocketSessionFactory extends SocketSessionFactoryImpl{
 
 	@Override
 	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-		return new BalanceFacadeSocketSessionImpl(channel, channel.getChannelID());
+		return new BalanceFacadeSocketSessionImpl(channel);
 	}
 	
 }

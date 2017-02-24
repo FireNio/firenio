@@ -20,8 +20,8 @@ import com.generallycloud.nio.component.UnsafeSocketSessionImpl;
 
 public class FrontFacadeSocketSessionImpl extends UnsafeSocketSessionImpl implements FrontFacadeSocketSession {
 
-	public FrontFacadeSocketSessionImpl(SocketChannel channel, Integer sessionID) {
-		super(channel, sessionID);
+	public FrontFacadeSocketSessionImpl(SocketChannel channel) {
+		super(channel);
 	}
 
 	private long next_check_time;

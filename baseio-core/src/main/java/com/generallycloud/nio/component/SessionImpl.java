@@ -25,12 +25,7 @@ import com.generallycloud.nio.common.CloseUtil;
 public abstract class SessionImpl implements Session {
 
 	protected Object				attachment;
-	protected Integer				sessionID;
 	protected HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
-
-	public SessionImpl(Integer sessionID) {
-		this.sessionID = sessionID;
-	}
 
 	protected abstract Channel getChannel();
 
@@ -116,7 +111,7 @@ public abstract class SessionImpl implements Session {
 
 	@Override
 	public Integer getSessionID() {
-		return sessionID;
+		return getChannel().getChannelID();
 	}
 
 	@Override
@@ -145,11 +140,6 @@ public abstract class SessionImpl implements Session {
 	}
 
 	@Override
-	public void setSessionID(Integer sessionID) {
-		this.sessionID = sessionID;
-	}
-
-	@Override
 	public String toString() {
 		return getChannel().toString();
 	}
@@ -167,11 +157,6 @@ public abstract class SessionImpl implements Session {
 	@Override
 	public void close() {
 		CloseUtil.close(getChannel());
-	}
-	
-	@Override
-	public boolean isClosing() {
-		return getChannel().isClosing();
 	}
 
 }

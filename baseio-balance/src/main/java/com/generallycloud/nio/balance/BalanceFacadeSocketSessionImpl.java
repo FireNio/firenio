@@ -26,8 +26,8 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl impl
 	
 	private BalanceReverseSocketSession	reverseSocketSession	= null;
 	
-	public BalanceFacadeSocketSessionImpl(SocketChannel channel, Integer sessionID) {
-		super(channel, sessionID);
+	public BalanceFacadeSocketSessionImpl(SocketChannel channel) {
+		super(channel);
 	}
 
 	@Override

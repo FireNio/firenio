@@ -17,8 +17,8 @@ package com.generallycloud.nio.component;
 
 public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
 
-	public UnsafeSocketSessionImpl(SocketChannel channel,Integer sessionID) {
-		super(channel,sessionID);
+	public UnsafeSocketSessionImpl(SocketChannel channel) {
+		super(channel);
 	}
 
 	@Override

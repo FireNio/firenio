@@ -66,14 +66,10 @@ public interface Session extends Closeable{
 
 	public abstract void setAttribute(Object key, Object value) ;
 
-	public abstract void setSessionID(Integer sessionID);
-	
 	public abstract Charset getEncoding();
 
 	public abstract boolean isOpened();
 	
-	public abstract boolean isClosing();
-
 	public abstract ByteBufAllocator getByteBufAllocator();
 	
 	public abstract boolean inSelectorLoop();

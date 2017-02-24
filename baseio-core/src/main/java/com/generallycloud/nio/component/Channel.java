@@ -38,8 +38,6 @@ public interface Channel extends Closeable {
 
 	public abstract boolean isOpened();
 
-	public abstract boolean isClosing();
-
 	public abstract String getRemoteAddr();
 
 	public abstract String getRemoteHost();

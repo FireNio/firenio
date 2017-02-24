@@ -17,8 +17,8 @@ package com.generallycloud.nio.component;
 
 public class UnsafeDatagramSessionImpl extends DatagramSessionImpl implements UnsafeDatagramSession{
 
-	public UnsafeDatagramSessionImpl(DatagramChannel channel, Integer sessionID) {
-		super(channel, sessionID);
+	public UnsafeDatagramSessionImpl(DatagramChannel channel) {
+		super(channel);
 	}
 
 	@Override

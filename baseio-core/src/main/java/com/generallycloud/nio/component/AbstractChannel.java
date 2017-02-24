@@ -38,7 +38,6 @@ public abstract class AbstractChannel implements Channel {
 	protected InetSocketAddress	remote;
 	protected long			lastAccess;
 	protected boolean			opened		= true;
-	protected boolean			closing		= false;
 	protected long			creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		channelLock	= new ReentrantLock();
 	protected ByteBufAllocator	byteBufAllocator;
@@ -73,11 +72,6 @@ public abstract class AbstractChannel implements Channel {
 	}
 	
 	protected abstract void physicalClose();
-
-	@Override
-	public boolean isClosing() {
-		return closing;
-	}
 
 	@Override
 	public String getLocalHost() {

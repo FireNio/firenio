@@ -20,8 +20,7 @@ public class SocketSessionFactoryImpl implements SocketSessionFactory {
 
 	@Override
 	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-
-		return new UnsafeSocketSessionImpl(channel, channel.getChannelID());
+		return new UnsafeSocketSessionImpl(channel);
 	}
 
 }

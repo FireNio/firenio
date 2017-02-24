@@ -57,18 +57,13 @@ public class ReconnectableConnector implements Closeable {
 
 		SocketSession session = connect2Front.getSession();
 
-		if (session != null && session.isOpened() && !session.isClosing()) {
-			logger.info("connection did not closed, cancel reconnect");
-			return;
-		}
-
 		ThreadUtil.sleep(300);
 		
 		logger.info("begin try to connect");
 
 		for (;;) {
 
-			if (session != null && session.isClosing()) {
+			if (session != null && session.isOpened()) {
 
 				logger.error("connection did not closed, reconnect later on");
 

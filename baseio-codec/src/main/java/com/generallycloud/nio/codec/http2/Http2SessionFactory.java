@@ -23,7 +23,6 @@ public class Http2SessionFactory implements SocketSessionFactory {
 
 	@Override
 	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-
-		return new Http2SocketSessionImpl(channel, channel.getChannelID());
+		return new Http2SocketSessionImpl(channel);
 	}
 }

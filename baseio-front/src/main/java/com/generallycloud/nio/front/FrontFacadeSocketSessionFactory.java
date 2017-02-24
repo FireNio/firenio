@@ -23,7 +23,7 @@ public class FrontFacadeSocketSessionFactory extends SocketSessionFactoryImpl{
 
 	@Override
 	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-		return new FrontFacadeSocketSessionImpl(channel, channel.getChannelID());
+		return new FrontFacadeSocketSessionImpl(channel);
 	}
 	
 }

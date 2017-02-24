@@ -36,7 +36,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	private SelectionKey				selectionKey;
 	private boolean					networkWeak;
 	private NioSocketChannelContext		context;
-	private int						writeFutureLength;
+	private boolean					closing;
 	private SocketSelectorEventLoop		selectorEventLoop;
 	private long						next_network_weak	= Long.MAX_VALUE;
 
@@ -48,7 +48,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		this.context = selectorLoop.getChannelContext();
 		this.selectionKey = selectionKey;
 		this.channel = (SocketChannel) selectionKey.channel();
-		this.local = getLocalSocketAddress();
 	}
 
 	@Override
@@ -120,10 +119,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 		write_future = null;
 	}
-
-	@Override
-	public int getWriteFutureLength() {
-		return writeFutureLength;
+	
+	private boolean isClosing() {
+		return closing;
 	}
 
 	@Override

@@ -26,8 +26,7 @@ public class DatagramSessionImpl extends SessionImpl implements DatagramSession 
 
 	protected DatagramChannelContext	context;
 
-	public DatagramSessionImpl(DatagramChannel channel, Integer sessionID) {
-		super(sessionID);
+	public DatagramSessionImpl(DatagramChannel channel) {
 		this.channel = channel;
 		this.context = channel.getContext();
 	}

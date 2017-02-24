@@ -44,7 +44,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		this.context = selectorLoop.getContext();
 		this.channel = channel;
 		this.remote = remote;
-		this.session = new UnsafeDatagramSessionImpl(this, context.getSequence().AUTO_CHANNEL_ID.getAndIncrement());
+		this.session = new UnsafeDatagramSessionImpl(this);
 		this.fireOpend();
 	}
 	

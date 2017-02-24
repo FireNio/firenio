@@ -31,8 +31,7 @@ public abstract class SocketChannelSessionImpl extends SessionImpl implements So
 	protected SocketChannel			channel;
 	protected Object[]				attachments;
 
-	public SocketChannelSessionImpl(SocketChannel channel, Integer sessionID) {
-		super(sessionID);
+	public SocketChannelSessionImpl(SocketChannel channel) {
 		this.channel = channel;
 	}
 	
