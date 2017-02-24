@@ -15,10 +15,12 @@
  */ 
 package com.generallycloud.nio.codec.http11.future;
 
+import com.generallycloud.nio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.nio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.nio.common.Logger;
 import com.generallycloud.nio.common.LoggerFactory;
 import com.generallycloud.nio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.nio.component.SocketChannelContext;
 import com.generallycloud.nio.component.SocketSession;
 
 public class WebSocketSEListener extends SocketSessionEventListenerAdapter{
@@ -31,10 +33,16 @@ public class WebSocketSEListener extends SocketSessionEventListenerAdapter{
 			return;
 		}
 		
-		WebSocketReadFuture future = new WebSocketReadFutureImpl(session);
+		SocketChannelContext context = session.getContext();
+		
+		WebSocketReadFutureImpl future = new WebSocketReadFutureImpl(context);
+		
+		future.setType(WebSocketProtocolDecoder.TYPE_CLOSE);
+		
+		future.setServiceName(session);
 		
 		try {
-			session.getContext().getForeReadFutureAcceptor().accept(session, future);
+			context.getForeReadFutureAcceptor().accept(session, future);
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
 		}

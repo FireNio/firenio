@@ -66,13 +66,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		this.type = WebSocketProtocolDecoder.TYPE_TEXT;
 	}
 	
-	protected WebSocketReadFutureImpl(SocketSession session) {
-		super(session.getContext());
-		this.type = OP_CONNECTION_CLOSE_FRAME;
-		this.setServiceName(session);
-	}
-	
-	private void setServiceName(SocketSession session){
+	protected void setServiceName(SocketSession session){
 		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
 	}
 	
@@ -102,7 +96,6 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		hasMask = ((b & 0xFF) >> 7) == 1;
 
 		if (hasMask) {
-
 			remain_header_size += 4;
 		}
 
@@ -153,8 +146,10 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		if (hasMask) {
 
 			byte[] mask = this.mask;
+			
+			int length = array.length;
 
-			for (int i = 0; i < array.length; i++) {
+			for (int i = 0; i < length; i++) {
 
 				array[i] = (byte) (array[i] ^ mask[i % 4]);
 			}
@@ -255,6 +250,10 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture implement
 		this.type = WebSocketProtocolDecoder.TYPE_PONG;
 
 		return super.setPONG();
+	}
+	
+	protected void setType(int type){
+		this.type = type;
 	}
 
 }
