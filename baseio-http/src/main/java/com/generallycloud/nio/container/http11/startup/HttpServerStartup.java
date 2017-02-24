@@ -92,6 +92,11 @@ public class HttpServerStartup {
 				SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 				
 				context.setSslContext(sslContext);
+				
+				configuration.setSERVER_PORT(443);
+			}else{
+				
+				configuration.setSERVER_PORT(80);
 			}
 			
 			acceptor.bind();

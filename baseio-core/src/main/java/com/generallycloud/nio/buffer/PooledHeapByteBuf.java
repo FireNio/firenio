@@ -45,6 +45,7 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 		this.position = 0;
 		this.beginUnit = begin;
 		this.referenceCount = 1;
+		this.released = false;
 		return this;
 	}
 	
