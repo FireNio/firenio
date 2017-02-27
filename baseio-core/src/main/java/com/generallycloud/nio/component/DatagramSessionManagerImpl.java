@@ -50,7 +50,7 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager
 			@Override
 			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
 
-				Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
+				Map<InetSocketAddress, DatagramSession> map = sessions.takeSnapshot();
 
 				if (map.size() == 0) {
 					return;
@@ -68,7 +68,7 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
+		Map<InetSocketAddress, DatagramSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;
@@ -106,7 +106,7 @@ public class DatagramSessionManagerImpl extends AbstractSessionManager
 	@Override
 	public void stop() {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions.getSnapshot();
+		Map<InetSocketAddress, DatagramSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;

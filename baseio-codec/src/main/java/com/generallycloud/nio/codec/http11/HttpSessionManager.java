@@ -85,7 +85,7 @@ public class HttpSessionManager extends AbstractEventLoop{
 		
 		try{
 			
-			Map<String, HttpSession> map = sessions.getSnapshot();
+			Map<String, HttpSession> map = sessions.takeSnapshot();
 			
 			Collection<HttpSession> es = map.values();
 			

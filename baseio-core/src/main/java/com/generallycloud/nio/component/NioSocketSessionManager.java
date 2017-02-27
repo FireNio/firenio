@@ -50,7 +50,7 @@ public class NioSocketSessionManager extends AbstractSessionManager
 			@Override
 			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
 
-				Map<Integer, SocketSession> map = sessions.getSnapshot();
+				Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 				if (map.size() == 0) {
 					return;
@@ -68,7 +68,7 @@ public class NioSocketSessionManager extends AbstractSessionManager
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<Integer, SocketSession> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;
@@ -106,7 +106,7 @@ public class NioSocketSessionManager extends AbstractSessionManager
 	@Override
 	public void stop() {
 
-		Map<Integer, SocketSession> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;

@@ -47,7 +47,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 			@Override
 			public void run() {
 				
-				Map<Integer, SocketSession> map = sessions.getSnapshot();
+				Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 				if (map.size() == 0) {
 					return ;
@@ -65,7 +65,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<Integer, SocketSession> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;
@@ -102,7 +102,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 	@Override
 	public void stop() {
 
-		Map<Integer, SocketSession> map = sessions.getSnapshot();
+		Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
 		if (map.size() == 0) {
 			return;

@@ -39,13 +39,10 @@ public class ReentrantMap<K, V> {
 	private boolean		modifid	= false;
 
 	public V get(K key) {
-
-		takeSnapshot();
-
-		return snapshot.get(key);
+		return takeSnapshot().get(key);
 	}
 
-	public void takeSnapshot() {
+	public Map<K, V> takeSnapshot() {
 		if (modifid) {
 			ReentrantLock lock = this.loack;
 
@@ -70,12 +67,7 @@ public class ReentrantMap<K, V> {
 
 			lock.unlock();
 		}
-	}
-
-	public Map<K, V> getSnapshot() {
-
-		takeSnapshot();
-
+		
 		return snapshot;
 	}
 
@@ -123,10 +115,7 @@ public class ReentrantMap<K, V> {
 	}
 
 	public int size() {
-		
-		takeSnapshot();
-		
-		return snapshot.size();
+		return takeSnapshot().size();
 	}
 	
 	public void clear(){
