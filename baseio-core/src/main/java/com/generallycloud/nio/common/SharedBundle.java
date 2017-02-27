@@ -47,7 +47,7 @@ public class SharedBundle {
 
 	private SharedBundle() {
 		try {
-			this.loadAllProperties0("");
+			loadAllProperties();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -124,27 +124,43 @@ public class SharedBundle {
 	public synchronized void loadAllProperties() throws Exception {
 		loadAllProperties("");
 	}
-
-	public synchronized void loadAllProperties(String path) throws IOException {
-		if (!StringUtil.isNullOrBlank(path)) {
-			this.loadAllProperties0(path);
+	
+	private URL getURL(){
+		URL url = getClass().getClassLoader().getResource(".");
+		if (url == null) {
+			return getClass().getProtectionDomain().getCodeSource().getLocation();
 		}
+		return url;
 	}
 
-	private synchronized void loadAllProperties0(String path) throws IOException {
-		URL url = this.getClass().getClassLoader().getResource(".");
+	public synchronized void loadAllProperties(String path) throws IOException {
+		
+		URL url = getURL();
+		
 		if (url == null) {
-			return;
+			throw new IOException("no class path set");
 		}
+		
 		File root = new File(url.getFile());
-		String classPath = root.getCanonicalPath();
-		classPath = URLDecoder.decode(classPath, "UTF-8");
-
-		if (classPath.endsWith("test-classes") || classPath.endsWith("test-classes/")) {
+		
+		if (root.isFile()) {
+			root = root.getParentFile();
+		}
+		
+		String classPath = URLDecoder.decode(root.getCanonicalPath(), "UTF-8");
+		
+		if (classPath.endsWith(".jar") || classPath.endsWith(".jar/")) {
+			root = root.getParentFile();
+			classPath = URLDecoder.decode(root.getCanonicalPath(), "UTF-8");
+		} else if (classPath.endsWith("test-classes") || classPath.endsWith("test-classes/")) {
 			classPath += "/../classes";
 		}
-
+		
 		setClassPath(new File(classPath).getCanonicalPath() + "/");
+		
+		if (path == null) {
+			path = "";
+		}
 
 		root = new File(getClassPath() + path);
 
@@ -173,16 +189,12 @@ public class SharedBundle {
 			fileMapping.put(file.getName(), file.getCanonicalPath());
 
 			if (file.getName().endsWith(".properties")) {
-				try {
-					Properties temp = FileUtil.readProperties(file);
-					if ("log4j.properties".equals(file.getName())) {
-						PropertyConfigurator.configure(temp);
-						LoggerFactory.enableSLF4JLogger(true);
-					}
-					properties.putAll(temp);
-				} catch (IOException e) {
-					DebugUtil.debug(e);
+				Properties temp = FileUtil.readProperties(file);
+				if ("log4j.properties".equals(file.getName())) {
+					PropertyConfigurator.configure(temp);
+					LoggerFactory.enableSLF4JLogger(true);
 				}
+				properties.putAll(temp);
 			}
 		}
 	}
