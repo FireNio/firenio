@@ -23,6 +23,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -38,7 +39,7 @@ public class SharedBundle {
 	}
 
 	private String				classPath		= null;
-	private Properties			properties	= new Properties();
+	private Map<String,String>	properties	= new HashMap<>();
 	private Map<String, String>	fileMapping	= new HashMap<String, String>();
 
 	public boolean getBooleanProperty(String key) {
@@ -49,7 +50,7 @@ public class SharedBundle {
 	}
 
 	public boolean getBooleanProperty(String key, boolean defaultValue) {
-		String temp = properties.getProperty(key);
+		String temp = properties.get(key);
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
@@ -65,7 +66,7 @@ public class SharedBundle {
 	}
 
 	public double getDoubleProperty(String key, double defaultValue) {
-		String temp = properties.getProperty(key);
+		String temp = properties.get(key);
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
@@ -77,7 +78,7 @@ public class SharedBundle {
 	}
 
 	public int getIntegerProperty(String key, int defaultValue) {
-		String temp = properties.getProperty(key);
+		String temp = properties.get(key);
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
@@ -89,7 +90,7 @@ public class SharedBundle {
 	}
 
 	public long getLongProperty(String key, long defaultValue) {
-		String temp = properties.getProperty(key);
+		String temp = properties.get(key);
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
@@ -101,7 +102,7 @@ public class SharedBundle {
 	}
 
 	public String getProperty(String key, String defaultValue) {
-		String value = properties.getProperty(key);
+		String value = properties.get(key);
 		if (StringUtil.isNullOrBlank(value)) {
 			return defaultValue;
 		}
@@ -109,7 +110,7 @@ public class SharedBundle {
 	}
 
 	public String getPropertyNoBlank(String key) throws PropertiesException {
-		String value = properties.getProperty(key);
+		String value = properties.get(key);
 		if (StringUtil.isNullOrBlank(value)) {
 			throw new PropertiesException("property " + key + " is empty");
 		}
@@ -197,7 +198,7 @@ public class SharedBundle {
 					PropertyConfigurator.configure(temp);
 					LoggerFactory.enableSLF4JLogger(true);
 				}
-				properties.putAll(temp);
+				putAll(properties, temp);
 			}
 		}
 	}
@@ -264,9 +265,15 @@ public class SharedBundle {
 		Properties temp = new Properties();
 		try {
 			temp.load(inputStream);
-			properties.putAll(temp);
+			putAll(properties, temp);
 		} finally {
 			CloseUtil.close(inputStream);
+		}
+	}
+	
+	private void putAll(Map<String,String> target,Properties source){
+		for(Entry<Object, Object> e : source.entrySet()){
+			target.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
 		}
 	}
 
