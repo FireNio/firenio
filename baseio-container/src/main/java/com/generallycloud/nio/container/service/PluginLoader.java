@@ -63,7 +63,7 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
 			try {
 				plugin.destroy(context, plugin.getConfig());
-				LoggerUtil.prettyNIOServerLog(logger, "卸载完成 [ {} ]", plugin);
+				LoggerUtil.prettyNIOServerLog(logger, "unloaded [ {} ]", plugin);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -84,7 +84,7 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
 			plugin.initialize(context, plugin.getConfig());
 
-			LoggerUtil.prettyNIOServerLog(logger, "加载完成 [ {} ]", plugin);
+			LoggerUtil.prettyNIOServerLog(logger, "loaded [ {} ]", plugin);
 		}
 	}
 

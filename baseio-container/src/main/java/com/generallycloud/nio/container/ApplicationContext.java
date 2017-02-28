@@ -112,7 +112,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.appLocalAddres = temp.getCanonicalPath() + "/";
 
-		LoggerUtil.prettyNIOServerLog(logger, "工作目录           ：{ {} }", appLocalAddres);
+		LoggerUtil.prettyNIOServerLog(logger, "application path      :{ {} }", appLocalAddres);
 
 		LifeCycleUtil.start(sequence);
 

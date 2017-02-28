@@ -125,23 +125,20 @@ public class SharedBundle {
 		loadAllProperties("");
 	}
 	
-	private URL getURL(){
+	private URL getURL() throws IOException{
 		URL url = getClass().getClassLoader().getResource(".");
 		if (url == null) {
-			return getClass().getProtectionDomain().getCodeSource().getLocation();
+			url = getClass().getProtectionDomain().getCodeSource().getLocation();
+			if (url == null) {
+				throw new IOException("no class path set");
+			}
 		}
 		return url;
 	}
 
 	public synchronized void loadAllProperties(String path) throws IOException {
 		
-		URL url = getURL();
-		
-		if (url == null) {
-			throw new IOException("no class path set");
-		}
-		
-		File root = new File(url.getFile());
+		File root = new File(getURL().getFile());
 		
 		if (root.isFile()) {
 			root = root.getParentFile();

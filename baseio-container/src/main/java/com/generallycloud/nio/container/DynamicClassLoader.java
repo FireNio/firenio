@@ -125,13 +125,13 @@ public class DynamicClassLoader extends ClassLoader {
 
 	public void scan(File file) throws IOException {
 		this.scan0(file);
-		LoggerUtil.prettyNIOServerLog(logger, "预加载 class 字节码到缓存[ {} ]个 ", clazzEntries.size());
+		LoggerUtil.prettyNIOServerLog(logger, "cache bianry class size [ {} ] ", clazzEntries.size());
 	}
 
 	private void scan0(File file) throws IOException {
 
 		if (!file.exists()) {
-			LoggerUtil.prettyNIOServerLog(logger, "文件/文件夹 [ {} ] 不存在", file.getAbsoluteFile());
+			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found", file.getAbsoluteFile());
 			return;
 		}
 
@@ -158,7 +158,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 		try {
 
-			LoggerUtil.prettyNIOServerLog(logger, "加载文件 [ {} ]", file.getName());
+			LoggerUtil.prettyNIOServerLog(logger, "load file [ {} ]", file.getName());
 
 			Enumeration<JarEntry> entries = file.entries();
 
