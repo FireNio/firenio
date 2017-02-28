@@ -48,11 +48,11 @@ public class HttpServerStartup {
 
 		SharedBundle.instance().loadAllProperties(base);
 		
-		ApplicationConfigurationLoader acLoader = new FileSystemACLoader(base + "/conf/");
+		ApplicationConfigurationLoader acLoader = new FileSystemACLoader();
 
 		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
 		
-		ApplicationContext applicationContext = new ApplicationContext(ac,base);
+		ApplicationContext applicationContext = new ApplicationContext(ac);
 		
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
 		
@@ -83,8 +83,8 @@ public class HttpServerStartup {
 			
 			if (configuration.isSERVER_ENABLE_SSL()) {
 				
-				File certificate = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.crt");
-				File privateKey = SharedBundle.instance().loadFile(base + "/conf/generallycloud.com.key");
+				File certificate = SharedBundle.instance().loadFile("/conf/generallycloud.com.crt");
+				File privateKey = SharedBundle.instance().loadFile("/conf/generallycloud.com.key");
 				
 //				File certificate = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.crt");
 //				File privateKey = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.key");

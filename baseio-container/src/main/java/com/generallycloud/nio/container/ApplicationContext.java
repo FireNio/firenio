@@ -50,7 +50,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
-	private String							basePath		= "";
 	private String							appPath		= "app/";
 	private String							appLocalAddres;
 	private Sequence						sequence		= new Sequence();
@@ -69,16 +68,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
 	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 
-	public ApplicationContext(ApplicationConfiguration configuration, String basePath) {
-		if (basePath == null) {
-			basePath = "";
-		}
+	public ApplicationContext(ApplicationConfiguration configuration) {
 		this.configuration = configuration;
-		this.basePath = basePath;
-	}
-
-	protected ApplicationContext(ApplicationConfiguration configuration) {
-		this(configuration, "");
 	}
 
 	@Override
@@ -108,7 +99,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
 		
-		File temp = new File(bundle.getClassPath() + basePath + "/" + appPath);
+		File temp = new File(bundle.getClassPath() + appPath);
 
 		this.appLocalAddres = temp.getCanonicalPath() + "/";
 

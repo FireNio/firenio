@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.common;
 
 import java.io.File;
@@ -31,7 +31,7 @@ import com.generallycloud.nio.PropertiesException;
 
 public class SharedBundle {
 
-	private static SharedBundle	bundle	= new SharedBundle();
+	private static SharedBundle bundle = new SharedBundle();
 
 	public static SharedBundle instance() {
 		return bundle;
@@ -46,11 +46,6 @@ public class SharedBundle {
 	}
 
 	private SharedBundle() {
-		try {
-			loadAllProperties();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public boolean getBooleanProperty(String key, boolean defaultValue) {
@@ -121,11 +116,26 @@ public class SharedBundle {
 		return value;
 	}
 
-	public synchronized void loadAllProperties() throws Exception {
-		loadAllProperties("");
+	public synchronized void loadAllProperties(String file) throws IOException {
+
+		if (StringUtil.isNullOrBlank(file)) {
+			file = ".";
+		}
+
+		URL url = getClass().getClassLoader().getResource(file);
+
+		if (url == null) {
+			throw new IOException("file not found " + file);
+		}
+
+		loadAllProperties(url);
 	}
-	
-	private URL getURL() throws IOException{
+
+	public synchronized void loadAllProperties() throws Exception {
+		loadAllProperties(getURL());
+	}
+
+	private URL getURL() throws IOException {
 		URL url = getClass().getClassLoader().getResource(".");
 		if (url == null) {
 			url = getClass().getProtectionDomain().getCodeSource().getLocation();
@@ -136,30 +146,26 @@ public class SharedBundle {
 		return url;
 	}
 
-	public synchronized void loadAllProperties(String path) throws IOException {
-		
-		File root = new File(getURL().getFile());
-		
+	private void loadAllProperties(URL url) throws IOException {
+
+		File root = new File(url.getFile());
+
 		if (root.isFile()) {
 			root = root.getParentFile();
 		}
-		
+
 		String classPath = URLDecoder.decode(root.getCanonicalPath(), "UTF-8");
-		
+
 		if (classPath.endsWith(".jar") || classPath.endsWith(".jar/")) {
 			root = root.getParentFile();
 			classPath = URLDecoder.decode(root.getCanonicalPath(), "UTF-8");
 		} else if (classPath.endsWith("test-classes") || classPath.endsWith("test-classes/")) {
 			classPath += "/../classes";
 		}
-		
-		setClassPath(new File(classPath).getCanonicalPath() + "/");
-		
-		if (path == null) {
-			path = "";
-		}
 
-		root = new File(getClassPath() + path);
+		setClassPath(new File(classPath).getCanonicalPath() + "/");
+
+		root = new File(getClassPath());
 
 		properties.clear();
 
@@ -271,6 +277,10 @@ public class SharedBundle {
 			return true;
 		}
 		return false;
+	}
+
+	public void clearProperties() {
+		properties.clear();
 	}
 
 }

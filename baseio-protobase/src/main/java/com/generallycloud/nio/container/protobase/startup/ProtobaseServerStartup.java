@@ -43,11 +43,11 @@ public class ProtobaseServerStartup {
 		
 		SharedBundle.instance().loadAllProperties(base);
 		
-		ApplicationConfigurationLoader acLoader = new FileSystemACLoader(base + "/conf/");
+		ApplicationConfigurationLoader acLoader = new FileSystemACLoader();
 
 		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
 		
-		ApplicationContext applicationContext = new ApplicationContext(ac,base);
+		ApplicationContext applicationContext = new ApplicationContext(ac);
 
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
 		

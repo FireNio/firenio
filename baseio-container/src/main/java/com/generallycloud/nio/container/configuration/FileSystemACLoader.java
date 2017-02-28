@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.nio.container.configuration;
 
 import java.io.IOException;
@@ -25,14 +25,19 @@ import com.generallycloud.nio.common.StringUtil;
 
 public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
 
+	public FileSystemACLoader() {
+
+	}
+
 	public FileSystemACLoader(String conf_path) {
 		this.conf_path = conf_path;
 	}
 
-	private String	conf_path	= "conf/";
+	private String conf_path = "conf/";
 
 	@Override
-	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException {
+	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle)
+			throws IOException {
 
 		String json = bundle.loadContent(conf_path + "filters.cfg", Encoding.UTF8);
 
@@ -40,7 +45,8 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	}
 
 	@Override
-	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle) throws IOException {
+	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle)
+			throws IOException {
 
 		String json = bundle.loadContent(conf_path + "plugins.cfg", Encoding.UTF8);
 
@@ -48,7 +54,8 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	}
 
 	@Override
-	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle) throws IOException {
+	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle)
+			throws IOException {
 
 		String json = bundle.loadContent(conf_path + "services.cfg", Encoding.UTF8);
 
@@ -56,7 +63,8 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	}
 
 	@Override
-	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle) throws IOException {
+	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle)
+			throws IOException {
 
 		String roles = bundle.loadContent(conf_path + "roles.cfg", Encoding.UTF8);
 
