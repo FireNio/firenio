@@ -112,7 +112,8 @@ public class FileUtil {
 		copy(input, output, ENCODING);
 	}
 
-	public static void copy(InputStream input, Writer output, Charset encoding) throws IOException {
+	public static void copy(InputStream input, Writer output, Charset encoding)
+			throws IOException {
 		InputStreamReader in = new InputStreamReader(input, encoding);
 		copy(in, output);
 	}
@@ -121,7 +122,8 @@ public class FileUtil {
 		copy(input, output, ENCODING);
 	}
 
-	public static void copy(Reader input, OutputStream output, Charset encoding) throws IOException {
+	public static void copy(Reader input, OutputStream output, Charset encoding)
+			throws IOException {
 		OutputStreamWriter out = new OutputStreamWriter(output, encoding);
 		copy(input, out);
 
@@ -140,7 +142,8 @@ public class FileUtil {
 		return copyLarge(input, output, new byte[4096]);
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output, byte[] buffer) throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, byte[] buffer)
+			throws IOException {
 		long count = 0L;
 		int n = 0;
 		while (-1 != (n = input.read(buffer))) {
@@ -150,13 +153,13 @@ public class FileUtil {
 		return count;
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length)
-			throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, long inputOffset,
+			long length) throws IOException {
 		return copyLarge(input, output, inputOffset, length, new byte[4096]);
 	}
 
-	public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length, byte[] buffer)
-			throws IOException {
+	public static long copyLarge(InputStream input, OutputStream output, long inputOffset,
+			long length, byte[] buffer) throws IOException {
 		if (inputOffset > 0L) {
 			skipFully(input, inputOffset);
 		}
@@ -194,12 +197,13 @@ public class FileUtil {
 		return count;
 	}
 
-	public static long copyLarge(Reader input, Writer output, long inputOffset, long length) throws IOException {
+	public static long copyLarge(Reader input, Writer output, long inputOffset, long length)
+			throws IOException {
 		return copyLarge(input, output, inputOffset, length, new char[4096]);
 	}
 
-	public static long copyLarge(Reader input, Writer output, long inputOffset, long length, char[] buffer)
-			throws IOException {
+	public static long copyLarge(Reader input, Writer output, long inputOffset, long length,
+			char[] buffer) throws IOException {
 		if (inputOffset > 0L) {
 			skipFully(input, inputOffset);
 		}
@@ -442,44 +446,44 @@ public class FileUtil {
 		return list;
 	}
 
-	public static Properties readProperties(File file) throws IOException {
-		InputStream inputStream = new FileInputStream(file);
-		Properties properties = readProperties(inputStream);
-		if (properties == null) {
-			throw new IOException(file.getAbsolutePath() + " not found!");
-		}
-		return properties;
+	public static Properties readProperties(File file, Charset charset) throws IOException {
+		return readProperties(new FileInputStream(file), charset);
 	}
 
-	public static Properties readProperties(InputStream inputStream) throws IOException {
+	public static Properties readProperties(InputStream inputStream, Charset charset)
+			throws IOException {
+
+		if (inputStream == null) {
+			throw new IOException("null inputstream!");
+		}
+
 		Properties properties = new Properties();
+
 		try {
-			if (inputStream == null) {
-				throw new IOException("null inputstream!");
-			}
-			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, ENCODING);
-			properties.load(inputStreamReader);
-			return properties;
+			properties.load(new InputStreamReader(inputStream, charset));
 		} finally {
 			CloseUtil.close(inputStream);
 		}
+
+		return properties;
 	}
 
-	public static Properties readProperties(String path) throws IOException {
-		InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(path);
+	private static InputStream getInputStreamFromResource(String file) throws IOException {
+		InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(file);
 		if (inputStream == null) {
-			throw new IOException("resource not found:"+path);
+			throw new IOException("resource not found:" + file);
 		}
-		Properties properties = readProperties(inputStream);
-		if (properties == null) {
-			throw new IOException(path + " not found!");
-		}
-		return properties;
+		return inputStream;
+	}
+
+	public static Properties readProperties(String file, Charset charset) throws IOException {
+		return readProperties(getInputStreamFromResource(file), charset);
 	}
 
 	public static long skip(InputStream input, long toSkip) throws IOException {
 		if (toSkip < 0L) {
-			throw new IllegalArgumentException("Skip count must be non-negative, actual: " + toSkip);
+			throw new IllegalArgumentException(
+					"Skip count must be non-negative, actual: " + toSkip);
 		}
 		if (SKIP_BYTE_BUFFER == null) {
 			SKIP_BYTE_BUFFER = new byte[2048];
@@ -497,7 +501,8 @@ public class FileUtil {
 
 	public static long skip(Reader input, long toSkip) throws IOException {
 		if (toSkip < 0L) {
-			throw new IllegalArgumentException("Skip count must be non-negative, actual: " + toSkip);
+			throw new IllegalArgumentException(
+					"Skip count must be non-negative, actual: " + toSkip);
 		}
 		if (SKIP_CHAR_BUFFER == null) {
 			SKIP_CHAR_BUFFER = new char[2048];
@@ -531,7 +536,8 @@ public class FileUtil {
 	}
 
 	public static BufferedReader toBufferedReader(Reader reader) {
-		return (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
+		return (reader instanceof BufferedReader) ? (BufferedReader) reader
+				: new BufferedReader(reader);
 	}
 
 	public static byte[] toByteArray(InputStream input, int size) throws IOException {
@@ -546,14 +552,16 @@ public class FileUtil {
 			offset += readed;
 		}
 		if (offset != size) {
-			throw new IOException("Unexpected readed size. current: " + offset + ", excepted: " + size);
+			throw new IOException(
+					"Unexpected readed size. current: " + offset + ", excepted: " + size);
 		}
 		return data;
 	}
 
 	public static byte[] toByteArray(InputStream input, long size) throws IOException {
 		if (size > 2147483647L) {
-			throw new IllegalArgumentException("Size cannot be greater than Integer max value: " + size);
+			throw new IllegalArgumentException(
+					"Size cannot be greater than Integer max value: " + size);
 		}
 		return toByteArray(input, (int) size);
 	}
@@ -568,7 +576,8 @@ public class FileUtil {
 		write(data, output, ENCODING);
 	}
 
-	public static void write(char[] data, OutputStream output, Charset encoding) throws IOException {
+	public static void write(char[] data, OutputStream output, Charset encoding)
+			throws IOException {
 		if (data != null) {
 			output.write(new String(data).getBytes(encoding));
 		}
@@ -599,7 +608,8 @@ public class FileUtil {
 		write(realFile, bytes, append);
 	}
 
-	public static void writeByCls(String file, String content, Charset encoding, boolean append) throws IOException {
+	public static void writeByCls(String file, String content, Charset encoding, boolean append)
+			throws IOException {
 		File realFile = readFileByCls(file);
 		write(realFile, content, encoding, append);
 	}
@@ -624,11 +634,13 @@ public class FileUtil {
 		write(file, content, encoding, false);
 	}
 
-	public static void write(File file, String content, Charset encoding, boolean append) throws IOException {
+	public static void write(File file, String content, Charset encoding, boolean append)
+			throws IOException {
 		write(content.getBytes(encoding), openOutputStream(file, append));
 	}
 
-	public static int readFromtInputStream(InputStream inputStream, byte[] cache) throws IOException {
+	public static int readFromtInputStream(InputStream inputStream, byte[] cache)
+			throws IOException {
 		int c = 0;
 		int s = cache.length;
 		for (; c < s;) {

@@ -39,7 +39,7 @@ public class SharedBundle {
 	}
 
 	private String				classPath		= null;
-	private Map<String,String>	properties	= new HashMap<>();
+	private Map<String, String>	properties	= new HashMap<>();
 	private Map<String, String>	fileMapping	= new HashMap<String, String>();
 
 	public boolean getBooleanProperty(String key) {
@@ -116,8 +116,8 @@ public class SharedBundle {
 		}
 		return value;
 	}
-
-	public synchronized void loadAllProperties(String file) throws IOException {
+	
+	public synchronized void loadAllProperties(String file,Charset charset) throws IOException {
 
 		if (StringUtil.isNullOrBlank(file)) {
 			file = ".";
@@ -129,11 +129,19 @@ public class SharedBundle {
 			throw new IOException("file not found " + file);
 		}
 
-		loadAllProperties(url);
+		loadAllProperties(url,charset);
 	}
 
-	public synchronized void loadAllProperties() throws Exception {
-		loadAllProperties(getURL());
+	public synchronized void loadAllProperties(String file) throws IOException {
+		loadAllProperties(file, Encoding.UTF8);
+	}
+	
+	public synchronized void loadAllProperties() throws Exception{
+		loadAllProperties(Encoding.UTF8);
+	}
+
+	public synchronized void loadAllProperties(Charset charset) throws Exception {
+		loadAllProperties(getURL(),charset);
 	}
 
 	private URL getURL() throws IOException {
@@ -147,7 +155,7 @@ public class SharedBundle {
 		return url;
 	}
 
-	private void loadAllProperties(URL url) throws IOException {
+	private void loadAllProperties(URL url,Charset charset) throws IOException {
 
 		File root = new File(url.getFile());
 
@@ -172,10 +180,10 @@ public class SharedBundle {
 
 		fileMapping.clear();
 
-		loopLoadFile(root);
+		loopLoadFile(root,charset);
 	}
 
-	private void loopLoadFile(File file) throws IOException {
+	private void loopLoadFile(File file,Charset charset) throws IOException {
 		if (file.isDirectory()) {
 
 			File[] files = file.listFiles();
@@ -186,14 +194,14 @@ public class SharedBundle {
 
 			for (File f : files) {
 
-				loopLoadFile(f);
+				loopLoadFile(f,charset);
 			}
 		} else {
 
 			fileMapping.put(file.getName(), file.getCanonicalPath());
 
 			if (file.getName().endsWith(".properties")) {
-				Properties temp = FileUtil.readProperties(file);
+				Properties temp = FileUtil.readProperties(file,charset);
 				if ("log4j.properties".equals(file.getName())) {
 					PropertyConfigurator.configure(temp);
 					LoggerFactory.enableSLF4JLogger(true);
@@ -211,11 +219,11 @@ public class SharedBundle {
 		return new File(classPath + file);
 	}
 
-	public boolean loadLog4jProperties(String file) throws IOException {
+	public boolean loadLog4jProperties(String file, Charset charset) throws IOException {
 		File _file = loadFile(file);
 
 		if (_file.exists()) {
-			Properties log4j = loadProperties(FileUtil.openInputStream(_file));
+			Properties log4j = loadProperties(FileUtil.openInputStream(_file), charset);
 			PropertyConfigurator.configure(log4j);
 			LoggerFactory.enableSLF4JLogger(true);
 			return true;
@@ -223,67 +231,50 @@ public class SharedBundle {
 		return false;
 	}
 
-	public Properties loadProperties(InputStream inputStream) throws IOException {
-
-		if (inputStream == null) {
-			throw new IOException("null inputstream");
-		}
-
-		Properties temp = new Properties();
-		try {
-			temp.load(inputStream);
-			return temp;
-		} finally {
-			CloseUtil.close(inputStream);
-		}
+	public Properties loadProperties(InputStream inputStream, Charset charset) throws IOException {
+		return FileUtil.readProperties(inputStream, charset);
 	}
 
-	public Properties loadProperties(String file) throws IOException {
+	public Properties loadProperties(String file, Charset charset) throws IOException {
+
 		File _file = loadFile(file);
+
 		if (_file.exists()) {
-			return loadProperties(FileUtil.openInputStream(_file));
+			return loadProperties(FileUtil.openInputStream(_file), charset);
 		}
 
 		String filePath = fileMapping.get(file);
 
 		if (filePath != null) {
+
 			_file = new File(filePath);
 
 			if (_file.exists()) {
-				return loadProperties(FileUtil.openInputStream(_file));
+				return loadProperties(FileUtil.openInputStream(_file), charset);
 			}
 		}
 
-		return loadProperties(this.getClass().getClassLoader().getResourceAsStream(file));
+		return loadProperties(getClass().getClassLoader().getResourceAsStream(file), charset);
 	}
 
 	private void setClassPath(String classPath) {
 		this.classPath = classPath.replace("\\", "/");
 	}
 
-	public void storageProperties(InputStream inputStream) throws IOException {
-		Properties temp = new Properties();
-		try {
-			temp.load(inputStream);
-			putAll(properties, temp);
-		} finally {
-			CloseUtil.close(inputStream);
-		}
+	public void storageProperties(InputStream inputStream, Charset charset) throws IOException {
+		Properties temp = loadProperties(inputStream, charset);
+		putAll(properties, temp);
 	}
-	
-	private void putAll(Map<String,String> target,Properties source){
-		for(Entry<Object, Object> e : source.entrySet()){
+
+	private void putAll(Map<String, String> target, Properties source) {
+		for (Entry<Object, Object> e : source.entrySet()) {
 			target.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
 		}
 	}
 
-	public boolean storageProperties(String file) throws IOException {
-		File _file = loadFile(file);
-		if (_file.exists()) {
-			storageProperties(FileUtil.openInputStream(_file));
-			return true;
-		}
-		return false;
+	public void storageProperties(String file, Charset charset) throws IOException {
+		Properties temp = loadProperties(file, charset);
+		putAll(properties, temp);
 	}
 
 	public void clearProperties() {
