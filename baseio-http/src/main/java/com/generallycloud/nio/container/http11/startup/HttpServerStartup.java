@@ -115,6 +115,12 @@ public class HttpServerStartup {
 		
 		HttpServerStartup startup = new HttpServerStartup();
 		
-		startup.launch("http");
+		String base = null;
+		
+		if (args != null && args.length > 0) {
+			base = args[0];
+		}
+		
+		startup.launch(base);
 	}
 }
