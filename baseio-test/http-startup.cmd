@@ -13,4 +13,4 @@ cd ../baseio-test
 
 rem set MAVEN_OPTS=-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n
 
-call mvn exec:java -Dexec.mainClass="com.generallycloud.test.nio.http11.TestHTTPServer" http
+call mvn exec:java -Dexec.mainClass="com.generallycloud.test.nio.http11.TestHTTPServer" -Dexec.args="http"  
