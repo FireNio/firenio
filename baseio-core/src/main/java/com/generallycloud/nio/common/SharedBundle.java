@@ -159,7 +159,7 @@ public class SharedBundle {
 
 		File root = new File(url.getFile());
 
-		if (root.isFile()) {
+		if (root.isFile() || root.getName().indexOf(".") != -1) {
 			root = root.getParentFile();
 		}
 
