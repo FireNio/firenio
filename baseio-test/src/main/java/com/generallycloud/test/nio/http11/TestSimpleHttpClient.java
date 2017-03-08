@@ -15,17 +15,17 @@
  */ 
 package com.generallycloud.test.nio.http11;
 
-import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.nio.codec.http11.HttpClient;
-import com.generallycloud.nio.codec.http11.HttpIOEventHandle;
-import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.HttpClient;
+import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
+import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestSimpleHttpClient {

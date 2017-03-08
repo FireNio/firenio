@@ -17,11 +17,11 @@ package com.generallycloud.test.nio.balance;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.balance.BalanceServerBootStrap;
-import com.generallycloud.nio.balance.FacadeInterceptorImpl;
-import com.generallycloud.nio.balance.router.HashedBalanceRouter;
-import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.balance.BalanceServerBootStrap;
+import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
+import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class TestBalanceMain {
 

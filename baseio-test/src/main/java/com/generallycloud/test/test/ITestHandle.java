@@ -17,8 +17,8 @@ package com.generallycloud.test.test;
 
 import java.math.BigDecimal;
 
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
 
 public class ITestHandle {
 	

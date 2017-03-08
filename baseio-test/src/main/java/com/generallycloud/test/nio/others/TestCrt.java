@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.security.cert.CertificateException;
 
-import com.generallycloud.nio.component.ssl.SelfSignedCertificate;
+import com.generallycloud.baseio.component.ssl.SelfSignedCertificate;
 
 public class TestCrt {
 

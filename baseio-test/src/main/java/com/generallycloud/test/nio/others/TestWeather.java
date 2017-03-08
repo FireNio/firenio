@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.DebugUtil;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.DebugUtil;
 
 public class TestWeather {
 

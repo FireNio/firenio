@@ -17,9 +17,9 @@ package com.generallycloud.test.nio.front;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.front.FrontServerBootStrap;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.front.FrontServerBootStrap;
 
 public class TestFrontServer {
 

@@ -15,17 +15,17 @@
  */ 
 package com.generallycloud.test.nio.redis;
 
-import com.generallycloud.nio.codec.redis.RedisProtocolFactory;
-import com.generallycloud.nio.codec.redis.future.RedisClient;
-import com.generallycloud.nio.codec.redis.future.RedisIOEventHandle;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.codec.redis.RedisProtocolFactory;
+import com.generallycloud.baseio.codec.redis.future.RedisClient;
+import com.generallycloud.baseio.codec.redis.future.RedisIOEventHandle;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 public class TestRedisClient {
 

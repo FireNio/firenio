@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.util.List;
 
-import com.generallycloud.nio.common.FileUtil;
+import com.generallycloud.baseio.common.FileUtil;
 
 public class Test2 {
 

@@ -18,7 +18,7 @@ package com.generallycloud.test.nio.others.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.nio.common.StringUtil;
+import com.generallycloud.baseio.common.StringUtil;
 
 //关键字：前缀，后缀，部分匹配表
 public class KMPUtil {

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.nio.others;
 
-import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 
 /**
  * @author wangkai

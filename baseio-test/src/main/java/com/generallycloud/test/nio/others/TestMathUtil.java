@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.test.nio.others;
 
-import static com.generallycloud.nio.common.MathUtil.*;
+import static com.generallycloud.baseio.common.MathUtil.*;
 
 public class TestMathUtil {
 	

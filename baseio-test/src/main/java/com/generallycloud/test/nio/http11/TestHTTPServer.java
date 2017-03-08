@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.test.nio.http11;
 
-import com.generallycloud.nio.container.http11.startup.HttpServerStartup;
+import com.generallycloud.baseio.container.http11.startup.HttpServerStartup;
 
 public class TestHTTPServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		HttpServerStartup.main(args);
+		HttpServerStartup.main(new String[]{"http"});
 	}
 }

@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.test.nio.buffer;
 
-import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.nio.component.ChannelContext;
-import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class TestBytebufAllocator {
 

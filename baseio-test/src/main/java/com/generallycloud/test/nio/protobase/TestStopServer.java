@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
-import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.SimpleIOEventHandle;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestStopServer {

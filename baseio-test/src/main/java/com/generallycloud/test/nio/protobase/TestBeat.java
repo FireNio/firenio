@@ -15,18 +15,18 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
-import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.nio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.component.SocketSessionActiveSEListener;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSessionActiveSEListener;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestBeat {
 	

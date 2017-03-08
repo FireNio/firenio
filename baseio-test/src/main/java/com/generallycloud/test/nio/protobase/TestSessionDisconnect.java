@@ -15,14 +15,14 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
-import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.OnReadFuture;
-import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.component.OnReadFuture;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestSessionDisconnect {

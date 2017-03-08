@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.test.json;
 
-import com.generallycloud.nio.common.Logger;
-import com.generallycloud.nio.common.LoggerFactory;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.test.test.ITest;
 import com.generallycloud.test.test.ITestHandle;
 

@@ -17,7 +17,7 @@ package com.generallycloud.test.test;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.nio.common.DebugUtil;
+import com.generallycloud.baseio.common.DebugUtil;
 
 public abstract class ITestThread implements Runnable {
 

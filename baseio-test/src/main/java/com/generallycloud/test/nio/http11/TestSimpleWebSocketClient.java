@@ -15,22 +15,22 @@
  */ 
 package com.generallycloud.test.nio.http11;
 
-import com.generallycloud.nio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.nio.codec.http11.future.ClientHttpReadFuture;
-import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.codec.http11.future.WebSocketBeatFutureFactory;
-import com.generallycloud.nio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.nio.codec.http11.future.WebSocketReadFutureImpl;
-import com.generallycloud.nio.codec.http11.future.WebSocketUpgradeRequestFuture;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.SocketSession;
-import com.generallycloud.nio.component.ssl.SSLUtil;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.protocol.ReadFuture;
+import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
+import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestSimpleWebSocketClient {

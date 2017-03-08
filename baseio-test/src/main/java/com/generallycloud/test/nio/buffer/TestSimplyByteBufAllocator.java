@@ -17,11 +17,11 @@ package com.generallycloud.test.nio.buffer;
 
 import java.util.Random;
 
-import com.generallycloud.nio.buffer.ByteBuf;
-import com.generallycloud.nio.buffer.ByteBufAllocator;
-import com.generallycloud.nio.buffer.SimplyByteBufAllocator;
-import com.generallycloud.nio.common.ReleaseUtil;
-import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.SimplyByteBufAllocator;
+import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 
 public class TestSimplyByteBufAllocator {
 

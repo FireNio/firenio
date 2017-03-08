@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.util.Set;
 
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.baseio.common.CloseUtil;
 
 import redis.clients.jedis.Jedis;
 

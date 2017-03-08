@@ -17,10 +17,10 @@ package com.generallycloud.test.nio.others;
 
 import java.io.File;
 
-import com.generallycloud.nio.common.DebugUtil;
-import com.generallycloud.nio.common.Encoding;
-import com.generallycloud.nio.common.FileUtil;
-import com.generallycloud.nio.common.FileUtil.OnDirectoryScan;
+import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.FileUtil.OnDirectoryScan;
 
 /**
  * @author wangkai

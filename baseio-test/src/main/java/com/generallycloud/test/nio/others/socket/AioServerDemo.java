@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.nio.common.ThreadUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 
 /**
  * @author wangkai

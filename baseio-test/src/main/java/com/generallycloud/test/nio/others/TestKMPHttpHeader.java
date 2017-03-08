@@ -17,9 +17,9 @@ package com.generallycloud.test.nio.others;
 
 import java.io.File;
 
-import com.generallycloud.nio.common.Encoding;
-import com.generallycloud.nio.common.FileUtil;
-import com.generallycloud.nio.common.KMPByteUtil;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.KMPByteUtil;
 import com.generallycloud.test.test.ITest;
 import com.generallycloud.test.test.ITestHandle;
 

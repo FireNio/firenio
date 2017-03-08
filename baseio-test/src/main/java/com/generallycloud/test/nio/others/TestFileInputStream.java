@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.baseio.common.CloseUtil;
 
 public class TestFileInputStream {
 

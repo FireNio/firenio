@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.nio.common.StringLexer;
+import com.generallycloud.baseio.common.StringLexer;
 
 public class JSON {
 

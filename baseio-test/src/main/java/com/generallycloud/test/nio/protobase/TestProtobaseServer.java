@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
-import com.generallycloud.nio.container.protobase.startup.ProtobaseServerStartup;
+import com.generallycloud.baseio.container.protobase.startup.ProtobaseServerStartup;
 
 public class TestProtobaseServer {
 

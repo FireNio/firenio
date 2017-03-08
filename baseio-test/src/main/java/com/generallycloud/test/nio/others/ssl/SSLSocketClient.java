@@ -25,7 +25,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.generallycloud.nio.common.CloseUtil;
+import com.generallycloud.baseio.common.CloseUtil;
 
 public class SSLSocketClient {
 

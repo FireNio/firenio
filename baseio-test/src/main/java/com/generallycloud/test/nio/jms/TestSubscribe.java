@@ -17,15 +17,15 @@ package com.generallycloud.test.nio.jms;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.common.DebugUtil;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.jms.MQException;
-import com.generallycloud.nio.container.jms.Message;
-import com.generallycloud.nio.container.jms.client.MessageConsumer;
-import com.generallycloud.nio.container.jms.client.OnMessage;
-import com.generallycloud.nio.container.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.jms.MQException;
+import com.generallycloud.baseio.container.jms.Message;
+import com.generallycloud.baseio.container.jms.client.MessageConsumer;
+import com.generallycloud.baseio.container.jms.client.OnMessage;
+import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestSubscribe {

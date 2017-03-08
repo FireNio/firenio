@@ -15,16 +15,16 @@
  */ 
 package com.generallycloud.test.nio.common;
 
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.LoggerFactory;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.component.IoEventHandleAdaptor;
-import com.generallycloud.nio.component.LoggerSocketSEListener;
-import com.generallycloud.nio.component.NioSocketChannelContext;
-import com.generallycloud.nio.component.SocketChannelContext;
-import com.generallycloud.nio.configuration.PropertiesSCLoader;
-import com.generallycloud.nio.configuration.ServerConfiguration;
-import com.generallycloud.nio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.configuration.PropertiesSCLoader;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 public class IoConnectorUtil {
 

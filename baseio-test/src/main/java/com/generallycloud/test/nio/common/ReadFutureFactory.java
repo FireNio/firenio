@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.test.nio.common;
 
-import com.generallycloud.nio.codec.http11.future.ClientHttpReadFuture;
-import com.generallycloud.nio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.nio.codec.protobase.future.ProtobaseReadFutureImpl;
-import com.generallycloud.nio.component.IoEventHandle;
-import com.generallycloud.nio.component.SocketSession;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.component.IoEventHandle;
+import com.generallycloud.baseio.component.SocketSession;
 
 public class ReadFutureFactory {
 

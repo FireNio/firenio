@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.io.IOException;
 
-import com.generallycloud.nio.common.MathUtil;
+import com.generallycloud.baseio.common.MathUtil;
 
 public class Test {
 

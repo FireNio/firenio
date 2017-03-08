@@ -15,17 +15,17 @@
  */ 
 package com.generallycloud.test.nio.jms;
 
-import com.generallycloud.nio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.nio.common.CloseUtil;
-import com.generallycloud.nio.common.SharedBundle;
-import com.generallycloud.nio.common.ThreadUtil;
-import com.generallycloud.nio.connector.SocketChannelConnector;
-import com.generallycloud.nio.container.FixedSession;
-import com.generallycloud.nio.container.SimpleIOEventHandle;
-import com.generallycloud.nio.container.jms.Message;
-import com.generallycloud.nio.container.jms.client.MessageConsumer;
-import com.generallycloud.nio.container.jms.client.OnMessage;
-import com.generallycloud.nio.container.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.jms.Message;
+import com.generallycloud.baseio.container.jms.client.MessageConsumer;
+import com.generallycloud.baseio.container.jms.client.OnMessage;
+import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestListener {

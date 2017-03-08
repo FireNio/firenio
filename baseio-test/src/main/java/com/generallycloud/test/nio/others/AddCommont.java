@@ -19,9 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.generallycloud.nio.common.Encoding;
-import com.generallycloud.nio.common.FileUtil;
-import com.generallycloud.nio.common.FileUtil.OnDirectoryScan;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.FileUtil.OnDirectoryScan;
 
 /**
  * @author wangkai
