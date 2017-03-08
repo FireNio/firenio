@@ -20,12 +20,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.http11.HttpSession;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.baseio.common.LifeCycleUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestWebSocketChatServlet extends HttpFutureAcceptorService {

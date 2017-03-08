@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.component.concurrent;
 
-import com.generallycloud.baseio.AbstractLinkable;
-import com.generallycloud.baseio.Linkable;
+import com.generallycloud.baseio.common.AbstractLinkable;
+import com.generallycloud.baseio.common.Linkable;
 
 public abstract class LinkRunable extends AbstractLinkable<Runnable> implements Runnable, Linkable<Runnable> {
 

@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.generallycloud.baseio.buffer.EmptyByteBuf;
-
 public class FileUtil {
 
 	private static Charset		ENCODING			= Encoding.UTF8;
@@ -539,10 +537,12 @@ public class FileUtil {
 		return (reader instanceof BufferedReader) ? (BufferedReader) reader
 				: new BufferedReader(reader);
 	}
+	
+	private static final byte [] empty_byte_array = new byte []{};
 
 	public static byte[] toByteArray(InputStream input, int size) throws IOException {
 		if (size < 1) {
-			return EmptyByteBuf.getInstance().array();
+			return empty_byte_array;
 		}
 
 		byte[] data = new byte[size];

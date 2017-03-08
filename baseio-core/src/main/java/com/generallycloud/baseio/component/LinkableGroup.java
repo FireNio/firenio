@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.Linkable;
+import com.generallycloud.baseio.common.Linkable;
 
 /**
  * @author wangkai

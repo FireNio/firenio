@@ -15,8 +15,6 @@
  */ 
 package com.generallycloud.baseio.common;
 
-import com.generallycloud.baseio.Releasable;
-
 public class ReleaseUtil {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);

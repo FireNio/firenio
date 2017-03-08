@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import com.generallycloud.baseio.Linkable;
 import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.concurrent.EventLoop;

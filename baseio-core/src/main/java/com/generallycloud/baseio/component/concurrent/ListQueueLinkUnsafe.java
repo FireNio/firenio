@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component.concurrent;
 
-import com.generallycloud.baseio.Linkable;
+import com.generallycloud.baseio.common.Linkable;
 
 public class ListQueueLinkUnsafe<T extends Linkable<T>> implements ListQueue<T> {
 

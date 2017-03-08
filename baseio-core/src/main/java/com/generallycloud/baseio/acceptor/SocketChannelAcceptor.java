@@ -89,4 +89,8 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
 		throw new IllegalArgumentException("context");
 	}
 	
+	@Override
+	public void close() throws IOException {
+		unwrap().close();
+	}
 }

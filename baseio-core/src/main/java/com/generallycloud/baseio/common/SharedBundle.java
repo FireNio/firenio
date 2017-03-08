@@ -28,8 +28,6 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import com.generallycloud.baseio.PropertiesException;
-
 public class SharedBundle {
 
 	private static SharedBundle bundle = new SharedBundle();

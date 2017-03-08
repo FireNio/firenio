@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
-import com.generallycloud.baseio.common.LifeCycleUtil;
+import com.generallycloud.baseio.live.AbstractLifeCycle;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class HttpContext extends AbstractLifeCycle {
 

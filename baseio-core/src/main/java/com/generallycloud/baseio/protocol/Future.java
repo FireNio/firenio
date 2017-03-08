@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.Releasable;
+import com.generallycloud.baseio.common.Releasable;
 
 public interface Future extends Releasable{
 

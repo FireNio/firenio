@@ -24,10 +24,10 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.ClosedChannelException;
-import com.generallycloud.baseio.Linkable;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;

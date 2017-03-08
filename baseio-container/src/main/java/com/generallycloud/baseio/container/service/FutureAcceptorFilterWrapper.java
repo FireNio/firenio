@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.service;
 
-import com.generallycloud.baseio.Linkable;
+import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;

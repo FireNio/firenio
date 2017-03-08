@@ -42,6 +42,6 @@ public class BalanceReverseAcceptor {
 	}
 
 	protected void stop() {
-		CloseUtil.unbind(acceptor);
+		CloseUtil.close(acceptor);
 	}
 }

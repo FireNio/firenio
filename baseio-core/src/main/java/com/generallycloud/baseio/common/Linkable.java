@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio;
+package com.generallycloud.baseio.common;
 
-import java.util.Set;
+public interface Linkable<T> {
 
-public abstract interface Attributes{
-	  
-	  public abstract Object removeAttribute(Object key);
-	  
-	  public abstract void setAttribute(Object key, Object value);
-	  
-	  public abstract Object getAttribute(Object key);
-	  
-	  public abstract Set<Object> getAttributeNames();
-	  
-	  public abstract void clearAttributes();
-
-
+	public abstract Linkable<T> getNext();
+	
+	public abstract void setNext(Linkable<T> next);
+	
+	public abstract T getValue();
+	
 }

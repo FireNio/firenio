@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.LifeCycle;
+import com.generallycloud.baseio.live.LifeCycle;
 
 /**
  * @author wangkai

@@ -15,9 +15,10 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.net.InetSocketAddress;
 
-public interface ChannelService {
+public interface ChannelService extends Closeable{
 
 	public abstract ChannelContext getContext() ;
 

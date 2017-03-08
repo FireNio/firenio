@@ -13,42 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio;
+package com.generallycloud.baseio.common;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+public abstract class AbstractLinkable<T> implements Linkable<T>{
 
-public class AttributesImpl implements Attributes{
+	private Linkable<T> next;
 	
-	private Map<Object, Object> attributes = new HashMap<Object, Object>();
+	private T value;
 
-	@Override
-	public Object removeAttribute(Object key) {
-		return this.attributes.remove(key);
+	public AbstractLinkable(T value) {
+		this.value = value;
 	}
 
 	@Override
-	public void setAttribute(Object key, Object value) {
-		this.attributes.put(key, value);
+	public Linkable<T> getNext() {
+		return next;
 	}
 
 	@Override
-	public Object getAttribute(Object key) {
-		return this.attributes.get(key);
+	public void setNext(Linkable<T> next) {
+		this.next = next;
 	}
 
 	@Override
-	public Set<Object> getAttributeNames() {
-		return this.attributes.keySet();
+	public T getValue() {
+		return value;
 	}
 
-	@Override
-	public void clearAttributes() {
-		this.attributes.clear();
-		
-	}
-
-	
 	
 }

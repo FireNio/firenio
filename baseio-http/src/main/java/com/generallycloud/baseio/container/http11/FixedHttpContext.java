@@ -17,10 +17,10 @@ package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.HttpContext;
 import com.generallycloud.baseio.codec.http11.future.WebSocketSEListener;
-import com.generallycloud.baseio.common.LifeCycleUtil;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class FixedHttpContext extends AbstractPluginContext{
 	

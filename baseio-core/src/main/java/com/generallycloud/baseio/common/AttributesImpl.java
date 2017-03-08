@@ -13,37 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio;
+package com.generallycloud.baseio.common;
 
-public class AbstractLifeCycleListener implements LifeCycleListener{
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class AttributesImpl implements Attributes{
+	
+	private Map<Object, Object> attributes = new HashMap<Object, Object>();
 
 	@Override
-	public int lifeCycleListenerSortIndex() {
-		return 0;
+	public Object removeAttribute(Object key) {
+		return this.attributes.remove(key);
 	}
 
 	@Override
-	public void lifeCycleStarting(LifeCycle lifeCycle) {
-		
+	public void setAttribute(Object key, Object value) {
+		this.attributes.put(key, value);
 	}
 
 	@Override
-	public void lifeCycleStarted(LifeCycle lifeCycle) {
-		
+	public Object getAttribute(Object key) {
+		return this.attributes.get(key);
 	}
 
 	@Override
-	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-		
+	public Set<Object> getAttributeNames() {
+		return this.attributes.keySet();
 	}
 
 	@Override
-	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		
-	}
-
-	@Override
-	public void lifeCycleStopped(LifeCycle lifeCycle) {
+	public void clearAttributes() {
+		this.attributes.clear();
 		
 	}
 

@@ -42,14 +42,4 @@ public class CloseUtil {
 		}
 	}
 	
-	public static void unbind(Unbindable unbindable){
-		if (unbindable == null) {
-			return;
-		}
-		try {
-			unbindable.unbind();
-		} catch (Exception e) {
-			DebugUtil.debug(e);
-		}
-	}
 }

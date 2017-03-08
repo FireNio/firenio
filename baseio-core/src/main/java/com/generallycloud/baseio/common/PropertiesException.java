@@ -15,13 +15,18 @@
  */ 
 package com.generallycloud.baseio.common;
 
-import java.io.IOException;
+@SuppressWarnings("serial")
+public class PropertiesException extends Exception{
 
-import com.generallycloud.baseio.component.concurrent.Waiter;
+	
+	public PropertiesException() {
+	}
 
-public interface Unbindable {
+	public PropertiesException(String message) {
+		super(message);
+	}
 
-	public abstract void unbind() throws IOException;
-
-	public abstract Waiter<IOException> asynchronousUnbind() throws IOException;
+	public PropertiesException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

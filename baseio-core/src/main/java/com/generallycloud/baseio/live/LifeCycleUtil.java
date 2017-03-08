@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.common;
+package com.generallycloud.baseio.live;
 
-import com.generallycloud.baseio.LifeCycle;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.concurrent.Looper;
 
 public class LifeCycleUtil {

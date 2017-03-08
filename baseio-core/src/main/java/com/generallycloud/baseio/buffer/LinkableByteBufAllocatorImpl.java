@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
-import com.generallycloud.baseio.Linkable;
-import com.generallycloud.baseio.common.LifeCycleUtil;
+import com.generallycloud.baseio.common.Linkable;
+import com.generallycloud.baseio.live.AbstractLifeCycle;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements LinkAbleByteBufAllocator {
 

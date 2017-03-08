@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.baseio.Releasable;
+import com.generallycloud.baseio.common.Releasable;
 
 public interface ByteBuf extends ByteBufNew, Releasable {
 

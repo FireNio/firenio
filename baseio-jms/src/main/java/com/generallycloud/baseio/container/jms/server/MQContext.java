@@ -18,7 +18,6 @@ package com.generallycloud.baseio.container.jms.server;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.common.LifeCycleUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 import com.generallycloud.baseio.component.concurrent.ReentrantSet;
@@ -30,6 +29,7 @@ import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.decode.DefaultMessageDecoder;
 import com.generallycloud.baseio.container.jms.decode.MessageDecoder;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class MQContext extends AbstractPluginContext implements MessageQueue {
 

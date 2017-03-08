@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.live.AbstractLifeCycle;
 
 public class Sequence extends AbstractLifeCycle {
 

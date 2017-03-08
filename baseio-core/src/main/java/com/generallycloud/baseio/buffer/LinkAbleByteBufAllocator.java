@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.Linkable;
+import com.generallycloud.baseio.common.Linkable;
 
 public interface LinkAbleByteBufAllocator extends ByteBufAllocator, Linkable<LinkAbleByteBufAllocator> {
 

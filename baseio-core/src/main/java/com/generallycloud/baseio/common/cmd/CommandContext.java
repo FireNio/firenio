@@ -17,7 +17,7 @@ package com.generallycloud.baseio.common.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.baseio.AttributesImpl;
+import com.generallycloud.baseio.common.AttributesImpl;
 
 public class CommandContext extends AttributesImpl{
 

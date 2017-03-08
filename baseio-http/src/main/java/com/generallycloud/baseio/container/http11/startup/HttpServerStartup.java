@@ -20,7 +20,6 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
-import com.generallycloud.baseio.common.LifeCycleUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -39,6 +38,7 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.container.http11.service.FutureAcceptorHttpFilter;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class HttpServerStartup {
 	

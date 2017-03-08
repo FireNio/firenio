@@ -17,11 +17,15 @@ package com.generallycloud.baseio.acceptor;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.common.Unbindable;
 import com.generallycloud.baseio.component.ChannelService;
+import com.generallycloud.baseio.component.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public interface ChannelAcceptor extends Unbindable, ChannelService {
+public interface ChannelAcceptor extends ChannelService {
+	
+	public abstract void unbind() throws IOException;
+
+	public abstract Waiter<IOException> asynchronousUnbind() throws IOException;
 
 	public abstract void bind() throws IOException;
 

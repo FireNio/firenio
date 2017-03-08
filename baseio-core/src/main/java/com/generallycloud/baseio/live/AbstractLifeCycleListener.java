@@ -13,20 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio;
+package com.generallycloud.baseio.live;
 
-@SuppressWarnings("serial")
-public class PropertiesException extends Exception{
+public class AbstractLifeCycleListener implements LifeCycleListener{
+
+	@Override
+	public int lifeCycleListenerSortIndex() {
+		return 0;
+	}
+
+	@Override
+	public void lifeCycleStarting(LifeCycle lifeCycle) {
+		
+	}
+
+	@Override
+	public void lifeCycleStarted(LifeCycle lifeCycle) {
+		
+	}
+
+	@Override
+	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
+		
+	}
+
+	@Override
+	public void lifeCycleStopping(LifeCycle lifeCycle) {
+		
+	}
+
+	@Override
+	public void lifeCycleStopped(LifeCycle lifeCycle) {
+		
+	}
 
 	
-	public PropertiesException() {
-	}
-
-	public PropertiesException(String message) {
-		super(message);
-	}
-
-	public PropertiesException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	
 }

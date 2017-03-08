@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.live.AbstractLifeCycle;
 
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
 		implements ByteBufAllocator {

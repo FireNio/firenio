@@ -18,7 +18,6 @@ package com.generallycloud.baseio.container.protobase.startup;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.common.LifeCycleUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -34,6 +33,7 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
+import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class ProtobaseServerStartup {
 
