@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
-
 public class SharedBundle {
 
 	private static SharedBundle bundle = new SharedBundle();
@@ -200,10 +198,6 @@ public class SharedBundle {
 
 			if (file.getName().endsWith(".properties")) {
 				Properties temp = FileUtil.readProperties(file,charset);
-				if ("log4j.properties".equals(file.getName())) {
-					PropertyConfigurator.configure(temp);
-					LoggerFactory.enableSLF4JLogger(true);
-				}
 				putAll(properties, temp);
 			}
 		}
@@ -215,18 +209,6 @@ public class SharedBundle {
 
 	public File loadFile(String file) {
 		return new File(classPath + file);
-	}
-
-	public boolean loadLog4jProperties(String file, Charset charset) throws IOException {
-		File _file = loadFile(file);
-
-		if (_file.exists()) {
-			Properties log4j = loadProperties(FileUtil.openInputStream(_file), charset);
-			PropertyConfigurator.configure(log4j);
-			LoggerFactory.enableSLF4JLogger(true);
-			return true;
-		}
-		return false;
 	}
 
 	public Properties loadProperties(InputStream inputStream, Charset charset) throws IOException {
@@ -277,6 +259,22 @@ public class SharedBundle {
 
 	public void clearProperties() {
 		properties.clear();
+	}
+	
+	class PropertiesException extends Exception{
+		
+		private static final long serialVersionUID = 1L;
+
+		public PropertiesException() {
+		}
+
+		public PropertiesException(String message) {
+			super(message);
+		}
+
+		public PropertiesException(String message, Throwable cause) {
+			super(message, cause);
+		}
 	}
 
 }
