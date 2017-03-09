@@ -22,7 +22,6 @@ import java.nio.channels.DatagramChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;

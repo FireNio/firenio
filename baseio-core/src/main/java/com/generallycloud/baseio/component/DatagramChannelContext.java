@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.component.DatagramSessionManager.DatagramSessionManagerEvent;
 
 public interface DatagramChannelContext extends ChannelContext {

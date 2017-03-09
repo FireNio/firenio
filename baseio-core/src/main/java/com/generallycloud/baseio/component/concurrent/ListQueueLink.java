@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.common.Linkable;
+import com.generallycloud.baseio.component.Linkable;
 
 public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 

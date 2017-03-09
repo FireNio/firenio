@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.common.Linkable;
+import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.live.AbstractLifeCycle;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 

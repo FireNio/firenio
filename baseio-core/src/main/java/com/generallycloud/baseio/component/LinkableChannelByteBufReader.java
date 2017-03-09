@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.Linkable;
 
 public abstract class LinkableChannelByteBufReader implements ChannelByteBufReader{
 

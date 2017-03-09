@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.AbstractLinkable;
-
 public class SocketSessionIdleEventListenerWrapper
 		extends AbstractLinkable<SocketSessionIdleEventListener>
 		implements SocketSessionIdleEventListener {

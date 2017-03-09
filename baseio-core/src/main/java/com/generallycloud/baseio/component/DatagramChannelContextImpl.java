@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.math.BigDecimal;
 
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.baseio.common.Linkable;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
