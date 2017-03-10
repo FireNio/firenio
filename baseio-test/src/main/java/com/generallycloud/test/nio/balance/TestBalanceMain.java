@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.balance.BalanceServerBootStrap;
 import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
 import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
+import com.generallycloud.baseio.balance.router.SimpleNextRouter;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
@@ -43,7 +44,8 @@ public class TestBalanceMain {
 		f.setBalanceReverseServerConfiguration(frc);
 		f.setFacadeInterceptor(new FacadeInterceptorImpl(500,50000));
 		f.setBalanceRouter(new HashedBalanceRouter(10240));
-//		f.setBalanceRouter(new SimpleNextRouter());
+		f.setBalanceReadFutureFactory(new TestBalanceReadFutureFactory());
+		f.setBalanceRouter(new SimpleNextRouter());
 		
 		f.startup();
 	}
