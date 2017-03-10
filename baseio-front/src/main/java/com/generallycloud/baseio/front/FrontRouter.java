@@ -19,18 +19,18 @@ import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 
 public class FrontRouter {
 
-	private ReentrantMap<Integer, FrontFacadeSocketSession> clients = new ReentrantMap<>();
+	private ReentrantMap<Long, FrontFacadeSocketSession> clients = new ReentrantMap<>();
 
 	public void addClientSession(FrontFacadeSocketSession session) {
-		this.clients.put(session.getSessionID(), session);
+//		this.clients.put(session.get, session);
 	}
 
-	public FrontFacadeSocketSession getClientSession(Integer sessionID) {
+	public FrontFacadeSocketSession getClientSession(Long sessionID) {
 		return clients.get(sessionID);
 	}
 
 	public void removeClientSession(FrontFacadeSocketSession session) {
-		this.clients.remove(session.getSessionID());
+//		this.clients.remove(session.getSessionID());
 	}
 	
 }
