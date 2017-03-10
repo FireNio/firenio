@@ -58,13 +58,13 @@ public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerA
 			return;
 		}
 
-		ChannelLostReadFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
+		BalanceReadFutureFactory factory = balanceContext.getBalanceReadFutureFactory();
 
-		if (factory == null) {
+		ReadFuture future = factory.createChannelLostPacket(fs);
+		
+		if (future == null) {
 			return;
 		}
-
-		ReadFuture future = factory.createChannelLostPacket(session);
 
 		rs.flush(future);
 	}

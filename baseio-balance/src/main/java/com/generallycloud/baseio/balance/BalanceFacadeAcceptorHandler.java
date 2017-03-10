@@ -28,10 +28,12 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 	private BalanceRouter		balanceRouter;
 	private FacadeInterceptor	facadeInterceptor;
 	private ExceptionCaughtHandle exceptionCaughtHandle;
+	private BalanceReadFutureFactory readFutureFactory;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
 		this.facadeInterceptor = context.getFacadeInterceptor();
+		this.readFutureFactory = context.getBalanceReadFutureFactory();
 		this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
 	}
 
@@ -46,6 +48,11 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
+		
+		if (f.getToken().longValue() == 0) {
+			fs.flush(readFutureFactory.createTokenPacket(fs));
+			return ;
+		}
 
 		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
 
@@ -54,11 +61,7 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		f.setSessionID(fs.getSessionID());
-
-		f = f.translate();
-
-		rs.flush(f);
+		rs.flush(f.translate());
 
 		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[]{
 				session.getRemoteSocketAddress(),

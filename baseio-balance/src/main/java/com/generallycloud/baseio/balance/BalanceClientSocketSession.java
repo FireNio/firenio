@@ -17,14 +17,10 @@ package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.component.SocketSession;
 
-public interface BalanceFacadeSocketSession extends SocketSession {
+public interface BalanceClientSocketSession extends SocketSession {
 	
 	public abstract Long getToken();
 	
-	public abstract boolean overfulfil(int size);
-
-	public abstract BalanceReverseSocketSession getReverseSocketSession();
-
-	public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+	public abstract void setToken(Long token);
 
 }

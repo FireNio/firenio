@@ -30,7 +30,7 @@ public class BalanceContext {
 	private BalanceRouter					balanceRouter;
 	private BalanceReverseAcceptorHandler		balanceReverseAcceptorHandler;
 	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
-	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
+	private BalanceReadFutureFactory			balanceReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
 	private BalanceReverseLogger				balanceReverseLogger;
 	private ExceptionCaughtHandle				facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
@@ -71,12 +71,12 @@ public class BalanceContext {
 		return balanceRouter;
 	}
 
-	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
-		return channelLostReadFutureFactory;
+	public BalanceReadFutureFactory getBalanceReadFutureFactory() {
+		return balanceReadFutureFactory;
 	}
 
-	public void setChannelLostReadFutureFactory(ChannelLostReadFutureFactory channelLostReadFutureFactory) {
-		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+	public void setBalanceReadFutureFactory(BalanceReadFutureFactory balanceReadFutureFactory) {
+		this.balanceReadFutureFactory = balanceReadFutureFactory;
 	}
 
 	public FacadeInterceptor getFacadeInterceptor() {

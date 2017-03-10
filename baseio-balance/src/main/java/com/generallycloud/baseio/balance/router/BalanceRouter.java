@@ -25,7 +25,7 @@ public interface BalanceRouter {
 
 	public abstract void addRouterSession(BalanceReverseSocketSession session);
 	
-	public abstract BalanceFacadeSocketSession getClientSession(Integer sessionID);
+	public abstract BalanceFacadeSocketSession getClientSession(Long token);
 
 	public abstract BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session);
 	

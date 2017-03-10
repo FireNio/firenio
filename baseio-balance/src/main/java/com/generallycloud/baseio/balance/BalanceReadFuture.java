@@ -23,14 +23,8 @@ public interface BalanceReadFuture extends ReadFuture {
 
 	public static int	PUSH		= 0;
 
-	public abstract Object getFutureID();
+	public abstract Long getToken();
 
-	public abstract void setFutureID(Object futureID);
-
-	public abstract Integer getSessionID();
-
-	public abstract void setSessionID(Integer sessionID);
-	
 	public abstract boolean isBroadcast();
 
 	public abstract void setBroadcast(boolean broadcast);

@@ -12,19 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
 
-public interface BalanceFacadeSocketSession extends SocketSession {
-	
-	public abstract Long getToken();
-	
-	public abstract boolean overfulfil(int size);
+/**
+ * @author wangkai
+ *
+ */
+public class BalanceClientSocketSessionImpl extends UnsafeSocketSessionImpl
+		implements BalanceClientSocketSession {
 
-	public abstract BalanceReverseSocketSession getReverseSocketSession();
+	public BalanceClientSocketSessionImpl(SocketChannel channel) {
+		super(channel);
+	}
 
-	public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+	private Long token;
+
+	@Override
+	public Long getToken() {
+		return token;
+	}
+
+	@Override
+	public void setToken(Long token) {
+		this.token = token;
+	}
 
 }

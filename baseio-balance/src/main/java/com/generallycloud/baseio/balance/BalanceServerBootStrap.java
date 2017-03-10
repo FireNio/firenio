@@ -42,7 +42,7 @@ public class BalanceServerBootStrap {
 	private List<SocketSessionIdleEventListener>	balanceReverseSessionIdleEventListeners;
 	private BeatFutureFactory				balanceBeatFutureFactory;
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
-	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
+	private BalanceReadFutureFactory			balanceReadFutureFactory;
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
@@ -50,6 +50,10 @@ public class BalanceServerBootStrap {
 	private BalanceReverseLogger				balanceReverseLogger;
 
 	public void startup() throws IOException {
+		
+		if (balanceReadFutureFactory == null) {
+			throw new IllegalArgumentException("balanceReadFutureFactory");
+		}
 
 		if (balanceRouter == null) {
 			balanceRouter = new SimpleNextRouter();
@@ -64,6 +68,8 @@ public class BalanceServerBootStrap {
 		if (balanceReverseLogger == null) {
 			balanceReverseLogger = new BalanceReverseLogger();
 		}
+		
+		balanceContext.setBalanceReadFutureFactory(balanceReadFutureFactory);
 		
 		balanceContext.setBalanceReverseLogger(balanceReverseLogger);
 
@@ -84,8 +90,6 @@ public class BalanceServerBootStrap {
 				balanceReverseServerConfiguration, balanceReverseProtocolFactory);
 		
 		balanceReverseChannelContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
-
-		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 
 		balanceFacadeAcceptor.start(balanceContext, balanceChannelContext, balanceReverseChannelContext);
 	}
@@ -261,12 +265,12 @@ public class BalanceServerBootStrap {
 		this.sslContext = sslContext;
 	}
 
-	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
-		return channelLostReadFutureFactory;
+	public BalanceReadFutureFactory getBalanceReadFutureFactory() {
+		return balanceReadFutureFactory;
 	}
 
-	public void setChannelLostReadFutureFactory(ChannelLostReadFutureFactory channelLostReadFutureFactory) {
-		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+	public void setBalanceReadFutureFactory(BalanceReadFutureFactory balanceReadFutureFactory) {
+		this.balanceReadFutureFactory = balanceReadFutureFactory;
 	}
 
 	public FacadeInterceptor getFacadeInterceptor() {

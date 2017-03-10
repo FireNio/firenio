@@ -21,21 +21,21 @@ import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter{
 
-	private ReentrantMap<Integer, BalanceFacadeSocketSession> clients = new ReentrantMap<>();
+	private ReentrantMap<Long, BalanceFacadeSocketSession> clients = new ReentrantMap<>();
 
 	@Override
 	public void addClientSession(BalanceFacadeSocketSession session) {
-		this.clients.put(session.getSessionID(), session);
+		this.clients.put(session.getToken(), session);
 	}
 
 	@Override
-	public BalanceFacadeSocketSession getClientSession(Integer sessionID) {
-		return clients.get(sessionID);
+	public BalanceFacadeSocketSession getClientSession(Long token) {
+		return clients.get(token);
 	}
 
 	@Override
 	public void removeClientSession(BalanceFacadeSocketSession session) {
-		this.clients.remove(session.getSessionID());
+		this.clients.remove(session.getToken());
 	}
 	
 	@Override
