@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.protobase.future;
 
 import java.io.IOException;
@@ -34,21 +34,22 @@ import com.generallycloud.baseio.component.SocketSession;
 /**
  *
  */
-public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implements ProtobaseReadFuture {
+public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
+		implements ProtobaseReadFuture {
 
-	private byte[]			binary;
+	private byte[]				binary;
 	private int				binaryLength;
 	private int				binaryLimit;
 	private boolean			body_complete;
 	private ByteBuf			buf;
-	private Integer			futureID;
+	private int				futureID;
 	private String				futureName;
-	private int				hashCode;
 	private boolean			header_complete;
 	private Parameters			parameters;
 	private int				future_name_length;
 	private int				textLength;
-	private boolean			translated;
+	private Long				token = 0L;
+	private int				hashCode;
 
 	private BufferedOutputStream	writeBinaryBuffer;
 
@@ -59,7 +60,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		this.body_complete = true;
 	}
 
-	public ProtobaseReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
+	public ProtobaseReadFutureImpl(SocketChannelContext context, int futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
 		this.futureID = futureID;
@@ -68,15 +69,15 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
 		super(context);
 		this.futureName = futureName;
-		this.futureID = 0;
 	}
 
-	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) throws IOException {
+	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit)
+			throws IOException {
 		super(session.getContext());
 		this.buf = buf;
 		this.binaryLimit = binaryLimit;
 	}
-	
+
 	private void doBodyComplete(Session session, ByteBuf buf) {
 
 		Charset charset = session.getEncoding();
@@ -92,29 +93,29 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 		memory.limit(memory.position() + textLength);
 
 		readText = StringUtil.decode(charset, memory);
-		
+
 		gainBinary(buf, offset);
 	}
 
 	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
-		
+
 		this.future_name_length = buf.getUnsignedByte();
 
 		this.futureID = buf.getInt();
-
-		this.sessionID = buf.getInt();
 		
 		this.hashCode = buf.getInt();
 
+		this.token = buf.getLong();
+
 		this.textLength = buf.getUnsignedShort();
-		
+
 		if (buf.hasRemaining()) {
 			this.binaryLength = buf.getInt();
 		}
 
 		int all_length = future_name_length + textLength + binaryLength;
-		
-		buf.reallocate(all_length,binaryLimit);
+
+		buf.reallocate(all_length, binaryLimit);
 	}
 
 	private void gainBinary(ByteBuf buf, int offset) {
@@ -139,10 +140,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	}
 
 	@Override
-	public Integer getFutureID() {
-		if (futureID == null) {
-			futureID = 0;
-		}
+	public int getFutureID() {
 		return futureID;
 	}
 
@@ -181,7 +179,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 
 	@Override
 	public boolean isBroadcast() {
-		return getFutureID().intValue() == 0;
+		return getFutureID() == 0;
 	}
 
 	@Override
@@ -196,9 +194,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 			if (buf.hasRemaining()) {
 				return false;
 			}
-			
+
 			header_complete = true;
-			
+
 			doHeaderComplete(session, buf.flip());
 		}
 
@@ -224,8 +222,18 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	}
 
 	@Override
-	public void setFutureID(Object futureID) {
-		this.futureID = (Integer) futureID;
+	public void setFutureID(int futureID) {
+		this.futureID = futureID;
+	}
+
+	@Override
+	public Long getToken() {
+		return token;
+	}
+
+	@Override
+	public void setToken(long token) {
+		this.token = token;
 	}
 
 	@Override
@@ -239,14 +247,9 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture implement
 	}
 
 	@Override
-	public BalanceReadFuture translate(){
-
-		if (!translated) {
-			translated = true;
-			this.write(readText);
-			this.writeBinary(binary);
-		}
-
+	public BalanceReadFuture translate() {
+		write(getReadText());
+		writeBinary(getBinary());
 		return this;
 	}
 

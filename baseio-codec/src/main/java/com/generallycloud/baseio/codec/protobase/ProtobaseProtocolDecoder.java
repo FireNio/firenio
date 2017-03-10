@@ -42,17 +42,17 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  *  B0:4-7	: 预留
  *  B1		: future  name  length
  *  B2  - B5 	: future  id
- *  B6  - B9 	: session id
- *  B10 - B13 	: hash    code
- *  B14 - B15 	：text          length
- *  B16 - B19 	：binary        length //FIXME 是否应该设置为两字节？
+ *  B6  - B9 	: hashcode
+ *  B10 - B17 	: token
+ *  B18 - B19 	：text          length
+ *  B20 - B23 	：binary        length //FIXME 是否应该设置为两字节？
  *  
  * </pre>
  */
 public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER			= 20;
-	public static final int	PROTOCOL_HEADER_NO_BINARY	= 16;
+	public static final int	PROTOCOL_HEADER			= 24;
+	public static final int	PROTOCOL_HEADER_NO_BINARY	= 20;
 
 	public static final int	PROTOCOL_PACKET			= 1;
 	public static final byte	PROTOCOL_PING				= (byte) 0b10000000;

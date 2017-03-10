@@ -85,7 +85,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		}
 
 		int text_length = text_array.length;
-		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER - 4;
+		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
 		byte byte0 = 0b01000000;
 
 		if (f.isBroadcast()) {
@@ -99,8 +99,8 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(byte0);
 		buf.putByte(future_name_length);
 		buf.putInt(f.getFutureID());
-		buf.putInt(f.getSessionID());
 		buf.putInt(f.getHashCode());
+		buf.putLong(f.getToken());
 		buf.putUnsignedShort(text_length);
 
 		buf.put(future_name_array);
@@ -134,8 +134,8 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(byte0);
 		buf.putByte((byte) (future_name_length));
 		buf.putInt(f.getFutureID());
-		buf.putInt(f.getSessionID());
 		buf.putInt(f.getHashCode());
+		buf.putLong(f.getToken());
 		buf.putUnsignedShort(text_length);
 		buf.putInt(binary_length);
 

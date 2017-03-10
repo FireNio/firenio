@@ -30,8 +30,14 @@ public interface ProtobaseReadFuture extends HashedBalanceReadFuture, NamedReadF
 
 	public abstract byte[] getBinary();
 
+	public abstract int getFutureID();
+	
 	@Override
-	public abstract Integer getFutureID();
+	public abstract Long getToken();
+	
+	public abstract void setToken(long token);
+
+	public abstract void setFutureID(int futureID);
 
 	public abstract BufferedOutputStream getWriteBinaryBuffer();
 
