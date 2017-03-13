@@ -56,7 +56,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 			FutureAcceptorFilter acceptorFilter = filter.getValue();
 
-			future.setIOEventHandle(acceptorFilter);
+			future.setIoEventHandle(acceptorFilter);
 
 			acceptorFilter.accept(session, future);
 
@@ -64,7 +64,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 			logger.error(e.getMessage(), e);
 
-			IoEventHandle eventHandle = future.getIOEventHandle();
+			IoEventHandle eventHandle = future.getIoEventHandle();
 
 			eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
 		}

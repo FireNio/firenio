@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.container.jms.TextMessage;
 import com.generallycloud.baseio.container.jms.client.MessageProducer;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProducer;
@@ -27,7 +27,7 @@ public class TestTellerPower {
 
 	public static void main(String[] args) throws Exception {
 
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 

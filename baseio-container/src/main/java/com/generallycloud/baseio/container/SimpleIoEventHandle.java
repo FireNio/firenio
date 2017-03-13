@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public class SimpleIOEventHandle extends IoEventHandleAdaptor {
+public class SimpleIoEventHandle extends IoEventHandleAdaptor {
 
 	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
 

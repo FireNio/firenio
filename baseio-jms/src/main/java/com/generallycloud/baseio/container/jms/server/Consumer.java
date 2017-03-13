@@ -70,7 +70,7 @@ public class Consumer {
 
 		f.attach(this);
 
-		f.setIOEventHandle(this.future.getIOEventHandle());
+		f.setIoEventHandle(this.future.getIoEventHandle());
 
 		f.write(content);
 

@@ -20,6 +20,7 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -33,7 +34,7 @@ import com.generallycloud.baseio.configuration.PropertiesSCLoader;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.configuration.ServerConfigurationLoader;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.ExtendIOEventHandle;
+import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -73,7 +74,7 @@ public class HttpServerStartup {
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
-			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
+			context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
 			
@@ -107,7 +108,7 @@ public class HttpServerStartup {
 
 			LifeCycleUtil.stop(applicationContext);
 
-			acceptor.unbind();
+			CloseUtil.close(acceptor);
 		}
 	}
 	

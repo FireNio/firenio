@@ -23,13 +23,13 @@ import com.generallycloud.baseio.container.service.FutureAcceptor;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public class ExtendIOEventHandle extends IoEventHandleAdaptor {
+public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
 	private ApplicationContext	applicationContext;
 	private FutureAcceptor		filterService;
-	private Logger				logger	= LoggerFactory.getLogger(ExtendIOEventHandle.class);
+	private Logger				logger	= LoggerFactory.getLogger(getClass());
 
-	public ExtendIOEventHandle(ApplicationContext applicationContext) {
+	public ApplicationIoEventHandle(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
 
@@ -54,6 +54,8 @@ public class ExtendIOEventHandle extends IoEventHandleAdaptor {
 
 	@Override
 	protected void doStart() throws Exception {
+		
+//		applicationContext.setContext(get);
 
 		LifeCycleUtil.start(applicationContext);
 

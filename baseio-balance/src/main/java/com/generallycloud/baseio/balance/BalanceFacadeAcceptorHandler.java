@@ -12,23 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorHandler.class);
-	private BalanceRouter		balanceRouter;
-	private FacadeInterceptor	facadeInterceptor;
-	private ExceptionCaughtHandle exceptionCaughtHandle;
-	private BalanceReadFutureFactory readFutureFactory;
+	private Logger					logger	= LoggerFactory.getLogger(getClass());
+	private BalanceRouter			balanceRouter;
+	private FacadeInterceptor		facadeInterceptor;
+	private ExceptionCaughtHandle		exceptionCaughtHandle;
+	private BalanceReadFutureFactory	readFutureFactory;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
@@ -48,10 +49,10 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
-		
+
 		if (f.getToken().longValue() == 0) {
 			fs.flush(readFutureFactory.createTokenPacket(fs));
-			return ;
+			return;
 		}
 
 		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
@@ -63,15 +64,13 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 		rs.flush(f.translate());
 
-		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[]{
-				session.getRemoteSocketAddress(),
-				rs.getRemoteSocketAddress(),
-				future
-		});
+		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[] {
+				session.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), future });
 	}
-	
+
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+			IoEventState state) {
 		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}
 

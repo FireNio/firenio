@@ -21,7 +21,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestGetPhoneNO {
@@ -33,7 +33,7 @@ public class TestGetPhoneNO {
 
 		String serviceKey = "TestGetPhoneNOServlet";
 		
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 		

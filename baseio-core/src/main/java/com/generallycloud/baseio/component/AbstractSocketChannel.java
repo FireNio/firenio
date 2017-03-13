@@ -184,7 +184,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 			crf.flush();
 
-			IoEventHandle handle = future.getIOEventHandle();
+			IoEventHandle handle = future.getIoEventHandle();
 
 			exceptionCaught(handle, future, new ClosedChannelException(toString()),
 					IoEventState.WRITE);
@@ -204,7 +204,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 			logger.error(e.getMessage(), e);
 
-			IoEventHandle handle = future.getIOEventHandle();
+			IoEventHandle handle = future.getIoEventHandle();
 
 			exceptionCaught(handle, future, e, IoEventState.WRITE);
 		}

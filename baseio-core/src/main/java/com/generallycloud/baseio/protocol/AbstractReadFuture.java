@@ -42,7 +42,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	}
 
 	@Override
-	public IoEventHandle getIOEventHandle() {
+	public IoEventHandle getIoEventHandle() {
 		if (ioEventHandle == null) {
 			this.ioEventHandle = context.getIoEventHandleAdaptor();
 		}
@@ -65,7 +65,7 @@ public abstract class AbstractReadFuture extends FutureImpl implements ReadFutur
 	}
 
 	@Override
-	public void setIOEventHandle(IoEventHandle ioEventHandle) {
+	public void setIoEventHandle(IoEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
 	}
 

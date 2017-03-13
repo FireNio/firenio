@@ -26,7 +26,7 @@ public class ReadFutureFactory {
 
 	public static ProtobaseReadFuture create(SocketSession session, ProtobaseReadFuture future) {
 		ProtobaseReadFuture readFuture = future;
-		return create(session, readFuture.getFutureID(), readFuture.getFutureName(), readFuture.getIOEventHandle());
+		return create(session, readFuture.getFutureID(), readFuture.getFutureName(), readFuture.getIoEventHandle());
 	}
 
 	public static ProtobaseReadFuture create(SocketSession session, Integer futureID, String serviceName,
@@ -34,7 +34,7 @@ public class ReadFutureFactory {
 
 		ProtobaseReadFutureImpl textReadFuture = new ProtobaseReadFutureImpl(session.getContext(),futureID, serviceName);
 
-		textReadFuture.setIOEventHandle(ioEventHandle);
+		textReadFuture.setIoEventHandle(ioEventHandle);
 
 		return textReadFuture;
 	}

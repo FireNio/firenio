@@ -64,7 +64,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 		} else {
 
-			future.setIOEventHandle(acceptor);
+			future.setIoEventHandle(acceptor);
 
 			acceptor.accept(session, future);
 		}
@@ -81,7 +81,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	private void flush(SocketSession session, ReadFuture future, RESMessage message) throws IOException {
 
-		future.setIOEventHandle(this);
+		future.setIoEventHandle(this);
 
 		future.write(message.toString());
 

@@ -18,6 +18,7 @@ package com.generallycloud.baseio.balance;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
@@ -60,7 +61,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		f.setIOEventHandle(response.getContext().getIoEventHandleAdaptor());
+		f.setIoEventHandle(response.getContext().getIoEventHandleAdaptor());
 
 		response.flush(f.translate());
 

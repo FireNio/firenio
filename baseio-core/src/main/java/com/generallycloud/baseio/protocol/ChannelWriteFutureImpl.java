@@ -49,7 +49,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 		ReadFuture readFuture = this.getReadFuture();
 
-		IoEventHandle handle = readFuture.getIOEventHandle();
+		IoEventHandle handle = readFuture.getIoEventHandle();
 
 		try {
 			handle.exceptionCaught(session, readFuture, e, IoEventState.WRITE);
@@ -65,7 +65,7 @@ public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFu
 
 		ReadFuture readFuture = this.getReadFuture();
 
-		IoEventHandle handle = readFuture.getIOEventHandle();
+		IoEventHandle handle = readFuture.getIoEventHandle();
 
 		try {
 			handle.futureSent(session, readFuture);

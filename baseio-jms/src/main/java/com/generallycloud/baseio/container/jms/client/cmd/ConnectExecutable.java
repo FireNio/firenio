@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.container.jms.client.MessageBrowser;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageBrowser;
 
@@ -69,7 +69,7 @@ public class ConnectExecutable extends MQCommandExecutor {
 			
 			connector = new SocketChannelConnector(baseContext);
 
-			SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+			SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 			
 			baseContext.setIoEventHandleAdaptor(eventHandle);
 

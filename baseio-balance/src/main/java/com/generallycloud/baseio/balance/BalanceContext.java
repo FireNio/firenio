@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.balance.router.BalanceRouter;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 
 //FIXME 增加熔断机制
 public class BalanceContext {

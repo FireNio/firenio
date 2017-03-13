@@ -20,9 +20,9 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface ReadFuture extends Future {
 	
-	public abstract IoEventHandle getIOEventHandle() ;
+	public abstract IoEventHandle getIoEventHandle() ;
 
-	public abstract void setIOEventHandle(IoEventHandle ioEventHandle);
+	public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
 	
 	public abstract SocketChannelContext getContext();
 	

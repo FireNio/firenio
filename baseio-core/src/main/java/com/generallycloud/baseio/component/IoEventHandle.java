@@ -12,18 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public interface IoEventHandle extends ReadFutureAcceptor {
+public interface IoEventHandle extends ReadFutureAcceptor, ExceptionCaughtHandle {
 
 	enum IoEventState {
 		READ, HANDLE, WRITE
 	}
-
-	public abstract void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state);
 
 	public abstract void futureSent(SocketSession session, ReadFuture future);
 }

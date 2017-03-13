@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.balance;
 
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.protocol.ReadFuture;

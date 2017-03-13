@@ -45,7 +45,7 @@ public class FixedSession {
 	private AtomicBoolean		logined		= new AtomicBoolean(false);
 	private SocketSession		session		= null;
 	private long				timeout		= 50000;
-	private SimpleIOEventHandle	eventHandle	= null;
+	private SimpleIoEventHandle	eventHandle	= null;
 
 	public FixedSession(SocketSession session) {
 		update(session);
@@ -148,7 +148,7 @@ public class FixedSession {
 
 		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
 
-		readFuture.setIOEventHandle(eventHandle);
+		readFuture.setIoEventHandle(eventHandle);
 
 		readFuture.write(content);
 
@@ -180,7 +180,7 @@ public class FixedSession {
 	public void update(SocketSession session) {
 		this.session = session;
 		this.context = session.getContext();
-		this.eventHandle = (SimpleIOEventHandle) context.getIoEventHandleAdaptor();
+		this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandleAdaptor();
 	}
 
 	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
@@ -216,7 +216,7 @@ public class FixedSession {
 
 		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
 
-		readFuture.setIOEventHandle(eventHandle);
+		readFuture.setIoEventHandle(eventHandle);
 
 		readFuture.write(content);
 

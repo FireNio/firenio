@@ -20,6 +20,7 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.http2.Http2ProtocolFactory;
 import com.generallycloud.baseio.codec.http2.Http2SessionFactory;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
@@ -83,7 +84,7 @@ public class Http2ServerStartup {
 
 			logger.error(e.getMessage(), e);
 
-			acceptor.unbind();
+			CloseUtil.close(acceptor);
 		}
 	}
 

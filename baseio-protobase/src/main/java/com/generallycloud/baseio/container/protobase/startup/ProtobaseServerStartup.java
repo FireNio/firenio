@@ -28,7 +28,7 @@ import com.generallycloud.baseio.configuration.PropertiesSCLoader;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.configuration.ServerConfigurationLoader;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.ExtendIOEventHandle;
+import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -65,7 +65,7 @@ public class ProtobaseServerStartup {
 
 			applicationContext.setContext(context);
 
-			context.setIoEventHandleAdaptor(new ExtendIOEventHandle(applicationContext));
+			context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
 

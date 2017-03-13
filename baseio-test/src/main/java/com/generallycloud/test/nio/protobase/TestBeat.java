@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.SocketSessionActiveSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestBeat {
@@ -47,7 +47,7 @@ public class TestBeat {
 		
 		context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
 		
-		context.setIoEventHandleAdaptor(new SimpleIOEventHandle());
+		context.setIoEventHandleAdaptor(new SimpleIoEventHandle());
 		
 		context.setProtocolFactory(new ProtobaseProtocolFactory());
 		

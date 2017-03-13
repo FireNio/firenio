@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.ReadFuture;
 import com.generallycloud.test.nio.common.IoConnectorUtil;
 
@@ -36,7 +36,7 @@ public class TestListenSimple {
 		String serviceKey = "TestListenSimpleServlet";
 		String param = "ttt";
 		
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 

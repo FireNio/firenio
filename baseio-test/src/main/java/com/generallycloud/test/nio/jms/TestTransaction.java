@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIOEventHandle;
+import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.client.MessageConsumer;
@@ -29,7 +29,7 @@ public class TestTransaction {
 
 	public static void main(String[] args) throws Exception {
 		
-		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
+		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
 		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
 
