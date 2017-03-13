@@ -17,13 +17,11 @@ package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.live.AbstractLifeCycle;
-import com.generallycloud.baseio.live.LifeCycle;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public abstract class IoEventHandleAdaptor extends AbstractLifeCycle implements IoEventHandle, LifeCycle {
+public abstract class IoEventHandleAdaptor implements IoEventHandle {
 
-	private Logger		logger	= LoggerFactory.getLogger(IoEventHandleAdaptor.class);
+	private Logger		logger	= LoggerFactory.getLogger(getClass());
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
@@ -35,13 +33,11 @@ public abstract class IoEventHandleAdaptor extends AbstractLifeCycle implements 
 		
 	}
 
-	@Override
-	protected void doStart() throws Exception {
+	protected void initialize(SocketChannelContext context) throws Exception {
 
 	}
 
-	@Override
-	protected void doStop() throws Exception {
+	protected void destroy(SocketChannelContext context) throws Exception {
 
 	}
 

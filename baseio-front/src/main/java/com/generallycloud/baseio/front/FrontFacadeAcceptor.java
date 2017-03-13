@@ -59,7 +59,7 @@ public class FrontFacadeAcceptor {
 
 	public void stop() {
 		synchronized (runLock) {
-			CloseUtil.close(acceptor);
+			CloseUtil.unbind(acceptor);
 			CloseUtil.close(frontContext.getBalanceFacadeConnector());
 		}
 	}

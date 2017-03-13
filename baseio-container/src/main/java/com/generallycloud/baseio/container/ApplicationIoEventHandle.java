@@ -12,12 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptor;
 import com.generallycloud.baseio.live.LifeCycleUtil;
@@ -53,22 +54,25 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 	}
 
 	@Override
-	protected void doStart() throws Exception {
-		
-//		applicationContext.setContext(get);
+	protected void initialize(SocketChannelContext context) throws Exception {
+
+		ApplicationContext applicationContext = this.applicationContext;
+
+		applicationContext.setContext(context);
 
 		LifeCycleUtil.start(applicationContext);
 
 		this.filterService = applicationContext.getFilterService();
 
-		super.doStart();
+		super.initialize(context);
 	}
 
 	@Override
-	protected void doStop() throws Exception {
+	protected void destroy(SocketChannelContext context) throws Exception {
+
 		LifeCycleUtil.stop(applicationContext);
 
-		super.doStop();
+		super.destroy(context);
 	}
 
 }

@@ -39,7 +39,6 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.container.http11.service.FutureAcceptorHttpFilter;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public class HttpServerStartup {
 	
@@ -69,8 +68,6 @@ public class HttpServerStartup {
 		try {
 			
 			applicationContext.setServiceFilter(new FutureAcceptorHttpFilter());
-			
-			applicationContext.setContext(context);
 			
 			context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
@@ -106,9 +103,7 @@ public class HttpServerStartup {
 
 			logger.error(e.getMessage(), e);
 
-			LifeCycleUtil.stop(applicationContext);
-
-			CloseUtil.close(acceptor);
+			CloseUtil.unbind(acceptor);
 		}
 	}
 	

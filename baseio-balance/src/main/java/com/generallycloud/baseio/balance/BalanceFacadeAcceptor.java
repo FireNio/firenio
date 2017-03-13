@@ -59,7 +59,7 @@ public class BalanceFacadeAcceptor {
 
 	public void stop() {
 		synchronized (runLock) {
-			CloseUtil.close(channelAcceptor);
+			CloseUtil.unbind(channelAcceptor);
 			this.balanceContext.getBalanceReverseAcceptor().stop();
 		}
 	}

@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.container.implementation;
 
+import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
@@ -68,8 +69,9 @@ public class SystemStopServerServlet extends FutureAcceptorService {
 
 				ThreadUtil.sleep(1000);
 			}
-
-			CloseUtil.close(context.getChannelService());
+			
+			CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
+			
 		}
 	}
 }

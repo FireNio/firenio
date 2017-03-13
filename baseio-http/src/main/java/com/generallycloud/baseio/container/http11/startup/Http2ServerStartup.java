@@ -84,7 +84,7 @@ public class Http2ServerStartup {
 
 			logger.error(e.getMessage(), e);
 
-			CloseUtil.close(acceptor);
+			CloseUtil.unbind(acceptor);
 		}
 	}
 

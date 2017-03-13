@@ -12,20 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.acceptor;
+ */
+package com.generallycloud.baseio.common;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.common.Unbindable;
-import com.generallycloud.baseio.component.ChannelService;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.component.concurrent.Waiter;
 
-public interface ChannelAcceptor extends ChannelService ,Unbindable{
-
-	public abstract void bind() throws IOException;
-
-	public abstract void broadcast(ReadFuture future);
+/**
+ * @author wangkai
+ *
+ */
+public interface Unbindable {
 	
-	public abstract int getManagedSessionSize();
+	public abstract void unbind() throws IOException;
+
+	public abstract Waiter<IOException> asynchronousUnbind() throws IOException;
+
 }

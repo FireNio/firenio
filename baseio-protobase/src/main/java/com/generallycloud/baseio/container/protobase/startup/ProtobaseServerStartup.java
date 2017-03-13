@@ -18,6 +18,7 @@ package com.generallycloud.baseio.container.protobase.startup;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -63,8 +64,6 @@ public class ProtobaseServerStartup {
 			
 			configuration.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.12);
 
-			applicationContext.setContext(context);
-
 			context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
 
 			context.addSessionEventListener(new LoggerSocketSEListener());
@@ -79,9 +78,7 @@ public class ProtobaseServerStartup {
 
 			logger.error(e.getMessage(), e);
 
-			LifeCycleUtil.stop(applicationContext);
-
-			acceptor.unbind();
+			CloseUtil.unbind(acceptor);
 		}
 	}
 

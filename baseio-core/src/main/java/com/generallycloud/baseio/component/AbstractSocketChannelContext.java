@@ -189,8 +189,8 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 							MEMORY_POOL_SIZE });
 		}
 
-		LifeCycleUtil.start(ioEventHandleAdaptor);
-
+		ioEventHandleAdaptor.initialize(this);
+		
 		if (executorEventLoopGroup == null) {
 
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
@@ -265,7 +265,11 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		LifeCycleUtil.stop(executorEventLoopGroup);
 
-		LifeCycleUtil.stop(ioEventHandleAdaptor);
+		try {
+			ioEventHandleAdaptor.destroy(this);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		}
 
 		LifeCycleUtil.stop(byteBufAllocatorManager);
 

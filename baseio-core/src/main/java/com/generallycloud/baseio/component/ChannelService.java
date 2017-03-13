@@ -12,17 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.net.InetSocketAddress;
 
-public interface ChannelService extends Closeable{
+public interface ChannelService {
 
-	public abstract ChannelContext getContext() ;
+	public abstract ChannelContext getContext();
 
 	public abstract InetSocketAddress getServerSocketAddress();
-	
+
 	public abstract boolean isActive();
 }
