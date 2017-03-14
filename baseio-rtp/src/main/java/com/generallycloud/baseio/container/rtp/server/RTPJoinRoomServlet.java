@@ -17,7 +17,6 @@ package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.ByteUtil;
-import com.generallycloud.baseio.component.DatagramChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
@@ -36,12 +35,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
 		RTPRoom room = roomFactory.getRTPRoom(roomID);
 
-//		DatagramChannel datagramChannel = session.getDatagramChannel();
-		
-		//FIXME udp 
-		DatagramChannel datagramChannel = null;
-
-		if (room == null || datagramChannel == null) {
+		if (room == null) {
 
 			future.write(ByteUtil.FALSE);
 
@@ -60,7 +54,6 @@ public class RTPJoinRoomServlet extends RTPServlet {
 		}
 
 		session.flush(future);
-
 	}
 
 }

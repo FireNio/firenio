@@ -269,7 +269,7 @@ public class RTPClient {
 		json.put("username", authority.getUsername());
 		json.put("password", authority.getPassword());
 
-		final DatagramPacket packet = new DatagramPacket(json.toJSONString().getBytes(context.getEncoding()));
+		final DatagramPacket packet = DatagramPacket.createSendPacket(json.toJSONString().getBytes(context.getEncoding()));
 
 		final String BIND_SESSION_CALLBACK = RTPServerDPAcceptor.BIND_SESSION_CALLBACK;
 

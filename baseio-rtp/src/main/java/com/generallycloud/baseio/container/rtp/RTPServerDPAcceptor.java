@@ -24,7 +24,9 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.DatagramSession;
 import com.generallycloud.baseio.component.Parameters;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
@@ -78,7 +80,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 	
 	@Override
 	protected void execute(DatagramSession dSession,DatagramRequest request) {
-
+		
 		String serviceName = request.getFutureName();
 
 		if (BIND_SESSION.equals(serviceName)) {
@@ -92,6 +94,12 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			if (!loginCenter.isValidate(parameters)) {
 				return;
 			}
+			
+			//FIXME udp
+			
+			SocketChannelContext channelContext = context.getContext();
+			
+			SocketSessionManager sessionManager = channelContext.getSessionManager();
 			
 //			Session session = factory.getSession(username);
 			
