@@ -57,7 +57,7 @@ public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup
 
 	@Override
 	protected SocketSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new SocketSelectorEventLoopImpl(this, eventQueueSize, coreIndex);
+		return new SocketSelectorEventLoop(this, eventQueueSize, coreIndex);
 	}
 
 	@Override

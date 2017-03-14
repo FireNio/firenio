@@ -86,4 +86,9 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 			}
 		});
 	}
+	
+	@Override
+	public int getManagedSessionSize() {
+		return getContext().getSessionManager().getManagedSessionSize();
+	}
 }

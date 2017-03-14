@@ -18,33 +18,29 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.baseio.component.DatagramChannel {
 
-	private static final Logger		logger	= LoggerFactory.getLogger(NioDatagramChannel.class);
-
 	private DatagramChannel			channel;
 	private DatagramChannelContext	context;
-	private UnsafeDatagramSession		session;
+	private DatagramSession		session;
 	private DatagramSelectorEventLoop selectorLoop;
 
-	public NioDatagramChannel(DatagramSelectorEventLoopImpl selectorLoop, DatagramChannel channel,
+	public NioDatagramChannel(DatagramSelectorEventLoop selectorLoop, DatagramChannel channel,
 			InetSocketAddress remote){
 		super(selectorLoop.getByteBufAllocator(),selectorLoop.getChannelContext());
 		this.selectorLoop = selectorLoop;
-		this.context = selectorLoop.getContext();
+		this.context = selectorLoop.getChannelContext();
 		this.channel = channel;
 		this.remote = remote;
-		this.session = new UnsafeDatagramSessionImpl(this);
-		this.fireOpend();
+		this.session = new DatagramSession(this);
 	}
 	
 	@Override
@@ -76,11 +72,6 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	@Override
 	protected void physicalClose() {
-
-		context.getSessionManager().removeSession(session);
-
-		fireClosed();
-		
 		closeConnector();
 	}
 
@@ -102,12 +93,16 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	}
 
 	@Override
-	public UnsafeDatagramSession getSession() {
+	public DatagramSession getSession() {
 		return session;
 	}
 
 	private void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
 		channel.send(buf.nioBuffer(), socketAddress);
+	}
+	
+	private void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
+		channel.send(buffer, socketAddress);
 	}
 
 	@Override
@@ -122,12 +117,13 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	@Override
 	public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
-		ByteBuf buf = allocate(packet);
-		try {
-			sendPacket(buf.flip(), socketAddress);
-		} finally {
-			ReleaseUtil.release(buf);
-		}
+		sendPacket(ByteBuffer.wrap(packet.getData()),socketAddress);
+//		ByteBuf buf = allocate(packet);
+//		try {
+//			sendPacket(buf.flip(), socketAddress);
+//		} finally {
+//			ReleaseUtil.release(buf);
+//		}
 	}
 
 	@Override
@@ -159,40 +155,6 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		buf.put(data);
 
 		return buf;
-	}
-	
-	private void fireOpend() {
-		
-		Linkable<DatagramSessionEventListener> linkable = context.getSessionEventListenerLink();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionOpened(getSession());
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
-		}
-	}
-
-	private void fireClosed() {
-		
-		Linkable<DatagramSessionEventListener> linkable = context.getSessionEventListenerLink();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionClosed(getSession());
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
-		}
 	}
 
 	@Override

@@ -19,7 +19,7 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
-public abstract class AbstractReadFuture extends FutureImpl implements ReadFuture {
+public abstract class AbstractReadFuture extends AbstractFuture implements ReadFuture {
 
 	protected boolean				flushed;
 	protected String				readText;

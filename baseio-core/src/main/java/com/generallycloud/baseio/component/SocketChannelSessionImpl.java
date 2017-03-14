@@ -26,7 +26,7 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public abstract class SocketChannelSessionImpl extends SessionImpl implements SocketSession {
+public abstract class SocketChannelSessionImpl extends AbstractSession implements SocketSession {
 
 	protected SocketChannel			channel;
 	protected Object[]				attachments;

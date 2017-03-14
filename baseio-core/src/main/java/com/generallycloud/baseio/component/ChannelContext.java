@@ -24,8 +24,6 @@ import com.generallycloud.baseio.live.LifeCycle;
 
 public interface ChannelContext extends Attributes, LifeCycle {
 
-	public abstract SessionManager getSessionManager();
-
 	public abstract Charset getEncoding();
 
 	public abstract ServerConfiguration getServerConfiguration();

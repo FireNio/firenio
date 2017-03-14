@@ -17,40 +17,33 @@ package com.generallycloud.baseio.connector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.DatagramChannel;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.DatagramSelectorEventLoopImpl;
+import com.generallycloud.baseio.component.DatagramSelectorEventLoop;
+import com.generallycloud.baseio.component.DatagramSelectorEventLoopGroup;
 import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioDatagramChannel;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSelectorBuilder;
-import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
-import com.generallycloud.baseio.component.UnsafeDatagramSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
-public final class DatagramChannelConnector extends AbstractChannelConnector implements NioChannelService{
+public final class DatagramChannelConnector extends AbstractChannelConnector {
 
-	private DatagramChannelContext	context				= null;
+	private DatagramChannelContext		context				= null;
 
-	private UnsafeDatagramSession		session				= null;
+	private DatagramSession				session				= null;
 
-	private SelectableChannel		selectableChannel		= null;
+	private SelectableChannel			selectableChannel		= null;
 
-	private SocketSelectorBuilder		selectorBuilder		= null;
+	private DatagramSelectorEventLoopGroup	selectorEventLoopGroup	= null;
 
-	private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
-
-	private Logger					logger				= LoggerFactory
+	private Logger						logger				= LoggerFactory
 			.getLogger(getClass());
 
 	public DatagramChannelConnector(DatagramChannelContext context) {
@@ -68,8 +61,8 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 
 		this.session = null;
 
-		this.initChannel();
-
+		this.initialize();
+		
 		return getSession();
 	}
 
@@ -82,25 +75,28 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 
 		int eventQueueSize = configuration.getSERVER_IO_EVENT_QUEUE();
 
-		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
-				(NioSocketChannelContext) getContext(), "io-process", eventQueueSize,
-				core_size);
+		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
+				"io-process", eventQueueSize, core_size,
+				(java.nio.channels.DatagramChannel) selectableChannel);
+
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 
 	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
+		
+		this.initChannel();
 
-		((java.nio.channels.DatagramChannel) this.selectableChannel).connect(socketAddress);
+		((DatagramChannel) this.selectableChannel).connect(socketAddress);
 
 		initSelectorLoops();
 
-		DatagramSelectorEventLoopImpl selectorLoop = (DatagramSelectorEventLoopImpl) selectorEventLoopGroup
+		DatagramSelectorEventLoop selectorLoop = (DatagramSelectorEventLoop) selectorEventLoopGroup
 				.getNext();
 
 		@SuppressWarnings("resource")
-		DatagramChannel channel = new NioDatagramChannel(selectorLoop,
-				(java.nio.channels.DatagramChannel) selectableChannel, socketAddress);
+		NioDatagramChannel channel = new NioDatagramChannel(selectorLoop,
+				(DatagramChannel) selectableChannel, socketAddress);
 
 		this.session = channel.getSession();
 
@@ -121,7 +117,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 	public DatagramSession getSession() {
 		return session;
 	}
-
+	
 	private void initChannel() throws IOException {
 
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
@@ -131,16 +127,6 @@ public final class DatagramChannelConnector extends AbstractChannelConnector imp
 
 	public void sendDatagramPacket(DatagramPacket packet) throws IOException {
 		session.sendPacket(packet);
-	}
-
-	@Override
-	public SocketSelectorBuilder getSelectorBuilder() {
-		return selectorBuilder;
-	}
-
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
 	}
 
 }

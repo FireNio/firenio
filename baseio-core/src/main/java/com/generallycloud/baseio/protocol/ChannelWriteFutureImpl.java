@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 
-public class ChannelWriteFutureImpl extends FutureImpl implements ChannelWriteFuture {
+public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWriteFuture {
 
 	protected ReadFuture				readFuture;
 	protected ByteBuf					buf;

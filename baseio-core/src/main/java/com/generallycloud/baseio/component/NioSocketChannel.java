@@ -27,7 +27,7 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
+import com.generallycloud.baseio.component.SocketSelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
@@ -92,7 +92,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 
 	@Override
-	public void fireEvent(SelectorEventLoop selectorLoop) throws IOException {
+	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
 
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
@@ -161,7 +161,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		fireEvent(new SelectorLoopEventAdapter() {
 
 			@Override
-			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
+			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
 				CloseUtil.close(_channel);
 			}
 		});

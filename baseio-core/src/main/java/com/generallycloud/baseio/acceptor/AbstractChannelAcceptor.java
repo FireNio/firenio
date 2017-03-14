@@ -74,9 +74,4 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 		return destroy();
 	}
 	
-	@Override
-	public int getManagedSessionSize() {
-		return getContext().getSessionManager().getManagedSessionSize();
-	}
-
 }

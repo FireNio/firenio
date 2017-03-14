@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.nio.channels.DatagramChannel;
+
 import com.generallycloud.baseio.component.concurrent.AbstractEventLoopGroup;
 import com.generallycloud.baseio.component.concurrent.EventLoop;
 
@@ -22,16 +24,20 @@ import com.generallycloud.baseio.component.concurrent.EventLoop;
  * @author wangkai
  *
  */
-public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup implements SelectorEventLoopGroup {
+public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup
+		implements SelectorEventLoopGroup {
 
 	private DatagramSelectorEventLoop[]	selectorEventLoops	= null;
 
 	private DatagramChannelContext		channelContext;
 
-	public DatagramSelectorEventLoopGroup(DatagramChannelContext context, String eventLoopName, int eventQueueSize,
-			int eventLoopSize) {
+	private DatagramChannel				channel;
+
+	public DatagramSelectorEventLoopGroup(DatagramChannelContext context, String eventLoopName,
+			int eventQueueSize, int eventLoopSize, DatagramChannel channel) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
 		this.channelContext = context;
+		this.channel = channel;
 	}
 
 	@Override
@@ -57,7 +63,7 @@ public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup imple
 
 	@Override
 	protected DatagramSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new DatagramSelectorEventLoopImpl(this,coreIndex);
+		return new DatagramSelectorEventLoop(this, coreIndex, channel);
 	}
 
 	@Override

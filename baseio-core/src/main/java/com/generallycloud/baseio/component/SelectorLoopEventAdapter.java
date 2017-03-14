@@ -17,7 +17,7 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
+import com.generallycloud.baseio.component.SocketSelectorEventLoop.SelectorLoopEvent;
 
 public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
 

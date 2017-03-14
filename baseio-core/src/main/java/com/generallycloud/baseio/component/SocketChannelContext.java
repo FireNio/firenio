@@ -26,7 +26,6 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract void setSessionManager(SocketSessionManager sessionManager) ;
 	
-	@Override
 	public abstract SocketSessionManager getSessionManager();
 
 	public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();

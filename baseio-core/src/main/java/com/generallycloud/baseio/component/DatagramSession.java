@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
@@ -20,13 +20,40 @@ import java.net.SocketAddress;
 
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
-public interface DatagramSession extends Session {
+public class DatagramSession extends AbstractSession {
+
+	private DatagramChannel		channel;
+	
+	private SocketSession		socketSession;
+
+	public DatagramSession(DatagramChannel channel) {
+		this.channel = channel;
+	}
+
+	public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
+		channel.sendPacket(packet, socketAddress);
+	}
+
+	public void sendPacket(DatagramPacket packet) throws IOException {
+		channel.sendPacket(packet);
+	}
 
 	@Override
-	public abstract DatagramChannelContext getContext();
-	
-	public abstract void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException;
+	public DatagramChannelContext getContext() {
+		return channel.getContext();
+	}
 
-	public abstract void sendPacket(DatagramPacket packet) throws IOException;
+	@Override
+	public DatagramChannel getChannel() {
+		return channel;
+	}
+
+	public SocketSession getSocketSession() {
+		return socketSession;
+	}
+
+	public void setSocketSession(SocketSession socketSession) {
+		this.socketSession = socketSession;
+	}
 	
 }

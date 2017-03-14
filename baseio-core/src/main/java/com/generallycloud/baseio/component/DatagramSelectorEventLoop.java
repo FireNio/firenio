@@ -15,13 +15,140 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.util.Set;
+
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.protocol.DatagramPacket;
+
 /**
  * @author wangkai
  *
  */
-public interface DatagramSelectorEventLoop extends SelectorEventLoop, SelectionAcceptor {
+public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
+
+	private DatagramChannelContext		context;
+	private DatagramSelectorEventLoopGroup	eventLoopGroup;
+	private DatagramChannel				channel;
+	private Selector					selector;
+	private ByteBufAllocator				allocator;
+	private DatagramSessionManager		sessionManager;
+	private Logger						logger	= LoggerFactory.getLogger(getClass());
+
+	public DatagramSelectorEventLoop(DatagramSelectorEventLoopGroup group, int coreIndex,
+			DatagramChannel channel) {
+		super(group.getChannelContext(), coreIndex);
+		this.eventLoopGroup = group;
+		this.context = group.getChannelContext();
+		this.channel = channel;
+		this.sessionManager = context.getSessionManager();
+		this.allocator = UnpooledByteBufAllocator.getHeapInstance();
+	}
+	
+	@Override
+	public void doStartup() throws IOException {
+		
+		sessionManager.initSessionManager(this);
+		
+		super.doStartup();
+	}
+
+	private void accept(SelectionKey selectionKey) {
+
+		try {
+
+			DatagramChannelContext context = this.context;
+
+			//FIXME 使用 ByteBuffer
+			ByteBuf buf = allocator.allocate(DatagramPacket.PACKET_MAX);
+
+			DatagramChannel channel = (DatagramChannel) selectionKey.channel();
+
+			InetSocketAddress remoteAddress = (InetSocketAddress) channel
+					.receive(buf.nioBuffer());
+
+			DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
+
+			DatagramPacket packet = DatagramPacket.createPacket(buf.reverse().flip());
+			
+			DatagramSession session = sessionManager.getSession(channel, remoteAddress);
+
+			acceptor.accept(session, packet);
+
+		} catch (Throwable e) {
+
+			cancelSelectionKey(selectionKey, e);
+		}
+	}
+
+	private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
+
+		Object attachment = selectionKey.attachment();
+
+		if (attachment instanceof Channel) {
+
+			CloseUtil.close((Channel) attachment);
+		}
+
+		logger.error(e.getMessage(), e);
+	}
 
 	@Override
-	public abstract DatagramChannelContext getChannelContext();
+	protected void doLoop() {
+
+		try {
+
+			Selector selector = this.selector;
+
+			int selected = selector.select(16);
+
+			if (selected < 1) {
+				return;
+			}
+
+			Set<SelectionKey> sks = selector.selectedKeys();
+
+			for (SelectionKey key : sks) {
+
+				if (!key.isValid()) {
+					continue;
+				}
+
+				accept(key);
+			}
+
+			sks.clear();
+
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public DatagramChannelContext getChannelContext() {
+		return context;
+	}
+
+	@Override
+	public DatagramSelectorEventLoopGroup getEventLoopGroup() {
+		return eventLoopGroup;
+	}
+
+	@Override
+	public void rebuildSelector() throws IOException {
+		// 打开selector
+		this.selector = Selector.open();
+		// 注册监听事件到该selector
+		this.channel.register(selector, SelectionKey.OP_READ);
+	}
 
 }

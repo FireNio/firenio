@@ -12,26 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 public class DatagramPacketFactory {
 
-	private Calculagraph	calculagraph	;
-	
+	private Calculagraph calculagraph;
+
 	public DatagramPacketFactory(int markInterval, long currentMark) {
 		this.calculagraph = new Calculagraph(markInterval, currentMark);
 	}
-	
+
 	public DatagramPacketFactory(int markInterval) {
 		this.calculagraph = new Calculagraph(markInterval);
 	}
 
 	public DatagramPacket createDatagramPacket(byte[] data) {
-		return new DatagramPacket(calculagraph.getTimestamp(), calculagraph.getSequenceNO(),data);
+		return DatagramPacket.createSendPacket(DatagramPacket.TYPE_DATA,
+				calculagraph.getTimestamp(), calculagraph.getSequenceNO(), data);
 	}
-	
-	public Calculagraph getCalculagraph(){
+
+	public Calculagraph getCalculagraph() {
 		return calculagraph;
 	}
 

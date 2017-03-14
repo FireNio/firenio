@@ -24,35 +24,28 @@ import java.nio.channels.SelectableChannel;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.NioChannelService;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSelectorBuilder;
-import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
+import com.generallycloud.baseio.component.DatagramSelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public final class DatagramChannelAcceptor extends AbstractChannelAcceptor implements NioChannelService{
+public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 
-	private DatagramChannelContext	context				= null;
+	private DatagramChannelContext		context				= null;
 
-	private DatagramSocket			datagramSocket			= null;
+	private DatagramSocket				datagramSocket			= null;
 
-	private SelectableChannel		selectableChannel		= null;
+	private SelectableChannel			selectableChannel		= null;
 
-	private SocketSelectorBuilder		selectorBuilder		= null;
-
-	private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
+	private DatagramSelectorEventLoopGroup	selectorEventLoopGroup	= null;
 
 	public DatagramChannelAcceptor(DatagramChannelContext context) {
-		this.selectorBuilder = new ServerNioSocketSelectorBuilder();
 		this.context = context;
 	}
 
 	@Override
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
-		
+
 		this.initChannel();
 
 		try {
@@ -65,6 +58,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor imple
 		initSelectorLoops();
 	}
 
+
 	private void initSelectorLoops() {
 
 		//FIXME socket selector event loop ?
@@ -74,9 +68,9 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor imple
 
 		int eventQueueSize = configuration.getSERVER_IO_EVENT_QUEUE();
 
-		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
-				(NioSocketChannelContext) getContext(), "io-process", eventQueueSize,
-				core_size);
+		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
+				"io-process", eventQueueSize, core_size,(java.nio.channels.DatagramChannel) selectableChannel);
+		
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 
@@ -91,25 +85,12 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor imple
 	}
 
 	@Override
-	public SocketSelectorBuilder getSelectorBuilder() {
-		return selectorBuilder;
-	}
-
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.generallycloud.nio.component.AbstractChannelService#destroyService()
-	 */
-	@Override
 	protected void destroyService() {
 		CloseUtil.close(datagramSocket);
 		CloseUtil.close(selectableChannel);
 		LifeCycleUtil.stop(selectorEventLoopGroup);
 	}
-	
+
 	private void initChannel() throws IOException {
 		// 打开服务器套接字通道
 		this.selectableChannel = DatagramChannel.open();
@@ -117,6 +98,11 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor imple
 		this.selectableChannel.configureBlocking(false);
 
 		this.datagramSocket = ((DatagramChannel) this.selectableChannel).socket();
+	}
+
+	@Override
+	public int getManagedSessionSize() {
+		throw new UnsupportedOperationException();
 	}
 
 }

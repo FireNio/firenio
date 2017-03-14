@@ -15,34 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.concurrent.EventLoop;
 
 public interface SelectorEventLoop extends EventLoop {
-
-	public abstract void dispatch(SelectorLoopEvent event) throws RejectedExecutionException;
 	
 	public abstract ChannelContext getChannelContext();
 
 	public abstract ByteBufAllocator getByteBufAllocator();
-
-	public interface SelectorLoopEvent extends Closeable {
-
-		/**
-		 * 返回该Event是否需要再次处理
-		 * 
-		 * @return true 需要再次处理，false处理结束后丢弃
-		 */
-		void fireEvent(SelectorEventLoop selectLoop) throws IOException;
-		
-		boolean isComplete();
-
-		boolean isPositive();
-	}
 
 	public abstract void rebuildSelector() throws IOException;
 

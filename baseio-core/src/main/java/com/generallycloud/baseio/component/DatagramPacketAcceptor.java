@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
@@ -20,6 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public interface DatagramPacketAcceptor {
-	
-	public abstract void accept(DatagramSession session,DatagramPacket packet) throws IOException;
+
+	public abstract void accept(DatagramSession session, DatagramPacket packet) throws IOException;
 }

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 
-public abstract class SessionImpl implements Session {
+public abstract class AbstractSession implements Session {
 
 	protected Object				attachment;
 	protected HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();

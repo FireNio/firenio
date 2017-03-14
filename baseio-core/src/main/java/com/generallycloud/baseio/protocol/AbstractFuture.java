@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.protocol;
 
-public class DatagramSEListenerWrapper extends AbstractLinkable<DatagramSessionEventListener> implements DatagramSessionEventListener {
+public abstract class AbstractFuture implements Future {
+	
+	private Object		attachment	;
 
-	public DatagramSEListenerWrapper(DatagramSessionEventListener value) {
-		super(value);
+	@Override
+	public void attach(Object attachment) {
+		this.attachment = attachment;
 	}
 
 	@Override
-	public void sessionOpened(DatagramSession session) {
-		getValue().sessionOpened(session);
+	public Object attachment() {
+		return attachment;
 	}
-
-	@Override
-	public void sessionClosed(DatagramSession session) {
-		getValue().sessionClosed(session);
-
-	}
-
-	@Override
-	public void sessionIdled(DatagramSession session, long lastIdleTime, long currentTime) {
-		getValue().sessionIdled(session, lastIdleTime, currentTime);
-	}
-
 }

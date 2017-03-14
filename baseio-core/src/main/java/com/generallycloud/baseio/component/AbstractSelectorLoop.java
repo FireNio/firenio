@@ -49,7 +49,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 		return byteBufAllocator;
 	}
 
-	protected void cancelSelectionKey(SocketChannel channel, Throwable t) {
+	protected void cancelSelectionKey(Channel channel, Throwable t) {
 
 		logger.error(t.getMessage() + " channel:" + channel, t);
 

@@ -30,7 +30,7 @@ import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 public class NioSocketSessionManager extends AbstractSessionManager
 		implements SocketSessionManager {
 
-	private SelectorEventLoop				selectorLoop	= null;
+	private SocketSelectorEventLoop				selectorLoop	= null;
 	private SocketChannelContext				context		= null;
 	private ReentrantMap<Integer, SocketSession>	sessions		= new ReentrantMap<Integer, SocketSession>();
 	private Logger							logger		= LoggerFactory
@@ -47,7 +47,7 @@ public class NioSocketSessionManager extends AbstractSessionManager
 		this.selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 
 			@Override
-			public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
+			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
 
 				Map<Integer, SocketSession> map = sessions.takeSnapshot();
 
@@ -157,7 +157,7 @@ public class NioSocketSessionManager extends AbstractSessionManager
 	}
 
 	public void initSessionManager(EventLoop eventLoop) {
-		this.selectorLoop = (SelectorEventLoop) eventLoop;
+		this.selectorLoop = (SocketSelectorEventLoop) eventLoop;
 	}
 
 }
