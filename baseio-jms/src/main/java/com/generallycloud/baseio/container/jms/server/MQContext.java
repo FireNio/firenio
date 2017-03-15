@@ -16,11 +16,12 @@
 package com.generallycloud.baseio.container.jms.server;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
-import com.generallycloud.baseio.component.concurrent.ReentrantSet;
+import com.generallycloud.baseio.component.concurrent.ConcurrentSet;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
@@ -34,10 +35,10 @@ import com.generallycloud.baseio.live.LifeCycleUtil;
 public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 	private long						dueTime;
-	private ReentrantMap<String, Message>	messageIDs	= new ReentrantMap<String, Message>();
+	private ConcurrentMap<String, Message>	messageIDs	= new ConcurrentHashMap<>();
 	private P2PProductLine				p2pProductLine	= new P2PProductLine(this);
 	private SubscribeProductLine			subProductLine	= new SubscribeProductLine(this);
-	private ReentrantSet<String>			receivers		= new ReentrantSet<String>();
+	private ConcurrentSet<String>			receivers		= new ConcurrentSet<String>();
 	private MessageDecoder				messageDecoder	= new DefaultMessageDecoder();
 	private static MQContext			instance;
 

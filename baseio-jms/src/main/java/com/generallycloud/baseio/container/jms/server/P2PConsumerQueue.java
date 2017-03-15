@@ -40,9 +40,7 @@ public class P2PConsumerQueue implements ConsumerQueue{
 
 	@Override
 	public List<Consumer> getSnapshot() {
-		return consumers.getSnapshot();
+		return consumers.takeSnapshot();
 	}
-	
-	
 	
 }
