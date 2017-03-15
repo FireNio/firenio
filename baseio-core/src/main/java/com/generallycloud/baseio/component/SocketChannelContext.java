@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -72,8 +71,6 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
 	
-	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
-
 	public abstract void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
 
 }

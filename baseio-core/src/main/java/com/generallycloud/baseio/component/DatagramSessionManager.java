@@ -18,18 +18,18 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.concurrent.EventLoop;
 
 public class DatagramSessionManager extends AbstractSessionManager {
 
-	private DatagramSelectorEventLoop						selectorLoop	= null;
-	private DatagramChannelContext						context		= null;
-	private ConcurrentMap<InetSocketAddress, DatagramSession>	sessions		= new ConcurrentHashMap<>();
+	private DatagramChannelContext						context			= null;
+	private ConcurrentMap<InetSocketAddress, DatagramSession>	sessions			= new ConcurrentHashMap<>();
+	private Map<InetSocketAddress, DatagramSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
 
 	public DatagramSessionManager(DatagramChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -106,11 +106,8 @@ public class DatagramSessionManager extends AbstractSessionManager {
 		return sessions.get(sessionID);
 	}
 
-	public void initSessionManager(EventLoop eventLoop) {
-		this.selectorLoop = (DatagramSelectorEventLoop) eventLoop;
-	}
-
-	public DatagramSession getSession(java.nio.channels.DatagramChannel nioChannel, InetSocketAddress remote)
+	public DatagramSession getSession(java.nio.channels.DatagramChannel nioChannel,
+			InetSocketAddress remote, DatagramSelectorEventLoop selectorLoop)
 			throws IOException {
 
 		DatagramSession session = sessions.get(remote);
@@ -126,6 +123,10 @@ public class DatagramSessionManager extends AbstractSessionManager {
 		}
 
 		return session;
+	}
+	
+	public Map<InetSocketAddress, DatagramSession> getManagedSessions() {
+		return readOnlySessions;
 	}
 
 }

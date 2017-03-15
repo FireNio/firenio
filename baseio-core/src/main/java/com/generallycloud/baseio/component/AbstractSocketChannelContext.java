@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.SocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
@@ -68,11 +67,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
 		sessionIdleEventListenerGroup
 				.addLink(new SocketSessionIdleEventListenerWrapper(listener));
-	}
-
-	@Override
-	public void offerSessionMEvent(SocketSessionManagerEvent event) {
-		sessionManager.offerSessionMEvent(event);
 	}
 
 	@Override
@@ -224,7 +218,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		if (sessionManager == null) {
-			initSessionManager();
+			sessionManager = new SocketSessionManager(this);
 		}
 
 		if (sessionFactory == null) {
@@ -238,8 +232,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		doStartModule();
 	}
 	
-	protected abstract void initSessionManager();
-
 	protected void doStartModule() throws Exception {
 
 	}

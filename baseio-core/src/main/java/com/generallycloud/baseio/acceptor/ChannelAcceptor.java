@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.common.Unbindable;
 import com.generallycloud.baseio.component.ChannelService;
+import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface ChannelAcceptor extends ChannelService ,Unbindable{
@@ -26,6 +27,8 @@ public interface ChannelAcceptor extends ChannelService ,Unbindable{
 	public abstract void bind() throws IOException;
 
 	public abstract void broadcast(ReadFuture future);
+	
+	public abstract void broadcast(ChannelWriteFuture future) ;
 	
 	public abstract int getManagedSessionSize();
 }

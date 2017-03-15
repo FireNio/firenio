@@ -66,11 +66,6 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 		super.doStopModule();
 	}
 	
-	@Override
-	protected void initSessionManager() {
-		sessionManager = new AioSocketSessionManager(this);
-	}
-
 	private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
 
 		AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();

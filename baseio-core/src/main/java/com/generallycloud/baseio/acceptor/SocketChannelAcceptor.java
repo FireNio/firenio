@@ -22,6 +22,7 @@ import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.concurrent.Waiter;
+import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 /**
@@ -87,6 +88,11 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
 			return new AioSocketChannelAcceptor((AioSocketChannelContext) context);
 		}
 		throw new IllegalArgumentException("context");
+	}
+	
+	@Override
+	public void broadcast(ChannelWriteFuture future) {
+		unwrap().broadcast(future);
 	}
 	
 }

@@ -25,7 +25,7 @@ import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionManager.SocketSessionManagerEvent;
+import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
@@ -40,9 +40,13 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 	private Logger				logger	= LoggerFactory.getLogger(getClass());
 
 	private SocketChannelContext	context;
+	
+	private SocketSessionManager socketSessionManager;
+	
 
 	AbstractSocketChannelAcceptor(SocketChannelContext context) {
 		this.context = context;
+		this.socketSessionManager = context.getSessionManager();
 	}
 
 	@Override
@@ -50,45 +54,45 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 		return context;
 	}
 
-	private void offerSessionMEvent(SocketSessionManagerEvent event) {
-		getContext().getSessionManager().offerSessionMEvent(event);
-	}
-
 	@Override
-	public void broadcast(final ReadFuture future) {
+	public void broadcast(ReadFuture future) {
 
-		offerSessionMEvent(new SocketSessionManagerEvent() {
+		ProtocolEncoder encoder = context.getProtocolEncoder();
 
-			@Override
-			public void fire(SocketChannelContext context,
-					Map<Integer, SocketSession> sessions) {
+		ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
 
-				ProtocolEncoder encoder = context.getProtocolEncoder();
+		ChannelWriteFuture writeFuture;
+		try {
+			writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			return;
+		}
 
-				ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
-
-				ChannelWriteFuture writeFuture;
-				try {
-					writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-					return;
-				}
-
-				Collection<SocketSession> ss = sessions.values();
-
-				for (SocketSession s : ss) {
-
-					s.flush(writeFuture.duplicate());
-				}
-
-				ReleaseUtil.release(writeFuture);
-			}
-		});
+		broadcast(writeFuture);
 	}
 	
+	public void broadcast(ChannelWriteFuture future) {
+		
+		Map<Integer, SocketSession> sessions = socketSessionManager.getManagedSessions();
+
+		if (sessions.isEmpty()) {
+			ReleaseUtil.release(future);
+			return;
+		}
+		
+		Collection<SocketSession> ss = sessions.values();
+
+		for (SocketSession s : ss) {
+
+			s.flush(future.duplicate());
+		}
+
+		ReleaseUtil.release(future);
+	}
+
 	@Override
 	public int getManagedSessionSize() {
-		return getContext().getSessionManager().getManagedSessionSize();
+		return socketSessionManager.getManagedSessionSize();
 	}
 }

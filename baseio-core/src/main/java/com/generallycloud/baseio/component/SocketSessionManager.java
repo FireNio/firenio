@@ -15,22 +15,119 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.OverflowException;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
 
-public interface SocketSessionManager extends SessionManager{
+public class SocketSessionManager extends AbstractSessionManager{
 	
-	public abstract void putSession(SocketSession session) throws OverflowException;
+	private SocketChannelContext					context			= null;
+	private ConcurrentMap<Integer, SocketSession>	sessions			= new ConcurrentHashMap<>();
+	private Map<Integer, SocketSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
+	private Logger								logger			= LoggerFactory.getLogger(getClass());
 
-	public abstract void removeSession(SocketSession session);
+	public SocketSessionManager(SocketChannelContext context) {
+		super(context.getSessionIdleTime());
+		this.context = context;
+	}
 
-	public abstract SocketSession getSession(Integer sessionID);
+	@Override
+	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
-	
-	public interface SocketSessionManagerEvent {
+		Map<Integer, SocketSession> map = sessions;
 
-		public abstract void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions);
+		if (map.size() == 0) {
+			return;
+		}
+
+		Collection<SocketSession> es = map.values();
+
+		SocketChannelContext context = this.context;
+
+		for (SocketSession session : es) {
+
+			sessionIdle(context, session, lastIdleTime, currentTime);
+		}
+	}
+
+	private void sessionIdle(SocketChannelContext context, SocketSession session,
+			long lastIdleTime, long currentTime) {
+
+		Linkable<SocketSessionIdleEventListener> linkable = context
+				.getSessionIdleEventListenerLink();
+
+		for (; linkable != null;) {
+
+			try {
+
+				linkable.getValue().sessionIdled(session, lastIdleTime, currentTime);
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			linkable = linkable.getNext();
+		}
+	}
+
+	public Map<Integer, SocketSession> getManagedSessions() {
+		return readOnlySessions;
+	}
+
+	@Override
+	public void stop() {
+
+		Map<Integer, SocketSession> map = sessions;
+
+		if (map.size() == 0) {
+			return;
+		}
+
+		Collection<SocketSession> es = map.values();
+
+		for (SocketSession session : es) {
+
+			CloseUtil.close(session);
+		}
+	}
+
+	public void putSession(SocketSession session) throws OverflowException {
+
+		ConcurrentMap<Integer, SocketSession> sessions = this.sessions;
+
+		Integer sessionID = session.getSessionID();
+
+		SocketSession old = sessions.get(sessionID);
+
+		if (old != null) {
+			CloseUtil.close(old);
+			removeSession(old);
+		}
+
+		if (sessions.size() >= getSessionSizeLimit()) {
+			throw new OverflowException("session size limit:" + getSessionSizeLimit()
+					+ ",current:" + sessions.size());
+		}
+
+		sessions.put(sessionID, session);
+	}
+
+	public void removeSession(SocketSession session) {
+		sessions.remove(session.getSessionID());
+	}
+
+	@Override
+	public int getManagedSessionSize() {
+		return sessions.size();
+	}
+
+	public SocketSession getSession(Integer sessionID) {
+		return sessions.get(sessionID);
 	}
 }

@@ -30,12 +30,7 @@ public class AioSessionManangerEventLoopGroup extends AbstractExecutorEventLoopG
 
 	@Override
 	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		
-		ExecutorEventLoop eventLoop = new AioSessionManagerEventLoop(this, eventQueueSize, sessionManager);
-		
-		((AbstractSessionManager)sessionManager).initSessionManager(eventLoop);
-		
-		return eventLoop;
+		return new AioSessionManagerEventLoop(this, eventQueueSize, sessionManager);
 	}
 
 }

@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.concurrent.EventLoop;
-
 public abstract class AbstractSessionManager implements SessionManager {
 	
 	protected int			sessionSizeLimit	= 100 * 10000;
@@ -57,7 +55,5 @@ public abstract class AbstractSessionManager implements SessionManager {
 	public void setSessionSizeLimit(int sessionSizeLimit) {
 		this.sessionSizeLimit = sessionSizeLimit;
 	}
-	
-	public abstract void initSessionManager(EventLoop eventLoop);
 	
 }

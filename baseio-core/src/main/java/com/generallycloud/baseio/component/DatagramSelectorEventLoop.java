@@ -54,14 +54,6 @@ public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
 		this.allocator = UnpooledByteBufAllocator.getHeapInstance();
 	}
 	
-	@Override
-	public void doStartup() throws IOException {
-		
-		sessionManager.initSessionManager(this);
-		
-		super.doStartup();
-	}
-
 	private void accept(SelectionKey selectionKey) {
 
 		try {
@@ -80,7 +72,7 @@ public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
 
 			DatagramPacket packet = DatagramPacket.createPacket(buf.reverse().flip());
 			
-			DatagramSession session = sessionManager.getSession(channel, remoteAddress);
+			DatagramSession session = sessionManager.getSession(channel, remoteAddress,this);
 
 			acceptor.accept(session, packet);
 

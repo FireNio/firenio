@@ -23,9 +23,4 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
 		super(configuration);
 	}
 
-	@Override
-	protected void initSessionManager() {
-		sessionManager = new NioSocketSessionManager(this);
-	}
-
 }
