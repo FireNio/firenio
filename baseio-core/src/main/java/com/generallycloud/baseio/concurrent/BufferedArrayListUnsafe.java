@@ -12,13 +12,45 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.component.concurrent;
+ */
+package com.generallycloud.baseio.concurrent;
 
-public interface Looper{
-	
-	public abstract void loop();
-	
-	//FIXME stop 之前处理剩下的资源
-	public abstract void stop();
+import java.util.ArrayList;
+import java.util.List;
+
+public class BufferedArrayListUnsafe<T> {
+
+	private List<T>	list1	= new ArrayList<T>();
+
+	private List<T>	list2	= new ArrayList<T>();
+
+	private List<T>	buffer	= list1;
+
+	public void offer(T t) {
+		buffer.add(t);
+	}
+
+	public List<T> getBuffer() {
+
+		if (buffer == list1) {
+
+			buffer = list2;
+
+			buffer.clear();
+
+			return list1;
+		} else {
+
+			buffer = list1;
+
+			buffer.clear();
+
+			return list2;
+		}
+	}
+
+	public int getBufferSize() {
+		return list1.size() + list2.size();
+	}
+
 }

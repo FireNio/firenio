@@ -21,7 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.component.concurrent.AbstractEventLoop;
+import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 
 public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
 

@@ -13,47 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 仅适用于：</BR>
  * M => PUT </BR>
  * M => REMOVE </BR>
- * M => GET </BR>
+ * O => GET </BR>
  * O => FOREACH
  *
- * @param <T>
+ * @param <K>
+ * @param <V>
  */
-public class ReentrantList<T> {
+public class ReentrantMap<K, V> {
 
-	private List<T>		snapshot		= new ArrayList<T>();
-	private List<Event>		modifList		= new ArrayList<Event>();
-	private ReentrantLock	loack		= new ReentrantLock();
-	private boolean		modifid		= false;
+	private Map<K, V>		snapshot	= new HashMap<K, V>();
+	private List<Event>		modifList	= new ArrayList<Event>();
+	private ReentrantLock	loack	= new ReentrantLock();
+	private boolean		modifid	= false;
 
-	public List<T> takeSnapshot() {
+	public Map<K, V> takeSnapshot() {
 		if (modifid) {
 			ReentrantLock lock = this.loack;
 
 			lock.lock();
 
-			List<T> snapshot = this.snapshot;
+			Map<K, V> snapshot = this.snapshot;
 			
 			List<Event> modifList = this.modifList;
 
 			for (Event e : modifList) {
-				
+
 				if (e.isAdd) {
-					snapshot.add(e.value);
-				}else{
-					snapshot.remove(e.value);
+					snapshot.put(e.key, e.value);
+				} else {
+					snapshot.remove(e.key);
 				}
 			}
-			
+
 			modifList.clear();
 
 			this.modifid = false;
@@ -64,17 +67,19 @@ public class ReentrantList<T> {
 		return snapshot;
 	}
 
-	public boolean add(T t) {
+	public boolean put(K key, V value) {
 
 		ReentrantLock lock = this.loack;
 
 		lock.lock();
 
-		Event e = new Event();
-		e.isAdd = true;
-		e.value = t;
+		Event event = new Event();
 
-		this.modifList.add(e);
+		event.key = key;
+		event.value = value;
+		event.isAdd = true;
+
+		this.modifList.add(event);
 
 		this.modifid = true;
 
@@ -83,21 +88,30 @@ public class ReentrantList<T> {
 		return true;
 	}
 
-	public void remove(T t) {
+	public void remove(K key) {
 
 		ReentrantLock lock = this.loack;
 
 		lock.lock();
 
-		Event e = new Event();
-		e.isAdd = false;
-		e.value = t;
+		Event event = new Event();
 
-		this.modifList.add(e);
+		event.key = key;
+		event.isAdd = false;
+
+		this.modifList.add(event);
 
 		this.modifid = true;
 
 		lock.unlock();
+	}
+
+	public ReentrantLock getReentrantLock() {
+		return loack;
+	}
+
+	public int size() {
+		return takeSnapshot().size();
 	}
 	
 	public void clear(){
@@ -114,25 +128,14 @@ public class ReentrantList<T> {
 
 		lock.unlock();
 	}
-
-	public ReentrantLock getReentrantLock(){
-		return loack;
-	}
-
-	public int size() {
-		
-		takeSnapshot();
-		
-		return snapshot.size();
-		
-	}
 	
 	public boolean isEmpty(){
 		return size() == 0;
 	}
-	
+
 	class Event {
-		T		value;
+		K		key;
+		V		value;
 		boolean	isAdd;
 	}
 

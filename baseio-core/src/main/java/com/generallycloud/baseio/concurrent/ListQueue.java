@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.live.LifeCycle;
+public interface ListQueue<T> {
 
-public interface EventLoopGroup extends LifeCycle{
-
-	public abstract EventLoop getNext();
+	public abstract boolean offer(T object);
 	
-//	public abstract ChannelContext getChannelContext();
+	public abstract T poll();
+
+	public abstract T poll(long timeout);
+
+	public abstract int size();
+
 }

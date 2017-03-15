@@ -21,7 +21,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.component.ChannelService;
 import com.generallycloud.baseio.component.Connectable;
 import com.generallycloud.baseio.component.Session;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 
 public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 

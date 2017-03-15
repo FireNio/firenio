@@ -18,8 +18,8 @@ package com.generallycloud.baseio.container;
 import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.WaiterOnReadFuture;
-import com.generallycloud.baseio.component.concurrent.ListQueue;
-import com.generallycloud.baseio.component.concurrent.ListQueueABQ;
+import com.generallycloud.baseio.concurrent.ListQueue;
+import com.generallycloud.baseio.concurrent.ListQueueABQ;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture {

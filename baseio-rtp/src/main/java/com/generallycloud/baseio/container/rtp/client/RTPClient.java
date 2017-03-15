@@ -27,7 +27,7 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
 import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.connector.DatagramChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.authority.Authority;

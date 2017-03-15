@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.jms.server;
 
 import java.util.List;
 
-import com.generallycloud.baseio.component.concurrent.ReentrantList;
+import com.generallycloud.baseio.concurrent.ReentrantList;
 
 public class P2PConsumerQueue implements ConsumerQueue{
 	

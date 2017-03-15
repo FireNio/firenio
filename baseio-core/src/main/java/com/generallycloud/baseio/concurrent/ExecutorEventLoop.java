@@ -12,23 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.component.concurrent;
+ */
+package com.generallycloud.baseio.concurrent;
 
-public interface EventLoop extends Looper{
-	
-	public abstract boolean inEventLoop();
+import java.util.concurrent.RejectedExecutionException;
 
-	public abstract boolean inEventLoop(Thread thread);
+/**
+ * @author wangkai
+ *
+ */
+public interface ExecutorEventLoop extends EventLoop{
 
-	public abstract Thread getMonitor();
+	public void dispatch(Runnable job) throws RejectedExecutionException;
 	
-	public abstract boolean isRunning();
-	
-	public abstract EventLoopGroup getEventLoopGroup();
-	
-	public abstract void wakeup();
-	
-	public abstract void startup(String threadName) throws Exception;
-	
+	@Override
+	public abstract ExecutorEventLoopGroup getEventLoopGroup();
 }

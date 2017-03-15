@@ -25,7 +25,7 @@ import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.component.concurrent.EventLoop;
+import com.generallycloud.baseio.concurrent.EventLoop;
 
 //所有涉及操作全部session的操作放在此队列中做
 public class NioSocketSessionManager extends AbstractSessionManager

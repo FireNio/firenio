@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package com.generallycloud.baseio.component.concurrent;
+ */ 
+package com.generallycloud.baseio.concurrent;
 
-/**
- * @author wangkai
- *
- */
-public interface ExecutorEventLoopGroup extends EventLoopGroup{
+import com.generallycloud.baseio.live.LifeCycle;
 
-	@Override
-	public abstract ExecutorEventLoop getNext() ;
+public interface EventLoopGroup extends LifeCycle{
+
+	public abstract EventLoop getNext();
 	
+//	public abstract ChannelContext getChannelContext();
 }

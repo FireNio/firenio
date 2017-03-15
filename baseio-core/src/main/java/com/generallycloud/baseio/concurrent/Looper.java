@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.component.AbstractLinkable;
-import com.generallycloud.baseio.component.Linkable;
-
-public abstract class LinkRunable extends AbstractLinkable<Runnable> implements Runnable, Linkable<Runnable> {
-
-	public LinkRunable(Runnable value) {
-		super(value);
-	}
-
+public interface Looper{
+	
+	public abstract void loop();
+	
+	//FIXME stop 之前处理剩下的资源
+	public abstract void stop();
 }

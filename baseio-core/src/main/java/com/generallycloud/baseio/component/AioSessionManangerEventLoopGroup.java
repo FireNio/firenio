@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.AbstractExecutorEventLoopGroup;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.AbstractExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
 public class AioSessionManangerEventLoopGroup extends AbstractExecutorEventLoopGroup {
 

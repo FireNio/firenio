@@ -12,18 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package com.generallycloud.baseio.component.concurrent;
+ */ 
+package com.generallycloud.baseio.concurrent;
 
-public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
+import com.generallycloud.baseio.component.AbstractLinkable;
+import com.generallycloud.baseio.component.Linkable;
 
-	public ThreadEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
-	}
+public abstract class LinkRunable extends AbstractLinkable<Runnable> implements Runnable, Linkable<Runnable> {
 
-	@Override
-	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new ThreadEventLoop(this, eventQueueSize);
+	public LinkRunable(Runnable value) {
+		super(value);
 	}
 
 }

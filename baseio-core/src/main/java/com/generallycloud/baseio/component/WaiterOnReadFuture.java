@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class WaiterOnReadFuture implements OnReadFuture {

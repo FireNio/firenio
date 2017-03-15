@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.ConcurrentSet;
+import com.generallycloud.baseio.concurrent.ConcurrentSet;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;

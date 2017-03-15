@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.FixedAtomicInteger;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 
 public class Sequence {
 

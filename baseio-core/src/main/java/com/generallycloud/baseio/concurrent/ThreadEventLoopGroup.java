@@ -13,44 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-public class BufferedArrayListUnsafe<T> {
-
-	private List<T>	list1	= new ArrayList<T>();
-
-	private List<T>	list2	= new ArrayList<T>();
-
-	private List<T>	buffer	= list1;
-
-	public void offer(T t) {
-		buffer.add(t);
+	public ThreadEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
+		super(eventLoopName, eventQueueSize, eventLoopSize);
 	}
 
-	public List<T> getBuffer() {
-
-		if (buffer == list1) {
-
-			buffer = list2;
-
-			buffer.clear();
-
-			return list1;
-		} else {
-
-			buffer = list1;
-
-			buffer.clear();
-
-			return list2;
-		}
-	}
-
-	public int getBufferSize() {
-		return list1.size() + list2.size();
+	@Override
+	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
+		return new ThreadEventLoop(this, eventQueueSize);
 	}
 
 }

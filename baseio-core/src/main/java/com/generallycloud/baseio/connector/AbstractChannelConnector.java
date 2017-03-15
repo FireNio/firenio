@@ -22,7 +22,7 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {

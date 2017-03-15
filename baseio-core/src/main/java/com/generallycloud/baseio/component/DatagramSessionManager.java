@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.concurrent.EventLoop;
+import com.generallycloud.baseio.concurrent.EventLoop;
 
 public class DatagramSessionManager extends AbstractSessionManager {
 

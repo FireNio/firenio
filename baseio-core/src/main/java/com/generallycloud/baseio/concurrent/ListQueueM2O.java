@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
+public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T> {
 
-	private int			_end			;
+	private FixedAtomicInteger	_end;
 
-	protected ListQueueO2O(int _capability) {
-		super(_capability);
+	protected ListQueueM2O(int capability) {
+		super(capability);
+		_end = new FixedAtomicInteger(capability - 1);
 	}
-	
-	protected ListQueueO2O(){
+
+	protected ListQueueM2O() {
 		super();
+		_end = new FixedAtomicInteger(_capability - 1);
 	}
-	
+
 	@Override
-	protected int getAndIncrementEnd() {
-		if (_end == _capability) {
-			_end = 0;
-		}
-		return _end++;
+	public final int getAndIncrementEnd() {
+		return _end.getAndIncrement();
 	}
-	
-	
+
 }

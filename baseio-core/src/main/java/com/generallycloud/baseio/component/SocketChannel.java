@@ -21,7 +21,7 @@ import java.net.SocketOption;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;

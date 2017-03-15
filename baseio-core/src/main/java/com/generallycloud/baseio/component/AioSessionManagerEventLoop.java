@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoopGroup;
-import com.generallycloud.baseio.component.concurrent.ThreadEventLoop;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.ThreadEventLoop;
 
 /**
  * @author wangkai

@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.component.SocketSessionManager.SocketSessionManagerEvent;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.component.ssl.SslContext;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;

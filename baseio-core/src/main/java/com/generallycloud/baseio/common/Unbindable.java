@@ -17,7 +17,7 @@ package com.generallycloud.baseio.common;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 
 /**
  * @author wangkai

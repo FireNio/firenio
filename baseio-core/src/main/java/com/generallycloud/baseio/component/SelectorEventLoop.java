@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.component.concurrent.EventLoop;
+import com.generallycloud.baseio.concurrent.EventLoop;
 
 public interface SelectorEventLoop extends EventLoop {
 	

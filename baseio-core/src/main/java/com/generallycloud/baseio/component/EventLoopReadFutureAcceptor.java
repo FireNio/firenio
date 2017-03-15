@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 
 public class EventLoopReadFutureAcceptor extends AbstractReadFutureAcceptor{

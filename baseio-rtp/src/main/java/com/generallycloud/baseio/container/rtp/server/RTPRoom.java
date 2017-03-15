@@ -22,7 +22,7 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.DatagramSession;
 import com.generallycloud.baseio.component.Session;
-import com.generallycloud.baseio.component.concurrent.ReentrantList;
+import com.generallycloud.baseio.concurrent.ReentrantList;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.Sequence;
 import com.generallycloud.baseio.container.rtp.RTPContext;

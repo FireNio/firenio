@@ -26,9 +26,9 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.component.concurrent.ListQueue;
-import com.generallycloud.baseio.component.concurrent.ListQueueABQ;
+import com.generallycloud.baseio.concurrent.AbstractEventLoop;
+import com.generallycloud.baseio.concurrent.ListQueue;
+import com.generallycloud.baseio.concurrent.ListQueueABQ;
 
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 

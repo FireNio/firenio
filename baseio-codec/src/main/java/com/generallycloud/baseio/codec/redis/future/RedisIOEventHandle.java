@@ -17,7 +17,7 @@ package com.generallycloud.baseio.codec.redis.future;
 
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class RedisIOEventHandle extends IoEventHandleAdaptor{

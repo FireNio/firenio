@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-public interface ListQueue<T> {
+public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
 
-	public abstract boolean offer(T object);
+	private int			_end			;
+
+	protected ListQueueO2O(int _capability) {
+		super(_capability);
+	}
 	
-	public abstract T poll();
-
-	public abstract T poll(long timeout);
-
-	public abstract int size();
-
+	protected ListQueueO2O(){
+		super();
+	}
+	
+	@Override
+	protected int getAndIncrementEnd() {
+		if (_end == _capability) {
+			_end = 0;
+		}
+		return _end++;
+	}
+	
+	
 }

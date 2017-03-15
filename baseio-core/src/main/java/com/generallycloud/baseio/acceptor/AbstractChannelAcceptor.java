@@ -23,7 +23,7 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor{

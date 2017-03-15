@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.EventLoop;
+import com.generallycloud.baseio.concurrent.EventLoop;
 
 public abstract class AbstractSessionManager implements SessionManager {
 	

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.udp;
 
 import java.io.IOException;
@@ -21,39 +21,38 @@ import com.generallycloud.baseio.acceptor.DatagramChannelAcceptor;
 import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.DatagramChannelContextImpl;
 import com.generallycloud.baseio.component.DatagramPacketAcceptor;
 import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.component.LoggerDatagramSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class TestUDPServer {
 
 	public static void main(String[] args) throws IOException {
-		
+
 		DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
-			
+
 			@Override
-			public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
-				
+			public void accept(DatagramSession session, DatagramPacket packet)
+					throws IOException {
 				String req = packet.getDataString(Encoding.UTF8);
-				
+
 				DebugUtil.debug(req);
-				
-				DatagramPacket res = new DatagramPacket(("yes ," + req).getBytes(Encoding.UTF8));
+
+				byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
+
+				DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
 
 				session.sendPacket(res);
 			}
 		};
 
-		DatagramChannelContext context = new DatagramChannelContextImpl(new ServerConfiguration(18500));
+		DatagramChannelContext context = new DatagramChannelContext(
+				new ServerConfiguration(18500));
 
 		context.setDatagramPacketAcceptor(datagramPacketAcceptor);
-		
-		DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
 
-		context.addSessionEventListener(new LoggerDatagramSEListener());
+		DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
 
 		acceptor.bind();
 	}

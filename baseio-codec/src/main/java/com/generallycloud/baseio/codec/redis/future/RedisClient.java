@@ -21,7 +21,7 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.redis.future.RedisReadFuture.RedisCommand;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.Waiter;
+import com.generallycloud.baseio.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {

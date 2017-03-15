@@ -17,8 +17,8 @@ package com.generallycloud.baseio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;

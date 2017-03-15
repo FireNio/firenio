@@ -21,10 +21,8 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.DatagramChannelContextImpl;
 import com.generallycloud.baseio.component.DatagramPacketAcceptor;
 import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.component.LoggerDatagramSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.DatagramChannelConnector;
 import com.generallycloud.baseio.protocol.DatagramPacket;
@@ -42,17 +40,15 @@ public class TestUDPClient {
 			}
 		};
 
-		DatagramChannelContext context = new DatagramChannelContextImpl(new ServerConfiguration("localhost", 18500));
+		DatagramChannelContext context = new DatagramChannelContext(new ServerConfiguration("localhost", 18500));
 
 		DatagramChannelConnector connector = new DatagramChannelConnector(context);
 
-		context.addSessionEventListener(new LoggerDatagramSEListener());
-		
 		context.setDatagramPacketAcceptor(acceptor);
 
 		DatagramSession session = connector.connect();
 		
-		DatagramPacket packet = new DatagramPacket("hello world!".getBytes());
+		DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
 		
 		session.sendPacket(packet);
 

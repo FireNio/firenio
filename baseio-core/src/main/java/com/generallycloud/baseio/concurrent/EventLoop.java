@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component.concurrent;
+package com.generallycloud.baseio.concurrent;
 
-public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T> {
+public interface EventLoop extends Looper{
+	
+	public abstract boolean inEventLoop();
 
-	private FixedAtomicInteger	_end;
+	public abstract boolean inEventLoop(Thread thread);
 
-	protected ListQueueM2O(int capability) {
-		super(capability);
-		_end = new FixedAtomicInteger(capability - 1);
-	}
-
-	protected ListQueueM2O() {
-		super();
-		_end = new FixedAtomicInteger(_capability - 1);
-	}
-
-	@Override
-	public final int getAndIncrementEnd() {
-		return _end.getAndIncrement();
-	}
-
+	public abstract Thread getMonitor();
+	
+	public abstract boolean isRunning();
+	
+	public abstract EventLoopGroup getEventLoopGroup();
+	
+	public abstract void wakeup();
+	
+	public abstract void startup(String threadName) throws Exception;
+	
 }

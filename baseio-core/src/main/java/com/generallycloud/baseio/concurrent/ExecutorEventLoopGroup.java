@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.concurrent;
-
-import java.util.concurrent.RejectedExecutionException;
+package com.generallycloud.baseio.concurrent;
 
 /**
  * @author wangkai
  *
  */
-public interface ExecutorEventLoop extends EventLoop{
+public interface ExecutorEventLoopGroup extends EventLoopGroup{
 
-	public void dispatch(Runnable job) throws RejectedExecutionException;
-	
 	@Override
-	public abstract ExecutorEventLoopGroup getEventLoopGroup();
+	public abstract ExecutorEventLoop getNext() ;
+	
 }

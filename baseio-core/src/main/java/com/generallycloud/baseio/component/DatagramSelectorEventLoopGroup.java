@@ -17,8 +17,8 @@ package com.generallycloud.baseio.component;
 
 import java.nio.channels.DatagramChannel;
 
-import com.generallycloud.baseio.component.concurrent.AbstractEventLoopGroup;
-import com.generallycloud.baseio.component.concurrent.EventLoop;
+import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
+import com.generallycloud.baseio.concurrent.EventLoop;
 
 /**
  * @author wangkai

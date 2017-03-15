@@ -25,7 +25,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.concurrent.AbstractEventLoop;
+import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 
 //FIXME 限制最大session数量
 public class HttpSessionManager extends AbstractEventLoop {

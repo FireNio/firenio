@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.component.concurrent.ListQueue;
-import com.generallycloud.baseio.component.concurrent.ListQueueABQ;
+import com.generallycloud.baseio.concurrent.ListQueue;
+import com.generallycloud.baseio.concurrent.ListQueueABQ;
 import com.generallycloud.baseio.container.jms.Message;
 
 public class MessageStorage {

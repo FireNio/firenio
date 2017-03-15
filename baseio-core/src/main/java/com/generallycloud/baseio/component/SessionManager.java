@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.Looper;
+import com.generallycloud.baseio.concurrent.Looper;
 
 public interface SessionManager extends Looper{
 

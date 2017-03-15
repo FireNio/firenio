@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.concurrent.EventLoopGroup;
+import com.generallycloud.baseio.concurrent.EventLoopGroup;
 
 /**
  * @author wangkai

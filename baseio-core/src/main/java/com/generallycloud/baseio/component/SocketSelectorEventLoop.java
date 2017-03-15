@@ -28,9 +28,9 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.concurrent.BufferedArrayList;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.component.concurrent.LineEventLoop;
+import com.generallycloud.baseio.concurrent.BufferedArrayList;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.LineEventLoop;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 
 /**

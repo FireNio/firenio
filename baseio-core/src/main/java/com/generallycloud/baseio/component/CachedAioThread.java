@@ -1,7 +1,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.component.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
 public class CachedAioThread extends Thread implements SocketChannelThreadContext {
 
