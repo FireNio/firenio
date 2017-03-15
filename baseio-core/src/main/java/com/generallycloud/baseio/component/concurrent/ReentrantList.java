@@ -35,19 +35,7 @@ public class ReentrantList<T> {
 	private ReentrantLock	loack		= new ReentrantLock();
 	private boolean		modifid		= false;
 
-	public List<T> getSnapshot() {
-
-		takeSnapshot();
-		
-		return snapshot;
-	}
-	
-	public T get(int index){
-		
-		return getSnapshot().get(index);
-	}
-
-	private void takeSnapshot() {
+	public List<T> takeSnapshot() {
 		if (modifid) {
 			ReentrantLock lock = this.loack;
 
@@ -72,6 +60,8 @@ public class ReentrantList<T> {
 
 			lock.unlock();
 		}
+		
+		return snapshot;
 	}
 
 	public boolean add(T t) {

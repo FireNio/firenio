@@ -17,20 +17,21 @@ package com.generallycloud.baseio.component;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.concurrent.EventLoop;
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 
 //所有涉及操作全部session的操作放在此队列中做
 public class AioSocketSessionManager extends AbstractSessionManager implements SocketSessionManager {
 
 	private AioSessionManagerEventLoop			eventLoop = null;
 	private SocketChannelContext				context	= null;
-	private ReentrantMap<Integer, SocketSession>	sessions	= new ReentrantMap<Integer, SocketSession>();
+	private ConcurrentMap<Integer, SocketSession>	sessions	= new ConcurrentHashMap<>();
 	private Logger							logger	= LoggerFactory.getLogger(AioSocketSessionManager.class);
 
 	public AioSocketSessionManager(SocketChannelContext context) {
@@ -46,7 +47,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 			@Override
 			public void run() {
 				
-				Map<Integer, SocketSession> map = sessions.takeSnapshot();
+				Map<Integer, SocketSession> map = sessions;
 
 				if (map.size() == 0) {
 					return ;
@@ -64,7 +65,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<Integer, SocketSession> map = sessions.takeSnapshot();
+		Map<Integer, SocketSession> map = sessions;
 
 		if (map.size() == 0) {
 			return;
@@ -101,7 +102,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 	@Override
 	public void stop() {
 
-		Map<Integer, SocketSession> map = sessions.takeSnapshot();
+		Map<Integer, SocketSession> map = sessions;
 
 		if (map.size() == 0) {
 			return;
@@ -118,7 +119,7 @@ public class AioSocketSessionManager extends AbstractSessionManager implements S
 	@Override
 	public void putSession(SocketSession session) throws OverflowException {
 
-		ReentrantMap<Integer, SocketSession> sessions = this.sessions;
+		ConcurrentMap<Integer, SocketSession> sessions = this.sessions;
 
 		Integer sessionID = session.getSessionID();
 

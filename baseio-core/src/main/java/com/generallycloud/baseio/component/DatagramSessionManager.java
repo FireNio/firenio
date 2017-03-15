@@ -19,16 +19,17 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.concurrent.EventLoop;
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 
 public class DatagramSessionManager extends AbstractSessionManager {
 
 	private DatagramSelectorEventLoop						selectorLoop	= null;
 	private DatagramChannelContext						context		= null;
-	private ReentrantMap<InetSocketAddress, DatagramSession>	sessions		= new ReentrantMap<>();
+	private ConcurrentMap<InetSocketAddress, DatagramSession>	sessions		= new ConcurrentHashMap<>();
 
 	public DatagramSessionManager(DatagramChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -38,7 +39,7 @@ public class DatagramSessionManager extends AbstractSessionManager {
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions.takeSnapshot();
+		Map<InetSocketAddress, DatagramSession> map = sessions;
 
 		if (map.size() == 0) {
 			return;
@@ -63,7 +64,7 @@ public class DatagramSessionManager extends AbstractSessionManager {
 	@Override
 	public void stop() {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions.takeSnapshot();
+		Map<InetSocketAddress, DatagramSession> map = sessions;
 
 		if (map.size() == 0) {
 			return;
@@ -79,7 +80,7 @@ public class DatagramSessionManager extends AbstractSessionManager {
 
 	public void putSession(DatagramSession session) {
 
-		ReentrantMap<InetSocketAddress, DatagramSession> sessions = this.sessions;
+		ConcurrentMap<InetSocketAddress, DatagramSession> sessions = this.sessions;
 
 		InetSocketAddress remote = session.getRemoteSocketAddress();
 

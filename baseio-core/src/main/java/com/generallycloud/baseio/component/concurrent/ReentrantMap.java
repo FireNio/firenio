@@ -38,10 +38,6 @@ public class ReentrantMap<K, V> {
 	private ReentrantLock	loack	= new ReentrantLock();
 	private boolean		modifid	= false;
 
-	public V get(K key) {
-		return takeSnapshot().get(key);
-	}
-
 	public Map<K, V> takeSnapshot() {
 		if (modifid) {
 			ReentrantLock lock = this.loack;

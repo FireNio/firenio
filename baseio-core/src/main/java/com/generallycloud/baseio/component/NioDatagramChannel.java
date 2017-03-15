@@ -30,7 +30,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	private DatagramChannel			channel;
 	private DatagramChannelContext	context;
-	private DatagramSession		session;
+	private DatagramSession			session;
 	private DatagramSelectorEventLoop selectorLoop;
 
 	public NioDatagramChannel(DatagramSelectorEventLoop selectorLoop, DatagramChannel channel,
