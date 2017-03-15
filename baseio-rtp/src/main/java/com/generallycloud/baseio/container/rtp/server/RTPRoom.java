@@ -48,7 +48,7 @@ public class RTPRoom {
 
 	public void broadcast(DatagramSession session, DatagramPacket packet) {
 
-		List<DatagramSession> datagramChannels = datagramChannelList.getSnapshot();
+		List<DatagramSession> datagramChannels = datagramChannelList.takeSnapshot();
 
 		for (DatagramSession ch : datagramChannels) {
 
@@ -119,7 +119,7 @@ public class RTPRoom {
 
 		datagramChannelList.remove(channel);
 
-		List<DatagramSession> chs = datagramChannelList.getSnapshot();
+		List<DatagramSession> chs = datagramChannelList.takeSnapshot();
 
 		for (DatagramSession ch : chs) {
 

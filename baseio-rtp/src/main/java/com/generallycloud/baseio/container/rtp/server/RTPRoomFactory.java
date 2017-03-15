@@ -15,11 +15,12 @@
  */ 
 package com.generallycloud.baseio.container.rtp.server;
 
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class RTPRoomFactory {
 
-	private ReentrantMap<Integer, RTPRoom>	rooms	= new ReentrantMap<Integer, RTPRoom>();
+	private ConcurrentMap<Integer, RTPRoom>	rooms	= new ConcurrentHashMap<Integer, RTPRoom>();
 
 	public RTPRoom getRTPRoom(Integer roomID) {
 		return rooms.get(roomID);

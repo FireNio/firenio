@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp;
 
 import java.util.Map;
@@ -31,10 +31,10 @@ import com.generallycloud.baseio.container.rtp.server.RTPSessionEventListener;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public class RTPContext extends AbstractPluginContext {
-	
-private ServerConfiguration socketChannelConfig;
-	
-	private ServerConfiguration datagramChannelConfig;
+
+	private ServerConfiguration	socketChannelConfig;
+
+	private ServerConfiguration	datagramChannelConfig;
 
 	public ServerConfiguration getSocketChannelConfig() {
 		return socketChannelConfig;
@@ -53,7 +53,7 @@ private ServerConfiguration socketChannelConfig;
 	}
 
 	private RTPRoomFactory		rtpRoomFactory	= new RTPRoomFactory();
-	private static RTPContext	instance		;
+	private static RTPContext	instance;
 
 	public static RTPContext getInstance() {
 		return instance;
@@ -71,11 +71,11 @@ private ServerConfiguration socketChannelConfig;
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
 		context.addSessionEventListener(new RTPSessionEventListener());
-		
+
 		instance = this;
 	}
-	
-	public RTPSessionAttachment getSessionAttachment(SocketSession session){
+
+	public RTPSessionAttachment getSessionAttachment(SocketSession session) {
 		return (RTPSessionAttachment) session.getAttachment(this.getPluginIndex());
 	}
 
