@@ -15,11 +15,12 @@
  */ 
 package com.generallycloud.baseio.front;
 
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class FrontRouter {
 
-	private ReentrantMap<Long, FrontFacadeSocketSession> clients = new ReentrantMap<>();
+	private ConcurrentMap<Long, FrontFacadeSocketSession> clients = new ConcurrentHashMap<>();
 
 	public void addClientSession(FrontFacadeSocketSession session) {
 //		this.clients.put(session.get, session);
