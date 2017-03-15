@@ -15,13 +15,15 @@
  */ 
 package com.generallycloud.baseio.balance.router;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import com.generallycloud.baseio.balance.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
-import com.generallycloud.baseio.component.concurrent.ReentrantMap;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter{
 
-	private ReentrantMap<Long, BalanceFacadeSocketSession> clients = new ReentrantMap<>();
+	private ConcurrentMap<Long, BalanceFacadeSocketSession> clients = new ConcurrentHashMap<>();
 
 	@Override
 	public void addClientSession(BalanceFacadeSocketSession session) {
