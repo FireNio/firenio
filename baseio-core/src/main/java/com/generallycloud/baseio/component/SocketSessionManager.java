@@ -101,7 +101,7 @@ public class SocketSessionManager extends AbstractSessionManager{
 
 		ConcurrentMap<Integer, SocketSession> sessions = this.sessions;
 
-		Integer sessionID = session.getSessionID();
+		Integer sessionID = session.getSessionId();
 
 		SocketSession old = sessions.get(sessionID);
 
@@ -119,7 +119,7 @@ public class SocketSessionManager extends AbstractSessionManager{
 	}
 
 	public void removeSession(SocketSession session) {
-		sessions.remove(session.getSessionID());
+		sessions.remove(session.getSessionId());
 	}
 
 	@Override

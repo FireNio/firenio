@@ -50,7 +50,7 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	@Override
-	public Integer getChannelID() {
+	public Integer getChannelId() {
 		return channelID;
 	}
 
