@@ -33,7 +33,7 @@ public abstract class AbstractChannel implements Channel {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractChannel.class);
 
 	protected String			edp_description;
-	protected Integer			channelID;
+	protected Integer			channelId;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	protected long			lastAccess;
@@ -46,12 +46,12 @@ public abstract class AbstractChannel implements Channel {
 		// 认为在第一次Idle之前，连接都是畅通的
 		this.byteBufAllocator = allocator;
 		this.lastAccess = creationTime + context.getSessionIdleTime();
-		this.channelID = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
+		this.channelId = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
 	}
 
 	@Override
 	public Integer getChannelId() {
-		return channelID;
+		return channelId;
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public abstract class AbstractChannel implements Channel {
 		if (edp_description == null) {
 			edp_description = new StringBuilder("[")
 				.append("Id(")
-				.append(getIdHexString(channelID))
+				.append(getIdHexString(channelId))
 				.append(")R/")
 				.append(getRemoteAddr())
 				.append(":")

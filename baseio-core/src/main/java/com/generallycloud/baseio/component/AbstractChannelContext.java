@@ -56,6 +56,8 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 		this.serverConfiguration = configuration;
 
 		this.addLifeCycleListener(new ChannelContextListener());
+		
+		this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
 	}
 	
 	protected void initializeByteBufAllocator(){

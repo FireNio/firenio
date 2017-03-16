@@ -33,6 +33,7 @@ public class DatagramChannelContext extends AbstractChannelContext {
 
 	public DatagramChannelContext(ServerConfiguration configuration) {
 		super(configuration);
+		this.sessionManager = new DatagramSessionManager(this);
 	}
 
 	@Override
@@ -63,10 +64,6 @@ public class DatagramChannelContext extends AbstractChannelContext {
 			this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
 		}
 		
-		if (sessionManager == null) {
-			sessionManager = new DatagramSessionManager(this);
-		}
-
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= service begin to start =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "encoding              ：{ {} }", encoding);

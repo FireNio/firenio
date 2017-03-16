@@ -46,12 +46,11 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private boolean								initialized;
 	private ChannelByteBufReader						channelByteBufReader;
 	private ForeReadFutureAcceptor					foreReadFutureAcceptor;
-	protected SocketSessionManager						sessionManager;
 	private SocketSessionFactory						sessionFactory;
 	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
 	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
-	private Logger									logger					= LoggerFactory
-			.getLogger(AbstractSocketChannelContext.class);
+	private Logger									logger					= LoggerFactory.getLogger(getClass());
+	protected SocketSessionManager					sessionManager;
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -110,6 +109,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 	public AbstractSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
+		this.sessionManager = new SocketSessionManager(this);
 	}
 
 	@Override
@@ -215,10 +215,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 			getLastChannelByteBufReader(channelByteBufReader)
 					.setNext(new TransparentByteBufReader(this));
-		}
-
-		if (sessionManager == null) {
-			sessionManager = new SocketSessionManager(this);
 		}
 
 		if (sessionFactory == null) {
