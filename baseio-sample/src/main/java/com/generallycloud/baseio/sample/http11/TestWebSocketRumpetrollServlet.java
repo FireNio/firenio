@@ -50,7 +50,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
 		JSONObject o = new JSONObject();
 		o.put("type", "welcome");
-		o.put("id", ioSession.getSessionID());
+		o.put("id", ioSession.getSessionId());
 
 		WebSocketReadFuture f = new WebSocketReadFutureImpl(ioSession.getContext());
 
@@ -76,7 +76,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
 			JSONObject o = new JSONObject();
 			o.put("type", "closed");
-			o.put("id", session.getSessionID());
+			o.put("id", session.getSessionId());
 
 			msgAdapter.sendMsg(o.toJSONString());
 
@@ -94,7 +94,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 			}
 
 			o.put("name", name);
-			o.put("id", session.getSessionID());
+			o.put("id", session.getSessionId());
 
 			String type = o.getString("type");
 
