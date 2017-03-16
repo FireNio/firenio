@@ -15,6 +15,7 @@
  */ 
 package com.generallycloud.baseio.balance;
 
+import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface BalanceReadFutureFactory {

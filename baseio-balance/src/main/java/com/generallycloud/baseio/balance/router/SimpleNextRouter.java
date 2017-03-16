@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.balance.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {

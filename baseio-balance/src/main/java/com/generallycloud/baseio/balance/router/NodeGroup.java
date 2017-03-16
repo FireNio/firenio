@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public class NodeGroup {
 

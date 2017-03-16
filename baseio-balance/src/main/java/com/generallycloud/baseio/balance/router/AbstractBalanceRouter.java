@@ -18,8 +18,8 @@ package com.generallycloud.baseio.balance.router;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.generallycloud.baseio.balance.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter{
 

@@ -12,36 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.balance;
+ */
+package com.generallycloud.baseio.balance.reverse;
 
 import java.io.IOException;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class BalanceReverseAcceptor {
 
-	private SocketChannelAcceptor		acceptor	= null;
+	private Logger				logger	= LoggerFactory.getLogger(getClass());
 
-	protected void start(SocketChannelContext context) throws IOException {
+	private SocketChannelAcceptor	acceptor	= null;
+
+	public void start(SocketChannelContext context) throws IOException {
 
 		this.acceptor = new SocketChannelAcceptor(context);
 
 		this.acceptor.bind();
 
-		LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(BalanceReverseAcceptor.class),
-				"Balance Reverse Acceptor 启动成功 ...");
+		LoggerUtil.prettyNIOServerLog(logger, "Balance Back Acceptor 启动成功 ...");
 	}
-	
-	protected SocketChannelAcceptor getAcceptor() {
+
+	public SocketChannelAcceptor getAcceptor() {
 		return acceptor;
 	}
 
-	protected void stop() {
+	public void stop() {
 		CloseUtil.unbind(acceptor);
 	}
 }

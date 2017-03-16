@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.balance;
+package com.generallycloud.baseio.balance.facade;
 
+import com.generallycloud.baseio.balance.BalanceContext;
+import com.generallycloud.baseio.balance.BalanceReadFuture;
+import com.generallycloud.baseio.balance.BalanceReadFutureFactory;
+import com.generallycloud.baseio.balance.FacadeInterceptor;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
@@ -49,23 +54,35 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
-
-		if (f.getToken().longValue() == 0) {
-			fs.flush(readFutureFactory.createTokenPacket(fs));
-			return;
-		}
-
+		
 		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
-
+		
 		if (rs == null || rs.isClosed()) {
 			logger.info("none load node found: [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
 			return;
 		}
 
-		rs.flush(f.translate());
+		doAccept(fs, rs, f);
+	}
+	
+	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
+			,BalanceReadFuture f){
+		
+		if (f.getToken().longValue() == 0) {
+			fs.flush(readFutureFactory.createTokenPacket(fs));
+			return;
+		}
 
+		rs.flush(f.translate());
+		
+		logDispatchMsg(fs, rs, f);
+	}
+	
+	protected void logDispatchMsg(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
+			,BalanceReadFuture f){
+		
 		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[] {
-				session.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), future });
+				fs.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), f });
 	}
 
 	@Override

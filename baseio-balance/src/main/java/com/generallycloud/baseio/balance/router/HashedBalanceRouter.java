@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio.balance.router;
 
-import com.generallycloud.baseio.balance.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
+import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class HashedBalanceRouter extends AbstractBalanceRouter {

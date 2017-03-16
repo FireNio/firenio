@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.balance;
 
+import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
+
 public class FacadeInterceptorImpl implements FacadeInterceptor {
 
 	private int	interceptorLimit;

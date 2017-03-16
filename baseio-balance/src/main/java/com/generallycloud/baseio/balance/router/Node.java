@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.balance.router;
 
-import com.generallycloud.baseio.balance.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public class Node {
 

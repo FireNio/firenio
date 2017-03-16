@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.balance;
+package com.generallycloud.baseio.balance.reverse;
 
-import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
+import com.generallycloud.baseio.component.SocketSession;
 
-public class BalanceReverseSocketSessionFactory extends SocketSessionFactoryImpl{
+public interface BalanceReverseSocketSession extends SocketSession{
 
-	@Override
-	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-		return new BalanceReverseSocketSessionImpl(channel);
-	}
+	
 	
 }
