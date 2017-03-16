@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 仅适用于：</BR>
  * M => PUT </BR>
  * M => REMOVE </BR>
- * M => GET </BR>
+ * O => GET </BR>
  * O => FOREACH
  *
  * @param <T>
