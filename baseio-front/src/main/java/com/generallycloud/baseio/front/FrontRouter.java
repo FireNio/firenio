@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentMap;
 
 public class FrontRouter {
 
-	private ConcurrentMap<Long, FrontFacadeSocketSession> clients = new ConcurrentHashMap<>();
+	private ConcurrentMap<Object, FrontFacadeSocketSession> clients = new ConcurrentHashMap<>();
 
 	public void addClientSession(FrontFacadeSocketSession session) {
 //		this.clients.put(session.get, session);
 	}
 
-	public FrontFacadeSocketSession getClientSession(Long sessionID) {
+	public FrontFacadeSocketSession getClientSession(Object sessionID) {
 		return clients.get(sessionID);
 	}
 

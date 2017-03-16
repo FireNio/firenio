@@ -51,9 +51,9 @@ public class BalanceFacadeConnectorHandler extends IoEventHandleAdaptor {
 //		int sessionID = f.getClientSessionID();
 
 		//FIXME 这行代码是错误的
-		Long token = f.getToken();
+		int sessionId = (int) f.getSessionKey();
 		
-		SocketSession response = frontRouter.getClientSession(token);
+		SocketSession response = frontRouter.getClientSession(sessionId);
 
 		if (response == null || response.isClosed()) {
 			logger.info("none load node found: [ {} ], msg: {}", response.getRemoteSocketAddress(), f);
