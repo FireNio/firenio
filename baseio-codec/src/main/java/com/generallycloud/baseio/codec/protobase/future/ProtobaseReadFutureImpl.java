@@ -42,13 +42,13 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	private int				binaryLimit;
 	private boolean			body_complete;
 	private ByteBuf			buf;
-	private int				futureID;
+	private int				futureId;
 	private String				futureName;
 	private boolean			header_complete;
 	private Parameters			parameters;
 	private int				future_name_length;
 	private int				textLength;
-	private Long				token = 0L;
+	private int				sessionId;
 	private int				hashCode;
 
 	private BufferedOutputStream	writeBinaryBuffer;
@@ -63,7 +63,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	public ProtobaseReadFutureImpl(SocketChannelContext context, int futureID, String futureName) {
 		super(context);
 		this.futureName = futureName;
-		this.futureID = futureID;
+		this.futureId = futureID;
 	}
 
 	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
@@ -101,11 +101,11 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 
 		this.future_name_length = buf.getUnsignedByte();
 
-		this.futureID = buf.getInt();
+		this.futureId = buf.getInt();
+		
+		this.sessionId = buf.getInt();
 		
 		this.hashCode = buf.getInt();
-
-		this.token = buf.getLong();
 
 		this.textLength = buf.getUnsignedShort();
 
@@ -140,8 +140,8 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	}
 
 	@Override
-	public int getFutureID() {
-		return futureID;
+	public int getFutureId() {
+		return futureId;
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 
 	@Override
 	public boolean isBroadcast() {
-		return getFutureID() == 0;
+		return getFutureId() == 0;
 	}
 
 	@Override
@@ -222,18 +222,23 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	}
 
 	@Override
-	public void setFutureID(int futureID) {
-		this.futureID = futureID;
+	public void setFutureId(int futureId) {
+		this.futureId = futureId;
 	}
 
 	@Override
-	public Long getToken() {
-		return token;
+	public Object getSessionKey() {
+		return getSessionId();
 	}
 
 	@Override
-	public void setToken(long token) {
-		this.token = token;
+	public int getSessionId() {
+		return sessionId;
+	}
+
+	@Override
+	public void setSessionId(int sessionId) {
+		this.sessionId = sessionId;
 	}
 
 	@Override

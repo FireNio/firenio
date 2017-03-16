@@ -98,9 +98,9 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		buf.putByte(byte0);
 		buf.putByte(future_name_length);
-		buf.putInt(f.getFutureID());
+		buf.putInt(f.getFutureId());
+		buf.putInt(f.getSessionId());
 		buf.putInt(f.getHashCode());
-		buf.putLong(f.getToken());
 		buf.putUnsignedShort(text_length);
 
 		buf.put(future_name_array);
@@ -133,9 +133,9 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		buf.putByte(byte0);
 		buf.putByte((byte) (future_name_length));
-		buf.putInt(f.getFutureID());
+		buf.putInt(f.getFutureId());
+		buf.putInt(f.getSessionId());
 		buf.putInt(f.getHashCode());
-		buf.putLong(f.getToken());
 		buf.putUnsignedShort(text_length);
 		buf.putInt(binary_length);
 

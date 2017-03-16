@@ -16,11 +16,12 @@
 package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
+import com.generallycloud.baseio.balance.SessionIdBalanceReadFuture;
 import com.generallycloud.baseio.component.BufferedOutputStream;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ParametersReadFuture;
 
-public interface ProtobaseReadFuture extends HashedBalanceReadFuture, NamedReadFuture , ParametersReadFuture{
+public interface ProtobaseReadFuture extends HashedBalanceReadFuture,SessionIdBalanceReadFuture, NamedReadFuture , ParametersReadFuture{
 
 	public abstract int getTextLength();
 
@@ -30,14 +31,9 @@ public interface ProtobaseReadFuture extends HashedBalanceReadFuture, NamedReadF
 
 	public abstract byte[] getBinary();
 
-	public abstract int getFutureID();
+	public abstract int getFutureId();
 	
-	@Override
-	public abstract Long getToken();
-	
-	public abstract void setToken(long token);
-
-	public abstract void setFutureID(int futureID);
+	public abstract void setFutureId(int futureId);
 
 	public abstract BufferedOutputStream getWriteBinaryBuffer();
 
