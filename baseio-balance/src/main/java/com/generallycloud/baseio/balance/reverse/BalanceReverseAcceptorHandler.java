@@ -55,7 +55,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 			return;
 		}
 
-		SocketSession response = balanceRouter.getClientSession(f.getToken());
+		SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
 
 		if (response == null || response.isClosed()) {
 

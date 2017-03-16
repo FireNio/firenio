@@ -12,23 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+/**
+ * @author wangkai
+ *
+ */
+public interface TokenBalanceReadFuture extends BalanceReadFuture{
 
-public interface BalanceReadFuture extends ReadFuture {
-
-	public static int	BROADCAST	= 1;
-
-	public static int	PUSH		= 0;
-	
-	public abstract Object getSessionKey();
-
-	public abstract boolean isBroadcast();
-
-	public abstract void setBroadcast(boolean broadcast);
-
-	public abstract BalanceReadFuture translate();
-
+	public abstract long getToken();
 }

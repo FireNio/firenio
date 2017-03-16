@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptor;
+import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptorHandler;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSessionFactory;
+import com.generallycloud.baseio.balance.facade.SessionIdBalanceFacadeAcceptorHandler;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSessionFactory;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
@@ -46,19 +48,16 @@ public class BalanceServerBootStrap {
 	private List<SocketSessionIdleEventListener>	balanceReverseSessionIdleEventListeners;
 	private BeatFutureFactory				balanceBeatFutureFactory;
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
-	private BalanceReadFutureFactory			balanceReadFutureFactory;
+	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
 	private BalanceFacadeAcceptor 			balanceFacadeAcceptor;
 	private BalanceReverseLogger				balanceReverseLogger;
+	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
 
 	public void startup() throws IOException {
 		
-		if (balanceReadFutureFactory == null) {
-			throw new IllegalArgumentException("balanceReadFutureFactory");
-		}
-
 		if (balanceRouter == null) {
 			balanceRouter = new SimpleNextRouter();
 		}
@@ -73,13 +72,19 @@ public class BalanceServerBootStrap {
 			balanceReverseLogger = new BalanceReverseLogger();
 		}
 		
-		balanceContext.setBalanceReadFutureFactory(balanceReadFutureFactory);
+		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 		
 		balanceContext.setBalanceReverseLogger(balanceReverseLogger);
 
 		balanceContext.setFacadeInterceptor(facadeInterceptor);
 		
 		balanceContext.setBalanceRouter(balanceRouter);
+		
+		if (balanceFacadeAcceptorHandler == null) {
+			balanceFacadeAcceptorHandler = new SessionIdBalanceFacadeAcceptorHandler(balanceContext);
+		}
+		
+		balanceContext.setBalanceFacadeAcceptorHandler(balanceFacadeAcceptorHandler);
 		
 		balanceContext.initialize();
 		
@@ -269,12 +274,13 @@ public class BalanceServerBootStrap {
 		this.sslContext = sslContext;
 	}
 
-	public BalanceReadFutureFactory getBalanceReadFutureFactory() {
-		return balanceReadFutureFactory;
+	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
+		return channelLostReadFutureFactory;
 	}
 
-	public void setBalanceReadFutureFactory(BalanceReadFutureFactory balanceReadFutureFactory) {
-		this.balanceReadFutureFactory = balanceReadFutureFactory;
+	public void setChannelLostReadFutureFactory(
+			ChannelLostReadFutureFactory channelLostReadFutureFactory) {
+		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
 	}
 
 	public FacadeInterceptor getFacadeInterceptor() {
@@ -291,6 +297,15 @@ public class BalanceServerBootStrap {
 
 	public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
 		this.balanceReverseLogger = balanceReverseLogger;
+	}
+
+	public BalanceFacadeAcceptorHandler getBalanceFacadeAcceptorHandler() {
+		return balanceFacadeAcceptorHandler;
+	}
+
+	public void setBalanceFacadeAcceptorHandler(
+			BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
+		this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
 	}
 	
 }

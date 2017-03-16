@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.balance;
+package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.component.UnsafeSocketSession;
 
-public interface BalanceReadFuture extends ReadFuture {
+public class TokenBalanceFacadeSocketSessionFactory extends SocketSessionFactoryImpl{
 
-	public static int	BROADCAST	= 1;
-
-	public static int	PUSH		= 0;
+	@Override
+	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+		return new TokenBalanceFacadeSocketSessionImpl(channel);
+	}
 	
-	public abstract Object getSessionKey();
-
-	public abstract boolean isBroadcast();
-
-	public abstract void setBroadcast(boolean broadcast);
-
-	public abstract BalanceReadFuture translate();
-
 }

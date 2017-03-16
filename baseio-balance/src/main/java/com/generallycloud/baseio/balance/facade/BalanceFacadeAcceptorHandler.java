@@ -17,7 +17,7 @@ package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceReadFuture;
-import com.generallycloud.baseio.balance.BalanceReadFutureFactory;
+import com.generallycloud.baseio.balance.ChannelLostReadFutureFactory;
 import com.generallycloud.baseio.balance.FacadeInterceptor;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
@@ -28,26 +28,26 @@ import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
+public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
 	private Logger					logger	= LoggerFactory.getLogger(getClass());
 	private BalanceRouter			balanceRouter;
 	private FacadeInterceptor		facadeInterceptor;
 	private ExceptionCaughtHandle		exceptionCaughtHandle;
-	private BalanceReadFutureFactory	readFutureFactory;
+	protected ChannelLostReadFutureFactory	channelLostReadFutureFactory;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
 		this.facadeInterceptor = context.getFacadeInterceptor();
-		this.readFutureFactory = context.getBalanceReadFutureFactory();
 		this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
+		this.channelLostReadFutureFactory = context.getChannelLostReadFutureFactory();
 	}
 
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
 		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
-
+		
 		BalanceReadFuture f = (BalanceReadFuture) future;
 
 		if (facadeInterceptor.intercept(fs, f)) {
@@ -65,18 +65,8 @@ public class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 		doAccept(fs, rs, f);
 	}
 	
-	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceReadFuture f){
-		
-		if (f.getToken().longValue() == 0) {
-			fs.flush(readFutureFactory.createTokenPacket(fs));
-			return;
-		}
-
-		rs.flush(f.translate());
-		
-		logDispatchMsg(fs, rs, f);
-	}
+	protected abstract void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
+			,BalanceReadFuture future);
 	
 	protected void logDispatchMsg(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
 			,BalanceReadFuture f){

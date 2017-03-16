@@ -16,14 +16,13 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.BalanceReadFutureFactory;
+import com.generallycloud.baseio.balance.ChannelLostReadFutureFactory;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
-import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
@@ -61,14 +60,12 @@ public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerA
 			return;
 		}
 
-		BalanceReadFutureFactory factory = balanceContext.getBalanceReadFutureFactory();
-
-		ReadFuture future = factory.createChannelLostPacket(fs);
+		ChannelLostReadFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
 		
-		if (future == null) {
+		if (factory == null) {
 			return;
 		}
 
-		rs.flush(future);
+		rs.flush(factory.createChannelLostPacket(fs));
 	}
 }

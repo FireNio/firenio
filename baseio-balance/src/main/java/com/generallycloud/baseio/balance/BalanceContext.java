@@ -38,7 +38,7 @@ public class BalanceContext {
 	private BalanceRouter					balanceRouter;
 	private BalanceReverseAcceptorHandler		balanceReverseAcceptorHandler;
 	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
-	private BalanceReadFutureFactory			balanceReadFutureFactory;
+	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private FacadeInterceptor				facadeInterceptor;
 	private BalanceReverseLogger				balanceReverseLogger;
 	private ExceptionCaughtHandle				facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
@@ -47,7 +47,6 @@ public class BalanceContext {
 	public void initialize() {
 		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
 		this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);
-		this.balanceFacadeAcceptorHandler = new BalanceFacadeAcceptorHandler(this);
 		this.balanceReverseAcceptorHandler = new BalanceReverseAcceptorHandler(this);
 	}
 
@@ -79,12 +78,13 @@ public class BalanceContext {
 		return balanceRouter;
 	}
 
-	public BalanceReadFutureFactory getBalanceReadFutureFactory() {
-		return balanceReadFutureFactory;
+	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
+		return channelLostReadFutureFactory;
 	}
 
-	public void setBalanceReadFutureFactory(BalanceReadFutureFactory balanceReadFutureFactory) {
-		this.balanceReadFutureFactory = balanceReadFutureFactory;
+	public void setChannelLostReadFutureFactory(
+			ChannelLostReadFutureFactory channelLostReadFutureFactory) {
+		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
 	}
 
 	public FacadeInterceptor getFacadeInterceptor() {
@@ -124,6 +124,11 @@ public class BalanceContext {
 
 	public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
 		this.balanceReverseLogger = balanceReverseLogger;
+	}
+	
+	public void setBalanceFacadeAcceptorHandler(
+			BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
+		this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
 	}
 	
 }

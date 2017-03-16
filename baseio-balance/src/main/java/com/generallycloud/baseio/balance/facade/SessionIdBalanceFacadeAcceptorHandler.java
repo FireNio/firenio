@@ -12,20 +12,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.facade;
 
+import com.generallycloud.baseio.balance.BalanceContext;
+import com.generallycloud.baseio.balance.BalanceReadFuture;
+import com.generallycloud.baseio.balance.SessionIdBalanceReadFuture;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
-import com.generallycloud.baseio.component.SocketSession;
 
-public interface BalanceFacadeSocketSession extends SocketSession {
+public class SessionIdBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
+
+	public SessionIdBalanceFacadeAcceptorHandler(BalanceContext context) {
+		super(context);
+	}
 	
-	public abstract Object getSessionKey();
-	
-	public abstract boolean overfulfil(int size);
+	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
+			,BalanceReadFuture future){
+		
+		SessionIdBalanceReadFuture f = (SessionIdBalanceReadFuture) future;
+		
+		f.setSessionId(fs.getSessionId());
 
-	public abstract BalanceReverseSocketSession getReverseSocketSession();
-
-	public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+		rs.flush(f.translate());
+		
+		logDispatchMsg(fs, rs, f);
+	}
 
 }

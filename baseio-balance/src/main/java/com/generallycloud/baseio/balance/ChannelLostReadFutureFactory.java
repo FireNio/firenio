@@ -18,9 +18,7 @@ package com.generallycloud.baseio.balance;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public interface BalanceReadFutureFactory {
+public interface ChannelLostReadFutureFactory {
 
 	public abstract ReadFuture createChannelLostPacket(BalanceFacadeSocketSession session);
-	
-	public abstract ReadFuture createTokenPacket(BalanceFacadeSocketSession session);
 }

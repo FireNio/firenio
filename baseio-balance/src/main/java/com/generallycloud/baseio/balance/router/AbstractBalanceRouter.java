@@ -23,21 +23,21 @@ import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter{
 
-	private ConcurrentMap<Long, BalanceFacadeSocketSession> clients = new ConcurrentHashMap<>();
+	private ConcurrentMap<Object, BalanceFacadeSocketSession> clients = new ConcurrentHashMap<>();
 
 	@Override
 	public void addClientSession(BalanceFacadeSocketSession session) {
-		this.clients.put(session.getToken(), session);
+		this.clients.put(session.getSessionKey(), session);
 	}
 
 	@Override
-	public BalanceFacadeSocketSession getClientSession(Long token) {
-		return clients.get(token);
+	public BalanceFacadeSocketSession getClientSession(Object key) {
+		return clients.get(key);
 	}
 
 	@Override
 	public void removeClientSession(BalanceFacadeSocketSession session) {
-		this.clients.remove(session.getToken());
+		this.clients.remove(session.getSessionKey());
 	}
 	
 	@Override

@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.balance;
+package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
-
-public interface BalanceReadFuture extends ReadFuture {
-
-	public static int	BROADCAST	= 1;
-
-	public static int	PUSH		= 0;
+public interface TokenBalanceFacadeSocketSession extends BalanceFacadeSocketSession {
 	
-	public abstract Object getSessionKey();
-
-	public abstract boolean isBroadcast();
-
-	public abstract void setBroadcast(boolean broadcast);
-
-	public abstract BalanceReadFuture translate();
-
+	public abstract Long getToken();
+	
 }

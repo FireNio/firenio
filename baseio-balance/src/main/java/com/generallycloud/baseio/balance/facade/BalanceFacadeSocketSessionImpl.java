@@ -29,14 +29,10 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl
 
 	private long						next_check_time;
 
-	private Long						token;
-
 	private BalanceReverseSocketSession	reverseSocketSession;
 
 	public BalanceFacadeSocketSessionImpl(SocketChannel channel) {
 		super(channel);
-
-		this.token = generateToken();
 	}
 
 	@Override
@@ -62,14 +58,6 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl
 		this.reverseSocketSession = reverseSocketSession;
 	}
 
-	private Long generateToken() {
-		long r = new Random().nextInt();
-		if (r < 0) {
-			r *= -1;
-		}
-		return getSessionID().longValue() | (r << 32);
-	}
-	
 	private static Long generateToken1() {
 		long r = new Random().nextInt();
 		if (r < 0) {
@@ -80,16 +68,16 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl
 	}
 	
 	@Override
-	public Long getToken() {
-		return token;
+	public Object getSessionKey() {
+		return getSessionId();
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 		for (int i = 0; i < 20; i++) {
-			System.out.println(	MathUtil.long2HexString(generateToken1()));
+			System.out.println(MathUtil.long2HexString(generateToken1()));
 		}
-		
+
 	}
-	
+
 }

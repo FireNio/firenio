@@ -26,7 +26,6 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class BalanceFacadeAcceptor {
 
-	private byte[]				runLock			= new byte[] {};
 	private boolean			running			= false;
 	private BalanceContext		balanceContext		= null;
 	private SocketChannelAcceptor	channelAcceptor	= null;
@@ -38,7 +37,7 @@ public class BalanceFacadeAcceptor {
 			throw new IllegalArgumentException("null configuration");
 		}
 
-		synchronized (runLock) {
+		synchronized (this) {
 
 			if (running) {
 				return;
@@ -53,13 +52,13 @@ public class BalanceFacadeAcceptor {
 			this.channelAcceptor.bind();
 
 			LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
-					"Balance Facade Acceptor 启动成功 ...");
+					"Balance Facade Acceptor startup completed ...");
 		}
 
 	}
 
 	public void stop() {
-		synchronized (runLock) {
+		synchronized (this) {
 			CloseUtil.unbind(channelAcceptor);
 			this.balanceContext.getBalanceReverseAcceptor().stop();
 		}
