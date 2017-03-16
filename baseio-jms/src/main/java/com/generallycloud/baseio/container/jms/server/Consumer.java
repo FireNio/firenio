@@ -66,7 +66,7 @@ public class Consumer {
 
 		SocketSession session = this.session;
 
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
+		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
 
 		f.attach(this);
 
@@ -96,7 +96,7 @@ public class Consumer {
 
 	@Override
 	public Consumer clone() {
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureID(), future.getFutureName());
+		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }
