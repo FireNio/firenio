@@ -22,7 +22,6 @@ import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -44,8 +43,6 @@ public class TestBalanceClient {
 		
 		final AtomicInteger res = new AtomicInteger();
 		
-		Object lock = new Object();
-
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
@@ -53,13 +50,13 @@ public class TestBalanceClient {
 				
 				ProtobaseReadFuture f = (ProtobaseReadFuture)future;
 				
-				if ("getToken".equals(f.getFutureName())) {
-					synchronized (lock) {
-						((BalanceClientSocketSession) session).setToken(f.getToken());
-						lock.notify();
-					}
-					return;
-				}
+//				if ("getToken".equals(f.getFutureName())) {
+//					synchronized (lock) {
+//						((BalanceClientSocketSession) session).setToken(f.getToken());
+//						lock.notify();
+//					}
+//					return;
+//				}
 				
 				System.out.println(f.getReadText()+"______R:"+System.currentTimeMillis());
 				
@@ -83,24 +80,12 @@ public class TestBalanceClient {
 		
 		BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
 		
-		ProtobaseReadFuture getToken = new ProtobaseReadFutureImpl(connector.getContext(), "getToken");
-		
-		session.flush(getToken);
-		
-		synchronized (lock) {
-			if (session.getToken() == null) {
-				lock.wait();
-			}
-		}
-		
 		for (int i = 0; i < 100; i++) {
 
 			int fid = Math.abs(new Random().nextInt());
 			
 			ProtobaseReadFuture future = ReadFutureFactory.create(session,fid, "service-name");
 
-			future.setToken(session.getToken());
-			
 			future.write("你好！");
 			
 			future.setHashCode(fid);

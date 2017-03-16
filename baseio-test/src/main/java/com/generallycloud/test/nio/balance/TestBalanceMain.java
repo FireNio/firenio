@@ -44,7 +44,6 @@ public class TestBalanceMain {
 		f.setBalanceReverseServerConfiguration(frc);
 		f.setFacadeInterceptor(new FacadeInterceptorImpl(500,50000));
 		f.setBalanceRouter(new HashedBalanceRouter(10240));
-		f.setBalanceReadFutureFactory(new TestBalanceReadFutureFactory());
 		f.setBalanceRouter(new SimpleNextRouter());
 		
 		f.startup();
