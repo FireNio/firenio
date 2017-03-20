@@ -29,8 +29,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
  * Protobase（自定义协议），支持传输文本和二进制数据及混合数据
 * 压力测试
- * 超过320K QPS的处理速度(Socket,I7-4790,Win10)
- * 超过200K QPS的处理速度(Http1.1,I7-4790,Win10)  [ab压测](/baseio-documents/load-test/load-test-http.txt)
+ * 超过180W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-documents/load-test/load-test-http.txt)
  
 ## 快速入门
 
