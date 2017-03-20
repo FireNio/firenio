@@ -1,57 +1,29 @@
-C:\Users\Test2\Desktop\httpd\bin>ab -n 20000000 -c 200 -k http://localhost:80/test
-This is ApacheBench, Version 2.3 <$Revision: 1604373 $>
-Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Licensed to The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking localhost (be patient)
-Completed 2000000 requests
-Completed 4000000 requests
-Completed 6000000 requests
-Completed 8000000 requests
-Completed 10000000 requests
-Completed 12000000 requests
-Completed 14000000 requests
-Completed 16000000 requests
-Completed 18000000 requests
-Completed 20000000 requests
-Finished 20000000 requests
-
-
-Server Software:        aseio/0.0.1
-Server Hostname:        localhost
-Server Port:            80
-
-Document Path:          /test
-Document Length:        44 bytes
-
-Concurrency Level:      200
-Time taken for tests:   88.771 seconds
-Complete requests:      20000000
-Failed requests:        0
-Keep-Alive requests:    20000000
-Total transferred:      3300000000 bytes
-HTML transferred:       880000000 bytes
-Requests per second:    225299.83 [#/sec] (mean)
-Time per request:       0.888 [ms] (mean)
-Time per request:       0.004 [ms] (mean, across all concurrent requests)
-Transfer rate:          36303.20 [Kbytes/sec] received
-
-Connection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0    0   0.1      0     516
-Processing:     0    1   3.9      0     535
-Waiting:        0    1   3.9      0     535
-Total:          0    1   3.9      0     535
-
-Percentage of the requests served within a certain time (ms)
-  50%      0
-  66%      0
-  75%      0
-  80%      0
-  90%      0
-  95%     16
-  98%     16
-  99%     16
- 100%    535 (longest request)
-
-C:\Users\Test2\Desktop\httpd\bin>
+test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t32 -c128 -d10s http://localhost:8080 -s pipeline.lua --latency -- / 1024
+Running 10s test @ http://localhost:8080
+  32 threads and 128 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    45.01ms   32.92ms 302.53ms   67.28%
+    Req/Sec    55.73k    16.97k  154.02k    70.92%
+  Latency Distribution
+     50%   41.33ms
+     75%   68.27ms
+     90%   98.86ms
+     99%    0.00us
+  18004042 requests in 10.10s, 2.23GB read
+Requests/sec: 1783166.33
+Transfer/sec:    226.17MB
+test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t32 -c128 -d10s http://localhost:8080 -s pipeline.lua --latency -- / 2048
+Running 10s test @ http://localhost:8080
+  32 threads and 128 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    77.19ms   47.29ms 313.42ms   61.36%
+    Req/Sec    57.08k    16.62k  238.23k    73.58%
+  Latency Distribution
+     50%   79.80ms
+     75%  120.00ms
+     90%  164.80ms
+     99%    0.00us
+  18403745 requests in 10.10s, 2.28GB read
+Requests/sec: 1822808.46
+Transfer/sec:    231.20MB
+test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ 
