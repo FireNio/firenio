@@ -17,21 +17,21 @@ package com.generallycloud.baseio.concurrent;
 
 public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T> {
 
-	private FixedAtomicInteger	_end;
+	private FixedAtomicInteger	end;
 
 	protected ListQueueM2O(int capability) {
 		super(capability);
-		_end = new FixedAtomicInteger(capability - 1);
+		end = new FixedAtomicInteger(capability - 1);
 	}
 
 	protected ListQueueM2O() {
 		super();
-		_end = new FixedAtomicInteger(_capability - 1);
+		end = new FixedAtomicInteger(capability - 1);
 	}
 
 	@Override
 	public final int getAndIncrementEnd() {
-		return _end.getAndIncrement();
+		return end.getAndIncrement();
 	}
 
 }

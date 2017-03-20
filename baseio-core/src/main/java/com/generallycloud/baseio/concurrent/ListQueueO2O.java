@@ -17,7 +17,7 @@ package com.generallycloud.baseio.concurrent;
 
 public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
 
-	private int			_end			;
+	private int			end			;
 
 	protected ListQueueO2O(int _capability) {
 		super(_capability);
@@ -29,10 +29,10 @@ public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T
 	
 	@Override
 	protected int getAndIncrementEnd() {
-		if (_end == _capability) {
-			_end = 0;
+		if (end == capability) {
+			end = 0;
 		}
-		return _end++;
+		return end++;
 	}
 	
 	

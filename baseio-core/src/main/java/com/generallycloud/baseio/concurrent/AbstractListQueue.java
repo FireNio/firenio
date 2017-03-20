@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.TimeUnit;
@@ -24,18 +24,18 @@ import com.generallycloud.baseio.common.MessageFormatter;
 
 public abstract class AbstractListQueue<T> implements ListQueue<T> {
 
-	protected int			_capability	;
-	private Object[]		_array		;
-	private AtomicInteger	_size		= new AtomicInteger(0);
-	private ReentrantLock	_lock		= new ReentrantLock();
-	private AtomicInteger	_real_size	= new AtomicInteger();
-	private Condition		_notEmpty		= _lock.newCondition();
-	private boolean		_locked		= false;
-	private int			_start		;
+	protected int			capability;
+	private volatile T[]	array;
+	private AtomicInteger	size	= new AtomicInteger(0);
+	private ReentrantLock	lock	= new ReentrantLock();
+	private Condition		notEmpty	= lock.newCondition();
+	private volatile boolean	locked	= false;
+	private int			start;
 
+	@SuppressWarnings("unchecked")
 	protected AbstractListQueue(int capability) {
-		this._capability = capability;
-		this._array = new Object[capability];
+		this.capability = capability;
+		this.array = (T[]) new Object[capability];
 	}
 
 	protected AbstractListQueue() {
@@ -44,25 +44,25 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 
 	@Override
 	public boolean offer(T object) {
+		
 		if (!tryIncrementSize()) {
 			return false;
 		}
 
-		int _c = getAndIncrementEnd();
+		array[getAndIncrementEnd()] = object;
+		
+		if (locked) {
 
-		_array[_c] = object;
-
-		_real_size.incrementAndGet();
-
-		if (_locked) {
-
-			final ReentrantLock _lock = this._lock;
+			ReentrantLock _lock = this.lock;
 
 			_lock.lock();
 
-			_notEmpty.signal();
+			try {
+				notEmpty.signal();
+			} catch (Exception e) {
+			}
 
-			_locked = false;
+			locked = false;
 
 			_lock.unlock();
 		}
@@ -71,94 +71,95 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 	}
 
 	private boolean tryIncrementSize() {
-
-		for (;;) {
-			int __size = _size.get();
-			
-			int _next = __size + 1;
-
-			if (_next > _capability) {
-				return false;
-			}
-
-			if (_size.compareAndSet(__size, _next))
-				return true;
+		
+		int _size = size.incrementAndGet();
+		
+		if (_size > capability) {
+			size.decrementAndGet();
+			return false;
 		}
+		
+		return true;
 	}
-	
+
+	private boolean hasElement() {
+
+		int _size = size.decrementAndGet();
+
+		if (_size < 0) {
+			size.incrementAndGet();
+		}
+
+		return true;
+	}
+
 	@Override
-	@SuppressWarnings("unchecked")
 	public T poll() {
 
-		if (_real_size.get() == 0) {
+		if (!hasElement()) {
 			return null;
 		}
 
-		int index = getAndincrementStart();
-
-		Object obj = _array[index];
-
-		_size.decrementAndGet();
-
-		_real_size.decrementAndGet();
-
-		return (T) obj;
+		return getObject(getAndincrementStart());
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public T poll(long timeout) {
 
-		if (_real_size.get() == 0) {
+		if (size() == 0) {
 
-			final ReentrantLock _lock = this._lock;
+			final ReentrantLock _lock = this.lock;
 
 			_lock.lock();
 
 			try {
-				_locked = true;
+				locked = true;
 
-				_notEmpty.await(timeout, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e1) {
+				notEmpty.await(timeout, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
 
-				_notEmpty.signal();
+				notEmpty.signal();
 			}
-			
-			_locked = false;
+
+			locked = false;
 
 			_lock.unlock();
-
-			return poll();
 		}
 
-		int index = getAndincrementStart();
+		return poll();
+	}
 
-		Object obj = _array[index];
-
-		_size.decrementAndGet();
-
-		_real_size.decrementAndGet();
-
-		return (T) obj;
+	private T getObject(int index) {
+		T obj = array[index];
+		if (obj == null) {
+			for (;;) {
+				obj = array[index];
+				if (obj == null) {
+					continue;
+				}
+				return obj;
+			}
+		}
+		return obj;
 	}
 
 	@Override
 	public int size() {
-		return _size.get();
+		return size.get();
 	}
-	
+
 	protected int getAndincrementStart() {
-		if (_start == _capability) {
-			_start = 0;
+		if (start == capability) {
+			start = 0;
 		}
-		return _start++;
+		return start++;
 	}
-	
+
 	protected abstract int getAndIncrementEnd();
-	
+
 	@Override
 	public String toString() {
-		return MessageFormatter.format("capability {} , size {}", _capability,_real_size.get());
+		return MessageFormatter.format("capability {} , size {}", capability, size.get());
 	}
 
 }
