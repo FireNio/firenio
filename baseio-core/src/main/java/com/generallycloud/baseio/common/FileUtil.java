@@ -680,5 +680,51 @@ public class FileUtil {
 
 		onDirectoryScan.onFile(file);
 	}
+	
+	public static boolean inJarFile(File file){
+		
+		File parent = file;
+		
+		for(;parent != null;){
+			
+			if (parent.getName().endsWith(".jar!")) {
+				return true;
+			}
+
+			parent = parent.getParentFile();
+		}
+		
+		return false;
+	}
+	
+	public static File getJarParentDirectory(File file) throws IOException{
+		
+		File parent = file;
+		
+		for(;parent != null;){
+			
+			if (parent.getName().endsWith(".jar!")) {
+				return parent.getParentFile();
+			}
+
+			parent = parent.getParentFile();
+		}
+		
+		throw new IOException("not a jar");
+	}
+	
+	public static File getParentDirectory(File file) throws IOException{
+		
+		if (file.isDirectory()) {
+			return file;
+		}
+		
+		if (inJarFile(file)) {
+			return getJarParentDirectory(file);
+		}
+		
+		return file.getParentFile();
+		
+	}
 
 }

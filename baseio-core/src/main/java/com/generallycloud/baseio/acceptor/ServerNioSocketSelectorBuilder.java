@@ -20,7 +20,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 
 import com.generallycloud.baseio.component.NioChannelService;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketSelector;
 import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoop;
@@ -34,7 +34,7 @@ public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
 	@Override
 	public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
 		
-		SocketChannelContext context = selectorLoop.getChannelContext();
+		NioSocketChannelContext context = selectorLoop.getChannelContext();
 		
 		NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
 		
@@ -44,6 +44,8 @@ public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
 		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
 		
 		if (selectorLoop.isMainEventLoop()) {
+			
+			context.getSessionManager().initSocketSelectorEventLoop(selectorLoop);
 
 			// 注册监听事件到该selector
 			channel.register(selector, SelectionKey.OP_ACCEPT);

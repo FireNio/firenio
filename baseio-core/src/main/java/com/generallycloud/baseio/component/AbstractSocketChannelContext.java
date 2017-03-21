@@ -50,7 +50,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
 	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
 	private Logger									logger					= LoggerFactory.getLogger(getClass());
-	protected SocketSessionManager					sessionManager;
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -79,11 +78,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	}
 
 	@Override
-	public SocketSessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	@Override
 	public void setSessionAttachmentSize(int sessionAttachmentSize) {
 		this.sessionAttachmentSize = sessionAttachmentSize;
 	}
@@ -109,7 +103,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 	public AbstractSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
-		this.sessionManager = new SocketSessionManager(this);
 	}
 
 	@Override
@@ -333,11 +326,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	@Override
 	public ForeReadFutureAcceptor getForeReadFutureAcceptor() {
 		return foreReadFutureAcceptor;
-	}
-
-	@Override
-	public void setSessionManager(SocketSessionManager sessionManager) {
-		this.sessionManager = sessionManager;
 	}
 
 }

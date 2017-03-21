@@ -33,11 +33,14 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 	private WriteCompletionHandler			writeCompletionHandler;
 
 	private AioSessionManangerEventLoopGroup	sessionManangerEventLoopGroup;
+	
+	private AioSocketSessionManager			sessionManager;
 
 	private Logger							logger	= LoggerFactory.getLogger(getClass());
 
 	public AioSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
+		this.sessionManager = new AioSocketSessionManager(this);
 	}
 
 	@Override
@@ -88,4 +91,13 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 		return writeCompletionHandler;
 	}
 
+	@Override
+	public AioSocketSessionManager getSessionManager() {
+		return sessionManager;
+	}
+	
+	@Override
+	public void setSessionManager(SocketSessionManager sessionManager) {
+		this.sessionManager = (AioSocketSessionManager) sessionManager;
+	}
 }

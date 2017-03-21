@@ -23,6 +23,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionManager;
@@ -33,7 +34,6 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 
 /**
  * @author wangkai
- *
  */
 public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAcceptor {
 
@@ -74,21 +74,26 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 	
 	public void broadcast(ChannelWriteFuture future) {
 		
-		Map<Integer, SocketSession> sessions = socketSessionManager.getManagedSessions();
+		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
+			
+			@Override
+			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
+				
+				if (sessions.isEmpty()) {
+					ReleaseUtil.release(future);
+					return;
+				}
+				
+				Collection<SocketSession> ss = sessions.values();
 
-		if (sessions.isEmpty()) {
-			ReleaseUtil.release(future);
-			return;
-		}
-		
-		Collection<SocketSession> ss = sessions.values();
+				for (SocketSession s : ss) {
 
-		for (SocketSession s : ss) {
+					s.flush(future.duplicate());
+				}
 
-			s.flush(future.duplicate());
-		}
-
-		ReleaseUtil.release(future);
+				ReleaseUtil.release(future);
+			}
+		});
 	}
 
 	@Override
