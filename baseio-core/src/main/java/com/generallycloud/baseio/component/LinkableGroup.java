@@ -42,11 +42,6 @@ public class LinkableGroup<T> {
 		tailLink = linkable;
 	}
 	
-	public void removeLink(Linkable<T> linkable){
-		//TODO removeLink
-		throw new UnsupportedOperationException();
-	}
-	
 	public void clear(){
 		rootLink = null;
 		tailLink = null;

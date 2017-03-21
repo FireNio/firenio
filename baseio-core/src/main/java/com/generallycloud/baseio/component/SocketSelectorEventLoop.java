@@ -283,7 +283,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 		} catch (Throwable e) {
 
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage());
+			logger.debug(e);
 		}
 	}
 

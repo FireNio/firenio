@@ -15,6 +15,14 @@
  */ 
 package com.generallycloud.baseio.concurrent;
 
+/**
+ * 仅适用于：</BR>
+ * MULTIPLE => OFFER </BR>
+ * SINGLE => POLL </BR>
+ * SINGLE => SIZE
+ * @param <K>
+ * @param <V>
+ */
 public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T> {
 
 	private FixedAtomicInteger	end;

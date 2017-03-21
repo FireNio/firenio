@@ -17,7 +17,7 @@ package com.generallycloud.baseio.common;
 
 public class DebugUtil {
 
-	private static boolean	enableDebug	= true;
+	private static boolean	enableDebug	= false;
 
 	public static void debug(Throwable e) {
 		if (enableDebug) {

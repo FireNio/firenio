@@ -51,7 +51,8 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 
 	protected void cancelSelectionKey(Channel channel, Throwable t) {
 
-		logger.error(t.getMessage() + " channel:" + channel, t);
+		logger.error(t.getMessage() + " channel:" + channel);
+		logger.debug(t);
 
 		CloseUtil.close(channel);
 	}

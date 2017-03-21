@@ -12,36 +12,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.concurrent;
+ */
+package com.generallycloud.baseio.component;
 
 /**
- * 仅适用于：</BR>
- * SINGLE => OFFER </BR>
- * SINGLE => POLL </BR>
- * SINGLE => SIZE 
- * @param <K>
- * @param <V>
+ * @author wangkai
+ *
  */
-public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
+public class DoubleLinkableGroup<T> {
 
-	private int			end			;
+	private DoubleLinkable<T> rootLink;
+	
+	private DoubleLinkable<T> tailLink;
 
-	protected ListQueueO2O(int _capability) {
-		super(_capability);
+	public DoubleLinkable<T> getRootLink() {
+		return rootLink;
 	}
 	
-	protected ListQueueO2O(){
-		super();
-	}
-	
-	@Override
-	protected int getAndIncrementEnd() {
-		if (end == capability) {
-			end = 0;
+	public void addLink(DoubleLinkable<T> linkable){
+		
+		if (rootLink == null) {
+			rootLink = linkable;
+			tailLink = rootLink;
+			return;
 		}
-		return end++;
+		
+		tailLink.setNext(linkable);
+		
+		tailLink = linkable;
 	}
 	
+	public void removeLink(DoubleLinkable<T> linkable){
+		//TODO removeLink
+		throw new UnsupportedOperationException();
+	}
+	
+	public void clear(){
+		rootLink = null;
+		tailLink = null;
+	}
 	
 }

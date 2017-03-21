@@ -12,36 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.concurrent;
+ */
+package com.generallycloud.baseio.component;
 
 /**
- * 仅适用于：</BR>
- * SINGLE => OFFER </BR>
- * SINGLE => POLL </BR>
- * SINGLE => SIZE 
- * @param <K>
- * @param <V>
+ * @author wangkai
+ *
  */
-public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
+public interface DoubleLinkable<T> extends Linkable<T>{
 
-	private int			end			;
-
-	protected ListQueueO2O(int _capability) {
-		super(_capability);
-	}
+	public abstract Linkable<T> getLast();
 	
-	protected ListQueueO2O(){
-		super();
-	}
-	
-	@Override
-	protected int getAndIncrementEnd() {
-		if (end == capability) {
-			end = 0;
-		}
-		return end++;
-	}
-	
+	public abstract void setLast(Linkable<T> last);
 	
 }

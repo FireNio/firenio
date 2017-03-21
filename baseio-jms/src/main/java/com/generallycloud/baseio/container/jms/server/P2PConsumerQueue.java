@@ -15,13 +15,14 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.baseio.concurrent.ReentrantList;
 
 public class P2PConsumerQueue implements ConsumerQueue{
 	
-	private ReentrantList<Consumer> consumers = new ReentrantList<Consumer>();
+	private ReentrantList<Consumer> consumers = new ReentrantList<>(new ArrayList<>());
 	
 	@Override
 	public int size(){

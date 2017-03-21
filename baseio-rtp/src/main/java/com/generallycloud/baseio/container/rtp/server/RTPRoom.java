@@ -15,6 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.rtp.server;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -34,7 +35,7 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
-	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<DatagramSession>();
+	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<>(new ArrayList<>());
 	private RTPRoomFactory			roomFactory	;
 	private Integer				roomID		;
 	private boolean				closed		= false;

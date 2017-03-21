@@ -21,19 +21,22 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 仅适用于：</BR>
- * M => PUT </BR>
- * M => REMOVE </BR>
- * O => GET </BR>
- * O => FOREACH
- *
+ * MULTIPLE => PUT </BR>
+ * MULTIPLE => REMOVE </BR>
+ * SINGLE => FOREACH </BR>
+ * SINGLE => SIZE
  * @param <T>
  */
 public class ReentrantList<T> {
 
-	private List<T>		snapshot		= new ArrayList<T>();
+	private List<T>		snapshot		;
 	private List<Event>		modifList		= new ArrayList<Event>();
 	private ReentrantLock	loack		= new ReentrantLock();
 	private boolean		modifid		= false;
+
+	public ReentrantList(List<T> snapshot) {
+		this.snapshot = snapshot;
+	}
 
 	public List<T> takeSnapshot() {
 		if (modifid) {
@@ -65,53 +68,31 @@ public class ReentrantList<T> {
 	}
 
 	public boolean add(T t) {
-
+		return modif(t, true);
+	}
+	
+	private boolean modif(T t,boolean isAdd){
 		ReentrantLock lock = this.loack;
-
 		lock.lock();
-
 		Event e = new Event();
-		e.isAdd = true;
+		e.isAdd = isAdd;
 		e.value = t;
-
 		this.modifList.add(e);
-
 		this.modifid = true;
-
 		lock.unlock();
-
 		return true;
 	}
 
 	public void remove(T t) {
-
-		ReentrantLock lock = this.loack;
-
-		lock.lock();
-
-		Event e = new Event();
-		e.isAdd = false;
-		e.value = t;
-
-		this.modifList.add(e);
-
-		this.modifid = true;
-
-		lock.unlock();
+		modif(t, false);
 	}
 	
 	public void clear(){
-		
 		ReentrantLock lock = this.loack;
-
 		lock.lock();
-
 		this.modifList.clear();
-
 		this.modifid = false;
-		
 		this.snapshot.clear();
-
 		lock.unlock();
 	}
 
@@ -120,11 +101,7 @@ public class ReentrantList<T> {
 	}
 
 	public int size() {
-		
-		takeSnapshot();
-		
-		return snapshot.size();
-		
+		return takeSnapshot().size();
 	}
 	
 	public boolean isEmpty(){
