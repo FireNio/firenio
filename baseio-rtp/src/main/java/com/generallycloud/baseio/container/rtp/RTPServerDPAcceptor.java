@@ -97,7 +97,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 			//FIXME udp
 			
-			SocketChannelContext channelContext = context.getContext();
+			SocketChannelContext channelContext = context.getChannelContext();
 			
 			SocketSessionManager sessionManager = channelContext.getSessionManager();
 			
