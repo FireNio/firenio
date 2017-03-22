@@ -130,7 +130,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		mapping.put("txt", HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN);
 		mapping.put("ico", HttpReadFuture.CONTENT_TYPE_IMAGE_ICON);
 
-		scanFolder(context.getContext(),rootFile, rootPath, mapping);
+		scanFolder(context.getChannelContext(),rootFile, rootPath, mapping);
 
 		super.initialize(context, config);
 	}

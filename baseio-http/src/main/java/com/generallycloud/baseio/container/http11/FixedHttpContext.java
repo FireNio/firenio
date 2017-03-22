@@ -31,7 +31,7 @@ public class FixedHttpContext extends AbstractPluginContext{
 		
 		this.httpContext.start();
 		
-		context.getContext().addSessionEventListener(new WebSocketSEListener());
+		context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
 	}
 
 	@Override
