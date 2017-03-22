@@ -25,11 +25,11 @@ import com.generallycloud.baseio.common.StringUtil;
 public abstract class AbstractACLoader implements ApplicationConfigurationLoader{
 
 	@Override
-	public ApplicationConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
+	public ApplicationConfiguration loadConfiguration(String rootPath,SharedBundle bundle) throws Exception {
 		
 		ApplicationConfiguration configuration = new ApplicationConfiguration();
 		
-		initApplicationConfigurationLoader(configuration);
+		initApplicationConfigurationLoader(rootPath,configuration);
 
 		configuration.setFiltersConfiguration(loadFiltersConfiguration(bundle));
 		configuration.setPluginsConfiguration(loadPluginsConfiguration(bundle));
@@ -39,7 +39,7 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 		return configuration;
 	}
 	
-	protected abstract void initApplicationConfigurationLoader(ApplicationConfiguration configuration) throws IOException;
+	protected abstract void initApplicationConfigurationLoader(String rootPath,ApplicationConfiguration configuration) throws IOException;
 	
 	protected abstract FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException;
 	

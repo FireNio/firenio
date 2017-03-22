@@ -58,8 +58,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
 		ApplicationContext applicationContext = this.applicationContext;
 
-		applicationContext.setContext(context);
-
 		LifeCycleUtil.start(applicationContext);
 
 		this.filterService = applicationContext.getFilterService();

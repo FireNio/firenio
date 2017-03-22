@@ -54,7 +54,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Sequence						sequence		= new Sequence();
 	private DynamicClassLoader				classLoader	= new DynamicClassLoader();
 	private ApplicationConfiguration			configuration;
-	private SocketChannelContext				context;
+	private SocketChannelContext				channelContext;
 	private Charset						encoding;
 	private FutureAcceptorService				appRedeployService;
 	private FutureAcceptor					filterService	;
@@ -74,7 +74,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	@Override
 	protected void doStart() throws Exception {
 
-		if (context == null) {
+		if (channelContext == null) {
 			throw new IllegalArgumentException("null nio context");
 		}
 		
@@ -88,7 +88,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		instance = this;
 
-		this.encoding = context.getEncoding();
+		this.encoding = channelContext.getEncoding();
 
 		this.clearPluginFilters();
 
@@ -111,11 +111,11 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
-		this.context.setSessionAttachmentSize(filterService.getPluginContexts().length);
+		this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
 	}
 
 	public void addSessionEventListener(SocketSessionEventListener listener) {
-		context.addSessionEventListener(listener);
+		channelContext.addSessionEventListener(listener);
 	}
 
 	@Override
@@ -139,8 +139,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return configuration;
 	}
 
-	public SocketChannelContext getContext() {
-		return context;
+	public SocketChannelContext getChannelContext() {
+		return channelContext;
 	}
 
 	public Charset getEncoding() {
@@ -247,8 +247,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 	}
 
-	public void setContext(SocketChannelContext context) {
-		this.context = context;
+	public void setChannelContext(SocketChannelContext context) {
+		this.channelContext = context;
 	}
 
 	public void setLoginCenter(LoginCenter loginCenter) {

@@ -26,25 +26,19 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
 	
-	private String					applicationRootPath;
-
-	public FileSystemACLoader(String applicationRootPath) {
-		this.applicationRootPath = applicationRootPath;
-	}
-	
 	@Override
-	protected void initApplicationConfigurationLoader(ApplicationConfiguration configuration) throws IOException {
+	protected void initApplicationConfigurationLoader(String rootPath,ApplicationConfiguration configuration) throws IOException {
 		
 		SharedBundle bundle = SharedBundle.instance();
 		
-		if (StringUtil.isNullOrBlank(applicationRootPath)) {
+		if (StringUtil.isNullOrBlank(rootPath)) {
 			configuration.setApplicationRootPath(bundle.getClassPath());
 			return;
 		}
 		
-		bundle.loadAllProperties(applicationRootPath);
+		bundle.loadAllProperties(rootPath);
 		
-		configuration.setApplicationRootPath(FileUtil.getPrettyPath(applicationRootPath));
+		configuration.setApplicationRootPath(FileUtil.getPrettyPath(rootPath));
 	}
 
 	@Override

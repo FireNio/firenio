@@ -12,13 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.container.configuration;
+ */
+package com.generallycloud.baseio.container;
 
-import com.generallycloud.baseio.common.SharedBundle;
+/**
+ * @author wangkai
+ *
+ */
+public interface ApplicationContextEnricher {
 
-public interface ApplicationConfigurationLoader {
-
-	public ApplicationConfiguration loadConfiguration(String rootPath,SharedBundle bundle) throws Exception;
-	
+	public abstract void enrich(ApplicationContext context);
 }
