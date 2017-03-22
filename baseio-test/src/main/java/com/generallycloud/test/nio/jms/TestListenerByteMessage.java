@@ -15,9 +15,14 @@
  */ 
 package com.generallycloud.test.nio.jms;
 
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
@@ -26,18 +31,27 @@ import com.generallycloud.baseio.container.jms.TextByteMessage;
 import com.generallycloud.baseio.container.jms.client.MessageConsumer;
 import com.generallycloud.baseio.container.jms.client.OnMessage;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestListenerByteMessage {
 
 	public static void main(String[] args) throws Exception {
-		
-		SharedBundle.instance().loadAllProperties("nio");
+
+		LoggerFactory.configure();
 		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
+		ServerConfiguration configuration = new ServerConfiguration(8300);
 
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandle);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
+		
 		FixedSession session = new FixedSession(connector.connect());
 		
 		session.login("admin", "admin100");

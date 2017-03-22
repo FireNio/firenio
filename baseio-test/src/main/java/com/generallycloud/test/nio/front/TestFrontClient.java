@@ -25,11 +25,13 @@ import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestFrontClient {
@@ -53,17 +55,19 @@ public class TestFrontClient {
 			}
 		};
 
-		ServerConfiguration configuration = new ServerConfiguration();
+		ServerConfiguration configuration = new ServerConfiguration(8900);
 
-		configuration.setSERVER_PORT(8900);
-
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
-
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 		
-		connector.connect();
-
-		SocketSession session = connector.getSession();
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
+		
+		SocketSession session = connector.connect();
 		
 		for (int i = 0; i < 10; i++) {
 

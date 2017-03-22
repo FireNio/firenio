@@ -22,16 +22,19 @@ import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestSimpleWebSocketClient {
 
@@ -39,7 +42,7 @@ public class TestSimpleWebSocketClient {
 
 		SharedBundle.instance().loadAllProperties("http");
 
-		IoEventHandleAdaptor adaptor = new IoEventHandleAdaptor() {
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
@@ -61,12 +64,7 @@ public class TestSimpleWebSocketClient {
 			}
 		};
 		
-
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(adaptor);
-		connector.getContext().setBeatFutureFactory(new WebSocketBeatFutureFactory());
-		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
-		connector.getContext().setSslContext(SSLUtil.initClient());
-		ServerConfiguration configuration = connector.getContext().getServerConfiguration();
+		ServerConfiguration configuration = new ServerConfiguration();
 		configuration.setSERVER_HOST("47.89.30.77");
 //		configuration.setSERVER_HOST("120.76.222.210");
 //		configuration.setSERVER_HOST("115.29.193.48");
@@ -75,6 +73,20 @@ public class TestSimpleWebSocketClient {
 //		configuration.setSERVER_PORT(30005);
 //		configuration.setSERVER_PORT(29000);
 //		configuration.setSERVER_PORT(8280);
+
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
+		connector.getContext().setBeatFutureFactory(new WebSocketBeatFutureFactory());
+		connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
+		connector.getContext().setSslContext(SSLUtil.initClient());
+		
 		SocketSession session = connector.connect();
 		String url = "/web-socket-chat";
 		 url = "/c1020";

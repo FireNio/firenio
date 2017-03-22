@@ -43,12 +43,6 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-sample</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-front</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>

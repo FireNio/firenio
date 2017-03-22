@@ -18,13 +18,16 @@ package com.generallycloud.test.nio.balance;
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestBalanceLoad {
 
@@ -51,15 +54,23 @@ public class TestBalanceLoad {
 			}
 		};
 
-		ServerConfiguration configuration = new ServerConfiguration();
+		ServerConfiguration configuration = new ServerConfiguration(8800);
 
-		configuration.setSERVER_PORT(8800);
-
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor, configuration);
-
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		
 		connector.connect();
+		
+		System.in.read();
+		
+		CloseUtil.close(connector);
 	}
 
 }

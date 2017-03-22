@@ -20,18 +20,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoAcceptorUtil;
 
 public class TestLoadServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		SharedBundle.instance().loadAllProperties("nio");
+		LoggerFactory.configure();
 		
 		final AtomicInteger res = new AtomicInteger();
 		final AtomicInteger req = new AtomicInteger();
@@ -55,17 +57,21 @@ public class TestLoadServer {
 			}
 		};
 
-		SocketChannelAcceptor acceptor = IoAcceptorUtil.getTCPAcceptor(eventHandleAdaptor);
-		
-		acceptor.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		ServerConfiguration c = acceptor.getContext().getServerConfiguration();
+		ServerConfiguration c = new ServerConfiguration(18300);
 		
 		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		c.setSERVER_CORE_SIZE(4);
+		
+		SocketChannelContext context = new NioSocketChannelContext(c);
+		
+		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+		
+		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		
 		acceptor.bind();
 	}

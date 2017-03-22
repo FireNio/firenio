@@ -15,17 +15,22 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.OnReadFuture;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestListenSimple {
 	
@@ -36,9 +41,21 @@ public class TestListenSimple {
 		String serviceKey = "TestListenSimpleServlet";
 		String param = "ttt";
 		
+		LoggerFactory.configure();
+		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
+		ServerConfiguration configuration = new ServerConfiguration(8300);
+
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandle);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
 
 		FixedSession session = new FixedSession(connector.connect());
 

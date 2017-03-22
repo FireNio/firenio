@@ -20,15 +20,17 @@ import java.io.IOException;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
@@ -63,20 +65,25 @@ public class TestLoadClient1 extends ITestThread {
 				addCount();
 			}
 		};
-
-		connector = IoConnectorUtil.getTCPConnector(eventHandleAdaptor);
-
-		SocketChannelContext context = connector.getContext();
-
-		ServerConfiguration c = context.getServerConfiguration();
-
-		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-		c.setSERVER_MEMORY_POOL_UNIT(128);
-		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		c.setSERVER_ENABLE_MEMORY_POOL(false);
 		
+		ServerConfiguration configuration = new ServerConfiguration();
+		
+		configuration.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+		configuration.setSERVER_MEMORY_POOL_UNIT(128);
+		configuration.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+		configuration.setSERVER_ENABLE_MEMORY_POOL(false);
 //		c.setSERVER_HOST("192.168.0.180");
 
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
+		
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
 		connector.connect();

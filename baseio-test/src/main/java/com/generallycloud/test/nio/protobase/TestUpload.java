@@ -20,13 +20,16 @@ import java.io.File;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FileSendUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestUpload {
 
@@ -34,8 +37,6 @@ public class TestUpload {
 	
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
-		
 		String serviceName = "TestUploadServlet";
 
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
@@ -58,10 +59,19 @@ public class TestUpload {
 			}
 		};
 
-		connector = IoConnectorUtil.getTCPConnector(eventHandle);
+		LoggerFactory.configure();
 		
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+		ServerConfiguration configuration = new ServerConfiguration(8800);
 
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandle);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		SocketSession session = connector.connect();
 		
 		String fileName = "lantern-installer-beta.exe";
@@ -75,8 +85,6 @@ public class TestUpload {
 		FileSendUtil fileSendUtil = new FileSendUtil();
 		
 		fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
-		
-		
 		
 	}
 }

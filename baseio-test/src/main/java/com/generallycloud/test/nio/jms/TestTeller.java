@@ -15,8 +15,13 @@
  */ 
 package com.generallycloud.test.nio.jms;
 
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobuf.ProtobufProtocolFactory;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
@@ -24,17 +29,26 @@ import com.generallycloud.baseio.container.jms.MapMessage;
 import com.generallycloud.baseio.container.jms.TextMessage;
 import com.generallycloud.baseio.container.jms.client.MessageProducer;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProducer;
-import com.generallycloud.test.nio.common.IoConnectorUtil;
 
 public class TestTeller {
 
 	public static void main(String[] args) throws Exception {
-		
-		SharedBundle.instance().loadAllProperties("nio");
 
+		LoggerFactory.configure();
+		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
+		ServerConfiguration configuration = new ServerConfiguration(8300);
+
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		
+		SocketChannelConnector connector = new SocketChannelConnector(context);
+		
+		context.setIoEventHandleAdaptor(eventHandle);
+		
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		
+		context.addSessionEventListener(new LoggerSocketSEListener());
 		
 		connector.getContext().setProtocolFactory(new ProtobufProtocolFactory());
 		
