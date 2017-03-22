@@ -21,6 +21,7 @@ import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -42,13 +43,13 @@ import com.generallycloud.baseio.container.http11.service.FutureAcceptorHttpFilt
 
 public class HttpServerStartup {
 	
-	private Logger logger = LoggerFactory.getLogger(HttpServerStartup.class);
-
 	public void launch(String base) throws Exception {
 
-		SharedBundle.instance().loadAllProperties(base);
+		SharedBundle bundle = SharedBundle.instance().loadAllProperties(base);
 		
-		ApplicationConfigurationLoader acLoader = new FileSystemACLoader();
+		LoggerFactory.configure(bundle.loadProperties("conf/log4j.properties", Encoding.UTF8));
+		
+		ApplicationConfigurationLoader acLoader = new FileSystemACLoader(base);
 
 		ApplicationConfiguration ac = acLoader.loadConfiguration(SharedBundle.instance());
 		
@@ -81,8 +82,8 @@ public class HttpServerStartup {
 			
 			if (configuration.isSERVER_ENABLE_SSL()) {
 				
-				File certificate = SharedBundle.instance().loadFile("/conf/generallycloud.com.crt");
-				File privateKey = SharedBundle.instance().loadFile("/conf/generallycloud.com.key");
+				File certificate = SharedBundle.instance().loadFile("conf/generallycloud.com.crt");
+				File privateKey = SharedBundle.instance().loadFile("conf/generallycloud.com.key");
 				
 //				File certificate = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.crt");
 //				File privateKey = SharedBundle.instance().loadFile(base + "/conf/keyutil_127.0.0.1.key");
@@ -100,7 +101,9 @@ public class HttpServerStartup {
 			acceptor.bind();
 
 		} catch (Throwable e) {
-
+			
+			Logger logger = LoggerFactory.getLogger(getClass());
+			
 			logger.error(e.getMessage(), e);
 
 			CloseUtil.unbind(acceptor);
