@@ -3,11 +3,11 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
-	<artifactId>baseio-sample</artifactId>
+	<artifactId>baseio-sample-protobase</artifactId>
 	<name>${project.artifactId}</name>
 	<version>3.1.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<description>The sample of baseio</description>
+	<description>The sample of baseio-protobase</description>
 
 	<build>
 		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
@@ -41,13 +41,19 @@
 	
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-http</artifactId>
+			<artifactId>baseio-protobase</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
+		</dependency>
+				
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-jms</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-protobase</artifactId>
+			<artifactId>baseio-rtp</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
 

@@ -1,0 +1,50 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.generallycloud</groupId>
+	<artifactId>baseio-sample-http</artifactId>
+	<name>${project.artifactId}</name>
+	<version>3.1.8-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<description>The sample of baseio-http</description>
+
+	<build>
+		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/*.cfg</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<attach>true</attach>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>com.generallycloud</groupId>
+			<artifactId>baseio-http</artifactId>
+			<version>3.1.8-SNAPSHOT</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
