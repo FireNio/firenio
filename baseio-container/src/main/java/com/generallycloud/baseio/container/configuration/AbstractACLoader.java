@@ -28,6 +28,8 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 	public ApplicationConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
 		
 		ApplicationConfiguration configuration = new ApplicationConfiguration();
+		
+		initApplicationConfigurationLoader(configuration);
 
 		configuration.setFiltersConfiguration(loadFiltersConfiguration(bundle));
 		configuration.setPluginsConfiguration(loadPluginsConfiguration(bundle));
@@ -36,6 +38,8 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 		
 		return configuration;
 	}
+	
+	protected abstract void initApplicationConfigurationLoader(ApplicationConfiguration configuration) throws IOException;
 	
 	protected abstract FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException;
 	

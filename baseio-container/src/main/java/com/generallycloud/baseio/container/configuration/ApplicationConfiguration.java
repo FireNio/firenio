@@ -12,18 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.configuration;
 
 public class ApplicationConfiguration {
 
-	private FiltersConfiguration		filtersConfiguration	;
+	private String					applicationRootPath;
 
-	private PermissionConfiguration	permissionConfiguration	;
+	private FiltersConfiguration		filtersConfiguration;
 
-	private PluginsConfiguration		pluginsConfiguration	;
+	private PermissionConfiguration	permissionConfiguration;
 
-	private ServicesConfiguration		servletsConfiguration	;
+	private PluginsConfiguration		pluginsConfiguration;
+
+	private ServicesConfiguration		servletsConfiguration;
+
+	public String getApplicationRootPath() {
+		return applicationRootPath;
+	}
 
 	public FiltersConfiguration getFiltersConfiguration() {
 		return filtersConfiguration;
@@ -39,6 +45,10 @@ public class ApplicationConfiguration {
 
 	public ServicesConfiguration getServletsConfiguration() {
 		return servletsConfiguration;
+	}
+
+	protected void setApplicationRootPath(String applicationRootPath) {
+		this.applicationRootPath = applicationRootPath;
 	}
 
 	protected void setFiltersConfiguration(FiltersConfiguration filtersConfiguration) {

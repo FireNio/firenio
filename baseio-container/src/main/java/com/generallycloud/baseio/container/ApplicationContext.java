@@ -26,7 +26,6 @@ import java.util.Map;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.container.authority.AuthorityLoginCenter;
@@ -89,8 +88,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		instance = this;
 
-		SharedBundle bundle = SharedBundle.instance();
-
 		this.encoding = context.getEncoding();
 
 		this.clearPluginFilters();
@@ -99,7 +96,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
 		
-		File temp = new File(bundle.getClassPath() + appPath);
+		File temp = new File(configuration.getApplicationRootPath() + appPath);
 
 		this.appLocalAddres = temp.getCanonicalPath() + "/";
 

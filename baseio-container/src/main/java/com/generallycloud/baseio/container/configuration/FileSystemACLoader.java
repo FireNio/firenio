@@ -20,26 +20,38 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.StringUtil;
 
 public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
+	
+	private String					applicationRootPath;
 
-	public FileSystemACLoader() {
-
+	public FileSystemACLoader(String applicationRootPath) {
+		this.applicationRootPath = applicationRootPath;
 	}
-
-	public FileSystemACLoader(String conf_path) {
-		this.conf_path = conf_path;
+	
+	@Override
+	protected void initApplicationConfigurationLoader(ApplicationConfiguration configuration) throws IOException {
+		
+		SharedBundle bundle = SharedBundle.instance();
+		
+		if (StringUtil.isNullOrBlank(applicationRootPath)) {
+			configuration.setApplicationRootPath(bundle.getClassPath());
+			return;
+		}
+		
+		bundle.loadAllProperties(applicationRootPath);
+		
+		configuration.setApplicationRootPath(FileUtil.getPrettyPath(applicationRootPath));
 	}
-
-	private String conf_path = "conf/";
 
 	@Override
 	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle)
 			throws IOException {
 
-		String json = bundle.loadContent(conf_path + "filters.cfg", Encoding.UTF8);
+		String json = bundle.loadContent("conf/filters.cfg", Encoding.UTF8);
 
 		return loadFiltersConfiguration(json);
 	}
@@ -48,7 +60,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle)
 			throws IOException {
 
-		String json = bundle.loadContent(conf_path + "plugins.cfg", Encoding.UTF8);
+		String json = bundle.loadContent("conf/plugins.cfg", Encoding.UTF8);
 
 		return loadPluginsConfiguration(json);
 	}
@@ -57,7 +69,7 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle)
 			throws IOException {
 
-		String json = bundle.loadContent(conf_path + "services.cfg", Encoding.UTF8);
+		String json = bundle.loadContent("conf/services.cfg", Encoding.UTF8);
 
 		return loadServletsConfiguration(json);
 	}
@@ -66,9 +78,9 @@ public class FileSystemACLoader extends AbstractACLoader implements ApplicationC
 	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle)
 			throws IOException {
 
-		String roles = bundle.loadContent(conf_path + "roles.cfg", Encoding.UTF8);
+		String roles = bundle.loadContent("conf/roles.cfg", Encoding.UTF8);
 
-		String permissions = bundle.loadContent(conf_path + "permissions.cfg", Encoding.UTF8);
+		String permissions = bundle.loadContent("conf/permissions.cfg", Encoding.UTF8);
 
 		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
 			return null;
