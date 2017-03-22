@@ -724,7 +724,14 @@ public class FileUtil {
 		}
 		
 		return file.getParentFile();
-		
+	}
+	
+	public static String getPrettyPath(String path){
+		String newPath = path.replace("\\", "/");
+		if (newPath.endsWith("/")) {
+			return newPath;
+		}
+		return newPath + "/";
 	}
 
 }

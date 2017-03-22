@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.common;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -35,8 +36,11 @@ public class SharedBundle {
 		return bundle;
 	}
 
-	private String				classPath		= null;
-	private Map<String, String>	properties	= new HashMap<>();
+	private String					classPath		= null;
+	private Map<String, String>		properties	= new HashMap<>();
+	private Map<String, Properties>	propertiesMap	= new HashMap<>();
+	private Map<String, File>		fullFilesMap	= new HashMap<>();
+	private Map<String, File>		filesMap		= new HashMap<>();
 
 	public boolean getBooleanProperty(String key) {
 		return getBooleanProperty(key, false);
@@ -58,12 +62,12 @@ public class SharedBundle {
 		}
 		File file = new File(url.getFile());
 		try {
-			
 			File directory = FileUtil.getParentDirectory(file);
 			if (directory.getName().equals("META_INF")) {
 				directory = directory.getParentFile();
 			}
 			setClassPath(decodeURL(directory.getAbsolutePath(), Encoding.UTF8));
+			loadAllProperties(directory, Encoding.UTF8);
 		} catch (IOException e) {
 		}
 	}
@@ -74,6 +78,66 @@ public class SharedBundle {
 			return defaultValue;
 		}
 		return Boolean.valueOf(temp);
+	}
+
+	public synchronized SharedBundle loadAllProperties(String file) throws IOException {
+		return loadAllProperties(file, Encoding.UTF8);
+	}
+
+	public synchronized SharedBundle loadAllProperties(String file, Charset charset) throws IOException {
+		if (StringUtil.isNullOrBlank(file)) {
+			return this;
+		}
+		return loadAllProperties(new File(file), charset);
+	}
+
+	public synchronized SharedBundle loadAllProperties(File root, Charset charset) throws IOException {
+		
+		if (root == null) {
+			return this;
+		}
+
+		properties.clear();
+
+		propertiesMap.clear();
+
+		loopLoadFile(root, charset,"");
+		
+		return this;
+	}
+
+	private void loopLoadFile(File file, Charset charset,String path) throws IOException {
+
+		if (file.isDirectory()) {
+
+			File[] files = file.listFiles();
+
+			if (files == null) {
+				throw new IOException("empty folder:" + file.getCanonicalPath());
+			}
+
+			for (File f : files) {
+
+				loopLoadFile(f, charset,path + "/" + f.getName());
+			}
+		} else {
+
+			String filePathName = path.substring(1);
+			
+			if (file.getName().endsWith(".properties")) {
+				Properties temp = FileUtil.readProperties(file, charset);
+				propertiesMap.put(filePathName, temp);
+				putAll(properties, temp);
+			}
+			
+			if (file.getName().endsWith(".class")) {
+				return;
+			}
+			
+			fullFilesMap.put(filePathName, file);
+			
+			filesMap.put(filePathName, file);
+		}
 	}
 
 	public String getClassPath() {
@@ -137,26 +201,58 @@ public class SharedBundle {
 	}
 
 	public String loadContent(String file, Charset charset) throws IOException {
-		return FileUtil.input2String(loadInputStream(file), charset);
+		
+		File cacheFile = getFileFromCache(file);
+		
+		if (cacheFile == null) {
+			return FileUtil.input2String(loadInputStream(file), charset);
+		}
+
+		return FileUtil.readFileToString(cacheFile, charset);
+	}
+	
+	private File getFileFromCache(String file){
+		
+		File cacheFile = fullFilesMap.get(file);
+		
+		if (cacheFile == null) {
+			return filesMap.get(file);
+		}
+		
+		return cacheFile;
 	}
 
 	public InputStream loadInputStream(String file) throws IOException {
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(file);
-		if (inputStream == null) {
-			throw new IOException("file not found: " + file);
+		
+		File cacheFile = getFileFromCache(file);
+		
+		if (cacheFile == null) {
+			InputStream inputStream = getClass().getClassLoader().getResourceAsStream(file);
+			if (inputStream == null) {
+				throw new IOException("file not found: " + file);
+			}
+			return inputStream;
 		}
-		return inputStream;
+		
+		return new FileInputStream(cacheFile);
 	}
-	
+
 	public File loadFile(String file) throws IOException {
-		URL url = getClass().getClassLoader().getResource(file);
-		if (url == null) {
-			throw new IOException("file not found: " + file);
+		
+		File cacheFile = getFileFromCache(file);
+		
+		if (cacheFile == null) {
+			URL url = getClass().getClassLoader().getResource(file);
+			if (url == null) {
+				throw new IOException("file not found: " + file);
+			}
+			return new File(decodeURL(url.getFile(), Encoding.UTF8));
 		}
-		return new File(decodeURL(url.getFile(), Encoding.UTF8));
+		
+		return cacheFile;
 	}
-	
-	public String decodeURL(String url,Charset charset){
+
+	public String decodeURL(String url, Charset charset) {
 		try {
 			return URLDecoder.decode(url, charset.name());
 		} catch (UnsupportedEncodingException e) {
@@ -169,11 +265,18 @@ public class SharedBundle {
 	}
 
 	public Properties loadProperties(String file, Charset charset) throws IOException {
-		return loadProperties(loadInputStream(file), charset);
+		
+		Properties cacheFile = propertiesMap.get(file);
+		
+		if (cacheFile == null) {
+			return loadProperties(loadInputStream(file), charset);
+		}
+		
+		return propertiesMap.get(file);
 	}
 
 	private void setClassPath(String classPath) {
-		this.classPath = classPath.replace("\\", "/");
+		this.classPath = FileUtil.getPrettyPath(classPath);
 	}
 
 	public void storageProperties(InputStream inputStream, Charset charset) throws IOException {

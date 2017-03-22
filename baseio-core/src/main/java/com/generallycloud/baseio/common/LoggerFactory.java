@@ -12,31 +12,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
+import java.util.Properties;
+
 public class LoggerFactory {
-	
-	static{
-		try {
-			Class.forName("org.slf4j.LoggerFactory");
-			enableSLF4JLogger = true;
-		} catch (Exception e) {
-		}
-	}
-	
+
 	private static boolean enableSLF4JLogger = false;
-	
-	public static void enableSLF4JLogger(boolean enable){
+
+	public static void enableSLF4JLogger(boolean enable) {
 		enableSLF4JLogger = enable;
 	}
-	
-	public static Logger getLogger(Class<?> clazz){
+
+	public static Logger getLogger(Class<?> clazz) {
 		if (!enableSLF4JLogger) {
 			return new ConsoleLogger(clazz);
 		}
 		return new SLF4JLogger(clazz);
 	}
-	
-	
+
+	public static void configure(Properties properties) {
+		if (properties == null) {
+			return;
+		}
+		enableSLF4JLogger = true;
+		configure0(properties);
+	}
+
+	private static void configure0(Properties properties) {
+		org.apache.log4j.PropertyConfigurator.configure(properties);
+	}
+
 }
