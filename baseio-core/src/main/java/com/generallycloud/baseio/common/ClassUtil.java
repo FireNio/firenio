@@ -18,11 +18,9 @@ package com.generallycloud.baseio.common;
 public class ClassUtil {
 
 	public static Object newInstance(Class<?> clazz) {
-
 		if (clazz == null) {
 			return null;
 		}
-
 		try {
 			return clazz.newInstance();
 		} catch (Exception e) {
@@ -31,12 +29,21 @@ public class ClassUtil {
 	}
 	
 	public static Class<?> forName(String className){
-		
 		try {
 			return Class.forName(className);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
-		
+	}
+	
+	public static Class<?> forName(String className,Class<?> defaultClass){
+		if (StringUtil.isNullOrBlank(className)) {
+			return defaultClass;
+		}
+		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			return defaultClass;
+		}
 	}
 }
