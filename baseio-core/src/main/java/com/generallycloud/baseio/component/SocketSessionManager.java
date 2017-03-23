@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.util.Map;
+
 import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
 
@@ -27,6 +29,12 @@ public interface SocketSessionManager extends SessionManager {
 	public abstract SocketSession getSession(Integer sessionID);
 
 	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
+	
+	/**
+	 * 推荐使用 {@link SocketSessionManager.offerSessionMEvent}
+	 * @return
+	 */
+	public abstract Map<Integer,SocketSession> getManagedSessions();
 
 	public abstract void putSession(SocketSession session) throws OverflowException;
 

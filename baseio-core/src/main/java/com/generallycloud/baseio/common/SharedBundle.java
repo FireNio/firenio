@@ -60,13 +60,13 @@ public class SharedBundle {
 			}
 			return;
 		}
-		File file = new File(url.getFile());
+		File file = new File(decodeURL(url.getFile(), Encoding.UTF8));
 		try {
 			File directory = FileUtil.getParentDirectory(file);
 			if (directory.getName().equals("META_INF")) {
 				directory = directory.getParentFile();
 			}
-			setClassPath(decodeURL(directory.getAbsolutePath(), Encoding.UTF8));
+			setClassPath(directory.getAbsolutePath());
 			loadAllProperties(directory, Encoding.UTF8);
 		} catch (IOException e) {
 		}

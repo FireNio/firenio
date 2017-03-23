@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,7 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 
 	protected SocketChannelContext				context			= null;
 	protected ConcurrentMap<Integer, SocketSession>	sessions			= new ConcurrentHashMap<>();
+	protected Map<Integer, SocketSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
 	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<>(
 			new LinkedHashMap<>());
 	private Logger								logger			= LoggerFactory
@@ -130,6 +132,11 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 
 	public SocketSession getSession(Integer sessionID) {
 		return sessions.get(sessionID);
+	}
+	
+	@Override
+	public Map<Integer, SocketSession> getManagedSessions() {
+		return readOnlySessions;
 	}
 
 	public interface SocketSessionManagerEvent {

@@ -15,12 +15,20 @@
  */
 package com.generallycloud.baseio.common;
 
-import java.io.IOException;
 import java.util.Properties;
 
 public class LoggerFactory {
 
 	private static boolean enableSLF4JLogger = false;
+	
+	static{
+		try {
+			Class.forName("org.slf4j.LoggerFactory");
+			configure();
+		} catch (Exception e) {
+		}
+		
+	}
 
 	public static void enableSLF4JLogger(boolean enable) {
 		enableSLF4JLogger = enable;
@@ -35,15 +43,9 @@ public class LoggerFactory {
 
 	public static void configure() {
 		try {
-			Properties properties = SharedBundle.instance()
-					.loadProperties("log4j.properties",Encoding.UTF8);
-			if (properties == null) {
-				return;
-			}
-			enableSLF4JLogger = true;
-			configure0(properties);
-
-		} catch (IOException e) {
+			configure(SharedBundle.instance()
+						.loadProperties("log4j.properties",Encoding.UTF8));
+		} catch (Exception e) {
 		}
 	}
 

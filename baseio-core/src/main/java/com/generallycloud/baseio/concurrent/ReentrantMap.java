@@ -75,7 +75,7 @@ public class ReentrantMap<K, V> {
 		Event event = new Event();
 		event.key = key;
 		event.value = value;
-		event.isAdd = true;
+		event.isAdd = isAdd;
 		this.modifList.add(event);
 		this.modifid = true;
 		lock.unlock();
