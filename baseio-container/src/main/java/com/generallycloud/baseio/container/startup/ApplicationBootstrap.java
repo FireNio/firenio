@@ -40,7 +40,6 @@ import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 
 public class ApplicationBootstrap {
 	
-	
 	public void bootstrap(ApplicationConfiguration ac,ServerConfiguration sc) throws Exception {
 		
 		SharedBundle bundle = SharedBundle.instance();
