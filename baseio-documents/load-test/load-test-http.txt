@@ -1,29 +1,29 @@
-test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t32 -c128 -d10s http://localhost:8080 -s pipeline.lua --latency -- / 1024
-Running 10s test @ http://localhost:8080
-  32 threads and 128 connections
+wangkai@wangkai-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t8 -c128 -d15s http://localhost:8080 -s pipeline.lua --latency -- / 1024
+Running 15s test @ http://localhost:8080
+  8 threads and 128 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    45.01ms   32.92ms 302.53ms   67.28%
-    Req/Sec    55.73k    16.97k  154.02k    70.92%
+    Latency    38.68ms   27.21ms 200.09ms   64.67%
+    Req/Sec   255.95k    57.25k  603.77k    77.41%
   Latency Distribution
-     50%   41.33ms
-     75%   68.27ms
-     90%   98.86ms
+     50%   36.10ms
+     75%   59.63ms
+     90%   86.82ms
      99%    0.00us
-  18004042 requests in 10.10s, 2.23GB read
-Requests/sec: 1783166.33
-Transfer/sec:    226.17MB
-test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t32 -c128 -d10s http://localhost:8080 -s pipeline.lua --latency -- / 2048
-Running 10s test @ http://localhost:8080
-  32 threads and 128 connections
+  30220290 requests in 15.09s, 3.74GB read
+Requests/sec: 2002224.02
+Transfer/sec:    253.96MB
+wangkai@wangkai-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ wrk -t8 -c128 -d15s http://localhost:8080 -s pipeline.lua --latency -- / 1024
+Running 15s test @ http://localhost:8080
+  8 threads and 128 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    77.19ms   47.29ms 313.42ms   61.36%
-    Req/Sec    57.08k    16.62k  238.23k    73.58%
+    Latency    39.40ms   27.47ms 299.49ms   63.91%
+    Req/Sec   253.24k    46.20k  468.96k    70.92%
   Latency Distribution
-     50%   79.80ms
-     75%  120.00ms
-     90%  164.80ms
+     50%   37.81ms
+     75%   63.08ms
+     90%   92.35ms
      99%    0.00us
-  18403745 requests in 10.10s, 2.28GB read
-Requests/sec: 1822808.46
-Transfer/sec:    231.20MB
-test222@test222-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$ 
+  30424648 requests in 15.09s, 3.77GB read
+Requests/sec: 2015639.02
+Transfer/sec:    255.66MB
+wangkai@wangkai-OptiPlex-9020:/var/apps/git-rep/microservices-framework-benchmark$
