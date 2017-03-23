@@ -1,9 +1,6 @@
 cd ../../baseio
 call build-package.bat
 
-cd ../baseio-sample
-call mvn clean install -DskipTests
-
 cd ../baseio-sample/baseio-sample-http
 call mvn clean package -DskipTests
 
@@ -15,4 +12,4 @@ rem set MAVEN_OPTS=-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,s
 
 rem call mvn exec:java -Dexec.mainClass="com.generallycloud.baseio.sample.http11.startup.HttpBootstrap" -Dexec.args="http"  
 
-call mvn exec:java -Dexec.mainClass="com.generallycloud.baseio.sample.http11.startup.HttpBootstrap" 
+call mvn exec:java -Dexec.mainClass="com.generallycloud.baseio.container.startup.ApplicationBootstrap" 
