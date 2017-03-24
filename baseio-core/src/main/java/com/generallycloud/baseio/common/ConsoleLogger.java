@@ -95,6 +95,11 @@ public class ConsoleLogger implements Logger{
 
 	@Override
 	public void errorDebug(Throwable throwable) {
+		errorDebug(throwable.getMessage(), throwable);
+	}
+
+	@Override
+	public void errorDebug(String message, Throwable throwable) {
 		DebugUtil.error(throwable.getMessage());
 		DebugUtil.debug(throwable);
 	}

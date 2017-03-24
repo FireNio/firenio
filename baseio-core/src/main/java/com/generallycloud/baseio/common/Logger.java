@@ -43,4 +43,6 @@ public interface Logger {
 	
 	public abstract void errorDebug(Throwable throwable);
 	
+	public abstract void errorDebug(String message,Throwable throwable);
+	
 }
