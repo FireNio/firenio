@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.component;
 
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
 
 /**
@@ -36,7 +36,7 @@ public interface SocketSessionManager extends SessionManager {
 	 */
 	public abstract Map<Integer,SocketSession> getManagedSessions();
 
-	public abstract void putSession(SocketSession session) throws OverflowException;
+	public abstract void putSession(SocketSession session) throws RejectedExecutionException;
 
 	public abstract void removeSession(SocketSession session);
 

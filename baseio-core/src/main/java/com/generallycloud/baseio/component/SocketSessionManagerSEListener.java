@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.OverflowException;
+import java.util.concurrent.RejectedExecutionException;
 
 public class SocketSessionManagerSEListener extends SocketSessionEventListenerAdapter{
 	
 	@Override
-	public void sessionOpened(SocketSession session) throws OverflowException {
+	public void sessionOpened(SocketSession session) throws RejectedExecutionException {
 
 		SocketChannelContext context = session.getContext();
 		

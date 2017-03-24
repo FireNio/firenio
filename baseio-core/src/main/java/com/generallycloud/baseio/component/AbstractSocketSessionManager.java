@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.OverflowException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
@@ -98,7 +98,7 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 		}
 	}
 
-	public void putSession(SocketSession session) throws OverflowException {
+	public void putSession(SocketSession session) throws RejectedExecutionException {
 
 		ConcurrentMap<Integer, SocketSession> sessions = this.sessions;
 
@@ -112,8 +112,8 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 		}
 
 		if (sessions.size() >= getSessionSizeLimit()) {
-			throw new OverflowException("session size limit:" + getSessionSizeLimit()
-					+ ",current:" + sessions.size());
+			throw new RejectedExecutionException("session size limit:" + getSessionSizeLimit()
+			+ ",current:" + sessions.size());
 		}
 
 		sessions.put(sessionID, session);
