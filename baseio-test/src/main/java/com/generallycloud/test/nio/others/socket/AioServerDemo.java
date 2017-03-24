@@ -42,8 +42,8 @@ public class AioServerDemo {
 	private static CharsetEncoder	encoder	= charset.newEncoder();
 
 	public static void main(String[] args) throws Exception {
-//		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
-		AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open()
+		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
+		AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group)
 				.bind(new InetSocketAddress("0.0.0.0", 8013));
 		server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 			@Override
@@ -77,6 +77,6 @@ public class AioServerDemo {
 		
 		ThreadUtil.sleep(9999999);
 		
-//		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 	}
 }

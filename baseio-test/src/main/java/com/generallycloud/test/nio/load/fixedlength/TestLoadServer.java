@@ -57,7 +57,7 @@ public class TestLoadServer {
 			}
 		};
 
-		ServerConfiguration c = new ServerConfiguration(18300);
+		ServerConfiguration c = new ServerConfiguration(8300);
 		
 		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		c.setSERVER_MEMORY_POOL_UNIT(128);
@@ -70,6 +70,8 @@ public class TestLoadServer {
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
+		
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		

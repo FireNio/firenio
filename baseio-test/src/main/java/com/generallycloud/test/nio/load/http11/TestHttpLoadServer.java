@@ -39,22 +39,8 @@ public class TestHttpLoadServer {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				HttpReadFuture f = (HttpReadFuture) future;
-
-				String res;
-
-				if (f.hasBodyContent()) {
-
-					byte[] array = f.getBodyContent();
-
-					res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>"
-							+ new String(array) + "</PRE>";
-				} else {
-					res = "yes server already accept your message :) " + f.getRequestParams();
-				}
-
-				f.write(res);
-				session.flush(f);
+				future.write("hello world!");
+				session.flush(future);
 //				System.out.println("req======================"+req.getAndIncrement());
 			}
 			
@@ -64,14 +50,14 @@ public class TestHttpLoadServer {
 			}
 		};
 		
-		ServerConfiguration c = new ServerConfiguration(80);
+		ServerConfiguration c = new ServerConfiguration(8080);
 		
-		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+//		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		c.setSERVER_MEMORY_POOL_UNIT(256);
 		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		c.setSERVER_CORE_SIZE(2);
+//		c.setSERVER_CORE_SIZE(2);
 		c.setSERVER_ENABLE_MEMORY_POOL(true);
-		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(4);
 
 		SocketChannelContext context = new NioSocketChannelContext(c);
 

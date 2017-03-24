@@ -57,7 +57,7 @@ public class TestHttpLoadClient extends ITestThread {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				addCount();
+				addCount(1000);
 			}
 		};
 		

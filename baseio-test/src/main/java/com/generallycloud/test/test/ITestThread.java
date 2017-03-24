@@ -44,13 +44,13 @@ public abstract class ITestThread implements Runnable {
 
 	public abstract void stop();
 
-	public void addCount() {
+	public void addCount(int passage) {
 
 		latch.countDown();
 
 		long c = latch.getCount();
 
-		if (c % 40000 == 0) {
+		if (c % passage == 0) {
 
 			long now = System.currentTimeMillis();
 
@@ -63,7 +63,7 @@ public abstract class ITestThread implements Runnable {
 				last_time = now;
 			}
 
-			DebugUtil.debug("__________________________" + c + "\t" + "___" + passed);
+			DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
 		}
 
 	}

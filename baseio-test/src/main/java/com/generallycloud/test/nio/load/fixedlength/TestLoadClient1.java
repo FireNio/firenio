@@ -20,9 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -62,11 +60,11 @@ public class TestLoadClient1 extends ITestThread {
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
-				addCount();
+				addCount(10000);
 			}
 		};
 		
-		ServerConfiguration configuration = new ServerConfiguration();
+		ServerConfiguration configuration = new ServerConfiguration(8300);
 		
 		configuration.setSERVER_MEMORY_POOL_CAPACITY(2560000);
 		configuration.setSERVER_MEMORY_POOL_UNIT(128);
@@ -79,8 +77,6 @@ public class TestLoadClient1 extends ITestThread {
 		connector = new SocketChannelConnector(context);
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
@@ -96,9 +92,7 @@ public class TestLoadClient1 extends ITestThread {
 
 	public static void main(String[] args) throws IOException {
 
-		SharedBundle.instance().loadAllProperties("nio");
-
-		int time = 256 * 10000;
+		int time = 128 * 10000;
 
 		int core_size = 4;
 
