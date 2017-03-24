@@ -28,6 +28,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.concurrent.AtomicLock;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
@@ -60,7 +61,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	private SocketSelector							selector			= null;
 
-	private ReentrantLock							runLock			= new ReentrantLock();
+	private AtomicLock								runLock			= new AtomicLock();
 
 	private int									runTask			= 0;
 
@@ -188,6 +189,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	@Override
 	protected void doStop() {
+		
+		runLock.tryLock();
 
 		closeEvents(positiveEvents);
 
@@ -198,11 +201,13 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		ReleaseUtil.release(buf);
 
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
+		
+		runLock.unlock();
 	}
 
 	private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
 
-		List<SelectorLoopEvent> events = getEventBuffer(bufferedList);
+		List<SelectorLoopEvent> events = bufferedList.getBuffer();
 
 		for (SelectorLoopEvent event : events) {
 
@@ -354,11 +359,12 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		//
 		//			return;
 		//		}
-
-		ReentrantLock lock = this.runLock;
-
-		lock.lock();
-
+		
+		if (!runLock.lock()) {
+			CloseUtil.close(event);
+			return ;
+		}
+		
 		try {
 
 			if (!isRunning()) {
@@ -369,8 +375,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 			fireEvent(event);
 
 		} finally {
-
-			lock.unlock();
+			runLock.unlock();
 		}
 	}
 
@@ -421,7 +426,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	private void handleNegativeEvents() {
 
-		List<SelectorLoopEvent> eventBuffer = getEventBuffer(negativeEvents);
+		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
 
 		if (eventBuffer.size() == 0) {
 			return;
@@ -432,7 +437,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	private void handlePositiveEvents(boolean refresh) {
 
-		List<SelectorLoopEvent> eventBuffer = getEventBuffer(positiveEvents);
+		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
 
 		if (eventBuffer.size() == 0) {
 
@@ -447,17 +452,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 		if (hasTask && refresh) {
 			runTask = 5;
-		}
-	}
-
-	private List<SelectorLoopEvent> getEventBuffer(
-			BufferedArrayList<SelectorLoopEvent> bufferedList) {
-		ReentrantLock lock = this.runLock;
-		lock.lock();
-		try {
-			return bufferedList.getBuffer();
-		} finally {
-			lock.unlock();
 		}
 	}
 
