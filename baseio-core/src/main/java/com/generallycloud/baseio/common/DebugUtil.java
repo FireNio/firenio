@@ -12,12 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 public class DebugUtil {
 
-	private static boolean	enableDebug	= false;
+	private static boolean enableDebug = false;
 
 	public static void debug(Throwable e) {
 		if (enableDebug) {
@@ -58,13 +58,11 @@ public class DebugUtil {
 	}
 
 	public static void info(String className, String message, Object param) {
-
 		System.out.println(className + MessageFormatter.format(message, param));
 	}
 
 	public static void info(String className, String message, Object param, Object param1) {
 		System.out.println(className + MessageFormatter.format(message, param, param1));
-
 	}
 
 	public static void info(String className, String message, Object[] param) {
@@ -76,14 +74,12 @@ public class DebugUtil {
 		if (enableDebug) {
 			info(className, message, param);
 		}
-
 	}
 
 	public static void debug(String className, String message, Object param, Object param1) {
 		if (enableDebug) {
 			info(className, message, param, param1);
 		}
-
 	}
 
 	public static void debug(String className, String message, Object[] param) {
@@ -116,32 +112,27 @@ public class DebugUtil {
 	}
 
 	public static void info(String message, Object param) {
-
 		System.out.println(MessageFormatter.format(message, param));
 	}
 
 	public static void info(String message, Object param, Object param1) {
 		System.out.println(MessageFormatter.format(message, param, param1));
-
 	}
 
 	public static void info(String message, Object[] param) {
 		System.out.println(MessageFormatter.arrayFormat(message, param));
-
 	}
 
 	public static void debug(String message, Object param) {
 		if (enableDebug) {
 			info(message, param);
 		}
-
 	}
 
 	public static void debug(String message, Object param, Object param1) {
 		if (enableDebug) {
 			info(message, param, param1);
 		}
-
 	}
 
 	public static void debug(String message, Object[] param) {
@@ -156,8 +147,12 @@ public class DebugUtil {
 		}
 		printStackTrace(e);
 	}
-	
-	private static void printStackTrace(Throwable t){
+
+	public static void error(Throwable e) {
+		printStackTrace(e);
+	}
+
+	public static void printStackTrace(Throwable t) {
 		t.printStackTrace();
 	}
 

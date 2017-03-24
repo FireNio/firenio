@@ -25,20 +25,25 @@ public class MyUUID {
 
 	private static Random seed = new Random();
 
-	public static String random() {
+	public static String random32() {
+		return random16() + random16();
+	}
+	
+	public static String random16() {
 		long L1 = seed.nextLong();
-		long L2 = seed.nextLong();
-		return MathUtil.long2HexString(L1)+MathUtil.long2HexString(L2);
+		return MathUtil.long2HexString(L1);
 	}
 
 	public static void main(String[] args) {
 
 		for (int i = 0; i < 10; i++) {
-			String s = random();
+			String s = random32();
 			System.out.println(s);
 		}
 
-		random();
+		random32();
+		
+		System.out.println(random16());
 
 	}
 

@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.ThreadUtil;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
@@ -33,13 +33,8 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	}
 
 	private ListQueue<Runnable>	jobs;
-
-	public void dispatch(Runnable job) throws RejectedExecutionException{
-
-		if (!isRunning() || !jobs.offer(job)) {
-			throw new RejectedExecutionException();
-		}
-	}
+	
+	private AtomicBoolean dispathLock = new AtomicBoolean();
 
 	@Override
 	protected void doLoop() {
@@ -59,11 +54,27 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		}
 	}
 
-	@Override
-	protected void beforeStop() {
+	public void dispatch(Runnable job) throws RejectedExecutionException{
+		
+		if (!dispathLock.compareAndSet(false, true)) {
+			return;
+		}
+		
+		try {
+			if (!isRunning() || !jobs.offer(job)) {
+				throw new RejectedExecutionException();
+			}
+		} finally {
+			dispathLock.set(false);
+		}
+	}
 
-		//FIXME __与dispatch互斥
-		ThreadUtil.sleep(8);
+	//FIXME __与dispatch互斥
+	@Override
+	protected void doStop() {
+		
+		for(;!dispathLock.compareAndSet(false, true);){
+		}
 		
 		for(;;){
 			
@@ -75,12 +86,14 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 			
 			try {
 				runnable.run();
-			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
+			} catch (Throwable e) {
+				logger.errorDebug(e);
 			}
 		}
 		
-		super.beforeStop();
+		dispathLock.set(false);
+		
+		super.doStop();
 	}
 
 	@Override

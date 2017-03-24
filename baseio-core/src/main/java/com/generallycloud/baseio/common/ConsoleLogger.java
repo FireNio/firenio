@@ -51,7 +51,6 @@ public class ConsoleLogger implements Logger{
 	@Override
 	public void info(String message, Object[] param) {
 		DebugUtil.info(className,message, param);
-		
 	}
 
 	@Override
@@ -93,7 +92,11 @@ public class ConsoleLogger implements Logger{
 	public static void main(String[] args) {
 		new ConsoleLogger(ConsoleLogger.class).info("test {}", "www");
 	}
-	
 
+	@Override
+	public void errorDebug(Throwable throwable) {
+		DebugUtil.error(throwable.getMessage());
+		DebugUtil.debug(throwable);
+	}
 	
 }

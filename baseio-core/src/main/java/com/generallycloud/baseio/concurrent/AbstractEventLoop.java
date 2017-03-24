@@ -17,6 +17,7 @@ package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.live.AbstractLifeCycle;
 
 public abstract class AbstractEventLoop implements EventLoop {
@@ -50,20 +51,14 @@ public abstract class AbstractEventLoop implements EventLoop {
 	private Thread				monitor				= null;
 
 	private volatile boolean	running				= false;
+	
+	private volatile boolean	stopped				= false;
 
 	private EventLoopGroup		singleEventLoopGroup	= new SingleEventLoopGroup(this);
-
-	private boolean			stoping				= false;
-
-	private boolean			working				= false;
-
-	protected void beforeStop() {
-	}
 
 	protected abstract void doLoop();
 
 	protected void doStartup() throws Exception {
-
 	}
 
 	protected void doStop() {
@@ -100,13 +95,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 		for (;;) {
 
 			if (!running) {
-				return;
-			}
-
-			working = true;
-
-			if (stoping) {
-				working = false;
+				stopped = true;
 				return;
 			}
 
@@ -115,8 +104,6 @@ public abstract class AbstractEventLoop implements EventLoop {
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
-
-			working = false;
 		}
 	}
 
@@ -130,8 +117,8 @@ public abstract class AbstractEventLoop implements EventLoop {
 			}
 
 			running = true;
-
-			working = true;
+			
+			stopped = false;
 
 			this.monitor = new Thread(new Runnable() {
 
@@ -157,21 +144,27 @@ public abstract class AbstractEventLoop implements EventLoop {
 			}
 
 			running = false;
-
-			stoping = true;
-
+			
 			try {
-				beforeStop();
-			} catch (Exception e) {
+				wakeup();
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
-
-			if (working) {
-				wakeup();
+			
+			for(;!isStopped();){
+				ThreadUtil.sleep(4);
 			}
 
-			doStop();
+			try {
+				doStop();
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
+	}
+	
+	private boolean isStopped(){
+		return stopped;
 	}
 
 	public void wakeup() {

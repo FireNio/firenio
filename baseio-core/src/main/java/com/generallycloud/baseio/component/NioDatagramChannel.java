@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.baseio.component.DatagramChannel {
@@ -96,9 +95,9 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		return session;
 	}
 
-	private void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
-		channel.send(buf.nioBuffer(), socketAddress);
-	}
+//	private void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
+//		channel.send(buf.nioBuffer(), socketAddress);
+//	}
 	
 	private void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
 		channel.send(buffer, socketAddress);
@@ -130,31 +129,31 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 		sendPacket(packet, remote);
 	}
 
-	private ByteBuf allocate(DatagramPacket packet) {
-
-		if (packet.getTimestamp() == -1) {
-
-			int length = packet.getData().length;
-
-			ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_HEADER + length);
-			buf.skipBytes(DatagramPacket.PACKET_HEADER);
-			buf.put(packet.getData());
-			return buf;
-		}
-
-		return allocate(packet.getTimestamp(), packet.getSequenceNo(), packet.getData());
-	}
-
-	private ByteBuf allocate(long timestamp, int sequenceNO, byte[] data) {
-
-		ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_MAX);
-
-		buf.putLong(0);
-		buf.putInt(sequenceNO);
-		buf.put(data);
-
-		return buf;
-	}
+//	private ByteBuf allocate(DatagramPacket packet) {
+//
+//		if (packet.getTimestamp() == -1) {
+//
+//			int length = packet.getData().length;
+//
+//			ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_HEADER + length);
+//			buf.skipBytes(DatagramPacket.PACKET_HEADER);
+//			buf.put(packet.getData());
+//			return buf;
+//		}
+//
+//		return allocate(packet.getTimestamp(), packet.getSequenceNo(), packet.getData());
+//	}
+//
+//	private ByteBuf allocate(long timestamp, int sequenceNO, byte[] data) {
+//
+//		ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_MAX);
+//
+//		buf.putLong(0);
+//		buf.putInt(sequenceNO);
+//		buf.put(data);
+//
+//		return buf;
+//	}
 
 	@Override
 	public boolean inSelectorLoop() {

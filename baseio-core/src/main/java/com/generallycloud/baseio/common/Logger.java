@@ -41,4 +41,6 @@ public interface Logger {
 	
 	public abstract Class<?> getLoggerClass();
 	
+	public abstract void errorDebug(Throwable throwable);
+	
 }
