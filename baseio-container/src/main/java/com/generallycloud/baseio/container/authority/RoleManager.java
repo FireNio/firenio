@@ -22,12 +22,12 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.InitializeableImpl;
+import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.configuration.PermissionConfiguration;
 
-public class RoleManager extends InitializeableImpl {
+public class RoleManager extends AbstractInitializeable {
 
 	private Map<Integer, AuthorityManager>	authorityManagers		= new HashMap<Integer, AuthorityManager>();
 

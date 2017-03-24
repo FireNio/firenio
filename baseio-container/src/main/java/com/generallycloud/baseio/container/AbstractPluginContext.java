@@ -22,7 +22,7 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
-public abstract class AbstractPluginContext extends InitializeableImpl implements PluginContext {
+public abstract class AbstractPluginContext extends AbstractInitializeable implements PluginContext {
 
 	private int	pluginIndex;
 

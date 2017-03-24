@@ -25,11 +25,11 @@ import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.InitializeableImpl;
+import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.configuration.Configuration;
 
-public class AuthorityLoginCenter extends InitializeableImpl implements LoginCenter {
+public class AuthorityLoginCenter extends AbstractInitializeable implements LoginCenter {
 	
 	private Logger logger = LoggerFactory.getLogger(AuthorityLoginCenter.class);
 

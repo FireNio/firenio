@@ -17,7 +17,6 @@ package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.container.configuration.Configuration;
 
-
 public interface Initializeable {
 
 	public Configuration getConfig();

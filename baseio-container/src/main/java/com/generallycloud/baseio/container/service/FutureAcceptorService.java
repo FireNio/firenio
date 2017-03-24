@@ -20,22 +20,15 @@ import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.Initializeable;
-import com.generallycloud.baseio.container.InitializeableImpl;
+import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public abstract class FutureAcceptorService extends InitializeableImpl implements Initializeable, IoEventHandle {
+public abstract class FutureAcceptorService extends AbstractInitializeable implements IoEventHandle {
 
 	private Logger		logger		= LoggerFactory.getLogger(getClass());
 
 	private String		serviceName	= null;
-
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-
-	}
 
 	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {
@@ -44,7 +37,8 @@ public abstract class FutureAcceptorService extends InitializeableImpl implement
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-		logger.error(cause.getMessage(), cause);
+		logger.error(cause.getMessage());
+		logger.debug(cause);
 	}
 
 	@Override

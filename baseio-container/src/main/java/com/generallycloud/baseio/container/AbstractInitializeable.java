@@ -17,9 +17,7 @@ package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.container.configuration.Configuration;
 
-
-
-public abstract class InitializeableImpl implements Initializeable {
+public abstract class AbstractInitializeable implements Initializeable {
 
 	private Configuration	config	;
 
@@ -35,6 +33,9 @@ public abstract class InitializeableImpl implements Initializeable {
 
 	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+	}
 	
+	@Override
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 	}
 }
