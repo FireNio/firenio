@@ -27,13 +27,13 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	private ExecutorEventLoopGroup	executorEventLoopGroup;
 
 	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize) {
-		this.jobs = new ListQueueABQ<Runnable>(eventQueueSize);
+		this.jobs = new ListQueueABQ<>(eventQueueSize);
 		this.executorEventLoopGroup = eventLoopGroup;
 	}
 
 	private ListQueue<Runnable>	jobs;
 	
-	private AtomicLock runLock = new AtomicLock();
+	private Object runLock = new Object();
 	
 	@Override
 	protected void doLoop() {
@@ -54,42 +54,34 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	}
 
 	public void dispatch(Runnable job) throws RejectedExecutionException{
-		
-		if (!runLock.lock()) {
-			throw new RejectedExecutionException();
-		}
-		
-		try {
+		synchronized (runLock) {
 			if (!isRunning() || !jobs.offer(job)) {
 				throw new RejectedExecutionException();
 			}
-		} finally {
-			runLock.unlock();
 		}
 	}
 
 	//FIXME __与dispatch互斥
 	@Override
 	protected void doStop() {
-		
-		runLock.tryLock();
-		
-		for(;;){
+
+		synchronized (runLock) {
 			
-			Runnable runnable = jobs.poll();
-			
-			if (runnable == null) {
-				break;
-			}
-			
-			try {
-				runnable.run();
-			} catch (Throwable e) {
-				logger.errorDebug(e);
+			for(;;){
+				
+				Runnable runnable = jobs.poll();
+				
+				if (runnable == null) {
+					break;
+				}
+				
+				try {
+					runnable.run();
+				} catch (Throwable e) {
+					logger.errorDebug(e);
+				}
 			}
 		}
-		
-		runLock.unlock();
 		
 		super.doStop();
 	}

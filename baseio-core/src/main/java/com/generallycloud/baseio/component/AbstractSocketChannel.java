@@ -58,15 +58,11 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected Waiter<Exception>			handshakeWaiter;
 	protected SSLEngine				sslEngine;
 	protected SslHandler				sslHandler;
-
 	protected UnsafeSocketSession		session;
 	protected ChannelWriteFuture			write_future;
+	protected ListQueue<ChannelWriteFuture>	write_futures;
 
-	// FIXME 这里最好不要用ABQ，使用链式可增可减
-	protected ListQueue<ChannelWriteFuture>	write_futures	= new ListQueueLink<ChannelWriteFuture>();
-
-	private static final Logger			logger		= LoggerFactory
-			.getLogger(AbstractSocketChannel.class);
+	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -78,6 +74,11 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
 		this.executorEventLoop = context.getExecutorEventLoop();
 		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
+		
+		// FIXME 这里最好不要用ABQ，使用链式可增可减
+//		int queue_size = socketChannelContext.getServerConfiguration().getSERVER_IO_EVENT_QUEUE();
+//		this.write_futures	= new ListQueueO2O<>(queue_size);
+		this.write_futures = new ListQueueLink<>();
 	}
 
 	@Override
@@ -178,11 +179,9 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			return;
 		}
 
-		ChannelReadFuture crf = (ChannelReadFuture) future;
-
 		if (!isOpened()) {
 
-			crf.flush();
+			future.flush();
 
 			IoEventHandle handle = future.getIoEventHandle();
 
@@ -198,7 +197,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 			ByteBufAllocator allocator = getByteBufAllocator();
 
-			flush(encoder.encode(allocator, crf.flush()));
+			flush(encoder.encode(allocator, future.flush()));
 
 		} catch (Exception e) {
 

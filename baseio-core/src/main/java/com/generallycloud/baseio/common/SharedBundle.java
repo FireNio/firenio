@@ -121,6 +121,10 @@ public class SharedBundle {
 				loopLoadFile(f, charset,path + "/" + f.getName());
 			}
 		} else {
+			
+			if (file.getName().endsWith(".class")) {
+				return;
+			}
 
 			String filePathName = path.substring(1);
 			
@@ -128,10 +132,6 @@ public class SharedBundle {
 				Properties temp = FileUtil.readProperties(file, charset);
 				propertiesMap.put(filePathName, temp);
 				putAll(properties, temp);
-			}
-			
-			if (file.getName().endsWith(".class")) {
-				return;
 			}
 			
 			fullFilesMap.put(filePathName, file);

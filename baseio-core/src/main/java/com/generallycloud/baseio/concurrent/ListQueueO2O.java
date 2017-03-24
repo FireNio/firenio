@@ -27,12 +27,8 @@ public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T
 
 	private int			end			;
 
-	protected ListQueueO2O(int _capability) {
-		super(_capability);
-	}
-	
-	protected ListQueueO2O(){
-		super();
+	public ListQueueO2O(int capability) {
+		super(capability);
 	}
 	
 	@Override

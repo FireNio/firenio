@@ -28,7 +28,6 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.concurrent.AtomicLock;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
@@ -61,7 +60,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	private SocketSelector							selector			= null;
 
-	private AtomicLock								runLock			= new AtomicLock();
+	private Object									runLock			= new Object();
 
 	private int									runTask			= 0;
 
@@ -190,19 +189,19 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 	@Override
 	protected void doStop() {
 		
-		runLock.tryLock();
-
-		closeEvents(positiveEvents);
-
-		closeEvents(negativeEvents);
-
-		CloseUtil.close(selector);
-
-		ReleaseUtil.release(buf);
-
-		LifeCycleUtil.stop(unpooledByteBufAllocator);
+		synchronized (runLock) {
+			
+			closeEvents(positiveEvents);
+			
+			closeEvents(negativeEvents);
+			
+			CloseUtil.close(selector);
+			
+			ReleaseUtil.release(buf);
+			
+			LifeCycleUtil.stop(unpooledByteBufAllocator);
+		}
 		
-		runLock.unlock();
 	}
 
 	private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
@@ -347,35 +346,27 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
 
 		//FIXME 找出这里出问题的原因
-		//		if (inEventLoop()) {
-		//
-		//			if (!isRunning()) {
-		//				CloseUtil.close(event);
-		//				return;
-		//			}
-		//
-		//			handleEvent(event);
-		//
-		//			return;
-		//		}
+//		if (inEventLoop()) {
+//
+//			if (!isRunning()) {
+//				CloseUtil.close(event);
+//				return;
+//			}
+//
+//			handleEvent(event);
+//
+//			return;
+//		}
 		
-		if (!runLock.lock()) {
-			CloseUtil.close(event);
-			return ;
-		}
-		
-		try {
-
+		synchronized (runLock) {
 			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
 			}
 
 			fireEvent(event);
-
-		} finally {
-			runLock.unlock();
 		}
+		
 	}
 
 	private void fireEvent(SelectorLoopEvent event) {

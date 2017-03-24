@@ -27,13 +27,8 @@ public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T
 
 	private FixedAtomicInteger	end;
 
-	protected ListQueueM2O(int capability) {
+	public ListQueueM2O(int capability) {
 		super(capability);
-		end = new FixedAtomicInteger(capability - 1);
-	}
-
-	protected ListQueueM2O() {
-		super();
 		end = new FixedAtomicInteger(capability - 1);
 	}
 

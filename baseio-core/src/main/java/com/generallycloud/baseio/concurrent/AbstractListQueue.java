@@ -88,6 +88,7 @@ public abstract class AbstractListQueue<T> implements ListQueue<T> {
 
 		if (_size < 0) {
 			size.incrementAndGet();
+			return false;
 		}
 
 		return true;
