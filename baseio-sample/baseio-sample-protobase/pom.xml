@@ -10,23 +10,11 @@
 	<description>The sample of baseio-protobase</description>
 
 	<build>
-		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<excludes>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/test/resources</directory>
-				<excludes>
-					<exclude>**/*.cfg</exclude>
-				</excludes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -37,20 +25,49 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>test-release</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<excludes>
+							<exclude>**/**.*</exclude>
+						</excludes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+		<profile>
+			<id>run</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<includes>
+							<include>**/**.*</include>
+						</includes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-protobase</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
-				
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-jms</artifactId>
 			<version>3.1.8-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-rtp</artifactId>
