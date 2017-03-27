@@ -17,6 +17,7 @@ package com.generallycloud.baseio.common;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -95,6 +96,10 @@ public class SharedBundle {
 		
 		if (root == null) {
 			return this;
+		}
+		
+		if (!root.exists()) {
+			throw new FileNotFoundException(root.getAbsolutePath());
 		}
 
 		properties.clear();
