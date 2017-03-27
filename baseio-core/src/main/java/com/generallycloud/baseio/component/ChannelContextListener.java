@@ -21,7 +21,6 @@ import java.math.RoundingMode;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.live.AbstractLifeCycleListener;
 import com.generallycloud.baseio.live.LifeCycle;
 import com.generallycloud.baseio.live.LifeCycleListener;
@@ -60,12 +59,12 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 			return;
 		}
 		
-		ServerConfiguration configuration = context.getServerConfiguration();
+		ChannelService service = context.getChannelService();
 		
 		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
-		String[] params = { String.valueOf(configuration.getSERVER_PORT()), String.valueOf(hour) };
+		String[] params = { String.valueOf(service.getServerSocketAddress()), String.valueOf(hour) };
 		LoggerUtil.prettyNIOServerLog(logger, "service running @127.0.0.1:{} for {} hours", params);
 		LoggerUtil.prettyNIOServerLog(logger, "begin to stop service, please wait ...");
 	}

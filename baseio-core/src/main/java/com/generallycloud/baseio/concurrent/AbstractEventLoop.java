@@ -53,6 +53,8 @@ public abstract class AbstractEventLoop implements EventLoop {
 	private volatile boolean	running				= false;
 	
 	private volatile boolean	stopped				= false;
+	
+	private Object				runLock				= new Object();
 
 	private EventLoopGroup		singleEventLoopGroup	= new SingleEventLoopGroup(this);
 
@@ -110,7 +112,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 	@Override
 	public void startup(String threadName) throws Exception {
 
-		synchronized (this) {
+		synchronized (runLock) {
 
 			if (running) {
 				return;
@@ -137,7 +139,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 	@Override
 	public void stop() {
 
-		synchronized (this) {
+		synchronized (runLock) {
 
 			if (!running) {
 				return;

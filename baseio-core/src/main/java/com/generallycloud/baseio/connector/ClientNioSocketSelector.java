@@ -50,8 +50,7 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 		finishConnect(selectionKey, channel);
 	}
 
-	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel)
-			throws IOException {
+	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) {
 
 		try {
 
@@ -66,8 +65,6 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 		} catch (IOException e) {
 
 			connector.finishConnect(null, e);
-
-			throw e;
 		}
 	}
 
