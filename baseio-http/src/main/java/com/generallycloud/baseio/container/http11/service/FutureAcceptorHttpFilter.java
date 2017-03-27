@@ -164,7 +164,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				
 				String staticName = getHttpPath(file, root);
 				
-				if ("/_java_lib".equals(staticName)) {
+				if ("/lib".equals(staticName)) {
 					return false;
 				}
 
