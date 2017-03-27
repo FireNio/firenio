@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -343,7 +342,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		super.wakeup();
 	}
 
-	public void dispatch(SelectorLoopEvent event) throws RejectedExecutionException {
+	public void dispatch(SelectorLoopEvent event) {
 
 		//FIXME 找出这里出问题的原因
 //		if (inEventLoop()) {
@@ -358,28 +357,25 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 //			return;
 //		}
 		
+		//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
 		synchronized (runLock) {
+			
 			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
 			}
 
-			fireEvent(event);
+			BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
+
+			if (events.getBufferSize() > eventQueueSize) {
+				CloseUtil.close(event);
+			}
+
+			events.offer(event);
 		}
 		
-	}
-
-	private void fireEvent(SelectorLoopEvent event) {
-
-		BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
-
-		if (events.getBufferSize() > eventQueueSize) {
-			throw new RejectedExecutionException();
-		}
-
-		events.offer(event);
-
 		wakeup();
+		
 	}
 
 	private void handleEvent(SelectorLoopEvent event) {

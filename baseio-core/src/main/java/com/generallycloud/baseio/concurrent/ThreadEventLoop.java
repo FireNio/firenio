@@ -53,6 +53,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		}
 	}
 
+	//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
 	public void dispatch(Runnable job) throws RejectedExecutionException{
 		synchronized (runLock) {
 			if (!isRunning() || !jobs.offer(job)) {
