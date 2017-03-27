@@ -35,7 +35,6 @@
 	</modules>
 
 	<build>
-		<!-- 将src/main/resources中的所有文件和src/main/java目录下的所有.xml文件打到jar包中 -->
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
