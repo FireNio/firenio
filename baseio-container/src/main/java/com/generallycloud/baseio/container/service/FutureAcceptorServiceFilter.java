@@ -22,7 +22,6 @@ import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.live.LifeCycleUtil;
@@ -32,7 +31,6 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptorServiceFilter.class);
-	private DynamicClassLoader			classLoader;
 	private FutureAcceptorServiceLoader	acceptorServiceLoader;
 
 	public FutureAcceptorServiceFilter() {
@@ -88,13 +86,6 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		session.flush(future);
 	}
 	
-	/**
-	 * @param classLoader the classLoader to set
-	 */
-	protected void setClassLoader(DynamicClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
-
 	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 		LifeCycleUtil.stop(acceptorServiceLoader);
@@ -103,7 +94,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context, classLoader);
+		this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context);
 
 		LifeCycleUtil.start(acceptorServiceLoader);
 	}

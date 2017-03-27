@@ -21,12 +21,12 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.component.Linkable;
-import com.generallycloud.baseio.component.ReadFutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.PluginContext;
+import com.generallycloud.baseio.component.Linkable;
+import com.generallycloud.baseio.component.ReadFutureAcceptor;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.live.AbstractLifeCycle;
 import com.generallycloud.baseio.live.LifeCycle;
 import com.generallycloud.baseio.live.LifeCycleUtil;
@@ -97,8 +97,6 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		context.getApplicationExtLoader().loadExts(context, classLoader);
 
 		this.appRedeployService = context.getAppRedeployService();
-
-		this.serviceFilter.setClassLoader(classLoader);
 
 		if (pluginLoader == null) {
 			this.pluginLoader = new PluginLoader(context, classLoader);

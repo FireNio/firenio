@@ -39,10 +39,10 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 	private Logger							logger	= LoggerFactory.getLogger(getClass());
 	private Map<String, FutureAcceptorService>	services	= new HashMap<String, FutureAcceptorService>();
 
-	public FutureAcceptorServiceLoader(ApplicationContext context, DynamicClassLoader classLoader) {
-		this.configuration = context.getConfiguration().getServletsConfiguration();
+	public FutureAcceptorServiceLoader(ApplicationContext context) {
 		this.context = context;
-		this.classLoader = classLoader;
+		this.classLoader = context.getClassLoader();
+		this.configuration = context.getConfiguration().getServletsConfiguration();
 	}
 
 	@Override
