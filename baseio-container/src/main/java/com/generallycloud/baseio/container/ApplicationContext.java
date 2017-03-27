@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.container;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
@@ -58,6 +58,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Charset						encoding;
 	private FutureAcceptorService				appRedeployService;
 	private FutureAcceptor					filterService	;
+	private ApplicationExtLoader				applicationExtLoader;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
 	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
@@ -96,9 +97,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
 		
-		File temp = new File(configuration.getApplicationRootPath() + appPath);
-
-		this.appLocalAddres = temp.getCanonicalPath() + "/";
+		this.appLocalAddres = FileUtil.getPrettyPath(configuration.getApplicationRootPath() + appPath);
 
 		LoggerUtil.prettyNIOServerLog(logger, "application path      :{ {} }", appLocalAddres);
 
@@ -147,7 +146,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return encoding;
 	}
 
-	public FutureAcceptor getFilterService() {
+	protected FutureAcceptor getFilterService() {
 		return filterService;
 	}
 
@@ -288,6 +287,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
 		this.futureAcceptorServiceFilter = serviceFilter;
+	}
+
+	public ApplicationExtLoader getApplicationExtLoader() {
+		return applicationExtLoader;
+	}
+
+	public void setApplicationExtLoader(ApplicationExtLoader applicationExtLoader) {
+		this.applicationExtLoader = applicationExtLoader;
 	}
 
 }

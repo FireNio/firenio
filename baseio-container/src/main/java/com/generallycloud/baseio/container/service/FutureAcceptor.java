@@ -20,10 +20,10 @@ import java.io.IOException;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandle;
+import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.component.ReadFutureAcceptor;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.PluginContext;
@@ -36,7 +36,6 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle, ReadFutureAcceptor {
 
 	private volatile boolean			deploying;
-	private DynamicClassLoader			classLoader;
 	private ApplicationContext			context;
 	private FutureAcceptorFilterLoader		filterLoader;
 	private PluginLoader				pluginLoader;
@@ -92,10 +91,10 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 	@Override
 	protected void doStart() throws Exception {
-
-		this.classLoader = context.getClassLoader();
-
-		this.classLoader.scan(context.getAppLocalAddress());
+		
+		DynamicClassLoader classLoader = context.getClassLoader();
+		
+		context.getApplicationExtLoader().loadExts(context, classLoader);
 
 		this.appRedeployService = context.getAppRedeployService();
 

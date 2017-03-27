@@ -33,7 +33,9 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.configuration.ServerConfigurationLoader;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextEnricher;
+import com.generallycloud.baseio.container.ApplicationExtLoader;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
+import com.generallycloud.baseio.container.DefaultExtLoader;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -55,8 +57,13 @@ public class ApplicationBootstrap {
 			
 			applicationContext.setChannelContext(channelContext);
 			
+			ApplicationExtLoader applicationExtLoader = loadApplicationExtLoader(
+					bundle.getProperty("intf.ApplicationExtLoader"));
+			
 			ApplicationContextEnricher enricher = loadApplicationContextEnricher(
 					bundle.getProperty("intf.ApplicationContextEnricher"));
+			
+			applicationContext.setApplicationExtLoader(applicationExtLoader);
 			
 			enricher.enrich(applicationContext);
 			
@@ -117,6 +124,11 @@ public class ApplicationBootstrap {
 			throw new Exception("intf.ApplicationContextEnricher is empty");
 		}
 		return (ApplicationContextEnricher) ClassUtil.newInstance(clazz);
+	}
+	
+	private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception{
+		Class<?> clazz = ClassUtil.forName(className,DefaultExtLoader.class);
+		return (ApplicationExtLoader) ClassUtil.newInstance(clazz);
 	}
 	
 	private int getServerPort(int port,boolean enableSSL){
