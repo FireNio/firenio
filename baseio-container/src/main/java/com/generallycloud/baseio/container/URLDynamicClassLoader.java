@@ -42,10 +42,14 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	private ClassLoader				parentClassLoader;
 	private ClassLoader				systemClassLoader;
 	private ClassLoader				appClassLoader;
-
+	
 	public URLDynamicClassLoader() {
+		this(null);
+	}
+	
+	public URLDynamicClassLoader(ClassLoader parent) {
 		
-		super(new URL[]{});
+		super(new URL[]{},parent == null ? getSystemClassLoader() : parent);
 		
 		this.appClassLoader = getClass().getClassLoader();
 
@@ -299,7 +303,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			unloadClass(e.loadedClass);
 		}
 	}
-
+	
 	private void unloadClass(Class<?> clazz) {
 		
 		CloseUtil.close(this);

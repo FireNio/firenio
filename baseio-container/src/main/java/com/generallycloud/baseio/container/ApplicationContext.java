@@ -26,11 +26,14 @@ import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.container.authority.AuthorityLoginCenter;
 import com.generallycloud.baseio.container.authority.RoleManager;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
+import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
+import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.container.implementation.SystemRedeployServlet;
 import com.generallycloud.baseio.container.implementation.SystemStopServerServlet;
 import com.generallycloud.baseio.container.service.FutureAcceptor;
@@ -49,16 +52,17 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
-	private String							appPath		= "app/";
 	private String							appLocalAddres;
+	private String							rootLocalAddres;
 	private Sequence						sequence		= new Sequence();
-	private DynamicClassLoader				classLoader	= new URLDynamicClassLoader();
+	private URLDynamicClassLoader				classLoader	= new URLDynamicClassLoader();
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext				channelContext;
 	private Charset						encoding;
 	private FutureAcceptorService				appRedeployService;
 	private FutureAcceptor					filterService	;
 	private ApplicationExtLoader				applicationExtLoader;
+	private ApplicationConfigurationLoader		acLoader;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
 	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
@@ -68,7 +72,16 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
 	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 
+	public ApplicationContext(String rootLocalAddres) {
+		this(rootLocalAddres,null);
+	}
+	
 	public ApplicationContext(ApplicationConfiguration configuration) {
+		this(FileUtil.getCurrentPath(),configuration);
+	}
+	
+	public ApplicationContext(String rootLocalAddres,ApplicationConfiguration configuration) {
+		this.rootLocalAddres = rootLocalAddres;
 		this.configuration = configuration;
 	}
 
@@ -79,12 +92,20 @@ public class ApplicationContext extends AbstractLifeCycle {
 			throw new IllegalArgumentException("null nio context");
 		}
 		
+		if (StringUtil.isNullOrBlank(rootLocalAddres)) {
+			throw new IllegalArgumentException("rootLocalAddres");
+		}
+		
 		if (futureAcceptorServiceFilter == null) {
 			this.futureAcceptorServiceFilter = new FutureAcceptorServiceFilter();
 		}
 
 		if (appRedeployService == null) {
 			appRedeployService = new SystemRedeployServlet();
+		}
+		
+		if (acLoader == null) {
+			acLoader = new FileSystemACLoader();
 		}
 		
 		instance = this;
@@ -97,20 +118,48 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
 		
-		this.appLocalAddres = FileUtil.getPrettyPath(configuration.getApplicationRootPath() + appPath);
-
+		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddres() + "app");
+		
 		LoggerUtil.prettyNIOServerLog(logger, "application path      :{ {} }", appLocalAddres);
 
+		this.initializeApplicationContext();
+		
+		this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
+	}
+	
+	private void initializeApplicationContext() throws Exception{
+		
+		this.classLoader = new URLDynamicClassLoader();
+		
+		this.classLoader.scan(getRootLocalAddres()+"conf");
+		
+		this.configuration = acLoader.loadConfiguration(classLoader);
+		
 		LifeCycleUtil.start(sequence);
 
 		LifeCycleUtil.start(filterService);
 
 		this.roleManager.initialize(this, null);
 		this.loginCenter.initialize(this, null);
-
+		
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
-		this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
+	}
+	
+	private void destroyApplicationContext(){
+		
+		LifeCycleUtil.stop(sequence);
+
+		LifeCycleUtil.stop(filterService);
+		
+		InitializeUtil.destroy(loginCenter, this,null);
+		InitializeUtil.destroy(roleManager, this,null);
+
+		clearPluginFilters();
+
+		clearPluginServlets();
+
+		classLoader.unloadClassLoader();
 	}
 
 	public void addSessionEventListener(SocketSessionEventListener listener) {
@@ -119,10 +168,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	@Override
 	protected void doStop() throws Exception {
-		LifeCycleUtil.start(sequence);
-		LifeCycleUtil.stop(filterService);
-		InitializeUtil.destroy(loginCenter, this, null);
-		classLoader.unloadClassLoader();
+		destroyApplicationContext();
 		instance = null;
 	}
 
@@ -207,15 +253,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
 
-		LifeCycleUtil.stop(sequence);
-
-		LifeCycleUtil.stop(filterService);
-
-		clearPluginFilters();
-
-		clearPluginServlets();
-
-		classLoader.unloadClassLoader();
+		destroyApplicationContext();
 
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
 
@@ -224,12 +262,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 			// FIXME 重新加载configuration
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
 
-			this.classLoader = new URLDynamicClassLoader();
-
-			LifeCycleUtil.start(sequence);
-
-			LifeCycleUtil.start(filterService);
-
+			initializeApplicationContext();
+			
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
 
 			return true;
@@ -296,5 +330,13 @@ public class ApplicationContext extends AbstractLifeCycle {
 	public void setApplicationExtLoader(ApplicationExtLoader applicationExtLoader) {
 		this.applicationExtLoader = applicationExtLoader;
 	}
-
+	
+	public String getRootLocalAddres() {
+		return rootLocalAddres;
+	}
+	
+	public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {
+		this.acLoader = acLoader;
+	}
+	
 }

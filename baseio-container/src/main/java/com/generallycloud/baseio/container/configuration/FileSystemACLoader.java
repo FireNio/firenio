@@ -21,60 +21,44 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.StringUtil;
 
-public class FileSystemACLoader extends AbstractACLoader implements ApplicationConfigurationLoader {
+public class FileSystemACLoader extends AbstractACLoader {
 	
 	@Override
-	protected void initApplicationConfigurationLoader(String rootPath,ApplicationConfiguration configuration) throws IOException {
-		
-		SharedBundle bundle = SharedBundle.instance();
-		
-		if (StringUtil.isNullOrBlank(rootPath)) {
-			configuration.setApplicationRootPath(bundle.getClassPath());
-			return;
-		}
-		
-		bundle.loadAllProperties(rootPath);
-		
-		configuration.setApplicationRootPath(FileUtil.getPrettyPath(rootPath));
-	}
-
-	@Override
-	protected FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle)
+	protected FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = bundle.loadContent("conf/filters.cfg", Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/filters.cfg"), Encoding.UTF8);
 
 		return loadFiltersConfiguration(json);
 	}
 
 	@Override
-	protected PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle)
+	protected PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = bundle.loadContent("conf/plugins.cfg", Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/plugins.cfg"), Encoding.UTF8);
 
 		return loadPluginsConfiguration(json);
 	}
 
 	@Override
-	protected ServicesConfiguration loadServletsConfiguration(SharedBundle bundle)
+	protected ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = bundle.loadContent("conf/services.cfg", Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/services.cfg"), Encoding.UTF8);
 
 		return loadServletsConfiguration(json);
 	}
 
 	@Override
-	protected PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle)
+	protected PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String roles = bundle.loadContent("conf/roles.cfg", Encoding.UTF8);
+		String roles = FileUtil.input2String(classLoader.getResourceAsStream("conf/roles.cfg"), Encoding.UTF8);
 
-		String permissions = bundle.loadContent("conf/permissions.cfg", Encoding.UTF8);
+		String permissions = FileUtil.input2String(classLoader.getResourceAsStream("conf/permissions.cfg"), Encoding.UTF8);
 
 		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
 			return null;

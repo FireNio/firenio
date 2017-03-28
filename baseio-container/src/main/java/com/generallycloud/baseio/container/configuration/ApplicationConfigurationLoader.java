@@ -15,10 +15,8 @@
  */ 
 package com.generallycloud.baseio.container.configuration;
 
-import com.generallycloud.baseio.common.SharedBundle;
-
 public interface ApplicationConfigurationLoader {
 
-	public ApplicationConfiguration loadConfiguration(String rootPath,SharedBundle bundle) throws Exception;
+	public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception;
 	
 }

@@ -19,35 +19,30 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.StringUtil;
 
 public abstract class AbstractACLoader implements ApplicationConfigurationLoader{
 
 	@Override
-	public ApplicationConfiguration loadConfiguration(String rootPath,SharedBundle bundle) throws Exception {
+	public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
 		
 		ApplicationConfiguration configuration = new ApplicationConfiguration();
 		
-		initApplicationConfigurationLoader(rootPath,configuration);
-
-		configuration.setFiltersConfiguration(loadFiltersConfiguration(bundle));
-		configuration.setPluginsConfiguration(loadPluginsConfiguration(bundle));
-		configuration.setServletsConfiguration(loadServletsConfiguration(bundle));
-		configuration.setPermissionConfiguration(loadPermissionConfiguration(bundle));
+		configuration.setFiltersConfiguration(loadFiltersConfiguration(classLoader));
+		configuration.setPluginsConfiguration(loadPluginsConfiguration(classLoader));
+		configuration.setServletsConfiguration(loadServletsConfiguration(classLoader));
+		configuration.setPermissionConfiguration(loadPermissionConfiguration(classLoader));
 		
 		return configuration;
 	}
 	
-	protected abstract void initApplicationConfigurationLoader(String rootPath,ApplicationConfiguration configuration) throws IOException;
+	protected abstract FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader) throws IOException;
 	
-	protected abstract FiltersConfiguration loadFiltersConfiguration(SharedBundle bundle) throws IOException;
+	protected abstract PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader) throws IOException;
 	
-	protected abstract PluginsConfiguration loadPluginsConfiguration(SharedBundle bundle) throws IOException;
+	protected abstract ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader) throws IOException;
 	
-	protected abstract ServicesConfiguration loadServletsConfiguration(SharedBundle bundle) throws IOException;
-	
-	protected abstract PermissionConfiguration loadPermissionConfiguration(SharedBundle bundle) throws IOException;
+	protected abstract PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader) throws IOException;
 	
 	protected FiltersConfiguration loadFiltersConfiguration(String json){
 		

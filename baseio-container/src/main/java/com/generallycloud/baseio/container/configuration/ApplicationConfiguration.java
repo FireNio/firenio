@@ -17,8 +17,6 @@ package com.generallycloud.baseio.container.configuration;
 
 public class ApplicationConfiguration {
 
-	private String					applicationRootPath;
-
 	private FiltersConfiguration		filtersConfiguration;
 
 	private PermissionConfiguration	permissionConfiguration;
@@ -26,10 +24,6 @@ public class ApplicationConfiguration {
 	private PluginsConfiguration		pluginsConfiguration;
 
 	private ServicesConfiguration		servletsConfiguration;
-
-	public String getApplicationRootPath() {
-		return applicationRootPath;
-	}
 
 	public FiltersConfiguration getFiltersConfiguration() {
 		return filtersConfiguration;
@@ -45,10 +39,6 @@ public class ApplicationConfiguration {
 
 	public ServicesConfiguration getServletsConfiguration() {
 		return servletsConfiguration;
-	}
-
-	protected void setApplicationRootPath(String applicationRootPath) {
-		this.applicationRootPath = applicationRootPath;
 	}
 
 	protected void setFiltersConfiguration(FiltersConfiguration filtersConfiguration) {

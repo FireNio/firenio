@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.startup;
 
 import java.io.File;
@@ -21,6 +21,7 @@ import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
@@ -41,113 +42,117 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 
 public class ApplicationBootstrap {
-	
-	public void bootstrap(ApplicationConfiguration ac,ServerConfiguration sc) throws Exception {
-		
+
+	public void bootstrap(ApplicationConfigurationLoader acLoader, String rootPath,
+			ApplicationConfiguration ac, ServerConfiguration sc) throws Exception {
+
 		SharedBundle bundle = SharedBundle.instance();
-		
-		ApplicationContext applicationContext = new ApplicationContext(ac);
+
+		if (rootPath == null) {
+			rootPath = FileUtil.getCurrentPath();
+		}
+
+		ApplicationContext applicationContext = new ApplicationContext(rootPath, ac);
 
 		SocketChannelContext channelContext = new NioSocketChannelContext(sc);
-//		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
-		
+		//		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
+
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(channelContext);
 
 		try {
-			
+
 			applicationContext.setChannelContext(channelContext);
-			
+
 			ApplicationExtLoader applicationExtLoader = loadApplicationExtLoader(
 					bundle.getProperty("intf.ApplicationExtLoader"));
-			
+
 			ApplicationContextEnricher enricher = loadApplicationContextEnricher(
 					bundle.getProperty("intf.ApplicationContextEnricher"));
-			
+
 			applicationContext.setApplicationExtLoader(applicationExtLoader);
-			
+
 			enricher.enrich(applicationContext);
-			
-			channelContext.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
-			
+
+			channelContext
+					.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
+
 			if (sc.isSERVER_ENABLE_SSL()) {
-				
+
 				File certificate = bundle.loadFile("conf/generallycloud.com.crt");
 				File privateKey = bundle.loadFile("conf/generallycloud.com.key");
-				
-				SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
-				
+
+				SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+
 				channelContext.setSslContext(sslContext);
 			}
 
-			sc.setSERVER_PORT(getServerPort(sc.getSERVER_PORT(),
-					sc.isSERVER_ENABLE_SSL()));
-			
+			sc.setSERVER_PORT(getServerPort(sc.getSERVER_PORT(), sc.isSERVER_ENABLE_SSL()));
+
 			acceptor.bind();
 
 		} catch (Throwable e) {
-			
+
 			Logger logger = LoggerFactory.getLogger(getClass());
-			
+
 			logger.error(e.getMessage(), e);
 
 			CloseUtil.unbind(acceptor);
 		}
-		
+
 	}
-	
+
 	public void bootstrap(String rootPath) throws Exception {
 
 		SharedBundle bundle = SharedBundle.instance().loadAllProperties(rootPath);
-		
+
 		LoggerFactory.configure(bundle.loadProperties("conf/log4j.properties", Encoding.UTF8));
-		
+
 		ApplicationConfigurationLoader acLoader = loadConfigurationLoader(
 				bundle.getProperty("intf.ApplicationConfigurationLoader"));
 
-		ApplicationConfiguration applicationConfiguration = acLoader.loadConfiguration(rootPath,bundle);
-		
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
-		
+
 		ServerConfiguration serverConfiguration = configurationLoader.loadConfiguration(bundle);
-		
-		bootstrap(applicationConfiguration, serverConfiguration);
+
+		bootstrap(acLoader, rootPath, null, serverConfiguration);
 	}
-	
-	private ApplicationConfigurationLoader loadConfigurationLoader(String className){
+
+	private ApplicationConfigurationLoader loadConfigurationLoader(String className) {
 		Class<?> clazz = ClassUtil.forName(className, FileSystemACLoader.class);
 		return (ApplicationConfigurationLoader) ClassUtil.newInstance(clazz);
 	}
-	
-	private ApplicationContextEnricher loadApplicationContextEnricher(String className) throws Exception{
+
+	private ApplicationContextEnricher loadApplicationContextEnricher(String className)
+			throws Exception {
 		Class<?> clazz = ClassUtil.forName(className);
 		if (clazz == null) {
 			throw new Exception("intf.ApplicationContextEnricher is empty");
 		}
 		return (ApplicationContextEnricher) ClassUtil.newInstance(clazz);
 	}
-	
-	private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception{
-		Class<?> clazz = ClassUtil.forName(className,DefaultExtLoader.class);
+
+	private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception {
+		Class<?> clazz = ClassUtil.forName(className, DefaultExtLoader.class);
 		return (ApplicationExtLoader) ClassUtil.newInstance(clazz);
 	}
-	
-	private int getServerPort(int port,boolean enableSSL){
+
+	private int getServerPort(int port, boolean enableSSL) {
 		if (port != 0) {
 			return port;
 		}
 		return enableSSL ? 443 : 80;
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-		
+
 		ApplicationBootstrap startup = new ApplicationBootstrap();
-		
+
 		String base = null;
-		
+
 		if (args != null && args.length > 0) {
 			base = args[0];
 		}
-		
+
 		startup.bootstrap(base);
 	}
 }
