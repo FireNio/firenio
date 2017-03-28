@@ -52,7 +52,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private String							appPath		= "app/";
 	private String							appLocalAddres;
 	private Sequence						sequence		= new Sequence();
-	private DynamicClassLoader				classLoader	= new DynamicClassLoader();
+	private DynamicClassLoader				classLoader	= new URLDynamicClassLoader();
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext				channelContext;
 	private Charset						encoding;
@@ -224,7 +224,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 			// FIXME 重新加载configuration
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
 
-			this.classLoader = new DynamicClassLoader();
+			this.classLoader = new URLDynamicClassLoader();
 
 			LifeCycleUtil.start(sequence);
 

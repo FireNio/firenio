@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,15 +35,17 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 
-public class DynamicClassLoader extends ClassLoader {
+public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader{
 
-	private Logger					logger		= LoggerFactory.getLogger(DynamicClassLoader.class);
-	private Map<String, ClassEntry>	clazzEntries	= new HashMap<String, ClassEntry>();
+	private Logger					logger		= LoggerFactory.getLogger(getClass());
+	private Map<String, ClassEntry>	clazzEntries	= new HashMap<>();
 	private ClassLoader				parentClassLoader;
 	private ClassLoader				systemClassLoader;
 	private ClassLoader				appClassLoader;
 
-	public DynamicClassLoader() {
+	public URLDynamicClassLoader() {
+		
+		super(new URL[]{});
 		
 		this.appClassLoader = getClass().getClassLoader();
 
@@ -119,16 +123,18 @@ public class DynamicClassLoader extends ClassLoader {
 		}
 	}
 
+	@Override
 	public void scan(String file) throws IOException {
 		this.scan(new File(file));
 	}
 
+	@Override
 	public void scan(File file) throws IOException {
-		this.scan0(file);
+		this.scan0(file,"");
 		LoggerUtil.prettyNIOServerLog(logger, "cache bianry class size [ {} ] ", clazzEntries.size());
 	}
 
-	private void scan0(File file) throws IOException {
+	private void scan0(File file,String path) throws IOException {
 
 		if (!file.exists()) {
 			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found", file.getAbsoluteFile());
@@ -140,7 +146,7 @@ public class DynamicClassLoader extends ClassLoader {
 			File[] files = file.listFiles();
 
 			for (File _file : files) {
-				scan0(_file);
+				scan0(_file,path+"/"+_file.getName());
 			}
 
 			return;
@@ -151,8 +157,11 @@ public class DynamicClassLoader extends ClassLoader {
 		if (fileName.endsWith(".jar")) {
 			scanZip(new JarFile(file));
 		}
-
+		
+		addURL(file.toURI().toURL());
+		
 	}
+	
 
 	private void scanZip(JarFile file) throws IOException {
 
@@ -170,11 +179,12 @@ public class DynamicClassLoader extends ClassLoader {
 					continue;
 				}
 
-				String name = entry.getName();
+				String filePathName = entry.getName();
 
-				if (name.endsWith(".class") && !matchSystem(name)) {
-					storeClass(file, name, entry);
+				if (filePathName.endsWith(".class") && !matchSystem(filePathName)) {
+					storeClass(file, entry);
 				}
+				
 			}
 		} finally {
 
@@ -191,9 +201,11 @@ public class DynamicClassLoader extends ClassLoader {
 		return false;
 	}
 
-	private void storeClass(JarFile file, String name, JarEntry entry) throws IOException {
+	private void storeClass(JarFile file, JarEntry entry) throws IOException {
 
-		String className = name.replace('/', '.').replace(".class", "");
+		String filePathName = entry.getName();
+		
+		String className = filePathName.replace('/', '.').replace(".class", "");
 
 		if (clazzEntries.containsKey(className)) {
 			throw new DuplicateClassException(className);
@@ -202,7 +214,7 @@ public class DynamicClassLoader extends ClassLoader {
 		try {
 
 			parentClassLoader.loadClass(className);
-
+			
 			throw new DuplicateClassException(className);
 		} catch (ClassNotFoundException e) {
 		}
@@ -263,6 +275,7 @@ public class DynamicClassLoader extends ClassLoader {
 		return clazz;
 	}
 
+	@Override
 	public Class<?> forName(String name) throws ClassNotFoundException {
 		return this.findClass(name);
 	}
@@ -277,6 +290,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 	}
 
+	@Override
 	public void unloadClassLoader() {
 
 		Collection<ClassEntry> es = clazzEntries.values();
@@ -287,6 +301,8 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	private void unloadClass(Class<?> clazz) {
+		
+		CloseUtil.close(this);
 
 		if (clazz == null) {
 			return;
