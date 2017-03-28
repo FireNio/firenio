@@ -28,7 +28,6 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
@@ -130,121 +129,105 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		mapping.put("txt", HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN);
 		mapping.put("ico", HttpReadFuture.CONTENT_TYPE_IMAGE_ICON);
 
-		scanFolder(context.getChannelContext(),rootFile, rootPath, mapping);
+		if (rootFile.exists()) {
+			scanFolder(context.getChannelContext(),rootFile, rootPath, mapping,"");
+		}
 
 		super.initialize(context, config);
 	}
 
-	private boolean scanFolder(SocketChannelContext context,File file, String root, Map<String, String> mapping) throws IOException {
+	private void scanFolder(SocketChannelContext context,File file, String root, Map<String, String> mapping,String path) throws IOException {
 
-		if (file.exists()) {
-			if (file.isFile()) {
+		if (file.isFile()) {
 
-				String contentType = getContentType(file.getName(), mapping);
+			String contentType = getContentType(file.getName(), mapping);
 
-				String fileName = file.getCanonicalPath();
+			String fileName = file.getCanonicalPath().replace("\\", "/");
 
-				fileName = fileName.replace("\\", "/");
+			HttpEntity entity = new HttpEntity();
 
-				String staticName = fileName.substring(root.length() - 1, fileName.length());
+			entity.contentType = contentType;
+			entity.file = file;
+			entity.lastModify = 0;
+			
+			html_cache.put(path, entity);
 
-				staticName = getHttpPath(file, root);
+			LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", path, fileName);
+			
+		} else if (file.isDirectory()) {
+			
+			String staticName = path;
+			
+			if ("/lib".equals(staticName)) {
+				return;
+			}
 
-				HttpEntity entity = new HttpEntity();
+			if ("".equals(staticName)) {
+				staticName = "/";
+			}
 
-				entity.contentType = contentType;
-				entity.file = file;
-				entity.lastModify = 0;
-				
-				html_cache.put(staticName, entity);
+			File[] fs = file.listFiles();
 
-				LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", staticName, fileName);
-				
-			} else if (file.isDirectory()) {
-				
-				String staticName = getHttpPath(file, root);
-				
-				if ("/lib".equals(staticName)) {
-					return false;
+			StringBuilder b = new StringBuilder(HtmlUtil.HTML_HEADER);
+
+			b.append("		<div style=\"margin-left:20px;\">\n");
+			b.append("			Index of " + staticName + "\n");
+			b.append("		</div>\n");
+			b.append("		<hr>\n");
+
+			if (!"/".equals(staticName)) {
+				int index = staticName.lastIndexOf("/");
+				String parentStaticName;
+				if (index == 0) {
+					parentStaticName = "..";
+				}else{
+					parentStaticName = staticName.substring(0, index);
 				}
+				b.append("		<p>\n");
+				b.append("			<a href=\"" + parentStaticName + "\">&lt;dir&gt;..</a>\n");
+				b.append("		</p>\n");
+			}
 
-				if ("".equals(staticName)) {
-					staticName = "/";
-				}
+			StringBuilder db = new StringBuilder();
+			StringBuilder fb = new StringBuilder();
 
-				File[] fs = file.listFiles();
+			for (File f : fs) {
 
-				StringBuilder b = new StringBuilder(HtmlUtil.HTML_HEADER);
+				String staticName1 = path +"/"+ f.getName();
+				
+				scanFolder(context,f, root, mapping, staticName1);
 
-				b.append("		<div style=\"margin-left:20px;\">\n");
-				b.append("			Index of " + getHttpPath(file, root) + "\n");
-				b.append("		</div>\n");
-				b.append("		<hr>\n");
-
-				File rootFile = new File(root);
-
-				if (!rootFile.equals(file)) {
-					b.append("		<p>\n");
-					b.append("			<a href=\"" + getHttpPath(file.getParentFile(), root) + "\">&lt;dir&gt;..</a>\n");
-					b.append("		</p>\n");
-				}
-
-				StringBuilder db = new StringBuilder();
-				StringBuilder fb = new StringBuilder();
-
-				for (File f : fs) {
-
-					if (!scanFolder(context,f, root, mapping)) {
+				if (f.isDirectory()) {
+					if ("/lib".equals(staticName1)) {
 						continue;
 					}
-
-					if (f.isDirectory()) {
-						String a = "<a href=\"" + getHttpPath(f, root) + "\">&lt;dir&gt;" + f.getName()+ "</a>\n";
-						db.append("		<p>\n");
-						db.append("			" + a);
-						db.append("		</p>\n");
-					} else {
-						String a = "<a href=\"" + getHttpPath(f, root) + "\">" + f.getName() + "</a>\n";
-						fb.append("		<p>\n");
-						fb.append("			" + a);
-						fb.append("		<p>\n");
-					}
+					String a = "<a href=\"" + staticName1 + "\">&lt;dir&gt;" + f.getName()+ "</a>\n";
+					db.append("		<p>\n");
+					db.append("			" + a);
+					db.append("		</p>\n");
+				} else {
+					String a = "<a href=\"" + staticName1 + "\">" + f.getName() + "</a>\n";
+					fb.append("		<p>\n");
+					fb.append("			" + a);
+					fb.append("		<p>\n");
 				}
-
-				b.append(db);
-				b.append(fb);
-
-				b.append("		<hr>\n");
-				b.append(HtmlUtil.HTML_BOTTOM);
-
-				HttpEntity entity = new HttpEntity();
-
-				entity.contentType = HttpReadFuture.CONTENT_TYPE_TEXT_HTML;
-				entity.file = file;
-				entity.text = b.toString();
-
-				html_cache.put(staticName, entity);
 			}
+
+			b.append(db);
+			b.append(fb);
+
+			b.append("		<hr>\n");
+			b.append(HtmlUtil.HTML_BOTTOM);
+
+			HttpEntity entity = new HttpEntity();
+
+			entity.contentType = HttpReadFuture.CONTENT_TYPE_TEXT_HTML;
+			entity.file = file;
+			entity.text = b.toString();
+
+			html_cache.put(staticName, entity);
+		}
 			
-			return true;
-		}
-		
-		return false;
-	}
-
-	private String getHttpPath(File file, String root) throws IOException {
-
-		String fileName = file.getCanonicalPath();
-
-		fileName = fileName.replace("\\", "/");
-
-		String staticName = fileName.substring(root.length() - 1, fileName.length());
-
-		if (StringUtil.isNullOrBlank(staticName)) {
-			staticName = "/";
-		}
-
-		return staticName;
 	}
 
 	private String getContentType(String fileName, Map<String, String> mapping) {
