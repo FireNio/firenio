@@ -733,5 +733,13 @@ public class FileUtil {
 		}
 		return newPath + "/";
 	}
+	
+	public static String getCurrentPath(ClassLoader classLoader){
+		return classLoader.getResource(".").getFile();
+	}
+	
+	public static String getCurrentPath(){
+		return getCurrentPath(FileUtil.class.getClassLoader());
+	}
 
 }
