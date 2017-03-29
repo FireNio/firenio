@@ -37,14 +37,12 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
 	private Linkable<FutureAcceptorFilter>	rootFilter	;
 	private ApplicationContext			context		;
-	private DynamicClassLoader			classLoader	;
 	private FiltersConfiguration			configuration	;
 	private FutureAcceptorServiceFilter	serviceFilter	;
 
-	public FutureAcceptorFilterLoader(ApplicationContext context, DynamicClassLoader classLoader,FutureAcceptorServiceFilter	serviceFilter) {
+	public FutureAcceptorFilterLoader(ApplicationContext context, FutureAcceptorServiceFilter	serviceFilter) {
 		this.configuration = context.getConfiguration().getFiltersConfiguration();
 		this.context = context;
-		this.classLoader = classLoader;
 		this.serviceFilter = serviceFilter;
 	}
 
@@ -134,7 +132,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 
 	@Override
 	protected void doStart() throws Exception {
-		this.rootFilter = this.loadFilters(context, classLoader);
+		this.rootFilter = this.loadFilters(context,context.getClassLoader());
 
 		// start all filter
 		this.initializeFilters(rootFilter);

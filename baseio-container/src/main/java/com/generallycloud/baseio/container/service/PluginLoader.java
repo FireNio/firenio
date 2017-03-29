@@ -31,21 +31,19 @@ import com.generallycloud.baseio.live.LifeCycle;
 public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
 	private ApplicationContext	context;
-	private DynamicClassLoader	classLoader;
 	private Logger				logger	= LoggerFactory.getLogger(PluginLoader.class);
 	private PluginContext[]		pluginContexts;
 	private PluginsConfiguration	configuration;
 
-	public PluginLoader(ApplicationContext context, DynamicClassLoader classLoader) {
+	public PluginLoader(ApplicationContext context) {
 		this.configuration = context.getConfiguration().getPluginsConfiguration();
 		this.context = context;
-		this.classLoader = classLoader;
 	}
 
 	@Override
 	protected void doStart() throws Exception {
 
-		loadPlugins(context, this.classLoader, this.configuration);
+		loadPlugins(context, context.getClassLoader(), this.configuration);
 
 		this.initializePlugins(pluginContexts);
 
@@ -98,14 +96,14 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 		for (int i = 0; i < plugins.size(); i++) {
 
 			try {
-				pluginContexts[i] = loadPlugin(plugins.get(i));
+				pluginContexts[i] = loadPlugin(plugins.get(i),classLoader);
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 			}
 		}
 	}
 	
-	private PluginContext loadPlugin(Configuration config) throws Exception{
+	private PluginContext loadPlugin(Configuration config,DynamicClassLoader classLoader) throws Exception{
 		
 		String className = config.getParameter("class", "empty");
 

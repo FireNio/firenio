@@ -54,8 +54,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	private String							appLocalAddres;
 	private String							rootLocalAddres;
-	private Sequence						sequence		= new Sequence();
-	private URLDynamicClassLoader				classLoader	= new URLDynamicClassLoader();
+	private URLDynamicClassLoader				classLoader	;
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext				channelContext;
 	private Charset						encoding;
@@ -109,6 +108,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 		
 		instance = this;
+		
+		this.rootLocalAddres = FileUtil.getPrettyPath(rootLocalAddres);
 
 		this.encoding = channelContext.getEncoding();
 
@@ -129,13 +130,11 @@ public class ApplicationContext extends AbstractLifeCycle {
 	
 	private void initializeApplicationContext() throws Exception{
 		
-		this.classLoader = new URLDynamicClassLoader();
+		this.classLoader = new URLDynamicClassLoader(getClass().getClassLoader());
 		
 		this.classLoader.scan(getRootLocalAddres()+"conf");
 		
 		this.configuration = acLoader.loadConfiguration(classLoader);
-		
-		LifeCycleUtil.start(sequence);
 
 		LifeCycleUtil.start(filterService);
 
@@ -148,8 +147,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 	
 	private void destroyApplicationContext(){
 		
-		LifeCycleUtil.stop(sequence);
-
 		LifeCycleUtil.stop(filterService);
 		
 		InitializeUtil.destroy(loginCenter, this,null);
@@ -305,10 +302,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		}
 
 		this.services.put(serviceName, service);
-	}
-
-	public Sequence getSequence() {
-		return sequence;
 	}
 
 	public FutureAcceptorService getAppRedeployService() {

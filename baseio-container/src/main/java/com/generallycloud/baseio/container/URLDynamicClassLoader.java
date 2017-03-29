@@ -22,10 +22,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -35,34 +38,26 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 
-public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader{
+public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
 	private Logger					logger		= LoggerFactory.getLogger(getClass());
 	private Map<String, ClassEntry>	clazzEntries	= new HashMap<>();
+	private Map<String, URL>			resourceMap	= new HashMap<>();
+	private Map<String, List<URL>>	resourcesMap	= new HashMap<>();
 	private ClassLoader				parentClassLoader;
-	private ClassLoader				systemClassLoader;
-	private ClassLoader				appClassLoader;
-	
+
 	public URLDynamicClassLoader() {
 		this(null);
 	}
-	
+
 	public URLDynamicClassLoader(ClassLoader parent) {
-		
-		super(new URL[]{},parent == null ? getSystemClassLoader() : parent);
-		
-		this.appClassLoader = getClass().getClassLoader();
+
+		super(new URL[] {}, parent == null ? getSystemClassLoader() : parent);
 
 		this.parentClassLoader = getParent();
 
-		this.systemClassLoader = getSystemClassLoader();
-		
 		if (parentClassLoader == null) {
-			parentClassLoader = systemClassLoader;
-		}
-
-		if (appClassLoader == null) {
-			appClassLoader = parentClassLoader;
+			parentClassLoader = getSystemClassLoader();
 		}
 	}
 
@@ -98,19 +93,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			return clazz;
 		}
 
-		clazz = entrustLoadClass(appClassLoader, name);
-
-		if (clazz != null) {
-			return clazz;
-		}
-
 		clazz = entrustLoadClass(parentClassLoader, name);
-
-		if (clazz != null) {
-			return clazz;
-		}
-
-		clazz = entrustLoadClass(systemClassLoader, name);
 
 		if (clazz != null) {
 			return clazz;
@@ -134,14 +117,16 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 	@Override
 	public void scan(File file) throws IOException {
-		this.scan0(file,"");
-		LoggerUtil.prettyNIOServerLog(logger, "cache bianry class size [ {} ] ", clazzEntries.size());
+		this.scan0(file, "");
+		LoggerUtil.prettyNIOServerLog(logger, "load class count [ {} ] from [ {} ]",
+				clazzEntries.size(), file.getAbsolutePath());
 	}
 
-	private void scan0(File file,String path) throws IOException {
+	private void scan0(File file, String path) throws IOException {
 
 		if (!file.exists()) {
-			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found", file.getAbsoluteFile());
+			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found",
+					file.getAbsoluteFile());
 			return;
 		}
 
@@ -150,22 +135,28 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			File[] files = file.listFiles();
 
 			for (File _file : files) {
-				scan0(_file,path+"/"+_file.getName());
+				scan0(_file, path + "/" + _file.getName());
 			}
 
 			return;
 		}
 
 		String fileName = file.getName();
+		
+		URL url = file.toURI().toURL();
 
 		if (fileName.endsWith(".jar")) {
+			
 			scanZip(new JarFile(file));
+			
+			addURL(url);
+			return;
 		}
-		
-		addURL(file.toURI().toURL());
-		
+
+		path = path.substring(1);
+
+		addResource(url, path, fileName);
 	}
-	
 
 	private void scanZip(JarFile file) throws IOException {
 
@@ -188,7 +179,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 				if (filePathName.endsWith(".class") && !matchSystem(filePathName)) {
 					storeClass(file, entry);
 				}
-				
+
 			}
 		} finally {
 
@@ -198,7 +189,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 	public boolean matchSystem(String name) {
 
-		return name.startsWith("java") || name.startsWith("sun") || name.startsWith("com/sun") || matchExtend(name);
+		return name.startsWith("java") || name.startsWith("sun") || name.startsWith("com/sun")
+				|| matchExtend(name);
 	}
 
 	public boolean matchExtend(String name) {
@@ -208,7 +200,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	private void storeClass(JarFile file, JarEntry entry) throws IOException {
 
 		String filePathName = entry.getName();
-		
+
 		String className = filePathName.replace('/', '.').replace(".class", "");
 
 		if (clazzEntries.containsKey(className)) {
@@ -218,7 +210,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		try {
 
 			parentClassLoader.loadClass(className);
-			
+
 			throw new DuplicateClassException(className);
 		} catch (ClassNotFoundException e) {
 		}
@@ -260,7 +252,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			String name = entry.className;
 
 			int i = name.lastIndexOf('.');
-			
+
 			if (i != -1) {
 				sm.checkPackageAccess(name.substring(0, i));
 			}
@@ -303,9 +295,9 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			unloadClass(e.loadedClass);
 		}
 	}
-	
+
 	private void unloadClass(Class<?> clazz) {
-		
+
 		CloseUtil.close(this);
 
 		if (clazz == null) {
@@ -328,6 +320,102 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			} catch (Throwable e) {
 				logger.debug(e);
 			}
+		}
+	}
+
+	private void addResource(URL url, String filePathName, String fileName)
+			throws DuplicateClassException {
+
+		if (resourceMap.containsKey(filePathName)) {
+			throw new DuplicateClassException(filePathName);
+		}
+
+		resourceMap.put(filePathName, url);
+
+		List<URL> urls = resourcesMap.get(fileName);
+
+		if (urls == null) {
+			urls = new ArrayList<>();
+			resourcesMap.put(fileName, urls);
+		}
+
+		urls.add(url);
+	}
+
+	@Override
+	public URL findResource(String name) {
+
+		URL url = resourceMap.get(name);
+
+		if (url == null) {
+			return super.findResource(name);
+		}
+
+		return url;
+	}
+
+	@Override
+	public Enumeration<URL> findResources(String name) throws IOException {
+		@SuppressWarnings("unchecked")
+		Enumeration<URL>[] temp = new Enumeration[2];
+		temp[0] = findResources0(name);
+		temp[1] = super.findResources(name);
+		return new CompoundEnumeration<URL>(temp);
+	}
+
+	private Enumeration<URL> findResources0(String name) throws IOException {
+
+		List<URL> urls = resourcesMap.get(name);
+
+		if (urls == null) {
+			return java.util.Collections.emptyEnumeration();
+		}
+
+		return new Enumeration<URL>() {
+
+			private int index = 0;
+
+			@Override
+			public URL nextElement() {
+
+				if (!hasMoreElements()) {
+					throw new NoSuchElementException();
+				}
+
+				return urls.get(index++);
+			}
+
+			@Override
+			public boolean hasMoreElements() {
+				return index < urls.size();
+			}
+		};
+	}
+
+	class CompoundEnumeration<E> implements Enumeration<E> {
+		private Enumeration<E>[]	enums;
+		private int			index	= 0;
+
+		public CompoundEnumeration(Enumeration<E>[] paramArrayOfEnumeration) {
+			this.enums = paramArrayOfEnumeration;
+		}
+
+		public boolean hasMoreElements() {
+			while (this.index < this.enums.length) {
+				if ((this.enums[this.index] != null)
+						&& (this.enums[this.index].hasMoreElements())) {
+					return true;
+				}
+				this.index += 1;
+			}
+			return false;
+		}
+
+		public E nextElement() {
+			if (!hasMoreElements()) {
+				throw new NoSuchElementException();
+			}
+			return this.enums[this.index].nextElement();
 		}
 	}
 

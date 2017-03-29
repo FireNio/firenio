@@ -99,11 +99,11 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		this.appRedeployService = context.getAppRedeployService();
 
 		if (pluginLoader == null) {
-			this.pluginLoader = new PluginLoader(context, classLoader);
+			this.pluginLoader = new PluginLoader(context);
 		}
 
 		if (filterLoader == null) {
-			this.filterLoader = new FutureAcceptorFilterLoader(context, classLoader, serviceFilter);
+			this.filterLoader = new FutureAcceptorFilterLoader(context, serviceFilter);
 		}
 
 		LifeCycleUtil.start(pluginLoader);

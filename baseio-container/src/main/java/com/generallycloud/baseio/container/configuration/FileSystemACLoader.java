@@ -29,7 +29,7 @@ public class FileSystemACLoader extends AbstractACLoader {
 	protected FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/filters.cfg"), Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("filters.cfg"), Encoding.UTF8);
 
 		return loadFiltersConfiguration(json);
 	}
@@ -38,7 +38,7 @@ public class FileSystemACLoader extends AbstractACLoader {
 	protected PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/plugins.cfg"), Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("plugins.cfg"), Encoding.UTF8);
 
 		return loadPluginsConfiguration(json);
 	}
@@ -47,7 +47,7 @@ public class FileSystemACLoader extends AbstractACLoader {
 	protected ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("conf/services.cfg"), Encoding.UTF8);
+		String json = FileUtil.input2String(classLoader.getResourceAsStream("services.cfg"), Encoding.UTF8);
 
 		return loadServletsConfiguration(json);
 	}
@@ -56,9 +56,9 @@ public class FileSystemACLoader extends AbstractACLoader {
 	protected PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
 			throws IOException {
 
-		String roles = FileUtil.input2String(classLoader.getResourceAsStream("conf/roles.cfg"), Encoding.UTF8);
+		String roles = FileUtil.input2String(classLoader.getResourceAsStream("roles.cfg"), Encoding.UTF8);
 
-		String permissions = FileUtil.input2String(classLoader.getResourceAsStream("conf/permissions.cfg"), Encoding.UTF8);
+		String permissions = FileUtil.input2String(classLoader.getResourceAsStream("permissions.cfg"), Encoding.UTF8);
 
 		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
 			return null;

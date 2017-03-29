@@ -17,6 +17,7 @@ package com.generallycloud.baseio.container;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
@@ -24,13 +25,12 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public abstract class AbstractPluginContext extends AbstractInitializeable implements PluginContext {
 
+	private static AtomicInteger	AUTO_PLUGIN_INDEX = new AtomicInteger();
+	
 	private int	pluginIndex;
 
 	protected AbstractPluginContext() {
-
-		Sequence sequence = ApplicationContext.getInstance().getSequence();
-
-		this.pluginIndex = sequence.AUTO_PLUGIN_INDEX.getAndIncrement();
+		this.pluginIndex = AUTO_PLUGIN_INDEX.getAndIncrement();
 	}
 
 	@Override
