@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Logger;
@@ -62,6 +63,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private FutureAcceptor					filterService	;
 	private ApplicationExtLoader				applicationExtLoader;
 	private ApplicationConfigurationLoader		acLoader;
+	private AtomicInteger					pluginIndex;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
 	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
@@ -129,6 +131,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 	}
 	
 	private void initializeApplicationContext() throws Exception{
+		
+		this.pluginIndex = new AtomicInteger();
 		
 		this.classLoader = new URLDynamicClassLoader(getClass().getClassLoader());
 		
@@ -330,6 +334,13 @@ public class ApplicationContext extends AbstractLifeCycle {
 	
 	public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {
 		this.acLoader = acLoader;
+	}
+	
+	/**
+	 * @return the pluginIndex
+	 */
+	public AtomicInteger getPluginIndex() {
+		return pluginIndex;
 	}
 	
 }
