@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
@@ -60,5 +61,15 @@ public abstract class AbstractPluginContext extends AbstractInitializeable imple
 		
 		acceptors.put(serviceName, service);
 	}
+
+	@Override
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+		
+		AUTO_PLUGIN_INDEX = new AtomicInteger();
+		
+		super.initialize(context, config);
+	}
+	
+	
 
 }
