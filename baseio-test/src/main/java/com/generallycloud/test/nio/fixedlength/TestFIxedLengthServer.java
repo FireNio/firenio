@@ -35,6 +35,8 @@ public class TestFIxedLengthServer {
 
 	public static void main(String[] args) throws Exception {
 
+		SharedBundle bundle = new SharedBundle().loadAllProperties();
+		
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
@@ -59,8 +61,8 @@ public class TestFIxedLengthServer {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		File certificate = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.crt");
-		File privateKey = SharedBundle.instance().loadFile("nio/conf/generallycloud.com.key");
+		File certificate = bundle.readFile("conf/generallycloud.com.crt");
+		File privateKey = bundle.readFile("conf/generallycloud.com.key");
 
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		

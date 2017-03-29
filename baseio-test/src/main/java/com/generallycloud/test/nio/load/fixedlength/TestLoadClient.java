@@ -26,7 +26,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -38,11 +37,9 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestLoadClient {
 
-	final static int	time	= 200000;
+	final static int	time	= 400000;
 
 	public static void main(String[] args) throws Exception {
-
-		SharedBundle.instance().loadAllProperties("nio");
 
 		final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
 
@@ -55,8 +52,8 @@ public class TestLoadClient {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				latch.countDown();
-				long count = latch.getCount();
+//				latch.countDown();
+//				long count = latch.getCount();
 //				if (count % 10 == 0) {
 //					if (count < 50) {
 //						logger.info("************************================" + count);
@@ -71,6 +68,13 @@ public class TestLoadClient {
 //				System.out.println(f.getWriteBuffer());
 //				System.out.println("req======================"+req.getAndIncrement());
 				
+				latch.countDown();
+				long count = latch.getCount();
+				if (count % 10 == 0) {
+					if (count < 50) {
+						logger.info("************************================" + count);
+					}
+				}
 			}
 		};
 

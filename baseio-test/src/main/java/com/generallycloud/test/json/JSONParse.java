@@ -15,6 +15,9 @@
  */ 
 package com.generallycloud.test.json;
 
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.test.test.ITest;
@@ -34,10 +37,11 @@ public class JSONParse {
 		text = "[null,\"a\",-1.6,true,false,[1,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":-3.6,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[1,true,{\"a\":\"aa\"}]}}]]]";
 		text = "[   null    ,   {  a   :   \"a\"   ,   b   :   1.   }   ,   1   ]";
 		System.out.println(JSON.stringToArray(text));
-//		testMyJson();
-		testFastJson();
+//		testFastJson();
+//		testJackson();
+		testMyJson();
 		System.out.println("1\f11");
-
+		
 	}
 
 	static void testFastJson() {
@@ -49,7 +53,7 @@ public class JSONParse {
 						.parseArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
 			}
 
-		}, 500000, "Fast Json");
+		}, 1500000, "Fast Json");
 	}
 
 	static void testMyJson() {
@@ -62,7 +66,26 @@ public class JSONParse {
 					logger.debug(e);
 				}
 			}
-		}, 500000, "My Json");
+		}, 1500000, "My Json");
+	}
+	
+	
+	
+	static void testJackson() {
+		
+		//Object mapper instance
+		ObjectMapper mapper = new ObjectMapper();
+		
+		ITestHandle.doTest(new ITest() {
+			@Override
+			public void test(int i) {
+				try {
+					mapper.readValue("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]", List.class);
+				} catch (Exception e) {
+					logger.debug(e);
+				}
+			}
+		}, 1500000, "Jackson");
 	}
 
 }

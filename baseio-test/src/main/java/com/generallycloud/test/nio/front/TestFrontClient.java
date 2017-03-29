@@ -22,7 +22,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.DateUtil;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -37,8 +36,6 @@ import com.generallycloud.test.nio.common.ReadFutureFactory;
 public class TestFrontClient {
 
 	public static void main(String[] args) throws Exception {
-		
-		SharedBundle.instance().loadAllProperties("nio");
 		
 		final AtomicInteger res = new AtomicInteger();
 

@@ -24,7 +24,6 @@ import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -39,8 +38,6 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class TestSimpleWebSocketClient {
 
 	public static void main(String[] args) throws Exception {
-
-		SharedBundle.instance().loadAllProperties("http");
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 

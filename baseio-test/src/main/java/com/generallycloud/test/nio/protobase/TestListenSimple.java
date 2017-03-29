@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -37,7 +36,6 @@ public class TestListenSimple {
 	
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle.instance().loadAllProperties("nio");
 		String serviceKey = "TestListenSimpleServlet";
 		String param = "ttt";
 		
