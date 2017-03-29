@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio.configuration;
 
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.FixedProperties;
 
 public interface ServerConfigurationLoader {
 	
-	public ServerConfiguration loadConfiguration(SharedBundle bundle) throws Exception;
+	public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception;
 }

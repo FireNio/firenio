@@ -18,12 +18,12 @@ package com.generallycloud.baseio.configuration;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.FixedProperties;
 
 public class PropertiesSCLoader implements ServerConfigurationLoader {
 
 	@Override
-	public ServerConfiguration loadConfiguration(SharedBundle bundle) throws Exception {
+	public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception {
 
 		ServerConfiguration cfg = new ServerConfiguration();
 
@@ -50,21 +50,21 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
 			String temp = name.replace("setSERVER_", "SERVER.");
 
 			if (type == String.class) {
-				method.invoke(cfg, bundle.getProperty(temp));
+				method.invoke(cfg, properties.getProperty(temp));
 			} else if (type == int.class) {
-				method.invoke(cfg, bundle.getIntegerProperty(temp));
+				method.invoke(cfg, properties.getIntegerProperty(temp));
 			} else if (type == double.class) {
-				method.invoke(cfg, bundle.getDoubleProperty(temp));
+				method.invoke(cfg, properties.getDoubleProperty(temp));
 			} else if (type == boolean.class) {
-				method.invoke(cfg, bundle.getBooleanProperty(temp));
+				method.invoke(cfg, properties.getBooleanProperty(temp));
 			} else if (type == long.class) {
-				method.invoke(cfg, bundle.getLongProperty(temp));
+				method.invoke(cfg, properties.getLongProperty(temp));
 			} else {
 				throw new Exception("unknow type " + type);
 			}
 		}
 
-		String encoding = bundle.getProperty("SERVER.ENCODING", "GBK");
+		String encoding = properties.getProperty("SERVER.ENCODING", "GBK");
 
 		cfg.setSERVER_ENCODING(Charset.forName(encoding));
 

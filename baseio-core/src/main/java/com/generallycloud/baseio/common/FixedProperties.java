@@ -21,17 +21,19 @@ public class FixedProperties extends Properties{
 	
 	private static final long	serialVersionUID	= 1L;
 
-	public void loadString(String content){
+	public FixedProperties loadString(String content){
+		
 		if (StringUtil.isNullOrBlank(content)) {
-			return;
+			return this;
 		}
 		
 		String [] lines = content.split("\n");
 		
 		for(String line :lines){
-			
 			insertOneRow(line);
 		}
+		
+		return this;
 	}
 	
 	private void insertOneRow(String line){
@@ -58,6 +60,79 @@ public class FixedProperties extends Properties{
 	private String trim(String value){
 		return value.trim().replace("\r", "").replace("\t", "");
 	}
+	
+	public boolean getBooleanProperty(String key) {
+		return getBooleanProperty(key, false);
+	}
+
+	public boolean getBooleanProperty(String key, boolean defaultValue) {
+		String temp = getProperty(key);
+		if (StringUtil.isNullOrBlank(temp)) {
+			return defaultValue;
+		}
+		return Boolean.valueOf(temp);
+	}
+
+	public double getDoubleProperty(String key) {
+		return getDoubleProperty(key, 0);
+	}
+
+	public double getDoubleProperty(String key, double defaultValue) {
+		String temp = getProperty(key);
+		if (StringUtil.isNullOrBlank(temp)) {
+			return defaultValue;
+		}
+		return Double.valueOf(temp);
+	}
+
+	public int getIntegerProperty(String key) {
+		return getIntegerProperty(key, 0);
+	}
+
+	public int getIntegerProperty(String key, int defaultValue) {
+		String temp = getProperty(key);
+		if (StringUtil.isNullOrBlank(temp)) {
+			return defaultValue;
+		}
+		return Integer.valueOf(temp);
+	}
+
+	public long getLongProperty(String key) {
+		return getLongProperty(key, 0);
+	}
+
+	public long getLongProperty(String key, long defaultValue) {
+		String temp = getProperty(key);
+		if (StringUtil.isNullOrBlank(temp)) {
+			return defaultValue;
+		}
+		return Long.valueOf(temp);
+	}
+
+	public String getPropertyNoBlank(String key) throws PropertiesException {
+		String value = getProperty(key);
+		if (StringUtil.isNullOrBlank(value)) {
+			throw new PropertiesException("property " + key + " is empty");
+		}
+		return value;
+	}
+	
+	class PropertiesException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public PropertiesException() {
+		}
+
+		public PropertiesException(String message) {
+			super(message);
+		}
+
+		public PropertiesException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		

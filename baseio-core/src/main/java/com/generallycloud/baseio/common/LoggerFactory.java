@@ -43,8 +43,7 @@ public class LoggerFactory {
 
 	public static void configure() {
 		try {
-			configure(SharedBundle.instance()
-						.loadProperties("log4j.properties",Encoding.UTF8));
+			configure(FileUtil.readPropertiesByCls("log4j.properties", Encoding.UTF8));
 		} catch (Exception e) {
 		}
 	}

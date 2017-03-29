@@ -33,7 +33,6 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class FileUtil {
 
@@ -366,13 +365,17 @@ public class FileUtil {
 		}
 		return new FileOutputStream(file, append);
 	}
-
+	
 	public static byte[] readBytesByCls(String file) throws IOException {
-		File file2 = readFileByCls(file);
-		if (file2.exists()) {
-			return readFileToByteArray(file2);
+		return readBytesByCls(file, FileUtil.class.getClassLoader());
+	}
+
+	public static byte[] readBytesByCls(String file,ClassLoader classLoader) throws IOException {
+		InputStream inputStream = classLoader.getResourceAsStream(file);
+		if (inputStream == null) {
+			return null;
 		}
-		return null;
+		return FileUtil.inputStream2ByteArray(inputStream, inputStream.available());
 	}
 
 	public static String readContentByCls(String file, Charset encoding) throws IOException {
@@ -393,7 +396,7 @@ public class FileUtil {
 		InputStream in = null;
 		try {
 			in = openInputStream(file);
-			return toByteArray(in, file.length());
+			return inputStream2ByteArray(in, file.length());
 		} finally {
 			CloseUtil.close(in);
 		}
@@ -443,19 +446,29 @@ public class FileUtil {
 		}
 		return list;
 	}
-
-	public static Properties readProperties(File file, Charset charset) throws IOException {
+	
+	public static FixedProperties readPropertiesByCls(String file, Charset charset) throws IOException {
+		String content = readContentByCls(file, charset);
+		
+		if (content == null) {
+			throw new FileNotFoundException(file);
+		}
+		
+		return new FixedProperties().loadString(content);
+	}
+	
+	public static FixedProperties readProperties(File file, Charset charset) throws IOException {
 		return readProperties(new FileInputStream(file), charset);
 	}
 
-	public static Properties readProperties(InputStream inputStream, Charset charset)
+	public static FixedProperties readProperties(InputStream inputStream, Charset charset)
 			throws IOException {
 
 		if (inputStream == null) {
 			throw new IOException("null inputstream!");
 		}
 
-		Properties properties = new Properties();
+		FixedProperties properties = new FixedProperties();
 
 		try {
 			properties.load(new InputStreamReader(inputStream, charset));
@@ -474,8 +487,8 @@ public class FileUtil {
 		return inputStream;
 	}
 
-	public static Properties readProperties(String file, Charset charset) throws IOException {
-		return readProperties(getInputStreamFromResource(file), charset);
+	public static FixedProperties readProperties(String file, Charset charset) throws IOException {
+		return readProperties(new File(file), charset);
 	}
 
 	public static long skip(InputStream input, long toSkip) throws IOException {
@@ -539,8 +552,14 @@ public class FileUtil {
 	}
 	
 	private static final byte [] empty_byte_array = new byte []{};
+	
+	
+	public static byte[] inputStream2ByteArray(InputStream inputStream) throws IOException {
+		return inputStream2ByteArray(inputStream, inputStream.available());
+	}
+	
 
-	public static byte[] toByteArray(InputStream input, int size) throws IOException {
+	public static byte[] inputStream2ByteArray(InputStream inputStream, int size) throws IOException {
 		if (size < 1) {
 			return empty_byte_array;
 		}
@@ -548,7 +567,7 @@ public class FileUtil {
 		byte[] data = new byte[size];
 		int offset = 0;
 		int readed;
-		while ((offset < size) && ((readed = input.read(data, offset, size - offset)) != -1)) {
+		while ((offset < size) && ((readed = inputStream.read(data, offset, size - offset)) != -1)) {
 			offset += readed;
 		}
 		if (offset != size) {
@@ -558,12 +577,12 @@ public class FileUtil {
 		return data;
 	}
 
-	public static byte[] toByteArray(InputStream input, long size) throws IOException {
+	public static byte[] inputStream2ByteArray(InputStream input, long size) throws IOException {
 		if (size > 2147483647L) {
 			throw new IllegalArgumentException(
 					"Size cannot be greater than Integer max value: " + size);
 		}
-		return toByteArray(input, (int) size);
+		return inputStream2ByteArray(input, (int) size);
 	}
 
 	public static void write(byte[] data, OutputStream output) throws IOException {
@@ -614,7 +633,7 @@ public class FileUtil {
 		write(realFile, content, encoding, append);
 	}
 
-	public static void writeProperties(Properties properties, String path) throws IOException {
+	public static void writeProperties(FixedProperties properties, String path) throws IOException {
 		File file = readFileByCls(path);
 		FileOutputStream fos = new FileOutputStream(file);
 		properties.store(fos, "# this is admin's properties");
@@ -735,11 +754,30 @@ public class FileUtil {
 	}
 	
 	public static String getCurrentPath(ClassLoader classLoader){
-		return classLoader.getResource(".").getFile();
+		
+		String file = classLoader.getResource(".").getFile();
+		
+		return new File(file).getAbsolutePath();
 	}
 	
 	public static String getCurrentPath(){
 		return getCurrentPath(FileUtil.class.getClassLoader());
+	}
+	
+	public static String decodeURL(String url, Charset charset) {
+		try {
+			return URLDecoder.decode(url, charset.name());
+		} catch (UnsupportedEncodingException e) {
+			return url;
+		}
+	}
+	
+	public static InputStream openInputStream(String file){
+		return openInputStream(file, FileUtil.class.getClassLoader());
+	}
+	
+	public static InputStream openInputStream(String file,ClassLoader classLoader){
+		return classLoader.getResourceAsStream(file);
 	}
 
 }
