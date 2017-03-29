@@ -23,6 +23,7 @@ import java.util.Map;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.EmptyServerHttpReadFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
@@ -51,8 +52,11 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 		HttpEntity entity = html_cache.get(serviceName);
 
+		HttpStatus status = HttpStatus.C200;
+		
 		if (entity == null) {
 			//FIXME 404 status
+			status = HttpStatus.C404;
 			entity = html_cache.get("/404.html");
 			if (entity == null) {
 				super.accept404(session, future, serviceName);
@@ -66,16 +70,18 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 			synchronized (entity) {
 				
-				reloadEntity(entity, session.getContext());
+				reloadEntity(entity, session.getContext(),status);
 			}
 		}
 		
 		session.flush(entity.future.duplicate(future));
 	}
 	
-	private void reloadEntity(HttpEntity entity,SocketChannelContext context) throws IOException{
+	private void reloadEntity(HttpEntity entity,SocketChannelContext context,HttpStatus status) throws IOException{
 		
 		EmptyServerHttpReadFuture f = new EmptyServerHttpReadFuture(context);
+		
+		f.setStatus(status);
 		
 		String text = entity.text;
 		
