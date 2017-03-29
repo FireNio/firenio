@@ -23,15 +23,15 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.DatagramSession;
 import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.ReentrantList;
-import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.Sequence;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 //FIXME 是不是要限制最多room数
 public class RTPRoom {
 
+	private static final FixedAtomicInteger			ROOM_ID = new FixedAtomicInteger();
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
@@ -66,10 +66,7 @@ public class RTPRoom {
 	}
 
 	private Integer genRoomID() {
-
-		Sequence sequence = ApplicationContext.getInstance().getSequence();
-		
-		return sequence.AUTO_ROOM_ID.getAndIncrement();
+		return ROOM_ID.getAndIncrement();
 	}
 
 	public Integer getRoomID() {
