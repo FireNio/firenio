@@ -20,11 +20,12 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.FixedProperties;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
@@ -37,22 +38,28 @@ import com.generallycloud.baseio.container.ApplicationContextEnricher;
 import com.generallycloud.baseio.container.ApplicationExtLoader;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.DefaultExtLoader;
-import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 
 public class ApplicationBootstrap {
 
-	public void bootstrap(ApplicationConfigurationLoader acLoader, String rootPath,
-			ApplicationConfiguration ac, ServerConfiguration sc) throws Exception {
-
-		SharedBundle bundle = SharedBundle.instance();
-
-		if (rootPath == null) {
+	public void bootstrap(String rootPath) throws Exception {
+		
+		if (StringUtil.isNullOrBlank(rootPath)) {
 			rootPath = FileUtil.getCurrentPath();
 		}
 
-		ApplicationContext applicationContext = new ApplicationContext(rootPath, ac);
+		SharedBundle bundle = new SharedBundle().loadAllProperties(rootPath);
+
+		LoggerFactory.configure(bundle.readProperties("conf/log4j.properties"));
+
+		FixedProperties serverProperties = bundle.readProperties("conf/server.properties");
+
+		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
+
+		ServerConfiguration sc = configurationLoader.loadConfiguration(serverProperties);
+
+		ApplicationContext applicationContext = new ApplicationContext(bundle.getClassPath());
 
 		SocketChannelContext channelContext = new NioSocketChannelContext(sc);
 		//		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
@@ -61,15 +68,22 @@ public class ApplicationBootstrap {
 
 		try {
 
+			FixedProperties intfProperties = bundle.readProperties("conf/intf.properties");
+
 			applicationContext.setChannelContext(channelContext);
 
+			ApplicationConfigurationLoader acLoader = loadConfigurationLoader(
+					intfProperties.getProperty("intf.ApplicationConfigurationLoader"));
+
 			ApplicationExtLoader applicationExtLoader = loadApplicationExtLoader(
-					bundle.getProperty("intf.ApplicationExtLoader"));
+					intfProperties.getProperty("intf.ApplicationExtLoader"));
 
 			ApplicationContextEnricher enricher = loadApplicationContextEnricher(
-					bundle.getProperty("intf.ApplicationContextEnricher"));
+					intfProperties.getProperty("intf.ApplicationContextEnricher"));
 
 			applicationContext.setApplicationExtLoader(applicationExtLoader);
+			
+			applicationContext.setApplicationConfigurationLoader(acLoader);
 
 			enricher.enrich(applicationContext);
 
@@ -78,8 +92,8 @@ public class ApplicationBootstrap {
 
 			if (sc.isSERVER_ENABLE_SSL()) {
 
-				File certificate = bundle.loadFile("conf/generallycloud.com.crt");
-				File privateKey = bundle.loadFile("conf/generallycloud.com.key");
+				File certificate = bundle.readFile("conf/generallycloud.com.crt");
+				File privateKey = bundle.readFile("conf/generallycloud.com.key");
 
 				SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
 
@@ -98,23 +112,6 @@ public class ApplicationBootstrap {
 
 			CloseUtil.unbind(acceptor);
 		}
-
-	}
-
-	public void bootstrap(String rootPath) throws Exception {
-
-		SharedBundle bundle = SharedBundle.instance().loadAllProperties(rootPath);
-
-		LoggerFactory.configure(bundle.loadProperties("conf/log4j.properties", Encoding.UTF8));
-
-		ApplicationConfigurationLoader acLoader = loadConfigurationLoader(
-				bundle.getProperty("intf.ApplicationConfigurationLoader"));
-
-		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
-
-		ServerConfiguration serverConfiguration = configurationLoader.loadConfiguration(bundle);
-
-		bootstrap(acLoader, rootPath, null, serverConfiguration);
 	}
 
 	private ApplicationConfigurationLoader loadConfigurationLoader(String className) {

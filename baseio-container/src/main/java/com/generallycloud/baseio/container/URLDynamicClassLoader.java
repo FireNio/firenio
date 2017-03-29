@@ -217,7 +217,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 		InputStream inputStream = file.getInputStream(entry);
 
-		byte[] binaryContent = FileUtil.toByteArray(inputStream, entry.getSize());
+		byte[] binaryContent = FileUtil.inputStream2ByteArray(inputStream, entry.getSize());
 
 		ClassEntry classEntry = new ClassEntry();
 

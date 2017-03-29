@@ -18,14 +18,16 @@ package com.generallycloud.baseio.container.authority;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.FixedProperties;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.MD5Token;
-import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.AbstractInitializeable;
+import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.configuration.Configuration;
 
@@ -109,11 +111,14 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
-		String username = SharedBundle.instance().getProperty("SERVER.USERNAME", "admin");
-		String password = SharedBundle.instance().getProperty("SERVER.PASSWORD", "admin100");
-		String UUID = SharedBundle.instance().getProperty("SERVER.UUID","uuid");
-		Integer roleID = SharedBundle.instance().getIntegerProperty("SERVER.ROLEID");
+		String spPath = context.getRootLocalAddres() + "conf/server.properties";
 		
+		FixedProperties fixedProperties = FileUtil.readProperties(spPath, Encoding.UTF8);
+		
+		String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
+		String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
+		String UUID = fixedProperties.getProperty("SERVER.UUID","uuid");
+		Integer roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
 
 		Authority authority = new Authority();
 
