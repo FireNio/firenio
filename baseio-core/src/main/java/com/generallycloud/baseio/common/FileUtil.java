@@ -479,14 +479,6 @@ public class FileUtil {
 		return properties;
 	}
 
-	private static InputStream getInputStreamFromResource(String file) throws IOException {
-		InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(file);
-		if (inputStream == null) {
-			throw new IOException("resource not found:" + file);
-		}
-		return inputStream;
-	}
-
 	public static FixedProperties readProperties(String file, Charset charset) throws IOException {
 		return readProperties(new File(file), charset);
 	}

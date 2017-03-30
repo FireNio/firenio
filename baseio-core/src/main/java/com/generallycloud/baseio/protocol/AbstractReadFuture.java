@@ -102,4 +102,8 @@ public abstract class AbstractReadFuture extends AbstractFuture implements ReadF
 		writeTextBuffer.append(text);
 	}
 
+	@Override
+	public String toString() {
+		return getReadText();
+	}
 }
