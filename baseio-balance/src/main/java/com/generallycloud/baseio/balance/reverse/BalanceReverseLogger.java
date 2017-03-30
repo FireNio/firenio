@@ -37,5 +37,9 @@ public class BalanceReverseLogger {
 		logger.info("reply msg: F:[{}], T:[{}], msg: {}",
 				new Object[] { session.getRemoteSocketAddress(), response.getRemoteSocketAddress(), future });
 	}
+	
+	public void logPush(SocketSession response, ReadFuture future, Logger logger) {
+		logger.info("reply msg: T:[{}], msg: {}", response.getRemoteSocketAddress(), future );
+	}
 
 }

@@ -49,6 +49,7 @@ public class BalanceServerBootStrap {
 	private BeatFutureFactory				balanceBeatFutureFactory;
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
+	private NoneLoadReadFutureAcceptor			noneLoadReadFutureAcceptor;
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
@@ -61,8 +62,6 @@ public class BalanceServerBootStrap {
 		if (balanceRouter == null) {
 			balanceRouter = new SimpleNextRouter();
 		}
-
-		BalanceContext balanceContext = new BalanceContext();
 		
 		if (facadeInterceptor == null) {
 			facadeInterceptor = new FacadeInterceptorImpl(5,50000);
@@ -71,8 +70,16 @@ public class BalanceServerBootStrap {
 		if (balanceReverseLogger == null) {
 			balanceReverseLogger = new BalanceReverseLogger();
 		}
+
+		if (noneLoadReadFutureAcceptor == null) {
+			noneLoadReadFutureAcceptor = new DefaultNoneLoadReadFutureAcceptor();
+		}
+		
+		BalanceContext balanceContext = new BalanceContext();
 		
 		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
+		
+		balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
 		
 		balanceContext.setBalanceReverseLogger(balanceReverseLogger);
 
@@ -281,6 +288,15 @@ public class BalanceServerBootStrap {
 	public void setChannelLostReadFutureFactory(
 			ChannelLostReadFutureFactory channelLostReadFutureFactory) {
 		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+	}
+	
+	public NoneLoadReadFutureAcceptor getNoneLoadReadFutureAcceptor() {
+		return noneLoadReadFutureAcceptor;
+	}
+
+	public void setNoneLoadReadFutureAcceptor(
+			NoneLoadReadFutureAcceptor noneLoadReadFutureAcceptor) {
+		this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
 	}
 
 	public FacadeInterceptor getFacadeInterceptor() {

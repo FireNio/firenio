@@ -17,8 +17,9 @@ package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceReadFuture;
-import com.generallycloud.baseio.balance.ChannelLostReadFutureFactory;
 import com.generallycloud.baseio.balance.FacadeInterceptor;
+import com.generallycloud.baseio.balance.NoneLoadReadFutureAcceptor;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.common.Logger;
@@ -33,14 +34,16 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
 	private Logger					logger	= LoggerFactory.getLogger(getClass());
 	private BalanceRouter			balanceRouter;
 	private FacadeInterceptor		facadeInterceptor;
+	private BalanceReverseLogger		balanceReverseLogger;
 	private ExceptionCaughtHandle		exceptionCaughtHandle;
-	protected ChannelLostReadFutureFactory	channelLostReadFutureFactory;
+	private NoneLoadReadFutureAcceptor	 noneLoadReadFutureAcceptor;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
 		this.facadeInterceptor = context.getFacadeInterceptor();
+		this.balanceReverseLogger = context.getBalanceReverseLogger();
 		this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
-		this.channelLostReadFutureFactory = context.getChannelLostReadFutureFactory();
+		this.noneLoadReadFutureAcceptor = context.getNoneLoadReadFutureAcceptor();
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
 		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
 		
 		if (rs == null || rs.isClosed()) {
-			logger.info("none load node found: [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
+			noneLoadReadFutureAcceptor.accept(fs, f,balanceReverseLogger);
 			return;
 		}
 
