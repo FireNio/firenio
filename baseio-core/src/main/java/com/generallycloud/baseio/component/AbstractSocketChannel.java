@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -48,18 +48,18 @@ import com.generallycloud.baseio.protocol.SslReadFuture;
 
 public abstract class AbstractSocketChannel extends AbstractChannel implements SocketChannel {
 
-	protected ChannelReadFuture			readFuture;
-	protected SslReadFuture				sslReadFuture;
-	protected ProtocolDecoder			protocolDecoder;
-	protected ProtocolEncoder			protocolEncoder;
-	protected ProtocolFactory			protocolFactory;
-	protected int						writeFutureLength;
-	protected ExecutorEventLoop			executorEventLoop;
-	protected Waiter<Exception>			handshakeWaiter;
-	protected SSLEngine				sslEngine;
-	protected SslHandler				sslHandler;
-	protected UnsafeSocketSession		session;
-	protected ChannelWriteFuture			write_future;
+	protected ChannelReadFuture				readFuture;
+	protected SslReadFuture					sslReadFuture;
+	protected ProtocolDecoder				protocolDecoder;
+	protected ProtocolEncoder				protocolEncoder;
+	protected ProtocolFactory				protocolFactory;
+	protected AtomicInteger					writeFutureLength;
+	protected ExecutorEventLoop				executorEventLoop;
+	protected Waiter<Exception>				handshakeWaiter;
+	protected SSLEngine					sslEngine;
+	protected SslHandler					sslHandler;
+	protected UnsafeSocketSession			session;
+	protected ChannelWriteFuture				write_future;
 	protected ListQueue<ChannelWriteFuture>	write_futures;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
@@ -79,11 +79,12 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 //		int queue_size = socketChannelContext.getServerConfiguration().getSERVER_IO_EVENT_QUEUE();
 //		this.write_futures	= new ListQueueO2O<>(queue_size);
 		this.write_futures = new ListQueueLink<>();
+		this.writeFutureLength = new AtomicInteger();
 	}
 
 	@Override
 	public int getWriteFutureLength() {
-		return writeFutureLength;
+		return writeFutureLength.get();
 	}
 
 	@Override
@@ -231,43 +232,43 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 				future.onException(session, e);
 			}
 		}
+		
+		synchronized (getCloseLock()) {
+			
+			try {
 
-		ReentrantLock lock = getChannelLock();
+				if (!isOpened()) {
+					future.onException(session, new ClosedChannelException(session.toString()));
+					return;
+				}
+				
+				if (!write_futures.offer(future)) {
+					future.onException(session, new RejectedExecutionException());
+					return;
+				}
+				
+				int length = writeFutureLength.addAndGet(future.getBinaryLength());
+				
+				if (length > 1024 * 1024 * 10) {
+					// FIXME 该连接写入过多啦
+				}
 
-		lock.lock();
+				// 如果write futures > 1 说明在offer之前至少有一个write future
+				// event loop 在判断complete时返回false
+				if (write_futures.size() > 1) {
+					return;
+				}
 
-		try {
+				doFlush(future);
 
-			if (!isOpened()) {
-				future.onException(session, new ClosedChannelException(session.toString()));
-				return;
+			} catch (Exception e) {
+
+				future.onException(session, e);
+
 			}
-
-			if (!write_futures.offer(future)) {
-				future.onException(session, new RejectedExecutionException());
-				return;
-			}
-
-			this.writeFutureLength += future.getBinaryLength();
-
-			if (writeFutureLength > 1024 * 1024 * 10) {
-				// FIXME 该连接写入过多啦
-			}
-
-			if (write_future == null && write_futures.size() > 1) {
-				return;
-			}
-
-			doFlush(future);
-
-		} catch (Exception e) {
-
-			future.onException(session, e);
-
-		} finally {
-
-			lock.unlock();
+			
 		}
+
 	}
 
 	protected abstract void doFlush(ChannelWriteFuture future);
@@ -403,7 +404,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 				linkable.getValue().sessionOpened(session);
 
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.errorDebug(e);
 				CloseUtil.close(this);
 				break;
 			}
@@ -426,7 +427,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 				linkable.getValue().sessionClosed(session);
 
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.errorDebug(e);
 			}
 			linkable = linkable.getNext();
 		}

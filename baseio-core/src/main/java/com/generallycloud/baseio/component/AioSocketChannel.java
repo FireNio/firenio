@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -172,12 +171,8 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	@Override
 	public void close() throws IOException {
 
-		ReentrantLock lock = getChannelLock();
-
-		lock.lock();
-
-		try {
-
+		synchronized (getCloseLock()) {
+			
 			if (!isOpened()) {
 				return;
 			}
@@ -185,20 +180,16 @@ public class AioSocketChannel extends AbstractSocketChannel {
 			this.opened = false;
 			
 			physicalClose();
-
-		} finally {
-			lock.unlock();
 		}
+		
 	}
 	
 	// FIXME __hebing
 	public void writeCallback(Integer length) {
 
-		ReentrantLock lock = getChannelLock();
-
-		lock.lock();
-
-		try {
+		synchronized (getCloseLock()) {
+			
+			ChannelWriteFuture write_future = this.write_future;
 
 			write_future.getByteBuf().reverse();
 
@@ -207,27 +198,19 @@ public class AioSocketChannel extends AbstractSocketChannel {
 				return;
 			}
 
-			onWriteSuccess(write_future);
+			writeFutureLength.getAndAdd(-write_future.getBinaryLength());
+
+			write_future.onSuccess(session);
 
 			write_future = null;
 
 			flush(true);
-
-		} finally {
-
-			lock.unlock();
 		}
+
 	}
 
 	public ByteBuf getReadCache() {
 		return readCache;
-	}
-	
-	private void onWriteSuccess(ChannelWriteFuture writeFuture) {
-
-		writeFutureLength -= writeFuture.getBinaryLength();
-
-		writeFuture.onSuccess(session);
 	}
 	
 	@Override

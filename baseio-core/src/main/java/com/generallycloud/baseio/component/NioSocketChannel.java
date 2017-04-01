@@ -21,7 +21,6 @@ import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -36,9 +35,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	private SelectionKey				selectionKey;
 	private boolean					networkWeak;
 	private NioSocketChannelContext		context;
-	private boolean					closing;
 	private SocketSelectorEventLoop		selectorEventLoop;
 	private long						next_network_weak	= Long.MAX_VALUE;
+	private volatile boolean			closing;
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -57,13 +56,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	@Override
 	public boolean isComplete() {
-		ReentrantLock lock = getChannelLock();
-		lock.lock();
-		try {
-			return write_future == null && write_futures.size() == 0;
-		} finally {
-			lock.unlock();
-		}
+		return write_future == null && write_futures.size() == 0;
 	}
 
 	@Override
@@ -97,27 +90,44 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
+		
+		ChannelWriteFuture future = this.write_future;
 
-		if (write_future == null) {
+		if (future != null) {
 
-			write_future = write_futures.poll();
+			future.write(this);
 
-			if (write_future == null) {
+			if (!future.isCompleted()) {
 				return;
 			}
+
+			writeFutureLength.getAndAdd(-future.getBinaryLength());
+
+			future.onSuccess(session);
+
+			write_future = null;
+			
+			return;
+			
 		}
-
-		write_future.write(this);
-
-		if (!write_future.isCompleted()) {
+		
+		future = write_futures.poll();
+		
+		if (future == null) {
 			return;
 		}
 
-		writeFutureLength -= write_future.getBinaryLength();
+		future.write(this);
 
-		write_future.onSuccess(session);
+		if (!future.isCompleted()) {
+			this.write_future = future;
+			return;
+		}
 
-		write_future = null;
+		writeFutureLength.getAndAdd(-future.getBinaryLength());
+
+		future.onSuccess(session);
+
 	}
 	
 	private boolean isClosing() {
@@ -126,13 +136,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	@Override
 	public void close() throws IOException {
-
-		ReentrantLock lock = getChannelLock();
-
-		lock.lock();
-
-		try {
-
+		
+		synchronized (getCloseLock()) {
+			
 			if (!isOpened()) {
 				return;
 			}
@@ -149,9 +155,8 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 			closing = true;
 
 			fireClose();
-		} finally {
-			lock.unlock();
 		}
+
 	}
 
 	private void fireClose() {

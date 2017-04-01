@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
@@ -43,13 +42,9 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	
 	@Override
 	public void close() throws IOException {
-
-		ReentrantLock lock = getChannelLock();
-
-		lock.lock();
-
-		try {
-
+		
+		synchronized (getCloseLock()) {
+		
 			if (!isOpened()) {
 				return;
 			}
@@ -57,10 +52,8 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 			this.opened = false;
 			
 			physicalClose();
-
-		} finally {
-			lock.unlock();
 		}
+
 	}
 
 	@Override

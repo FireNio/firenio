@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.Logger;
@@ -39,7 +38,7 @@ public abstract class AbstractChannel implements Channel {
 	protected long			lastAccess;
 	protected boolean			opened		= true;
 	protected long			creationTime	= System.currentTimeMillis();
-	protected ReentrantLock		channelLock	= new ReentrantLock();
+	protected Object			closeLock		= new Object();
 	protected ByteBufAllocator	byteBufAllocator;
 
 	public AbstractChannel(ByteBufAllocator allocator,ChannelContext context) {
@@ -161,11 +160,6 @@ public abstract class AbstractChannel implements Channel {
 	}
 
 	@Override
-	public ReentrantLock getChannelLock() {
-		return channelLock;
-	}
-
-	@Override
 	public void active() {
 		this.lastAccess = System.currentTimeMillis();
 	}
@@ -196,4 +190,8 @@ public abstract class AbstractChannel implements Channel {
 		}
 	}
 
+	protected Object getCloseLock() {
+		return closeLock;
+	}
+	
 }

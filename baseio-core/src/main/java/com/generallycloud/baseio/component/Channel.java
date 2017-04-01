@@ -56,8 +56,6 @@ public interface Channel extends Closeable {
 
 	public abstract InetSocketAddress getRemoteSocketAddress();
 
-	public abstract ReentrantLock getChannelLock();
-
 	public abstract boolean inSelectorLoop();
 
 }
