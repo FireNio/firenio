@@ -35,7 +35,7 @@ import com.generallycloud.baseio.live.LifeCycle;
 public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements LifeCycle {
 
 	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
-	private Linkable<FutureAcceptorFilter>	rootFilter	;
+	private FutureAcceptorFilterWrapper	rootFilter	;
 	private ApplicationContext			context		;
 	private FiltersConfiguration			configuration	;
 	private FutureAcceptorServiceFilter	serviceFilter	;
@@ -50,7 +50,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 		return serviceFilter.getFutureAcceptorServiceLoader();
 	}
 
-	private Linkable<FutureAcceptorFilter> loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
+	private FutureAcceptorFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
 			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		List<Configuration> filterConfigurations = configuration.getFilters();
@@ -64,9 +64,9 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 			filterConfigurations = new ArrayList<Configuration>();
 		}
 
-		Linkable<FutureAcceptorFilter> rootFilter = null;
+		FutureAcceptorFilterWrapper rootFilter = null;
 
-		Linkable<FutureAcceptorFilter> last = null;
+		FutureAcceptorFilterWrapper last = null;
 
 		for (int i = 0; i < filterConfigurations.size(); i++) {
 
@@ -107,7 +107,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 
 			FutureAcceptorFilter filter = filters.get(i);
 
-			Linkable<FutureAcceptorFilter> _filter = new FutureAcceptorFilterWrapper(context, filter,
+			FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter,
 					filter.getConfig());
 
 			if (last == null) {
@@ -126,7 +126,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 		return rootFilter;
 	}
 
-	public Linkable<FutureAcceptorFilter> getRootFilter() {
+	public FutureAcceptorFilterWrapper getRootFilter() {
 		return rootFilter;
 	}
 

@@ -34,8 +34,12 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
+		
+		FutureAcceptorFilter filter = getValue();
+		
+		future.setIoEventHandle(filter);
 	
-		getValue().accept(session, future);
+		filter.accept(session, future);
 		
 		if (future.flushed()) {
 			return;

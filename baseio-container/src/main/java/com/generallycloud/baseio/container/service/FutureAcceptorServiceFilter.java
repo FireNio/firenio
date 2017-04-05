@@ -58,7 +58,9 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
 		if (acceptor == null) {
 
-			this.accept404(session, future, serviceName);
+			future.setIoEventHandle(this);
+			
+			accept404(session, future, serviceName);
 
 		} else {
 

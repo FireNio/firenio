@@ -21,12 +21,11 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
+import com.generallycloud.baseio.component.ReadFutureAcceptor;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.PluginContext;
-import com.generallycloud.baseio.component.Linkable;
-import com.generallycloud.baseio.component.ReadFutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.live.AbstractLifeCycle;
 import com.generallycloud.baseio.live.LifeCycle;
 import com.generallycloud.baseio.live.LifeCycleUtil;
@@ -39,7 +38,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	private ApplicationContext			context;
 	private FutureAcceptorFilterLoader		filterLoader;
 	private PluginLoader				pluginLoader;
-	private Linkable<FutureAcceptorFilter>	rootFilter;
+	private FutureAcceptorFilterWrapper	rootFilter;
 	private FutureAcceptorServiceFilter	serviceFilter;
 	private FutureAcceptorService			appRedeployService;
 	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptor.class);
@@ -49,19 +48,15 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 		this.serviceFilter = serviceFilter;
 	}
 
-	private void accept(Linkable<FutureAcceptorFilter> filter, SocketSession session, ReadFuture future) {
+	private void accept(FutureAcceptorFilterWrapper filter, SocketSession session, ReadFuture future) {
 
 		try {
 
-			FutureAcceptorFilter acceptorFilter = filter.getValue();
-
-			future.setIoEventHandle(acceptorFilter);
-
-			acceptorFilter.accept(session, future);
+			filter.accept(session, future);
 
 		} catch (Exception e) {
 
-			logger.error(e.getMessage(), e);
+			logger.errorDebug(e);
 
 			IoEventHandle eventHandle = future.getIoEventHandle();
 
@@ -85,7 +80,7 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 
 		} catch (Throwable e) {
 
-			logger.error(e.getMessage(), e);
+			logger.errorDebug(e);
 		}
 	}
 
