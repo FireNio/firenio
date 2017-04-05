@@ -50,11 +50,11 @@ public class SharedBundle {
 			throw new FileNotFoundException(root.getAbsolutePath());
 		}
 
-		fullFilesMap.clear();
-
-		loopLoadFile(root, charset,"");
+		this.fullFilesMap.clear();
 		
-		this.classPath = FileUtil.getPrettyPath(root.getAbsolutePath());
+		this.classPath = FileUtil.getPrettyPath(root.getCanonicalPath());
+
+		this.loopLoadFile(root, charset,"");
 		
 		return this;
 	}
