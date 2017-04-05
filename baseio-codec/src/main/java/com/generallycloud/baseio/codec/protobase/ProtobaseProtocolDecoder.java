@@ -66,6 +66,7 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 		this.limit = limit;
 	}
 
+	//FIXME set broadcast
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
@@ -73,7 +74,7 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 
 		buf.read(buffer);
 
-		byte byte0 = buffer.getByte(0);
+		byte byte0 = buf.getByte(0);
 
 		if (byte0 == PROTOCOL_PING) {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPING();
