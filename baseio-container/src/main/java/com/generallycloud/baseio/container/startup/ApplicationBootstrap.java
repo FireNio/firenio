@@ -43,6 +43,11 @@ import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 
 public class ApplicationBootstrap {
 
+	/**
+	 * rootPath为空时，认为是调试启动，运行时启动要传入rootPath参数
+	 * @param rootPath
+	 * @throws Exception
+	 */
 	public void bootstrap(String rootPath) throws Exception {
 		
 		if (StringUtil.isNullOrBlank(rootPath)) {
@@ -143,13 +148,11 @@ public class ApplicationBootstrap {
 	public static void main(String[] args) throws Exception {
 
 		ApplicationBootstrap startup = new ApplicationBootstrap();
-
-		String base = null;
-
-		if (args != null && args.length > 0) {
-			base = args[0];
+		
+		if (args == null || args.length < 1) {
+			args = new String[]{null};
 		}
 
-		startup.bootstrap(base);
+		startup.bootstrap(args[0]);
 	}
 }
