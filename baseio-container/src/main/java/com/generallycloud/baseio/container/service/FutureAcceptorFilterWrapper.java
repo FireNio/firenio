@@ -25,7 +25,7 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements Linkable<FutureAcceptorFilter> {
 
 	private FutureAcceptorFilter			filter;
-	private Linkable<FutureAcceptorFilter>	nextFilter;
+	private FutureAcceptorFilterWrapper	nextFilter;
 
 	public FutureAcceptorFilterWrapper(ApplicationContext context, FutureAcceptorFilter filter, Configuration config) {
 		this.filter = filter;
@@ -35,10 +35,9 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 	
-		this.filter.accept(session, future);
+		getValue().accept(session, future);
 		
 		if (future.flushed()) {
-
 			return;
 		}
 		
@@ -47,58 +46,58 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	
 	private void nextAccept(SocketSession session, ReadFuture future) throws Exception{
 		
-		Linkable<FutureAcceptorFilter> next = getNext();
+		FutureAcceptorFilterWrapper next = getNext();
 		
 		if (next == null) {
 			return;
 		}
 		
-		next.getValue().accept(session, future);
+		next.accept(session, future);
 	}
 
 	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
-		this.filter.accept(session, future);
+		getValue().accept(session, future);
 	}
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-		this.filter.exceptionCaught(session, future, cause, state);
+		getValue().exceptionCaught(session, future, cause, state);
 	}
 
 	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {
-		this.filter.futureSent(session, future);
+		getValue().futureSent(session, future);
 	}
 
 	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		this.filter.destroy(context, config);
+		getValue().destroy(context, config);
 	}
 
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-		this.filter.initialize(context, config);
+		getValue().initialize(context, config);
 	}
 
 	@Override
 	public String toString() {
-		return "Warpper(" + this.filter.toString() + ")";
+		return "Warpper(" + getValue().toString() + ")";
 	}
 
 	@Override
-	public Linkable<FutureAcceptorFilter> getNext() {
+	public FutureAcceptorFilterWrapper getNext() {
 		return nextFilter;
 	}
 
 	@Override
 	public void setNext(Linkable<FutureAcceptorFilter> next) {
-		this.nextFilter = next;
+		this.nextFilter = (FutureAcceptorFilterWrapper) next;
 	}
 
 	@Override
 	public FutureAcceptorFilter getValue() {
-		return this;
+		return filter;
 	}
 
 }

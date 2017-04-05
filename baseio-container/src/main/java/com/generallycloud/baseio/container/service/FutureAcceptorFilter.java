@@ -18,11 +18,10 @@ package com.generallycloud.baseio.container.service;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.AbstractInitializeable;
-import com.generallycloud.baseio.container.Initializeable;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public abstract class FutureAcceptorFilter extends AbstractInitializeable implements Initializeable, IoEventHandle {
+public abstract class FutureAcceptorFilter extends AbstractInitializeable implements IoEventHandle {
 
 	private int sortIndex;
 
@@ -35,7 +34,6 @@ public abstract class FutureAcceptorFilter extends AbstractInitializeable implem
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-		
 	}
 
 	@Override
