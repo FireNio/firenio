@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 

@@ -34,22 +34,23 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 public abstract class AbstractSocketChannelContext extends AbstractChannelContext
 		implements SocketChannelContext {
 
-	private IoEventHandleAdaptor						ioEventHandleAdaptor;
-	private ProtocolFactory							protocolFactory;
-	private BeatFutureFactory						beatFutureFactory;
-	private int									sessionAttachmentSize;
-	private ExecutorEventLoopGroup					executorEventLoopGroup;
-	private ProtocolEncoder							protocolEncoder;
-	private ProtocolDecoder							protocolDecoder;
-	private SslContext								sslContext;
-	private boolean								enableSSL;
-	private boolean								initialized;
-	private ChannelByteBufReader						channelByteBufReader;
-	private ForeReadFutureAcceptor					foreReadFutureAcceptor;
-	private SocketSessionFactory						sessionFactory;
-	private LinkableGroup<SocketSessionEventListener>		sessionEventListenerGroup	= new LinkableGroup<>();
-	private LinkableGroup<SocketSessionIdleEventListener>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
-	private Logger									logger					= LoggerFactory.getLogger(getClass());
+	private IoEventHandleAdaptor								ioEventHandleAdaptor;
+	private ProtocolFactory									protocolFactory;
+	private BeatFutureFactory								beatFutureFactory;
+	private int											sessionAttachmentSize;
+	private ExecutorEventLoopGroup							executorEventLoopGroup;
+	private ProtocolEncoder									protocolEncoder;
+	private ProtocolDecoder									protocolDecoder;
+	private SslContext										sslContext;
+	private boolean										enableSSL;
+	private boolean										initialized;
+	private ForeReadFutureAcceptor							foreReadFutureAcceptor;
+	private SocketSessionFactory								sessionFactory;
+	private LinkableGroup<ChannelByteBufReader>					channelByteBufReaderGroup	= new LinkableGroup<>();
+	private LinkableGroup<SocketSessionEventListenerWrapper>		sessionEventListenerGroup	= new LinkableGroup<>();
+	private LinkableGroup<SocketSessionIdleEventListenerWrapper>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
+	private Logger											logger					= LoggerFactory
+			.getLogger(getClass());
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -68,12 +69,12 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	}
 
 	@Override
-	public Linkable<SocketSessionEventListener> getSessionEventListenerLink() {
+	public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
 		return sessionEventListenerGroup.getRootLink();
 	}
 
 	@Override
-	public Linkable<SocketSessionIdleEventListener> getSessionIdleEventListenerLink() {
+	public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
 		return sessionIdleEventListenerGroup.getRootLink();
 	}
 
@@ -96,7 +97,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	public ProtocolEncoder getProtocolEncoder() {
 		return protocolEncoder;
 	}
-	
+
 	public ProtocolDecoder getProtocolDecoder() {
 		return protocolDecoder;
 	}
@@ -154,11 +155,11 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		LoggerUtil.prettyNIOServerLog(logger,
 				"======================================= service begin to start =======================================");
 		LoggerUtil.prettyNIOServerLog(logger, "encoding              :{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "protocol              :{ {} }",protocolId);
-		LoggerUtil.prettyNIOServerLog(logger, "cpu size              :{ cpu * {} }", SERVER_CORE_SIZE);
+		LoggerUtil.prettyNIOServerLog(logger, "protocol              :{ {} }", protocolId);
+		LoggerUtil.prettyNIOServerLog(logger, "cpu size              :{ cpu * {} }",SERVER_CORE_SIZE);
 		LoggerUtil.prettyNIOServerLog(logger, "enable ssl            :{ {} }", isEnableSSL());
-		LoggerUtil.prettyNIOServerLog(logger, "session idle          :{ {} }",session_idle);
-		LoggerUtil.prettyNIOServerLog(logger, "listen port(tcp)      :{ {} }",server_port);
+		LoggerUtil.prettyNIOServerLog(logger, "session idle          :{ {} }", session_idle);
+		LoggerUtil.prettyNIOServerLog(logger, "listen port(tcp)      :{ {} }", server_port);
 
 		if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
 
@@ -177,7 +178,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		ioEventHandleAdaptor.initialize(this);
-		
+
 		if (executorEventLoopGroup == null) {
 
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
@@ -197,17 +198,15 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
 		}
 
-		if (channelByteBufReader == null) {
-
-			this.channelByteBufReader = new IoLimitChannelByteBufReader();
+		if (channelByteBufReaderGroup.getRootLink() == null) {
+			
+			channelByteBufReaderGroup.addLink(new IoLimitChannelByteBufReader());
 
 			if (enableSSL) {
-				getLastChannelByteBufReader(channelByteBufReader)
-						.setNext(new SslChannelByteBufReader());
+				channelByteBufReaderGroup.addLink(new SslChannelByteBufReader());
 			}
-
-			getLastChannelByteBufReader(channelByteBufReader)
-					.setNext(new TransparentByteBufReader(this));
+			
+			channelByteBufReaderGroup.addLink(new TransparentByteBufReader(this));
 		}
 
 		if (sessionFactory == null) {
@@ -220,25 +219,13 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		doStartModule();
 	}
-	
+
 	protected void doStartModule() throws Exception {
 
 	}
 
 	protected void doStopModule() {
 
-	}
-
-	private ChannelByteBufReader getLastChannelByteBufReader(ChannelByteBufReader value) {
-
-		for (;;) {
-
-			if (value.getNext() == null) {
-				return value;
-			}
-
-			value = value.getNext().getValue();
-		}
 	}
 
 	@Override
@@ -249,7 +236,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		try {
 			ioEventHandleAdaptor.destroy(this);
 		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 
 		LifeCycleUtil.stop(byteBufAllocatorManager);
@@ -320,7 +307,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 	@Override
 	public ChannelByteBufReader getChannelByteBufReader() {
-		return channelByteBufReader;
+		return channelByteBufReaderGroup.getRootLink();
 	}
 
 	@Override

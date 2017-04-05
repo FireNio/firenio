@@ -30,7 +30,7 @@ public class SocketSessionActiveSEListener implements SocketSessionIdleEventList
 		if (session.getLastAccessTime() < lastIdleTime) {
 
 			logger.info("Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",session);
-			CloseUtil.close(session);
+			CloseUtil.close(session); 
 
 		} else {
 

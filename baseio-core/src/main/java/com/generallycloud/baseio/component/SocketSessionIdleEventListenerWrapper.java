@@ -15,18 +15,48 @@
  */
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
+
 public class SocketSessionIdleEventListenerWrapper
-		extends AbstractLinkable<SocketSessionIdleEventListener>
-		implements SocketSessionIdleEventListener {
+			extends AbstractLinkable<SocketSessionIdleEventListener>
+		implements SocketSessionIdleEventListener{
+
+	private SocketSessionIdleEventListenerWrapper	next;
 
 	public SocketSessionIdleEventListenerWrapper(SocketSessionIdleEventListener value) {
 		super(value);
+		logger = LoggerFactory.getLogger(value.getClass());
 	}
 
 	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime)
-			throws Exception {
-		getValue().sessionIdled(session, lastIdleTime, currentTime);
+	public SocketSessionIdleEventListenerWrapper getNext() {
+		return next;
+	}
+
+	@Override
+	public void setNext(Linkable<SocketSessionIdleEventListener> next) {
+		this.next = (SocketSessionIdleEventListenerWrapper) next;
+	}
+
+	private Logger logger = null;
+
+	@Override
+	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+
+		try {
+			getValue().sessionIdled(session, lastIdleTime, currentTime);
+		} catch (Exception e) {
+			logger.errorDebug(e);
+		}
+
+		SocketSessionIdleEventListenerWrapper listener = getNext();
+
+		if (listener == null) {
+			return;
+		}
+
+		listener.sessionIdled(session, lastIdleTime, currentTime);
 	}
 
 }

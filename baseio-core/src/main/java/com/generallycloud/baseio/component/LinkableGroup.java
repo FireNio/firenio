@@ -19,17 +19,19 @@ package com.generallycloud.baseio.component;
  * @author wangkai
  *
  */
-public class LinkableGroup<T> {
+@SuppressWarnings("rawtypes")
+public class LinkableGroup<T extends Linkable> {
 
-	private Linkable<T> rootLink;
+	private T rootLink;
 	
-	private Linkable<T> tailLink;
+	private T tailLink;
 
-	public Linkable<T> getRootLink() {
+	public T getRootLink() {
 		return rootLink;
 	}
 	
-	public void addLink(Linkable<T> linkable){
+	@SuppressWarnings("unchecked")
+	public void addLink(T linkable){
 		
 		if (rootLink == null) {
 			rootLink = linkable;
@@ -46,5 +48,4 @@ public class LinkableGroup<T> {
 		rootLink = null;
 		tailLink = null;
 	}
-	
 }

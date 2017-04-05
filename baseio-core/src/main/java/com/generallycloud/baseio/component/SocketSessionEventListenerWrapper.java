@@ -15,21 +15,64 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
+
 public class SocketSessionEventListenerWrapper extends AbstractLinkable<SocketSessionEventListener> implements SocketSessionEventListener {
 
+	private SocketSessionEventListenerWrapper next;
+	
+	private Logger logger;
+	
 	public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
 		super(value);
+		logger = LoggerFactory.getLogger(value.getClass());
 	}
 
 	@Override
 	public void sessionOpened(SocketSession session) throws Exception {
-		getValue().sessionOpened(session);
+		
+		try {
+			getValue().sessionOpened(session);
+		} catch (Exception e) {
+			logger.errorDebug(e);
+		}
+
+		SocketSessionEventListenerWrapper listener = getNext();
+
+		if (listener == null) {
+			return;
+		}
+
+		listener.sessionOpened(session);
 	}
 
 	@Override
 	public void sessionClosed(SocketSession session) {
-		getValue().sessionClosed(session);
+		
+		try {
+			getValue().sessionClosed(session);
+		} catch (Exception e) {
+			logger.errorDebug(e);
+		}
 
+		SocketSessionEventListenerWrapper listener = getNext();
+
+		if (listener == null) {
+			return;
+		}
+
+		listener.sessionClosed(session);
+	}
+
+	@Override
+	public SocketSessionEventListenerWrapper getNext() {
+		return next;
+	}
+
+	@Override
+	public void setNext(Linkable<SocketSessionEventListener> next) {
+		this.next = (SocketSessionEventListenerWrapper) next;
 	}
 
 }

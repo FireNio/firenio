@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.concurrent.ReentrantMap;
 
 public abstract class AbstractSocketSessionManager extends AbstractSessionManager implements SocketSessionManager{
@@ -33,10 +31,7 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 	protected SocketChannelContext				context			= null;
 	protected ConcurrentMap<Integer, SocketSession>	sessions			= new ConcurrentHashMap<>();
 	protected Map<Integer, SocketSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
-	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<>(
-			new LinkedHashMap<>());
-	private Logger								logger			= LoggerFactory
-			.getLogger(getClass());
+	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<>(new LinkedHashMap<>());
 
 	public AbstractSocketSessionManager(SocketChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -56,28 +51,12 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 
 		SocketChannelContext context = this.context;
 
+		SocketSessionIdleEventListenerWrapper linkable = context
+				.getSessionIdleEventListenerLink();
+		
 		for (SocketSession session : es) {
 
-			sessionIdle(context, session, lastIdleTime, currentTime);
-		}
-	}
-
-	private void sessionIdle(SocketChannelContext context, SocketSession session,
-			long lastIdleTime, long currentTime) {
-
-		Linkable<SocketSessionIdleEventListener> linkable = context
-				.getSessionIdleEventListenerLink();
-
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionIdled(session, lastIdleTime, currentTime);
-
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			linkable = linkable.getNext();
+			linkable.sessionIdled(session, lastIdleTime, currentTime);
 		}
 	}
 

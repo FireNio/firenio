@@ -63,9 +63,9 @@ public interface SocketChannelContext extends ChannelContext {
 	
 	public abstract ForeReadFutureAcceptor getForeReadFutureAcceptor();
 	
-	public abstract Linkable<SocketSessionEventListener> getSessionEventListenerLink();
+	public abstract SocketSessionEventListenerWrapper getSessionEventListenerLink();
 	
-	public abstract Linkable<SocketSessionIdleEventListener> getSessionIdleEventListenerLink();
+	public abstract SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
 	
 	public abstract void addSessionEventListener(SocketSessionEventListener listener);
 	

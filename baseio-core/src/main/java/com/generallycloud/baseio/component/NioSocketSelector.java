@@ -37,7 +37,8 @@ public abstract class NioSocketSelector implements SocketSelector {
 
 	private Selector				selector			= null;
 
-	private List<NioSocketChannel>		selectedChannels	= new ArrayList<>(4096);
+	//FIXME 4096 这个数值是否太小
+	private List<NioSocketChannel>	selectedChannels	= new ArrayList<>(4096);
 
 	protected SocketSelectorEventLoop	selectorEventLoop;
 
