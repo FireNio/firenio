@@ -17,22 +17,28 @@ package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketSessionAliveSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class SimpleTestProtobaseServer {
 
 	public static void main(String[] args) throws Exception {
+		
+		DebugUtil.setEnableDebug(true);
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
+				DebugUtil.debug("receive:"+future.getReadText());
 				future.write("yes server already accept your message:");
 				future.write(future.getReadText());
 				session.flush(future);
@@ -43,9 +49,15 @@ public class SimpleTestProtobaseServer {
 		
 		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 		
+		context.getServerConfiguration().setSERVER_SESSION_IDLE_TIME(60 * 60 * 1000);
+		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
+		
+		context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+		
+		context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		

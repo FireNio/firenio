@@ -17,14 +17,17 @@ package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionActiveSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
@@ -32,12 +35,22 @@ public class TestBeat {
 	
 	
 	public static void main(String[] args) throws Exception {
+		
+		DebugUtil.setEnableDebug(true);
 
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+			
+			@Override
+			public void accept(SocketSession session, ReadFuture future) throws Exception {
+				DebugUtil.debug("______________"+future.getReadText());
+			}
+		};
+		
 		String serviceKey = "TestSimpleServlet";
 		
 		ServerConfiguration configuration = new ServerConfiguration(18300);
 
-		configuration.setSERVER_SESSION_IDLE_TIME(100);
+		configuration.setSERVER_SESSION_IDLE_TIME(10);
 		
 		SocketChannelContext context = new NioSocketChannelContext(configuration);
 		
@@ -50,21 +63,25 @@ public class TestBeat {
 		context.setIoEventHandleAdaptor(new SimpleIoEventHandle());
 		
 		context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
-		FixedSession session = new FixedSession(connector.connect());
+		SocketSession session = connector.connect();
 		
 		String param = "tttt";
 		
 		long old = System.currentTimeMillis();
 		
 		for (int i = 0; i < 5; i++) {
-		
-			ReadFuture future = session.request(serviceKey, param);
-			System.out.println(future);
-			ThreadUtil.sleep(1000);
-			
+			ReadFuture future = new ProtobaseReadFutureImpl(context, serviceKey);
+			future.write(param);
+			session.flush(future);
+			ThreadUtil.sleep(300);
 		}
+		
 		System.out.println("Time:"+(System.currentTimeMillis() - old));
+		
+		Thread.sleep(1000);
 		
 		CloseUtil.close(connector);
 		
