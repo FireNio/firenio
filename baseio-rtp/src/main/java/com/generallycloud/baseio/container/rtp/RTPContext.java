@@ -69,6 +69,8 @@ public class RTPContext extends AbstractPluginContext {
 
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+		
+		super.initialize(context, config);
 
 		context.addSessionEventListener(new RTPSessionEventListener());
 
