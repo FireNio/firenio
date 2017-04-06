@@ -21,6 +21,7 @@ import java.util.Map;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.ContainerConsotant;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
@@ -35,7 +36,14 @@ public class AuthorityContext extends AbstractPluginContext {
 
 	@Override
 	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		putServlet(acceptors, new SystemAuthorityServlet());
+		
+		String loginAction = ContainerConsotant.ACTION_LOGIN;
+		
+		loginAction = getConfig().getParameter("login-action",loginAction);
+		
+		ContainerConsotant.ACTION_LOGIN = loginAction;
+		
+		putServlet(acceptors, new SystemAuthorityServlet(loginAction));
 	}
 
 	@Override
@@ -51,6 +59,8 @@ public class AuthorityContext extends AbstractPluginContext {
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
+		super.initialize(context, config);
+		
 		context.setLoginCenter(new AuthorityLoginCenter());
 
 		context.addSessionEventListener(new AuthoritySEListener());
@@ -59,8 +69,7 @@ public class AuthorityContext extends AbstractPluginContext {
 	}
 
 	public AuthoritySessionAttachment getSessionAttachment(SocketSession session) {
-
-		return (AuthoritySessionAttachment) session.getAttachment(this.getPluginIndex());
+		return (AuthoritySessionAttachment) session.getAttachment(getPluginIndex());
 	}
 
 }

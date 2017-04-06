@@ -18,7 +18,6 @@ package com.generallycloud.baseio.container;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -42,7 +41,7 @@ public class FixedSession {
 
 	private Authority			authority		= null;
 	private SocketChannelContext	context		= null;
-	private AtomicBoolean		logined		= new AtomicBoolean(false);
+	private boolean		logined			= false;
 	private SocketSession		session		= null;
 	private long				timeout		= 50000;
 	private SimpleIoEventHandle	eventHandle	= null;
@@ -80,7 +79,7 @@ public class FixedSession {
 	}
 
 	public boolean isLogined() {
-		return logined.get();
+		return logined;
 	}
 
 	public boolean login(String username, String password) {
@@ -92,11 +91,6 @@ public class FixedSession {
 
 	public RESMessage login4RES(String username, String password) {
 
-		if (!logined.compareAndSet(false, true)) {
-
-			return RESMessage.SUCCESS;
-		}
-
 		try {
 
 			Map<String, Object> param = new HashMap<String, Object>();
@@ -105,7 +99,7 @@ public class FixedSession {
 
 			String paramString = JSON.toJSONString(param);
 
-			ProtobaseReadFuture future = request("login", paramString);
+			ProtobaseReadFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
@@ -121,13 +115,10 @@ public class FixedSession {
 
 				setAuthority(authority);
 
-			} else {
-				logined.compareAndSet(true, false);
 			}
 
 			return message;
 		} catch (Exception e) {
-			logined.compareAndSet(true, false);
 			return new RESMessage(400, e.getMessage());
 		}
 	}

@@ -29,6 +29,13 @@ public abstract class FutureAcceptorService extends AbstractInitializeable imple
 	private Logger		logger		= LoggerFactory.getLogger(getClass());
 
 	private String		serviceName	= null;
+	
+	public FutureAcceptorService() {
+	}
+	
+	public FutureAcceptorService(String serviceName) {
+		this.serviceName = serviceName;
+	}
 
 	@Override
 	public void futureSent(SocketSession session, ReadFuture future) {

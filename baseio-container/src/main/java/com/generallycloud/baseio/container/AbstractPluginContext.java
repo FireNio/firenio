@@ -57,13 +57,13 @@ public abstract class AbstractPluginContext extends AbstractInitializeable imple
 		
 		acceptors.put(serviceName, service);
 	}
-
+	
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
-		this.pluginIndex = context.getPluginIndex().getAndIncrement();
-		
 		super.initialize(context, config);
+		
+		this.pluginIndex = context.getPluginIndex().getAndIncrement();
 	}
 	
 	

@@ -26,8 +26,8 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class SystemAuthorityServlet extends FutureAcceptorService {
 	
-	public SystemAuthorityServlet() {
-		setServiceName("/login");
+	public SystemAuthorityServlet(String serviceName){
+		super(serviceName);
 	}
 	
 	@Override
