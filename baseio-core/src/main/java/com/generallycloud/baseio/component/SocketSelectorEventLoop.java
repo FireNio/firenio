@@ -237,8 +237,9 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 				if (runTask-- > 0) {
 
-					handlePositiveEvents(false);
+					handlePositiveEvents();
 
+					checkTask(false);
 					return;
 				}
 
@@ -278,11 +279,13 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 				selector.clearSelectedChannels();
 			}
 
-			handlePositiveEvents(true);
+			handlePositiveEvents();
 
 			if (isMainEventLoop()) {
 				sessionManager.loop();
 			}
+			
+			checkTask(true);
 
 		} catch (Throwable e) {
 
@@ -421,7 +424,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		handleEvents(eventBuffer);
 	}
 
-	private void handlePositiveEvents(boolean refresh) {
+	private void handlePositiveEvents() {
 
 		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
 
@@ -433,7 +436,10 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		}
 
 		handleEvents(eventBuffer);
-
+	}
+	
+	private void checkTask(boolean refresh){
+		
 		hasTask = positiveEvents.getBufferSize() > 0;
 
 		if (hasTask && refresh) {
