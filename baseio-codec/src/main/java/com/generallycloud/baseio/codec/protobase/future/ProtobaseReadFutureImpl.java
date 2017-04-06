@@ -37,21 +37,18 @@ import com.generallycloud.baseio.component.SocketSession;
 public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 		implements ProtobaseReadFuture {
 
-	private byte[]				binary;
-	private int				binaryLength;
-	private int				binaryLimit;
 	private boolean			body_complete;
 	private ByteBuf			buf;
 	private int				futureId;
 	private String				futureName;
 	private boolean			header_complete;
 	private Parameters			parameters;
-	private int				future_name_length;
-	private int				textLength;
 	private int				sessionId;
 	private int				hashCode;
-
 	private BufferedOutputStream	writeBinaryBuffer;
+
+	protected int				future_name_length;
+	protected int				textLength;
 
 	// for ping & pong
 	public ProtobaseReadFutureImpl(SocketChannelContext context) {
@@ -71,11 +68,11 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 		this.futureName = futureName;
 	}
 
-	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit)
+	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf,boolean isBroadcast)
 			throws IOException {
 		super(session.getContext());
 		this.buf = buf;
-		this.binaryLimit = binaryLimit;
+		this.isBroadcast = isBroadcast;
 	}
 
 	private void doBodyComplete(Session session, ByteBuf buf) {
@@ -109,34 +106,30 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 
 		this.textLength = buf.getUnsignedShort();
 
-		if (buf.hasRemaining()) {
-			this.binaryLength = buf.getInt();
-		}
+		int all_length = getAllLength(session,buf);
 
-		int all_length = future_name_length + textLength + binaryLength;
-
-		buf.reallocate(all_length, binaryLimit);
+		reallocateBuf(buf, all_length);
+	}
+	
+	protected int getAllLength(Session session, ByteBuf buf){
+		return future_name_length + textLength;
+	}
+	
+	protected void reallocateBuf(ByteBuf buf,int all_length){
+		buf.reallocate(all_length);
 	}
 
-	private void gainBinary(ByteBuf buf, int offset) {
-
-		if (!hasBinary()) {
-			return;
-		}
-
-		buf.skipBytes(future_name_length + textLength);
-
-		binary = buf.getBytes();
+	protected void gainBinary(ByteBuf buf, int offset) {
 	}
 
 	@Override
 	public byte[] getBinary() {
-		return binary;
+		return null;
 	}
 
 	@Override
 	public int getBinaryLength() {
-		return binaryLength;
+		return 0;
 	}
 
 	@Override
@@ -174,12 +167,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 
 	@Override
 	public boolean hasBinary() {
-		return binaryLength > 0;
-	}
-
-	@Override
-	public boolean isBroadcast() {
-		return getFutureId() == 0;
+		return false;
 	}
 
 	@Override
@@ -286,4 +274,8 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 		writeBinaryBuffer.write(bytes, offset, length);
 	}
 
+	protected void setFutureName(String futureName) {
+		this.futureName = futureName;
+	}
+	
 }

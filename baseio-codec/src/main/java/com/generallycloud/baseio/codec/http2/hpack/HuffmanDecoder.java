@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteProcessor;
+import com.generallycloud.baseio.common.ThrowableUtil;
 
 final class HuffmanDecoder {
 

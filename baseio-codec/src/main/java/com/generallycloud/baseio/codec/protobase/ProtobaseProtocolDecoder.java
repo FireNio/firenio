@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseBinaryReadFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
@@ -46,7 +47,7 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  *  B10 - B13 	: hashcode
  *  B14 - B15 	：text          length
  *  B16 - B19 	：binary        length //FIXME 是否应该设置为两字节？
- *  
+ * 
  * </pre>
  */
 public class ProtobaseProtocolDecoder implements ProtocolDecoder {
@@ -54,27 +55,21 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 	public static final int	PROTOCOL_HEADER			= 20;
 	public static final int	PROTOCOL_HEADER_NO_BINARY	= 16;
 
-	public static final int	PROTOCOL_PACKET			= 1;
 	public static final byte	PROTOCOL_PING				= (byte) 0b10000000;
 	public static final int	PROTOCOL_PONG				= (byte) 0b11000000;
 	public static final int	PROTOCOL_HAS_BINARY		= (byte) 0b00010000;
-	public static final int	PROTOCOL_IS_PUSH			= (byte) 0b00100000;
+	public static final int	PROTOCOL_IS_BROADCAST		= (byte) 0b00100000;
 
-	private int			limit;
+	protected int			limit;
 
 	public ProtobaseProtocolDecoder(int limit) {
 		this.limit = limit;
 	}
 
-	//FIXME set broadcast
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		ByteBuf buf = session.getByteBufAllocator().allocate(1);
-
-		buf.read(buffer);
-
-		byte byte0 = buf.getByte(0);
+		byte byte0 = buffer.getByte();
 
 		if (byte0 == PROTOCOL_PING) {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPING();
@@ -82,13 +77,15 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 			return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
 		}
 
+		ByteBuf buf;
+		boolean isBroadcast = (byte0 & PROTOCOL_IS_BROADCAST) > 0;
 		if ((byte0 & PROTOCOL_HAS_BINARY) > 0) {
-			buf.reallocate(PROTOCOL_HEADER - 1);
-		}else{
-			buf.reallocate(PROTOCOL_HEADER_NO_BINARY - 1);
+			buf = session.getByteBufAllocator().allocate(PROTOCOL_HEADER - 1);
+			return new ProtobaseBinaryReadFutureImpl(session, buf, isBroadcast, limit);
 		}
 		
-		return new ProtobaseReadFutureImpl(session, buf, limit);
+		buf = session.getByteBufAllocator().allocate(PROTOCOL_HEADER_NO_BINARY - 1);
+		return new ProtobaseReadFutureImpl(session, buf, isBroadcast);
 	}
 
 }
