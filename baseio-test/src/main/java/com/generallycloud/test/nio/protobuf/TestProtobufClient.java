@@ -69,7 +69,7 @@ public class TestProtobufClient {
 		
 		SocketSession session = connector.connect();
 		
-		ProtobufReadFuture f = new ProtobufReadFutureImpl(context,"test-protobuf");
+		ProtobufReadFuture f = new ProtobufReadFutureImpl(context);
 
 		ByteString byteString = ByteString.copyFrom("222".getBytes());
 		
