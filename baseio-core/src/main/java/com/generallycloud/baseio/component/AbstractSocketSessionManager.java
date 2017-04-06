@@ -54,6 +54,10 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 		SocketSessionIdleEventListenerWrapper linkable = context
 				.getSessionIdleEventListenerLink();
 		
+		if (linkable == null) {
+			return;
+		}
+		
 		for (SocketSession session : es) {
 
 			linkable.sessionIdled(session, lastIdleTime, currentTime);

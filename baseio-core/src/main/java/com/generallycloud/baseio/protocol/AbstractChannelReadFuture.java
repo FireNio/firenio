@@ -30,8 +30,6 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 
 	protected boolean	isPING;
 
-	protected boolean	isPONG;
-	
 	protected boolean isSilent;
 
 	@Override
@@ -52,7 +50,7 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 
 	@Override
 	public boolean isPONG() {
-		return isHeartbeat && isPONG;
+		return isHeartbeat && !isPING;
 	}
 
 	@Override
@@ -61,14 +59,14 @@ public abstract class AbstractChannelReadFuture extends AbstractReadFuture imple
 		this.isHeartbeat = true;
 		return this;
 	}
-
+	
 	@Override
 	public ChannelReadFuture setPONG() {
-		this.isPONG = true;
+		this.isPING = false;
 		this.isHeartbeat = true;
 		return this;
 	}
-	
+
 	@Override
 	public boolean isSilent() {
 		return isSilent;

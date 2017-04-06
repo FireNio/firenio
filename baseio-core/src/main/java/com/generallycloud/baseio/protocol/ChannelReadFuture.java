@@ -33,7 +33,7 @@ public interface ChannelReadFuture extends ReadFuture {
 	public abstract boolean read(SocketSession session, ByteBuf buf) throws IOException;
 
 	public abstract ChannelReadFuture setPING();
-
+	
 	public abstract ChannelReadFuture setPONG();
 
 	public abstract boolean isSilent();
