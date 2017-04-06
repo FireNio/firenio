@@ -29,6 +29,8 @@ public class FixedHttpContext extends AbstractPluginContext{
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 		
+		super.initialize(context, config);
+		
 		this.httpContext.start();
 		
 		context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
