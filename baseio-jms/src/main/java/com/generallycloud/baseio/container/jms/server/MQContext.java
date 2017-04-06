@@ -56,6 +56,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+		
+		super.initialize(context, config);
 
 		long dueTime = config.getLongParameter("due-time");
 
