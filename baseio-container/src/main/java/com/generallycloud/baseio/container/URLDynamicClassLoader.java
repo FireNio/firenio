@@ -61,14 +61,14 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		}
 	}
 
-	private void addResource(URL url, String filePathName, String fileName)
+	private void addResource(URL url, String pathName, String fileName)
 			throws DuplicateClassException {
 
-		if (resourceMap.containsKey(filePathName)) {
-			throw new DuplicateClassException(filePathName);
+		if (resourceMap.containsKey(pathName) && !pathName.equals(".")) {
+			throw new DuplicateClassException(pathName);
 		}
 
-		resourceMap.put(filePathName, url);
+		resourceMap.put(pathName, url);
 
 		List<URL> urls = resourcesMap.get(fileName);
 
@@ -239,7 +239,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 	@Override
 	public void scan(File file) throws IOException {
-		this.scan0(file, "");
+		this.scanFile(file, "");
+		this.addResource(file, "/." , ".");
 		LoggerUtil.prettyNIOServerLog(logger, "load class count [ {} ] from [ {} ]",
 				clazzEntries.size(), file.getAbsolutePath());
 	}
@@ -249,7 +250,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		this.scan(new File(file));
 	}
 
-	private void scan0(File file, String path) throws IOException {
+	private void scanFile(File file, String pathName) throws IOException {
 
 		if (!file.exists()) {
 			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found",
@@ -262,13 +263,23 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			File[] files = file.listFiles();
 
 			for (File _file : files) {
-				scan0(_file, path + "/" + _file.getName());
+				scanFile(_file, pathName + "/" + _file.getName());
 			}
 
 			return;
 		}
 
+		addResource(file, pathName);
+	}
+	
+	private void addResource(File file,String pathName) throws IOException{
+		
 		String fileName = file.getName();
+		
+		addResource(file, pathName, fileName);
+	}
+	
+	private void addResource(File file,String pathName,String fileName) throws IOException{
 		
 		URL url = file.toURI().toURL();
 
@@ -280,9 +291,9 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			return;
 		}
 
-		path = path.substring(1);
+		pathName = pathName.substring(1);
 
-		addResource(url, path, fileName);
+		addResource(url, pathName, fileName);
 	}
 
 	private void scanZip(JarFile file) throws IOException {
