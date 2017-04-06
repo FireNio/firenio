@@ -17,7 +17,6 @@ package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -36,13 +35,9 @@ public class TestListenerByteMessage {
 
 	public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
-
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
@@ -74,7 +69,7 @@ public class TestListenerByteMessage {
 			}
 		});
 		
-		ThreadUtil.sleep(3000);
+		ThreadUtil.sleep(30000000);
 
 		connector.close();
 

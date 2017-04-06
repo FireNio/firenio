@@ -16,7 +16,6 @@
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -32,13 +31,9 @@ public class TestTellerByteMessage {
 
 	public static void main(String[] args) throws Exception {
 		
-		LoggerFactory.configure();
-		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
-
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
@@ -54,13 +49,13 @@ public class TestTellerByteMessage {
 
 		MessageProducer producer = new DefaultMessageProducer(session);
 		
-		TextByteMessage message = new TextByteMessage("msgID", "UUID", "============","你好！".getBytes(session.getContext().getEncoding()));
+		TextByteMessage message = new TextByteMessage("msgID", "uuid", "============","你好！".getBytes(session.getContext().getEncoding()));
 
 		long old = System.currentTimeMillis();
 		
-		producer.offer(message);
-		
-		producer.offer(message);
+		for (int i = 0; i < 5; i++) {
+			producer.offer(message);
+		}
 		
 		System.out.println("Time:" + (System.currentTimeMillis() - old));
 

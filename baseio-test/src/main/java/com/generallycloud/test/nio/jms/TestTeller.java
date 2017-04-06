@@ -16,7 +16,6 @@
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobuf.ProtobufProtocolFactory;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -34,13 +33,9 @@ public class TestTeller {
 
 	public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
 		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
-
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 		
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
@@ -49,8 +44,6 @@ public class TestTeller {
 		context.setProtocolFactory(new ProtobaseProtocolFactory());
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		connector.getContext().setProtocolFactory(new ProtobufProtocolFactory());
 		
 		FixedSession session = new FixedSession(connector.connect());
 
