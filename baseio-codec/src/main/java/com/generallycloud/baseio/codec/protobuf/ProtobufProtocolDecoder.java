@@ -19,41 +19,43 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolDecoder;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
 import com.generallycloud.baseio.codec.protobuf.future.ProtobufReadFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
-public class ProtobufProtocolDecoder implements ProtocolDecoder {
-
-	private int limit;
+public class ProtobufProtocolDecoder extends ProtobaseProtocolDecoder {
 
 	public ProtobufProtocolDecoder() {
 		this(1024 * 8);
 	}
 
 	public ProtobufProtocolDecoder(int limit) {
-		this.limit = limit;
+		super(limit);
 	}
 
 	@Override
 	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		ByteBuf buf = session.getByteBufAllocator().allocate(ProtobaseProtocolDecoder.PROTOCOL_HEADER);
+		byte byte0 = buffer.getByte();
 
-		buf.read(buffer);
-
-		byte _type = buffer.getByte(0);
-
-		int type = (_type & 0xff) >> 6;
-
-		if (type == ProtobaseProtocolDecoder.PROTOCOL_PING) {
-			return new ProtobufReadFutureImpl(session.getContext()).setPING();
-		} else if (type == ProtobaseProtocolDecoder.PROTOCOL_PONG) {
-			return new ProtobufReadFutureImpl(session.getContext()).setPONG();
+		if (byte0 == PROTOCOL_PING) {
+			return new ProtobaseReadFutureImpl(session.getContext()).setPING();
+		} else if (byte0 == PROTOCOL_PONG) {
+			return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
 		}
 
-		return new ProtobufReadFutureImpl(session, buf, limit);
+		ByteBuf buf;
+		
+		if ((byte0 & PROTOCOL_HAS_BINARY) == 0) {
+			throw new IOException("need binary for protobuf");
+		}
+		
+		boolean isBroadcast = (byte0 & PROTOCOL_IS_BROADCAST) > 0;
+		
+		buf = session.getByteBufAllocator().allocate(PROTOCOL_HEADER - 1);
+
+		return new ProtobufReadFutureImpl(session, buf, isBroadcast,limit);
 	}
 
 }

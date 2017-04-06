@@ -12,41 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.protobuf.future;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseBinaryReadFutureImpl;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
-public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements ProtobufReadFuture {
+public class ProtobufReadFutureImpl extends ProtobaseBinaryReadFutureImpl
+		implements ProtobufReadFuture {
 
 	private MessageLite	message;
 
 	private boolean	writed;
 
-	// for ping & pong
 	public ProtobufReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
 
-	public ProtobufReadFutureImpl(SocketChannelContext context, String futureName) {
-		super(context, futureName);
-	}
-
-	public ProtobufReadFutureImpl(SocketChannelContext context, Integer futureID, String futureName) {
-		super(context, futureID, futureName);
-	}
-
-	public ProtobufReadFutureImpl(SocketSession session, ByteBuf buf, int limit) throws IOException {
-		super(session, buf, limit);
+	public ProtobufReadFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast,
+			int limit) throws IOException {
+		super(session, buf, isBroadcast, limit);
 	}
 
 	@Override
@@ -54,7 +46,8 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 
 		if (message == null) {
 
-			ProtobufIOEventHandle handle = (ProtobufIOEventHandle) context.getIoEventHandleAdaptor();
+			ProtobufIOEventHandle handle = (ProtobufIOEventHandle) context
+					.getIoEventHandleAdaptor();
 
 			Parser<? extends MessageLite> parser = handle.getParser(getParserName());
 
@@ -70,13 +63,14 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 	}
 
 	@Override
-	public void writeProtobuf(String parserName, MessageLite messageLite) throws InvalidProtocolBufferException {
+	public void writeProtobuf(String parserName, MessageLite messageLite)
+			throws InvalidProtocolBufferException {
 
 		if (writed) {
 			throw new InvalidProtocolBufferException("writed");
 		}
-
-		super.write(parserName);
+		
+		this.setFutureName(parserName);
 
 		// FIXME 判断array是否过大
 		byte[] array = messageLite.toByteArray();
@@ -84,17 +78,9 @@ public class ProtobufReadFutureImpl extends ProtobaseReadFutureImpl implements P
 		super.writeBinary(array, 0, array.length);
 	}
 
-	public void write(byte[] bytes, int offset, int length) {
-		throw new UnsupportedOperationException("use writeProtobuf instead");
-	}
-
-	public void write(String content, Charset encoding) {
-		throw new UnsupportedOperationException("use writeProtobuf instead");
-	}
-
 	@Override
 	public String getParserName() {
-		return getReadText();
+		return getFutureName();
 	}
 
 }
