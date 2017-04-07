@@ -18,22 +18,19 @@ package com.generallycloud.baseio.common;
 //FIXME char util ?
 public class ByteUtil {
 	
-	public static char			FALSE		= 'F';
-	public static char			TRUE			= 'T';
+	public static byte			FALSE		= 'F';
+	public static byte			TRUE			= 'T';
 	
-	public static char getByte(boolean bool){
+	public static byte getByte(boolean bool){
 		return bool ? TRUE :FALSE;
 	}
 
-	public static boolean getBoolean(byte b){
+	public static boolean getBoolean(char b){
 		return TRUE == b;
 	}
 	
-	public static boolean isTrue(String text){
-		return "T".equals(text);
+	public static boolean isTrue(String value){
+		return value.length() == 1 && getBoolean(value.toCharArray()[0]);
 	}
 	
-	public static boolean isFalse(String text){
-		return "F".equals(text);
-	}
 }

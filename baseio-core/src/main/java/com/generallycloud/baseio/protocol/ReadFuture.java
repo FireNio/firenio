@@ -12,38 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
+import java.nio.charset.Charset;
+
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface ReadFuture extends Future {
-	
-	public abstract IoEventHandle getIoEventHandle() ;
+
+	public abstract IoEventHandle getIoEventHandle();
 
 	public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
-	
+
 	public abstract SocketChannelContext getContext();
-	
+
 	public abstract boolean flushed();
-	
+
 	public abstract String getReadText();
-	
-	public abstract String getWriteText();
-	
-	public abstract StringBuilder getWriteTextBuffer();
-	
+
+	public abstract ByteArrayBuffer getWriteBuffer();
+
 	public abstract void write(String text);
 	
-	public abstract void write(char c);
-	
-	public abstract void write(boolean b);
-	
-	public abstract void write(int i);
-	
-	public abstract void write(long l);
-	
-	public abstract void write(double d);
-	
+	public abstract void write(String text,Charset charset);
+
+	public abstract void write(byte b);
+
+	public abstract void write(byte b[]);
+
+	public abstract void write(byte b[], int off, int len);
+
 }

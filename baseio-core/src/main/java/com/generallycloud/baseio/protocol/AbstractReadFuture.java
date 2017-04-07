@@ -12,10 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.common.StringUtil;
+import java.nio.charset.Charset;
+
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
@@ -25,7 +27,7 @@ public abstract class AbstractReadFuture extends AbstractFuture implements ReadF
 	protected String				readText;
 	protected SocketChannelContext	context;
 	protected IoEventHandle			ioEventHandle;
-	protected StringBuilder			writeTextBuffer = new StringBuilder();
+	protected ByteArrayBuffer		writeBuffer;
 
 	protected AbstractReadFuture(SocketChannelContext context) {
 		this.context = context;
@@ -55,55 +57,55 @@ public abstract class AbstractReadFuture extends AbstractFuture implements ReadF
 	}
 
 	@Override
-	public String getWriteText() {
-		return writeTextBuffer.toString();
-	}
-
-	@Override
-	public StringBuilder getWriteTextBuffer() {
-		return writeTextBuffer;
-	}
-
-	@Override
 	public void setIoEventHandle(IoEventHandle ioEventHandle) {
 		this.ioEventHandle = ioEventHandle;
 	}
 
 	@Override
-	public void write(boolean b) {
-		writeTextBuffer.append(b);
-	}
-
-	@Override
-	public void write(char c) {
-		writeTextBuffer.append(c);
-	}
-
-	@Override
-	public void write(double d) {
-		writeTextBuffer.append(d);
-	}
-
-	@Override
-	public void write(int i) {
-		writeTextBuffer.append(i);
-	}
-
-	@Override
-	public void write(long l) {
-		writeTextBuffer.append(l);
-	}
-
-	@Override
 	public void write(String text) {
-		if (StringUtil.isNullOrBlank(text)) {
-			return;
-		}
-		writeTextBuffer.append(text);
+		write(text, context.getEncoding());
 	}
 
 	@Override
 	public String toString() {
 		return getReadText();
 	}
+
+	public ByteArrayBuffer getWriteBuffer() {
+		return writeBuffer;
+	}
+
+	@Override
+	public void write(String text, Charset charset) {
+		write(text.getBytes(charset));
+	}
+
+	@Override
+	public void write(byte b) {
+		if (writeBuffer == null) {
+			writeBuffer = new ByteArrayBuffer();
+		}
+		writeBuffer.write(b);
+	}
+
+	@Override
+	public void write(byte[] bytes) {
+		write(bytes, 0, bytes.length);
+	}
+
+	@Override
+	public void write(byte[] bytes, int off, int len) {
+		if (writeBuffer == null) {
+			if (off != 0) {
+				byte [] copy = new byte[len - off];
+				System.arraycopy(bytes, off, copy, 0, len);
+				writeBuffer = new ByteArrayBuffer(copy,len);
+				return;
+			}
+			writeBuffer = new ByteArrayBuffer(bytes,len);
+			return;
+		}
+		writeBuffer.write(bytes, off, len);
+	}
+
 }
