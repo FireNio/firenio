@@ -53,6 +53,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
+	private boolean						redeploying;
 	private String							appLocalAddres;
 	private String							rootLocalAddres;
 	private URLDynamicClassLoader				classLoader	;
@@ -254,6 +255,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
 
+		redeploying = true;
+		
 		destroyApplicationContext();
 
 		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
@@ -265,6 +268,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 			initializeApplicationContext();
 			
+			redeploying = false;
+			
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
 
 			return true;
@@ -272,6 +277,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		} catch (Exception e) {
 
 			classLoader.unloadClassLoader();
+			
+			redeploying = false;
 
 			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务失败  **********************//\n");
 
@@ -279,6 +286,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 			return false;
 		}
+		
 	}
 
 	public void setChannelContext(SocketChannelContext context) {
@@ -341,6 +349,13 @@ public class ApplicationContext extends AbstractLifeCycle {
 	 */
 	public AtomicInteger getPluginIndex() {
 		return pluginIndex;
+	}
+	
+	/**
+	 * @return the redeploying
+	 */
+	public boolean isRedeploying() {
+		return redeploying;
 	}
 	
 }
