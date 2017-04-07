@@ -26,10 +26,6 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
 
 public class ProtobufProtocolDecoder extends ProtobaseProtocolDecoder {
 
-	public ProtobufProtocolDecoder() {
-		this(1024 * 8);
-	}
-
 	public ProtobufProtocolDecoder(int limit) {
 		super(limit);
 	}

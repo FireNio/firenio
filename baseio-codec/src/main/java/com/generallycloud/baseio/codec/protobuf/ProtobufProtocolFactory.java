@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.protobuf;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -21,9 +21,19 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ProtobufProtocolFactory implements ProtocolFactory {
 
+	private int limit;
+
+	public ProtobufProtocolFactory() {
+		this(1024 * 8);
+	}
+
+	public ProtobufProtocolFactory(int limit) {
+		this.limit = limit;
+	}
+
 	@Override
 	public ProtocolDecoder getProtocolDecoder() {
-		return new ProtobufProtocolDecoder();
+		return new ProtobufProtocolDecoder(limit);
 	}
 
 	@Override
