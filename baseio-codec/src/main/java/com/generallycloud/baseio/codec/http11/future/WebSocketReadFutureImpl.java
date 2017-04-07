@@ -28,25 +28,25 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
 public class WebSocketReadFutureImpl extends AbstractChannelReadFuture
 		implements WebSocketReadFuture {
 
-	private int		type;
+	private int			type;
 
-	private boolean	eof;
+	private boolean		eof;
 
-	private boolean	hasMask;
+	private boolean		hasMask;
 
-	private int		length;
+	private int			length;
 
-	private ByteBuf	buf;
+	private ByteBuf		buf;
 
-	private String		serviceName;
+	private String			serviceName;
 
-	private boolean	data_complete;
+	private boolean		data_complete;
 
-	private boolean	header_complete;
+	private boolean		header_complete;
 
-	private boolean	remain_header_complete;
+	private boolean		remain_header_complete;
 
-	private int		limit;
+	private int			limit;
 
 	private byte[]		mask;
 
@@ -82,7 +82,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture
 
 		byte b = buf.getByte();
 
-		eof = ((b & 0xFF) >> 7) == 1;
+		eof  = (b & 0b10000000) > 0;
 
 		type = (b & 0xF);
 
@@ -112,7 +112,7 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture
 
 		b = buf.getByte();
 
-		hasMask = ((b & 0xFF) >> 7) == 1;
+		hasMask = (b & 0b10000000)> 0;
 
 		if (hasMask) {
 			remain_header_size += 4;
