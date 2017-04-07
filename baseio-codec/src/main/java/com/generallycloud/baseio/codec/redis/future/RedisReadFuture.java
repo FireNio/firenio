@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.codec.redis.future;
 
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.component.BufferedOutputStream;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface RedisReadFuture extends ReadFuture {
@@ -52,7 +51,5 @@ public interface RedisReadFuture extends ReadFuture {
 	}
 	
 	public abstract void writeCommand(byte[] command, byte[]... args) ;
-	
-	public abstract BufferedOutputStream getBufferedOutputStream();
 
 }

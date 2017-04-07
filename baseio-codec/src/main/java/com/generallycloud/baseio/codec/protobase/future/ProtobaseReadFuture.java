@@ -17,7 +17,7 @@ package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
 import com.generallycloud.baseio.balance.SessionIdBalanceReadFuture;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ParametersReadFuture;
 
@@ -35,7 +35,7 @@ public interface ProtobaseReadFuture extends HashedBalanceReadFuture,SessionIdBa
 	
 	public abstract void setFutureId(int futureId);
 
-	public abstract BufferedOutputStream getWriteBinaryBuffer();
+	public abstract ByteArrayBuffer getWriteBinaryBuffer();
 
 	public abstract void writeBinary(byte b);
 

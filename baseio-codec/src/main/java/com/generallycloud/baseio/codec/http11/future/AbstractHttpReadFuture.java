@@ -30,7 +30,7 @@ import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.SHA1Util;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.MapParameters;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -56,7 +56,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 	protected static final ProtocolDecoder			WS_PROTOCOL_DECODER	= WS_PROTOCOL_FACTORY.getProtocolDecoder();
 	protected static final ProtocolEncoder			WS_PROTOCOL_ENCODER	= WS_PROTOCOL_FACTORY.getProtocolEncoder();
 	
-	protected BufferedOutputStream	binaryBuffer;
+	protected ByteArrayBuffer	binaryBuffer;
 	protected boolean				body_complete;
 	protected byte []				bodyArray;
 	protected ByteBuf				bodyContent;
@@ -202,7 +202,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 	}
 
 	@Override
-	public BufferedOutputStream getBinaryBuffer() {
+	public ByteArrayBuffer getBinaryBuffer() {
 		return binaryBuffer;
 	}
 
@@ -549,7 +549,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 	@Override
 	public void writeBinary(byte[] binary) {
 		if (binaryBuffer == null) {
-			binaryBuffer = new BufferedOutputStream(binary);
+			binaryBuffer = new ByteArrayBuffer(binary);
 			return;
 		}
 		binaryBuffer.write(binary);

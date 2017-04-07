@@ -23,7 +23,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
@@ -35,12 +35,12 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 	private static final byte[] EMPTY_ARRAY = EmptyByteBuf.getInstance().array();
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture)
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future)
 			throws IOException {
 
-		if (readFuture.isHeartbeat()) {
+		if (future.isHeartbeat()) {
 
-			byte b = readFuture.isPING() ? 
+			byte b = future.isPING() ? 
 					ProtobaseProtocolDecoder.PROTOCOL_PING
 					: ProtobaseProtocolDecoder.PROTOCOL_PONG ;
 
@@ -48,10 +48,10 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 			buf.putByte(b);
 
-			return new ChannelWriteFutureImpl(readFuture, buf.flip());
+			return new ChannelWriteFutureImpl(future, buf.flip());
 		}
 
-		ProtobaseReadFuture f = (ProtobaseReadFuture) readFuture;
+		ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 
 		String future_name = f.getFutureName();
 
@@ -59,7 +59,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 			throw new ProtocolException("future name is empty");
 		}
 
-		Charset charset = readFuture.getContext().getEncoding();
+		Charset charset = future.getContext().getEncoding();
 
 		byte[] future_name_array = future_name.getBytes(charset);
 
@@ -69,22 +69,24 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		byte future_name_length = (byte) future_name_array.length;
 
-		BufferedOutputStream binary = f.getWriteBinaryBuffer();
+		ByteArrayBuffer binary = f.getWriteBinaryBuffer();
 
-		String writeText = f.getWriteText();
+		ByteArrayBuffer buffer = f.getWriteBuffer();
 
 		byte[] text_array;
-		if (StringUtil.isNullOrBlank(writeText)) {
+		int text_length;
+		if (buffer == null) {
 			text_array = EMPTY_ARRAY;
+			text_length = 0;
 		} else {
-			text_array = writeText.getBytes(charset);
+			text_array = buffer.array();
+			text_length = buffer.size();
 		}
 
 		if (binary != null) {
 			return encode(allocator, f, future_name_array, text_array, binary);
 		}
-
-		int text_length = text_array.length;
+		
 		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
 		byte byte0 = 0b01000000;
 
@@ -109,11 +111,11 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 			buf.put(text_array, 0, text_length);
 		}
 
-		return new ChannelWriteFutureImpl(readFuture, buf.flip());
+		return new ChannelWriteFutureImpl(future, buf.flip());
 	}
 
 	private ChannelWriteFuture encode(ByteBufAllocator allocator, ProtobaseReadFuture f,
-			byte[] future_name_array, byte[] text_array, BufferedOutputStream binary)
+			byte[] future_name_array, byte[] text_array, ByteArrayBuffer binary)
 			throws IOException {
 
 		byte future_name_length = (byte) future_name_array.length;

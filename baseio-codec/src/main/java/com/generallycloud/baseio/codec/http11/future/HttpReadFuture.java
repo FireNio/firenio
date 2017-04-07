@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.http11.future;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ParametersReadFuture;
 
@@ -114,5 +114,5 @@ public abstract interface HttpReadFuture extends NamedReadFuture ,ParametersRead
 	
 	public abstract void writeBinary(byte [] binary);
 	
-	public abstract BufferedOutputStream getBinaryBuffer() ;
+	public abstract ByteArrayBuffer getBinaryBuffer() ;
 }

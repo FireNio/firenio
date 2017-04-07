@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -24,8 +23,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.Cookie;
 import com.generallycloud.baseio.codec.http11.future.ServerHttpReadFuture;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
@@ -36,30 +34,24 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 	private static final byte[]	SERVER_CL	= "\r\nServer:baseio/0.0.1\r\nContent-Length:".getBytes();
 	private static final byte[]	SET_COOKIE	= "Set-Cookie:".getBytes();
 
-
 	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 
 		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
 
-		BufferedOutputStream os = f.getBinaryBuffer();
+		ByteArrayBuffer os = f.getBinaryBuffer();
 
 		if (os != null) {
 			return encode(allocator, f, os.size(), os.array());
 		}
 
-		String write_text = f.getWriteText();
+		ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		Charset charset = readFuture.getContext().getEncoding();
-
-		if (StringUtil.isNullOrBlank(write_text)) {
-
+		if (buffer == null) {
 			return encode(allocator, f, 0, null);
 		}
 
-		byte[] text_array = write_text.getBytes(charset);
-
-		return encode(allocator, f, text_array.length, text_array);
+		return encode(allocator, f, buffer.size(), buffer.array());
 	}
 
 	private ChannelWriteFuture encode(ByteBufAllocator allocator, ServerHttpReadFuture f, int length, byte[] array)

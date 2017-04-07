@@ -24,7 +24,7 @@ import com.generallycloud.baseio.balance.BalanceReadFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.JsonParameters;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.Session;
@@ -45,7 +45,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	private Parameters			parameters;
 	private int				sessionId;
 	private int				hashCode;
-	private BufferedOutputStream	writeBinaryBuffer;
+	private ByteArrayBuffer	writeBinaryBuffer;
 
 	protected int				future_name_length;
 	protected int				textLength;
@@ -161,7 +161,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	}
 
 	@Override
-	public BufferedOutputStream getWriteBinaryBuffer() {
+	public ByteArrayBuffer getWriteBinaryBuffer() {
 		return writeBinaryBuffer;
 	}
 
@@ -250,7 +250,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	public void writeBinary(byte b) {
 
 		if (writeBinaryBuffer == null) {
-			writeBinaryBuffer = new BufferedOutputStream();
+			writeBinaryBuffer = new ByteArrayBuffer();
 		}
 
 		writeBinaryBuffer.write(b);
@@ -268,7 +268,7 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	public void writeBinary(byte[] bytes, int offset, int length) {
 
 		if (writeBinaryBuffer == null) {
-			writeBinaryBuffer = new BufferedOutputStream();
+			writeBinaryBuffer = new ByteArrayBuffer();
 		}
 
 		writeBinaryBuffer.write(bytes, offset, length);

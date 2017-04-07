@@ -16,12 +16,12 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
@@ -32,21 +32,19 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
+	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
 		
-		WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
+		WebSocketReadFuture f = (WebSocketReadFuture) future;
 
-		String o = future.getWriteText();
-		
-		Charset charset = readFuture.getContext().getEncoding();
+		ByteArrayBuffer buffer = future.getWriteBuffer();
 		
 		byte [] header;
 		
-		byte [] data = o.getBytes(charset);
+		byte [] data = buffer.array();
 		
-		int size = data.length;
+		int size = buffer.size();
 		
-		byte header0 = (byte) (0x8f & (future.getType() | 0xf0));
+		byte header0 = (byte) (0x8f & (f.getType() | 0xf0));
 		
 		if (size < 126) {
 			header = new byte[2];
@@ -71,7 +69,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(data,0,size);
 		
-		return new ChannelWriteFutureImpl(readFuture, buf.flip());
+		return new ChannelWriteFutureImpl(future, buf.flip());
 	}
 	
 //	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

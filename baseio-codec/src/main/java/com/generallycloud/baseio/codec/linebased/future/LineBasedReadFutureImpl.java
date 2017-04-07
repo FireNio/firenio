@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.linebased.LineBasedProtocolDecoder;
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelReadFuture;
@@ -30,7 +30,7 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 
 	private int				limit;
 
-	private BufferedOutputStream	cache	= new BufferedOutputStream();
+	private ByteArrayBuffer	cache	= new ByteArrayBuffer();
 
 	public LineBasedReadFutureImpl(SocketChannelContext context,int limit) {
 		super(context);
@@ -55,7 +55,7 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 			return true;
 		}
 
-		BufferedOutputStream cache = this.cache;
+		ByteArrayBuffer cache = this.cache;
 
 		for (; buffer.hasRemaining();) {
 
@@ -81,7 +81,7 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 	}
 
 	@Override
-	public BufferedOutputStream getLineOutputStream() {
+	public ByteArrayBuffer getLineOutputStream() {
 		return cache;
 	}
 

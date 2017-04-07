@@ -16,12 +16,11 @@
 package com.generallycloud.baseio.codec.linebased;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.linebased.future.LineBasedReadFuture;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
@@ -34,21 +33,15 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 		LineBasedReadFuture f = (LineBasedReadFuture) future;
 
-		String write_text = f.getWriteText();
+		ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		if (StringUtil.isNullOrBlank(write_text)) {
-			throw new IOException("null write text");
+		if (buffer == null) {
+			throw new IOException("null write buffer");
 		}
 		
-		Charset charset = future.getContext().getEncoding();
+		ByteBuf buf = allocator.allocate(buffer.size() + 1);
 
-		byte[] text_array = write_text.getBytes(charset);
-
-		int size = text_array.length;
-
-		ByteBuf buf = allocator.allocate(size + 1);
-
-		buf.put(text_array, 0, size);
+		buf.put(buffer.array(), 0, buffer.size());
 
 		buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
 

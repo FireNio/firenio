@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.baseio.codec.linebased.future;
 
-import com.generallycloud.baseio.component.BufferedOutputStream;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface LineBasedReadFuture extends ReadFuture{
 	
-	public abstract BufferedOutputStream getLineOutputStream();
+	public abstract ByteArrayBuffer getLineOutputStream();
 	
 }
