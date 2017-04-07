@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.sample.http11;
 
-import com.generallycloud.baseio.codec.http11.HttpSession;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
 public class TestSimpleServlet extends HttpFutureAcceptorService {
