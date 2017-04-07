@@ -12,37 +12,47 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.codec.http11;
+ */
+package com.generallycloud.baseio.container.http11;
 
-import com.generallycloud.baseio.live.AbstractLifeCycle;
+import com.generallycloud.baseio.codec.http11.future.WebSocketSEListener;
+import com.generallycloud.baseio.container.AbstractPluginContext;
+import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.live.LifeCycleUtil;
 
-public class HttpContext extends AbstractLifeCycle {
+public class HttpContext extends AbstractPluginContext {
 
 	private static HttpContext	instance;
-
-	private HttpSessionManager	httpSessionManager	= new HttpSessionManager();
 
 	public static HttpContext getInstance() {
 		return instance;
 	}
 
-	@Override
-	protected void doStart() throws Exception {
-		
-		this.httpSessionManager.startup("HTTPSession-Manager");
-
-		instance = this;
-	}
+	private HttpSessionManager		httpSessionManager	= new HttpSessionManager();
 
 	@Override
-	protected void doStop() throws Exception {
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+
 		LifeCycleUtil.stop(httpSessionManager);
+
+		super.destroy(context, config);
 	}
 
 	public HttpSessionManager getHttpSessionManager() {
 		return httpSessionManager;
+	}
+
+	@Override
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+		super.initialize(context, config);
+
+		this.httpSessionManager.startup("HTTPSession-Manager");
+
+		instance = this;
+
+		context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
 	}
 
 }
