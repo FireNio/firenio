@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.baseio.container.http11.service;
 
-import com.generallycloud.baseio.codec.http11.HttpContext;
-import com.generallycloud.baseio.codec.http11.HttpSession;
-import com.generallycloud.baseio.codec.http11.HttpSessionManager;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.container.http11.HttpContext;
+import com.generallycloud.baseio.container.http11.HttpSession;
+import com.generallycloud.baseio.container.http11.HttpSessionManager;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
