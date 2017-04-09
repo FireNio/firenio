@@ -379,11 +379,7 @@ public class FileUtil {
 	}
 
 	public static String readContentByCls(String file, Charset encoding) throws IOException {
-		File file2 = readFileByCls(file);
-		if (file2.exists()) {
-			return readFileToString(file2, encoding);
-		}
-		return null;
+		return new String(readBytesByCls(file),encoding);
 	}
 
 	public static File readFileByCls(String file) throws UnsupportedEncodingException {
