@@ -11,25 +11,25 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 
 * 轻松实现断线重连(轻松实现心跳机制)
 * 简易应用容器：
- * 支持简易热部署，示例： https://www.generallycloud.com/system-redeploy
- * 支持部署WEB，微服务等（依据协议而定）
+  * 支持简易热部署，示例： https://www.generallycloud.com/system-redeploy
+  * 支持部署WEB，微服务等（依据协议而定）
 * 轻松实现简易负载均衡(可定制)，已知策略:
- * 基于hash的虚拟节点策略
- * 轮询负载节点策略
+  * 基于hash的虚拟节点策略
+  * 轮询负载节点策略
 * 支持组件扩展，已知的扩展插件有：
- * 简易MQ，offer msg，poll msg
- * 简易实时rtp(udp)，用作音/视频实时交互
- * 简易权限认证系统，用于限制单位时间内API调用次数
+  * 简易MQ，offer msg，poll msg
+  * 简易实时rtp(udp)，用作音/视频实时交互
+  * 简易权限认证系统，用于限制单位时间内API调用次数
 * 支持协议扩展，已知的扩展协议有：
- * Redis协议，示例：详见 {baseio-test}
- * Protobuf协议，示例：详见 {baseio-test}
- * LineBased协议（基于换行符的消息分割），示例：详见 {baseio-test}
- * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
- * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
- * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
- * Protobase（自定义协议），支持传输文本和二进制数据及混合数据
+  * Redis协议，示例：详见 {baseio-test}
+  * Protobuf协议，示例：详见 {baseio-test}
+  * LineBased协议（基于换行符的消息分割），示例：详见 {baseio-test}
+  * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
+  * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
+  * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
+  * Protobase（自定义协议），支持传输文本和二进制数据及混合数据
 * 压力测试
- * 超过200W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-documents/load-test/load-test-http.txt)
+  * 超过200W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-documents/load-test/load-test-http.txt)
  
 ## 快速入门
 
@@ -60,8 +60,9 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 		};
 		
 		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-		//use java aio
-//		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+		
+		// use java aio
+		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
 		
 		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 		
@@ -93,8 +94,9 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 		};
 		
 		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-		//use java aio
-//		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+		
+		// use java aio
+		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
 				
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
