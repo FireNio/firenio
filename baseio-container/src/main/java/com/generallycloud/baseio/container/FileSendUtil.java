@@ -45,7 +45,7 @@ public class FileSendUtil {
 		
 		for (int i = 0; i < time; i++) {
 			
-			FileUtil.readFromtInputStream(inputStream, cache);
+			FileUtil.readInputStream(inputStream, cache);
 			
 			ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(),serviceName);
 			
@@ -56,7 +56,7 @@ public class FileSendUtil {
 			session.flush(f);
 		}
 		
-		int r = FileUtil.readFromtInputStream(inputStream, cache);
+		int r = FileUtil.readInputStream(inputStream, cache);
 		
 		json.put(FileReceiveUtil.IS_END, true);
 		

@@ -113,7 +113,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 		
 		String spPath = context.getRootLocalAddres() + "conf/server.properties";
 		
-		FixedProperties fixedProperties = FileUtil.readProperties(spPath, Encoding.UTF8);
+		FixedProperties fixedProperties = FileUtil.readPropertiesByFile(spPath, Encoding.UTF8);
 		
 		String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
 		String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
