@@ -102,7 +102,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			return;
 		}
 			
-		byte [] data = FileUtil.readFileToByteArray(file);
+		byte [] data = FileUtil.readBytesByFile(file);
 		
 		f.setResponseHeader("Content-Type", entity.contentType);
 		f.setResponseHeader("Connection", "keep-alive");
