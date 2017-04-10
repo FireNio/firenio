@@ -311,7 +311,7 @@ public final class SelfSignedCertificate {
 
 		safeDelete(file);
 
-		FileUtil.write(file, text.getBytes(charset));
+		FileUtil.writeByFile(file, text.getBytes(charset));
 
 		logger.info("file generated:{}", file.getCanonicalPath());
 		return file;

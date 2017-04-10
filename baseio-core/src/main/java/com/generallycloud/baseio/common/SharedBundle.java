@@ -97,7 +97,7 @@ public class SharedBundle {
 			return FileUtil.input2String(loadInputStream(file), charset);
 		}
 
-		return FileUtil.readFileToString(cacheFile, charset);
+		return FileUtil.readStringByFile(cacheFile, charset);
 	}
 	
 	public File readFile(String file){
@@ -116,7 +116,7 @@ public class SharedBundle {
 		File cacheFile = readFile(file);
 		
 		if (cacheFile == null) {
-			return FileUtil.openInputStream(file);
+			return FileUtil.readInputStreamByCls(file);
 		}
 		
 		return new FileInputStream(cacheFile);
@@ -131,10 +131,10 @@ public class SharedBundle {
 		File file = fullFilesMap.get(fileName);
 		
 		if (file == null) {
-			return FileUtil.readProperties(fileName, charset);
+			return FileUtil.readPropertiesByCls(fileName, charset);
 		}
 		
-		return FileUtil.readProperties(file, charset);
+		return FileUtil.readPropertiesByFile(file, charset);
 	}
 
 

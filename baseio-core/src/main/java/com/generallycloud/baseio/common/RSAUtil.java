@@ -245,8 +245,8 @@ public class RSAUtil {
 		File privateKeyFile = new File(file + "/private.rsa");
 		String privateKeyString = privateKey.toString();
 
-		FileUtil.write(publicKeyFile, publicKeyString);
-		FileUtil.write(privateKeyFile, privateKeyString);
+		FileUtil.writeByFile(publicKeyFile, publicKeyString);
+		FileUtil.writeByFile(privateKeyFile, privateKeyString);
 
 		System.out.println("Public RSA File:" + publicKeyFile.getCanonicalPath());
 		System.out.println(publicKeyString);
