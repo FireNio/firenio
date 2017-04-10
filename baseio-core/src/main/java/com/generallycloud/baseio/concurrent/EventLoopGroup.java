@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.live.LifeCycle;
+import com.generallycloud.baseio.LifeCycle;
 
 public interface EventLoopGroup extends LifeCycle{
 

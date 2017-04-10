@@ -17,10 +17,10 @@ package com.generallycloud.baseio.component;
 
 import java.nio.charset.Charset;
 
+import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.common.Attributes;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.live.LifeCycle;
 
 public interface ChannelContext extends Attributes, LifeCycle {
 

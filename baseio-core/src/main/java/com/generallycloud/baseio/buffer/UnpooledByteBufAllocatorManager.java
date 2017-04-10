@@ -15,10 +15,10 @@
  */
 package com.generallycloud.baseio.buffer;
 
+import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.live.AbstractLifeCycle;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 
 /**
  * @author wangkai

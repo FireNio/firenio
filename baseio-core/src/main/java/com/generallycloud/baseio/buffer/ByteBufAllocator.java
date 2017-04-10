@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
-import com.generallycloud.baseio.live.LifeCycle;
+import com.generallycloud.baseio.LifeCycle;
 
 //FIXME 考虑加入free链表
 //FIXME 关闭内存池要与申请内存方法互斥

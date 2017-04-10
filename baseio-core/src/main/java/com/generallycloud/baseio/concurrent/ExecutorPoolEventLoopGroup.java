@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.live.AbstractLifeCycle;
-import com.generallycloud.baseio.live.LifeCycleUtil;
+import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.LifeCycleUtil;
 
 public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle implements ExecutorEventLoopGroup{
 	

@@ -20,11 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorManager;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.live.AbstractLifeCycle;
 
 public abstract class AbstractChannelContext extends AbstractLifeCycle implements ChannelContext {
 

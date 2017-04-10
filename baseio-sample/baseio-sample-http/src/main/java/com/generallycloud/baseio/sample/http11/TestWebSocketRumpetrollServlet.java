@@ -17,6 +17,7 @@ package com.generallycloud.baseio.sample.http11;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
@@ -28,7 +29,6 @@ import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 // FIXME ________根据当前是否正在redeploy来保存和恢复client

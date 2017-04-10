@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -30,7 +31,6 @@ import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 
 /**
  * @author wangkai

@@ -13,40 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.live;
+package com.generallycloud.baseio;
 
-public class AbstractLifeCycleListener implements LifeCycleListener{
+import java.util.EventListener;
 
-	@Override
-	public int lifeCycleListenerSortIndex() {
-		return 0;
-	}
+public interface LifeCycleListener extends EventListener {
+	
+	public abstract int  lifeCycleListenerSortIndex();
+	
+	public abstract void lifeCycleStarting(LifeCycle lifeCycle);
 
-	@Override
-	public void lifeCycleStarting(LifeCycle lifeCycle) {
-		
-	}
+	public abstract void lifeCycleStarted(LifeCycle lifeCycle);
 
-	@Override
-	public void lifeCycleStarted(LifeCycle lifeCycle) {
-		
-	}
+	public abstract void lifeCycleFailure(LifeCycle lifeCycle, Exception exception);
 
-	@Override
-	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-		
-	}
+	public abstract void lifeCycleStopping(LifeCycle lifeCycle);
 
-	@Override
-	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		
-	}
-
-	@Override
-	public void lifeCycleStopped(LifeCycle lifeCycle) {
-		
-	}
-
+	public abstract void lifeCycleStopped(LifeCycle lifeCycle);
 	
 	
 }

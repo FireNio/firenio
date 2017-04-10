@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 
 public abstract class AbstractChannelService implements ChannelService {
 

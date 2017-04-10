@@ -17,6 +17,7 @@ package com.generallycloud.baseio.component;
 
 import java.math.BigDecimal;
 
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
@@ -25,7 +26,6 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.live.LifeCycleUtil;
 import com.generallycloud.baseio.protocol.EmptyReadFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
