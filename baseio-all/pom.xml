@@ -33,7 +33,6 @@
 								<source>../baseio-codec/src/main/java</source>
 								<source>../baseio-container/src/main/java</source>
 								<source>../baseio-core/src/main/java</source>
-								<source>../baseio-front/src/main/java</source>
 								<source>../baseio-http/src/main/java</source>
 								<source>../baseio-jms/src/main/java</source>
 								<source>../baseio-protobase/src/main/java</source>
