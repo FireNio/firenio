@@ -71,11 +71,11 @@ public class AddCommont {
 				
 				if (file.getName().endsWith(".java")) {
 					
-					String content = FileUtil.readFileToString(file, Encoding.UTF8);
+					String content = FileUtil.readStringByFile(file, Encoding.UTF8);
 					
 					content = commont + content;
 					
-					FileUtil.write(file, content.getBytes(Encoding.UTF8),false);
+					FileUtil.writeByFile(file, content.getBytes(Encoding.UTF8),false);
 					
 					System.out.println("File:"+file.getAbsolutePath());
 				}
@@ -115,7 +115,7 @@ public class AddCommont {
 //						}
 					}
 					
-					FileUtil.write(file, ss.toString().getBytes(Encoding.UTF8),false);
+					FileUtil.writeByFile(file, ss.toString().getBytes(Encoding.UTF8),false);
 					
 					System.out.println("File:"+file.getAbsolutePath());
 				}

@@ -32,7 +32,7 @@ public class TestKMPHttpHeader {
 		
 		File file = new File("test.header");
 		
-		String content = FileUtil.readFileToString(file, Encoding.UTF8);
+		String content = FileUtil.readStringByFile(file, Encoding.UTF8);
 		
 		final byte [] array = content.getBytes();
 		

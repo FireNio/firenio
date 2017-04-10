@@ -45,7 +45,7 @@ public class TestTemp22 {
 
 						String code = fname.substring(0, fname.length()-5);
 
-						String content = FileUtil.readFileToString(file, Encoding.UTF8);
+						String content = FileUtil.readStringByFile(file, Encoding.UTF8);
 						
 						int index = content.indexOf("{");
 
@@ -64,7 +64,7 @@ public class TestTemp22 {
 						String newContent = content.substring(0, index + 1)
 								+ append + content.substring(index + 1);
 						
-						FileUtil.write(file, newContent,Encoding.UTF8,false);
+						FileUtil.writeByFile(file, newContent,Encoding.UTF8,false);
 						
 						DebugUtil.debug("file:"+file.getAbsolutePath());
 

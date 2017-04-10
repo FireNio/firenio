@@ -15,8 +15,6 @@
  */ 
 package com.generallycloud.test.nio.protobase;
 
-import java.io.File;
-
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -62,7 +60,7 @@ public class TestSimpleBigParam {
 			builder.append(temp);
 		}
 		ProtobaseReadFuture future = session.request(serviceKey, builder.toString());
-		FileUtil.write(new File(TestSimpleBigParam.class.getName()), future.getReadText());
+		FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
 		System.out.println("处理完成");
 		
 		CloseUtil.close(connector);
