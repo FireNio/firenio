@@ -89,12 +89,12 @@ public class SharedBundle {
 		return classPath;
 	}
 
-	public String loadContent(String file, Charset charset) throws IOException {
+	public String readContent(String file, Charset charset) throws IOException {
 		
 		File cacheFile = readFile(file);
 		
 		if (cacheFile == null) {
-			return FileUtil.input2String(loadInputStream(file), charset);
+			return FileUtil.input2String(readInputStream(file), charset);
 		}
 
 		return FileUtil.readStringByFile(cacheFile, charset);
@@ -111,7 +111,7 @@ public class SharedBundle {
 		return cacheFile;
 	}
 
-	public InputStream loadInputStream(String file) throws IOException {
+	public InputStream readInputStream(String file) throws IOException {
 		
 		File cacheFile = readFile(file);
 		
@@ -136,6 +136,5 @@ public class SharedBundle {
 		
 		return FileUtil.readPropertiesByFile(file, charset);
 	}
-
 
 }
