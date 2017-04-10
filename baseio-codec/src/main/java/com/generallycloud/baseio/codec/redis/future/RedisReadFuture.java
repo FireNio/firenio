@@ -46,7 +46,7 @@ public interface RedisReadFuture extends ReadFuture {
 		public final byte[]	raw;
 
 		RedisCommand() {
-			raw = this.name().getBytes(Encoding.UTF8);
+			raw = name().getBytes();
 		}
 	}
 	
