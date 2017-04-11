@@ -66,8 +66,6 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 				super.accept404(session, f, serviceName);
 				return;
 			}
-			flush(session, f, entity);
-			return;
 		}
 
 		File file = entity.getFile();
