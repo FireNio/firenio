@@ -38,6 +38,8 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
 
 		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
+		
+		f.setResponseHeader("Date", HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
 
 		ByteArrayBuffer os = f.getBinaryBuffer();
 

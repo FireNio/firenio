@@ -12,16 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http11.future;
 
 public class HttpHeader {
 
-	private String name;
-	
-	private String value;
-	
-	private String key;
+	public static final String	CONTENT_TYPE		= "Content-Type";
+	public static final String	CONNECTION		= "Connection";
+	public static final String	LAST_MODIFIED		= "Last-Modified";
+	public static final String	IF_MODIFIED_SINCE	= "If-Modified-Since";
+
+	private String				name;
+
+	private String				value;
+
+	private String				key;
 
 	protected HttpHeader(String name, String value) {
 		this.name = name;
@@ -40,5 +45,5 @@ public class HttpHeader {
 	public String getKey() {
 		return key;
 	}
-	
+
 }
