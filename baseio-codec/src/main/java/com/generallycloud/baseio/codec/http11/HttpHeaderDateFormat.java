@@ -50,6 +50,7 @@ public class HttpHeaderDateFormat {
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
 		calendar.set(Calendar.MINUTE, minute);
 		calendar.set(Calendar.SECOND, second);
+		calendar.set(Calendar.MILLISECOND, 0);
 		return calendar.getTime();
 	}
 
@@ -104,7 +105,7 @@ public class HttpHeaderDateFormat {
 			"Aug", "Sep", "Oct", "Nov", "Dec" };
 
 	public String format(long time) {
-
+		
 		Calendar calendar = Calendar.getInstance(GTM);
 		calendar.setTimeInMillis(time);
 
