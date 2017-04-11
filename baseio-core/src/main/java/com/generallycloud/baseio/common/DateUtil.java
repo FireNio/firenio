@@ -15,23 +15,67 @@
  */ 
 package com.generallycloud.baseio.common;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
 public class DateUtil {
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH:MM:ss:SS");
+	public static final DateFormat	HH_mm_ss			= new SimpleDateFormat("HH:mm:ss");
+	public static final DateFormat	yyyy_MM_dd		= new SimpleDateFormat("yyyy-MM-dd");
+	public static final DateFormat	yyyy_MM_dd_HH_mm_ss	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static final DateFormat	yyyyMMdd_HH_mm_ss	= new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+	public static final DateFormat	yyyyMMdd			= new SimpleDateFormat("yyyyMMdd");
+	public static final DateFormat	yyyyMMddHHmmss		= new SimpleDateFormat("yyyyMMddHHmmss");
 	
-	public static String now(){
-		return sdf.format(new Date());
-		
+	public static Date parseHH_mm_ss(String source){
+		try {
+			return HH_mm_ss.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public static void main(String[] args) {
-		
-		System.out.println(DateUtil.now());
-		
-		
+	public static Date parseyyyy_MM_dd(String source){
+		try {
+			return yyyy_MM_dd.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
+	
+	public static Date parseyyyy_MM_dd_HH_mm_ss(String source){
+		try {
+			return yyyy_MM_dd_HH_mm_ss.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Date parseyyyyMMdd_HH_mm_ss(String source){
+		try {
+			return yyyyMMdd_HH_mm_ss.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Date parseyyyyMMdd(String source){
+		try {
+			return yyyyMMdd.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Date parseyyyyMMddHHmmss(String source){
+		try {
+			return yyyyMMddHHmmss.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }
