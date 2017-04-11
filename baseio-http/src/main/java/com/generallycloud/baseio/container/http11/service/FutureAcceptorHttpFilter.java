@@ -70,9 +70,9 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			return;
 		}
 
-		File file = entity.file;
+		File file = entity.getFile();
 
-		if (file != null && file.lastModified() > entity.lastModify) {
+		if (file != null && file.lastModified() > entity.getLastModify()) {
 
 			synchronized (entity) {
 
@@ -90,7 +90,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			imsTime = HttpHeaderDateFormat.getFormat().parse(ims).getTime();
 		}
 
-		if (imsTime < entity.lastModify) {
+		if (imsTime < entity.getLastModifyGTMTime()) {
 			flush(session, f, entity);
 			return;
 		}
@@ -101,18 +101,17 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	}
 
 	private void flush(SocketSession session, ServerHttpReadFuture future, HttpEntity entity) {
-		future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.contentType);
-		future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.lastModifyGTM);
-		future.write(entity.binary);
+		future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.getContentType());
+		future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.getLastModifyGTM());
+		future.write(entity.getBinary());
 		session.flush(future);
 	}
 
 	private void reloadEntity(HttpEntity entity, SocketChannelContext context, HttpStatus status)
 			throws IOException {
-		File file = entity.file;
-		entity.binary = FileUtil.readBytesByFile(file);
-		entity.lastModify = file.lastModified();
-		entity.lastModifyGTM = HttpHeaderDateFormat.getFormat().format(entity.lastModify);
+		File file = entity.getFile();
+		entity.setBinary(FileUtil.readBytesByFile(file));
+		entity.setLastModify(file.lastModified());
 	}
 
 	@Override
@@ -153,9 +152,8 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 			HttpEntity entity = new HttpEntity();
 
-			entity.contentType = contentType;
-			entity.file = file;
-			entity.lastModify = 0;
+			entity.setContentType(contentType);
+			entity.setFile(file);
 
 			html_cache.put(path, entity);
 
@@ -231,11 +229,10 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 			HttpEntity entity = new HttpEntity();
 
 			//FIXME 处理文件夹
-			entity.contentType = HttpReadFuture.CONTENT_TYPE_TEXT_HTML;
-			entity.file = file;
-			entity.lastModify = System.currentTimeMillis();
-			entity.lastModifyGTM = HttpHeaderDateFormat.getFormat().format(entity.lastModify);
-			entity.binary = b.toString().getBytes(context.getEncoding());
+			entity.setContentType(HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
+			entity.setFile(file);
+			entity.setLastModify(System.currentTimeMillis());
+			entity.setBinary(b.toString().getBytes(context.getEncoding()));
 
 			html_cache.put(staticName, entity);
 		}
@@ -261,11 +258,4 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		return contentType;
 	}
 
-	private class HttpEntity {
-		String	contentType;
-		File		file;
-		long		lastModify;
-		byte[]	binary;
-		String	lastModifyGTM;
-	}
 }
