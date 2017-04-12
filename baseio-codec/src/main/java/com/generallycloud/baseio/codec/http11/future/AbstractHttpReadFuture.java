@@ -56,7 +56,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 	protected static final ProtocolDecoder			WS_PROTOCOL_DECODER	= WS_PROTOCOL_FACTORY.getProtocolDecoder();
 	protected static final ProtocolEncoder			WS_PROTOCOL_ENCODER	= WS_PROTOCOL_FACTORY.getProtocolEncoder();
 	
-	protected ByteArrayBuffer	binaryBuffer;
+	protected ByteArrayBuffer		binaryBuffer;
 	protected boolean				body_complete;
 	protected byte []				bodyArray;
 	protected ByteBuf				bodyContent;
@@ -156,7 +156,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 		
 		host = getRequestHeader("Host");
 
-		String _contentLength = getRequestHeader("Content-Length");
+		String _contentLength = getRequestHeader(HttpHeader.CONTENT_LENGTH);
 
 		int contentLength = 0;
 
@@ -165,7 +165,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 			this.contentLength = contentLength;
 		}
 
-		String contentType = getRequestHeader("Content-Type");
+		String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
 
 		parseContentType(contentType);
 
@@ -527,7 +527,7 @@ public abstract class AbstractHttpReadFuture extends AbstractChannelReadFuture i
 
 		if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
 
-			// 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
+			//FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
 
 			String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 

@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.http11.future;
 public class HttpHeader {
 
 	public static final String	CONTENT_TYPE		= "Content-Type";
+	public static final String	CONTENT_LENGTH	= "Content-Length";
 	public static final String	CONNECTION		= "Connection";
 	public static final String	LAST_MODIFIED		= "Last-Modified";
 	public static final String	IF_MODIFIED_SINCE	= "If-Modified-Since";
