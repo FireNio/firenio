@@ -62,7 +62,6 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		}
 	}
 
-	//FIXME __与dispatch互斥
 	@Override
 	protected void doStop() {
 

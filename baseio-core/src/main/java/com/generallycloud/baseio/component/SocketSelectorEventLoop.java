@@ -36,6 +36,7 @@ import com.generallycloud.baseio.concurrent.LineEventLoop;
  * @author wangkai
  *
  */
+//FIXME 使用ThreadLocal
 public class SocketSelectorEventLoop extends AbstractSelectorLoop implements SocketChannelThreadContext {
 
 	private static final Logger						logger			= LoggerFactory
