@@ -38,7 +38,6 @@ import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 
-//FIXME if-modified-since http code 304 res 
 //FIXME limit too large file
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
@@ -58,8 +57,6 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		ServerHttpReadFuture f = (ServerHttpReadFuture) future;
 
 		if (entity == null) {
-			//FIXME 404 status
-
 			f.setStatus(HttpStatus.C404);
 			entity = html_cache.get("/404.html");
 			if (entity == null) {
@@ -226,7 +223,6 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 			HttpEntity entity = new HttpEntity();
 
-			//FIXME 处理文件夹
 			entity.setContentType(HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
 			entity.setFile(file);
 			entity.setLastModify(System.currentTimeMillis());
