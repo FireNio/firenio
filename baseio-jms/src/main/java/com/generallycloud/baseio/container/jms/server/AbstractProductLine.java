@@ -32,8 +32,8 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
 	protected MQContext					context;
 	protected MessageStorage				storage;
 	protected long						dueTime;
-	protected Map<String, ConsumerQueue>	consumerMap;
-	private Logger						logger	= LoggerFactory.getLogger(AbstractProductLine.class);
+	protected Map<String, ConsumerQueue>		consumerMap;
+	private Logger							logger	= LoggerFactory.getLogger(getClass());
 
 	public AbstractProductLine(MQContext context) {
 

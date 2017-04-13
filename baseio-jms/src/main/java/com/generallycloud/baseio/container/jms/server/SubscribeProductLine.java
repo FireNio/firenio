@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import com.generallycloud.baseio.container.jms.Message;
 
 public class SubscribeProductLine extends AbstractProductLine {
 
-	private Logger	logger	= LoggerFactory.getLogger(SubscribeProductLine.class);
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public SubscribeProductLine(MQContext context) {
 		super(context);
