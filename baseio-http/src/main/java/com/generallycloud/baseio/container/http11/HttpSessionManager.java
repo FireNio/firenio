@@ -29,6 +29,7 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 
 //FIXME 限制最大session数量
 //FIXME 根据当前是否正在redeploy来保存和恢复session
+//FIXME 开放启用session设置
 public class HttpSessionManager extends AbstractEventLoop {
 
 	private static final String				COOKIE_NAME_SESSIONID	= "BSESSIONID";
