@@ -171,5 +171,9 @@ public abstract class AbstractEventLoop implements EventLoop {
 
 	public void wakeup() {
 	}
+	
+	protected Object getRunLock(){
+		return runLock;
+	}
 
 }

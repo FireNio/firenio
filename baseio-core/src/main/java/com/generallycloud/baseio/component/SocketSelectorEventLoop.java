@@ -60,8 +60,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	private SocketSelector							selector			= null;
 
-	private Object									runLock			= new Object();
-
 	private int									runTask			= 0;
 
 	private boolean								hasTask			= false;
@@ -189,18 +187,15 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 	@Override
 	protected void doStop() {
 		
-		synchronized (runLock) {
-			
-			closeEvents(positiveEvents);
-			
-			closeEvents(negativeEvents);
-			
-			CloseUtil.close(selector);
-			
-			ReleaseUtil.release(buf);
-			
-			LifeCycleUtil.stop(unpooledByteBufAllocator);
-		}
+		closeEvents(positiveEvents);
+		
+		closeEvents(negativeEvents);
+		
+		CloseUtil.close(selector);
+		
+		ReleaseUtil.release(buf);
+		
+		LifeCycleUtil.stop(unpooledByteBufAllocator);
 		
 	}
 
@@ -362,7 +357,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 //		}
 		
 		//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
-		synchronized (runLock) {
+		synchronized (getRunLock()) {
 			
 			if (!isRunning()) {
 				CloseUtil.close(event);

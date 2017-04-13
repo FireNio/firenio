@@ -33,8 +33,6 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
 	private ListQueue<Runnable>	jobs;
 	
-	private Object runLock = new Object();
-	
 	@Override
 	protected void doLoop() {
 
@@ -55,7 +53,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
 	//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
 	public void dispatch(Runnable job) throws RejectedExecutionException{
-		synchronized (runLock) {
+		synchronized (getRunLock()) {
 			if (!isRunning() || !jobs.offer(job)) {
 				throw new RejectedExecutionException();
 			}
@@ -65,21 +63,18 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	@Override
 	protected void doStop() {
 
-		synchronized (runLock) {
+		for(;;){
 			
-			for(;;){
-				
-				Runnable runnable = jobs.poll();
-				
-				if (runnable == null) {
-					break;
-				}
-				
-				try {
-					runnable.run();
-				} catch (Throwable e) {
-					logger.errorDebug(e);
-				}
+			Runnable runnable = jobs.poll();
+			
+			if (runnable == null) {
+				break;
+			}
+			
+			try {
+				runnable.run();
+			} catch (Throwable e) {
+				logger.errorDebug(e);
 			}
 		}
 		
