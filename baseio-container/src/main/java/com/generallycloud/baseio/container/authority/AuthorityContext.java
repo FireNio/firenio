@@ -69,7 +69,7 @@ public class AuthorityContext extends AbstractPluginContext {
 	}
 
 	public AuthoritySessionAttachment getSessionAttachment(SocketSession session) {
-		return (AuthoritySessionAttachment) session.getAttachment(getPluginIndex());
+		return (AuthoritySessionAttachment) session.getAttribute(getPluginKey());
 	}
 
 }

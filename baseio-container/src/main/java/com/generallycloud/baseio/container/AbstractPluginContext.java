@@ -25,14 +25,9 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public abstract class AbstractPluginContext extends AbstractInitializeable implements PluginContext {
 
-	private int	pluginIndex;
+	private String pluginKey;
 
 	protected AbstractPluginContext() {
-	}
-
-	@Override
-	public int getPluginIndex() {
-		return pluginIndex;
 	}
 
 	@Override
@@ -63,9 +58,12 @@ public abstract class AbstractPluginContext extends AbstractInitializeable imple
 		
 		super.initialize(context, config);
 		
-		this.pluginIndex = context.getPluginIndex().getAndIncrement();
+		this.pluginKey = "PLUGIN_KEY_"+getClass().getName();
 	}
 	
-	
+	@Override
+	public String getPluginKey() {
+		return pluginKey;
+	}
 
 }

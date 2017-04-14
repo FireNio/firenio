@@ -27,7 +27,7 @@ public class ApplicationContextUtil {
 		
 		AuthorityContext plugin = AuthorityContext.getInstance();
 		
-		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttachment(plugin.getPluginIndex());
+		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttribute(plugin.getPluginKey());
 		
 		if (attachment == null) {
 			return null;

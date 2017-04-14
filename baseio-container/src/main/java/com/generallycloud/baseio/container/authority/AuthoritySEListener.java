@@ -32,7 +32,7 @@ public class AuthoritySEListener extends SocketSessionEventListenerAdapter {
 
 			attachment = new AuthoritySessionAttachment();
 
-			session.setAttachment(context.getPluginIndex(), attachment);
+			session.setAttribute(context.getPluginKey(), attachment);
 		}
 
 	}

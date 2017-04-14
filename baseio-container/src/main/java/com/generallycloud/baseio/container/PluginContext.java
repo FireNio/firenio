@@ -27,6 +27,6 @@ public interface PluginContext extends Initializeable{
 	
 	public abstract void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors);
 	
-	public abstract int getPluginIndex();
+	public abstract String getPluginKey();
 
 }
