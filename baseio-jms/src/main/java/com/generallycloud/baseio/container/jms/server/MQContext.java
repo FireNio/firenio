@@ -51,7 +51,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 	}
 
 	public MQSessionAttachment getSessionAttachment(SocketSession session) {
-		return (MQSessionAttachment) session.getAttachment(this.getPluginIndex());
+		return (MQSessionAttachment) session.getAttribute(getPluginKey());
 	}
 
 	@Override

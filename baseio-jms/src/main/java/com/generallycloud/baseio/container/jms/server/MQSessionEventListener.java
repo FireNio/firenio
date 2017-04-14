@@ -35,7 +35,7 @@ public class MQSessionEventListener extends SocketSessionEventListenerAdapter {
 
 			attachment = new MQSessionAttachment(context);
 
-			session.setAttachment(context.getPluginIndex(), attachment);
+			session.setAttribute(context.getPluginKey(), attachment);
 		}
 	}
 
