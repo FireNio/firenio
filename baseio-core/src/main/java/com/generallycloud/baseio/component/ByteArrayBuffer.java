@@ -15,14 +15,17 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import com.generallycloud.baseio.common.Encoding;
+
 //FIXME 用到这里的检查是否需要实例化
 public class ByteArrayBuffer extends OutputStream {
 
-	private byte	buffer[];
+	private byte	cache[];
 	private int	count;
 
 	public ByteArrayBuffer() {
@@ -32,9 +35,9 @@ public class ByteArrayBuffer extends OutputStream {
 	public ByteArrayBuffer(byte[] buffer) {
 		this(buffer, buffer.length);
 	}
-	
-	public ByteArrayBuffer(byte[] buffer,int length) {
-		this.buffer = buffer;
+
+	public ByteArrayBuffer(byte[] buffer, int length) {
+		this.cache = buffer;
 		this.count = length;
 	}
 
@@ -42,7 +45,7 @@ public class ByteArrayBuffer extends OutputStream {
 		if (size < 0) {
 			throw new IllegalArgumentException("Negative initial size: " + size);
 		}
-		buffer = new byte[size];
+		cache = new byte[size];
 	}
 
 	public void reset() {
@@ -53,49 +56,40 @@ public class ByteArrayBuffer extends OutputStream {
 		return count;
 	}
 
-	/**
-	 * return the array of this stream, maybe size() < array().length
-	 * 
-	 * @return
-	 */
 	public byte[] array() {
-		return buffer;
+		return cache;
 	}
 
 	@Override
 	public String toString() {
-		if (count == 0) {
-			return null;
-		}
-		return new String(buffer, 0, count);
+		return toString(Encoding.UTF8);
 	}
 
 	public String toString(Charset charset) {
-		return new String(buffer, 0, count, charset);
+		if (count == 0) {
+			return null;
+		}
+		return new String(cache, 0, count);
 	}
 
 	@Override
 	public void write(int b) {
 		int newcount = count + 1;
-		if (newcount > buffer.length) {
-			buffer = Arrays.copyOf(buffer, buffer.length << 1);
+		if (newcount > cache.length) {
+			cache = Arrays.copyOf(cache, cache.length << 1);
 		}
-		buffer[count] = (byte) b;
+		cache[count] = (byte) b;
 		count = newcount;
 	}
 
 	@Override
 	public void write(byte bytes[], int offset, int length) {
-		ensureCapacity(count + length);
-		System.arraycopy(bytes, offset, buffer, count, length);
-	}
-
-	private void ensureCapacity(int newcount) {
-		if (newcount > buffer.length) {
-			int newLength = buffer.length + buffer.length >> 1;
-			buffer = Arrays.copyOf(buffer, Math.max(newLength << 1, newcount));
+		int newcount = count + length;
+		if (newcount > cache.length) {
+			cache = Arrays.copyOf(cache, Math.max(cache.length << 1, newcount));
 		}
-		this.count = newcount;
+		System.arraycopy(bytes, offset, cache, count, length);
+		count = newcount;
 	}
 
 	@Override
@@ -103,4 +97,8 @@ public class ByteArrayBuffer extends OutputStream {
 		write(bytes, 0, bytes.length);
 	}
 
+	public void write2OutputStream(OutputStream out) throws IOException {
+		out.write(cache, 0, count);
+	}
+	
 }
