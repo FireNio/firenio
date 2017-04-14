@@ -19,10 +19,6 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface BalanceReadFuture extends ReadFuture {
 
-	public static int	BROADCAST	= 1;
-
-	public static int	PUSH		= 0;
-	
 	public abstract Object getSessionKey();
 
 	public abstract boolean isBroadcast();
