@@ -67,7 +67,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			return;
 		}
 		
-		RTPSessionAttachment attachment = (RTPSessionAttachment)session.getAttachment(context.getPluginIndex());
+		RTPSessionAttachment attachment = (RTPSessionAttachment)session.getAttribute(context.getPluginKey());
 		
 		RTPRoom room = attachment.getRtpRoom();
 		

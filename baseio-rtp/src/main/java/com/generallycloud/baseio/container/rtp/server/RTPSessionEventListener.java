@@ -32,9 +32,8 @@ public class RTPSessionEventListener extends SocketSessionEventListenerAdapter {
 
 			attachment = new RTPSessionAttachment(context);
 
-			session.setAttachment(context.getPluginIndex(), attachment);
+			session.setAttribute(context.getPluginKey(), attachment);
 		}
-
 	}
 
 	@Override

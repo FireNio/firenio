@@ -78,7 +78,7 @@ public class RTPContext extends AbstractPluginContext {
 	}
 
 	public RTPSessionAttachment getSessionAttachment(SocketSession session) {
-		return (RTPSessionAttachment) session.getAttachment(this.getPluginIndex());
+		return (RTPSessionAttachment) session.getAttribute(getPluginKey());
 	}
 
 	public RTPRoomFactory getRTPRoomFactory() {
