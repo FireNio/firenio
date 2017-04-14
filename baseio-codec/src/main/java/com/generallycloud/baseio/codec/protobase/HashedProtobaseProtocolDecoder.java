@@ -52,8 +52,8 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
  */
 public class HashedProtobaseProtocolDecoder extends ProtobaseProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER_WITHBINARY			= 20;
-	public static final int	PROTOCOL_HEADER_NO_BINARY	= 16;
+	public static final int	PROTOCOL_HEADER_WITHBINARY		= 20;
+	public static final int	PROTOCOL_HEADER_NO_BINARY		= 16;
 
 	public HashedProtobaseProtocolDecoder(int limit) {
 		super(limit);
