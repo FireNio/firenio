@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import javax.net.ssl.SSLEngine;
@@ -28,13 +28,12 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 
 public abstract class SocketChannelSessionImpl extends AbstractSession implements SocketSession {
 
-	protected SocketChannel			channel;
-	protected Object[]				attachments;
+	protected SocketChannel channel;
 
 	public SocketChannelSessionImpl(SocketChannel channel) {
 		this.channel = channel;
 	}
-	
+
 	@Override
 	public SocketChannelContext getContext() {
 		return getChannel().getContext();
@@ -54,22 +53,6 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 	public String getProtocolId() {
 		return getChannel().getProtocolFactory().getProtocolId();
 	}
-	
-	@Override
-	public void setAttachment(int index, Object attachment) {
-		if (attachments == null) {
-			attachments = new Object[getContext().getSessionAttachmentSize()];
-		}
-		this.attachments[index] = attachment;
-	}
-	
-	@Override
-	public Object getAttachment(int index) {
-		if (attachments == null) {
-			return null;
-		}
-		return attachments[index];
-	}
 
 	@Override
 	public boolean isEnableSSL() {
@@ -78,7 +61,7 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 
 	@Override
 	public void flush(ReadFuture future) {
-		getChannel().flush((ChannelReadFuture)future);
+		getChannel().flush((ChannelReadFuture) future);
 	}
 
 	@Override
