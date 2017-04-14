@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -32,7 +34,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestBalanceClient {
 
@@ -81,8 +82,8 @@ public class TestBalanceClient {
 
 			int fid = Math.abs(new Random().nextInt());
 			
-			ProtobaseReadFuture future = ReadFutureFactory.create(session,fid, "service-name");
-
+			HashedProtobaseReadFuture future = new HashedProtobaseReadFutureImpl(context,"future-name");
+			
 			future.write("你好！");
 			
 			future.setHashCode(fid);

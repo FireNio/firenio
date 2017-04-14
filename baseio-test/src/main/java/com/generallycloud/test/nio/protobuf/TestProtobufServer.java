@@ -16,9 +16,10 @@
 package com.generallycloud.test.nio.protobuf;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.protobuf.ProtobufProtocolFactory;
-import com.generallycloud.baseio.codec.protobuf.future.ProtobufIOEventHandle;
-import com.generallycloud.baseio.codec.protobuf.future.ProtobufReadFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -30,30 +31,31 @@ import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest;
 public class TestProtobufServer {
 
 	public static void main(String[] args) throws Exception {
+		
+		ProtobufUtil protobufUtil = new ProtobufUtil();
 
-		ProtobufIOEventHandle eventHandleAdaptor = new ProtobufIOEventHandle() {
+		protobufUtil.regist(SearchRequest.getDefaultInstance());
+
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
 				
-				ProtobufReadFuture f = (ProtobufReadFuture) future;
+				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
 				
-				SearchRequest req =  (SearchRequest) f.getMessage();
+				SearchRequest req =  (SearchRequest) protobufUtil.getMessage(f);
 
 				String message = "yes server already accept your message:\n" + req;
 
 				System.out.println(message);
 				
-				
 				SearchRequest res = SearchRequest.newBuilder().mergeFrom(req).setQuery("query_______").build();
 				
-				f.writeProtobuf(res.getClass().getName(), res);
+				protobufUtil.writeProtobuf(res.getClass().getName(), res,f);
 				
 				session.flush(future);
 			}
 		};
-		
-		eventHandleAdaptor.regist(SearchRequest.getDefaultInstance());
 		
 		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
@@ -67,7 +69,7 @@ public class TestProtobufServer {
 
 //		context.setBeatFutureFactory(new NIOBeatFutureFactory());
 
-		context.setProtocolFactory(new ProtobufProtocolFactory());
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
 
 		acceptor.bind();
 	}

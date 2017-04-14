@@ -15,13 +15,25 @@
  */ 
 package com.generallycloud.test.nio.others;
 
+import com.generallycloud.baseio.component.ByteArrayBuffer;
+
 public class TempTest {
 	
+	private static ByteArrayBuffer writeBinaryBuffer;
+	
 	public static void main(String[] args) {
-		String str = new String(new byte[]{13,10,13,10,94});
 		
-		System.out.println(str);
+		writeBinary("12345123451234512345".getBytes(), 0, 20);
 		
+	}
+	
+	public static void writeBinary(byte[] bytes, int offset, int length) {
+
+		if (writeBinaryBuffer == null) {
+			writeBinaryBuffer = new ByteArrayBuffer();
+		}
+
+		writeBinaryBuffer.write(bytes, offset, length);
 	}
 	
 }

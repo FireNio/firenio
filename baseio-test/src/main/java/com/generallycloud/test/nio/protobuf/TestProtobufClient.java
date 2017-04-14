@@ -12,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobuf;
 
-import com.generallycloud.baseio.codec.protobuf.ProtobufProtocolFactory;
-import com.generallycloud.baseio.codec.protobuf.future.ProtobufIOEventHandle;
-import com.generallycloud.baseio.codec.protobuf.future.ProtobufReadFuture;
-import com.generallycloud.baseio.codec.protobuf.future.ProtobufReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -36,43 +37,46 @@ public class TestProtobufClient {
 
 	public static void main(String[] args) throws Exception {
 
-		ProtobufIOEventHandle eventHandleAdaptor = new ProtobufIOEventHandle() {
+		ProtobufUtil protobufUtil = new ProtobufUtil();
+
+		protobufUtil.regist(SearchRequest.getDefaultInstance());
+
+		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
 			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				
-				ProtobufReadFuture f = (ProtobufReadFuture) future;
-				
-				SearchRequest res =  (SearchRequest) f.getMessage();
+
+				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+
+				SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
 
 				System.out.println();
-				System.out.println("________"+res);
+				System.out.println("________" + res);
 				System.out.println();
 			}
 		};
-		
-		eventHandleAdaptor.regist(SearchRequest.getDefaultInstance());
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+
+		SocketChannelContext context = new NioSocketChannelContext(
+				new ServerConfiguration(18300));
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
+
 		context.addSessionEventListener(new LoggerSocketSEListener());
 
-//		context.addSessionEventListener(new SessionActiveSEListener());
-		
-//		context.setBeatFutureFactory(new FLBeatFutureFactory());
+		//		context.addSessionEventListener(new SessionActiveSEListener());
 
-		context.setProtocolFactory(new ProtobufProtocolFactory());
-		
+		//		context.setBeatFutureFactory(new FLBeatFutureFactory());
+
+		context.setProtocolFactory(new ProtobaseProtocolFactory());
+
 		SocketSession session = connector.connect();
-		
-		ProtobufReadFuture f = new ProtobufReadFutureImpl(context);
+
+		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(context);
 
 		ByteString byteString = ByteString.copyFrom("222".getBytes());
-		
+
 		SearchRequest request = SearchRequest
 				.newBuilder()
 				.setCorpus(Corpus.IMAGES)
@@ -82,10 +86,10 @@ public class TestProtobufClient {
 				.setResultPerPage(-1)
 				.build();
 
-		f.writeProtobuf(request);
+		protobufUtil.writeProtobuf(request, f);
 
 		session.flush(f);
-		
+
 		ThreadUtil.sleep(100);
 
 		CloseUtil.close(connector);

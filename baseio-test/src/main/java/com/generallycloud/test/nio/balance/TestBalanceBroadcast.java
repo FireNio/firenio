@@ -17,6 +17,8 @@ package com.generallycloud.test.nio.balance;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -28,7 +30,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
 
 public class TestBalanceBroadcast {
 
@@ -69,7 +70,7 @@ public class TestBalanceBroadcast {
 
 		for (;session.isOpened();) {
 
-			ProtobaseReadFuture future = ReadFutureFactory.create(session, "broadcast");
+			HashedProtobaseReadFuture future = new HashedProtobaseReadFutureImpl(context,"broadcast");
 			
 			future.setBroadcast(true);
 
