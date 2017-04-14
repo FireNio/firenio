@@ -32,8 +32,10 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 //FIXME 开放启用session设置
 public class HttpSessionManager extends AbstractEventLoop {
 
-	private static final String				COOKIE_NAME_SESSIONID	= "BSESSIONID";
+	private String							COOKIE_NAME_SESSIONID	= "BSESSIONID";
 
+	private Object							sleepLock				= new Object();
+	
 	private ConcurrentMap<String, HttpSession>	sessions				= new ConcurrentHashMap<String, HttpSession>();
 
 	public void putSession(String sessionID, HttpSession session) {
@@ -95,9 +97,9 @@ public class HttpSessionManager extends AbstractEventLoop {
 	}
 
 	private void sleep(long time) {
-		synchronized (this) {
+		synchronized (sleepLock) {
 			try {
-				this.wait(time);
+				sleepLock.wait(time);
 			} catch (InterruptedException e) {
 				DebugUtil.debug(e);
 			}
@@ -106,8 +108,8 @@ public class HttpSessionManager extends AbstractEventLoop {
 
 	@Override
 	public void wakeup() {
-		synchronized (this) {
-			this.notify();
+		synchronized (sleepLock) {
+			sleepLock.notify();
 		}
 		super.wakeup();
 	}
