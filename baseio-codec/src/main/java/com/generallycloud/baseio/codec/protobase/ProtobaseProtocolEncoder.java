@@ -87,12 +87,9 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 			return encode(allocator, f, future_name_array, text_array, binary);
 		}
 		
-		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
-		byte byte0 = 0b01000000;
-
-		if (f.isBroadcast()) {
-			byte0 = 0b01100000;
-		}
+		int header_length = getHeaderLengthNoBinary();
+		
+		byte byte0 = getFirstByte();
 
 		int all_length = header_length + future_name_length + text_length;
 
@@ -101,8 +98,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(byte0);
 		buf.putByte(future_name_length);
 		buf.putInt(f.getFutureId());
-		buf.putInt(f.getSessionId());
-		buf.putInt(f.getHashCode());
+		putHeaderExtend(f,buf);
 		buf.putUnsignedShort(text_length);
 
 		buf.put(future_name_array);
@@ -113,6 +109,26 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		return new ChannelWriteFutureImpl(future, buf.flip());
 	}
+	
+	protected void putHeaderExtend(ProtobaseReadFuture future,ByteBuf buf){
+		
+	}
+	
+	private byte getFirstByte(){
+		return ProtobaseProtocolDecoder.PROTOCOL_PACKET;
+	}
+	
+	private byte getBinaryFirstByte(){
+		return ProtobaseProtocolDecoder.PROTOCOL_HAS_BINARY | ProtobaseProtocolDecoder.PROTOCOL_PACKET;
+	}
+	
+	protected int getHeaderLengthNoBinary(){
+		return ProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
+	}
+	
+	protected int getHeaderLengthWithBinary(){
+		return ProtobaseProtocolDecoder.PROTOCOL_HEADER_WITH_BINARY;
+	}
 
 	private ChannelWriteFuture encode(ByteBufAllocator allocator, ProtobaseReadFuture f,
 			byte[] future_name_array, byte[] text_array, ByteArrayBuffer binary)
@@ -120,14 +136,9 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
 		byte future_name_length = (byte) future_name_array.length;
 		int text_length = text_array.length;
-		int header_length = ProtobaseProtocolDecoder.PROTOCOL_HEADER;
+		int header_length = getHeaderLengthWithBinary();
 		int binary_length = binary.size();
-		byte byte0 = 0x50;
-
-		//0x50=01010000,0x70=01110000
-		if (f.isBroadcast()) {
-			byte0 = 0x70;
-		}
+		byte byte0 = getBinaryFirstByte();
 
 		int all_length = header_length + future_name_length + text_length + binary_length;
 
@@ -136,8 +147,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(byte0);
 		buf.putByte((byte) (future_name_length));
 		buf.putInt(f.getFutureId());
-		buf.putInt(f.getSessionId());
-		buf.putInt(f.getHashCode());
+		putHeaderExtend(f,buf);
 		buf.putUnsignedShort(text_length);
 		buf.putInt(binary_length);
 

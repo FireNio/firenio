@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.balance.AbstractBalanceReadFuture;
-import com.generallycloud.baseio.balance.BalanceReadFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -30,25 +28,24 @@ import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.Session;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.protocol.AbstractChannelReadFuture;
 
 /**
  *
  */
-public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
+public class ProtobaseReadFutureImpl extends AbstractChannelReadFuture
 		implements ProtobaseReadFuture {
 
-	private boolean			body_complete;
-	private ByteBuf			buf;
-	private int				futureId;
-	private String				futureName;
-	private boolean			header_complete;
-	private Parameters			parameters;
-	private int				sessionId;
-	private int				hashCode;
+	private boolean		body_complete;
+	private ByteBuf		buf;
+	private int			futureId;
+	private String			futureName;
+	private boolean		header_complete;
+	private Parameters		parameters;
 	private ByteArrayBuffer	writeBinaryBuffer;
 
-	protected int				future_name_length;
-	protected int				textLength;
+	protected int			future_name_length;
+	protected int			textLength;
 
 	// for ping & pong
 	public ProtobaseReadFutureImpl(SocketChannelContext context) {
@@ -64,15 +61,12 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	}
 
 	public ProtobaseReadFutureImpl(SocketChannelContext context, String futureName) {
-		super(context);
-		this.futureName = futureName;
+		this(context, 0, futureName);
 	}
 
-	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf,boolean isBroadcast)
-			throws IOException {
+	public ProtobaseReadFutureImpl(SocketSession session, ByteBuf buf) {
 		super(session.getContext());
 		this.buf = buf;
-		this.isBroadcast = isBroadcast;
 	}
 
 	private void doBodyComplete(Session session, ByteBuf buf) {
@@ -99,24 +93,26 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 		this.future_name_length = buf.getUnsignedByte();
 
 		this.futureId = buf.getInt();
-		
-		this.sessionId = buf.getInt();
-		
-		this.hashCode = buf.getInt();
+
+		this.generateHeaderExtend(buf);
 
 		this.textLength = buf.getUnsignedShort();
 
-		int all_length = getAllLength(session,buf);
+		this.generateHeaderBinary(buf);
 
-		reallocateBuf(buf, all_length);
+		reallocateBuf(buf);
 	}
-	
-	protected int getAllLength(Session session, ByteBuf buf){
-		return future_name_length + textLength;
+
+	protected void generateHeaderBinary(ByteBuf buf) {
+
 	}
-	
-	protected void reallocateBuf(ByteBuf buf,int all_length){
-		buf.reallocate(all_length);
+
+	protected void generateHeaderExtend(ByteBuf buf) {
+
+	}
+
+	protected void reallocateBuf(ByteBuf buf) {
+		buf.reallocate(future_name_length + textLength);
 	}
 
 	protected void gainBinary(ByteBuf buf, int offset) {
@@ -140,11 +136,6 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	@Override
 	public String getFutureName() {
 		return futureName;
-	}
-
-	@Override
-	public int getHashCode() {
-		return hashCode;
 	}
 
 	@Override
@@ -215,35 +206,8 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 	}
 
 	@Override
-	public Object getSessionKey() {
-		return getSessionId();
-	}
-
-	@Override
-	public int getSessionId() {
-		return sessionId;
-	}
-
-	@Override
-	public void setSessionId(int sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	@Override
-	public void setHashCode(int hashCode) {
-		this.hashCode = hashCode;
-	}
-
-	@Override
 	public String toString() {
 		return getFutureName() + "@" + getReadText();
-	}
-
-	@Override
-	public BalanceReadFuture translate() {
-		write(getReadText());
-		writeBinary(getBinary());
-		return this;
 	}
 
 	@Override
@@ -266,16 +230,22 @@ public class ProtobaseReadFutureImpl extends AbstractBalanceReadFuture
 
 	@Override
 	public void writeBinary(byte[] bytes, int offset, int length) {
-
 		if (writeBinaryBuffer == null) {
-			writeBinaryBuffer = new ByteArrayBuffer();
+			if (offset != 0) {
+				byte [] copy = new byte[length - offset];
+				System.arraycopy(bytes, offset, copy, 0, length);
+				writeBinaryBuffer = new ByteArrayBuffer(copy,length);
+				return;
+			}
+			writeBinaryBuffer = new ByteArrayBuffer(bytes,length);
+			return;
 		}
-
 		writeBinaryBuffer.write(bytes, offset, length);
 	}
 
-	protected void setFutureName(String futureName) {
+	@Override
+	public void setFutureName(String futureName) {
 		this.futureName = futureName;
 	}
-	
+
 }

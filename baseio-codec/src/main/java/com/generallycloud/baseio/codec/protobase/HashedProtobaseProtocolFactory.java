@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.protobuf;
+package com.generallycloud.baseio.codec.protobase;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public class ProtobufProtocolFactory implements ProtocolFactory {
+public class HashedProtobaseProtocolFactory implements ProtocolFactory {
 
 	private int limit;
 
-	public ProtobufProtocolFactory() {
+	public HashedProtobaseProtocolFactory() {
 		this(1024 * 8);
 	}
 
-	public ProtobufProtocolFactory(int limit) {
+	public HashedProtobaseProtocolFactory(int limit) {
 		this.limit = limit;
 	}
 
 	@Override
 	public ProtocolDecoder getProtocolDecoder() {
-		return new ProtobufProtocolDecoder(limit);
+		return new HashedProtobaseProtocolDecoder(limit);
 	}
 
 	@Override
 	public ProtocolEncoder getProtocolEncoder() {
-		return new ProtobufProtocolEncoder();
+		return new HashedProtobaseProtocolEncoder();
 	}
 
 	@Override
 	public String getProtocolId() {
-		return "Protobuf";
+		return "HashedProtobase";
 	}
-
 }

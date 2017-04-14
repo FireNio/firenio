@@ -12,28 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.balance;
+ */
+package com.generallycloud.baseio.codec.protobase.future;
 
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.protocol.AbstractChannelReadFuture;
+import com.generallycloud.baseio.balance.SessionIdBalanceReadFuture;
 
-public abstract class AbstractBalanceReadFuture extends AbstractChannelReadFuture implements BalanceReadFuture {
+/**
+ * @author wangkai
+ *
+ */
+public interface SessionIdProtobaseReadFuture
+		extends ProtobaseReadFuture, SessionIdBalanceReadFuture {
 
-	protected boolean	isBroadcast;
-
-	protected AbstractBalanceReadFuture(SocketChannelContext context) {
-		super(context);
-	}
-
-	@Override
-	public boolean isBroadcast() {
-		return isBroadcast;
-	}
-	
-	@Override
-	public void setBroadcast(boolean isBroadcast) {
-		this.isBroadcast = isBroadcast;
-	}
-	
 }

@@ -12,20 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.codec.protobuf.future;
+ */
+package com.generallycloud.baseio.codec.protobuf;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
-public abstract class ProtobufIOEventHandle extends IoEventHandleAdaptor {
+public class ProtobufUtil {
 
-	private Map<String, Parser<? extends MessageLite>>	parses	= new HashMap<String, Parser<? extends MessageLite>>();
+	private Map<String, Parser<? extends MessageLite>> parses = new HashMap<String, Parser<? extends MessageLite>>();
 
 	public void regist(String name, Parser<? extends MessageLite> parser) {
 		parses.put(name, parser);
@@ -36,7 +36,8 @@ public abstract class ProtobufIOEventHandle extends IoEventHandleAdaptor {
 		parses.put(messageLite.getClass().getName(), messageLite.getParserForType());
 	}
 
-	public Parser<? extends MessageLite> getParser(String name) throws InvalidProtocolBufferException {
+	public Parser<? extends MessageLite> getParser(String name)
+			throws InvalidProtocolBufferException {
 
 		Parser<? extends MessageLite> parser = parses.get(name);
 
@@ -45,6 +46,30 @@ public abstract class ProtobufIOEventHandle extends IoEventHandleAdaptor {
 		}
 
 		return parser;
+	}
+
+	public MessageLite getMessage(ProtobaseReadFuture future)
+			throws InvalidProtocolBufferException {
+
+		Parser<? extends MessageLite> parser = getParser(future.getFutureName());
+
+		return parser.parseFrom(future.getBinary());
+	}
+
+	public void writeProtobuf(MessageLite messageLite, ProtobaseReadFuture future)
+			throws InvalidProtocolBufferException {
+		writeProtobuf(messageLite.getClass().getName(), messageLite, future);
+	}
+
+	public void writeProtobuf(String parserName, MessageLite messageLite,
+			ProtobaseReadFuture future) throws InvalidProtocolBufferException {
+
+		future.setFutureName(parserName);
+
+		// FIXME 判断array是否过大
+		byte[] array = messageLite.toByteArray();
+
+		future.writeBinary(array, 0, array.length);
 	}
 
 }

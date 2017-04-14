@@ -22,52 +22,34 @@ import com.generallycloud.baseio.component.SocketSession;
 /**
  *
  */
-public class ProtobaseBinaryReadFutureImpl extends ProtobaseReadFutureImpl {
+public class HashedProtobaseBinaryReadFutureImpl extends SessionIdProtobaseBinaryReadFutureImpl
+		implements HashedProtobaseReadFuture {
 
-	private byte[]	binary;
-	private int	binaryLength;
-	private int	binaryLimit;
-
-	public ProtobaseBinaryReadFutureImpl(SocketChannelContext context) {
+	public HashedProtobaseBinaryReadFutureImpl(SocketChannelContext context) {
 		super(context);
 	}
 
-	public ProtobaseBinaryReadFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) {
-		super(session, buf);
-		this.binaryLimit = binaryLimit;
+	public HashedProtobaseBinaryReadFutureImpl(SocketSession session, ByteBuf buf,
+			int binaryLimit, boolean isBroadcast) {
+		super(session, buf, binaryLimit, isBroadcast);
+	}
+
+	private int		hashCode;
+
+	@Override
+	public void setHashCode(int hashCode) {
+		this.hashCode = hashCode;
 	}
 
 	@Override
-	protected void generateHeaderBinary(ByteBuf buf) {
-		binaryLength = buf.getInt();
+	public int getHashCode() {
+		return hashCode;
 	}
 
 	@Override
-	protected void reallocateBuf(ByteBuf buf) {
-
-		int all_length = future_name_length + textLength + binaryLength;
-
-		buf.reallocate(all_length, binaryLimit);
-	}
-
-	protected void gainBinary(ByteBuf buf, int offset) {
-		buf.skipBytes(future_name_length + textLength);
-		binary = buf.getBytes();
-	}
-
-	@Override
-	public byte[] getBinary() {
-		return binary;
-	}
-
-	@Override
-	public int getBinaryLength() {
-		return binaryLength;
-	}
-
-	@Override
-	public boolean hasBinary() {
-		return true;
+	protected void generateHeaderExtend(ByteBuf buf) {
+		super.generateHeaderExtend(buf);
+		this.hashCode = buf.getInt();
 	}
 
 }

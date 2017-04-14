@@ -12,11 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.codec.protobuf;
+ */
+package com.generallycloud.baseio.codec.protobase.future;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolEncoder;
+import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
 
-public class ProtobufProtocolEncoder extends ProtobaseProtocolEncoder {
+/**
+ * @author wangkai
+ *
+ */
+public interface HashedProtobaseReadFuture
+		extends SessionIdProtobaseReadFuture, HashedBalanceReadFuture {
 
 }
