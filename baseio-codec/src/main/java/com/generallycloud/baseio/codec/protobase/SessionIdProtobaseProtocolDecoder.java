@@ -33,18 +33,19 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
  *  +      -       -       -       -       -       -       -       -      +
  *  |      0       1       2       3       4       5       6       7      | 
  *  +      -       -       -       -       -       -       -       -      +
- *  |       message   |   is    | has  |  has  |  has  |                  |
- *  |        type     |broadcast| sid  | hcode | binary|                  |
+ *  |       message   |   is    | has   |                                 |
+ *  |        type     |broadcast| binary|                                 |
  *  +---------------------------------------------------------------------+
  *  
  *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]
  *  B0:2  	: 推送类型 [0=PUSH,1=BRODCAST]
- *  B0:3		: 是否带有二进制数据1=true,0=false
+ *  B0:3		: 是否带有二进制数据[1=true,0=false]
  *  B0:4-7	: 预留
- *  B1		: future  name  length
- *  B4	 	: future  id
- *  B2	 	：text          length
- *  B4	 	：binary        length //FIXME 是否应该设置为两字节？
+ *  B1		: future   name  length
+ *  B4	 	: future   id
+ *  B4	 	: session  id
+ *  B2	 	：text           length
+ *  B4	 	：binary         length //FIXME 是否应该设置为两字节？
  * 
  * </pre>
  */
