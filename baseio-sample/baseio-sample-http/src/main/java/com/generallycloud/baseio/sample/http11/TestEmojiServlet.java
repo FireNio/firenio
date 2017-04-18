@@ -21,6 +21,7 @@ import java.util.Random;
 
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.baseio.common.EmojiUtil;
+import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
@@ -39,7 +40,7 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
 		builder.append(
 				"<div id=\"container\" style=\"width: 90%;margin-left: auto;margin-right: auto;margin-top: 4%;font-size: 26px;color: rgb(175, 46, 46);\">\n");
 
-		List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes());
+		List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Encoding.UTF8));
 		
 		List<String> rgbList = getRGBList(String.valueOf(new Random().nextInt(56)+200), emojiList.size());
 		
