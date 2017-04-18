@@ -75,11 +75,11 @@ public class EmojiUtil {
 		List<String> list = new ArrayList<>(array.length * 2 / 7);
 		for (int i = 0; i < array.length;) {
 			if (array[i] == -16) {
-				list.add(new String(array, i, 4));
+				list.add(new String(array, i, 4,Encoding.UTF8));
 				i += 4;
 			} else {
 				//array[i] == -30 || array[i] == -17 || array[i] == -29
-				list.add(new String(array, i, 3));
+				list.add(new String(array, i, 3,Encoding.UTF8));
 				i += 3;
 			}
 		}
