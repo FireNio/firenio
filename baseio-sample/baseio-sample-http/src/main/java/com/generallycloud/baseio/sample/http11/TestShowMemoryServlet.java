@@ -23,7 +23,7 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.container.HtmlUtil;
+import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpContext;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
@@ -80,15 +80,8 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 		builder.append(";\n</BR>服务运行时间：");
 		builder.append(hour + "H;");
 		builder.append("		</div>\n");
-		builder.append("		<hr>\n");
 
-		builder.append("<p style=\"color: #FDA58C\">");
-		builder.append("	Powered by baseio@");
-		builder.append("	<a style=\"color:#F94F4F;\" href=\"https://github.com/generallycloud/baseio#readme\">");
-		builder.append("		https://github.com/generallycloud/baseio");
-		builder.append("	</a>");
-		builder.append("</p>");
-		
+		builder.append(HtmlUtil.HTML_POWER_BY);
 		builder.append(HtmlUtil.HTML_BOTTOM);
 
 		future.write(builder.toString());
