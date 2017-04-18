@@ -33,8 +33,8 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.HtmlUtil;
 import com.generallycloud.baseio.container.configuration.Configuration;
+import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 
