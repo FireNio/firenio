@@ -26,6 +26,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.FileUtil;
 
 public class SSLSocketClient {
 
@@ -54,21 +55,30 @@ public class SSLSocketClient {
 		// 初始化
 		context.init(null, new TrustManager[] { x509m }, new SecureRandom());
 		SSLSocketFactory factory = context.getSocketFactory();
-		SSLSocket s = (SSLSocket) factory.createSocket("localhost", 443);
+		SSLSocket s = (SSLSocket) factory.createSocket("localhost", 18300);
 		System.out.println("ok");
 
 		OutputStream output = s.getOutputStream();
 		InputStream input = s.getInputStream();
 
-		output.write("alert".getBytes());
+		int length = 50000;
+		StringBuilder b = new StringBuilder(length+1);
+		for (int i = 0; i < length; i++) {
+			b.append('a');
+		}
+		b.append('\n');
+		
+		output.write(b.toString().getBytes());
 		System.out.println("sent: alert");
 		output.flush();
 
-		byte[] buf = new byte[1024];
+		byte[] buf = new byte[length + 200];
 		int len = input.read(buf);
 		
 		CloseUtil.close(output);
 		CloseUtil.close(input);
-		System.out.println("received:" + new String(buf, 0, len));
+		String str = new String(buf, 0, len);
+		FileUtil.writeByCls("test.txt", str,false);
+		System.out.println("received:" + str);
 	}
 }

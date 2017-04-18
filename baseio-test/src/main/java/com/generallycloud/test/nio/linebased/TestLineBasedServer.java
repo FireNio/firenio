@@ -15,19 +15,26 @@
  */ 
 package com.generallycloud.test.nio.linebased;
 
+import java.io.File;
+
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.linebased.LineBasedProtocolFactory;
+import com.generallycloud.baseio.common.SharedBundle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
+import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestLineBasedServer {
 
 	public static void main(String[] args) throws Exception {
+		
+		SharedBundle bundle = new SharedBundle().loadAllProperties();
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
@@ -48,7 +55,14 @@ public class TestLineBasedServer {
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
-		context.setProtocolFactory(new LineBasedProtocolFactory());
+		context.setProtocolFactory(new LineBasedProtocolFactory(1024 * 1000));
+		
+		File certificate = bundle.readFile("generallycloud.com.crt");
+		File privateKey = bundle.readFile("generallycloud.com.key");
+
+		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
+		
+		context.setSslContext(sslContext);
 
 		acceptor.bind();
 	}
