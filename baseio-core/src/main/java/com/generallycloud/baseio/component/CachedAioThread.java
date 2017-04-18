@@ -1,6 +1,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
 public class CachedAioThread extends Thread implements SocketChannelThreadContext {
@@ -16,6 +17,9 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
 		this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
 		this.readCompletionHandler = new ReadCompletionHandler(
 				channelContext.getChannelByteBufReader());
+		if (context.isEnableSSL()) {
+			sslHandler = context.getSslContext().newSslHandler(context);
+		}
 	}
 
 	private ExecutorEventLoop		executorEventLoop		= null;
@@ -27,6 +31,8 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
 	private ReadCompletionHandler		readCompletionHandler	= null;
 
 	private WriteCompletionHandler	writeCompletionHandler	= null;
+
+	private SslHandler				sslHandler			= null;
 
 	@Override
 	public AioSocketChannelContext getChannelContext() {
@@ -54,6 +60,11 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
 
 	public WriteCompletionHandler getWriteCompletionHandler() {
 		return writeCompletionHandler;
+	}
+
+	@Override
+	public SslHandler getSslHandler() {
+		return sslHandler;
 	}
 
 }

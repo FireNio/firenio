@@ -29,7 +29,7 @@ class JdkSslEngine extends SSLEngine {
 
 	JdkSslEngine(SSLEngine engine) {
 		this.engine = engine;
-		session = new JdkSslSession(engine);
+		this.session = new JdkSslSession(engine);
 	}
 
 	@Override

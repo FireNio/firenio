@@ -27,7 +27,7 @@ final class JdkDefaultApplicationProtocolNegotiator implements JdkApplicationPro
         @Override
         public SSLEngine wrapSslEngine(SSLEngine engine, JdkApplicationProtocolNegotiator applicationNegotiator,
                 boolean isServer) {
-            return engine;
+     	   return new JdkSslEngine(engine);
         }
     };
 

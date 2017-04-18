@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -30,8 +29,6 @@ public interface SocketSession extends Session {
 	public abstract boolean isEnableSSL();
 
 	public abstract SSLEngine getSSLEngine();
-
-	public abstract SslHandler getSslHandler();
 
 	public abstract ProtocolDecoder getProtocolDecoder();
 

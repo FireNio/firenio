@@ -224,15 +224,6 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 		UnsafeSocketSession session = getSession();
 
-		// FIXME 部分情况下可以不在业务线程做wrapssl
-		if (isEnableSSL()) {
-			try {
-				future.wrapSSL(this, sslHandler);
-			} catch (Exception e) {
-				future.onException(session, e);
-			}
-		}
-		
 		synchronized (getCloseLock()) {
 			
 			try {
@@ -326,6 +317,11 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			}
 		}
 	}
+	
+	@Override
+	public SslHandler getSslHandler() {
+		return sslHandler;
+	}
 
 	@Override
 	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
@@ -361,6 +357,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	public ExecutorEventLoop getExecutorEventLoop() {
 		return executorEventLoop;
 	}
+	
+	protected abstract SocketChannelThreadContext getSocketChannelThreadContext();
 
 	@Override
 	public void fireOpend() {
@@ -368,7 +366,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		SocketChannelContext context = getContext();
 
 		if (context.isEnableSSL()) {
-			this.sslHandler = context.getSslContext().getSslHandler();
+			this.sslHandler = getSocketChannelThreadContext().getSslHandler();
 			this.sslEngine = context.getSslContext().newEngine();
 		}
 
@@ -431,6 +429,11 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			}
 			linkable = linkable.getNext();
 		}
+	}
+	
+	@Override
+	public boolean inSelectorLoop() {
+		return getSocketChannelThreadContext().inEventLoop();
 	}
 
 }

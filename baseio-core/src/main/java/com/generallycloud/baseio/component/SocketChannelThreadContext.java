@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
 /**
@@ -31,5 +32,7 @@ public interface SocketChannelThreadContext {
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 
 	public abstract boolean inEventLoop();
+	
+	public abstract SslHandler getSslHandler();
 
 }

@@ -63,8 +63,6 @@ public abstract class SslContext {
 		}
 	}
 
-	private SslHandler sslHandler;
-
 	/**
 	 * Returns the default server-side implementation provider currently in
 	 * use.
@@ -95,13 +93,6 @@ public abstract class SslContext {
 		}
 	}
 
-	public void initialize(SocketChannelContext context){
-		if (sslHandler != null) {
-			return;
-		}
-		this.sslHandler = new SslHandler(context);
-	}
-	
 	static SslContext newServerContextInternal(SslProvider provider, X509Certificate[] trustCertCollection,
 			TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
 			String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
@@ -305,8 +296,8 @@ public abstract class SslContext {
 		}
 	}
 	
-	public SslHandler getSslHandler() {
-		return sslHandler;
+	public SslHandler newSslHandler(SocketChannelContext context) {
+		return new SslHandler(context);
 	}
 
 	static X509Certificate[] toX509Certificates(File file) throws CertificateException {

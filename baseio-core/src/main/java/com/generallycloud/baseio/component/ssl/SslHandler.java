@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.io.IOException;
@@ -23,7 +23,9 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -35,47 +37,85 @@ public class SslHandler {
 
 	private ChannelWriteFuture	EMPTY_CWF	= null;
 
+	private ByteBuf			tempDst;
+
 	public SslHandler(SocketChannelContext context) {
-		this.EMPTY_CWF = new ChannelWriteFutureImpl(
-				EmptyReadFuture.getInstance()
-				, EmptyByteBuf.getInstance());
+		this.EMPTY_CWF = new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+				EmptyByteBuf.getInstance());
+	}
+
+	private ByteBuf getTempDst(SSLEngine engine) {
+		if (tempDst == null) {
+			synchronized (this) {
+				if (tempDst != null) {
+					return tempDst;
+				}
+				ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
+				int packetBufferSize = engine.getSession().getPacketBufferSize();
+				tempDst = allocator.allocate(packetBufferSize);
+			}
+		}
+		return tempDst;
 	}
 
 	private ByteBuf allocate(SocketChannel channel, int capacity) {
 		return channel.getByteBufAllocator().allocate(capacity);
 	}
 
-	public ByteBuf wrap(SocketChannel channel,ByteBuf src) throws IOException {
-		
+	public ByteBuf wrap(SocketChannel channel, ByteBuf src) throws IOException {
+
 		SSLEngine engine = channel.getSSLEngine();
-		
-		ByteBuf dst = allocate(channel,engine.getSession().getPacketBufferSize() * 2);
+
+		ByteBuf dst = getTempDst(engine);
+
+		ByteBuf out = null;
 
 		try {
 
 			for (;;) {
 
+				dst.clear();
+
 				SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
 
 				Status status = result.getStatus();
-				
+
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 
 				synchByteBuf(result, src, dst);
 
 				if (status == Status.CLOSED) {
-					return gc(channel,dst.flip());
+					return gc(channel, dst.flip());
 				} else {
 					switch (handshakeStatus) {
 					case NEED_UNWRAP:
+						return gc(channel, dst.flip());
+					case NEED_WRAP:
+						out = allocate(channel, 75);
+						out.read(dst.flip());
+						break;
 					case NOT_HANDSHAKING:
-						return gc(channel,dst.flip());
+						if (src.hasRemaining()) {
+							if (out == null) {
+								int outLength = ((src.limit() / src.position()) + 1)
+										* (dst.position() - src.position()) + src.limit();
+								out = allocate(channel, outLength);
+							}
+							out.read(dst.flip());
+							break;
+						}
+						if (out != null) {
+							out.read(dst.flip());
+							return out.flip();
+						}
+						return gc(channel, dst.flip());
 					case NEED_TASK:
 						runDelegatedTasks(engine);
 						break;
 					case FINISHED:
 						channel.finishHandshake(null);
-						break;
+						out.read(dst.flip());
+						return out.flip();
 					default:
 						// continue
 						break;
@@ -84,7 +124,7 @@ public class SslHandler {
 			}
 		} catch (Throwable e) {
 
-			ReleaseUtil.release(dst);
+			ReleaseUtil.release(out);
 
 			if (e instanceof IOException) {
 
@@ -96,9 +136,9 @@ public class SslHandler {
 	}
 
 	//FIXME 部分buf不需要gc
-	private ByteBuf gc(SocketChannel channel,ByteBuf buf) throws IOException {
+	private ByteBuf gc(SocketChannel channel, ByteBuf buf) throws IOException {
 
-		ByteBuf out = allocate(channel,buf.limit());
+		ByteBuf out = allocate(channel, buf.limit());
 
 		try {
 
@@ -111,83 +151,73 @@ public class SslHandler {
 			throw e;
 		}
 
-		ReleaseUtil.release(buf);
-
 		return out.flip();
 	}
 
 	public ByteBuf unwrap(SocketChannel channel, ByteBuf src) throws IOException {
 
-		ByteBuf dst = allocate(channel,src.capacity() * 2);
-
-		boolean release = true;
-
 		SSLEngine sslEngine = channel.getSSLEngine();
 
-		try {
-			for (;;) {
+		ByteBuf dst = getTempDst(sslEngine);
 
-				SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
-				
-				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+		for (;;) {
 
-				synchByteBuf(result, src, dst);
+			dst.clear();
 
-				switch (handshakeStatus) {
-				case NEED_UNWRAP:
-					return null;
-				case NEED_WRAP:
-					channel.flush(EMPTY_CWF.duplicate());
-					return null;
-				case NEED_TASK:
-					runDelegatedTasks(sslEngine);
-					continue;
-				case FINISHED:
-					channel.finishHandshake(null);
-					return null;
-				case NOT_HANDSHAKING:
-					release = false;
-					return dst.flip();
-				default:
-					throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
-				}
-			}
-		} finally {
+			SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
 
-			if (release) {
-				ReleaseUtil.release(dst);
+			HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+
+			synchByteBuf(result, src, dst);
+
+			switch (handshakeStatus) {
+			case NEED_UNWRAP:
+				return null;
+			case NEED_WRAP:
+				channel.flush(EMPTY_CWF.duplicate());
+				return null;
+			case NEED_TASK:
+				runDelegatedTasks(sslEngine);
+				continue;
+			case FINISHED:
+				channel.finishHandshake(null);
+				return null;
+			case NOT_HANDSHAKING:
+				return gc(channel, dst.flip());
+			default:
+				throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
 			}
 		}
 	}
-	
-	private void synchByteBuf(SSLEngineResult result,ByteBuf src,ByteBuf dst){
-		
+
+	private void synchByteBuf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
+
 		//FIXME 同步。。。。。
 		src.reverse();
 		dst.reverse();
-		
-//		int bytesConsumed = result.bytesConsumed();
-//		int bytesProduced = result.bytesProduced();
-//		
-//		if (bytesConsumed > 0) {
-//			src.skipBytes(bytesConsumed);
-//		}
-//
-//		if (bytesProduced > 0) {
-//			dst.skipBytes(bytesProduced);
-//		}
+
+		//		int bytesConsumed = result.bytesConsumed();
+		//		int bytesProduced = result.bytesProduced();
+		//		
+		//		if (bytesConsumed > 0) {
+		//			src.skipBytes(bytesConsumed);
+		//		}
+		//
+		//		if (bytesProduced > 0) {
+		//			dst.skipBytes(bytesProduced);
+		//		}
 	}
 
 	private void runDelegatedTasks(SSLEngine engine) {
-		
+
 		for (;;) {
-		
+
 			Runnable task = engine.getDelegatedTask();
-			
+
 			if (task == null) {
 				break;
 			}
-			
+
 			task.run();
 		}
 	}

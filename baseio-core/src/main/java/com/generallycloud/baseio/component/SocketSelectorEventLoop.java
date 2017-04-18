@@ -28,6 +28,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
@@ -37,44 +38,47 @@ import com.generallycloud.baseio.concurrent.LineEventLoop;
  *
  */
 //FIXME 使用ThreadLocal
-public class SocketSelectorEventLoop extends AbstractSelectorLoop implements SocketChannelThreadContext {
+public class SocketSelectorEventLoop extends AbstractSelectorLoop
+		implements SocketChannelThreadContext {
 
-	private static final Logger						logger			= LoggerFactory
+	private static final Logger				logger				= LoggerFactory
 			.getLogger(SocketSelectorEventLoop.class);
 
-	private ByteBuf								buf				= null;
+	private ByteBuf						buf					= null;
 
-	private ChannelByteBufReader						byteBufReader		= null;
+	private ChannelByteBufReader				byteBufReader			= null;
 
-	private NioSocketChannelContext					context			= null;
+	private NioSocketChannelContext			context				= null;
 
-	private ExecutorEventLoop						executorEventLoop	= null;
+	private ExecutorEventLoop				executorEventLoop		= null;
 
-	private boolean								isWaitForRegist	= false;
+	private boolean						isWaitForRegist		= false;
 
-	private SessionManager							sessionManager		= null;
+	private SessionManager					sessionManager			= null;
 
-	private SocketSelectorEventLoopGroup				eventLoopGroup		= null;
+	private SocketSelectorEventLoopGroup		eventLoopGroup			= null;
 
-	private SocketSelectorBuilder						selectorBuilder	= null;
+	private SocketSelectorBuilder				selectorBuilder		= null;
 
-	private SocketSelector							selector			= null;
+	private SocketSelector					selector				= null;
 
-	private int									runTask			= 0;
+	private int							runTask				= 0;
 
-	private boolean								hasTask			= false;
+	private boolean						hasTask				= false;
 
-	private int									eventQueueSize		= 0;
+	private int							eventQueueSize			= 0;
 
-	private BufferedArrayList<SelectorLoopEvent>	negativeEvents		= new BufferedArrayList<>();
+	private SslHandler						sslHandler			= null;
 
-	private BufferedArrayList<SelectorLoopEvent>	positiveEvents		= new BufferedArrayList<>();
+	private AtomicBoolean					selecting				= new AtomicBoolean();
 
-	private AtomicBoolean							selecting			= new AtomicBoolean();
+	private ReentrantLock					isWaitForRegistLock		= new ReentrantLock();
 
-	private ReentrantLock							isWaitForRegistLock	= new ReentrantLock();
+	private UnpooledByteBufAllocator			unpooledByteBufAllocator	= null;
 
-	private UnpooledByteBufAllocator					unpooledByteBufAllocator;
+	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<>();
+
+	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<>();
 
 	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int eventQueueSize,
 			int coreIndex) {
@@ -84,8 +88,9 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		this.eventLoopGroup = group;
 
 		this.context = group.getChannelContext();
-		
-		this.selectorBuilder = ((NioChannelService) context.getChannelService()).getSelectorBuilder();
+
+		this.selectorBuilder = ((NioChannelService) context.getChannelService())
+				.getSelectorBuilder();
 
 		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
 
@@ -96,6 +101,10 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		this.eventQueueSize = eventQueueSize;
 
 		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
+		
+		if (context.isEnableSSL()) {
+			sslHandler = context.getSslContext().newSslHandler(context);
+		}
 	}
 
 	public ReentrantLock getIsWaitForRegistLock() {
@@ -186,17 +195,17 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 	@Override
 	protected void doStop() {
-		
+
 		closeEvents(positiveEvents);
-		
+
 		closeEvents(negativeEvents);
-		
+
 		CloseUtil.close(selector);
-		
+
 		ReleaseUtil.release(buf);
-		
+
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
-		
+
 	}
 
 	private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
@@ -280,7 +289,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 			if (isMainEventLoop()) {
 				sessionManager.loop();
 			}
-			
+
 			checkTask(true);
 
 		} catch (Throwable e) {
@@ -344,21 +353,21 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 	public void dispatch(SelectorLoopEvent event) {
 
 		//FIXME 找出这里出问题的原因
-//		if (inEventLoop()) {
-//
-//			if (!isRunning()) {
-//				CloseUtil.close(event);
-//				return;
-//			}
-//
-//			handleEvent(event);
-//
-//			return;
-//		}
-		
+		//		if (inEventLoop()) {
+		//
+		//			if (!isRunning()) {
+		//				CloseUtil.close(event);
+		//				return;
+		//			}
+		//
+		//			handleEvent(event);
+		//
+		//			return;
+		//		}
+
 		//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
 		synchronized (getRunLock()) {
-			
+
 			if (!isRunning()) {
 				CloseUtil.close(event);
 				return;
@@ -372,9 +381,9 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 			events.offer(event);
 		}
-		
+
 		wakeup();
-		
+
 	}
 
 	private void handleEvent(SelectorLoopEvent event) {
@@ -433,9 +442,9 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 
 		handleEvents(eventBuffer);
 	}
-	
-	private void checkTask(boolean refresh){
-		
+
+	private void checkTask(boolean refresh) {
+
 		hasTask = positiveEvents.getBufferSize() > 0;
 
 		if (hasTask && refresh) {
@@ -465,6 +474,11 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 			}
 		}
 	}
+	
+	@Override
+	public SslHandler getSslHandler() {
+		return sslHandler;
+	}
 
 	public interface SelectorLoopEvent extends Closeable {
 
@@ -474,7 +488,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop implements Soc
 		 * @return true 需要再次处理，false处理结束后丢弃
 		 */
 		void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException;
-		
+
 		boolean isComplete();
 
 		boolean isPositive();

@@ -293,12 +293,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		return !isNetworkWeak();
 	}
 
-	public boolean isReadable() {
-		return selectionKey.isReadable();
+	@Override
+	protected SocketChannelThreadContext getSocketChannelThreadContext() {
+		return selectorEventLoop;
 	}
-
-	public boolean inSelectorLoop() {
-		return selectorEventLoop.inEventLoop();
-	}
-
+	
 }

@@ -33,6 +33,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	protected ReadFuture				readFuture;
 	protected ByteBuf					buf;
 	protected Linkable<ChannelWriteFuture>	next;
+	protected boolean					needSSL;
 
 	private static final Logger			logger	= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
 
@@ -40,6 +41,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 		this.readFuture = readFuture;
 		this.buf = buf;
 		this.buf.nioBuffer();
+		this.needSSL = readFuture.getContext().isEnableSSL();
 	}
 	
 	@Override
@@ -76,6 +78,10 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 
 	@Override
 	public void write(SocketChannel channel) throws IOException {
+		if (needSSL) {
+			needSSL = false;
+			wrapSSL(channel);
+		}
 		channel.write(buf);
 	}
 	
@@ -124,10 +130,11 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 		return this;
 	}
 
-	@Override
-	public void wrapSSL(SocketChannel channel, SslHandler handler) throws IOException {
-
+	private void wrapSSL(SocketChannel channel) throws IOException {
+		// FIXME 部分情况下可以不在业务线程做wrapssl
 		ByteBuf old = this.buf;
+		
+		SslHandler handler = channel.getSslHandler();
 
 		try {
 

@@ -51,7 +51,7 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 		buf.flip();
 
-		SslHandler handler = context.getSslContext().getSslHandler();
+		SslHandler handler = channel.getSslHandler();
 
 		ByteBuf old = this.buf;
 

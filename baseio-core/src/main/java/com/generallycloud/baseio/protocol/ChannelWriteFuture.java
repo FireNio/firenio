@@ -17,13 +17,10 @@ package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
 
-import javax.net.ssl.SSLException;
-
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.ssl.SslHandler;
 
 public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFuture> {
 
@@ -43,5 +40,4 @@ public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFu
 	
 	public abstract int getBinaryLength();
 
-	public abstract void wrapSSL(SocketChannel channel, SslHandler handler) throws SSLException, IOException;
 }

@@ -134,7 +134,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		EmptyReadFuture.initializeReadFuture(this);
 
 		if (isEnableSSL()) {
-			this.sslContext.initialize(this);
+//			this.sslContext.initialize(this);
 		}
 
 		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();

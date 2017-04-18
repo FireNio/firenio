@@ -21,6 +21,7 @@ import java.net.SocketOption;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
@@ -75,6 +76,8 @@ public interface SocketChannel extends DuplexChannel {
 	public abstract boolean isEnableSSL();
 
 	public abstract SSLEngine getSSLEngine();
+	
+	public abstract SslHandler getSslHandler();
 
 	public abstract void finishHandshake(Exception e);
 

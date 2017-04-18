@@ -36,6 +36,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	private ReadCompletionHandler			readCompletionHandler;
 	private WriteCompletionHandler		writeCompletionHandler;
 	private ByteBuf					readCache;
+	private CachedAioThread 				aioThread;
 
 	private static final Logger			logger			= LoggerFactory
 			.getLogger(AioSocketChannel.class);
@@ -49,6 +50,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		this.context = aioThread.getChannelContext();
 		this.readCompletionHandler = aioThread.getReadCompletionHandler();
 		this.writeCompletionHandler = aioThread.getWriteCompletionHandler();
+		this.aioThread = aioThread;
 	}
 
 	@Override
@@ -214,8 +216,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	}
 	
 	@Override
-	public boolean inSelectorLoop() {
-		return Thread.currentThread() instanceof CachedAioThread;
+	protected SocketChannelThreadContext getSocketChannelThreadContext() {
+		return aioThread;
 	}
-
 }

@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
@@ -87,11 +86,6 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 	@Override
 	public ExecutorEventLoop getExecutorEventLoop() {
 		return getChannel().getExecutorEventLoop();
-	}
-
-	@Override
-	public SslHandler getSslHandler() {
-		return getContext().getSslContext().getSslHandler();
 	}
 
 	@Override
