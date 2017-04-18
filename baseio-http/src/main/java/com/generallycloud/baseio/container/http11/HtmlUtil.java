@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.container.http11;
 
 public class HtmlUtil {
 
 	public static final String HTML_HEADER;
+	
+	public static final String HTML_POWER_BY;
 	
 	public static final String HTML_BOTTOM;
 	
@@ -40,6 +42,16 @@ public class HtmlUtil {
 		builder.append("	</head>\n");
 		builder.append("	<body style=\"font-family:Georgia;\">\n");
 		HTML_HEADER = builder.toString();
+		
+		builder = new StringBuilder();
+		builder.append("		<hr>\n");
+		builder.append("<p style=\"color: #FDA58C\">\n");
+		builder.append("	Powered by baseio@\n");
+		builder.append("	<a style=\"color:#F94F4F;\" href=\"https://github.com/generallycloud/baseio#readme\">\n");
+		builder.append("		https://github.com/generallycloud/baseio\n");
+		builder.append("	</a>\n");
+		builder.append("</p>\n");
+		HTML_POWER_BY = builder.toString();
 		
 		builder = new StringBuilder();
 		builder.append("	</body>\n");

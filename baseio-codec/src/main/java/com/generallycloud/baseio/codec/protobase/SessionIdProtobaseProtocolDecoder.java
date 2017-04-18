@@ -33,8 +33,8 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
  *  +      -       -       -       -       -       -       -       -      +
  *  |      0       1       2       3       4       5       6       7      | 
  *  +      -       -       -       -       -       -       -       -      +
- *  |       message   |   is    | has   |                                 |
- *  |        type     |broadcast| binary|                                 |
+ *  |       message    |  has  |   is    |                                |
+ *  |        type      | binary|broadcast|                                |
  *  +---------------------------------------------------------------------+
  *  
  *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]
