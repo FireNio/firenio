@@ -36,6 +36,8 @@ public class HttpApplicationContextEnricher implements ApplicationContextEnriche
 		SocketChannelContext channelContext = context.getChannelContext();
 
 		context.setServiceFilter(new FutureAcceptorHttpFilter());
+		
+		context.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
 
 		channelContext.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
