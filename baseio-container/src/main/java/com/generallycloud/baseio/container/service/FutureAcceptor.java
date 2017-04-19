@@ -32,27 +32,37 @@ import com.generallycloud.baseio.container.PluginContext;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 //FIXME exception
-public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle, ReadFutureAcceptor {
+public final class FutureAcceptor extends AbstractLifeCycle
+		implements LifeCycle, ReadFutureAcceptor {
 
-	private volatile boolean			deploying;
+	private volatile boolean				deploying;
 	private ApplicationContext			context;
 	private FutureAcceptorFilterLoader		filterLoader;
 	private PluginLoader				pluginLoader;
 	private FutureAcceptorFilterWrapper	rootFilter;
 	private FutureAcceptorServiceFilter	serviceFilter;
 	private FutureAcceptorService			appRedeployService;
-	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptor.class);
+	private Logger						logger	= LoggerFactory
+			.getLogger(FutureAcceptor.class);
 
 	public FutureAcceptor(ApplicationContext context, FutureAcceptorServiceFilter serviceFilter) {
 		this.context = context;
 		this.serviceFilter = serviceFilter;
 	}
 
-	private void accept(FutureAcceptorFilterWrapper filter, SocketSession session, ReadFuture future) {
+	@Override
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
+		if (deploying) {
+
+			appRedeployService.accept(session, future);
+
+			return;
+		}
+		
 		try {
 
-			filter.accept(session, future);
+			rootFilter.accept(session, future);
 
 		} catch (Exception e) {
 
@@ -65,30 +75,10 @@ public final class FutureAcceptor extends AbstractLifeCycle implements LifeCycle
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws IOException {
-
-		try {
-
-			if (deploying) {
-
-				appRedeployService.accept(session, future);
-
-				return;
-			}
-
-			accept(rootFilter, session, future);
-
-		} catch (Throwable e) {
-
-			logger.errorDebug(e);
-		}
-	}
-
-	@Override
 	protected void doStart() throws Exception {
-		
+
 		DynamicClassLoader classLoader = context.getClassLoader();
-		
+
 		context.getApplicationExtLoader().loadExts(context, classLoader);
 
 		this.appRedeployService = context.getAppRedeployService();

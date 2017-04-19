@@ -34,6 +34,7 @@ public abstract class FutureAcceptorFilter extends AbstractInitializeable implem
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+		session.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause, state);
 	}
 
 	@Override

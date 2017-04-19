@@ -28,7 +28,7 @@ import com.generallycloud.baseio.protocol.ParametersReadFuture;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 
-	private Logger logger = LoggerFactory.getLogger(AuthorityFilter.class);
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {

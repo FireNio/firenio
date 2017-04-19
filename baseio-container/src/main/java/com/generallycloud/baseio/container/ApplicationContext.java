@@ -30,6 +30,8 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
+import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.container.authority.AuthorityLoginCenter;
@@ -65,6 +67,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private ApplicationExtLoader				applicationExtLoader;
 	private ApplicationConfigurationLoader		acLoader;
 	private AtomicInteger					pluginIndex;
+	private ExceptionCaughtHandle				exceptionCaughtHandle;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
 	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
@@ -108,6 +111,10 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		if (acLoader == null) {
 			acLoader = new FileSystemACLoader();
+		}
+		
+		if (exceptionCaughtHandle == null) {
+			exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
 		}
 		
 		instance = this;
@@ -356,6 +363,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 	 */
 	public boolean isRedeploying() {
 		return redeploying;
+	}
+
+	public ExceptionCaughtHandle getExceptionCaughtHandle() {
+		return exceptionCaughtHandle;
+	}
+
+	public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
+		this.exceptionCaughtHandle = exceptionCaughtHandle;
 	}
 	
 }

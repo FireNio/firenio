@@ -18,6 +18,7 @@ package com.generallycloud.baseio.container;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
@@ -41,12 +42,11 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
 			filterService.accept(session, future);
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 
 			logger.error(e.getMessage(), e);
-
-			exceptionCaught(session, future, e, IoEventState.HANDLE);
 		}
+		
 	}
 
 	public ApplicationContext getApplicationContext() {
@@ -71,6 +71,19 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 		LifeCycleUtil.stop(applicationContext);
 
 		super.destroy(context);
+	}
+	
+	@Override
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+			IoEventState state) {
+		
+		ExceptionCaughtHandle exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
+		
+		if (exceptionCaughtHandle == null) {
+			return;
+		}
+		
+		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}
 
 }
