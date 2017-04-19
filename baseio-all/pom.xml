@@ -81,14 +81,6 @@
 		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-front</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-		
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-http</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
