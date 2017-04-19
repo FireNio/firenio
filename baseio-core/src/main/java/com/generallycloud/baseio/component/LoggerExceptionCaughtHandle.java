@@ -12,25 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ReadFuture;
 
-public class IoProcessReadFutureAcceptor extends AbstractReadFutureAcceptor{
-
+/**
+ * @author wangkai
+ *
+ */
+public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle{
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
 	@Override
-	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {
-		
-		try {
-			
-			eventHandle.accept(session, future);
-
-		} catch (Exception e) {
-
-			future.getIoEventHandle().exceptionCaught(session, future, e, IoEventState.HANDLE);
-		}
+	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+		logger.errorDebug(cause);
 	}
 	
 }
