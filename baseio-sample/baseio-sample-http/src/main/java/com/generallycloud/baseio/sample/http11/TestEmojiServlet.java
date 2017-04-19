@@ -38,7 +38,7 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
 		StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
 
 		builder.append(
-				"<div id=\"container\" style=\"width: 90%;margin-left: auto;margin-right: auto;margin-top: 4%;font-size: 26px;color: rgb(175, 46, 46);\">\n");
+				"<div id=\"container\" style=\"width: 90%;margin-left: auto;margin-right: auto;margin-top: 10px;font-size: 26px;color: rgb(175, 46, 46);\">\n");
 
 		List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Encoding.UTF8));
 		
