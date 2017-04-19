@@ -24,6 +24,7 @@ import com.generallycloud.baseio.balance.reverse.BalanceReverseAcceptorSEListene
 import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
+import com.generallycloud.baseio.component.SilentExceptionCaughtHandle;
 
 //FIXME 增加熔断机制
 public class BalanceContext {
