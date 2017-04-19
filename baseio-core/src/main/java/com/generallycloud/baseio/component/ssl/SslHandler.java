@@ -38,13 +38,10 @@ public class SslHandler {
 	private ChannelWriteFuture	EMPTY_CWF	= null;
 
 	private ByteBuf			tempDst;
-	
-	private boolean			isClient;
 
 	public SslHandler(SocketChannelContext context) {
 		this.EMPTY_CWF = new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
 				EmptyByteBuf.getInstance());
-		this.isClient = context.getSslContext().isClient();
 	}
 
 	private ByteBuf getTempDst(SSLEngine engine) {
@@ -99,12 +96,7 @@ public class SslHandler {
 						return gc(channel, dst.flip());
 					case NEED_WRAP:
 						if (out == null) {
-							if (isClient) {
-								out = allocate(channel, 126);
-								out.read(dst.flip());
-								break;
-							}
-							out = allocate(channel, 75);
+							out = allocate(channel, 128);
 						}
 						out.read(dst.flip());
 						break;
