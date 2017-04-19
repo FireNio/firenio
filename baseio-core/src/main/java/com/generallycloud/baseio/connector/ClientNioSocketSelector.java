@@ -59,6 +59,12 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 			channel.register(getSelector(), SelectionKey.OP_READ);
 
 			SocketChannel socketChannel = newChannel(selectionKey, selectorEventLoop);
+			
+			socketChannel.fireOpend();
+			
+			if (socketChannel.isEnableSSL()) {
+				return;
+			}
 
 			connector.finishConnect(socketChannel.getSession(), null);
 

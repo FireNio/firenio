@@ -24,13 +24,11 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 /**
@@ -90,27 +88,6 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 		wait4connect();
 	}
 
-	protected void finishConnect(UnsafeSocketSession session, Exception exception) {
-
-		if (exception == null) {
-
-			this.session = session;
-
-			LoggerUtil.prettyNIOServerLog(logger, "connected to server @{}", getServerSocketAddress());
-
-			fireSessionOpend();
-
-			this.waiter.setPayload(null);
-
-			if (waiter.isTimeouted()) {
-				CloseUtil.close(this);
-			}
-		} else {
-
-			this.waiter.setPayload(exception);
-		}
-	}
-
 	@Override
 	public NioSocketChannelContext getContext() {
 		return context;
@@ -130,4 +107,10 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
 	}
+	
+	@Override
+	Logger getLogger() {
+		return logger;
+	}
+	
 }

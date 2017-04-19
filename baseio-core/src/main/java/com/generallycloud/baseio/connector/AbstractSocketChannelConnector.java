@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
@@ -29,14 +31,10 @@ import com.generallycloud.baseio.concurrent.Waiter;
  *
  */
 public abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
-
+	
 	protected UnsafeSocketSession	session;
 
 	protected Waiter<Object>		waiter;
-
-	protected void fireSessionOpend() {
-		session.getSocketChannel().fireOpend();
-	}
 
 	@Override
 	public SocketSession getSession() {
@@ -47,6 +45,27 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 	protected boolean canSafeClose() {
 		return session == null
 				|| (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
+	}
+	
+	//FIXME protected
+	public void finishConnect(UnsafeSocketSession session, Throwable exception) {
+		
+		if (exception == null) {
+
+			this.session = session;
+			
+			LoggerUtil.prettyNIOServerLog(getLogger(), "connected to server @{}", getServerSocketAddress());
+
+			this.waiter.setPayload(null);
+			
+			if (waiter.isTimeouted()) {
+				CloseUtil.close(this);
+			}
+			
+		} else {
+
+			this.waiter.setPayload(exception);
+		}
 	}
 
 	@Override
@@ -84,5 +103,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 					getServerSocketAddress(), t.getMessage()), t);
 		}
 	}
+	
+	abstract Logger getLogger();
 
 }

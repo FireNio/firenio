@@ -35,7 +35,7 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.ListQueue;
 import com.generallycloud.baseio.concurrent.ListQueueLink;
-import com.generallycloud.baseio.concurrent.Waiter;
+import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
@@ -55,7 +55,6 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected ProtocolFactory				protocolFactory;
 	protected AtomicInteger					writeFutureLength;
 	protected ExecutorEventLoop				executorEventLoop;
-	protected Waiter<Exception>				handshakeWaiter;
 	protected SSLEngine					sslEngine;
 	protected SslHandler					sslHandler;
 	protected UnsafeSocketSession			session;
@@ -102,7 +101,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	@Override
 	public void finishHandshake(Exception e) {
 		if (getContext().getSslContext().isClient()) {
-			this.handshakeWaiter.setPayload(e);
+			AbstractSocketChannelConnector connector =  (AbstractSocketChannelConnector) getContext().getChannelService();
+			connector.finishConnect(getSession(), e);
 		}
 	}
 
@@ -372,23 +372,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
 
-			handshakeWaiter = new Waiter<Exception>();
-
 			flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
 					EmptyByteBuf.getInstance()));
-			// wait
-
-			if (handshakeWaiter.await(3000)) {// FIXME test
-				CloseUtil.close(this);
-				throw new RuntimeException("hands shake failed");
-			}
-
-			if (handshakeWaiter.getPayload() != null) {
-				throw new RuntimeException(handshakeWaiter.getPayload());
-			}
-
-			handshakeWaiter = null;
-			// success
 		}
 
 		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();

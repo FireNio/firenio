@@ -21,14 +21,11 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.AioSocketChannel;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.CachedAioThread;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
 
 /**
  * @author wangkai
@@ -75,27 +72,6 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 		wait4connect();
 	}
 
-	protected void finishConnect(UnsafeSocketSession session, Throwable exception) {
-
-		if (exception == null) {
-
-			this.session = session;
-
-			LoggerUtil.prettyNIOServerLog(logger, "connected to server @{}", getServerSocketAddress());
-
-			fireSessionOpend();
-
-			this.waiter.setPayload(null);
-
-			if (waiter.isTimeouted()) {
-				CloseUtil.close(this);
-			}
-		} else {
-
-			this.waiter.setPayload(exception);
-		}
-	}
-
 	@Override
 	public AioSocketChannelContext getContext() {
 		return context;
@@ -103,6 +79,11 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
 	@Override
 	protected void destroyService() {
+	}
+	
+	@Override
+	Logger getLogger() {
+		return logger;
 	}
 
 }
