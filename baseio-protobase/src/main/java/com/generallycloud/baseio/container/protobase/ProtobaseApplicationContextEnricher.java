@@ -15,12 +15,15 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
+import java.util.Set;
+
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextEnricher;
+import com.generallycloud.baseio.container.BlackIPFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
 
 /**
@@ -35,6 +38,13 @@ public class ProtobaseApplicationContextEnricher implements ApplicationContextEn
 		SocketChannelContext channelContext = context.getChannelContext();
 
 		context.setServiceFilter(new FutureAcceptorServiceFilter());
+		
+		//FIXME 重复的
+		Set<String> blackIPs = context.getBlackIPs();
+		
+		if (blackIPs != null && !blackIPs.isEmpty()) {
+			channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
+		}
 
 		channelContext.addSessionEventListener(new LoggerSocketSEListener());
 
