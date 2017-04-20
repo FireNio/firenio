@@ -31,7 +31,7 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		this.params = new HashMap<String, String>();
 	}
 
-	protected ServerHttpReadFuture(SocketChannelContext context) {
+	public ServerHttpReadFuture(SocketChannelContext context) {
 		super(context);
 	}
 
