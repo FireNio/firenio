@@ -15,34 +15,36 @@
 	</parent>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.12</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>../baseio-balance/src/main/java</source>
-								<source>../baseio-codec/src/main/java</source>
-								<source>../baseio-container/src/main/java</source>
-								<source>../baseio-core/src/main/java</source>
-								<source>../baseio-http/src/main/java</source>
-								<source>../baseio-jms/src/main/java</source>
-								<source>../baseio-protobase/src/main/java</source>
-								<source>../baseio-rtp/src/main/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.12</version>
+					<executions>
+						<execution>
+							<id>add-source</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>../baseio-balance/src/main/java</source>
+									<source>../baseio-codec/src/main/java</source>
+									<source>../baseio-container/src/main/java</source>
+									<source>../baseio-core/src/main/java</source>
+									<source>../baseio-http/src/main/java</source>
+									<source>../baseio-jms/src/main/java</source>
+									<source>../baseio-protobase/src/main/java</source>
+									<source>../baseio-rtp/src/main/java</source>
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 	<dependencies>
@@ -54,7 +56,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-codec</artifactId>
@@ -62,7 +64,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-container</artifactId>
@@ -70,7 +72,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-core</artifactId>
@@ -78,7 +80,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-http</artifactId>
@@ -86,7 +88,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-jms</artifactId>
@@ -94,7 +96,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-protobase</artifactId>
@@ -102,7 +104,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-rtp</artifactId>
