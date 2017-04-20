@@ -21,6 +21,10 @@ public class SocketSessionManagerSEListener extends SocketSessionEventListenerAd
 	
 	@Override
 	public void sessionOpened(SocketSession session) throws RejectedExecutionException {
+		
+		if (session.isClosed()) {
+			return;
+		}
 
 		SocketChannelContext context = session.getContext();
 		
