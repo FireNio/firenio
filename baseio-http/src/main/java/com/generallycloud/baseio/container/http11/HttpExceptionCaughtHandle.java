@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.container.http11;
 
-import com.generallycloud.baseio.codec.http11.future.EmptyServerHttpReadFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
+import com.generallycloud.baseio.codec.http11.future.ServerHttpReadFuture;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
@@ -41,7 +41,7 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle{
 			return;
 		}
 		
-		EmptyServerHttpReadFuture f = new EmptyServerHttpReadFuture(session.getContext());
+		ServerHttpReadFuture f = new ServerHttpReadFuture(session.getContext());
 		
 		f.write(String.valueOf(cause.getMessage()));
 		
