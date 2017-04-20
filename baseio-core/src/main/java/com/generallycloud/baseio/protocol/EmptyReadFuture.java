@@ -19,17 +19,17 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class EmptyReadFuture extends AbstractReadFuture {
 
-	private static EmptyReadFuture emptyReadFuture = null;
+	private static EmptyReadFuture EMPTY_READFUTURE = null;
 
 	public static void initializeReadFuture(SocketChannelContext context) {
-		if (emptyReadFuture != null) {
+		if (EMPTY_READFUTURE != null) {
 			return;
 		}
-		emptyReadFuture = new EmptyReadFuture(context);
+		EMPTY_READFUTURE = new EmptyReadFuture(context);
 	}
 
 	public static EmptyReadFuture getInstance() {
-		return emptyReadFuture;
+		return EMPTY_READFUTURE;
 	}
 
 	private EmptyReadFuture(SocketChannelContext context) {
@@ -39,6 +39,16 @@ public class EmptyReadFuture extends AbstractReadFuture {
 	@Override
 	public void release() {
 
+	}
+
+	@Override
+	public void write(byte[] bytes, int off, int len) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void write(byte b) {
+		throw new UnsupportedOperationException();
 	}
 
 }
