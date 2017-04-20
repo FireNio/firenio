@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.container.http11;
 
+import java.util.Set;
+
 import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -22,6 +24,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionAliveSEListener;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextEnricher;
+import com.generallycloud.baseio.container.BlackIPFilter;
 import com.generallycloud.baseio.container.http11.service.FutureAcceptorHttpFilter;
 
 /**
@@ -38,7 +41,14 @@ public class HttpApplicationContextEnricher implements ApplicationContextEnriche
 		context.setServiceFilter(new FutureAcceptorHttpFilter());
 		
 		context.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
-
+		
+		//FIXME 重复的
+		Set<String> blackIPs = context.getBlackIPs();
+		
+		if (blackIPs != null && !blackIPs.isEmpty()) {
+			channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
+		}
+		
 		channelContext.setBeatFutureFactory(new WebSocketBeatFutureFactory());
 
 		channelContext.addSessionEventListener(new LoggerSocketSEListener());
@@ -46,6 +56,8 @@ public class HttpApplicationContextEnricher implements ApplicationContextEnriche
 		channelContext.addSessionIdleEventListener(new SocketSessionAliveSEListener());
 		
 		channelContext.setProtocolFactory(new ServerHTTPProtocolFactory());
+	
+		
 	}
 	
 }
