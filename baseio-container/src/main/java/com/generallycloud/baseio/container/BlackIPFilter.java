@@ -15,23 +15,23 @@
  */ 
 package com.generallycloud.baseio.container;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 
-public class IPFilter extends SocketSessionEventListenerAdapter{
+public class BlackIPFilter extends SocketSessionEventListenerAdapter{
 
-	private HashSet<String> blackIPs;
+	private Set<String> blackIPs;
 	
-	public IPFilter(HashSet<String> blackIPs) {
+	public BlackIPFilter(Set<String> blackIPs) {
 		this.blackIPs = blackIPs;
 	}
 
 	@Override
 	public void sessionOpened(SocketSession session) {
-		if (!blackIPs.contains(session.getRemoteAddr())) {
+		if (blackIPs.contains(session.getRemoteAddr())) {
 			CloseUtil.close(session);
 		}
 	}

@@ -16,10 +16,13 @@
 package com.generallycloud.baseio.container.startup;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.FixedProperties;
 import com.generallycloud.baseio.common.Logger;
@@ -74,6 +77,8 @@ public class ApplicationBootstrap {
 		try {
 
 			FixedProperties intfProperties = bundle.readProperties("conf/intf.properties");
+			
+			applicationContext.setBlackIPs(loadBlackIPs(bundle));
 
 			applicationContext.setChannelContext(channelContext);
 
@@ -154,5 +159,25 @@ public class ApplicationBootstrap {
 		}
 
 		startup.bootstrap(args[0]);
+	}
+	
+	private Set<String> loadBlackIPs(SharedBundle bundle){
+		try {
+			String content = bundle.readContent("conf/black-ip.cfg",Encoding.UTF8);
+			if (StringUtil.isNullOrBlank(content)) {
+				return null;
+			}
+			String[] lines = content.split("\n");
+			Set<String> result = new HashSet<>();
+			for(String l : lines){
+				if (StringUtil.isNullOrBlank(l)) {
+					continue;
+				}
+				result.add(l.trim().replace("\r", "").replace("\t", "\t"));
+			}
+			return result;
+		} catch (Exception e) {
+		}
+		return null;
 	}
 }

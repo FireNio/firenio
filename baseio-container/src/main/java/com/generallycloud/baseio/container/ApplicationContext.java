@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
@@ -62,6 +63,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext				channelContext;
 	private Charset						encoding;
+	private Set<String> 					blackIPs;
 	private FutureAcceptorService				appRedeployService;
 	private FutureAcceptor					filterService	;
 	private ApplicationExtLoader				applicationExtLoader;
@@ -371,6 +373,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
 		this.exceptionCaughtHandle = exceptionCaughtHandle;
+	}
+
+	public Set<String> getBlackIPs() {
+		return blackIPs;
+	}
+
+	public void setBlackIPs(Set<String> blackIPs) {
+		this.blackIPs = blackIPs;
 	}
 	
 }
