@@ -61,8 +61,8 @@ public class TestFIxedLengthServer {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		File certificate = bundle.readFile("conf/generallycloud.com.crt");
-		File privateKey = bundle.readFile("conf/generallycloud.com.key");
+		File certificate = bundle.readFile("generallycloud.com.crt");
+		File privateKey = bundle.readFile("generallycloud.com.key");
 
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		
