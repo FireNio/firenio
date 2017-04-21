@@ -15,7 +15,6 @@
  */ 
 package com.generallycloud.baseio.codec.redis.future;
 
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public interface RedisReadFuture extends ReadFuture {
