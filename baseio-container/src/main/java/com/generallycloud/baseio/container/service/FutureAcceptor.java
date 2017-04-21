@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.container.service;
 
-import java.io.IOException;
-
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
