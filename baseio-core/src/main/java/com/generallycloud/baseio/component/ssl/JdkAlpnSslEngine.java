@@ -30,6 +30,7 @@ import com.generallycloud.baseio.component.ssl.JdkApplicationProtocolNegotiator.
 import com.generallycloud.baseio.component.ssl.JdkApplicationProtocolNegotiator.ProtocolSelector;
 
 final class JdkAlpnSslEngine extends JdkSslEngine {
+	
 	private static boolean	available;
 
 	static boolean isAvailable() {
@@ -108,13 +109,13 @@ final class JdkAlpnSslEngine extends JdkSslEngine {
 
 	@Override
 	public void closeInbound() throws SSLException {
-		ALPN.remove(getWrappedEngine());
+		ALPN.remove(unwrap());
 		super.closeInbound();
 	}
 
 	@Override
 	public void closeOutbound() {
-		ALPN.remove(getWrappedEngine());
+		ALPN.remove(unwrap());
 		super.closeOutbound();
 	}
 }

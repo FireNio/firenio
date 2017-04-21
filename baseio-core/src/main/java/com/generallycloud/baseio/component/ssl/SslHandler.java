@@ -36,7 +36,7 @@ import com.generallycloud.baseio.protocol.EmptyReadFuture;
 public class SslHandler {
 
 	private ChannelWriteFuture	EMPTY_CWF	= null;
-
+	
 	private ByteBuf			tempDst;
 
 	public SslHandler(SocketChannelContext context) {
@@ -63,27 +63,16 @@ public class SslHandler {
 	}
 
 	public ByteBuf wrap(SocketChannel channel, ByteBuf src) throws IOException {
-
 		SSLEngine engine = channel.getSSLEngine();
-
 		ByteBuf dst = getTempDst(engine);
-
 		ByteBuf out = null;
-
 		try {
-
 			for (;;) {
-
 				dst.clear();
-
 				SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
-
 				Status status = result.getStatus();
-
 				HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-
 				synchByteBuf(result, src, dst);
-
 				if (status == Status.CLOSED) {
 					return gc(channel, dst.flip());
 				} else {
@@ -123,59 +112,39 @@ public class SslHandler {
 						out.read(dst.flip());
 						return out.flip();
 					default:
-						// continue
 						break;
 					}
 				}
 			}
 		} catch (Throwable e) {
-
 			ReleaseUtil.release(out);
-
 			if (e instanceof IOException) {
-
 				throw (IOException) e;
 			}
-
 			throw new IOException(e);
 		}
 	}
 
 	//FIXME 部分buf不需要gc
 	private ByteBuf gc(SocketChannel channel, ByteBuf buf) throws IOException {
-
 		ByteBuf out = allocate(channel, buf.limit());
-
 		try {
-
 			out.read(buf);
-
 		} catch (Exception e) {
-
 			ReleaseUtil.release(out);
-
 			throw e;
 		}
-
 		return out.flip();
 	}
 
 	public ByteBuf unwrap(SocketChannel channel, ByteBuf src) throws IOException {
-
 		SSLEngine sslEngine = channel.getSSLEngine();
-
 		ByteBuf dst = getTempDst(sslEngine);
-
 		for (;;) {
-
 			dst.clear();
-
 			SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
-
 			HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-
 			synchByteBuf(result, src, dst);
-
 			switch (handshakeStatus) {
 			case NEED_UNWRAP:
 				return null;
@@ -191,17 +160,15 @@ public class SslHandler {
 			case NOT_HANDSHAKING:
 				return gc(channel, dst.flip());
 			default:
-				throw new IllegalStateException("unknown handshake status: " + handshakeStatus);
+				break;
 			}
 		}
 	}
 
 	private void synchByteBuf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
-
 		//FIXME 同步。。。。。
 		src.reverse();
 		dst.reverse();
-
 		//		int bytesConsumed = result.bytesConsumed();
 		//		int bytesProduced = result.bytesProduced();
 		//		
@@ -215,15 +182,11 @@ public class SslHandler {
 	}
 
 	private void runDelegatedTasks(SSLEngine engine) {
-
 		for (;;) {
-
 			Runnable task = engine.getDelegatedTask();
-
 			if (task == null) {
 				break;
 			}
-
 			task.run();
 		}
 	}

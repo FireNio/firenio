@@ -53,14 +53,12 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 		SslHandler handler = channel.getSslHandler();
 
-		ByteBuf old = this.buf;
-
 		try {
 
 			this.buf = handler.unwrap(channel, buf);
 
 		} finally {
-			ReleaseUtil.release(old);
+			ReleaseUtil.release(buf);
 		}
 	}
 
@@ -70,10 +68,6 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 		int length = getEncryptedPacketLength(buf);
 
-		if (length < 1) {
-			throw new ProtocolException("illegal length:" + length);
-		}
-		
 		buf.reallocate(length, limit, true);
 
 		this.length = length;

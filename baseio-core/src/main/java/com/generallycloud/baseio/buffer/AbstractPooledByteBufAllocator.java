@@ -185,6 +185,21 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 			lock.unlock();
 		}
 	}
+	
+	@Override
+	protected void doStop() throws Exception {
+		
+		ReentrantLock lock = this.lock;
+		
+		lock.lock();
+		
+		try{
+			freeMemory();
+		}finally{
+			lock.unlock();
+		}
+		
+	}
 
 	protected abstract void doRelease(ByteBufUnit beginUnit);
 	

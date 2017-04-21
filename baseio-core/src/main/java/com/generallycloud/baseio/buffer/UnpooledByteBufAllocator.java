@@ -103,6 +103,11 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 	public void freeMemory() {
 
 	}
+	
+	@Override
+	protected void doStop() throws Exception {
+		freeMemory();
+	}
 
 	@Override
 	public int getCapacity() {

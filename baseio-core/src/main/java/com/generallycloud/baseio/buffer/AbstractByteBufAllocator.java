@@ -27,11 +27,6 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
 	}
 
 	@Override
-	protected void doStop() throws Exception {
-		this.freeMemory();
-	}
-
-	@Override
 	public ByteBuf allocate(int limit, int maxLimit) {
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);

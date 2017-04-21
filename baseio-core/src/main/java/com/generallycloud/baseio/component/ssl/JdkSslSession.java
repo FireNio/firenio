@@ -16,27 +16,27 @@
 
 package com.generallycloud.baseio.component.ssl;
 
-import javax.net.ssl.SSLEngine;
+import java.security.Principal;
+import java.security.cert.Certificate;
+
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import javax.security.cert.X509Certificate;
-import java.security.Principal;
-import java.security.cert.Certificate;
 
 final class JdkSslSession implements SSLSession, ApplicationProtocolAccessor {
 
-	private SSLEngine	engine;
 	private int		packetBufferSize;
 	private String		applicationProtocol;
+	private SSLSession	sslSession;
 
-	JdkSslSession(SSLEngine engine) {
-		this.engine = engine;
-		this.packetBufferSize = engine.getSession().getPacketBufferSize();
+	JdkSslSession(SSLSession	sslSession) {
+		this.sslSession = sslSession;
+		this.packetBufferSize = sslSession.getPacketBufferSize();
 	}
 
 	private SSLSession unwrap() {
-		return engine.getSession();
+		return sslSession;
 	}
 
 	@Override

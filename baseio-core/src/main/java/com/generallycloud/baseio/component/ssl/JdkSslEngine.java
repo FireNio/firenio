@@ -29,170 +29,170 @@ class JdkSslEngine extends SSLEngine {
 
 	JdkSslEngine(SSLEngine engine) {
 		this.engine = engine;
-		this.session = new JdkSslSession(engine);
+		this.session = new JdkSslSession(engine.getSession());
 	}
-
+	
 	@Override
 	public JdkSslSession getSession() {
 		return session;
 	}
 
-	public SSLEngine getWrappedEngine() {
+	public SSLEngine unwrap() {
 		return engine;
 	}
 
 	@Override
 	public void closeInbound() throws SSLException {
-		engine.closeInbound();
+		unwrap().closeInbound();
 	}
 
 	@Override
 	public void closeOutbound() {
-		engine.closeOutbound();
+		unwrap().closeOutbound();
 	}
 
 	@Override
 	public String getPeerHost() {
-		return engine.getPeerHost();
+		return unwrap().getPeerHost();
 	}
 
 	@Override
 	public int getPeerPort() {
-		return engine.getPeerPort();
+		return unwrap().getPeerPort();
 	}
 
 	@Override
 	public SSLEngineResult wrap(ByteBuffer byteBuffer, ByteBuffer byteBuffer2) throws SSLException {
-		return engine.wrap(byteBuffer, byteBuffer2);
+		return unwrap().wrap(byteBuffer, byteBuffer2);
 	}
 
 	@Override
 	public SSLEngineResult wrap(ByteBuffer[] byteBuffers, ByteBuffer byteBuffer) throws SSLException {
-		return engine.wrap(byteBuffers, byteBuffer);
+		return unwrap().wrap(byteBuffers, byteBuffer);
 	}
 
 	@Override
 	public SSLEngineResult wrap(ByteBuffer[] byteBuffers, int i, int i2, ByteBuffer byteBuffer) throws SSLException {
-		return engine.wrap(byteBuffers, i, i2, byteBuffer);
+		return unwrap().wrap(byteBuffers, i, i2, byteBuffer);
 	}
 
 	@Override
 	public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer byteBuffer2) throws SSLException {
-		return engine.unwrap(byteBuffer, byteBuffer2);
+		return unwrap().unwrap(byteBuffer, byteBuffer2);
 	}
 
 	@Override
 	public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer[] byteBuffers) throws SSLException {
-		return engine.unwrap(byteBuffer, byteBuffers);
+		return unwrap().unwrap(byteBuffer, byteBuffers);
 	}
 
 	@Override
 	public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer[] byteBuffers, int i, int i2) throws SSLException {
-		return engine.unwrap(byteBuffer, byteBuffers, i, i2);
+		return unwrap().unwrap(byteBuffer, byteBuffers, i, i2);
 	}
 
 	@Override
 	public Runnable getDelegatedTask() {
-		return engine.getDelegatedTask();
+		return unwrap().getDelegatedTask();
 	}
 
 	@Override
 	public boolean isInboundDone() {
-		return engine.isInboundDone();
+		return unwrap().isInboundDone();
 	}
 
 	@Override
 	public boolean isOutboundDone() {
-		return engine.isOutboundDone();
+		return unwrap().isOutboundDone();
 	}
 
 	@Override
 	public String[] getSupportedCipherSuites() {
-		return engine.getSupportedCipherSuites();
+		return unwrap().getSupportedCipherSuites();
 	}
 
 	@Override
 	public String[] getEnabledCipherSuites() {
-		return engine.getEnabledCipherSuites();
+		return unwrap().getEnabledCipherSuites();
 	}
 
 	@Override
 	public void setEnabledCipherSuites(String[] strings) {
-		engine.setEnabledCipherSuites(strings);
+		unwrap().setEnabledCipherSuites(strings);
 	}
 
 	@Override
 	public String[] getSupportedProtocols() {
-		return engine.getSupportedProtocols();
+		return unwrap().getSupportedProtocols();
 	}
 
 	@Override
 	public String[] getEnabledProtocols() {
-		return engine.getEnabledProtocols();
+		return unwrap().getEnabledProtocols();
 	}
 
 	@Override
 	public void setEnabledProtocols(String[] strings) {
-		engine.setEnabledProtocols(strings);
+		unwrap().setEnabledProtocols(strings);
 	}
 
 	@Override
 	public void beginHandshake() throws SSLException {
-		engine.beginHandshake();
+		unwrap().beginHandshake();
 	}
 
 	@Override
 	public HandshakeStatus getHandshakeStatus() {
-		return engine.getHandshakeStatus();
+		return unwrap().getHandshakeStatus();
 	}
 
 	@Override
 	public void setUseClientMode(boolean b) {
-		engine.setUseClientMode(b);
+		unwrap().setUseClientMode(b);
 	}
 
 	@Override
 	public boolean getUseClientMode() {
-		return engine.getUseClientMode();
+		return unwrap().getUseClientMode();
 	}
 
 	@Override
 	public void setNeedClientAuth(boolean b) {
-		engine.setNeedClientAuth(b);
+		unwrap().setNeedClientAuth(b);
 	}
 
 	@Override
 	public boolean getNeedClientAuth() {
-		return engine.getNeedClientAuth();
+		return unwrap().getNeedClientAuth();
 	}
 
 	@Override
 	public void setWantClientAuth(boolean b) {
-		engine.setWantClientAuth(b);
+		unwrap().setWantClientAuth(b);
 	}
 
 	@Override
 	public boolean getWantClientAuth() {
-		return engine.getWantClientAuth();
+		return unwrap().getWantClientAuth();
 	}
 
 	@Override
 	public void setEnableSessionCreation(boolean b) {
-		engine.setEnableSessionCreation(b);
+		unwrap().setEnableSessionCreation(b);
 	}
 
 	@Override
 	public boolean getEnableSessionCreation() {
-		return engine.getEnableSessionCreation();
+		return unwrap().getEnableSessionCreation();
 	}
 
 	@Override
 	public SSLParameters getSSLParameters() {
-		return engine.getSSLParameters();
+		return unwrap().getSSLParameters();
 	}
 
 	@Override
 	public void setSSLParameters(SSLParameters sslParameters) {
-		engine.setSSLParameters(sslParameters);
+		unwrap().setSSLParameters(sslParameters);
 	}
 }
