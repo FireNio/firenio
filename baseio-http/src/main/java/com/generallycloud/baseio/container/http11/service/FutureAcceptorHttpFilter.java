@@ -39,7 +39,6 @@ import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 
 //FIXME limit too large file
-//FIXME 500 error of filters
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 	private Logger					logger		= LoggerFactory.getLogger(getClass());
