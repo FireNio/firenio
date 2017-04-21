@@ -19,6 +19,10 @@ import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 
 public class IoProcessReadFutureAcceptor extends AbstractReadFutureAcceptor{
+	
+	public IoProcessReadFutureAcceptor(SocketChannelContext context) {
+		super(context);
+	}
 
 	@Override
 	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {

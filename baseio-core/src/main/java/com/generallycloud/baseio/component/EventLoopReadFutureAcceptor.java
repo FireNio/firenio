@@ -21,6 +21,10 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
 
 public class EventLoopReadFutureAcceptor extends AbstractReadFutureAcceptor{
 
+	public EventLoopReadFutureAcceptor(SocketChannelContext context) {
+		super(context);
+	}
+
 	@Override
 	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {
 		

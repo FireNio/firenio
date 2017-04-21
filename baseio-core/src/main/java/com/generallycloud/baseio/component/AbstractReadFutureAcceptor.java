@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.common.CloseUtil;
@@ -21,15 +21,21 @@ import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
-public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAcceptor{
+public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAcceptor {
 
-	private Logger logger = LoggerFactory.getLogger(AbstractReadFutureAcceptor.class);
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
+	private HeartBeatLogger heartBeatLogger;
+	
+	public AbstractReadFutureAcceptor(SocketChannelContext context) {
+		createHeartBeatLogger(context);
+	}
+
 	@Override
 	public void accept(final SocketSession session, final ReadFuture future) throws Exception {
 
 		ChannelReadFuture f = (ChannelReadFuture) future;
-		
+
 		if (f.isSilent()) {
 			return;
 		}
@@ -40,21 +46,22 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 
 			return;
 		}
-		
+
 		SocketChannelContext context = session.getContext();
 
 		IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
-		
+
 		accept(eventHandle, session, f);
 	}
-	
-	protected abstract void accept(IoEventHandle eventHandle,SocketSession session, ChannelReadFuture future);
-	
+
+	protected abstract void accept(IoEventHandle eventHandle, SocketSession session,
+			ChannelReadFuture future);
+
 	private void acceptHeartBeat(final SocketSession session, final ChannelReadFuture future) {
 
 		if (future.isPING()) {
 
-			logger.debug("heart beat request from: {}", session);
+			heartBeatLogger.logRequest(session);
 
 			SocketChannelContext context = session.getContext();
 
@@ -75,9 +82,43 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 
 			session.flush(f);
 		} else {
-			logger.debug("heart beat response from: {}", session);
+			heartBeatLogger.logResponse(session);
 		}
 
+	}
+	
+	private void createHeartBeatLogger(SocketChannelContext context){
+		
+		if (context.getServerConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
+			heartBeatLogger = new HeartBeatLogger() {
+				@Override
+				public void logRequest(SocketSession session) {
+					logger.info("heart beat request from: {}", session);
+				}
+
+				@Override
+				public void logResponse(SocketSession session) {
+					logger.info("heart beat response from: {}", session);
+				}
+			};
+		}else{
+			heartBeatLogger = new HeartBeatLogger() {
+				@Override
+				public void logRequest(SocketSession session) {
+					logger.debug("heart beat request from: {}", session);
+				}
+
+				@Override
+				public void logResponse(SocketSession session) {
+					logger.debug("heart beat response from: {}", session);
+				}
+			};
+		}
+	}
+	
+	private interface HeartBeatLogger{
+		void logRequest(SocketSession session);
+		void logResponse(SocketSession session);
 	}
 
 }

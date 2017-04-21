@@ -31,6 +31,7 @@ public class ServerConfiguration {
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
 	private int		SERVER_MEMORY_POOL_UNIT;
 	private boolean	SERVER_ENABLE_MEMORY_POOL_DIRECT;
+	private boolean	SERVER_ENABLE_HEARTBEAT_LOG		= true;
 	private boolean	SERVER_ENABLE_SSL;
 	private boolean	SERVER_ENABLE_WORK_EVENT_LOOP;
 	private boolean	SERVER_ENABLE_MEMORY_POOL		= true;
@@ -207,4 +208,12 @@ public class ServerConfiguration {
 		this.SERVER_ENABLE_MEMORY_POOL = SERVER_ENABLE_MEMORY_POOL;
 	}
 
+	public boolean isSERVER_ENABLE_HEARTBEAT_LOG() {
+		return SERVER_ENABLE_HEARTBEAT_LOG;
+	}
+
+	public void setSERVER_ENABLE_HEARTBEAT_LOG(boolean SERVER_ENABLE_HEARTBEAT_LOG) {
+		this.SERVER_ENABLE_HEARTBEAT_LOG = SERVER_ENABLE_HEARTBEAT_LOG;
+	}
+	
 }

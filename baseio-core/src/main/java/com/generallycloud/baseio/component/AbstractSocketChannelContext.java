@@ -195,7 +195,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		if (foreReadFutureAcceptor == null) {
-			this.foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
+			foreReadFutureAcceptor = new EventLoopReadFutureAcceptor(this);
 		}
 
 		if (channelByteBufReaderGroup.getRootLink() == null) {
