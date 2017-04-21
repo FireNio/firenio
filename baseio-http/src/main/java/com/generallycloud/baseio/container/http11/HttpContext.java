@@ -23,18 +23,20 @@ import com.generallycloud.baseio.container.configuration.Configuration;
 
 public class HttpContext extends AbstractPluginContext {
 
-	private static HttpContext	instance;
+	private static HttpContext	instance			= null;
+
+	private HttpSessionManager	httpSessionManager	= null;
 
 	public static HttpContext getInstance() {
 		return instance;
 	}
 
-	private HttpSessionManager		httpSessionManager	= new HttpSessionManager();
-
 	@Override
 	public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
-		LifeCycleUtil.stop(httpSessionManager);
+		if (enableHttpSession(config)) {
+			LifeCycleUtil.stop(httpSessionManager);
+		}
 
 		super.destroy(context, config);
 	}
@@ -48,11 +50,20 @@ public class HttpContext extends AbstractPluginContext {
 
 		super.initialize(context, config);
 
-		this.httpSessionManager.startup("HTTPSession-Manager");
-
 		instance = this;
 
+		if (enableHttpSession(config)) {
+			httpSessionManager = new DefaultHttpSessionManager();
+			httpSessionManager.startup("HTTPSession-Manager");
+		}else{
+			httpSessionManager = new FakeHttpSessionManager();
+		}
+
 		context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
+	}
+
+	private boolean enableHttpSession(Configuration config) {
+		return config.getBooleanParameter("enable-http-session");
 	}
 
 }

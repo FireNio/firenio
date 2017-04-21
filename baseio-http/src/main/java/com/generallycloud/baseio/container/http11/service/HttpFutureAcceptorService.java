@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.http11.service;
 
 import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpContext;
 import com.generallycloud.baseio.container.http11.HttpSession;
@@ -37,23 +36,13 @@ public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 
 		HttpSession httpSession = manager.getHttpSession(context,session, httpReadFuture);
 
-		this.doAccept(httpSession, httpReadFuture);
+		doAccept(httpSession, httpReadFuture);
 	}
 
 	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
 
 	@Override
 	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
-		
-		if (state == IoEventState.HANDLE) {
-			
-			if (future instanceof HttpReadFuture) {
-				((HttpReadFuture)future).setStatus(HttpStatus.C500);
-			}
-			
-			future.write("server error:"+cause.getMessage());
-
-			session.flush(future);
-		}
+		future.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause, state);
 	}
 }
