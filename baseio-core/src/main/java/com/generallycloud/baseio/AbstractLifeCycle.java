@@ -24,6 +24,7 @@ import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 
+//FIXME status volatile modify ?
 public abstract class AbstractLifeCycle implements LifeCycle {
 
 	private boolean					failed				= false;
