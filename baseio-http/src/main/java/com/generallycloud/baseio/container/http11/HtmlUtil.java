@@ -35,22 +35,22 @@ public class HtmlUtil {
 		builder.append("		<title>baseio</title>\n");
 		builder.append("		<style type=\"text/css\"> \n");
 		builder.append("			p {margin:15px;}\n");
-		builder.append("			a:link { color:#F94F4F;  }");
-		builder.append("			a:visited { color:#F94F4F; }");
-		builder.append("			a:hover { color:#000000; }");
+		builder.append("			a:link { color:#F94F4F;  }\n");
+		builder.append("			a:visited { color:#F94F4F; }\n");
+		builder.append("			a:hover { color:#000000; }\n");
 		builder.append("		</style>\n");
 		builder.append("	</head>\n");
 		builder.append("	<body style=\"font-family:Georgia;\">\n");
 		HTML_HEADER = builder.toString();
 		
 		builder = new StringBuilder();
-		builder.append("		<hr>\n");
-		builder.append("<p style=\"color: #FDA58C\">\n");
-		builder.append("	Powered by baseio@\n");
-		builder.append("	<a style=\"color:#F94F4F;\" href=\"https://github.com/generallycloud/baseio#readme\">\n");
-		builder.append("		https://github.com/generallycloud/baseio\n");
-		builder.append("	</a>\n");
-		builder.append("</p>\n");
+		builder.append("\t\t<hr>\n");
+		builder.append("\t\t<p style=\"color: #FDA58C\">\n");
+		builder.append("\t\t	Powered by baseio@\n");
+		builder.append("\t\t	<a style=\"color:#F94F4F;\" href=\"https://github.com/generallycloud/baseio#readme\">\n");
+		builder.append("\t\t		https://github.com/generallycloud/baseio\n");
+		builder.append("\t\t	</a>\n");
+		builder.append("\t\t</p>\n");
 		HTML_POWER_BY = builder.toString();
 		
 		builder = new StringBuilder();
