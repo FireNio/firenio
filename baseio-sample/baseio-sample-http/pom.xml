@@ -5,7 +5,7 @@
 	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-sample-http</artifactId>
 	<name>${project.artifactId}</name>
-	<version>3.1.8-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>The sample of baseio-http</description>
 
@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-http</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
+			<version>3.1.8-RELEASE</version>
 		</dependency>
 
 	</dependencies>

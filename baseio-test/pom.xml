@@ -5,7 +5,7 @@
 	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio-test</artifactId>
 	<name>${project.artifactId}</name>
-	<version>3.1.8-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>The test of baseio</description>
 
@@ -45,13 +45,13 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-jms</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
+			<version>3.1.8-RELEASE</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-rtp</artifactId>
-			<version>3.1.8-SNAPSHOT</version>
+			<version>3.1.8-RELEASE</version>
 		</dependency>
 
 		<dependency>
