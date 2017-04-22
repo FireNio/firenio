@@ -85,7 +85,7 @@ public class SslHandler {
 						return gc(channel, dst.flip());
 					case NEED_WRAP:
 						if (out == null) {
-							out = allocate(channel, 128);
+							out = allocate(channel, 256);
 						}
 						out.read(dst.flip());
 						break;
