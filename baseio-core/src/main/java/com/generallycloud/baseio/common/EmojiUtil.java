@@ -51,26 +51,6 @@ public class EmojiUtil {
 			+ "🍸🍹🍷🍴🍕🍔🍟🍗🍖🍝🍛🍤🍱🍣🍥🍙🍘🍚🍜🍲🍢🍡🍳🍞🍩🍮🍦🍨🍧🎂🍰🍪🍫🍬🍭🍯🍎🍏🍊🍋🍒🍇🍉🍓🍑🍈🍌🍐🍍🍠🍆🍅🌽🏠🏡🏫🏢🏣🏥🏦🏪🏩🏨💒⛪️🏬🏤🌇🌆🏯🏰⛺️🏭"
 			+ "🗼🗾🗻🌄🌅🌃🗽🌉🎠🎡⛲️🎢🚢⛵️🚤🚣⚓️🚀✈️💺🚁🚂🚊🚉🚞🚆🚄🚅🚈🚇🚝🚋🚃🚎🚌🚍🚙🚘🚗🚕🚖🚛🚚🚨🚓🚔🚒🚑🚐🚲🚡🚟🚠🚜💈🚏🎫🚦🚥⚠️🚧🔰⛽️🏮🎰♨️🗿🎪🎭📍🚩";
 
-	public static void main(String[] args) {
-
-		test();
-
-	}
-
-	static void test() {
-
-		//		System.out.println(emoji);
-		byte[] bb = "✨".getBytes();
-		byte[] array = EMOJI_ALL.getBytes();
-		List<String> list = bytes2Emojis(array);
-		System.out.println(new String(array));
-		System.out.println(new String(array, 0, 2, Encoding.UTF8));
-		System.out.println(EMOJI_ALL);
-		System.out.println(EMOJI_ALL.length());
-		System.out.println(EMOJI_ALL.getBytes().length);
-
-	}
-
 	public static List<String> bytes2Emojis(byte[] array) {
 		List<String> list = new ArrayList<>(array.length * 2 / 7);
 		for (int i = 0; i < array.length;) {

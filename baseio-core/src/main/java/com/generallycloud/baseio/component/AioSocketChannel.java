@@ -191,6 +191,10 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
 		synchronized (getCloseLock()) {
 			
+			if (!isOpened()) {
+				return;
+			}
+			
 			ChannelWriteFuture write_future = this.write_future;
 
 			write_future.getByteBuf().reverse();
