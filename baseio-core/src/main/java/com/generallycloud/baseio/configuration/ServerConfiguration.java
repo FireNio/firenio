@@ -27,16 +27,22 @@ public class ServerConfiguration {
 	private String		SERVER_HOST					= "localhost";
 	private int		SERVER_CORE_SIZE				= Runtime.getRuntime().availableProcessors();
 	private Charset	SERVER_ENCODING				= Encoding.UTF8;
+	//单一连接同一时间最大处理future数量，超过这一数量则关闭连接
 	private int		SERVER_IO_EVENT_QUEUE			= 0;
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
+	//内存池单元大小
 	private int		SERVER_MEMORY_POOL_UNIT;
+	//内存池是否使用启用堆外内存
 	private boolean	SERVER_ENABLE_MEMORY_POOL_DIRECT;
 	private boolean	SERVER_ENABLE_HEARTBEAT_LOG		= true;
 	private boolean	SERVER_ENABLE_SSL;
+	//是否启用work event loop，如果启用，则future在work event loop中处理
 	private boolean	SERVER_ENABLE_WORK_EVENT_LOOP;
 	private boolean	SERVER_ENABLE_MEMORY_POOL		= true;
+	//内存池内存单元数量（单核）
 	private int		SERVER_MEMORY_POOL_CAPACITY;
 	private int		SERVER_CHANNEL_READ_BUFFER		= 1024 * 512;
+	//内存池内存单元数量百分比（单核），该配置影响"SERVER_MEMORY_POOL_CAPACITY"属性
 	private double	SERVER_MEMORY_POOL_CAPACITY_RATE	= 1d;
 
 	public ServerConfiguration() {
