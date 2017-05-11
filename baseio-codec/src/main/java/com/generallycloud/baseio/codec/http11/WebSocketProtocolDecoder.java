@@ -31,9 +31,9 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  *       0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
  *      +-+-+-+-+-------+-+-------------+-------------------------------+
  *      |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
- *      |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+ *      |I|S|S|S|  (4)  |A|     (7)     |             (16/32)           |
  *      |N|V|V|V|       |S|             |   (if payload len==126/127)   |
- *      | |1|2|3|       |K|             |                               |
+ *      | |1|2|3|       |K|             |           (unsigned)          |
  *      +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
  *      |     Extended payload length continued, if payload len == 127  |
  *      + - - - - - - - - - - - - - - - +-------------------------------+

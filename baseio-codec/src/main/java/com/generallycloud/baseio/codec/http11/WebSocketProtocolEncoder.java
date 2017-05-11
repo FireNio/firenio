@@ -30,6 +30,8 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 //WebSocket规定服务端不准向客户端发送mask过的数据
 //A server MUST NOT mask any frames that it sends to the client.
 public class WebSocketProtocolEncoder implements ProtocolEncoder {
+	
+	final int MAX_UNSIGNED_SHORT = (1 << 16) -1;
 
 	@Override
 	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
@@ -50,12 +52,11 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 			header = new byte[2];
 			header[0] = header0;
 			header[1] = (byte) size;
-		}else if(size < ((1 << 16) -1)){
+		}else if(size <= MAX_UNSIGNED_SHORT){
 			header = new byte[4];
 			header[0] = header0;
 			header[1] = 126;
-			header[3] = (byte)(size & 0xff);
-			header[2] = (byte)((size >> 8) & 0x80);
+			MathUtil.unsignedShort2Byte(header, size, 2);
 		}else{
 			header = new byte[6];
 			header[0] = header0;
