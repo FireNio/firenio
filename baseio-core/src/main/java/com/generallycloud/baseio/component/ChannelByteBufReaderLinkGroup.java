@@ -12,25 +12,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+/**
+ * @author wangkai
+ *
+ */
+public class ChannelByteBufReaderLinkGroup {
 
-public class IoProcessReadFutureAcceptor extends AbstractReadFutureAcceptor{
-	
-	@Override
-	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {
-		
-		try {
-			
-			eventHandle.accept(session, future);
+	private ChannelByteBufReader	rootLink;
 
-		} catch (Exception e) {
+	private ChannelByteBufReader	tailLink;
 
-			future.getIoEventHandle().exceptionCaught(session, future, e, IoEventState.HANDLE);
-		}
+	public ChannelByteBufReader getRootLink() {
+		return rootLink;
 	}
-	
+
+	public void addLink(ChannelByteBufReader linkable) {
+
+		if (rootLink == null) {
+			rootLink = linkable;
+			tailLink = rootLink;
+			return;
+		}
+
+		tailLink.setNext(linkable);
+
+		tailLink = linkable;
+	}
+
+	public void clear() {
+		rootLink = null;
+		tailLink = null;
+	}
+
 }

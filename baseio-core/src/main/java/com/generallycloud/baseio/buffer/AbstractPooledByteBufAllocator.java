@@ -64,11 +64,11 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
 		lock.lock();
 		
-		if (!isRunning()) {
-			return null;
-		}
-		
 		try {
+			
+			if (!isRunning()) {
+				return null;
+			}
 
 			int mask = this.mask;
 			

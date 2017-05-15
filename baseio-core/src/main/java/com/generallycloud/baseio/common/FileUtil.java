@@ -251,7 +251,7 @@ public class FileUtil {
 	}
 
 	public static String input2String(InputStream input, Charset encoding) throws IOException {
-		return new String(inputStream2ByteArray(input), encoding);
+		return createString(inputStream2ByteArray(input), encoding);
 	}
 
 	public static byte[] inputStream2ByteArray(InputStream inputStream) throws IOException {
@@ -445,7 +445,14 @@ public class FileUtil {
 	}
 
 	public static String readStringByCls(String file, Charset encoding) throws IOException {
-		return new String(readBytesByCls(file), encoding);
+		return createString(readBytesByCls(file), encoding);
+	}
+	
+	private static String createString(byte []data,Charset encoding){
+		if (data == null) {
+			return null;
+		}
+		return new String(data,encoding);
 	}
 
 	public static String readStringByFile(File file, Charset encoding) throws IOException {

@@ -17,8 +17,12 @@ package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 
-public interface ChannelByteBufReader extends Linkable<ChannelByteBufReader> {
-
+public interface ChannelByteBufReader {
+	
+	public abstract ChannelByteBufReader getNext();
+	
+	public abstract void setNext(ChannelByteBufReader channelByteBufReader);
+	
 	public abstract void accept(SocketChannel channel, ByteBuf buf) throws Exception;
 
 }

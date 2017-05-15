@@ -48,8 +48,6 @@ import com.generallycloud.baseio.protocol.SslReadFuture;
 
 public abstract class AbstractSocketChannel extends AbstractChannel implements SocketChannel {
 
-	protected ChannelReadFuture				readFuture;
-	protected SslReadFuture					sslReadFuture;
 	protected ProtocolDecoder				protocolDecoder;
 	protected ProtocolEncoder				protocolEncoder;
 	protected ProtocolFactory				protocolFactory;
@@ -58,7 +56,9 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected SSLEngine					sslEngine;
 	protected SslHandler					sslHandler;
 	protected UnsafeSocketSession			session;
-	protected ChannelWriteFuture				write_future;
+	protected transient ChannelWriteFuture	write_future;
+	protected transient ChannelReadFuture		readFuture;
+	protected transient SslReadFuture		sslReadFuture;
 	protected ListQueue<ChannelWriteFuture>	write_futures;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);

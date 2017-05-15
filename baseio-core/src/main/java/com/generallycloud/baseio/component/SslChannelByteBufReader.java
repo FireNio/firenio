@@ -54,10 +54,10 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 				}
 
 			} catch (Throwable e) {
+				
+				ReleaseUtil.release(future);
 
 				channel.setSslReadFuture(null);
-
-				ReleaseUtil.release(future);
 
 				if (e instanceof IOException) {
 					throw (IOException) e;

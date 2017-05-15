@@ -27,12 +27,10 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslReadFuture {
 
 	private boolean	body_complete;
-
-	private ByteBuf	buf;
-
+	
 	private boolean	header_complete;
 
-	private int		length;
+	private ByteBuf	buf;
 
 	private int		limit;
 	
@@ -66,14 +64,10 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 		header_complete = true;
 
-		int length = getEncryptedPacketLength(buf);
-
-		buf.reallocate(length, limit, true);
-
-		this.length = length;
+		buf.reallocate(getEncryptedPacketLength(buf), limit, true);
 	}
 
-	int getEncryptedPacketLength(ByteBuf buffer) {
+	private int getEncryptedPacketLength(ByteBuf buffer) {
 		int packetLength = 0;
 		int offset = 0;
 		// FIXME offset
@@ -129,17 +123,9 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 		return packetLength;
 	}
 
-	public int getLength() {
-		return length;
-	}
-
 	@Override
 	public ByteBuf getProduce() {
 		return buf;
-	}
-
-	private boolean isHeaderReadComplete(ByteBuf buf) {
-		return !buf.hasRemaining();
 	}
 
 	@Override
@@ -151,7 +137,7 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 
 			buf.read(buffer);
 
-			if (!isHeaderReadComplete(buf)) {
+			if (buf.hasRemaining()) {
 				return false;
 			}
 

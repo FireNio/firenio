@@ -17,5 +17,5 @@ package com.generallycloud.baseio.component;
 
 public interface ForeReadFutureAcceptor extends ReadFutureAcceptor{
 	
-	
+	void initialize(SocketChannelContext channelContext) throws Exception;
 }

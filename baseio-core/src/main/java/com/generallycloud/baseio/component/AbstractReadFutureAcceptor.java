@@ -27,10 +27,11 @@ public abstract class AbstractReadFutureAcceptor implements ForeReadFutureAccept
 	
 	private HeartBeatLogger heartBeatLogger;
 	
-	public AbstractReadFutureAcceptor(SocketChannelContext context) {
-		createHeartBeatLogger(context);
+	@Override
+	public void initialize(SocketChannelContext channelContext) throws Exception {
+		createHeartBeatLogger(channelContext);
 	}
-
+	
 	@Override
 	public void accept(final SocketSession session, final ReadFuture future) throws Exception {
 

@@ -12,36 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 
-public abstract class LinkableChannelByteBufReader implements ChannelByteBufReader{
+public abstract class LinkableChannelByteBufReader implements ChannelByteBufReader {
 
-	private Linkable<ChannelByteBufReader> next;
-	
+	private ChannelByteBufReader next;
+
 	@Override
-	public Linkable<ChannelByteBufReader> getNext() {
+	public ChannelByteBufReader getNext() {
 		return next;
 	}
 
 	@Override
-	public void setNext(Linkable<ChannelByteBufReader> next) {
-		this.next = next;
+	public void setNext(ChannelByteBufReader channelByteBufReader) {
+		this.next = channelByteBufReader;
 	}
 
-	@Override
-	public ChannelByteBufReader getValue() {
-		return this;
-	}
-	
-	protected ByteBuf allocate(Session session,int capacity){
+	protected ByteBuf allocate(Session session, int capacity) {
 		return session.getByteBufAllocator().allocate(capacity);
 	}
-	
-	protected void nextAccept(SocketChannel channel,ByteBuf buffer) throws Exception{
-		getNext().getValue().accept(channel, buffer);
+
+	protected void nextAccept(SocketChannel channel, ByteBuf buffer) throws Exception {
+		getNext().accept(channel, buffer);
 	}
-	
+
 }
