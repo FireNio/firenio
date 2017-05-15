@@ -15,11 +15,9 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
-public class ByteBufUnit {
+public class ByteBufUnit2 extends ByteBufUnit{
 
-	protected int		index		= 0;
-	protected int		blockEnd		= 0;
-	protected volatile boolean	free	= true;
+	protected int		blockBegin	= 0;
 	
 	@Override
 	public String toString() {
@@ -28,6 +26,8 @@ public class ByteBufUnit {
 			.append(index)
 			.append(",free=")
 			.append(free)
+			.append(",begin=")
+			.append(blockBegin)
 			.append(",end=")
 			.append(blockEnd)
 			.toString();

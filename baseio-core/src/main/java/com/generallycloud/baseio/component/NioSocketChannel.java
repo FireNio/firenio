@@ -116,8 +116,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		if (future == null) {
 			return;
 		}
-
-		future.write(this);
+		// 如果这里写入失败会导致内存溢出，需要try
+		try {
+			future.write(this);
+		} catch (Throwable e) {
+			ReleaseUtil.release(future);
+			throw e;
+		}
 
 		if (!future.isCompleted()) {
 			this.write_future = future;
@@ -140,6 +145,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		synchronized (getCloseLock()) {
 			
 			if (!isOpened()) {
+				releaseFutures();
 				return;
 			}
 
@@ -196,10 +202,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 		this.closing = false;
 
-		ReleaseUtil.release(readFuture);
-		ReleaseUtil.release(sslReadFuture);
-
-		this.releaseWriteFutures();
+		this.releaseFutures();
 
 		this.selectionKey.attach(null);
 

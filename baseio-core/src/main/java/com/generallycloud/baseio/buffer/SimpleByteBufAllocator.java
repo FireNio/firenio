@@ -15,18 +15,21 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
 
 	public SimpleByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(capacity, unitMemorySize, isDirect);
 	}
+	
+	protected ByteBufUnit[]			units;
 
 	//FIXME 判断余下的是否足够，否则退出循环
 	@Override
 	protected PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int start, int end, int size) {
 
-		ByteBufUnit[] units = this.units;
+		ByteBufUnit[] units = getUnits();
 
 		int freeSize = 0;
 
@@ -67,13 +70,34 @@ public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
 	}
 
 	@Override
-	protected void doRelease(ByteBufUnit buf) {
+	protected ByteBufUnit[] createUnits(int capacity) {
+		this.units = new ByteBufUnit[capacity];
+		return units;
+	}
 
-		ByteBufUnit memoryStart = buf;
-		ByteBufUnit memoryEnd = units[memoryStart.blockEnd - 1];
+	@Override
+	protected ByteBufUnit[] getUnits() {
+		return units;
+	}
 
-		memoryStart.free = true;
-		memoryEnd.free = true;
+	@Override
+	public void release(ByteBuf buf) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+			
+			ByteBufUnit[] units = getUnits();
+			ByteBufUnit memoryStart = units[((PooledByteBuf) buf).getBeginUnit()];
+			ByteBufUnit memoryEnd = units[memoryStart.blockEnd - 1];
+			memoryStart.free = true;
+			memoryEnd.free = true;
+			
+		} finally {
+			lock.unlock();
+		}
 	}
 
 }

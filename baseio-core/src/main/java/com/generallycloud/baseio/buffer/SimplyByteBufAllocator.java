@@ -15,8 +15,11 @@
  */ 
 package com.generallycloud.baseio.buffer;
 
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
+	
+	protected ByteBufUnit2[]			units;
 
 	public SimplyByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(capacity, unitMemorySize, isDirect);
@@ -25,17 +28,21 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 	private String tName(){
 		return Thread.currentThread().getName();
 	}
+	
+	protected ByteBufUnit2[] getUnits() {
+		return units;
+	}
 
 	@Override
 	protected PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int begin, int end, int size) {
 
 		logger.debug("申请内存____________________________{},{}",size,tName());
 		
-		ByteBufUnit[] units = this.units;
+		ByteBufUnit2[] units = this.units;
 		
 		for (; begin < end;) {
 			
-			ByteBufUnit unitBegin = units[begin];
+			ByteBufUnit2 unitBegin = units[begin];
 			
 			if (!unitBegin.free) {
 				
@@ -57,7 +64,7 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 				continue;
 			}
 			
-			ByteBufUnit unitEnd = units[blockEnd - 1];
+			ByteBufUnit2 unitEnd = units[blockEnd - 1];
 
 			blockBegin = unitEnd.blockBegin;
 			
@@ -76,9 +83,9 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 			
 			unitBegin = units[blockBegin];
 			
-			ByteBufUnit buf1 = units[blockBegin + size - 1];
+			ByteBufUnit2 buf1 = units[blockBegin + size - 1];
 			
-			ByteBufUnit buf2 = units[buf1.index + 1];
+			ByteBufUnit2 buf2 = units[buf1.index + 1];
 			
 			setBlock(buf2, unitEnd, true);
 			
@@ -99,17 +106,23 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 	}
 	
 	@Override
+	protected ByteBufUnit2[] createUnits(int capacity) {
+		this.units = new ByteBufUnit2[capacity];
+		return units;
+	}
+
+	@Override
 	protected void doStart() throws Exception {
 		
 		super.doStart();
 		
-		ByteBufUnit begin = units[0];
-		ByteBufUnit end = units[capacity - 1];
+		ByteBufUnit2 begin = units[0];
+		ByteBufUnit2 end = units[capacity - 1];
 		
 		setBlock(begin, end, true);
 	}
 	
-	private void setBlock(ByteBufUnit begin,ByteBufUnit end,boolean free){
+	private void setBlock(ByteBufUnit2 begin,ByteBufUnit2 end,boolean free){
 		
 		int beginIndex = begin.index;
 		int endIndex = end.index + 1;
@@ -129,23 +142,22 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 //		}
 	}
 
-	@Override
-	protected void doRelease(ByteBufUnit begin) {
+	private void doRelease(ByteBufUnit2 begin) {
 		
-		ByteBufUnit[] bufs = this.units;
+		ByteBufUnit2[] bufs = this.units;
 		
 		int beginIndex = begin.blockBegin;
 		int endIndex = begin.blockEnd;
 		
-		ByteBufUnit bufBegin = begin;
-		ByteBufUnit bufEnd = bufs[endIndex - 1];
+		ByteBufUnit2 bufBegin = begin;
+		ByteBufUnit2 bufEnd = bufs[endIndex - 1];
 		
 		bufBegin.free = true;
 		bufEnd.free = true;
 		
 		if (beginIndex != 0) {
 			
-			ByteBufUnit leftBuf = bufs[beginIndex - 1];
+			ByteBufUnit2 leftBuf = bufs[beginIndex - 1];
 			
 			if (leftBuf.free) {
 				bufBegin = bufs[leftBuf.blockBegin];
@@ -154,7 +166,7 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 		
 		if (endIndex != capacity) {
 			
-			ByteBufUnit rightBuf = bufs[endIndex];
+			ByteBufUnit2 rightBuf = bufs[endIndex];
 			
 			if (rightBuf.free) {
 				bufEnd = bufs[rightBuf.blockEnd - 1];
@@ -165,6 +177,22 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
 		
 		logger.debug("释放内存____________________________{},{},{}",new Object[]{bufBegin.index,bufEnd.index,tName()});
 		System.out.println();
+	}
+	
+	@Override
+	public void release(ByteBuf buf) {
+
+		ReentrantLock lock = this.lock;
+
+		lock.lock();
+
+		try {
+
+			doRelease(getUnits()[((PooledByteBuf) buf).getBeginUnit()]);
+
+		} finally {
+			lock.unlock();
+		}
 	}
 
 }

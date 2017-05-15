@@ -264,7 +264,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 	protected abstract void doFlush(ChannelWriteFuture future);
 
-	protected void releaseWriteFutures() {
+	protected void releaseFutures() {
+
+		ReleaseUtil.release(readFuture);
+		ReleaseUtil.release(sslReadFuture);
 
 		ClosedChannelException e = null;
 

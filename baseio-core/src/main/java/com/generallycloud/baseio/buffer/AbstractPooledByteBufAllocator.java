@@ -29,8 +29,6 @@ import com.generallycloud.baseio.common.ReleaseUtil;
  */
 public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllocator{
 
-	protected ByteBufUnit[]			units;
-
 	protected int					capacity;
 
 	protected int					mask;
@@ -142,7 +140,7 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
 		initializeMemory(capacity * unitMemorySize);
 
-		ByteBufUnit[] bufs = new ByteBufUnit[capacity];
+		ByteBufUnit[] bufs = createUnits(capacity);
 
 		for (int i = 0; i < capacity; i++) {
 			ByteBufUnit buf = new ByteBufUnit();
@@ -150,8 +148,11 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 			bufs[i] = buf;
 		}
 
-		this.units = bufs;
 	}
+	
+	protected abstract ByteBufUnit[] createUnits(int capacity) ;
+	
+	protected abstract ByteBufUnit[] getUnits() ;
 
 	private ByteBufFactory createBufFactory() {
 		if (isDirect) {
@@ -175,22 +176,6 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 	}
 
 	@Override
-	public void release(ByteBuf buf) {
-
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
-
-			doRelease(units[((PooledByteBuf) buf).getBeginUnit()]);
-
-		} finally {
-			lock.unlock();
-		}
-	}
-	
-	@Override
 	protected void doStop() throws Exception {
 		
 		ReentrantLock lock = this.lock;
@@ -202,17 +187,14 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		}finally{
 			lock.unlock();
 		}
-		
 	}
 
-	protected abstract void doRelease(ByteBufUnit beginUnit);
-	
 	@Override
 	public String toString() {
 
 		busyUnit.clear();
 
-		ByteBufUnit[] memoryUnits = this.units;
+		ByteBufUnit[] memoryUnits = getUnits();
 
 		int free = 0;
 

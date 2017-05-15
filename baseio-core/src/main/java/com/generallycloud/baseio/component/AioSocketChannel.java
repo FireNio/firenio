@@ -26,7 +26,6 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 
 public class AioSocketChannel extends AbstractSocketChannel {
@@ -138,10 +137,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
 		this.opened = false;
 
-		ReleaseUtil.release(readFuture);
-		ReleaseUtil.release(sslReadFuture);
-
-		this.releaseWriteFutures();
+		this.releaseFutures();
 
 		try {
 			channel.shutdownOutput();
@@ -176,6 +172,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		synchronized (getCloseLock()) {
 			
 			if (!isOpened()) {
+				releaseFutures();
 				return;
 			}
 			
