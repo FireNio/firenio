@@ -379,4 +379,9 @@ public class DuplicateByteBuf implements ByteBuf {
 		return unwrap().getNioBuffer();
 	}
 	
+	@Override
+	public boolean isReleased() {
+		return unwrap().isReleased();
+	}
+	
 }

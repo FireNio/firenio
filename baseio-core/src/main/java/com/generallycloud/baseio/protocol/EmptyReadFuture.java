@@ -40,6 +40,11 @@ public class EmptyReadFuture extends AbstractReadFuture {
 	public void release() {
 
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return true;
+	}
 
 	@Override
 	public void write(byte[] bytes, int off, int len) {

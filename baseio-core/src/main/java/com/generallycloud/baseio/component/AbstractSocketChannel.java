@@ -271,7 +271,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 		ClosedChannelException e = null;
 
-		if (write_future != null) {
+		if (write_future != null && !write_future.isReleased()) {
 
 			e = new ClosedChannelException(session.toString());
 

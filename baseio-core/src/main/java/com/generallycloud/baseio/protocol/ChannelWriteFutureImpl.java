@@ -163,4 +163,9 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 		return buf;
 	}
 	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

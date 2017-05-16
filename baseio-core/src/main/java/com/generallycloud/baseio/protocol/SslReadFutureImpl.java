@@ -164,5 +164,10 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

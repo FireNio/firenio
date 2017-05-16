@@ -18,4 +18,6 @@ package com.generallycloud.baseio.common;
 public interface Releasable {
 
 	public abstract void release();
+	
+	public abstract boolean isReleased();
 }

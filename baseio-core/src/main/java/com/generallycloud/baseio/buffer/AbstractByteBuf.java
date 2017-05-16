@@ -188,6 +188,11 @@ public abstract class AbstractByteBuf implements ByteBuf {
 			return doDuplicate();
 		}
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return released;
+	}
 
 	protected abstract ByteBuf doDuplicate() ;
 
