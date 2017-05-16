@@ -42,6 +42,12 @@ public class ThreadLocal {
 		}
 		return local;
 	}
+	
+	public static ThreadLocal remove(){
+		synchronized (threadLocals) {
+			return threadLocals.remove(Thread.currentThread());
+		}
+	}
 
 	private Map<Object, Object> cache = new HashMap<>();
 

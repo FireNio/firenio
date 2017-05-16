@@ -19,7 +19,7 @@ public class ByteBufUnit {
 
 	protected int		index		= 0;
 	protected int		blockEnd		= 0;
-	protected volatile boolean	free	= true;
+	protected boolean	free			= true;
 	
 	@Override
 	public String toString() {

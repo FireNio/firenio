@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -478,20 +477,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	public SslHandler getSslHandler() {
 		return sslHandler;
-	}
-
-	public interface SelectorLoopEvent extends Closeable {
-
-		/**
-		 * 返回该Event是否需要再次处理
-		 * 
-		 * @return true 需要再次处理，false处理结束后丢弃
-		 */
-		void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException;
-
-		boolean isComplete();
-
-		boolean isPositive();
 	}
 
 }

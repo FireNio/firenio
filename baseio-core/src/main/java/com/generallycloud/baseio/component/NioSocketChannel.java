@@ -26,7 +26,7 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.SocketSelectorEventLoop.SelectorLoopEvent;
+import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
