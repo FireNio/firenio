@@ -92,4 +92,10 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 	public long[] getSettings() {
 		return settings;
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

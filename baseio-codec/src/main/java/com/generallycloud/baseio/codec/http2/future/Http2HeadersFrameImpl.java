@@ -127,5 +127,10 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 	public byte getPadLength() {
 		return padLength;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

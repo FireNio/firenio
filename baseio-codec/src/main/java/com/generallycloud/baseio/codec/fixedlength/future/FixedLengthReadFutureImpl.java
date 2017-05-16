@@ -112,5 +112,10 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

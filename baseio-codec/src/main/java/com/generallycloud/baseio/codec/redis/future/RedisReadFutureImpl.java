@@ -194,5 +194,10 @@ public class RedisReadFutureImpl extends AbstractRedisReadFuture {
 	public RedisNode getRedisNode() {
 		return rootNode;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return true;
+	}
+	
 }

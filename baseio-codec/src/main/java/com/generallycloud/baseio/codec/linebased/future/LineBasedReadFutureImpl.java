@@ -84,5 +84,10 @@ public class LineBasedReadFutureImpl extends AbstractChannelReadFuture implement
 	public ByteArrayBuffer getLineOutputStream() {
 		return cache;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return true;
+	}
+	
 }

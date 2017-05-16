@@ -157,5 +157,10 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 	private SocketHttp2Frame genFrame(Http2SocketSession session, int type, int length) {
 		return genFrame(session, Http2FrameType.getValue(type), length);
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

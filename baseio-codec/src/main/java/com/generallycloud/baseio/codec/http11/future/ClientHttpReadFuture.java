@@ -81,4 +81,10 @@ public class ClientHttpReadFuture extends AbstractHttpReadFuture {
 		this.version = line.substring(0, index);
 		this.status = HttpStatus.getHttpStatus(status);
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return bodyContent.isReleased();
+	}
+	
 }

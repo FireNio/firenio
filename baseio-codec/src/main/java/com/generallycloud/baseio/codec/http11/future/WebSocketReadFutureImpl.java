@@ -278,5 +278,10 @@ public class WebSocketReadFutureImpl extends AbstractChannelReadFuture
 	protected void setType(int type) {
 		this.type = type;
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
 
 }

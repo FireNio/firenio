@@ -107,5 +107,10 @@ public class Http2PrefaceReadFuture extends AbstractChannelReadFuture {
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
 
 }

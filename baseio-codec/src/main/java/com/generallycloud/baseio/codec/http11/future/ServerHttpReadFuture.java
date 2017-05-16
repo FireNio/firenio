@@ -87,4 +87,10 @@ public class ServerHttpReadFuture extends AbstractHttpReadFuture {
 		this.setRequestURL(line.substring(index1 + 1, index2));
 		this.version = line.substring(index2+1);
 	}
+	
+	@Override
+	public boolean isReleased() {
+		return bodyContent.isReleased();
+	}
+	
 }

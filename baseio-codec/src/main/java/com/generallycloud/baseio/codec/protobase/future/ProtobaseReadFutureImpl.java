@@ -247,5 +247,10 @@ public class ProtobaseReadFutureImpl extends AbstractChannelReadFuture
 	public void setFutureName(String futureName) {
 		this.futureName = futureName;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }

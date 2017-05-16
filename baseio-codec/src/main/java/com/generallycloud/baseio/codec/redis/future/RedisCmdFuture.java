@@ -40,5 +40,10 @@ public class RedisCmdFuture extends AbstractRedisReadFuture {
 	public RedisNode getRedisNode() {
 		return null;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return true;
+	}
+	
 }

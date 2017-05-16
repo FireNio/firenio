@@ -81,5 +81,10 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame implements Ht
 	public int getUpdateValue() {
 		return updateValue;
 	}
-
+	
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+	
 }
