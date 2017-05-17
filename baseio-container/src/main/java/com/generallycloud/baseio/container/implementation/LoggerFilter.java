@@ -15,31 +15,39 @@
  */ 
 package com.generallycloud.baseio.container.implementation;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
 import com.generallycloud.baseio.protocol.ParametersReadFuture;
 
 public class LoggerFilter extends FutureAcceptorFilter {
 
-	private Logger logger = LoggerFactory.getLogger(LoggerFilter.class);
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private Set<String> noneLogger = new HashSet<>();
 
 	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 
 		String futureName = future.getFutureName();
 
-		if(futureName.endsWith(".html") 
+		if(noneLogger.contains(futureName)
+			||futureName.endsWith(".html") 
 			||futureName.endsWith(".css")
 			||futureName.endsWith(".js")
 			||futureName.endsWith(".jpg")
 			||futureName.endsWith(".png")
 			||futureName.endsWith(".ico")){
-			
 			return;
 		}
 		
@@ -62,6 +70,22 @@ public class LoggerFilter extends FutureAcceptorFilter {
 			}
 		}
 		logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
+	}
+
+	@Override
+	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+		super.initialize(context, config);
+		
+		JSONArray array = config.getJSONArray("none-logger");
+		
+		if (array == null) {
+			return;
+		}
+		
+		for (int i = 0; i < array.size(); i++) {
+			noneLogger.add(array.getString(i));
+		}
 	}
 
 }
