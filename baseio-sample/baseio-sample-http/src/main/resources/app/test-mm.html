@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+		<title>baseio</title>
+		<script src="js/vue.js" type="text/javascript" ></script>
+		<script src="js/jquery-1.10.2.min.js" type="text/javascript" ></script>
+		
+	</head>
+	<body style="font-family:Georgia;">
+		</br>
+		</br>
+		<div>
+			<div>
+				<form action="/test-mm" disableautocomplete autocomplete="off">
+					<span style="font-size:24px">input your p:</span>
+					<input type="text" name="p" id="p" disableautocomplete autocomplete="off" style="font-size:24px">
+					<input type="button" style="font-size:24px;" onclick="getK()" value="提交"/>
+					<button type="submit" style="font-size:24px;display:none;" value="">提交</button>
+				</form>
+			</div>
+			<div id="app">
+				<a :href="value" target="_blank">{{value}}</a>
+			</div>
+		</div>
+		</br>
+		</br>
+		<hr/>
+		<p style="color: #FDA58C">
+			Powered by baseio@
+			<a style="color:#F94F4F;" href="https://github.com/generallycloud/baseio#readme">
+				https://github.com/generallycloud/baseio
+			</a>
+		</p>
+		
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					value: '#'
+				}
+			});
+			
+			function getK(){
+				var p = $("#p").val();
+				$.get("/test-mm",{p:p},function(data){
+					app.value = data;
+                })
+			}
+			
+			$(function(){
+				$(document).click(function(){
+					$("#p").focus();
+				});
+				$("#p").focus();
+			});
+		</script>
+	</body>
+</html>
+
+
+
