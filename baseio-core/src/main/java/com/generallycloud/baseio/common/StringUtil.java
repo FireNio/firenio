@@ -64,4 +64,18 @@ public class StringUtil {
 		return cb.toString();
 	}
 	
+	public static String getValueFromArray(String []args,int index){
+		return getValueFromArray(args, index, null);
+	}
+	
+	public static String getValueFromArray(String []args,int index,String defaultValue){
+		if (index < 0 || args == null) {
+			return defaultValue;
+		}
+		if (index >= args.length) {
+			return defaultValue;
+		}
+		return args[index];
+	}
+	
 }

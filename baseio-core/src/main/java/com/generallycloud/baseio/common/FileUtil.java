@@ -356,8 +356,8 @@ public class FileUtil {
 
 	public static File readFileByCls(String file) throws UnsupportedEncodingException {
 		ClassLoader classLoader = FileUtil.class.getClassLoader();
-		String path = classLoader.getResource(".").getFile();
-		return new File(URLDecoder.decode(path + file, ENCODING.name()));
+		String path = classLoader.getResource(file).getFile();
+		return new File(URLDecoder.decode(path, ENCODING.name()));
 	}
 
 	public static int readInputStream(InputStream inputStream, byte[] cache) throws IOException {
@@ -428,6 +428,11 @@ public class FileUtil {
 		}
 		return properties;
 	}
+	
+	public static FixedProperties readPropertiesByCls(String file)
+			throws IOException {
+		return readPropertiesByCls(file, ENCODING);
+	}
 
 	public static FixedProperties readPropertiesByCls(String file, Charset charset)
 			throws IOException {
@@ -442,6 +447,10 @@ public class FileUtil {
 	public static FixedProperties readPropertiesByFile(String file, Charset charset)
 			throws IOException {
 		return readPropertiesByFile(new File(file), charset);
+	}
+	
+	public static String readStringByCls(String file) throws IOException{
+		return readStringByCls(file, ENCODING);
 	}
 
 	public static String readStringByCls(String file, Charset encoding) throws IOException {

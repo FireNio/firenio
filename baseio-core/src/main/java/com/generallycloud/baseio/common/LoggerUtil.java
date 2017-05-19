@@ -46,6 +46,10 @@ public class LoggerUtil {
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg) {
+		
+		if (logger == null) {
+			return;
+		}
 
 		msg = getSpace(logger) + prefix_log + msg;
 
@@ -53,6 +57,10 @@ public class LoggerUtil {
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object param1) {
+		
+		if (logger == null) {
+			return;
+		}
 
 		msg = getSpace(logger) + prefix_log + msg;
 
@@ -60,12 +68,22 @@ public class LoggerUtil {
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object param1, Object param2) {
+		
+		if (logger == null) {
+			return;
+		}
+		
 		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg, param1, param2);
 	}
 
 	public static void prettyNIOServerLog(Logger logger, String msg, Object[] param) {
+		
+		if (logger == null) {
+			return;
+		}
+		
 		msg = getSpace(logger) + prefix_log + msg;
 
 		logger.info(msg, param);

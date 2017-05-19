@@ -15,19 +15,12 @@
  */
 package com.generallycloud.baseio.common;
 
-import java.util.Properties;
-
 public class LoggerFactory {
 
 	private static boolean enableSLF4JLogger = false;
 	
 	static{
-		try {
-			Class.forName("org.slf4j.LoggerFactory");
-			configure();
-		} catch (Exception e) {
-		}
-		
+		configure();
 	}
 
 	public static void enableSLF4JLogger(boolean enable) {
@@ -43,21 +36,28 @@ public class LoggerFactory {
 
 	public static void configure() {
 		try {
-			configure(FileUtil.readPropertiesByCls("log4j.properties", Encoding.UTF8));
-		} catch (Exception e) {
+			ClassLoader cl = LoggerFactory.class.getClassLoader(); 
+			cl.loadClass("org.slf4j.LoggerFactory");
+			enableSLF4JLogger = true;
+//			loadClass(cl,"org.apache.log4j.Appender");
+//			loadClass(cl,"org.apache.log4j.spi.OptionHandler");
+//			loadClass(cl,"org.apache.log4j.AppenderSkeleton");
+//			loadClass(cl,"org.apache.log4j.WriterAppender");
+//			loadClass(cl,"org.apache.log4j.FileAppender");
+//			loadClass(cl,"org.apache.log4j.DailyRollingFileAppender");
+//			loadClass(cl,"org.apache.log4j.ConsoleAppender");
+		} catch (ClassNotFoundException e) {
 		}
 	}
-
-	public static void configure(Properties properties) {
-		if (properties == null) {
-			return;
+	
+	private static void loadClass(ClassLoader cl,String clazz){
+		try {
+			cl.loadClass(clazz);
+		} catch (Throwable e) {
 		}
-		enableSLF4JLogger = true;
-		configure0(properties);
 	}
-
-	private static void configure0(Properties properties) {
-		org.apache.log4j.PropertyConfigurator.configure(properties);
+	
+	public static boolean enableSLF4JLogger(){
+		return enableSLF4JLogger;
 	}
-
 }
