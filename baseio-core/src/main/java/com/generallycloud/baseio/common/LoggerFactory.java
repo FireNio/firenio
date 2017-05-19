@@ -36,24 +36,9 @@ public class LoggerFactory {
 
 	public static void configure() {
 		try {
-			ClassLoader cl = LoggerFactory.class.getClassLoader(); 
-			cl.loadClass("org.slf4j.LoggerFactory");
+			Class.forName("org.slf4j.LoggerFactory");
 			enableSLF4JLogger = true;
-//			loadClass(cl,"org.apache.log4j.Appender");
-//			loadClass(cl,"org.apache.log4j.spi.OptionHandler");
-//			loadClass(cl,"org.apache.log4j.AppenderSkeleton");
-//			loadClass(cl,"org.apache.log4j.WriterAppender");
-//			loadClass(cl,"org.apache.log4j.FileAppender");
-//			loadClass(cl,"org.apache.log4j.DailyRollingFileAppender");
-//			loadClass(cl,"org.apache.log4j.ConsoleAppender");
 		} catch (ClassNotFoundException e) {
-		}
-	}
-	
-	private static void loadClass(ClassLoader cl,String clazz){
-		try {
-			cl.loadClass(clazz);
-		} catch (Throwable e) {
 		}
 	}
 	
