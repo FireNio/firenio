@@ -125,7 +125,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 		
 		String className = config.getParameter("class", "empty");
 		
-		Class<?> clazz = classLoader.forName(className);
+		Class<?> clazz = classLoader.loadClass(className);
 
 		String serviceName = config.getParameter("service-name");
 		

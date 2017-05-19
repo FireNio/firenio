@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.container;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,9 +58,10 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return instance;
 	}
 
+	private boolean						deployModel;
 	private boolean						redeploying;
 	private String							appLocalAddres;
-	private String							rootLocalAddres;
+	private String							rootLocalAddress;
 	private URLDynamicClassLoader				classLoader	;
 	private ApplicationConfiguration			configuration;
 	private SocketChannelContext				channelContext;
@@ -79,16 +82,16 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
 	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
 
-	public ApplicationContext(String rootLocalAddres) {
-		this(rootLocalAddres,null);
+	public ApplicationContext(String rootLocalAddress) {
+		this(rootLocalAddress,null);
 	}
 	
 	public ApplicationContext(ApplicationConfiguration configuration) {
 		this(FileUtil.getCurrentPath(),configuration);
 	}
 	
-	public ApplicationContext(String rootLocalAddres,ApplicationConfiguration configuration) {
-		this.rootLocalAddres = rootLocalAddres;
+	public ApplicationContext(String rootLocalAddress,ApplicationConfiguration configuration) {
+		this.rootLocalAddress = rootLocalAddress;
 		this.configuration = configuration;
 	}
 
@@ -99,8 +102,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 			throw new IllegalArgumentException("null nio context");
 		}
 		
-		if (StringUtil.isNullOrBlank(rootLocalAddres)) {
-			throw new IllegalArgumentException("rootLocalAddres");
+		if (StringUtil.isNullOrBlank(rootLocalAddress)) {
+			throw new IllegalArgumentException("rootLocalAddress");
 		}
 		
 		if (futureAcceptorServiceFilter == null) {
@@ -121,7 +124,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		instance = this;
 		
-		this.rootLocalAddres = FileUtil.getPrettyPath(rootLocalAddres);
+		this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
 
 		this.encoding = channelContext.getEncoding();
 
@@ -131,7 +134,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
 		
-		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddres() + "app");
+		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
 		
 		LoggerUtil.prettyNIOServerLog(logger, "application path      :{ {} }", appLocalAddres);
 
@@ -140,13 +143,32 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
 	}
 	
+	private URLDynamicClassLoader newClassLoader() throws IOException{
+		
+		URLDynamicClassLoader classLoader = new URLDynamicClassLoader(getClass().getClassLoader());
+		
+		classLoader.addMatchStartWith("com/generallycloud/baseio/");
+		
+		if (deployModel) {
+			
+			classLoader.scan(new File(getRootLocalAddress()+"/lib"));
+			
+			classLoader.scan(new File(getRootLocalAddress()+"/conf"));
+		}else{
+			
+			classLoader.addExcludePath("/app");
+			
+			classLoader.scan(new File(getRootLocalAddress()));
+		}
+		
+		return classLoader;
+	}
+	
 	private void initializeApplicationContext() throws Exception{
 		
 		this.pluginIndex = new AtomicInteger();
 		
-		this.classLoader = new URLDynamicClassLoader(getClass().getClassLoader());
-		
-		this.classLoader.scan(getRootLocalAddres()+"conf");
+		this.classLoader = newClassLoader();
 		
 		this.configuration = acLoader.loadConfiguration(classLoader);
 
@@ -345,8 +367,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 		this.applicationExtLoader = applicationExtLoader;
 	}
 	
-	public String getRootLocalAddres() {
-		return rootLocalAddres;
+	public String getRootLocalAddress() {
+		return rootLocalAddress;
 	}
 	
 	public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {
@@ -381,6 +403,14 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public void setBlackIPs(Set<String> blackIPs) {
 		this.blackIPs = blackIPs;
+	}
+	
+	public void setDeployModel(boolean deployModel) {
+		this.deployModel = deployModel;
+	}
+	
+	public boolean isDeployModel() {
+		return deployModel;
 	}
 	
 }

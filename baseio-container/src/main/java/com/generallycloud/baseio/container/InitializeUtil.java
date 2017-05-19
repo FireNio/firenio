@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio.container;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.generallycloud.baseio.common.Logger;
+import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.container.configuration.Configuration;
 
 public class InitializeUtil {

@@ -33,15 +33,14 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public final class FutureAcceptor extends AbstractLifeCycle
 		implements LifeCycle, ReadFutureAcceptor {
 
-	private volatile boolean				deploying;
+	private volatile boolean			deploying = true;
 	private ApplicationContext			context;
 	private FutureAcceptorFilterLoader		filterLoader;
 	private PluginLoader				pluginLoader;
 	private FutureAcceptorFilterWrapper	rootFilter;
 	private FutureAcceptorServiceFilter	serviceFilter;
 	private FutureAcceptorService			appRedeployService;
-	private Logger						logger	= LoggerFactory
-			.getLogger(FutureAcceptor.class);
+	private Logger						logger	= LoggerFactory.getLogger(getClass());
 
 	public FutureAcceptor(ApplicationContext context, FutureAcceptorServiceFilter serviceFilter) {
 		this.context = context;

@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.container;
 
+import java.io.File;
+
 /**
  * @author wangkai
  *
@@ -24,7 +26,7 @@ public class DefaultExtLoader implements ApplicationExtLoader {
 	@Override
 	public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
 			throws Exception {
-		classLoader.scan(context.getAppLocalAddress());
+		classLoader.scan(new File(context.getAppLocalAddress()));
 	}
 
 }

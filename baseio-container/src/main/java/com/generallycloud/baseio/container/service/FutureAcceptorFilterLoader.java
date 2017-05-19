@@ -74,7 +74,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 
 			String clazzName = filterConfig.getParameter("class", "empty");
 
-			FutureAcceptorFilter filter = (FutureAcceptorFilter) classLoader.forName(clazzName).newInstance();
+			FutureAcceptorFilter filter = (FutureAcceptorFilter) classLoader.loadClass(clazzName).newInstance();
 
 			filter.setConfig(filterConfig);
 			

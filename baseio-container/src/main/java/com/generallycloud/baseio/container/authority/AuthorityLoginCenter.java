@@ -18,7 +18,6 @@ package com.generallycloud.baseio.container.authority;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.FixedProperties;
 import com.generallycloud.baseio.common.Logger;
@@ -113,9 +112,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		String spPath = context.getRootLocalAddres() + "conf/server.properties";
-
-		FixedProperties fixedProperties = FileUtil.readPropertiesByFile(spPath, Encoding.UTF8);
+		FixedProperties fixedProperties = FileUtil.readPropertiesByCls("server.properties");
 
 		String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
 		String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");

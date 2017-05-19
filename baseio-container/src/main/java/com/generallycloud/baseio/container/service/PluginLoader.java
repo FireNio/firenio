@@ -107,7 +107,7 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 		
 		String className = config.getParameter("class", "empty");
 
-		Class<?> clazz = classLoader.forName(className);
+		Class<?> clazz = classLoader.loadClass(className);
 
 		PluginContext plugin = (PluginContext) clazz.newInstance();
 

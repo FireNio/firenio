@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.container;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +26,7 @@ import java.util.Enumeration;
  * @author wangkai
  *
  */
-public interface DynamicClassLoader {
+public interface DynamicClassLoader extends Closeable{
 
 	public abstract URL getResource(String name);
 
@@ -42,13 +43,17 @@ public interface DynamicClassLoader {
 	public abstract void setClassAssertionStatus(String className, boolean enabled);
 
 	public abstract void clearAssertionStatus();
-
-	public abstract void scan(String file) throws IOException;
+	
+	public abstract Class<?> loadClass(String name) throws ClassNotFoundException;
 
 	public abstract void scan(File file) throws IOException;
-
-	public abstract Class<?> forName(String name) throws ClassNotFoundException;
+	
+	public abstract void scan(File[] files) throws IOException;
 
 	public abstract void unloadClassLoader();
+	
+	public abstract void addExcludePath(String path);
+	
+	public abstract void removeExcludePath(String path);
 
 }
