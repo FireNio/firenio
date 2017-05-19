@@ -52,8 +52,6 @@ public class ApplicationBootstrapEngine {
 	 */
 	public void bootstrap(String rootPath,boolean deployModel) throws Exception {
 		
-		System.out.println("************************************* startup1 ***********************************");
-
 		FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
 
 		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();

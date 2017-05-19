@@ -31,23 +31,16 @@ public class ApplicationBootstrap {
 
 		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
 
-		System.out.println(
-				"************************************* start ***********************************");
-
 		URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath);
-
-		System.out.println(
-				"************************************* scan end ***********************************");
 
 		Class<?> bootClass = classLoader.loadClass(ApplicationBootstrapEngine.class.getName());
 
+		Thread.currentThread().setContextClassLoader(classLoader); //for log4j
+		
 		Object startup = bootClass.newInstance();
 
 		Method method = bootClass.getDeclaredMethod("bootstrap", java.lang.String.class,
 				boolean.class);
-
-		System.out.println(
-				"************************************* startup ***********************************");
 
 		method.invoke(startup, rootPath, deployModel);
 	}
@@ -55,8 +48,6 @@ public class ApplicationBootstrap {
 	private static URLDynamicClassLoader newClassLoader(boolean deployModel,String rootLocalAddress) throws IOException{
 		URLDynamicClassLoader classLoader = new URLDynamicClassLoader();
 		if (deployModel) {
-//			classLoader.addMatchStartWith("org/slf4j/");
-//			classLoader.addMatchStartWith("org/apache/log4j/");
 			classLoader.scan(new File(rootLocalAddress+"/lib"));
 			classLoader.scan(new File(rootLocalAddress+"/conf"));
 		}else{
