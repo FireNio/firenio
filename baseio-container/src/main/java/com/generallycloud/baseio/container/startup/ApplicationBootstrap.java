@@ -17,7 +17,6 @@ package com.generallycloud.baseio.container.startup;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -27,26 +26,33 @@ public class ApplicationBootstrap {
 
 	public static void main(String[] args) throws Exception {
 		
+		String className = ApplicationBootstrapEngine.class.getName(); 
+		
 		String rootPath = StringUtil.getValueFromArray(args, 0,FileUtil.getCurrentPath());
 
 		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
 
+		new ApplicationBootstrap().startup(className,rootPath,deployModel);
+		
+	}
+	
+	public void startup(String className,String rootPath,boolean deployModel) throws Exception{
+		
 		URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath);
 
-		Class<?> bootClass = classLoader.loadClass(ApplicationBootstrapEngine.class.getName());
+		Class<?> bootClass = classLoader.loadClass(className);
 
 		Thread.currentThread().setContextClassLoader(classLoader); //for log4j
 		
-		Object startup = bootClass.newInstance();
+		Bootstrap startup = (Bootstrap) bootClass.newInstance();
+		
+		startup.bootstrap(rootPath, deployModel);
 
-		Method method = bootClass.getDeclaredMethod("bootstrap", java.lang.String.class,
-				boolean.class);
-
-		method.invoke(startup, rootPath, deployModel);
 	}
 	
-	private static URLDynamicClassLoader newClassLoader(boolean deployModel,String rootLocalAddress) throws IOException{
+	private URLDynamicClassLoader newClassLoader(boolean deployModel,String rootLocalAddress) throws IOException{
 		URLDynamicClassLoader classLoader = new URLDynamicClassLoader();
+		classLoader.addMatchExtend(Bootstrap.class.getName());
 		if (deployModel) {
 			classLoader.scan(new File(rootLocalAddress+"/lib"));
 			classLoader.scan(new File(rootLocalAddress+"/conf"));

@@ -60,7 +60,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 		filters.add(serviceFilter);
 		
 		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
-			LoggerUtil.prettyNIOServerLog(logger, "did not found filter config");
+			LoggerUtil.prettyLog(logger, "did not found filter config");
 			filterConfigurations = new ArrayList<Configuration>();
 		}
 
@@ -146,7 +146,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 			
 			acceptorFilter.initialize(context, acceptorFilter.getConfig());
 
-			LoggerUtil.prettyNIOServerLog(logger, "loaded [ {} ] ", filter);
+			LoggerUtil.prettyLog(logger, "loaded [ {} ] ", filter);
 
 			filter = filter.getNext();
 		}
@@ -167,7 +167,7 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 				logger.error(e.getMessage(), e);
 			}
 
-			LoggerUtil.prettyNIOServerLog(logger, "unloaded [ {} ] ", filter);
+			LoggerUtil.prettyLog(logger, "unloaded [ {} ] ", filter);
 
 			filter = filter.getNext();
 

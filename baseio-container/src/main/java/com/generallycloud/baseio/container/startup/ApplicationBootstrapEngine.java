@@ -42,14 +42,8 @@ import com.generallycloud.baseio.container.DefaultExtLoader;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 
-public class ApplicationBootstrapEngine {
-	
-	/**
-	 * rootPath为空时，认为是调试启动，运行时启动要传入rootPath参数
-	 * 
-	 * @param rootPath
-	 * @throws Exception
-	 */
+public class ApplicationBootstrapEngine implements Bootstrap{
+
 	public void bootstrap(String rootPath,boolean deployModel) throws Exception {
 		
 		FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
@@ -109,8 +103,6 @@ public class ApplicationBootstrapEngine {
 
 		} catch (Throwable e) {
 			
-			e.printStackTrace();
-
 			Logger logger = LoggerFactory.getLogger(getClass());
 
 			logger.error(e.getMessage(), e);
@@ -119,9 +111,11 @@ public class ApplicationBootstrapEngine {
 		}
 	}
 
-	private ApplicationConfigurationLoader loadConfigurationLoader(String className) {
-		Class<?> clazz = ClassUtil.forName(className, FileSystemACLoader.class);
-		return (ApplicationConfigurationLoader) ClassUtil.newInstance(clazz);
+	private int getServerPort(int port, boolean enableSSL) {
+		if (port != 0) {
+			return port;
+		}
+		return enableSSL ? 443 : 80;
 	}
 
 	private ApplicationContextEnricher loadApplicationContextEnricher(String className)
@@ -136,13 +130,6 @@ public class ApplicationBootstrapEngine {
 	private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception {
 		Class<?> clazz = ClassUtil.forName(className, DefaultExtLoader.class);
 		return (ApplicationExtLoader) ClassUtil.newInstance(clazz);
-	}
-
-	private int getServerPort(int port, boolean enableSSL) {
-		if (port != 0) {
-			return port;
-		}
-		return enableSSL ? 443 : 80;
 	}
 
 	private Set<String> loadBlackIPs() {
@@ -164,4 +151,10 @@ public class ApplicationBootstrapEngine {
 		}
 		return null;
 	}
+
+	private ApplicationConfigurationLoader loadConfigurationLoader(String className) {
+		Class<?> clazz = ClassUtil.forName(className, FileSystemACLoader.class);
+		return (ApplicationConfigurationLoader) ClassUtil.newInstance(clazz);
+	}
+	
 }

@@ -59,13 +59,13 @@ public class SystemStopServerServlet extends FutureAcceptorService {
 
 			ThreadUtil.sleep(500);
 
-			LoggerUtil.prettyNIOServerLog(logger, "execute stop service");
+			LoggerUtil.prettyLog(logger, "execute stop service");
 			
 			String[] words = new String[] { "5", "4", "3", "2", "1" };
 
 			for (int i = 0; i < 5; i++) {
 
-				LoggerUtil.prettyNIOServerLog(logger,"service will stop after {} seconds", words[i]);
+				LoggerUtil.prettyLog(logger,"service will stop after {} seconds", words[i]);
 
 				ThreadUtil.sleep(1000);
 			}

@@ -64,7 +64,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 				entry.destroy(context, entry.getConfig());
 
-				LoggerUtil.prettyNIOServerLog(logger, "unloaded [ {} ]", entry);
+				LoggerUtil.prettyLog(logger, "unloaded [ {} ]", entry);
 
 			} catch (Throwable e) {
 
@@ -93,7 +93,7 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
 
 			e.initialize(context, e.getConfig());
 
-			LoggerUtil.prettyNIOServerLog(logger, "loaded [ {} ]", e);
+			LoggerUtil.prettyLog(logger, "loaded [ {} ]", e);
 		}
 	}
 	

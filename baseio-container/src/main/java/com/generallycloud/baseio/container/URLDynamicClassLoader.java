@@ -65,12 +65,12 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	}
 
 	private void initialize() {
-		systemMatch.add("java");
-		systemMatch.add("javax");
-		systemMatch.add("sun");
-		systemMatch.add("com/sun");
+		systemMatch.add("java.");
+		systemMatch.add("javax.");
+		systemMatch.add("sun.");
+		systemMatch.add("com.sun.");
 		
-		matchExtend.addAll(systemMatch);
+		matchStartWith.addAll(systemMatch);
 	}
 
 	private void addResource(URL url, String pathName, String fileName)
@@ -122,7 +122,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 		entry.classBinary = null;
 
-		LoggerUtil.prettyNIOServerLog(logger, "define class [ {} ]", name);
+		LoggerUtil.prettyLog(logger, "define class [ {} ]", name);
 
 		return clazz;
 	}
@@ -260,7 +260,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		}
 		this.scanFile(file, "");
 		this.addResource(file, "/.", ".");
-		LoggerUtil.prettyNIOServerLog(logger, "load class count [ {} ] from [ {} ]",
+		LoggerUtil.prettyLog(logger, "load class count [ {} ] from [ {} ]",
 				clazzEntries.size(), file.getAbsolutePath());
 	}
 
@@ -283,7 +283,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	private void scanFile(File file, String pathName) throws IOException {
 
 		if (!file.exists()) {
-			LoggerUtil.prettyNIOServerLog(logger, "file or directory [ {} ] not found",
+			LoggerUtil.prettyLog(logger, "file or directory [ {} ] not found",
 					file.getAbsoluteFile());
 			return;
 		}
@@ -313,7 +313,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		addResource(file, pathName, fileName);
 	}
 
-	private void addResource(File file, String pathName, String fileName) throws IOException {
+	private void addResource(File file, String filePathName, String fileName) throws IOException {
 
 		URL url = file.toURI().toURL();
 
@@ -323,26 +323,25 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 			return;
 		}
 
-		pathName = pathName.substring(1);
-
-		if (isNeedStore(pathName)) {
-			ClassEntry classEntry = storeClass(pathName, url.openStream());
+		filePathName = filePathName.substring(1);
+		
+		if (endWidthClass(filePathName)) {
+			ClassEntry classEntry = storeClass(filePathName, url.openStream());
+			if (classEntry == null) {
+				return;
+			}
 			classEntry.codeBase = url;
 			return;
 		}
 
-		addResource(url, pathName, fileName);
-	}
-
-	private boolean isNeedStore(String pathName) {
-		return pathName.endsWith(".class") && !matchSystem(pathName);
+		addResource(url, filePathName, fileName);
 	}
 
 	private void scanZip(File realFile, JarFile file) throws IOException {
 
 		try {
 
-			LoggerUtil.prettyNIOServerLog(logger, "load file [ {} ]", file.getName());
+			LoggerUtil.prettyLog(logger, "load file [ {} ]", file.getName());
 
 			Enumeration<JarEntry> entries = file.entries();
 
@@ -355,29 +354,35 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 				}
 
 				String filePathName = entry.getName();
-
-				if (isNeedStore(filePathName)) {
+				
+				if (endWidthClass(filePathName)) {
 					ClassEntry classEntry = storeClass(entry.getName(),
 							file.getInputStream(entry));
+					if (classEntry == null) {
+						continue;
+					}
 					classEntry.certificates = entry.getCertificates();
 					classEntry.codeBase = realFile.toURI().toURL();
 				}
-
 			}
 		} finally {
 
 			CloseUtil.close(file);
 		}
 	}
+	
+	private boolean endWidthClass(String filePathName){
+		return filePathName.endsWith(".class");
+	}
 
 	private ClassEntry storeClass(String filePathName, InputStream inputStream)
 			throws IOException {
-
-		if (matchSystem(filePathName)) {
+		
+		String className = filePathName.replace('/', '.').replace(".class", "");
+		
+		if (matchSystem(className)) {
 			return null;
 		}
-
-		String className = filePathName.replace('/', '.').replace(".class", "");
 
 		if (clazzEntries.containsKey(className)) {
 			throw new DuplicateClassException(className);

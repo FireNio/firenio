@@ -136,7 +136,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
 		
-		LoggerUtil.prettyNIOServerLog(logger, "application path      :{ {} }", appLocalAddres);
+		LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
 
 		this.initializeApplicationContext();
 		
@@ -284,24 +284,24 @@ public class ApplicationContext extends AbstractLifeCycle {
 	// FIXME keep http session
 	public synchronized boolean redeploy() {
 
-		LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始卸载服务  **********************//");
+		LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
 
 		redeploying = true;
 		
 		destroyApplicationContext();
 
-		LoggerUtil.prettyNIOServerLog(logger, "//**********************  卸载服务完成  **********************//\n");
+		LoggerUtil.prettyLog(logger, "//**********************  卸载服务完成  **********************//\n");
 
 		try {
 
 			// FIXME 重新加载configuration
-			LoggerUtil.prettyNIOServerLog(logger, "//**********************  开始加载服务  **********************//");
+			LoggerUtil.prettyLog(logger, "//**********************  开始加载服务  **********************//");
 
 			initializeApplicationContext();
 			
 			redeploying = false;
 			
-			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务完成  **********************//\n");
+			LoggerUtil.prettyLog(logger, "//**********************  加载服务完成  **********************//\n");
 
 			return true;
 
@@ -311,7 +311,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 			
 			redeploying = false;
 
-			LoggerUtil.prettyNIOServerLog(logger, "//**********************  加载服务失败  **********************//\n");
+			LoggerUtil.prettyLog(logger, "//**********************  加载服务失败  **********************//\n");
 
 			logger.info(e.getMessage(), e);
 
