@@ -41,7 +41,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 		
 		this.bind(getServerSocketAddress());
 
-		LoggerUtil.prettyNIOServerLog(logger, "server listening @{}", getServerSocketAddress());
+		LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
 	}
 
 	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;

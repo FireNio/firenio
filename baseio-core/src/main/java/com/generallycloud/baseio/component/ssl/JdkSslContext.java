@@ -104,8 +104,8 @@ public class JdkSslContext extends SslContext {
 		}
 		DEFAULT_CIPHERS = Collections.unmodifiableList(ciphers);
 
-		LoggerUtil.prettyNIOServerLog(logger, "Default protocols (JDK): {} ", Arrays.asList(PROTOCOLS));
-		LoggerUtil.prettyNIOServerLog(logger, "Default cipher suites (JDK): {}", DEFAULT_CIPHERS);
+		LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ", Arrays.asList(PROTOCOLS));
+		LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", DEFAULT_CIPHERS);
 	}
 
 	private static void addIfSupported(Set<String> supported, List<String> enabled, String... names) {

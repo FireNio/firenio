@@ -54,7 +54,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 
 			this.session = session;
 			
-			LoggerUtil.prettyNIOServerLog(getLogger(), "connected to server @{}", getServerSocketAddress());
+			LoggerUtil.prettyLog(getLogger(), "connected to server @{}", getServerSocketAddress());
 
 			this.waiter.setPayload(null);
 			

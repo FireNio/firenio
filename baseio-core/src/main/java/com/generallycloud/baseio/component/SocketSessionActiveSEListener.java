@@ -27,6 +27,11 @@ public class SocketSessionActiveSEListener implements SocketSessionIdleEventList
 	@Override
 	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 
+		if (session.isClosed()) {
+			logger.info("closed session");
+			return;
+		}
+		
 		if (session.getLastAccessTime() < lastIdleTime) {
 
 			logger.info("Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",session);

@@ -100,7 +100,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 		this.session = channel.getSession();
 
-		LoggerUtil.prettyNIOServerLog(logger, "已连接到远程服务器 @{}", getServerSocketAddress());
+		LoggerUtil.prettyLog(logger, "已连接到远程服务器 @{}", getServerSocketAddress());
 	}
 
 	@Override

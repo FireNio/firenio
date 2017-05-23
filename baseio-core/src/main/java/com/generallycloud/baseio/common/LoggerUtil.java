@@ -45,7 +45,7 @@ public class LoggerUtil {
 		return builder.toString();
 	}
 
-	public static void prettyNIOServerLog(Logger logger, String msg) {
+	public static void prettyLog(Logger logger, String msg) {
 		
 		if (logger == null) {
 			return;
@@ -56,7 +56,7 @@ public class LoggerUtil {
 		logger.info(msg);
 	}
 
-	public static void prettyNIOServerLog(Logger logger, String msg, Object param1) {
+	public static void prettyLog(Logger logger, String msg, Object param1) {
 		
 		if (logger == null) {
 			return;
@@ -67,7 +67,7 @@ public class LoggerUtil {
 		logger.info(msg, param1);
 	}
 
-	public static void prettyNIOServerLog(Logger logger, String msg, Object param1, Object param2) {
+	public static void prettyLog(Logger logger, String msg, Object param1, Object param2) {
 		
 		if (logger == null) {
 			return;
@@ -78,7 +78,7 @@ public class LoggerUtil {
 		logger.info(msg, param1, param2);
 	}
 
-	public static void prettyNIOServerLog(Logger logger, String msg, Object[] param) {
+	public static void prettyLog(Logger logger, String msg, Object[] param) {
 		
 		if (logger == null) {
 			return;

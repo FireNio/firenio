@@ -151,14 +151,14 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		this.initializeByteBufAllocator();
 
-		LoggerUtil.prettyNIOServerLog(logger,
+		LoggerUtil.prettyLog(logger,
 				"======================================= service begin to start =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "encoding              :{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "protocol              :{ {} }", protocolId);
-		LoggerUtil.prettyNIOServerLog(logger, "cpu size              :{ cpu * {} }",SERVER_CORE_SIZE);
-		LoggerUtil.prettyNIOServerLog(logger, "enable ssl            :{ {} }", isEnableSSL());
-		LoggerUtil.prettyNIOServerLog(logger, "session idle          :{ {} }", session_idle);
-		LoggerUtil.prettyNIOServerLog(logger, "listen port(tcp)      :{ {} }", server_port);
+		LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
+		LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
+		LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }",SERVER_CORE_SIZE);
+		LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
+		LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
+		LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
 
 		if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
 
@@ -171,7 +171,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 							.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
 							.doubleValue();
 
-			LoggerUtil.prettyNIOServerLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
+			LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
 					new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
 							MEMORY_POOL_SIZE });
 		}

@@ -36,7 +36,7 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 
 	@Override
 	public void lifeCycleStarted(LifeCycle lifeCycle) {
-//		LoggerUtil.prettyNIOServerLog(logger, "CONTEXT加载完成");
+//		LoggerUtil.prettyLog(logger, "CONTEXT加载完成");
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 
 	@Override
 	public void lifeCycleStopped(LifeCycle lifeCycle) {
-		LoggerUtil.prettyNIOServerLog(logger, "service stoped");
+		LoggerUtil.prettyLog(logger, "service stoped");
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 		ChannelContext context = (ChannelContext) lifeCycle;
 		
 		if (context == null) {
-			LoggerUtil.prettyNIOServerLog(logger, "service start failed, prepare to stop ...");
+			LoggerUtil.prettyLog(logger, "service start failed, prepare to stop ...");
 			return;
 		}
 		
@@ -65,8 +65,8 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 		String[] params = { String.valueOf(service.getServerSocketAddress()), String.valueOf(hour) };
-		LoggerUtil.prettyNIOServerLog(logger, "service running @127.0.0.1:{} for {} hours", params);
-		LoggerUtil.prettyNIOServerLog(logger, "begin to stop service, please wait ...");
+		LoggerUtil.prettyLog(logger, "service running @127.0.0.1:{} for {} hours", params);
+		LoggerUtil.prettyLog(logger, "begin to stop service, please wait ...");
 	}
 
 }

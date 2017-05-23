@@ -62,16 +62,16 @@ public class SSLUtil {
 
 	private static void doInit(File privateKey, File certificate) throws IOException {
 
-		LoggerUtil.prettyNIOServerLog(logger, "load certificate public  key: {}", certificate.getCanonicalPath());
-		LoggerUtil.prettyNIOServerLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
+		LoggerUtil.prettyLog(logger, "load certificate public  key: {}", certificate.getCanonicalPath());
+		LoggerUtil.prettyLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
 
 		sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
 	}
 	
 	private static void doInitHttp2(File privateKey, File certificate) throws IOException {
 
-		LoggerUtil.prettyNIOServerLog(logger, "load certificate public key: {}", certificate.getCanonicalPath());
-		LoggerUtil.prettyNIOServerLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
+		LoggerUtil.prettyLog(logger, "load certificate public key: {}", certificate.getCanonicalPath());
+		LoggerUtil.prettyLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
 
 		sslContext = SslContextBuilder.forServer(certificate, privateKey).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
 									// NO_ADVERTISE is currently the

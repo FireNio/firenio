@@ -64,14 +64,14 @@ public class DatagramChannelContext extends AbstractChannelContext {
 			this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
 		}
 		
-		LoggerUtil.prettyNIOServerLog(logger,
+		LoggerUtil.prettyLog(logger,
 				"======================================= service begin to start =======================================");
-		LoggerUtil.prettyNIOServerLog(logger, "encoding              ：{ {} }", encoding);
-		LoggerUtil.prettyNIOServerLog(logger, "cpu size              ：{ cpu * {} }",
+		LoggerUtil.prettyLog(logger, "encoding              ：{ {} }", encoding);
+		LoggerUtil.prettyLog(logger, "cpu size              ：{ cpu * {} }",
 				SERVER_CORE_SIZE);
-		LoggerUtil.prettyNIOServerLog(logger, "session idle          ：{ {} }", session_idle);
-		LoggerUtil.prettyNIOServerLog(logger, "listen port(udp)      ：{ {} }", server_port);
-		LoggerUtil.prettyNIOServerLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }",
+		LoggerUtil.prettyLog(logger, "session idle          ：{ {} }", session_idle);
+		LoggerUtil.prettyLog(logger, "listen port(udp)      ：{ {} }", server_port);
+		LoggerUtil.prettyLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }",
 				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
 						MEMORY_POOL_SIZE });
 

@@ -436,7 +436,11 @@ public class FileUtil {
 
 	public static FixedProperties readPropertiesByCls(String file, Charset charset)
 			throws IOException {
-		return readProperties(readInputStreamByCls(file), charset);
+		InputStream inputStream = readInputStreamByCls(file);
+		if (inputStream == null) {
+			throw new FileNotFoundException(file);
+		}
+		return readProperties(inputStream, charset);
 	}
 
 	public static FixedProperties readPropertiesByFile(File file, Charset charset)
