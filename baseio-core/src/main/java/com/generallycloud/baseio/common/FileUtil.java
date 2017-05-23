@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -192,9 +193,13 @@ public class FileUtil {
 
 	public static String getCurrentPath(ClassLoader classLoader) {
 
-		String file = classLoader.getResource(".").getFile();
-
-		return new File(file).getAbsolutePath();
+		URL url = classLoader.getResource(".");
+		
+		if (url == null) {
+			return new File(".").getAbsoluteFile().getParent();
+		}
+		
+		return new File(url.getFile()).getAbsolutePath();
 	}
 
 	public static File getJarParentDirectory(File file) throws IOException {
