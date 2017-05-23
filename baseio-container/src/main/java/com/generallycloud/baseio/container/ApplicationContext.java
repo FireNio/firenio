@@ -147,7 +147,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		URLDynamicClassLoader classLoader = new URLDynamicClassLoader(getClass().getClassLoader());
 		
-		classLoader.addMatchStartWith("com/generallycloud/baseio/");
+		classLoader.addMatchStartWith("com.generallycloud.baseio.");
 		
 		if (deployModel) {
 			
