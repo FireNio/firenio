@@ -36,7 +36,7 @@ public class BalanceReverseAcceptor {
 
 		this.acceptor.bind();
 
-		LoggerUtil.prettyNIOServerLog(logger, "Balance Reverse Acceptor startup completed ...");
+		LoggerUtil.prettyLog(logger, "Balance Reverse Acceptor startup completed ...");
 	}
 
 	public SocketChannelAcceptor getAcceptor() {

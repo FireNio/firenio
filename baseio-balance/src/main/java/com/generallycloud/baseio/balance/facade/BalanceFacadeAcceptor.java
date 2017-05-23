@@ -51,7 +51,7 @@ public class BalanceFacadeAcceptor {
 
 			this.channelAcceptor.bind();
 
-			LoggerUtil.prettyNIOServerLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
+			LoggerUtil.prettyLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
 					"Balance Facade Acceptor startup completed ...");
 		}
 
