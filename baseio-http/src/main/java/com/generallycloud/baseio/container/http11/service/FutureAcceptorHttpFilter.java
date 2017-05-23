@@ -151,7 +151,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 			html_cache.put(path, entity);
 
-			LoggerUtil.prettyNIOServerLog(logger, "mapping static :{}@{}", path, fileName);
+			LoggerUtil.prettyLog(logger, "mapping static :{}@{}", path, fileName);
 
 		} else if (file.isDirectory()) {
 
