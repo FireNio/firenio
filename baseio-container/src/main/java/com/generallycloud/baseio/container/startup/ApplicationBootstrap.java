@@ -29,6 +29,8 @@ public class ApplicationBootstrap {
 		String className = ApplicationBootstrapEngine.class.getName(); 
 		
 		String rootPath = StringUtil.getValueFromArray(args, 0,FileUtil.getCurrentPath());
+		
+		System.out.println("ROOT-PATH:"+rootPath);
 
 		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
 

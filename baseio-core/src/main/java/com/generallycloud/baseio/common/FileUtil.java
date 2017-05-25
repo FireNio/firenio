@@ -199,7 +199,7 @@ public class FileUtil {
 			return new File(".").getAbsoluteFile().getParent();
 		}
 		
-		return new File(url.getFile()).getAbsolutePath();
+		return new File(url.getFile()).getAbsoluteFile().getPath();
 	}
 
 	public static File getJarParentDirectory(File file) throws IOException {
