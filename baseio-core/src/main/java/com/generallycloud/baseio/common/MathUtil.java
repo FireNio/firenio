@@ -294,40 +294,40 @@ public class MathUtil {
 
 		checkLength(bytes, 4, offset);
 
-		bytes[offset + 3] = (byte) ((value & 0xff));
-		bytes[offset + 2] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 1] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 0] = (byte) ((value >> 8 * 3));
+		bytes[offset + 3] = (byte) (value);
+		bytes[offset + 2] = (byte) (value >> 8 * 1);
+		bytes[offset + 1] = (byte) (value >> 8 * 2);
+		bytes[offset + 0] = (byte) (value >> 8 * 3);
 	}
-
+	
 	public static void int2ByteLE(byte[] bytes, int value, int offset) {
 
 		checkLength(bytes, 4, offset);
 
-		bytes[offset + 0] = (byte) ((value & 0xff));
-		bytes[offset + 1] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 2] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 3] = (byte) ((value >> 8 * 3));
+		bytes[offset + 0] = (byte) (value);
+		bytes[offset + 1] = (byte) (value >> 8 * 1);
+		bytes[offset + 2] = (byte) (value >> 8 * 2);
+		bytes[offset + 3] = (byte) (value >> 8 * 3);
 	}
 	
 	public static void unsignedInt2Byte(byte[] bytes, long value, int offset) {
 
 		checkLength(bytes, 4, offset);
 
-		bytes[offset + 3] = (byte) ((value & 0xff));
-		bytes[offset + 2] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 1] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 0] = (byte) ((value >> 8 * 3));
+		bytes[offset + 3] = (byte) (value);
+		bytes[offset + 2] = (byte) (value >> 8 * 1);
+		bytes[offset + 1] = (byte) (value >> 8 * 2);
+		bytes[offset + 0] = (byte) (value >> 8 * 3);
 	}
 
 	public static void unsignedInt2ByteLE(byte[] bytes, long value, int offset) {
 
 		checkLength(bytes, 4, offset);
 
-		bytes[offset + 0] = (byte) ((value & 0xff));
-		bytes[offset + 1] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 2] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 3] = (byte) ((value >> 8 * 3));
+		bytes[offset + 0] = (byte) (value);
+		bytes[offset + 1] = (byte) (value >> 8 * 1);
+		bytes[offset + 2] = (byte) (value >> 8 * 2);
+		bytes[offset + 3] = (byte) (value >> 8 * 3);
 	}
 
 	/* -------------------------------------------------------------------------------*/
@@ -340,14 +340,14 @@ public class MathUtil {
 
 		checkLength(bytes, 8, offset);
 
-		bytes[offset + 7] = (byte) ((value & 0xff));
-		bytes[offset + 6] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 5] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 4] = (byte) ((value >> 8 * 3) & 0xff);
-		bytes[offset + 3] = (byte) ((value >> 8 * 4) & 0xff);
-		bytes[offset + 2] = (byte) ((value >> 8 * 5) & 0xff);
-		bytes[offset + 1] = (byte) ((value >> 8 * 6) & 0xff);
-		bytes[offset + 0] = (byte) ((value >> 8 * 7));
+		bytes[offset + 7] = (byte) (value);
+		bytes[offset + 6] = (byte) (value >> 8 * 1);
+		bytes[offset + 5] = (byte) (value >> 8 * 2);
+		bytes[offset + 4] = (byte) (value >> 8 * 3);
+		bytes[offset + 3] = (byte) (value >> 8 * 4);
+		bytes[offset + 2] = (byte) (value >> 8 * 5);
+		bytes[offset + 1] = (byte) (value >> 8 * 6);
+		bytes[offset + 0] = (byte) (value >> 8 * 7);
 
 	}
 
@@ -355,14 +355,14 @@ public class MathUtil {
 
 		checkLength(bytes, 8, offset);
 
-		bytes[offset + 0] = (byte) ((value & 0xff));
-		bytes[offset + 1] = (byte) ((value >> 8 * 1) & 0xff);
-		bytes[offset + 2] = (byte) ((value >> 8 * 2) & 0xff);
-		bytes[offset + 3] = (byte) ((value >> 8 * 3) & 0xff);
-		bytes[offset + 4] = (byte) ((value >> 8 * 4) & 0xff);
-		bytes[offset + 5] = (byte) ((value >> 8 * 5) & 0xff);
-		bytes[offset + 6] = (byte) ((value >> 8 * 6) & 0xff);
-		bytes[offset + 7] = (byte) ((value >> 8 * 7));
+		bytes[offset + 0] = (byte) (value);
+		bytes[offset + 1] = (byte) (value >> 8 * 1);
+		bytes[offset + 2] = (byte) (value >> 8 * 2);
+		bytes[offset + 3] = (byte) (value >> 8 * 3);
+		bytes[offset + 4] = (byte) (value >> 8 * 4);
+		bytes[offset + 5] = (byte) (value >> 8 * 5);
+		bytes[offset + 6] = (byte) (value >> 8 * 6);
+		bytes[offset + 7] = (byte) (value >> 8 * 7);
 
 	}
 
@@ -376,7 +376,7 @@ public class MathUtil {
 
 		checkLength(bytes, 2, offset);
 
-		bytes[offset + 1] = (byte) (value & 0xff);
+		bytes[offset + 1] = (byte) (value);
 		bytes[offset + 0] = (byte) (value >> 8 * 1);
 	}
 
@@ -384,7 +384,7 @@ public class MathUtil {
 
 		checkLength(bytes, 2, offset);
 
-		bytes[offset + 0] = (byte) (value & 0xff);
+		bytes[offset + 0] = (byte) (value);
 		bytes[offset + 1] = (byte) (value >> 8 * 1);
 	}
 	
@@ -392,7 +392,7 @@ public class MathUtil {
 
 		checkLength(bytes, 2, offset);
 
-		bytes[offset + 1] = (byte) (value & 0xff);
+		bytes[offset + 1] = (byte) (value);
 		bytes[offset + 0] = (byte) (value >> 8 * 1);
 	}
 
@@ -400,7 +400,7 @@ public class MathUtil {
 
 		checkLength(bytes, 2, offset);
 
-		bytes[offset + 0] = (byte) (value & 0xff);
+		bytes[offset + 0] = (byte) (value);
 		bytes[offset + 1] = (byte) (value >> 8 * 1);
 	}
 	
@@ -413,16 +413,14 @@ public class MathUtil {
 	
 	public static void main(String[] args) {
 		
-		char [] cs = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+		int v = Integer.MIN_VALUE + 2147299999;
+		byte [] bytes = new byte[4];
+		int2Byte(bytes, v, 0);
 		
-		for (char i = 0; i < 16; i++) {
-			for (char j = 0; j < 16; j++) {
-				String c1 = String.valueOf(cs[i]);
-				String c2 = String.valueOf(cs[j]);
-				System.out.print("\""+c1+c2+"\",");
-			}
-			System.out.println();
-		}
+		int v1 =  byte2Int(bytes, 0);
+		
+		System.out.println(v1);
+		System.out.println(v1 == v);
 	}
 	
 	private static String[] HEXS = new String[] 
