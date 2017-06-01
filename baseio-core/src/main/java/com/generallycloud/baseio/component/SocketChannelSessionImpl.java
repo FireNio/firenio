@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.net.SocketOption;
+
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -101,6 +104,16 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 	@Override
 	public void setProtocolFactory(ProtocolFactory protocolFactory) {
 		getChannel().setProtocolFactory(protocolFactory);
+	}
+
+	@Override
+	public <T> T getOption(SocketOption<T> name) throws IOException {
+		return getChannel().getOption(name);
+	}
+
+	@Override
+	public <T> void setOption(SocketOption<T> name, T value) throws IOException {
+		getChannel().setOption(name, value);
 	}
 
 }

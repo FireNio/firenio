@@ -25,5 +25,5 @@ public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements
 	public SocketChannel getSocketChannel() {
 		return channel;
 	}
-
+	
 }

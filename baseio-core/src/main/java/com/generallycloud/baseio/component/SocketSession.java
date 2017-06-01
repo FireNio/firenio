@@ -15,6 +15,9 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.net.SocketOption;
+
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -46,6 +49,11 @@ public interface SocketSession extends Session {
 	public abstract void flush(ReadFuture future) ;
 	
 	public abstract void flush(ChannelWriteFuture future);
+	
+	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
+
+	public abstract <T> void setOption(SocketOption<T> name, T value)
+			throws IOException;
 
 	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
 
