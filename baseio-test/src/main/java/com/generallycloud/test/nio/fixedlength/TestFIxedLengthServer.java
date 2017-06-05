@@ -20,7 +20,7 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -35,8 +35,6 @@ public class TestFIxedLengthServer {
 
 	public static void main(String[] args) throws Exception {
 
-		SharedBundle bundle = new SharedBundle().loadAllProperties();
-		
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
@@ -61,8 +59,8 @@ public class TestFIxedLengthServer {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
-		File certificate = bundle.readFile("generallycloud.com.crt");
-		File privateKey = bundle.readFile("generallycloud.com.key");
+		File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
+		File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
 
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		

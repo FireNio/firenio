@@ -15,16 +15,47 @@
  */ 
 package com.generallycloud.test.nio.others;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+import com.generallycloud.baseio.common.BASE64Util;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.test.test.ITest;
+import com.generallycloud.test.test.ITestHandle;
 
 public class TempTest {
 	
 	private static ByteArrayBuffer writeBinaryBuffer;
 	
-	public static void main(String[] args) {
+	private static long [] ls = new long [10];
+	private static Long [] ls2 = new Long [10];
+	
+	public static void main(String[] args) throws ClassNotFoundException, Exception {
 		
-		writeBinary("12345123451234512345".getBytes(), 0, 20);
+		List<String> ls = FileUtil.readLines(FileUtil.readFileByCls("test2.txt"));
 		
+		FileOutputStream out = new FileOutputStream(new File("test3.Queue"),false);
+		
+		for(String s : ls){
+			if (StringUtil.isNullOrBlank(s)) {
+				continue;
+			}
+			String [] ss = s.split(",");
+			for(String bs : ss){
+				if (StringUtil.isNullOrBlank(bs)) {
+					continue;
+				}
+				out.write(Byte.parseByte(bs));
+			}
+		}
+		
+		out.close();
 	}
 	
 	public static void writeBinary(byte[] bytes, int offset, int length) {

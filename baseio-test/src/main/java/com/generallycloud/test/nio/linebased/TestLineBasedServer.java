@@ -19,7 +19,7 @@ import java.io.File;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.linebased.LineBasedProtocolFactory;
-import com.generallycloud.baseio.common.SharedBundle;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -34,8 +34,6 @@ public class TestLineBasedServer {
 
 	public static void main(String[] args) throws Exception {
 		
-		SharedBundle bundle = new SharedBundle().loadAllProperties();
-
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
@@ -57,8 +55,8 @@ public class TestLineBasedServer {
 		
 		context.setProtocolFactory(new LineBasedProtocolFactory(1024 * 1000));
 		
-		File certificate = bundle.readFile("generallycloud.com.crt");
-		File privateKey = bundle.readFile("generallycloud.com.key");
+		File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
+		File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
 
 		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
 		
