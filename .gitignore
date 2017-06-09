@@ -2,3 +2,6 @@
 /baseio/baseio-all-3.1.8-SNAPSHOT-source.jar
 /baseio/baseio-all-3.1.8-SNAPSHOT.jar
 /baseio-release/http-container/lib/baseio-all-3.1.8-SNAPSHOT.jar
+/baseio-release/http-container/app
+/baseio-release/http-container/lib
+/baseio-release/http-container/logs
