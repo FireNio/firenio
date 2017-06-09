@@ -101,7 +101,7 @@ public class ReconnectableConnector implements Closeable {
 		};
 	}
 
-	private void reconnect(ReconnectableConnector reconnectableConnector) {
+	private void reconnect(final ReconnectableConnector reconnectableConnector) {
 		
 		ThreadUtil.execute(new Runnable() {
 

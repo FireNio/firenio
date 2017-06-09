@@ -22,7 +22,7 @@ import com.generallycloud.baseio.concurrent.ReentrantList;
 
 public class P2PConsumerQueue implements ConsumerQueue{
 	
-	private ReentrantList<Consumer> consumers = new ReentrantList<>(new ArrayList<>());
+	private ReentrantList<Consumer> consumers = new ReentrantList<Consumer>(new ArrayList<Consumer>());
 	
 	@Override
 	public int size(){

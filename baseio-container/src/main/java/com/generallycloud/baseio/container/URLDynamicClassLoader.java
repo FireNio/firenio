@@ -174,7 +174,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
 	private Enumeration<URL> findResources0(String name) throws IOException {
 
-		List<URL> urls = resourcesMap.get(name);
+		final List<URL> urls = resourcesMap.get(name);
 
 		if (urls == null) {
 			return java.util.Collections.emptyEnumeration();

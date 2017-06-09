@@ -31,7 +31,7 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 	protected SocketChannelContext				context			= null;
 	protected ConcurrentMap<Integer, SocketSession>	sessions			= new ConcurrentHashMap<>();
 	protected Map<Integer, SocketSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
-	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<>(new LinkedHashMap<>());
+	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<Integer, SocketSession>(new LinkedHashMap<Integer, SocketSession>());
 
 	public AbstractSocketSessionManager(SocketChannelContext context) {
 		super(context.getSessionIdleTime());

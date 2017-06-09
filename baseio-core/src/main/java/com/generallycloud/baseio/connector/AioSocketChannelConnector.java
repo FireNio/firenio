@@ -46,7 +46,7 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
 		AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
 
-		AsynchronousSocketChannel _channel = AsynchronousSocketChannel.open(group);
+		final AsynchronousSocketChannel _channel = AsynchronousSocketChannel.open(group);
 
 		_channel.connect(socketAddress, this,
 				new CompletionHandler<Void, AioSocketChannelConnector>() {

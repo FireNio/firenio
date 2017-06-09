@@ -35,7 +35,7 @@ public class AioSocketSessionManager extends AbstractSocketSessionManager {
 
 	private ExecutorEventLoop selectorEventLoop;
 
-	public void offerSessionMEvent(SocketSessionManagerEvent event) {
+	public void offerSessionMEvent(final SocketSessionManagerEvent event) {
 
 		this.selectorEventLoop.dispatch(new Runnable() {
 

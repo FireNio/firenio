@@ -35,7 +35,7 @@ public class NioSocketSessionManager extends AbstractSocketSessionManager {
 
 	private SocketSelectorEventLoop selectorEventLoop;
 
-	public void offerSessionMEvent(SocketSessionManagerEvent event) {
+	public void offerSessionMEvent(final SocketSessionManagerEvent event) {
 
 		this.selectorEventLoop.dispatch(new SelectorLoopEventAdapter() {
 

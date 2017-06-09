@@ -72,7 +72,7 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 		broadcast(writeFuture);
 	}
 	
-	public void broadcast(ChannelWriteFuture future) {
+	public void broadcast(final ChannelWriteFuture future) {
 		
 		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
 			

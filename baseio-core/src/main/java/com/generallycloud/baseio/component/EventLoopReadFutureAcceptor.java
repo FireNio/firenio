@@ -22,7 +22,7 @@ import com.generallycloud.baseio.protocol.ChannelReadFuture;
 public class EventLoopReadFutureAcceptor extends AbstractReadFutureAcceptor{
 
 	@Override
-	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelReadFuture future) {
+	protected void accept(final IoEventHandle eventHandle,final SocketSession session,final ChannelReadFuture future) {
 		
 		ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
 

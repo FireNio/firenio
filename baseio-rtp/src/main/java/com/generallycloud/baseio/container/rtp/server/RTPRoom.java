@@ -35,7 +35,7 @@ public class RTPRoom {
 	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
 
 	private RTPContext				context		;
-	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<>(new ArrayList<>());
+	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<DatagramSession>(new ArrayList<DatagramSession>());
 	private RTPRoomFactory			roomFactory	;
 	private Integer				roomID		;
 	private boolean				closed		= false;

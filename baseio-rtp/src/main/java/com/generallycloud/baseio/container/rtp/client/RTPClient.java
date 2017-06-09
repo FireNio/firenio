@@ -284,7 +284,7 @@ public class RTPClient {
 			}
 		});
 		
-		byte [] shortWaiter = new byte[]{};
+		final  byte [] shortWaiter = new byte[]{};
 
 		ThreadUtil.execute(new Runnable() {
 

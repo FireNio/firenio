@@ -55,8 +55,8 @@
 				<version>3.6.1</version>
 				<configuration>
 					<source>${project.JdkVersion}</source>
-					<target>${project.JdkVersion}</target>
-					<encoding>UTF-8</encoding>
+                    <target>${project.JdkVersion}</target>
+                    <encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<!-- Source -->
@@ -78,7 +78,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.JdkVersion>1.8</project.JdkVersion>
+		<project.JdkVersion>1.7</project.JdkVersion>
 	</properties>
 
 	<issueManagement>
