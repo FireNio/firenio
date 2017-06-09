@@ -33,7 +33,7 @@ public class ByteArrayBuffer extends OutputStream {
 	}
 
 	public ByteArrayBuffer(byte[] buffer) {
-		this(buffer, buffer.length);
+		this(buffer, 0);
 	}
 
 	public ByteArrayBuffer(byte[] buffer, int count) {
@@ -41,6 +41,10 @@ public class ByteArrayBuffer extends OutputStream {
 		this.count = count;
 	}
 	
+	public ByteArrayBuffer(int size) {
+		this(new byte[size]);
+	}
+
 	public ByteArrayBuffer(int size,int count) {
 		if (size < 0) {
 			throw new IllegalArgumentException("Negative initial size: " + size);
@@ -49,8 +53,8 @@ public class ByteArrayBuffer extends OutputStream {
 		this.count = count;
 	}
 
-	public ByteArrayBuffer(int size) {
-		
+	public byte[] array() {
+		return cache;
 	}
 
 	public void reset() {
@@ -59,10 +63,6 @@ public class ByteArrayBuffer extends OutputStream {
 
 	public int size() {
 		return count;
-	}
-
-	public byte[] array() {
-		return cache;
 	}
 
 	@Override
@@ -78,16 +78,6 @@ public class ByteArrayBuffer extends OutputStream {
 	}
 
 	@Override
-	public void write(int b) {
-		int newcount = count + 1;
-		if (newcount > cache.length) {
-			cache = Arrays.copyOf(cache, cache.length << 1);
-		}
-		cache[count] = (byte) b;
-		count = newcount;
-	}
-
-	@Override
 	public void write(byte bytes[], int offset, int length) {
 		int newcount = count + length;
 		if (newcount > cache.length) {
@@ -100,6 +90,16 @@ public class ByteArrayBuffer extends OutputStream {
 	@Override
 	public void write(byte[] bytes) {
 		write(bytes, 0, bytes.length);
+	}
+
+	@Override
+	public void write(int b) {
+		int newcount = count + 1;
+		if (newcount > cache.length) {
+			cache = Arrays.copyOf(cache, cache.length << 1);
+		}
+		cache[count] = (byte) b;
+		count = newcount;
 	}
 
 	public void write2OutputStream(OutputStream out) throws IOException {
