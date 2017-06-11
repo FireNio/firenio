@@ -42,15 +42,11 @@ public class ByteArrayBuffer extends OutputStream {
 	}
 	
 	public ByteArrayBuffer(int size) {
-		this(new byte[size]);
+		this(size,0);
 	}
 
 	public ByteArrayBuffer(int size,int count) {
-		if (size < 0) {
-			throw new IllegalArgumentException("Negative initial size: " + size);
-		}
-		this.cache = new byte[size];
-		this.count = count;
+		this(new byte[size],count);
 	}
 
 	public byte[] array() {
