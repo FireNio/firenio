@@ -64,25 +64,25 @@
 		<dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-api</artifactId>
-		    <version>1.7.2</version>
+		    <version>1.7.25</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.2</version>
+  		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.2.2</version>
 		</dependency>
 		
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-http</artifactId>
-			<version>3.1.10-SNAPSHOT</version>
+			<version>3.1.11-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

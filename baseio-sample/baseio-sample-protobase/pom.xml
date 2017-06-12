@@ -27,7 +27,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.JdkVersion>1.8</project.JdkVersion>
+		<project.JdkVersion>1.7</project.JdkVersion>
 	</properties>
 
 	<profiles>
@@ -67,34 +67,34 @@
 		    <version>1.7.25</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.4</version>
+  		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.2.2</version>
 		</dependency>
 		
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-protobase</artifactId>
-			<version>3.1.10-SNAPSHOT</version>
+			<version>3.1.11-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-jms</artifactId>
-			<version>3.1.10-SNAPSHOT</version>
+			<version>3.1.11-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-rtp</artifactId>
-			<version>3.1.10-SNAPSHOT</version>
+			<version>3.1.11-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
