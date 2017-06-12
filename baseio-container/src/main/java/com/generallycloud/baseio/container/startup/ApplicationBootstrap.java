@@ -31,7 +31,7 @@ public class ApplicationBootstrap {
 		String rootPath = StringUtil.getValueFromArray(args, 0,FileUtil.getCurrentPath());
 		
 		System.out.println("ROOT-PATH:"+rootPath);
-
+		
 		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
 
 		new ApplicationBootstrap().startup(className,rootPath,deployModel);
@@ -44,7 +44,7 @@ public class ApplicationBootstrap {
 
 		Class<?> bootClass = classLoader.loadClass(className);
 
-		Thread.currentThread().setContextClassLoader(classLoader); //for log4j
+		Thread.currentThread().setContextClassLoader(classLoader); 
 		
 		Bootstrap startup = (Bootstrap) bootClass.newInstance();
 		
@@ -53,7 +53,7 @@ public class ApplicationBootstrap {
 	}
 	
 	private URLDynamicClassLoader newClassLoader(boolean deployModel,String rootLocalAddress) throws IOException{
-		URLDynamicClassLoader classLoader = new URLDynamicClassLoader();
+		URLDynamicClassLoader classLoader = new URLDynamicClassLoader(false);
 		classLoader.addMatchExtend(Bootstrap.class.getName());
 		if (deployModel) {
 			classLoader.scan(new File(rootLocalAddress+"/lib"));
