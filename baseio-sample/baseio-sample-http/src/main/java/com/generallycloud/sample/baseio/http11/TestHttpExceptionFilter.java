@@ -27,7 +27,7 @@ public class TestHttpExceptionFilter extends FutureAcceptorFilter {
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 		
 		if ("/test-error-filter".equals(future.getFutureName())) {
-			throw new IOException("test-error-filter");
+			throw new IOException("test-error-filter222");
 		}
 		
 	}
