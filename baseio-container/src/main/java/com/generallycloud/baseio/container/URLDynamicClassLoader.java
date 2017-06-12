@@ -52,16 +52,24 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	private Set<String>				matchExtend	= new HashSet<>();
 	private List<String>			matchStartWith	= new ArrayList<>();
 	private Set<String>				systemMatch	= new HashSet<>();
+	private boolean				entrustFirst	= true;
 
 	public URLDynamicClassLoader() {
-		this(null);
+		this(true);
+	}
+	
+	public URLDynamicClassLoader(boolean entrustFirst) {
+		this(null,entrustFirst);
 	}
 
 	public URLDynamicClassLoader(ClassLoader parent) {
-
+		this(parent, true);
+	}
+	
+	public URLDynamicClassLoader(ClassLoader parent,boolean entrustFirst) {
 		super(new URL[] {}, parent == null ? getSystemClassLoader() : parent);
-
-		initialize();
+		this.entrustFirst = entrustFirst;
+		this.initialize();
 	}
 
 	private void initialize() {
@@ -222,6 +230,29 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	@Override
 	protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 
+		if (entrustFirst) {
+			
+			Class<?> clazz = entrustLoadClass(getParent(), name);
+
+			if (clazz != null) {
+				return clazz;
+			}
+
+			clazz = super.loadClass(name, resolve);
+			
+			if (clazz != null) {
+				return clazz;
+			}
+			
+			clazz = findClass(name);
+			
+			if (clazz == null) {
+				return clazz;
+			}
+			
+			throw new ClassNotFoundException(name);
+		}
+		
 		Class<?> clazz = findClass(name);
 
 		if (clazz != null) {
@@ -240,10 +271,10 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 		clazz = super.loadClass(name, resolve);
 		
 		if (clazz == null) {
-			throw new ClassNotFoundException(name);
+			return clazz;
 		}
 		
-		return clazz;
+		throw new ClassNotFoundException(name);
 	}
 
 	@Override
@@ -378,7 +409,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 	private ClassEntry storeClass(String filePathName, InputStream inputStream)
 			throws IOException {
 		
-		String className = filePathName.replace('/', '.').replace(".class", "");
+		String className = filePathName.replace('/', '.').substring(0,filePathName.length()-6);
 		
 		if (matchSystem(className)) {
 			return null;
