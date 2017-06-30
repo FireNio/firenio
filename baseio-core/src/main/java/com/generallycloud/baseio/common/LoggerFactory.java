@@ -23,7 +23,7 @@ public class LoggerFactory {
 		configure();
 	}
 
-	public static void enableSLF4JLogger(boolean enable) {
+	public static void setEnableSLF4JLogger(boolean enable) {
 		enableSLF4JLogger = enable;
 	}
 
@@ -42,7 +42,7 @@ public class LoggerFactory {
 		}
 	}
 	
-	public static boolean enableSLF4JLogger(){
+	public static boolean isEnableSLF4JLogger(){
 		return enableSLF4JLogger;
 	}
 }
