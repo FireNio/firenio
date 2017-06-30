@@ -63,7 +63,7 @@ public abstract class ITestThread implements Runnable {
 				last_time = now;
 			}
 
-			DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
+			DebugUtil.info1("__________________________" + c + "\t" + "___" + passed);
 		}
 
 	}

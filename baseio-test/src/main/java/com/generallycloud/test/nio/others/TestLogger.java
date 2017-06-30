@@ -26,7 +26,8 @@ import com.generallycloud.baseio.common.LoggerFactory;
 public class TestLogger {
 
 	public static void main(String[] args) {
-		LoggerFactory.enableSLF4JLogger(false);
+		
+		LoggerFactory.setEnableSLF4JLogger(false);
 		DebugUtil.setEnableDebug(true);
 		
 		Logger logger = LoggerFactory.getLogger(TestLogger.class);
