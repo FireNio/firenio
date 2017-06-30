@@ -27,7 +27,7 @@ import com.generallycloud.baseio.common.LoggerUtil;
 
 public class ChannelContextListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
-	private Logger		logger		= LoggerFactory.getLogger(ChannelContextListener.class);
+	private Logger		logger		= LoggerFactory.getLogger(getClass());
 
 	@Override
 	public int lifeCycleListenerSortIndex() {
@@ -65,7 +65,7 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
 		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 		String[] params = { String.valueOf(service.getServerSocketAddress()), String.valueOf(hour) };
-		LoggerUtil.prettyLog(logger, "service running @127.0.0.1:{} for {} hours", params);
+		LoggerUtil.prettyLog(logger, "service running {} for {} hours", params);
 		LoggerUtil.prettyLog(logger, "begin to stop service, please wait ...");
 	}
 

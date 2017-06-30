@@ -26,6 +26,7 @@ public class DateUtil {
 	public static final DateFormat	HH_mm_ss			= new SimpleDateFormat("HH:mm:ss");
 	public static final DateFormat	yyyy_MM_dd		= new SimpleDateFormat("yyyy-MM-dd");
 	public static final DateFormat	yyyy_MM_dd_HH_mm_ss	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static final DateFormat	yyyy_MM_dd_HH_mm_ss_SSS	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	public static final DateFormat	yyyyMMdd_HH_mm_ss	= new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 	public static final DateFormat	yyyyMMdd			= new SimpleDateFormat("yyyyMMdd");
 	public static final DateFormat	yyyyMMddHHmmss		= new SimpleDateFormat("yyyyMMddHHmmss");
@@ -38,7 +39,7 @@ public class DateUtil {
 		}
 	}
 	
-	public static Date parseyyyy_MM_dd(String source){
+	public static Date parseYyyy_MM_dd(String source){
 		try {
 			return yyyy_MM_dd.parse(source);
 		} catch (ParseException e) {
@@ -46,7 +47,7 @@ public class DateUtil {
 		}
 	}
 	
-	public static Date parseyyyy_MM_dd_HH_mm_ss(String source){
+	public static Date parseYyyy_MM_dd_HH_mm_ss(String source){
 		try {
 			return yyyy_MM_dd_HH_mm_ss.parse(source);
 		} catch (ParseException e) {
@@ -54,7 +55,7 @@ public class DateUtil {
 		}
 	}
 	
-	public static Date parseyyyyMMdd_HH_mm_ss(String source){
+	public static Date parseYyyyMMdd_HH_mm_ss(String source){
 		try {
 			return yyyyMMdd_HH_mm_ss.parse(source);
 		} catch (ParseException e) {
@@ -62,7 +63,7 @@ public class DateUtil {
 		}
 	}
 	
-	public static Date parseyyyyMMdd(String source){
+	public static Date parseYyyyMMdd(String source){
 		try {
 			return yyyyMMdd.parse(source);
 		} catch (ParseException e) {
@@ -70,9 +71,17 @@ public class DateUtil {
 		}
 	}
 	
-	public static Date parseyyyyMMddHHmmss(String source){
+	public static Date parseYyyyMMddHHmmss(String source){
 		try {
 			return yyyyMMddHHmmss.parse(source);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Date parseYyyy_MM_dd_HH_mm_ss_SSS(String source){
+		try {
+			return yyyy_MM_dd_HH_mm_ss_SSS.parse(source);
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}

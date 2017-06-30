@@ -12,22 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
+public class ConsoleLogger implements Logger {
 
+	private String		debugClassName;
 
-public class ConsoleLogger implements Logger{
-	
-	private String className = null;
-	
-	private Class<?> loggerClass = null;
-	
+	private String		infoClassName;
+
+	private String		errorClassName;
+
+	private Class<?>	loggerClass	= null;
+
 	protected ConsoleLogger(Class<?> clazz) {
-		this.className = "["+clazz.getName()+"] ";
+		String  className = clazz.getSimpleName() + " -";
+		this.debugClassName = " [DEBUG] " + className;
+		this.infoClassName  = " [INFO] " + className;
+		this.errorClassName = " [ERROR] " + className;
 		this.loggerClass = clazz;
 	}
-	
+
 	@Override
 	public Class<?> getLoggerClass() {
 		return loggerClass;
@@ -35,62 +40,61 @@ public class ConsoleLogger implements Logger{
 
 	@Override
 	public void info(String message) {
-		DebugUtil.info(className,message);
+		DebugUtil.info(infoClassName, message);
 	}
 
 	@Override
 	public void info(String message, Object param) {
-		DebugUtil.info(className,message, param);
+		DebugUtil.info(infoClassName, message, param);
 	}
 
 	@Override
 	public void info(String message, Object param, Object param1) {
-		DebugUtil.info(className,message, param, param1);
+		DebugUtil.info(infoClassName, message, param, param1);
 	}
 
 	@Override
 	public void info(String message, Object[] param) {
-		DebugUtil.info(className,message, param);
+		DebugUtil.info(infoClassName, message, param);
 	}
 
 	@Override
 	public void debug(String message) {
-		DebugUtil.debug(className,message);
+		DebugUtil.debug(debugClassName, message);
 	}
 
 	@Override
 	public void debug(String message, Object param) {
-		DebugUtil.debug(className,message, param);
-		
+		DebugUtil.debug(debugClassName, message, param);
+
 	}
 
 	@Override
 	public void debug(String message, Object param, Object param1) {
-		DebugUtil.debug(className,message, param, param1);		
+		DebugUtil.debug(debugClassName, message, param, param1);
 	}
 
 	@Override
 	public void debug(String message, Object[] param) {
-		DebugUtil.debug(className,message, param);		
+		DebugUtil.debug(debugClassName, message, param);
 	}
 
 	@Override
-	public void error(String object, Throwable throwable) {
-		DebugUtil.error(className,object, throwable);		
+	public void error(String message, Throwable throwable) {
+		DebugUtil.error(errorClassName, message, throwable);
 	}
-	
+
 	@Override
-	public void error(String object) {
-		DebugUtil.error(object);		
+	public void error(String message) {
+		if (message == null) {
+			return;
+		}
+		DebugUtil.info(errorClassName, message);
 	}
 
 	@Override
 	public void debug(Throwable throwable) {
 		DebugUtil.debug(throwable);
-	}
-
-	public static void main(String[] args) {
-		new ConsoleLogger(ConsoleLogger.class).info("test {}", "www");
 	}
 
 	@Override
@@ -100,8 +104,8 @@ public class ConsoleLogger implements Logger{
 
 	@Override
 	public void errorDebug(String message, Throwable throwable) {
-		DebugUtil.error(throwable.getMessage());
+		error(message);
 		DebugUtil.debug(throwable);
 	}
-	
+
 }
