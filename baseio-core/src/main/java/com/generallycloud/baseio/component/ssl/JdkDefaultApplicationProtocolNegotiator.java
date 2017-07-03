@@ -12,45 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.util.Collections;
 import java.util.List;
 
-import javax.net.ssl.SSLEngine;
-
 final class JdkDefaultApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
-    public static final JdkDefaultApplicationProtocolNegotiator INSTANCE =
-            new JdkDefaultApplicationProtocolNegotiator();
-    private static final SslEngineWrapperFactory DEFAULT_SSL_ENGINE_WRAPPER_FACTORY = new SslEngineWrapperFactory() {
-        @Override
-        public SSLEngine wrapSslEngine(SSLEngine engine, JdkApplicationProtocolNegotiator applicationNegotiator,
-                boolean isServer) {
-     	   return new JdkSslEngine(engine);
-        }
-    };
 
-    private JdkDefaultApplicationProtocolNegotiator() {
-    }
+	private SslEngineWrapperFactory defaultSslEngineWrapperFactory = new DefaultSslEngineWrapperFactory();
 
-    @Override
-    public SslEngineWrapperFactory wrapperFactory() {
-        return DEFAULT_SSL_ENGINE_WRAPPER_FACTORY;
-    }
+	@Override
+	public SslEngineWrapperFactory wrapperFactory() {
+		return defaultSslEngineWrapperFactory;
+	}
 
-    @Override
-    public ProtocolSelectorFactory protocolSelectorFactory() {
-        throw new UnsupportedOperationException("Application protocol negotiation unsupported");
-    }
+	@Override
+	public ProtocolSelectorFactory protocolSelectorFactory() {
+		throw new UnsupportedOperationException("Application protocol negotiation unsupported");
+	}
 
-    @Override
-    public ProtocolSelectionListenerFactory protocolListenerFactory() {
-        throw new UnsupportedOperationException("Application protocol negotiation unsupported");
-    }
+	@Override
+	public ProtocolSelectionListenerFactory protocolListenerFactory() {
+		throw new UnsupportedOperationException("Application protocol negotiation unsupported");
+	}
 
-    @Override
-    public List<String> protocols() {
-        return Collections.emptyList();
-    }
+	@Override
+	public List<String> protocols() {
+		return Collections.emptyList();
+	}
 }

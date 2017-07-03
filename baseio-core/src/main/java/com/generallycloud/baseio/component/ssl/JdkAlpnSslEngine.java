@@ -26,9 +26,6 @@ import org.eclipse.jetty.alpn.ALPN;
 import org.eclipse.jetty.alpn.ALPN.ClientProvider;
 import org.eclipse.jetty.alpn.ALPN.ServerProvider;
 
-import com.generallycloud.baseio.component.ssl.JdkApplicationProtocolNegotiator.ProtocolSelectionListener;
-import com.generallycloud.baseio.component.ssl.JdkApplicationProtocolNegotiator.ProtocolSelector;
-
 final class JdkAlpnSslEngine extends JdkSslEngine {
 	
 	private static boolean	available;

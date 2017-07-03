@@ -39,8 +39,8 @@ public class JdkSslContext extends SslContext {
 	private static final Logger	logger	= LoggerFactory.getLogger(JdkSslContext.class);
 
 	static final String			PROTOCOL	= "TLS";
-	static final String[]		PROTOCOLS;
-	static final List<String>	DEFAULT_CIPHERS;
+	static final String[]			PROTOCOLS;
+	static final List<String>		DEFAULT_CIPHERS;
 	static final Set<String>		SUPPORTED_CIPHERS;
 
 	static {
@@ -122,25 +122,6 @@ public class JdkSslContext extends SslContext {
 	private final ClientAuth						clientAuth;
 	private final SSLContext						sslContext;
 	private final boolean						isClient;
-
-	/**
-	 * Creates a new {@link JdkSslContext} from a pre-configured
-	 * {@link SSLContext}.
-	 *
-	 * @param sslContext
-	 *             the {@link SSLContext} to use.
-	 * @param isClient
-	 *             {@code true} if this context should create {@link SSLEngine}
-	 *             s for client-side usage.
-	 * @param clientAuth
-	 *             the {@link ClientAuth} to use. This will only be used when
-	 * @param isClient
-	 *             is {@code false}.
-	 */
-	public JdkSslContext(SSLContext sslContext, boolean isClient, ClientAuth clientAuth) {
-		this(sslContext, isClient, null, IdentityCipherSuiteFilter.INSTANCE,
-				JdkDefaultApplicationProtocolNegotiator.INSTANCE, clientAuth, false);
-	}
 
 	/**
 	 * Creates a new {@link JdkSslContext} from a pre-configured
@@ -264,12 +245,12 @@ public class JdkSslContext extends SslContext {
 	 */
 	static JdkApplicationProtocolNegotiator toNegotiator(ApplicationProtocolConfig config, boolean isServer) {
 		if (config == null) {
-			return JdkDefaultApplicationProtocolNegotiator.INSTANCE;
+			return new JdkDefaultApplicationProtocolNegotiator();
 		}
 
 		switch (config.protocol()) {
 		case NONE:
-			return JdkDefaultApplicationProtocolNegotiator.INSTANCE;
+			return new JdkDefaultApplicationProtocolNegotiator();
 		case ALPN:
 			if (isServer) {
 				switch (config.selectorFailureBehavior()) {
@@ -291,29 +272,6 @@ public class JdkSslContext extends SslContext {
 					throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
 							.append(config.selectedListenerFailureBehavior()).append(" failure behavior")
 							.toString());
-				}
-			}
-		case NPN:
-			if (isServer) {
-				switch (config.selectedListenerFailureBehavior()) {
-				case ACCEPT:
-					return new JdkNpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-				case FATAL_ALERT:
-					return new JdkNpnApplicationProtocolNegotiator(true, config.supportedProtocols());
-				default:
-					throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
-							.append(config.selectedListenerFailureBehavior()).append(" failure behavior")
-							.toString());
-				}
-			} else {
-				switch (config.selectorFailureBehavior()) {
-				case FATAL_ALERT:
-					return new JdkNpnApplicationProtocolNegotiator(true, config.supportedProtocols());
-				case NO_ADVERTISE:
-					return new JdkNpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-				default:
-					throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
-							.append(config.selectorFailureBehavior()).append(" failure behavior").toString());
 				}
 			}
 		default:

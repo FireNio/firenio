@@ -12,18 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
+import java.util.List;
+
+import javax.net.ssl.SSLEngine;
+
 /**
- * Provides a way to get the application-level protocol name from ALPN or NPN.
+ * @author wangkai
+ *
  */
-interface ApplicationProtocolAccessor {
-    /**
-     * Returns the name of the negotiated application-level protocol.
-     *
-     * @return the application-level protocol name or
-     *         {@code null} if the negotiation failed or the client does not have ALPN/NPN extension
-     */
-    String getApplicationProtocol();
+public interface ProtocolSelectionListenerFactory {
+
+	ProtocolSelectionListener newListener(SSLEngine engine, List<String> supportedProtocols);
+
 }

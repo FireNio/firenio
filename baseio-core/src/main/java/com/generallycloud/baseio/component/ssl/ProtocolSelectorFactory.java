@@ -12,13 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
-import java.util.List;
+import java.util.Set;
 
-public interface ApplicationProtocolNegotiator {
+import javax.net.ssl.SSLEngine;
 
-	List<String> protocols();
+/**
+ * @author wangkai
+ *
+ */
+public interface ProtocolSelectorFactory {
 
+     ProtocolSelector newSelector(SSLEngine engine, Set<String> supportedProtocols);
+	
 }

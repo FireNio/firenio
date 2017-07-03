@@ -15,6 +15,9 @@
  */ 
 package com.generallycloud.baseio.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClassUtil {
 
 	public static Object newInstance(Class<?> clazz) {
@@ -46,4 +49,21 @@ public class ClassUtil {
 			return defaultClass;
 		}
 	}
+	
+	public static Class<?>[] getInterfaces(Class<?> clazz){
+		if (!clazz.isInterface()) {
+			return clazz.getInterfaces();
+		}
+		Class<?>[] interfaces = clazz.getInterfaces();
+		if (interfaces.length == 0) {
+			return new Class[]{clazz};
+		}
+		List<Class<?>> cs = new ArrayList<>(interfaces.length + 1);
+		for (Class<?> c : interfaces) {
+			cs.add(c);
+		}
+		cs.add(clazz);
+		return cs.toArray(new Class[cs.size()]);
+	}
+	
 }

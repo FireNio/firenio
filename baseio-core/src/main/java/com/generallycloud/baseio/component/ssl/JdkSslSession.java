@@ -24,7 +24,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import javax.security.cert.X509Certificate;
 
-final class JdkSslSession implements SSLSession, ApplicationProtocolAccessor {
+final class JdkSslSession implements SSLSession {
 
 	private int		packetBufferSize;
 	private String		applicationProtocol;
@@ -44,12 +44,11 @@ final class JdkSslSession implements SSLSession, ApplicationProtocolAccessor {
 		return unwrap().getProtocol();
 	}
 
-	@Override
 	public String getApplicationProtocol() {
 		return applicationProtocol;
 	}
 
-	void setApplicationProtocol(String applicationProtocol) {
+	protected void setApplicationProtocol(String applicationProtocol) {
 		this.applicationProtocol = applicationProtocol;
 	}
 

@@ -49,9 +49,6 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.generallycloud.baseio.component.ByteArrayInputStream;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 
 public abstract class SslContext {
 	static final CertificateFactory	X509_CERT_FACTORY;
@@ -63,29 +60,7 @@ public abstract class SslContext {
 		}
 	}
 
-	/**
-	 * Returns the default server-side implementation provider currently in
-	 * use.
-	 *
-	 * @return {@link SslProvider#OPENSSL} if OpenSSL is available.
-	 *         {@link SslProvider#JDK} otherwise.
-	 */
-	public static SslProvider defaultServerProvider() {
-		return defaultProvider();
-	}
-
-	/**
-	 * Returns the default client-side implementation provider currently in
-	 * use.
-	 *
-	 * @return {@link SslProvider#OPENSSL} if OpenSSL is available.
-	 *         {@link SslProvider#JDK} otherwise.
-	 */
-	public static SslProvider defaultClientProvider() {
-		return defaultProvider();
-	}
-
-	private static SslProvider defaultProvider() {
+	public static SslProvider defaultProvider() {
 		if (OpenSsl.isAvailable()) {
 			return SslProvider.OPENSSL;
 		} else {
@@ -100,7 +75,7 @@ public abstract class SslContext {
 			long sessionTimeout, ClientAuth clientAuth, boolean startTls) throws SSLException {
 
 		if (provider == null) {
-			provider = defaultServerProvider();
+			provider = defaultProvider();
 		}
 
 		switch (provider) {
@@ -109,8 +84,6 @@ public abstract class SslContext {
 					keyManagerFactory, ciphers, cipherFilter, apn, sessionCacheSize, sessionTimeout, clientAuth,
 					startTls);
 		case OPENSSL:
-			return null;
-		case OPENSSL_REFCNT:
 			return null;
 		default:
 			throw new Error(provider.toString());
@@ -123,7 +96,7 @@ public abstract class SslContext {
 			CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, long sessionCacheSize, long sessionTimeout)
 			throws SSLException {
 		if (provider == null) {
-			provider = defaultClientProvider();
+			provider = defaultProvider();
 		}
 		switch (provider) {
 		case JDK:
@@ -131,23 +104,9 @@ public abstract class SslContext {
 					keyManagerFactory, ciphers, cipherFilter, apn, sessionCacheSize, sessionTimeout);
 		case OPENSSL:
 			return null;
-		case OPENSSL_REFCNT:
-			return null;
 		default:
 			throw new Error(provider.toString());
 		}
-	}
-
-	static ApplicationProtocolConfig toApplicationProtocolConfig(Iterable<String> nextProtocols) {
-		ApplicationProtocolConfig apn;
-		if (nextProtocols == null) {
-			apn = ApplicationProtocolConfig.DISABLED;
-		} else {
-			apn = new ApplicationProtocolConfig(Protocol.NPN_AND_ALPN,
-					SelectorFailureBehavior.CHOOSE_MY_LAST_PROTOCOL, SelectedListenerFailureBehavior.ACCEPT,
-					nextProtocols);
-		}
-		return apn;
 	}
 
 	/**
@@ -181,7 +140,7 @@ public abstract class SslContext {
 	 * Returns the object responsible for negotiating application layer
 	 * protocols for the TLS NPN/ALPN extensions.
 	 */
-	public abstract ApplicationProtocolNegotiator applicationProtocolNegotiator();
+	public abstract JdkApplicationProtocolNegotiator applicationProtocolNegotiator();
 
 	public abstract SSLEngine newEngine();
 

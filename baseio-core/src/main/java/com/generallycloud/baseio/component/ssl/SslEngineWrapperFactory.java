@@ -12,19 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
+import javax.net.ssl.SSLEngine;
+
 /**
- * An enumeration of SSL/TLS protocol providers.
+ * @author wangkai
+ *
  */
-public enum SslProvider {
-    /**
-     * JDK's default implementation.
-     */
-    JDK,
-    /**
-     * OpenSSL-based implementation.
-     */
-    OPENSSL
+public interface SslEngineWrapperFactory {
+
+     SSLEngine wrapSslEngine(SSLEngine engine, JdkApplicationProtocolNegotiator applicationNegotiator,
+             boolean isServer);
+     
 }

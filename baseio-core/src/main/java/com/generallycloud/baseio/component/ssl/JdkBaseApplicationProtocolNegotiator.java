@@ -28,10 +28,11 @@ import javax.net.ssl.SSLHandshakeException;
  * Common base class for {@link JdkApplicationProtocolNegotiator} classes to inherit from.
  */
 class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
-    private final List<String> protocols;
-    private final ProtocolSelectorFactory selectorFactory;
-    private final ProtocolSelectionListenerFactory listenerFactory;
-    private final SslEngineWrapperFactory wrapperFactory;
+   
+	private final List<String>					protocols;
+	private final ProtocolSelectorFactory			selectorFactory;
+	private final ProtocolSelectionListenerFactory	listenerFactory;
+	private final SslEngineWrapperFactory			wrapperFactory;
 
     /**
      * Create a new instance.
@@ -43,19 +44,6 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
     protected JdkBaseApplicationProtocolNegotiator(SslEngineWrapperFactory wrapperFactory,
             ProtocolSelectorFactory selectorFactory, ProtocolSelectionListenerFactory listenerFactory,
             Iterable<String> protocols) {
-        this(wrapperFactory, selectorFactory, listenerFactory, toList(protocols));
-    }
-
-    /**
-     * Create a new instance.
-     * @param wrapperFactory Determines which application protocol will be used by wrapping the SSLEngine in use.
-     * @param selectorFactory How the peer selecting the protocol should behave.
-     * @param listenerFactory How the peer being notified of the selected protocol should behave.
-     * @param protocols The order of iteration determines the preference of support for protocols.
-     */
-    protected JdkBaseApplicationProtocolNegotiator(SslEngineWrapperFactory wrapperFactory,
-            ProtocolSelectorFactory selectorFactory, ProtocolSelectionListenerFactory listenerFactory,
-            String... protocols) {
         this(wrapperFactory, selectorFactory, listenerFactory, toList(protocols));
     }
 
