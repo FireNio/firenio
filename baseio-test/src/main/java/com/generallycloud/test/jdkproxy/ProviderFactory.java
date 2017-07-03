@@ -17,13 +17,14 @@ package com.generallycloud.test.jdkproxy;
 
 import java.lang.reflect.Proxy;
 
+import com.generallycloud.baseio.common.ClassUtil;
+
 public class ProviderFactory {
 
 	public static FontProvider getFontProvider() {
-		Class<FontProvider> targetClass = FontProvider.class;
 		return (FontProvider) Proxy.newProxyInstance(
-				targetClass.getClassLoader(), 
-				targetClass.getInterfaces(),
+				FontProvider.class.getClassLoader(), 
+				ClassUtil.getInterfaces(FontProvider.class),
 				new CachedProviderHandler(new FontProviderFromDisk()));
 	}
 
@@ -33,6 +34,6 @@ public class ProviderFactory {
 		public String getFont(String name) {
 			return "DISK:" + name;
 		}
-
 	}
+	
 }
