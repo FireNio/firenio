@@ -36,7 +36,7 @@ import com.generallycloud.baseio.protocol.EmptyReadFuture;
 public class SslHandler {
 
 	private ChannelWriteFuture	EMPTY_CWF	= null;
-	
+
 	private ByteBuf			tempDst;
 
 	public SslHandler(SocketChannelContext context) {
@@ -61,7 +61,7 @@ public class SslHandler {
 	private ByteBuf allocate(SocketChannel channel, int capacity) {
 		return channel.getByteBufAllocator().allocate(capacity);
 	}
-
+	
 	public ByteBuf wrap(SocketChannel channel, ByteBuf src) throws IOException {
 		SSLEngine engine = channel.getSSLEngine();
 		ByteBuf dst = getTempDst(engine);
@@ -75,46 +75,43 @@ public class SslHandler {
 				synchByteBuf(result, src, dst);
 				if (status == Status.CLOSED) {
 					return gc(channel, dst.flip());
-				} else {
-					switch (handshakeStatus) {
-					case NEED_UNWRAP:
+				}
+				if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
+					if(handshakeStatus == HandshakeStatus.NEED_UNWRAP){
 						if (out != null) {
 							out.read(dst.flip());
 							return out.flip();
 						}
 						return gc(channel, dst.flip());
-					case NEED_WRAP:
+					}else if(handshakeStatus == HandshakeStatus.NEED_WRAP){
 						if (out == null) {
 							out = allocate(channel, 256);
 						}
 						out.read(dst.flip());
-						break;
-					case NOT_HANDSHAKING:
-						if (src.hasRemaining()) {
-							if (out == null) {
-								int outLength = ((src.limit() / src.position()) + 1)
-										* (dst.position() - src.position()) + src.limit();
-								out = allocate(channel, outLength);
-							}
-							out.read(dst.flip());
-							break;
-						}
-						if (out != null) {
-							out.read(dst.flip());
-							return out.flip();
-						}
-						return gc(channel, dst.flip());
-					case NEED_TASK:
-						runDelegatedTasks(engine);
-						break;
-					case FINISHED:
+						continue;
+					}else if(handshakeStatus == HandshakeStatus.FINISHED){
 						channel.finishHandshake(null);
 						out.read(dst.flip());
 						return out.flip();
-					default:
-						break;
+					}else if(handshakeStatus == HandshakeStatus.NEED_TASK){
+						runDelegatedTasks(engine);
+						continue;
 					}
 				}
+				if (src.hasRemaining()) {
+					if (out == null) {
+						int outLength = ((src.limit() / src.position()) + 1)
+								* (dst.position() - src.position()) + src.limit();
+						out = allocate(channel, outLength);
+					}
+					out.read(dst.flip());
+					continue;
+				}
+				if (out != null) {
+					out.read(dst.flip());
+					return out.flip();
+				}
+				return gc(channel, dst.flip());
 			}
 		} catch (Throwable e) {
 			ReleaseUtil.release(out);
@@ -145,23 +142,21 @@ public class SslHandler {
 			SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
 			HandshakeStatus handshakeStatus = result.getHandshakeStatus();
 			synchByteBuf(result, src, dst);
-			switch (handshakeStatus) {
-			case NEED_UNWRAP:
-				return null;
-			case NEED_WRAP:
-				channel.flush(EMPTY_CWF.duplicate());
-				return null;
-			case NEED_TASK:
-				runDelegatedTasks(sslEngine);
-				continue;
-			case FINISHED:
-				channel.finishHandshake(null);
-				return null;
-			case NOT_HANDSHAKING:
-				return gc(channel, dst.flip());
-			default:
-				break;
+			if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
+				if(handshakeStatus == HandshakeStatus.NEED_WRAP){
+					channel.flush(EMPTY_CWF.duplicate());
+					return null;
+				}else if(handshakeStatus == HandshakeStatus.NEED_TASK){
+					runDelegatedTasks(sslEngine);
+					continue;
+				}else if(handshakeStatus == HandshakeStatus.FINISHED){
+					channel.finishHandshake(null);
+					return null;
+				}else if(handshakeStatus == HandshakeStatus.NEED_UNWRAP){
+					return null;
+				}
 			}
+			return gc(channel, dst.flip());
 		}
 	}
 
