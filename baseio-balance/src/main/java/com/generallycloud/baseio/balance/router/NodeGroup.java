@@ -27,36 +27,29 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NodeGroup<T> {
 
-	private List<T>		machines;
+	private List<T>	machines;
 
-	//FIXME 这里直接使用T
-	private List<Node<T>>	nodes;
+	private T[]		nodes;
 
-	private int			maxNode;
+	private int		maxNode;
 
+	@SuppressWarnings("unchecked")
 	public NodeGroup(int nodes) {
 		this.machines = new ArrayList<>(nodes / 2);
-		this.nodes = initNodes(nodes);
+		this.nodes = (T[]) new Object[nodes];
 		this.maxNode = nodes;
-	}
-
-	private List<Node<T>> initNodes(int nodes) {
-		List<Node<T>> ns = new ArrayList<>(nodes);
-		for (int i = 0; i < nodes; i++) {
-			ns.add(new Node<T>());
-		}
-		return ns;
 	}
 
 	public synchronized void addMachine(T machine) {
 
 		List<T> machines = this.machines;
-		List<Node<T>> nodes = this.nodes;
+		T[] nodes = this.nodes;
+		int nsize = maxNode;
 
 		if (machines.size() == 0) {
 			machines.add(machine);
-			for (int i = 0; i < nodes.size(); i++) {
-				nodes.get(i).setMachine(machine);
+			for (int i = 0; i < nsize; i++) {
+				nodes[i] = machine;
 			}
 			return;
 		}
@@ -65,7 +58,7 @@ public class NodeGroup<T> {
 		int nmsize = msize + 1;
 		int replaceIndex = 0;
 		int remain = nmsize;
-		int nsize = nodes.size();
+
 		boolean replaced = true;
 		T replace = null;
 		for (int i = msize; i < nsize;) {
@@ -79,14 +72,15 @@ public class NodeGroup<T> {
 				replace = machines.get(replaceIndex++);
 			}
 
-			Node<T> n = nodes.get(i++);
-			remain--;
-			if (n.getMachine() == replace) {
-				n.setMachine(machine);
+			T n = nodes[i];
+			if (n == replace) {
+				nodes[i] = machine;
 				replaced = true;
 				i += remain;
+				continue;
 			}
-
+			remain--;
+			i++;
 		}
 
 		machines.add(machine);
@@ -95,20 +89,20 @@ public class NodeGroup<T> {
 	public synchronized void removeMachine(T machine) {
 
 		List<T> machines = this.machines;
-		List<Node<T>> nodes = this.nodes;
+		T[] nodes = this.nodes;
+		int nsize = maxNode;
 
 		machines.remove(machine);
 
 		if (machines.size() == 0) {
-			for (int i = 0; i < nodes.size(); i++) {
-				nodes.get(i).setMachine(null);
+			for (int i = 0; i < nsize; i++) {
+				nodes[i] = null;
 			}
 			return;
 		}
 
 		int msize = machines.size();
 		int replaceIndex = 0;
-		int nsize = nodes.size();
 		boolean replaced = true;
 		T replace = null;
 		for (int i = 0; i < nsize; i++) {
@@ -119,9 +113,9 @@ public class NodeGroup<T> {
 				}
 				replace = machines.get(replaceIndex++);
 			}
-			Node<T> n = nodes.get(i);
-			if (n.getMachine() == machine) {
-				n.setMachine(replace);
+			T n = nodes[i];
+			if (n == machine) {
+				nodes[i] = replace;
 				replaced = true;
 			}
 		}
@@ -129,38 +123,29 @@ public class NodeGroup<T> {
 
 	private void count() {
 		Map<T, AtomicInteger> map = new HashMap<>();
-		Map<T, AtomicInteger> map1 = new HashMap<>();
 		if (machines.isEmpty()) {
 			return;
 		}
 		for (T machine : machines) {
 			map.put(machine, new AtomicInteger());
-			map1.put(machine, new AtomicInteger());
 		}
 
-		for (Node<T> node : nodes) {
-			map.get(node.getMachine()).incrementAndGet();
-			if (node.compare()) {
-				map1.get(node.getMachine()).incrementAndGet();
+		for (T node : nodes) {
+			AtomicInteger a = map.get(node);
+			if (a == null) {
+				continue;
 			}
+			a.incrementAndGet();
 		}
 
 		System.out.println(map);
-		System.out.println(map1);
-
 	}
 
 	public T getMachine(int hash) {
 		if (hash < maxNode) {
-			return nodes.get(hash).getMachine();
+			return nodes[hash];
 		}
-		return nodes.get(hash % maxNode).getMachine();
-	}
-
-	private void setLast() {
-		for (Node<T> node : nodes) {
-			node.setLast(node.getMachine());
-		}
+		return nodes[hash % maxNode];
 	}
 
 	public static void main(String[] args) {
@@ -174,7 +159,6 @@ public class NodeGroup<T> {
 		for (int i = 0; i < time; i++) {
 			String m = String.valueOf(i);
 			machines.add(m);
-			group.setLast();
 			group.addMachine(m);
 			group.count();
 		}
@@ -184,7 +168,6 @@ public class NodeGroup<T> {
 		//		System.out.println();
 
 		for (int i = 0; i < time; i++) {
-			group.setLast();
 			group.removeMachine(machines.get(i));
 			group.count();
 		}
