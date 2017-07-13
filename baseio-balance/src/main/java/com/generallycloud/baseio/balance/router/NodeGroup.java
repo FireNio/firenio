@@ -29,6 +29,7 @@ public class NodeGroup<T> {
 
 	private List<T>		machines;
 
+	//FIXME 这里直接使用T
 	private List<Node<T>>	nodes;
 
 	private int			maxNode;
