@@ -28,7 +28,9 @@ import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSessionFact
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
 import com.generallycloud.baseio.component.BeatFutureFactory;
+import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SilentExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.component.SocketSessionIdleEventListener;
@@ -50,6 +52,8 @@ public class BalanceServerBootStrap {
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
 	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
 	private NoneLoadReadFutureAcceptor			noneLoadReadFutureAcceptor;
+	private ExceptionCaughtHandle				facadeExceptionCaughtHandle;
+	private ExceptionCaughtHandle				reverseExceptionCaughtHandle;
 	private BalanceRouter					balanceRouter;
 	private SslContext						sslContext;
 	private FacadeInterceptor				facadeInterceptor;
@@ -75,11 +79,23 @@ public class BalanceServerBootStrap {
 			noneLoadReadFutureAcceptor = new DefaultNoneLoadReadFutureAcceptor();
 		}
 		
+		if (facadeExceptionCaughtHandle == null) {
+			facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
+		}
+		
+		if (reverseExceptionCaughtHandle == null) {
+			reverseExceptionCaughtHandle = new SilentExceptionCaughtHandle();
+		}
+		
 		BalanceContext balanceContext = new BalanceContext();
 		
 		balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
 		
 		balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
+		
+		balanceContext.setReverseExceptionCaughtHandle(reverseExceptionCaughtHandle);
+		
+		balanceContext.setFacadeExceptionCaughtHandle(facadeExceptionCaughtHandle);
 		
 		balanceContext.setBalanceReverseLogger(balanceReverseLogger);
 
@@ -106,7 +122,7 @@ public class BalanceServerBootStrap {
 				balanceReverseServerConfiguration, balanceReverseProtocolFactory);
 		
 		balanceReverseChannelContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
-
+		
 		balanceFacadeAcceptor.start(balanceContext, balanceChannelContext, balanceReverseChannelContext);
 	}
 	
@@ -323,5 +339,23 @@ public class BalanceServerBootStrap {
 			BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
 		this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
 	}
+
+	public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
+		return facadeExceptionCaughtHandle;
+	}
+
+	public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
+		this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
+	}
+
+	public ExceptionCaughtHandle getReverseExceptionCaughtHandle() {
+		return reverseExceptionCaughtHandle;
+	}
+
+	public void setReverseExceptionCaughtHandle(ExceptionCaughtHandle reverseExceptionCaughtHandle) {
+		this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
+	}
+	
+	
 	
 }

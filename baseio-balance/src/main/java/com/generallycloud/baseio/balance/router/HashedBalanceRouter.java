@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.router;
 
 import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
@@ -23,10 +23,10 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	public HashedBalanceRouter(int maxNode) {
-		this.nodeGroup = new NodeGroup(maxNode);
+		this.nodeGroup = new NodeGroup<BalanceReverseSocketSession>(maxNode);
 	}
 
-	private NodeGroup	nodeGroup;
+	private NodeGroup<BalanceReverseSocketSession> nodeGroup;
 
 	@Override
 	public void addRouterSession(BalanceReverseSocketSession session) {
@@ -39,7 +39,8 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 	}
 
 	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, ReadFuture future) {
+	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+			ReadFuture future) {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
 
@@ -48,7 +49,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	@Override
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 }

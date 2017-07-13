@@ -12,110 +12,183 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.router;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+/**
+ * @author wangkai
+ *
+ */
+public class NodeGroup<T> {
 
-public class NodeGroup {
+	private List<T>		machines;
 
-	private ReentrantLock					lock		= new ReentrantLock();
+	private List<Node<T>>	nodes;
 
-	private int							maxNode;
+	private int			maxNode;
 
-	private Node[]							nodes;
-
-	private List<BalanceReverseSocketSession>	machines	= new ArrayList<BalanceReverseSocketSession>();
-
-	public NodeGroup(int maxNode) {
-		this.maxNode = maxNode;
-		this.initialize();
+	public NodeGroup(int nodes) {
+		this.machines = new ArrayList<>(nodes / 2);
+		this.nodes = initNodes(nodes);
+		this.maxNode = nodes;
 	}
 
-	private void initialize() {
-		this.nodes = new Node[maxNode];
-		for (int i = 0; i < nodes.length; i++) {
-			nodes[i] = new Node(i);
+	private List<Node<T>> initNodes(int nodes) {
+		List<Node<T>> ns = new ArrayList<>(nodes);
+		for (int i = 0; i < nodes; i++) {
+			ns.add(new Node<T>());
 		}
+		return ns;
 	}
 
-	public void addMachine(BalanceReverseSocketSession machine) {
+	public synchronized void addMachine(T machine) {
 
-		ReentrantLock lock = this.lock;
+		List<T> machines = this.machines;
+		List<Node<T>> nodes = this.nodes;
 
-		lock.lock();
-
-		try {
-
+		if (machines.size() == 0) {
 			machines.add(machine);
-
-			machineChange();
-
-		} finally {
-
-			lock.unlock();
-		}
-	}
-
-	public void removeMachine(BalanceReverseSocketSession machine) {
-
-		ReentrantLock lock = this.lock;
-
-		lock.lock();
-
-		try {
-
-			if(!machines.remove(machine)){
-				return;
+			for (int i = 0; i < nodes.size(); i++) {
+				nodes.get(i).setMachine(machine);
 			}
-			
-			machineChange();
-
-		} finally {
-
-			lock.unlock();
-		}
-	}
-
-	private void machineChange() {
-		
-		if (machines.isEmpty()) {
-			
-			for (Node n : nodes) {
-				n.machine = null;
-			}
-			
 			return;
 		}
 
-		List<BalanceReverseSocketSession> machines = this.machines;
+		int msize = machines.size();
+		int nmsize = msize + 1;
+		int replaceIndex = 0;
+		int remain = nmsize;
+		int nsize = nodes.size();
+		boolean replaced = true;
+		T replace = null;
+		for (int i = msize; i < nsize;) {
 
-		Node[] nodes = this.nodes;
-
-		int m_index = 0;
-
-		int m_size = machines.size();
-
-		for (Node n : nodes) {
-
-			if (m_index == m_size) {
-				m_index = 0;
+			if (replaced) {
+				replaced = false;
+				remain = nmsize;
+				if (replaceIndex == msize) {
+					replaceIndex = 0;
+				}
+				replace = machines.get(replaceIndex++);
 			}
 
-			n.machine = machines.get(m_index++);
+			Node<T> n = nodes.get(i++);
+			remain--;
+			if (n.getMachine() == replace) {
+				n.setMachine(machine);
+				replaced = true;
+				i += remain;
+			}
+
+		}
+
+		machines.add(machine);
+	}
+
+	public synchronized void removeMachine(T machine) {
+
+		List<T> machines = this.machines;
+		List<Node<T>> nodes = this.nodes;
+
+		machines.remove(machine);
+
+		if (machines.size() == 0) {
+			for (int i = 0; i < nodes.size(); i++) {
+				nodes.get(i).setMachine(null);
+			}
+			return;
+		}
+
+		int msize = machines.size();
+		int replaceIndex = 0;
+		int nsize = nodes.size();
+		boolean replaced = true;
+		T replace = null;
+		for (int i = 0; i < nsize; i++) {
+			if (replaced) {
+				replaced = false;
+				if (replaceIndex == msize) {
+					replaceIndex = 0;
+				}
+				replace = machines.get(replaceIndex++);
+			}
+			Node<T> n = nodes.get(i);
+			if (n.getMachine() == machine) {
+				n.setMachine(replace);
+				replaced = true;
+			}
 		}
 	}
 
-	// FIXME 是否要设置同步
-	public BalanceReverseSocketSession getMachine(int hash) {
-		if (hash < maxNode) {
-			return nodes[hash].machine;
+	private void count() {
+		Map<T, AtomicInteger> map = new HashMap<>();
+		Map<T, AtomicInteger> map1 = new HashMap<>();
+		if (machines.isEmpty()) {
+			return;
 		}
-		return nodes[hash % maxNode].machine;
+		for (T machine : machines) {
+			map.put(machine, new AtomicInteger());
+			map1.put(machine, new AtomicInteger());
+		}
+
+		for (Node<T> node : nodes) {
+			map.get(node.getMachine()).incrementAndGet();
+			if (node.compare()) {
+				map1.get(node.getMachine()).incrementAndGet();
+			}
+		}
+
+		System.out.println(map);
+		System.out.println(map1);
+
+	}
+
+	public T getMachine(int hash) {
+		if (hash < maxNode) {
+			return nodes.get(hash).getMachine();
+		}
+		return nodes.get(hash % maxNode).getMachine();
+	}
+
+	private void setLast() {
+		for (Node<T> node : nodes) {
+			node.setLast(node.getMachine());
+		}
+	}
+
+	public static void main(String[] args) {
+
+		NodeGroup<String> group = new NodeGroup<>(1024);
+
+		int time = 8;
+
+		List<String> machines = new ArrayList<>(time);
+
+		for (int i = 0; i < time; i++) {
+			String m = String.valueOf(i);
+			machines.add(m);
+			group.setLast();
+			group.addMachine(m);
+			group.count();
+		}
+
+		//		System.out.println();
+		//		System.out.println("============================================================");
+		//		System.out.println();
+
+		for (int i = 0; i < time; i++) {
+			group.setLast();
+			group.removeMachine(machines.get(i));
+			group.count();
+		}
+
+		System.out.println();
 	}
 
 }
