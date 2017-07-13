@@ -21,7 +21,9 @@ import com.generallycloud.baseio.balance.BalanceServerBootStrap;
 import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
 import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
+import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class TestBalanceMain {
@@ -33,6 +35,9 @@ public class TestBalanceMain {
 		f.setBalanceProtocolFactory(new ProtobaseProtocolFactory());
 		f.setBalanceReverseProtocolFactory(new ProtobaseProtocolFactory());
 		
+		f.setBalanceProtocolFactory(new HashedProtobaseProtocolFactory());
+		f.setBalanceReverseProtocolFactory(new HashedProtobaseProtocolFactory());
+		
 		
 		ServerConfiguration fc = new ServerConfiguration();
 		fc.setSERVER_PORT(8600);
@@ -40,11 +45,13 @@ public class TestBalanceMain {
 		ServerConfiguration frc = new ServerConfiguration();
 		frc.setSERVER_PORT(8800);
 		
+		f.setFacadeExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
+		f.setReverseExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
 		f.setBalanceServerConfiguration(fc);
 		f.setBalanceReverseServerConfiguration(frc);
 		f.setFacadeInterceptor(new FacadeInterceptorImpl(500,50000));
 		f.setBalanceRouter(new HashedBalanceRouter(10240));
-		f.setBalanceRouter(new SimpleNextRouter());
+//		f.setBalanceRouter(new SimpleNextRouter());
 		
 		f.startup();
 	}

@@ -30,13 +30,29 @@ public class TestBitSet {
 		int capacity = 1024 * 1024 * 1024;
 		int time = 1;
 
-		//		testMyBitSetCorrect();
+//				testMyBitSetCorrect();
 //				testJdkBitSet(capacity,time);
 				testMyBitSet(capacity,time);
 
 		System.out.println(32 / 8);
 		System.out.println(32 >> 3);
 
+	}
+
+	/**
+	 * 
+	 */
+	private static void testMyBitSetCorrect() {
+		int capacity = 32;
+		BitSet set = new BitSet(capacity);
+		for (int j = 0; j < capacity; j++) {
+			set.set(j);
+			System.out.println(set.get(j));
+		}
+		for (int j = 0; j < capacity; j++) {
+			set.clear(j);
+			System.out.println(set.get(j));
+		}
 	}
 
 	static void testMyBitSet(int capacity, int time) {
