@@ -49,7 +49,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	@Override
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
-		throw new UnsupportedOperationException();
+		return null;
 	}
 
 }
