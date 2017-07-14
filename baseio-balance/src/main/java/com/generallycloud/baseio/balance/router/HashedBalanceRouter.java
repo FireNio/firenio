@@ -23,19 +23,19 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	public HashedBalanceRouter(int maxNode) {
-		this.nodeGroup = new NodeGroup<BalanceReverseSocketSession>(maxNode);
+		this.virtualNodes = new VirtualNodes<BalanceReverseSocketSession>(maxNode);
 	}
 
-	private NodeGroup<BalanceReverseSocketSession> nodeGroup;
+	private VirtualNodes<BalanceReverseSocketSession> virtualNodes;
 
 	@Override
 	public void addRouterSession(BalanceReverseSocketSession session) {
-		nodeGroup.addMachine(session);
+		virtualNodes.addMachine(session);
 	}
 
 	@Override
 	public void removeRouterSession(BalanceReverseSocketSession session) {
-		nodeGroup.removeMachine(session);
+		virtualNodes.removeMachine(session);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
 
-		return nodeGroup.getMachine(f.getHashCode());
+		return virtualNodes.getMachine(f.getHashCode());
 	}
 
 	@Override

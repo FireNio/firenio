@@ -19,39 +19,6 @@ package com.generallycloud.baseio.balance.router;
  * @author wangkai
  *
  */
-public class Node<T> {
+public interface VirtualMachine {
 
-	private T machine;
-	
-	// debug for hit rate
-	private T last;
-
-	public T getMachine() {
-		return machine;
-	}
-
-	public void setMachine(T machine) {
-		this.machine = machine;
-	}
-	
-	public T getLast() {
-		return last;
-	}
-
-	public void setLast(T last) {
-		this.last = last;
-	}
-	
-	public boolean compare(){
-		return machine == last;
-	}
-
-	@Override
-	public String toString() {
-		if (machine == null) {
-			return "-1";
-		}
-		return machine.toString();
-	}
-	
 }
