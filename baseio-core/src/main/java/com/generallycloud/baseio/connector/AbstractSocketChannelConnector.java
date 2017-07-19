@@ -19,12 +19,12 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
+import com.generallycloud.baseio.log.Logger;
 
 /**
  * @author wangkai

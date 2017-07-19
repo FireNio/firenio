@@ -17,10 +17,10 @@ package com.generallycloud.baseio.container.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.baseio.common.cmd.CmdResponse;
-import com.generallycloud.baseio.common.cmd.Command;
-import com.generallycloud.baseio.common.cmd.CommandContext;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.container.jms.cmd.CmdResponse;
+import com.generallycloud.baseio.container.jms.cmd.Command;
+import com.generallycloud.baseio.container.jms.cmd.CommandContext;
 
 @Deprecated
 public class MQCommand extends Command {

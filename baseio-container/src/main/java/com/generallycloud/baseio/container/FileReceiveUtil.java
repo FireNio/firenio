@@ -21,10 +21,10 @@ import java.io.OutputStream;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class FileReceiveUtil {
 

@@ -17,8 +17,8 @@ package com.generallycloud.baseio.container.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.baseio.common.cmd.CmdResponse;
-import com.generallycloud.baseio.common.cmd.CommandContext;
+import com.generallycloud.baseio.container.jms.cmd.CmdResponse;
+import com.generallycloud.baseio.container.jms.cmd.CommandContext;
 
 @Deprecated
 public class HelpExecutable extends MQCommandExecutor {

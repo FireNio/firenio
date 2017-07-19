@@ -18,8 +18,8 @@ package com.generallycloud.baseio.concurrent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ListQueueABQ<T> implements ListQueue<T> {
 

@@ -16,9 +16,9 @@
 package com.generallycloud.baseio.container.jms.server;
 
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.container.jms.Message;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class MessageWriterJob implements Runnable {
 

@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SocketSessionAliveSEListener implements SocketSessionIdleEventListener{
 	

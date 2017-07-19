@@ -38,9 +38,9 @@ import java.util.jar.JarFile;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.log.Logger;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 

@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 import okhttp3.Call;
 import okhttp3.Callback;

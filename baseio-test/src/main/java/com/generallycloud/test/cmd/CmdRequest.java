@@ -13,26 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.common.cmd;
+package com.generallycloud.test.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.baseio.common.AttributesImpl;
+import com.alibaba.fastjson.JSON;
 
-public class CommandContext extends AttributesImpl{
+public class CmdRequest {
 
-	private HashMap<String, Executable>	executors	= new HashMap<String, Executable>();
+	private String cmd;
 	
-	public void registExecutable(String cmd, Executable executable) {
-		executors.put(cmd.toUpperCase(), executable);
+	private HashMap<String, String> params = new HashMap<String, String>();
+
+	public String getCmd() {
+		return cmd;
+	}
+
+	public void setCmd(String cmd) {
+		this.cmd = cmd;
 	}
 	
-	public Executable getExecutable(String cmd){
-		return executors.get(cmd.toUpperCase());
+	public String getParam(String key){
+		return params.get(key);
 	}
 	
-	public String getCommandKeys(){
-		return executors.keySet().toString();
-		
+	
+	public void putParam(String key,String value){
+		this.params.put(key, value);
+	}
+
+	public HashMap<String, String> getParams() {
+		return params;
+	}
+
+	public void setParams(HashMap<String, String> params) {
+		this.params = params;
+	}
+	
+	@Override
+	public String toString() {
+		return JSON.toJSONString(this);
 	}
 }

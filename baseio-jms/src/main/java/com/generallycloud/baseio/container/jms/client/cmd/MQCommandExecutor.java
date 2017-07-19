@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.baseio.container.jms.client.cmd;
 
-import com.generallycloud.baseio.common.cmd.CommandContext;
-import com.generallycloud.baseio.common.cmd.Executable;
 import com.generallycloud.baseio.connector.ChannelConnector;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.jms.client.MessageBrowser;
+import com.generallycloud.baseio.container.jms.cmd.CommandContext;
+import com.generallycloud.baseio.container.jms.cmd.Executable;
 
 @Deprecated
 public abstract class MQCommandExecutor implements Executable {

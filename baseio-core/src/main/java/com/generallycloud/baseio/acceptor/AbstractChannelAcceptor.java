@@ -19,12 +19,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor{
 

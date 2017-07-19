@@ -20,10 +20,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.connector.AbstractChannelConnector;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannel implements Channel {
 	

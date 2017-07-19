@@ -17,8 +17,8 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 

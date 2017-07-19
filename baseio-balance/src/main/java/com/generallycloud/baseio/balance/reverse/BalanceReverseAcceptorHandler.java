@@ -19,11 +19,11 @@ import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceReadFuture;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptor;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {

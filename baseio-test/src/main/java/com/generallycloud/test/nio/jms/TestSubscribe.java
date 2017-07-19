@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.DebugUtil;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -32,6 +31,7 @@ import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.client.MessageConsumer;
 import com.generallycloud.baseio.container.jms.client.OnMessage;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestSubscribe {
 

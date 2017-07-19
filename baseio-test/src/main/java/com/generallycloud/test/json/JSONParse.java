@@ -18,8 +18,8 @@ package com.generallycloud.test.json;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.test.test.ITest;
 import com.generallycloud.test.test.ITestHandle;
 

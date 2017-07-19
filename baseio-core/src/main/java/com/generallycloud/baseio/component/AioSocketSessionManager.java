@@ -17,9 +17,9 @@ package com.generallycloud.baseio.component;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class AioSocketSessionManager extends AbstractSocketSessionManager {
 

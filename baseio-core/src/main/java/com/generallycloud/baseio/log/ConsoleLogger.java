@@ -12,22 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.common;
+ */
+package com.generallycloud.baseio.log;
 
-import org.slf4j.LoggerFactory;
+import com.generallycloud.baseio.common.DebugUtil;
 
-public class SLF4JLogger implements Logger{
+public class ConsoleLogger implements Logger {
 
-	private org.slf4j.Logger logger = null;
+	private String		debugClassName;
 
-	private Class<?> loggerClass = null;
-	
-	public SLF4JLogger(Class<?> clazz) {
-		this.logger = LoggerFactory.getLogger(clazz);
+	private String		infoClassName;
+
+	private String		errorClassName;
+
+	private Class<?>	loggerClass	= null;
+
+	protected ConsoleLogger(Class<?> clazz) {
+		String  className = clazz.getSimpleName() + " -";
+		this.debugClassName = " [DEBUG] " + className;
+		this.infoClassName  = " [INFO] " + className;
+		this.errorClassName = " [ERROR] " + className;
 		this.loggerClass = clazz;
 	}
-	
+
 	@Override
 	public Class<?> getLoggerClass() {
 		return loggerClass;
@@ -35,64 +42,61 @@ public class SLF4JLogger implements Logger{
 
 	@Override
 	public void info(String message) {
-		logger.info(message);
+		DebugUtil.info(infoClassName, message);
 	}
 
 	@Override
 	public void info(String message, Object param) {
-		logger.info(message, param);
-		
+		DebugUtil.info(infoClassName, message, param);
 	}
 
 	@Override
 	public void info(String message, Object param, Object param1) {
-		logger.info(message, param,param1);
-		
+		DebugUtil.info(infoClassName, message, param, param1);
 	}
 
 	@Override
 	public void info(String message, Object[] param) {
-		logger.info(message, param);
-		
+		DebugUtil.info(infoClassName, message, param);
 	}
 
 	@Override
 	public void debug(String message) {
-		logger.debug(message);
-		
+		DebugUtil.debug(debugClassName, message);
 	}
 
 	@Override
 	public void debug(String message, Object param) {
-		logger.debug(message, param);
-		
+		DebugUtil.debug(debugClassName, message, param);
+
 	}
 
 	@Override
 	public void debug(String message, Object param, Object param1) {
-		logger.debug(message, param,param1);
+		DebugUtil.debug(debugClassName, message, param, param1);
 	}
 
 	@Override
 	public void debug(String message, Object[] param) {
-		logger.debug(message, param);
+		DebugUtil.debug(debugClassName, message, param);
 	}
 
 	@Override
-	public void error(String object, Throwable throwable) {
-		logger.error(object,throwable);
+	public void error(String message, Throwable throwable) {
+		DebugUtil.error(errorClassName, message, throwable);
 	}
 
 	@Override
-	public void error(String object) {
-		logger.error(object);
+	public void error(String message) {
+		if (message == null) {
+			return;
+		}
+		DebugUtil.info(errorClassName, message);
 	}
 
 	@Override
 	public void debug(Throwable throwable) {
-		if (logger.isDebugEnabled()) {
-			logger.error(throwable.getMessage(),throwable);
-		}
+		DebugUtil.debug(throwable);
 	}
 
 	@Override
@@ -102,11 +106,8 @@ public class SLF4JLogger implements Logger{
 
 	@Override
 	public void errorDebug(String message, Throwable throwable) {
-		if (logger.isDebugEnabled()) {
-			logger.error(message,throwable);
-			return;
-		}
-		logger.error(message);
+		error(message);
+		DebugUtil.debug(throwable);
 	}
-	
+
 }

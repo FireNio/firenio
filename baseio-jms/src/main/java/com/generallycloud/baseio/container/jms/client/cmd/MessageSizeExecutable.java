@@ -17,11 +17,11 @@ package com.generallycloud.baseio.container.jms.client.cmd;
 
 import java.util.HashMap;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
-import com.generallycloud.baseio.common.cmd.CmdResponse;
-import com.generallycloud.baseio.common.cmd.CommandContext;
 import com.generallycloud.baseio.container.jms.client.MessageBrowser;
+import com.generallycloud.baseio.container.jms.cmd.CmdResponse;
+import com.generallycloud.baseio.container.jms.cmd.CommandContext;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 @Deprecated
 public class MessageSizeExecutable extends MQCommandExecutor {

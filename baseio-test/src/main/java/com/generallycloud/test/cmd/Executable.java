@@ -13,30 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.common.cmd;
+package com.generallycloud.test.cmd;
 
-public class CmdResponse {
+import java.util.HashMap;
 
-	private boolean _continue = true;
-	
-	private String response;
+public interface Executable {
 
-	public boolean isContinue() {
-		return _continue;
-	}
-
-	public void setContinue(boolean cont) {
-		this._continue = cont;
-	}
-
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
-	}
-	
-	
-	
+	CmdResponse exec(CommandContext context, HashMap<String, String> params);
 }

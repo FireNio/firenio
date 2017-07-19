@@ -5,8 +5,8 @@ import java.nio.channels.CompletionHandler;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ReadCompletionHandler implements CompletionHandler<Integer, AioSocketChannel> {
 	

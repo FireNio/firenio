@@ -15,6 +15,7 @@
  */ 
 package com.generallycloud.baseio.common;
 
+import com.generallycloud.baseio.log.Logger;
 
 public class LoggerUtil {
 

@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 //FIXME status volatile modify ?
 public abstract class AbstractLifeCycle implements LifeCycle {

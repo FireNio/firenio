@@ -12,37 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package com.generallycloud.baseio.common;
+ */ 
+package com.generallycloud.baseio.container.jms.cmd;
 
-public class LoggerFactory {
+public class CmdResponse {
 
-	private static boolean enableSLF4JLogger = false;
+	private boolean _continue = true;
 	
-	static{
-		configure();
+	private String response;
+
+	public boolean isContinue() {
+		return _continue;
 	}
 
-	public static void setEnableSLF4JLogger(boolean enable) {
-		enableSLF4JLogger = enable;
+	public void setContinue(boolean cont) {
+		this._continue = cont;
 	}
 
-	public static Logger getLogger(Class<?> clazz) {
-		if (!enableSLF4JLogger) {
-			return new ConsoleLogger(clazz);
-		}
-		return new SLF4JLogger(clazz);
+	public String getResponse() {
+		return response;
 	}
 
-	public static void configure() {
-		try {
-			Class.forName("org.slf4j.LoggerFactory");
-			enableSLF4JLogger = true;
-		} catch (ClassNotFoundException e) {
-		}
+	public void setResponse(String response) {
+		this.response = response;
 	}
 	
-	public static boolean isEnableSLF4JLogger(){
-		return enableSLF4JLogger;
-	}
+	
+	
 }

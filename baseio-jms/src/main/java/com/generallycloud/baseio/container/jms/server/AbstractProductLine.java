@@ -19,13 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.authority.Authority;
 import com.generallycloud.baseio.container.jms.Message;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractProductLine extends AbstractEventLoop implements MessageQueue {
 

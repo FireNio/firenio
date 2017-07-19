@@ -26,6 +26,14 @@ public class ThreadUtil {
 	}
 	
 	public static void execute(Runnable runnable){
-		new Thread(runnable).start();
+		execute(runnable, null);
+	}
+	
+	public static void execute(Runnable runnable,String name){
+		if (!StringUtil.isNullOrBlank(name)) {
+			new Thread(runnable,name).start();
+		}else{
+			new Thread(runnable).start();
+		}
 	}
 }

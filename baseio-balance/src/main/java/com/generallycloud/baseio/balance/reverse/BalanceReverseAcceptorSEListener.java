@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
 

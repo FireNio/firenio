@@ -3,8 +3,8 @@ package com.generallycloud.baseio.component;
 import java.nio.channels.CompletionHandler;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class WriteCompletionHandler implements CompletionHandler<Integer, AioSocketChannel>{
 

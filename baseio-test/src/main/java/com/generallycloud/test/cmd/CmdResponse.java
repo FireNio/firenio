@@ -13,26 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.common;
+package com.generallycloud.test.cmd;
 
-/**
- * 
- * 数组的帮助类
- * 
- */
-public class ArrayUtil {
+public class CmdResponse {
 
-	/**
-	 * 把两个Object[] 转成一个
-	 * 
-	 * @param param1
-	 * @param param2
-	 * @return Object[]
-	 */
-	public static Object[] groupArray(Object[] param1, Object[] param2) {
-		Object[] param = new Object[param1.length + param2.length];
-		System.arraycopy(param1, 0, param, 0, param1.length);
-		System.arraycopy(param2, 0, param, param1.length, param2.length);
-		return param;
+	private boolean _continue = true;
+	
+	private String response;
+
+	public boolean isContinue() {
+		return _continue;
 	}
+
+	public void setContinue(boolean cont) {
+		this._continue = cont;
+	}
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
+	}
+	
+	
+	
 }

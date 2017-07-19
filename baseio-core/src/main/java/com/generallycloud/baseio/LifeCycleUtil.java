@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio;
 
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.concurrent.Looper;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class LifeCycleUtil {
 

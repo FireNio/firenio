@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.balance.reverse;
 
-import com.generallycloud.baseio.common.Logger;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 /**

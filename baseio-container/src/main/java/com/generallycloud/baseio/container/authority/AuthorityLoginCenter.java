@@ -20,8 +20,6 @@ import java.util.Map;
 
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.FixedProperties;
-import com.generallycloud.baseio.common.Logger;
-import com.generallycloud.baseio.common.LoggerFactory;
 import com.generallycloud.baseio.common.MD5Token;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
@@ -29,6 +27,8 @@ import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.configuration.Configuration;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class AuthorityLoginCenter extends AbstractInitializeable implements LoginCenter {
 
