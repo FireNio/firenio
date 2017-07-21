@@ -118,6 +118,13 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle implements 
 
 		return value;
 	}
+	
+	public void printBusy(){
+		for (LinkAbleByteBufAllocator allocator : allocators) {
+			SimpleByteBufAllocator a = (SimpleByteBufAllocator) allocator.unwrap();
+			a.printBusy();
+		}
+	}
 
 	public String toDebugString() {
 		StringBuilder builder = new StringBuilder();

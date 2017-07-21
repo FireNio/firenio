@@ -195,10 +195,8 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 			lock.unlock();
 		}
 	}
-
-	@Override
-	public String toString() {
-
+	
+	private int fillBusy(){
 		busyUnit.clear();
 
 		ByteBufUnit[] memoryUnits = getUnits();
@@ -213,6 +211,13 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 				busyUnit.add(b);
 			}
 		}
+		return free;
+	}
+
+	@Override
+	public synchronized String toString() {
+
+		int free = fillBusy();
 
 		StringBuilder b = new StringBuilder();
 		b.append(this.getClass().getSimpleName());
@@ -235,4 +240,24 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		return b.toString();
 	}
 
+	public synchronized void printBusy(){
+		fillBusy();
+		HeapByteBufFactory factory = (HeapByteBufFactory) bufFactory;
+		byte [] memory = factory.getMemory();
+		if (busyUnit.size() == 0) {
+			logger.info("no busy to print!");
+		}
+		for (int i = 0; i < busyUnit.size(); i++) {
+			ByteBufUnit u = busyUnit.get(i);
+			int off = unitMemorySize * u.index;
+			int end = unitMemorySize * u.blockEnd;
+			StringBuilder b = new StringBuilder((end - off) * 4);
+			for (int j = off; j < end; j++) {
+				b.append(memory[j]);
+				b.append(',');
+			}
+			logger.info("busy memory:{}",b);
+		}
+	}
+	
 }

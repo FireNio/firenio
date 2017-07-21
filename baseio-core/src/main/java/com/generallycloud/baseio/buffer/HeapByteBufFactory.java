@@ -28,6 +28,13 @@ public class HeapByteBufFactory implements ByteBufFactory {
 	public void initializeMemory(int capacity) {
 		this.memory = new byte[capacity];
 	}
+	
+	/**
+	 * @return the memory
+	 */
+	public byte[] getMemory() {
+		return memory;
+	}
 
 	@Override
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
