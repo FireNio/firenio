@@ -1,103 +1,78 @@
-<configuration scan="true" scanPeriod="10 seconds" debug="true">
-	<property resource="logback.properties" />
-	
-	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!-- 定义log文件的目录 -->
+	<property name="LOG_HOME" value="logs"></property>
+	<property name="maxFileSize" value="50MB"></property>
+	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] %logger{0} -%msg%n"></property>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>${conversion.pattern}</pattern>
+			<!-- %.-1level 只显示信息级别的首字母,%-5level 左对齐显示信息级别全称 -->
+			<Pattern>${pattern}</Pattern>
 		</encoder>
 	</appender>
-	
-	<!-- root file 日志 -->
-	<appender name="root-file-error"
+	<appender name="INFO_FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.dir}/error.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.dir}/error.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>${max.file.size}</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-			<maxHistory>${max.history}</maxHistory>
+		<file>${LOG_HOME}/info.log</file>
+		<append>true</append>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/logs/info.%d{yyyy-MM-dd}.%i.log.zip
+			</fileNamePattern>
+			<maxFileSize>${maxFileSize}</maxFileSize>
 		</rollingPolicy>
 		<encoder>
-			<pattern>${conversion.pattern}</pattern>
+			<pattern>${pattern}</pattern>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
-			<level>ERROR</level>   
-			<onMatch>ACCEPT</onMatch>   
-			<onMismatch>DENY</onMismatch>   
-		</filter> 
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
 	</appender>
-	
-	<appender name="root-file-warn"
+	<appender name="DEBUG_FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.dir}/warn.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.dir}/warn.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>${max.file.size}</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-			<maxHistory>${max.history}</maxHistory>
+		<file>${LOG_HOME}/debug.log</file>
+		<append>true</append>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/logs/debug.%d{yyyy-MM-dd}.%i.log.zip
+			</fileNamePattern>
+			<maxFileSize>${maxFileSize}</maxFileSize>
 		</rollingPolicy>
 		<encoder>
-			<pattern>${conversion.pattern}</pattern>
+			<pattern>${pattern}</pattern>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
-			<level>warn</level>   
-			<onMatch>ACCEPT</onMatch>   
-			<onMismatch>DENY</onMismatch>   
-		</filter> 
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
 	</appender>
-	
-	<appender name="root-file-info"
+	<appender name="ERROR_FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.dir}/info.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.dir}/info.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>${max.file.size}</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-			<maxHistory>${max.history}</maxHistory>
+		<file>${LOG_HOME}/error.log</file>
+		<append>true</append>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/logs/error.%d{yyyy-MM-dd}.%i.log.zip
+			</fileNamePattern>
+			<maxFileSize>${maxFileSize}</maxFileSize>
 		</rollingPolicy>
 		<encoder>
-			<pattern>${conversion.pattern}</pattern>
+			<pattern>${pattern}</pattern>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
-			<level>INFO</level>   
-			<onMatch>ACCEPT</onMatch>   
-			<onMismatch>DENY</onMismatch>   
-		</filter> 
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
 	</appender>
-	
-	<appender name="root-file-debug"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.dir}/debug.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.dir}/debug.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>${max.file.size}</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-			<maxHistory>${max.history}</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${conversion.pattern}</pattern>
-		</encoder>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
-			<level>debug</level>   
-			<onMatch>ACCEPT</onMatch>   
-			<onMismatch>DENY</onMismatch>   
-		</filter> 
-	</appender>
-	
-	<root level="${root.level}">
-		<appender-ref ref="console" />
-		<appender-ref ref="root-file-error"/>
-		<appender-ref ref="root-file-warn"/>
-		<appender-ref ref="root-file-info"/>
-		<appender-ref ref="root-file-debug"/>
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="INFO_FILE" />
+		<appender-ref ref="DEBUG_FILE" />
+		<appender-ref ref="ERROR_FILE" />
 	</root>
-	
-</configuration>
+</configuration>   
