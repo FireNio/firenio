@@ -12,21 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.WaiterOnReadFuture;
-import com.generallycloud.baseio.concurrent.ListQueue;
-import com.generallycloud.baseio.concurrent.ListQueueABQ;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class OnReadFutureWrapper implements OnReadFuture {
 
-	private OnReadFuture				listener	= null;
+	private OnReadFuture					listener	= null;
 
-	private ListQueue<WaiterOnReadFuture>	waiters	= new ListQueueABQ<WaiterOnReadFuture>(1024 * 8);
+	private BlockingQueue<WaiterOnReadFuture>	waiters	= new ArrayBlockingQueue<WaiterOnReadFuture>(
+			1024 * 8);
 
 	@Override
 	public void onResponse(final SocketSession session, final ReadFuture future) {
