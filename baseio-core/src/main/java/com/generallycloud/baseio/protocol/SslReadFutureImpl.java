@@ -63,8 +63,13 @@ public class SslReadFutureImpl extends AbstractChannelReadFuture implements SslR
 	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
 
 		header_complete = true;
+		
+		int re = getEncryptedPacketLength(buf);
+		if (re < 256) {
+//			System.out.println();
+		}
 
-		buf.reallocate(getEncryptedPacketLength(buf), limit, true);
+		buf.reallocate(re, limit, true);
 	}
 
 	private int getEncryptedPacketLength(ByteBuf buffer) {

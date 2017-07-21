@@ -89,6 +89,9 @@ public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
 
 		try {
 			
+			ByteBufDebug.get().remove(buf);
+//			logger.info("release:{}",buf);
+			
 			ByteBufUnit[] units = getUnits();
 			ByteBufUnit memoryStart = units[((PooledByteBuf) buf).getBeginUnit()];
 			ByteBufUnit memoryEnd = units[memoryStart.blockEnd - 1];

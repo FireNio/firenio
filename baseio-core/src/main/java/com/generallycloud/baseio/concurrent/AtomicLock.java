@@ -34,7 +34,10 @@ public class AtomicLock {
 	}
 	
 	public void tryLock(){
-		for(;!lock.compareAndSet(false, true);){
+		AtomicBoolean lock = this.lock;
+		if (!lock.compareAndSet(false, true)) {
+			for(;!lock.compareAndSet(false, true);){
+			}
 		}
 	}
 	

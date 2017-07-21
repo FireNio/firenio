@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.buffer;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,7 +42,7 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
 	protected List<ByteBufUnit>		busyUnit	= new ArrayList<ByteBufUnit>();
 
-	protected Logger				logger	= LoggerFactory.getLogger(AbstractByteBufAllocator.class);
+	protected Logger				logger	= LoggerFactory.getLogger(AbstractPooledByteBufAllocator.class);
 
 	public AbstractPooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
 		super(isDirect);
@@ -51,7 +52,10 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
 	@Override
 	public ByteBuf allocate(int limit) {
-		return allocate(bufFactory, limit);
+		ByteBuf buf = allocate(bufFactory, limit);
+		ByteBufDebug.get().put(buf);
+//		logger.info("allocate:{}",buf);
+		return buf;
 	}
 	
 	private PooledByteBuf allocate(ByteBufNew byteBufNew,int limit) {
@@ -108,6 +112,8 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 			
 			ReleaseUtil.release(buf);
 			
+			ByteBufDebug.get().put(buf);
+//			logger.info("allocate:{}",buf);
 			return buf.newByteBuf(this).produce(newBuf);
 		}
 		
@@ -118,7 +124,8 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		if (newBuf == null) {
 			throw new BufferException("reallocate failed");
 		}
-		
+		ByteBufDebug.get().put(newBuf);
+//		logger.info("allocate:{}",newBuf);
 		return newBuf;
 	}
 
@@ -216,7 +223,15 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		b.append(",isDirect=");
 		b.append(isDirect);
 		b.append("]");
-
+		ByteBufDebug.get().gcErrors();
+		
+		synchronized (ByteBufDebug.get()) {
+			Hashtable<ByteBuf,Object> map1 = ByteBufDebug.get().getBufs();
+			Hashtable<ByteBuf,Object> map2 = ByteBufDebug.get().getErrorBufs();
+			logger.info("*****************************************map {}",map1);
+		}
+		
+		
 		return b.toString();
 	}
 

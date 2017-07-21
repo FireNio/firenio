@@ -160,11 +160,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 			}
 
 			if (--referenceCount != 0) {
+				if (referenceCount < 0) {
+					ByteBufDebug.get().putErrorByteBuf(this);
+				}
 				return;
 			}
 
 			released = true;
-
+			
 			doRelease();
 		}
 	}

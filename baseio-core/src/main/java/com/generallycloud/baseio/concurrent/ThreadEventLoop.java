@@ -15,8 +15,12 @@
  */
 package com.generallycloud.baseio.concurrent;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -27,18 +31,18 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	private ExecutorEventLoopGroup	executorEventLoopGroup;
 
 	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize) {
-		this.jobs = new ListQueueABQ<>(eventQueueSize);
+		this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
 		this.executorEventLoopGroup = eventLoopGroup;
 	}
 
-	private ListQueue<Runnable>	jobs;
+	private BlockingQueue<Runnable>	jobs;
 	
 	@Override
 	protected void doLoop() {
 
 		try {
 
-			Runnable runnable = jobs.poll(32);
+			Runnable runnable = jobs.poll(32,TimeUnit.MILLISECONDS);
 
 			if (runnable == null) {
 				return;
@@ -51,24 +55,28 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		}
 	}
 
-	//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
+	//FIXME 观察这里是否部分event没有被fire
 	public void dispatch(Runnable job) throws RejectedExecutionException{
-		synchronized (getRunLock()) {
-			if (!isRunning() || !jobs.offer(job)) {
-				throw new RejectedExecutionException();
-			}
+		if (!isRunning() || !jobs.offer(job)) {
+			throw new RejectedExecutionException();
 		}
 	}
 
 	@Override
 	protected void doStop() {
 
+		boolean sleeped = false;
+		
 		for(;;){
 			
 			Runnable runnable = jobs.poll();
 			
 			if (runnable == null) {
-				break;
+				if (sleeped) {
+					break;
+				}
+				ThreadUtil.sleep(8);
+				continue;
 			}
 			
 			try {

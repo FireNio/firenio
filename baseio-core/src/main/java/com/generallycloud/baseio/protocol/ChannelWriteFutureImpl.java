@@ -20,10 +20,9 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle;
-import com.generallycloud.baseio.component.Linkable;
+import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -32,9 +31,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 
 	protected ReadFuture				readFuture;
 	protected ByteBuf					buf;
-	protected Linkable<ChannelWriteFuture>	next;
 	protected boolean					needSSL;
-
 	private static final Logger			logger	= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
 
 	public ChannelWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
@@ -113,21 +110,6 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	@Override
 	public ChannelWriteFuture duplicate(ReadFuture future) {
 		return new ChannelWriteFutureImpl(future, buf.duplicate());
-	}
-
-	@Override
-	public Linkable<ChannelWriteFuture> getNext() {
-		return next;
-	}
-
-	@Override
-	public void setNext(Linkable<ChannelWriteFuture> next) {
-		this.next = next;
-	}
-
-	@Override
-	public ChannelWriteFuture getValue() {
-		return this;
 	}
 
 	private void wrapSSL(SocketChannel channel) throws IOException {

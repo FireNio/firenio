@@ -17,6 +17,8 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,8 +33,6 @@ import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.concurrent.ListQueue;
-import com.generallycloud.baseio.concurrent.ListQueueLink;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -59,7 +59,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected transient ChannelWriteFuture	write_future;
 	protected transient ChannelReadFuture		readFuture;
 	protected transient SslReadFuture		sslReadFuture;
-	protected ListQueue<ChannelWriteFuture>	write_futures;
+	protected Queue<ChannelWriteFuture>		write_futures;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
 
@@ -77,7 +77,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		// FIXME 这里最好不要用ABQ，使用链式可增可减
 //		int queue_size = socketChannelContext.getServerConfiguration().getSERVER_IO_EVENT_QUEUE();
 //		this.write_futures	= new ListQueueO2O<>(queue_size);
-		this.write_futures = new ListQueueLink<>();
+		this.write_futures = new ConcurrentLinkedQueue<>();
 		this.writeFutureLength = new AtomicInteger();
 	}
 
@@ -278,7 +278,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			write_future.onException(session, e);
 		}
 
-		ListQueue<ChannelWriteFuture> writeFutures = this.write_futures;
+		Queue<ChannelWriteFuture> writeFutures = this.write_futures;
 
 		if (writeFutures.size() == 0) {
 			return;

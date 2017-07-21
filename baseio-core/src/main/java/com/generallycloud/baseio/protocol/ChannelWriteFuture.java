@@ -18,11 +18,10 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 
-public interface ChannelWriteFuture extends WriteFuture, Linkable<ChannelWriteFuture> {
+public interface ChannelWriteFuture extends WriteFuture {
 
 	public abstract void write(SocketChannel channel) throws IOException;
 
