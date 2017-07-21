@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.concurrent.ListQueue;
-import com.generallycloud.baseio.concurrent.ListQueueABQ;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -38,12 +39,12 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 	private Map<String, SocketSession>	clientsMap	= new HashMap<>();
 
-	private ListQueue<Msg>			msgs			= new ListQueueABQ<Msg>(1024 * 4);
+	private BlockingQueue<Msg>		msgs			= new ArrayBlockingQueue<Msg>(1024 * 4);
 
-	public synchronized void addClient(String username,SocketSession session) {
+	public synchronized void addClient(String username, SocketSession session) {
 
 		clients.add(session);
-		
+
 		clientsMap.put(username, session);
 
 		logger.info("client joined {} ,clients size: {}", session, clients.size());
@@ -53,20 +54,20 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 		if (clients.remove(session)) {
 
-			String username = (String)session.getAttribute("username");
-			
+			String username = (String) session.getAttribute("username");
+
 			if (!StringUtil.isNullOrBlank(username)) {
 				clientsMap.remove(username);
 			}
-			
+
 			logger.info("client left {} ,clients size: {}", session, clients.size());
 			return true;
 		}
 
 		return false;
 	}
-	
-	public SocketSession getSession(String username){
+
+	public SocketSession getSession(String username) {
 		return clientsMap.get(username);
 	}
 
@@ -85,7 +86,13 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 	@Override
 	protected void doLoop() {
 
-		Msg msg = msgs.poll(16);
+		Msg msg;
+		try {
+			msg = msgs.poll(16, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(), e);
+			return;
+		}
 
 		if (msg == null) {
 			return;
