@@ -15,16 +15,22 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.concurrent.ListQueue;
-import com.generallycloud.baseio.concurrent.ListQueueABQ;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.generallycloud.baseio.container.jms.Message;
 
 public class MessageStorage {
 
-	private ListQueue<Message>	messages	= new ListQueueABQ<Message>(1024 * 8 * 10);
+	private BlockingQueue<Message>	messages	= new ArrayBlockingQueue<Message>(1024 * 8 * 10);
 
 	public Message poll(long timeout) {
-		return messages.poll(timeout);
+		try {
+			return messages.poll(timeout,TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			return null;
+		}
 	}
 
 	//FIXME offer failed
