@@ -33,7 +33,7 @@ public class TestUnsafe2 {
 		long startTime = System.currentTimeMillis();
 		int time = 1024 * 16;
 
-		testRadByteUnsafeDirectByteBuffer(time, buffer);
+//		testRadByteUnsafeDirectByteBuffer(time, buffer);
 		testReadByteDirectByteBuffer(time, buffer);
 
 		System.out.println("Time:"+( System.currentTimeMillis() - startTime));
