@@ -137,7 +137,7 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
 	public abstract void putLongLE(long value);
 
-	public abstract int read(ByteBuf buf);
+	public abstract int read(ByteBuf src);
 
 	public abstract int read(ByteBuffer buffer);
 

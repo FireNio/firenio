@@ -30,7 +30,7 @@ public interface ChannelReadFuture extends ReadFuture {
 
 	public abstract boolean isPONG();
 
-	public abstract boolean read(SocketSession session, ByteBuf buf) throws IOException;
+	public abstract boolean read(SocketSession session, ByteBuf src) throws IOException;
 
 	public abstract ChannelReadFuture setPING();
 	

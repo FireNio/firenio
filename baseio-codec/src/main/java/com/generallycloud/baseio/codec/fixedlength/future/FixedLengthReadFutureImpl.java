@@ -68,13 +68,13 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 	}
 
 	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+	public boolean read(SocketSession session, ByteBuf src) throws IOException {
 
 		ByteBuf buf = this.buf;
 
 		if (!header_complete) {
 
-			buf.read(buffer);
+			buf.read(src);
 
 			if (buf.hasRemaining()) {
 				return false;
@@ -87,7 +87,7 @@ public class FixedLengthReadFutureImpl extends AbstractChannelReadFuture impleme
 
 		if (!body_complete) {
 
-			buf.read(buffer);
+			buf.read(src);
 
 			if (buf.hasRemaining()) {
 				return false;
