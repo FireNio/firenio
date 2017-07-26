@@ -84,15 +84,9 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 	}
 
 	@Override
-	protected void doLoop() {
+	protected void doLoop() throws InterruptedException {
 
-		Msg msg;
-		try {
-			msg = msgs.poll(16, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			logger.error(e.getMessage(), e);
-			return;
-		}
+		Msg msg = msgs.poll(16, TimeUnit.MILLISECONDS);
 
 		if (msg == null) {
 			return;
