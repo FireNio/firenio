@@ -19,18 +19,12 @@ public class ApplicationConfiguration {
 
 	private FiltersConfiguration		filtersConfiguration;
 
-	private PermissionConfiguration	permissionConfiguration;
-
 	private PluginsConfiguration		pluginsConfiguration;
 
 	private ServicesConfiguration		servletsConfiguration;
 
 	public FiltersConfiguration getFiltersConfiguration() {
 		return filtersConfiguration;
-	}
-
-	public PermissionConfiguration getPermissionConfiguration() {
-		return permissionConfiguration;
 	}
 
 	public PluginsConfiguration getPluginsConfiguration() {
@@ -43,10 +37,6 @@ public class ApplicationConfiguration {
 
 	protected void setFiltersConfiguration(FiltersConfiguration filtersConfiguration) {
 		this.filtersConfiguration = filtersConfiguration;
-	}
-
-	protected void setPermissionConfiguration(PermissionConfiguration permissionConfiguration) {
-		this.permissionConfiguration = permissionConfiguration;
 	}
 
 	protected void setPluginsConfiguration(PluginsConfiguration pluginsConfiguration) {

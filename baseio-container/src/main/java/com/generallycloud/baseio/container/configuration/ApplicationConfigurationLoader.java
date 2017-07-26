@@ -19,4 +19,5 @@ public interface ApplicationConfigurationLoader {
 
 	public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception;
 	
+	public PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader) throws Exception;
 }

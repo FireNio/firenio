@@ -22,6 +22,8 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ContainerConsotant;
+import com.generallycloud.baseio.container.InitializeUtil;
+import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
@@ -29,6 +31,10 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 public class AuthorityContext extends AbstractPluginContext {
 
 	private static AuthorityContext	instance	= null;
+	
+	private LoginCenter				loginCenter;
+	
+	private RoleManager				roleManager;
 
 	public static AuthorityContext getInstance() {
 		return instance;
@@ -61,15 +67,41 @@ public class AuthorityContext extends AbstractPluginContext {
 
 		super.initialize(context, config);
 		
-		context.setLoginCenter(new AuthorityLoginCenter());
-
 		context.addSessionEventListener(new AuthoritySEListener());
+		
+		//TODO read config
+		loginCenter = new AuthorityLoginCenter();
+		roleManager = new RoleManager();
+		
+		loginCenter.initialize(context, config);
+		roleManager.initialize(context, config);
 		
 		instance = this;
 	}
 
 	public AuthoritySessionAttachment getSessionAttachment(SocketSession session) {
 		return (AuthoritySessionAttachment) session.getAttribute(getPluginKey());
+	}
+	
+	@Override
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+		super.destroy(context, config);
+		InitializeUtil.destroy(loginCenter, context, config);
+		InitializeUtil.destroy(roleManager, context, config);
+	}
+
+	/**
+	 * @return the loginCenter
+	 */
+	public LoginCenter getLoginCenter() {
+		return loginCenter;
+	}
+	
+	/**
+	 * @return the roleManager
+	 */
+	public RoleManager getRoleManager() {
+		return roleManager;
 	}
 
 }

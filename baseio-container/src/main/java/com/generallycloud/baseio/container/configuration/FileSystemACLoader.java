@@ -53,7 +53,7 @@ public class FileSystemACLoader extends AbstractACLoader {
 	}
 
 	@Override
-	protected PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
+	public PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
 			throws IOException {
 
 		String roles = FileUtil.input2String(classLoader.getResourceAsStream("roles.cfg"), Encoding.UTF8);

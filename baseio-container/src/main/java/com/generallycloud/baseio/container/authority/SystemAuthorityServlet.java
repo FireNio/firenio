@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.authority;
 
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.RESMessage;
@@ -33,7 +32,7 @@ public class SystemAuthorityServlet extends FutureAcceptorService {
 	@Override
 	public void accept(SocketSession session, ReadFuture future) throws Exception {
 
-		LoginCenter loginCenter = ApplicationContext.getInstance().getLoginCenter();
+		LoginCenter loginCenter = AuthorityContext.getInstance().getLoginCenter();
 		
 		ParametersReadFuture f = (ParametersReadFuture) future;
 

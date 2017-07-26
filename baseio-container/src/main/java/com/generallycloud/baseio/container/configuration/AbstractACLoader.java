@@ -31,7 +31,6 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 		configuration.setFiltersConfiguration(loadFiltersConfiguration(classLoader));
 		configuration.setPluginsConfiguration(loadPluginsConfiguration(classLoader));
 		configuration.setServletsConfiguration(loadServletsConfiguration(classLoader));
-		configuration.setPermissionConfiguration(loadPermissionConfiguration(classLoader));
 		
 		return configuration;
 	}
@@ -41,8 +40,6 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 	protected abstract PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader) throws IOException;
 	
 	protected abstract ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader) throws IOException;
-	
-	protected abstract PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader) throws IOException;
 	
 	protected FiltersConfiguration loadFiltersConfiguration(String json){
 		

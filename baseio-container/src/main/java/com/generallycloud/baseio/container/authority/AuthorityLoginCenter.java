@@ -56,9 +56,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
 				.getAttribute(plugin.getPluginKey());
 
-		ApplicationContext context = ApplicationContext.getInstance();
-
-		RoleManager roleManager = context.getRoleManager();
+		RoleManager roleManager = AuthorityContext.getInstance().getRoleManager();
 
 		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 

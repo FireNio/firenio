@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.AbstractInitializeable;
-import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
+import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.configuration.PermissionConfiguration;
 
@@ -36,9 +36,9 @@ public class RoleManager extends AbstractInitializeable {
 	@Override
 	public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		ApplicationConfiguration configuration = context.getConfiguration();
-
-		PermissionConfiguration permissionConfiguration = configuration.getPermissionConfiguration();
+		ApplicationConfigurationLoader acLoader = context.getAcLoader();
+		
+		PermissionConfiguration permissionConfiguration = acLoader.loadPermissionConfiguration(getClass().getClassLoader());
 
 		List<Configuration> permissionConfigurations = permissionConfiguration.getPermissions();
 
@@ -123,6 +123,8 @@ public class RoleManager extends AbstractInitializeable {
 		guestAuthorityManager = new AuthorityManager();
 		
 		guestAuthorityManager.setRoleID(Authority.GUEST.getRoleID());
+		
+		guestAuthorityManager.setAuthority(Authority.GUEST);
 		
 		authorityManagers.put(guestAuthorityManager.getRoleID(), guestAuthorityManager);
 		

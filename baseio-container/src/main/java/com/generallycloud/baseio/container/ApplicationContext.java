@@ -35,8 +35,6 @@ import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
-import com.generallycloud.baseio.container.authority.AuthorityLoginCenter;
-import com.generallycloud.baseio.container.authority.RoleManager;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -74,10 +72,8 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private AtomicInteger					pluginIndex;
 	private ExceptionCaughtHandle				exceptionCaughtHandle;
 	private Logger							logger		= LoggerFactory.getLogger(getClass());
-	private LoginCenter						loginCenter	= new AuthorityLoginCenter();
 	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
 	private Map<String, FutureAcceptorService>	pluginServlets	= new HashMap<String, FutureAcceptorService>();
-	private RoleManager						roleManager	= new RoleManager();
 	private FutureAcceptorServiceLoader		acceptorServiceLoader;
 	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
 	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
@@ -174,9 +170,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		LifeCycleUtil.start(filterService);
 
-		this.roleManager.initialize(this, null);
-		this.loginCenter.initialize(this, null);
-		
 		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
 		this.acceptorServiceLoader.listen(services);
 	}
@@ -185,9 +178,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		
 		LifeCycleUtil.stop(filterService);
 		
-		InitializeUtil.destroy(loginCenter, this,null);
-		InitializeUtil.destroy(roleManager, this,null);
-
 		clearPluginFilters();
 
 		clearPluginServlets();
@@ -229,10 +219,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return filterService;
 	}
 
-	public LoginCenter getLoginCenter() {
-		return loginCenter;
-	}
-
 	@SuppressWarnings("rawtypes")
 	public PluginContext getPluginContext(Class clazz) {
 
@@ -257,10 +243,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public Map<String, FutureAcceptorService> getPluginServlets() {
 		return pluginServlets;
-	}
-
-	public RoleManager getRoleManager() {
-		return roleManager;
 	}
 
 	private void clearPluginServlets() {
@@ -322,20 +304,6 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 	public void setChannelContext(SocketChannelContext context) {
 		this.channelContext = context;
-	}
-
-	public void setLoginCenter(LoginCenter loginCenter) {
-
-		if (loginCenter == null) {
-			throw new IllegalArgumentException("null");
-		}
-
-		if (this.loginCenter.getClass() != AuthorityLoginCenter.class) {
-			// FIXME 这里是否只能设置一次
-			// throw new IllegalArgumentException("already setted");
-		}
-
-		this.loginCenter = loginCenter;
 	}
 
 	public void listen(String serviceName, FutureAcceptorService service) {
@@ -411,6 +379,13 @@ public class ApplicationContext extends AbstractLifeCycle {
 	
 	public boolean isDeployModel() {
 		return deployModel;
+	}
+	
+	/**
+	 * @return the acLoader
+	 */
+	public ApplicationConfigurationLoader getAcLoader() {
+		return acLoader;
 	}
 	
 }

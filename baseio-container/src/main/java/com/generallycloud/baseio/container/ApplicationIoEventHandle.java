@@ -21,32 +21,20 @@ import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptor;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
 	private ApplicationContext	applicationContext;
 	private FutureAcceptor		filterService;
-	private Logger				logger	= LoggerFactory.getLogger(getClass());
 
 	public ApplicationIoEventHandle(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) {
-
-		try {
-
-			filterService.accept(session, future);
-
-		} catch (Throwable e) {
-
-			logger.error(e.getMessage(), e);
-		}
-		
+	public void accept(SocketSession session, ReadFuture future) throws Exception {
+		filterService.accept(session, future);
 	}
 
 	public ApplicationContext getApplicationContext() {

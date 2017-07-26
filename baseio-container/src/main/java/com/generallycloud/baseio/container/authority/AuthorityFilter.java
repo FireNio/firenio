@@ -18,7 +18,6 @@ package com.generallycloud.baseio.container.authority;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.log.Logger;
@@ -33,17 +32,17 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 	@Override
 	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
 		
-		AuthorityContext pluginContext = AuthorityContext.getInstance();
+		AuthorityContext authorityContext = AuthorityContext.getInstance();
 
-		AuthoritySessionAttachment attachment = pluginContext.getSessionAttachment(session);
+		AuthoritySessionAttachment attachment = authorityContext.getSessionAttachment(session);
 
 		AuthorityManager authorityManager = attachment.getAuthorityManager();
 
 		if (authorityManager == null) {
+			
+			RoleManager roleManager = authorityContext.getRoleManager();
 
-			ApplicationContext context = ApplicationContext.getInstance();
-
-			authorityManager = context.getRoleManager().getAuthorityManager(Authority.GUEST);
+			authorityManager = roleManager.getAuthorityManager(Authority.GUEST);
 
 			attachment.setAuthorityManager(authorityManager);
 		}
