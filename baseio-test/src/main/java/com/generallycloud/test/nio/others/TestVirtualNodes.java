@@ -85,7 +85,7 @@ public class TestVirtualNodes extends VirtualNodes<VirtualMachine> {
 	
 	static void test3() {
 
-		int node = 100;
+		int node = 9999;
 		
 		int time = 10;
 
@@ -173,8 +173,8 @@ public class TestVirtualNodes extends VirtualNodes<VirtualMachine> {
 		}
 		
 		System.out.print(map);
-		ThreadUtil.sleep(1);
-		String str = (max - min) +"===="+(notEqual * 1d / lastNodes.length);
+//		ThreadUtil.sleep(1);
+		String str = (max - min) +"===="+(notEqual * 1f / lastNodes.length);
 		System.err.println(str);
 	}
 
