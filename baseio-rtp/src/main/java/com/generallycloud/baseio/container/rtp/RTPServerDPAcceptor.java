@@ -28,6 +28,7 @@ import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
+import com.generallycloud.baseio.container.authority.AuthorityContext;
 import com.generallycloud.baseio.container.authority.AuthorityManager;
 import com.generallycloud.baseio.container.rtp.server.RTPRoom;
 import com.generallycloud.baseio.container.rtp.server.RTPSessionAttachment;
@@ -89,7 +90,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 			ApplicationContext context = ApplicationContext.getInstance();
 			
-			LoginCenter loginCenter = context.getLoginCenter();
+			LoginCenter loginCenter = AuthorityContext.getInstance().getLoginCenter();
 			
 			if (!loginCenter.isValidate(parameters)) {
 				return;
