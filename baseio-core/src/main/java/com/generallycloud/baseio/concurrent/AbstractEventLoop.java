@@ -58,7 +58,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 
 	private EventLoopGroup		singleEventLoopGroup	= new SingleEventLoopGroup(this);
 
-	protected abstract void doLoop();
+	protected abstract void doLoop() throws Exception;
 
 	protected void doStartup() throws Exception {
 	}

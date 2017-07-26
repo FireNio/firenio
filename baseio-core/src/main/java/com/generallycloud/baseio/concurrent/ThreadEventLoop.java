@@ -38,21 +38,15 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 	private BlockingQueue<Runnable>	jobs;
 	
 	@Override
-	protected void doLoop() {
+	protected void doLoop() throws InterruptedException {
 
-		try {
+		Runnable runnable = jobs.poll(32,TimeUnit.MILLISECONDS);
 
-			Runnable runnable = jobs.poll(32,TimeUnit.MILLISECONDS);
-
-			if (runnable == null) {
-				return;
-			}
-
-			runnable.run();
-
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
+		if (runnable == null) {
+			return;
 		}
+
+		runnable.run();
 	}
 
 	//FIXME 观察这里是否部分event没有被fire
@@ -76,6 +70,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 					break;
 				}
 				ThreadUtil.sleep(8);
+				sleeped = true;
 				continue;
 			}
 			

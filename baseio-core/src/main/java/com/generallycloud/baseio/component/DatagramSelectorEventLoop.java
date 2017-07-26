@@ -95,34 +95,28 @@ public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
 	}
 
 	@Override
-	protected void doLoop() {
+	protected void doLoop() throws IOException {
 
-		try {
+		Selector selector = this.selector;
 
-			Selector selector = this.selector;
+		int selected = selector.select(16);
 
-			int selected = selector.select(16);
-
-			if (selected < 1) {
-				return;
-			}
-
-			Set<SelectionKey> sks = selector.selectedKeys();
-
-			for (SelectionKey key : sks) {
-
-				if (!key.isValid()) {
-					continue;
-				}
-
-				accept(key);
-			}
-
-			sks.clear();
-
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
+		if (selected < 1) {
+			return;
 		}
+
+		Set<SelectionKey> sks = selector.selectedKeys();
+
+		for (SelectionKey key : sks) {
+
+			if (!key.isValid()) {
+				continue;
+			}
+
+			accept(key);
+		}
+
+		sks.clear();
 	}
 
 	@Override

@@ -227,74 +227,52 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	}
 
 	@Override
-	protected void doLoop() {
+	protected void doLoop() throws IOException {
 
-		try {
+		SocketSelector selector = getSelector();
 
-			SocketSelector selector = getSelector();
+		int selected;
 
-			int selected;
+		// long last_select = System.currentTimeMillis();
 
-			// long last_select = System.currentTimeMillis();
-
-			if (hasTask) {
-
-				if (runTask-- > 0) {
-
-					handlePositiveEvents();
-
-					checkTask(false);
-					return;
-				}
-
+		if (hasTask) {
+			if (runTask-- > 0) {
+				handlePositiveEvents();
+				checkTask(false);
+				return;
+			}
+			selected = selector.selectNow();
+		} else {
+			if (selecting.compareAndSet(false, true)) {
+				selected = selector.select(16);// FIXME try
+				selecting.set(false);
+			} else {
 				selected = selector.selectNow();
-			} else {
-
-				if (selecting.compareAndSet(false, true)) {
-
-					selected = selector.select(16);// FIXME try
-
-					selecting.set(false);
-				} else {
-
-					selected = selector.selectNow();
-				}
 			}
-
-			if (isWaitForRegist()) {
-
-				waitForRegist();
-			}
-
-			if (selected < 1) {
-
-				handleNegativeEvents();
-
-				// selectEmpty(last_select);
-			} else {
-
-				List<NioSocketChannel> selectedChannels = selector.selectedChannels();
-
-				for (NioSocketChannel channel : selectedChannels) {
-
-					accept(channel);
-				}
-
-				selector.clearSelectedChannels();
-			}
-
-			handlePositiveEvents();
-
-			if (isMainEventLoop()) {
-				sessionManager.loop();
-			}
-
-			checkTask(true);
-
-		} catch (Throwable e) {
-
-			logger.errorDebug(e);
 		}
+
+		if (isWaitForRegist()) {
+			waitForRegist();
+		}
+
+		if (selected < 1) {
+			handleNegativeEvents();
+			// selectEmpty(last_select);
+		} else {
+			List<NioSocketChannel> selectedChannels = selector.selectedChannels();
+			for (NioSocketChannel channel : selectedChannels) {
+				accept(channel);
+			}
+			selector.clearSelectedChannels();
+		}
+
+		handlePositiveEvents();
+
+		if (isMainEventLoop()) {
+			sessionManager.loop();
+		}
+
+		checkTask(true);
 	}
 
 	private SocketSelector rebuildSelector0() throws IOException {

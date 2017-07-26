@@ -33,7 +33,7 @@ public class AioSessionManagerEventLoop extends ThreadEventLoop {
 	}
 
 	@Override
-	protected void doLoop() {
+	protected void doLoop() throws InterruptedException {
 
 		super.doLoop();
 
