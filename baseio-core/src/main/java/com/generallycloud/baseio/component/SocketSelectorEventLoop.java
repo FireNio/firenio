@@ -236,7 +236,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		// long last_select = System.currentTimeMillis();
 
 		if (hasTask) {
-			if (runTask-- > 0) {
+			if (runTask > 0) {
+				runTask--;
 				handlePositiveEvents();
 				checkTask(false);
 				return;
