@@ -45,4 +45,21 @@ public class CollectionUtil {
 		System.arraycopy(param2, 0, param, param1.length, param2.length);
 		return param;
 	}
+	
+	public static void printArray(Object[] array) {
+		for (int i = 0; i < array.length; i++) {
+			System.out.print(array[i]);
+			System.out.print(",");
+		}
+		System.out.println();
+	}
+	
+	public static void printArray(int[] array) {
+		for (int i = 0; i < array.length; i++) {
+			System.out.print(array[i]);
+			System.out.print(",");
+		}
+		System.out.println();
+	}
+	
 }
