@@ -17,6 +17,8 @@ package com.generallycloud.test.nio.others.algorithm;
 
 import java.util.Random;
 
+import com.generallycloud.baseio.common.CollectionUtil;
+
 /**
  * @author wangkai
  *
@@ -30,18 +32,10 @@ public class BubbleSort {
 			array[i] = new Random().nextInt(30);
 		}
 
-		printArray(array);
+		CollectionUtil.printArray(array);
 		sort(array);
-		printArray(array);
+		CollectionUtil.printArray(array);
 
-	}
-
-	private static void printArray(int[] array) {
-		for (int i = 0; i < array.length; i++) {
-			System.out.print(array[i]);
-			System.out.print(",");
-		}
-		System.out.println();
 	}
 
 	public static void sort(int[] array) {
