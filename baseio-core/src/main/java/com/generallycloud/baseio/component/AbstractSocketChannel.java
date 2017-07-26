@@ -21,6 +21,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -221,45 +222,34 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 	@Override
 	public void flush(ChannelWriteFuture future) {
-
 		UnsafeSocketSession session = getSession();
-
-		synchronized (getCloseLock()) {
-			
-			try {
-
-				if (!isOpened()) {
-					future.onException(session, new ClosedChannelException(session.toString()));
-					return;
-				}
-				
-				if (!write_futures.offer(future)) {
-					future.onException(session, new RejectedExecutionException());
-					return;
-				}
-				
-				int length = writeFutureLength.addAndGet(future.getBinaryLength());
-				
-				if (length > 1024 * 1024 * 10) {
-					// FIXME 该连接写入过多啦
-				}
-
-				// 如果write futures > 1 说明在offer之前至少有一个write future
-				// event loop 在判断complete时返回false
-				if (write_futures.size() > 1) {
-					return;
-				}
-
-				doFlush(future);
-
-			} catch (Exception e) {
-
-				future.onException(session, e);
-
+		ReentrantLock lock = getCloseLock();
+		lock.lock();
+		try{
+			if (!isOpened()) {
+				future.onException(session, new ClosedChannelException(session.toString()));
+				return;
 			}
-			
+			//FIXME will not fail
+			if (!write_futures.offer(future)) {
+				future.onException(session, new RejectedExecutionException());
+				return;
+			}
+			int length = writeFutureLength.addAndGet(future.getBinaryLength());
+			if (length > 1024 * 1024 * 10) {
+				// FIXME 该连接写入过多啦
+			}
+			// 如果write futures > 1 说明在offer之后至少有一个write future
+			// event loop 在判断complete时返回false
+			if (write_futures.size() > 1) {
+				return;
+			}
+			doFlush(future);
+		}catch (Exception e) {
+			future.onException(session, e);
+		}finally{
+			lock.unlock();
 		}
-
 	}
 
 	protected abstract void doFlush(ChannelWriteFuture future);

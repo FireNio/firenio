@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -85,76 +86,55 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	private volatile boolean flushing;
 
 	private void flush(boolean forceFlushing) {
-
 		try {
-
 			if (!forceFlushing && flushing) {
 				return;
 			}
-
 			if (write_future == null) {
 				write_future = write_futures.poll();
 			}
-
 			if (write_future == null) {
 				flushing = false;
 				return;
 			}
-			
 			if (!isOpened()) {
 				fireClosed(write_future, new ClosedChannelException("closed"));
 				return;
 			}
-
 			flushing = true;
-
 			write_future.write(this);
-
 		} catch (IOException e) {
-
 			fireClosed(write_future, e);
 		}
 	}
 
 	private void fireClosed(ChannelWriteFuture future, IOException e) {
-
 		if (future == null) {
 			return;
 		}
-
 		future.onException(getSession(), e);
 	}
 
 	// FIXME 这里有问题
 	@Override
 	protected void physicalClose() {
-
 		closeSSL();
-
 		// 最后一轮 //FIXME once
-
 		this.flush(false);
-
 		this.opened = false;
-
 		this.releaseFutures();
-
 		try {
 			channel.shutdownOutput();
 		} catch (IOException e) {
 			logger.info(e.getMessage(), e);
 		}
-
 		try {
 			channel.shutdownInput();
 		} catch (IOException e) {
 			logger.info(e.getMessage(), e);
 		}
-
 		CloseUtil.close(channel);
-		
 		fireClosed();
-
 		closeConnector();
 	}
 
@@ -168,48 +148,41 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	
 	@Override
 	public void close() throws IOException {
-
-		synchronized (getCloseLock()) {
-			
+		ReentrantLock lock = getCloseLock();
+		lock.lock();
+		try{
 			if (!isOpened()) {
 				releaseFutures();
 				return;
 			}
-			
 			this.opened = false;
-			
 			physicalClose();
+		}finally{
+			lock.unlock();
 		}
-		
 	}
 	
 	// FIXME __hebing
 	public void writeCallback(Integer length) {
-
-		synchronized (getCloseLock()) {
-			
+		ReentrantLock lock = getCloseLock();
+		lock.lock();
+		try{
 			if (!isOpened()) {
 				return;
 			}
-			
 			ChannelWriteFuture write_future = this.write_future;
-
 			write_future.getByteBuf().reverse();
-
 			if (!write_future.isCompleted()) {
 				flush(true);
 				return;
 			}
-
 			writeFutureLength.getAndAdd(-write_future.getBinaryLength());
-
 			write_future.onSuccess(session);
-
 			write_future = null;
-
 			flush(true);
+		}finally{
+			lock.unlock();
 		}
-
 	}
 
 	public ByteBuf getReadCache() {

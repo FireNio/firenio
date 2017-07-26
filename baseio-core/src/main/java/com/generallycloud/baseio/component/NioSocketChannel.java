@@ -21,10 +21,10 @@ import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
@@ -86,33 +86,21 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	@Override
 	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
-
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
-		
 		ChannelWriteFuture future = this.write_future;
-
 		if (future != null) {
-
 			future.write(this);
-
 			if (!future.isCompleted()) {
 				return;
 			}
-
 			writeFutureLength.getAndAdd(-future.getBinaryLength());
-
 			future.onSuccess(session);
-
 			write_future = null;
-			
 			return;
-			
 		}
-		
 		future = write_futures.poll();
-		
 		if (future == null) {
 			return;
 		}
@@ -123,16 +111,12 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 			ReleaseUtil.release(future);
 			throw e;
 		}
-
 		if (!future.isCompleted()) {
 			this.write_future = future;
 			return;
 		}
-
 		writeFutureLength.getAndAdd(-future.getBinaryLength());
-
 		future.onSuccess(session);
-
 	}
 	
 	private boolean isClosing() {
@@ -141,41 +125,25 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	@Override
 	public void close() throws IOException {
-		
-		synchronized (getCloseLock()) {
-			
+		ReentrantLock lock = getCloseLock();
+		lock.lock();
+		try{
 			if (!isOpened()) {
 				releaseFutures();
 				return;
 			}
-
 			if (inSelectorLoop()) {
 				physicalClose();
 				return;
 			}
-
 			if (isClosing()) {
 				return;
 			}
-
 			closing = true;
-
-			fireClose();
+			fireEvent(new CloseSelectorLoopEvent(this));
+		}finally{
+			lock.unlock();
 		}
-
-	}
-
-	private void fireClose() {
-
-		final NioSocketChannel _channel = this;
-
-		fireEvent(new SelectorLoopEventAdapter() {
-
-			@Override
-			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
-				CloseUtil.close(_channel);
-			}
-		});
 	}
 
 	public boolean isBlocking() {
@@ -189,32 +157,22 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	// FIXME 这里有问题
 	@Override
 	protected void physicalClose() {
-
 		closeSSL();
-
 		// 最后一轮 //FIXME once
 		try {
 			this.fireEvent(selectorEventLoop);
 		} catch (IOException e) {
 		}
-
 		this.opened = false;
-
 		this.closing = false;
-
 		this.releaseFutures();
-
 		this.selectionKey.attach(null);
-
 		try {
 			this.channel.close();
 		} catch (Exception e) {
 		}
-
 		this.selectionKey.cancel();
-
 		fireClosed();
-
 		closeConnector();
 	}
 
@@ -223,62 +181,41 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 
 	public int read(ByteBuf buf) throws IOException {
-
 		int length = read(buf.getNioBuffer());
-
 		if (length > 0) {
 			buf.skipBytes(length);
 		}
-
 		return length;
 	}
 
 	public void write(ByteBuf buf) throws IOException {
-
 		int length = write(buf.getNioBuffer());
-
 		if (length < 1) {
-
 			downNetworkState();
-
 			return;
-
 		}
-
 		buf.reverse();
-
 		upNetworkState();
 	}
 
 	private void upNetworkState() {
-
 		if (next_network_weak != Long.MAX_VALUE) {
-
 			next_network_weak = Long.MAX_VALUE;
-
 			networkWeak = false;
 		}
 	}
 
 	private void downNetworkState() {
-
 		long current = System.currentTimeMillis();
-
 		if (next_network_weak < Long.MAX_VALUE) {
-
 			if (networkWeak) {
 				return;
 			}
-
 			if (current > next_network_weak) {
-
 				networkWeak = true;
-
 				fireEvent(this);
 			}
-
 		} else {
-
 			next_network_weak = current + 64;
 		}
 	}
