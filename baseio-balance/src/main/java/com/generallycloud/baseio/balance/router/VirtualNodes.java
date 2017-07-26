@@ -52,6 +52,9 @@ public class VirtualNodes<T extends VirtualMachine> {
 			}
 			return;
 		}
+		if (machines.size() == maxNode) {
+			throw new RuntimeException("max nodes "+maxNode);
+		}
 		int msize = machines.size();
 		int nmsize = msize + 1;
 		int remain = nmsize;
