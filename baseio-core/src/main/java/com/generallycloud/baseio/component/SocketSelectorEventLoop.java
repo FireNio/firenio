@@ -18,13 +18,13 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -51,9 +51,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	private ExecutorEventLoop				executorEventLoop		= null;
 
-	private boolean						isWaitForRegist		= false;
-
-	private SessionManager					sessionManager			= null;
+	private SocketSessionManager				sessionManager			= null;
 
 	private SocketSelectorEventLoopGroup		eventLoopGroup			= null;
 
@@ -70,8 +68,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	private SslHandler						sslHandler			= null;
 
 	private AtomicBoolean					selecting				= new AtomicBoolean();
-
-	private ReentrantLock					isWaitForRegistLock		= new ReentrantLock();
 
 	private UnpooledByteBufAllocator			unpooledByteBufAllocator	= null;
 
@@ -98,24 +94,14 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		this.sessionManager = context.getSessionManager();
 
 		this.eventQueueSize = eventQueueSize;
+		
+		this.sessionManager = new NioSocketSessionManager(context,this);
 
 		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
 		
 		if (context.isEnableSSL()) {
 			sslHandler = context.getSslContext().newSslHandler(context);
 		}
-	}
-
-	public ReentrantLock getIsWaitForRegistLock() {
-		return isWaitForRegistLock;
-	}
-
-	public boolean isWaitForRegist() {
-		return isWaitForRegist;
-	}
-
-	public void setWaitForRegist(boolean isWaitForRegist) {
-		this.isWaitForRegist = isWaitForRegist;
 	}
 
 	public SocketSelector getSelector() {
@@ -125,15 +111,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	public void rebuildSelector() throws IOException {
 		this.selector = rebuildSelector0();
-	}
-
-	private void waitForRegist() {
-
-		ReentrantLock lock = getIsWaitForRegistLock();
-
-		lock.lock();
-
-		lock.unlock();
 	}
 
 	public void accept(NioSocketChannel channel) {
@@ -194,6 +171,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	@Override
 	protected void doStop() {
+		
+		ThreadUtil.sleep(8);
 
 		closeEvents(positiveEvents);
 
@@ -252,10 +231,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 			}
 		}
 
-		if (isWaitForRegist()) {
-			waitForRegist();
-		}
-
 		if (selected < 1) {
 			handleNegativeEvents();
 			// selectEmpty(last_select);
@@ -269,9 +244,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 		handlePositiveEvents();
 
-		if (isMainEventLoop()) {
-			sessionManager.loop();
-		}
+		sessionManager.loop();
 
 		checkTask(true);
 	}
@@ -343,22 +316,18 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		//			return;
 		//		}
 
-		//FIXME 考虑如果这里不加锁，会导致部分event没有被fire
-		synchronized (getRunLock()) {
-
-			if (!isRunning()) {
-				CloseUtil.close(event);
-				return;
-			}
-
-			BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
-
-			if (events.getBufferSize() > eventQueueSize) {
-				CloseUtil.close(event);
-			}
-
-			events.offer(event);
+		if (!isRunning()) {
+			CloseUtil.close(event);
+			return;
 		}
+
+		BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
+
+		if (events.getBufferSize() > eventQueueSize) {
+			CloseUtil.close(event);
+		}
+
+		events.offer(event);
 
 		wakeup();
 
@@ -458,4 +427,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		return sslHandler;
 	}
 
+	@Override
+	public SocketSessionManager getSocketSessionManager() {
+		return sessionManager;
+	}
 }

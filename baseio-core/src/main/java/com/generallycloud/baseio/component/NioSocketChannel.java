@@ -41,8 +41,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey) {
-		super(selectorLoop);
+	public NioSocketChannel(SocketSelectorEventLoop selectorLoop
+			, SelectionKey selectionKey,int channelId) {
+		super(selectorLoop,channelId);
 		this.selectorEventLoop = selectorLoop;
 		this.context = selectorLoop.getChannelContext();
 		this.selectionKey = selectionKey;

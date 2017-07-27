@@ -32,8 +32,8 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 	private DatagramSelectorEventLoop selectorLoop;
 
 	public NioDatagramChannel(DatagramSelectorEventLoop selectorLoop, DatagramChannel channel,
-			InetSocketAddress remote){
-		super(selectorLoop.getByteBufAllocator(),selectorLoop.getChannelContext());
+			InetSocketAddress remote,int channelId){
+		super(selectorLoop.getByteBufAllocator(),selectorLoop.getChannelContext(),channelId);
 		this.selectorLoop = selectorLoop;
 		this.context = selectorLoop.getChannelContext();
 		this.channel = channel;

@@ -35,11 +35,9 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	protected ByteBufAllocatorManager		byteBufAllocatorManager;
 	protected Map<Object, Object>		attributes	= new HashMap<Object, Object>();
 	protected long					startupTime	= System.currentTimeMillis();
-	protected Sequence					sequence		= new Sequence();
 
 	protected void clearContext() {
 		this.clearAttributes();
-		this.sequence = new Sequence();
 	}
 	
 	@Override
@@ -105,11 +103,6 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
 	@Override
 	public void setAttribute(Object key, Object value) {
 		this.attributes.put(key, value);
-	}
-
-	@Override
-	public Sequence getSequence() {
-		return sequence;
 	}
 
 	@Override

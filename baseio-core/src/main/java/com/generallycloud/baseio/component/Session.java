@@ -58,7 +58,7 @@ public interface Session extends Closeable{
 
 	public abstract InetSocketAddress getRemoteSocketAddress();
 
-	public abstract Integer getSessionId();
+	public abstract int getSessionId();
 
 	public abstract Object removeAttribute(Object key) ;
 	

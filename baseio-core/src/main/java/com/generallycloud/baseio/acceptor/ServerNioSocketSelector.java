@@ -20,12 +20,13 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.NioSocketSelector;
+import com.generallycloud.baseio.component.SelectorLoopEventAdapter;
 import com.generallycloud.baseio.component.SocketSelectorEventLoop;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 
 /**
  * @author wangkai
@@ -34,60 +35,56 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
 public class ServerNioSocketSelector extends NioSocketSelector {
 
 	private SocketSelectorEventLoopGroup selectorEventLoopGroup;
-
+	
+	private FixedAtomicInteger	channelIds;
+	
 	public ServerNioSocketSelector(SocketSelectorEventLoop loop, Selector selector,
 			SelectableChannel channel, SocketSelectorEventLoopGroup group) {
 		super(loop, selector, channel);
 		this.selectorEventLoopGroup = group;
+		this.channelIds = loop.getChannelContext().getCHANNEL_IDS();
 	}
 
 	@Override
 	protected void buildChannel(SelectionKey k) throws IOException {
-
+		
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
+		
+		final int channelId = channelIds.getAndIncrement();
 
-		java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
+		final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
 
 		SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
 
 		// 配置为非阻塞
 		channel.configureBlocking(false);
-
+		
 		// 注册到selector，等待连接
 		if (selectorLoop.isMainEventLoop()) {
-			regist(channel, selectorLoop);
+			regist(channel, selectorLoop,channelId);
 			return;
 		}
 
-		ReentrantLock lock = selectorLoop.getIsWaitForRegistLock();
-
-		lock.lock();
-
-		try {
-
-			selectorLoop.setWaitForRegist(true);
-
-			selectorLoop.wakeup();
-
-			regist(channel, selectorLoop);
-
-		} finally {
-
-			selectorLoop.setWaitForRegist(false);
-
-			lock.unlock();
-		}
+		selectorLoop.dispatch(new SelectorLoopEventAdapter() {
+			@Override
+			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+				regist(channel, selectLoop,channelId);
+			}
+		});
+		
+		selectorLoop.wakeup();
+		
 	}
 
 	private void regist(java.nio.channels.SocketChannel channel,
-			SocketSelectorEventLoop selectorLoop) throws IOException {
+			SocketSelectorEventLoop selectorLoop,int channelId) throws IOException {
 
 		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
 
 		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
 
 		// 绑定SocketChannel到SelectionKey
-		NioSocketChannel socketChannel = newChannel(sk, selectorLoop);
+		NioSocketChannel socketChannel = newChannel(sk, selectorLoop,channelId);
 
 		// fire session open event
 		socketChannel.fireOpend();

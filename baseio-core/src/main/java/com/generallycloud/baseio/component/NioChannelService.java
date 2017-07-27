@@ -21,9 +21,11 @@ import java.nio.channels.SelectableChannel;
  * @author wangkai
  *
  */
-public interface NioChannelService extends ChannelService{
+public interface NioChannelService extends ChannelService {
 
-	public abstract SocketSelectorBuilder getSelectorBuilder();
+	SocketSelectorEventLoopGroup getSelectorEventLoopGroup();
 
-	public abstract SelectableChannel getSelectableChannel();
+	SocketSelectorBuilder getSelectorBuilder();
+
+	SelectableChannel getSelectableChannel();
 }

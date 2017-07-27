@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
-
-import java.io.IOException;
-
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
+package com.generallycloud.baseio.collection;
 
 /**
  * @author wangkai
  *
  */
-public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
+public class IntHashSet {
 
-	private SelectorLoopEvent event;
-
-	public CloseSelectorLoopEvent(SelectorLoopEvent channel) {
-		this.event = channel;
-	}
-
-	@Override
-	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
-		CloseUtil.close(event);
-	}
-
+	
+	
+	
 }

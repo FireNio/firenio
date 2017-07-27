@@ -34,21 +34,24 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
 	private AioSessionManangerEventLoopGroup	sessionManangerEventLoopGroup;
 	
-	private AioSocketSessionManager			sessionManager;
+	private AioGlobalSocketSessionManager		sessionManager;
 
 	private Logger							logger	= LoggerFactory.getLogger(getClass());
 
 	public AioSocketChannelContext(ServerConfiguration configuration) {
 		super(configuration);
-		this.sessionManager = new AioSocketSessionManager(this);
 	}
 
 	@Override
 	protected void doStartModule() throws Exception {
 		
-		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 8 * 1024, 1, getSessionManager());
-
+		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 8 * 1024, 1, this);
+		
 		LifeCycleUtil.start(sessionManangerEventLoopGroup);
+		
+		AioSessionManagerEventLoop loop = (AioSessionManagerEventLoop) sessionManangerEventLoopGroup.getNext();
+		
+		sessionManager = new AioGlobalSocketSessionManager(loop.getSessionManager());
 		
 		initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
 
@@ -92,12 +95,8 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 	}
 
 	@Override
-	public AioSocketSessionManager getSessionManager() {
+	public AioGlobalSocketSessionManager getSessionManager() {
 		return sessionManager;
 	}
 	
-	@Override
-	public void setSessionManager(SocketSessionManager sessionManager) {
-		this.sessionManager = (AioSocketSessionManager) sessionManager;
-	}
 }

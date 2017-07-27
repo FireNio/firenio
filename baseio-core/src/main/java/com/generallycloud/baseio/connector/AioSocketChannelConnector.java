@@ -56,7 +56,7 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
 						CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
 
-						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel);
+						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel,1);
 
 						connector.finishConnect(channel.getSession(), null);
 

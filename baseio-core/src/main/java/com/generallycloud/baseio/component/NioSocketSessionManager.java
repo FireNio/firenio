@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
-import java.util.Map;
 
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -25,11 +25,9 @@ public class NioSocketSessionManager extends AbstractSocketSessionManager {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public NioSocketSessionManager(SocketChannelContext context) {
+	public NioSocketSessionManager(SocketChannelContext context,
+			SocketSelectorEventLoop selectorEventLoop) {
 		super(context);
-	}
-
-	public void initSocketSelectorEventLoop(SocketSelectorEventLoop selectorEventLoop) {
 		this.selectorEventLoop = selectorEventLoop;
 	}
 
@@ -42,14 +40,14 @@ public class NioSocketSessionManager extends AbstractSocketSessionManager {
 			@Override
 			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
 
-				Map<Integer, SocketSession> map = iteratorSessions.takeSnapshot();
+				IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
 
-				if (map.size() == 0) {
+				if (sessions.size() == 0) {
 					return;
 				}
 
 				try {
-					event.fire(context, map);
+					event.fire(context, sessions);
 				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}

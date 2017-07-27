@@ -23,8 +23,8 @@ import java.nio.channels.SocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.NioChannelService;
+import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -38,15 +38,15 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 		implements NioChannelService {
 
-	private NioSocketChannelContext	context;
+	private NioSocketChannelContext		context;
 
-	private SelectableChannel		selectableChannel		= null;
+	private SelectableChannel			selectableChannel		= null;
 
-	private SocketSelectorBuilder		selectorBuilder		= null;
+	private SocketSelectorBuilder			selectorBuilder		= null;
 
-	private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
+	private SocketSelectorEventLoopGroup	selectorEventLoopGroup	= null;
 
-	private Logger					logger				= LoggerFactory
+	private Logger						logger				= LoggerFactory
 			.getLogger(getClass());
 
 	//FIXME 优化
@@ -79,13 +79,20 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
 
-		this.initChannel();
+		initChannel();
 
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
-
-		this.initSelectorLoops();
+		
+		initSelectorLoops();
+		
+		initNioSessionMananger();
 
 		wait4connect();
+	}
+	
+	private void initNioSessionMananger(){
+		NioGlobalSocketSessionManager manager = (NioGlobalSocketSessionManager) getContext().getSessionManager();
+		manager.init((NioSocketChannelContext) getContext());
 	}
 
 	@Override
@@ -107,10 +114,18 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
 	}
-	
+
 	@Override
 	Logger getLogger() {
 		return logger;
 	}
-	
+
+	/**
+	 * @return the selectorEventLoopGroup
+	 */
+	@Override
+	public SocketSelectorEventLoopGroup getSelectorEventLoopGroup() {
+		return selectorEventLoopGroup;
+	}
+
 }

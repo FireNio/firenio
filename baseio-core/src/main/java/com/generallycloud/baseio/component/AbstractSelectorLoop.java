@@ -31,7 +31,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	
 	private ByteBufAllocator		byteBufAllocator	= null;
 
-	private boolean			mainEventLoop			= true;
+	private boolean			mainEventLoop		= true;
 
 	@Override
 	public boolean isMainEventLoop() {
@@ -42,7 +42,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 		this.setCoreIndex(coreIndex);
 		this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
 	}
-	
 
 	@Override
 	public ByteBufAllocator getByteBufAllocator() {

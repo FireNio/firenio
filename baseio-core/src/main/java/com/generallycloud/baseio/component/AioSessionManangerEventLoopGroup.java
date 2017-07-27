@@ -20,22 +20,17 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
 public class AioSessionManangerEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-	private AioSocketSessionManager sessionManager;
+	private AioSocketChannelContext context;
 
 	public AioSessionManangerEventLoopGroup(String eventLoopName, int eventQueueSize,
-			int eventLoopSize, AioSocketSessionManager sessionManager) {
+			int eventLoopSize, AioSocketChannelContext context) {
 		super(eventLoopName, eventQueueSize, eventLoopSize);
-		this.sessionManager = sessionManager;
+		this.context = context;
 	}
 
 	@Override
 	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		
-		ExecutorEventLoop eventLoop = new AioSessionManagerEventLoop(this, eventQueueSize, sessionManager);
-		
-		sessionManager.initSocketSelectorEventLoop(eventLoop);
-		
-		return eventLoop;
+		return new AioSessionManagerEventLoop(this, eventQueueSize, context);
 	}
 
 }

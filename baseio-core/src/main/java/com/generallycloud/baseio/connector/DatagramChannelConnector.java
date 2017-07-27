@@ -96,7 +96,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 		@SuppressWarnings("resource")
 		NioDatagramChannel channel = new NioDatagramChannel(selectorLoop,
-				(DatagramChannel) selectableChannel, socketAddress);
+				(DatagramChannel) selectableChannel, socketAddress,1);
 
 		this.session = channel.getSession();
 

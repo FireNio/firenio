@@ -45,8 +45,6 @@ public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
 		
 		if (selectorLoop.isMainEventLoop()) {
 			
-			context.getSessionManager().initSocketSelectorEventLoop(selectorLoop);
-
 			// 注册监听事件到该selector
 			channel.register(selector, SelectionKey.OP_ACCEPT);
 

@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
-import com.generallycloud.baseio.common.Attributes;
+import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public interface ChannelContext extends Attributes, LifeCycle {
@@ -35,8 +35,6 @@ public interface ChannelContext extends Attributes, LifeCycle {
 	public abstract void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
 
 	public abstract void setChannelService(ChannelService service);
-
-	public abstract Sequence getSequence();
 
 	public abstract long getSessionIdleTime();
 

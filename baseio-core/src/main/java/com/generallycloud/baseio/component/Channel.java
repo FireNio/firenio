@@ -49,7 +49,7 @@ public interface Channel extends Closeable {
 
 	public abstract Session getSession();
 
-	public abstract Integer getChannelId();
+	public abstract int getChannelId();
 	
 	public abstract ByteBufAllocator getByteBufAllocator();
 

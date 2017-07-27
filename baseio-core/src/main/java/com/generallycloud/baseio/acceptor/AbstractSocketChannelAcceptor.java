@@ -16,17 +16,17 @@
 package com.generallycloud.baseio.acceptor;
 
 import java.util.Collection;
-import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionManager;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelReadFuture;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
@@ -77,7 +77,7 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
 			
 			@Override
-			public void fire(SocketChannelContext context, Map<Integer, SocketSession> sessions) {
+			public void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions) {
 				
 				if (sessions.isEmpty()) {
 					ReleaseUtil.release(future);

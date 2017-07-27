@@ -43,8 +43,8 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public AioSocketChannel(CachedAioThread aioThread, AsynchronousSocketChannel channel) {
-		super(aioThread);
+	public AioSocketChannel(CachedAioThread aioThread, AsynchronousSocketChannel channel,int channelId) {
+		super(aioThread,channelId);
 		this.channel = channel;
 		this.readCache = UnpooledByteBufAllocator.getHeapInstance().allocate(4096);
 		this.context = aioThread.getChannelContext();
@@ -163,7 +163,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	}
 	
 	// FIXME __hebing
-	public void writeCallback(Integer length) {
+	public void writeCallback(int length) {
 		ReentrantLock lock = getCloseLock();
 		lock.lock();
 		try{

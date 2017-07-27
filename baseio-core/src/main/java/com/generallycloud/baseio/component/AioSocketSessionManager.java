@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.util.Map;
-
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -25,11 +24,9 @@ public class AioSocketSessionManager extends AbstractSocketSessionManager {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public AioSocketSessionManager(SocketChannelContext context) {
+	public AioSocketSessionManager(SocketChannelContext context,
+			ExecutorEventLoop selectorEventLoop) {
 		super(context);
-	}
-
-	public void initSocketSelectorEventLoop(ExecutorEventLoop selectorEventLoop) {
 		this.selectorEventLoop = selectorEventLoop;
 	}
 
@@ -42,14 +39,14 @@ public class AioSocketSessionManager extends AbstractSocketSessionManager {
 			@Override
 			public void run() {
 
-				Map<Integer, SocketSession> map = iteratorSessions.takeSnapshot();
+				IntObjectHashMap<SocketSession> sessions = AioSocketSessionManager.this.sessions;
 
-				if (map.size() == 0) {
+				if (sessions.size() == 0) {
 					return;
 				}
 
 				try {
-					event.fire(context, map);
+					event.fire(context, sessions);
 				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}

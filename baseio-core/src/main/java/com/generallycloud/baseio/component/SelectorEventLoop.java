@@ -40,7 +40,7 @@ public interface SelectorEventLoop extends EventLoop {
 		 * 
 		 * @return true 需要再次处理，false处理结束后丢弃
 		 */
-		void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException;
+		void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException;
 
 		boolean isComplete();
 

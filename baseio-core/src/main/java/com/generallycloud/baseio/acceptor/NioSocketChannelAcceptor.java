@@ -25,8 +25,8 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.NioChannelService;
+import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
@@ -39,13 +39,13 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 		implements NioChannelService {
 
-	private ServerSocket			serverSocket			= null;
+	private ServerSocket				serverSocket			= null;
 
-	private SelectableChannel		selectableChannel		= null;
+	private SelectableChannel			selectableChannel		= null;
 
-	private SocketSelectorBuilder		selectorBuilder		= null;
+	private SocketSelectorBuilder			selectorBuilder		= null;
 
-	private SelectorEventLoopGroup	selectorEventLoopGroup	= null;
+	private SocketSelectorEventLoopGroup	selectorEventLoopGroup	= null;
 
 	public NioSocketChannelAcceptor(SocketChannelContext context) {
 		super(context);
@@ -56,7 +56,11 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
 
 		initChannel();
-
+		
+		initSelectorLoops();
+		
+		initNioSessionMananger();
+		
 		try {
 			// 进行服务的绑定
 			this.serverSocket.bind(socketAddress, 50);
@@ -64,7 +68,11 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
 
-		initSelectorLoops();
+	}
+	
+	private void initNioSessionMananger(){
+		NioGlobalSocketSessionManager manager = (NioGlobalSocketSessionManager) getContext().getSessionManager();
+		manager.init((NioSocketChannelContext) getContext());
 	}
 
 	private void initChannel() throws IOException {
@@ -106,6 +114,11 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 	@Override
 	public SelectableChannel getSelectableChannel() {
 		return selectableChannel;
+	}
+
+	@Override
+	public SocketSelectorEventLoopGroup getSelectorEventLoopGroup() {
+		return selectorEventLoopGroup;
 	}
 
 }

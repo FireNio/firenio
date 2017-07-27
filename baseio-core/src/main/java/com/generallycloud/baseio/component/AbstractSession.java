@@ -110,7 +110,7 @@ public abstract class AbstractSession implements Session {
 	}
 
 	@Override
-	public Integer getSessionId() {
+	public int getSessionId() {
 		return getChannel().getChannelId();
 	}
 

@@ -21,6 +21,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -50,6 +51,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private LinkableGroup<SocketSessionEventListenerWrapper>		sessionEventListenerGroup	= new LinkableGroup<>();
 	private LinkableGroup<SocketSessionIdleEventListenerWrapper>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
 	private Logger											logger					= LoggerFactory.getLogger(getClass());
+	private FixedAtomicInteger								CHANNEL_IDS;
 
 	@Override
 	public int getSessionAttachmentSize() {
@@ -108,6 +110,13 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	@Override
 	protected void clearContext() {
 		super.clearContext();
+		createChannelIdsSequence();
+	}
+	
+	private void createChannelIdsSequence(){
+		int core_size = serverConfiguration.getSERVER_CORE_SIZE();
+		int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
+		this.CHANNEL_IDS = new FixedAtomicInteger(0,max);
 	}
 
 	@Override
@@ -122,13 +131,11 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		if (!initialized) {
-
 			initialized = true;
-
-			this.serverConfiguration.initializeDefault(this);
-
-			this.addSessionEventListener(new SocketSessionManagerSEListener());
+			serverConfiguration.initializeDefault(this);
 		}
+		
+		createChannelIdsSequence();
 
 		EmptyReadFuture.initializeReadFuture(this);
 
@@ -181,7 +188,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		if (executorEventLoopGroup == null) {
 
 			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
-
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 
 			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
@@ -314,6 +320,13 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	@Override
 	public ForeReadFutureAcceptor getForeReadFutureAcceptor() {
 		return foreReadFutureAcceptor;
+	}
+	
+	/**
+	 * @return the cHANNEL_IDS
+	 */
+	public FixedAtomicInteger getCHANNEL_IDS() {
+		return CHANNEL_IDS;
 	}
 
 }

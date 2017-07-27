@@ -25,14 +25,16 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
  */
 public interface SocketChannelThreadContext {
 
-	public abstract SocketChannelContext getChannelContext();
+	SocketChannelContext getChannelContext();
 
-	public abstract ByteBufAllocator getByteBufAllocator();
+	ByteBufAllocator getByteBufAllocator();
 
-	public abstract ExecutorEventLoop getExecutorEventLoop();
+	ExecutorEventLoop getExecutorEventLoop();
 
-	public abstract boolean inEventLoop();
-	
-	public abstract SslHandler getSslHandler();
+	SocketSessionManager getSocketSessionManager();
+
+	boolean inEventLoop();
+
+	SslHandler getSslHandler();
 
 }

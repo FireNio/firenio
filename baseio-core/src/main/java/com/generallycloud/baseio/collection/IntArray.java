@@ -13,28 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.collection;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
+import java.util.Arrays;
 
 /**
  * @author wangkai
  *
  */
-public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
+public class IntArray {
 
-	private SelectorLoopEvent event;
+	private int[]	array;
+	private int	size;
 
-	public CloseSelectorLoopEvent(SelectorLoopEvent channel) {
-		this.event = channel;
+	public IntArray() {
+		this(16);
 	}
 
-	@Override
-	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
-		CloseUtil.close(event);
+	public IntArray(int capacity) {
+		array = new int[capacity];
 	}
 
+	public void add(int value) {
+		checkCapacity();
+		array[size++] = value;
+	}
+
+	public int get(int index) {
+		return array[index];
+	}
+
+	public int size() {
+		return size;
+	}
+
+	public int capacity() {
+		return array.length;
+	}
+
+	private void checkCapacity() {
+		if (array.length == size) {
+			array = Arrays.copyOf(array, array.length * 2);
+		}
+	}
 }

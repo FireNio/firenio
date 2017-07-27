@@ -94,7 +94,7 @@ public class FixedProperties extends Properties{
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
-		return Integer.valueOf(temp);
+		return Integer.parseInt(temp);
 	}
 
 	public long getLongProperty(String key) {
@@ -106,7 +106,7 @@ public class FixedProperties extends Properties{
 		if (StringUtil.isNullOrBlank(temp)) {
 			return defaultValue;
 		}
-		return Long.valueOf(temp);
+		return Long.parseLong(temp);
 	}
 
 	public String getPropertyNoBlank(String key) throws PropertiesException {

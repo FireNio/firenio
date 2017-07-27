@@ -115,7 +115,7 @@ public class DatagramSessionManager extends AbstractSessionManager {
 		if (session == null) {
 
 			@SuppressWarnings("resource")
-			DatagramChannel channel = new NioDatagramChannel(selectorLoop, nioChannel, remote);
+			DatagramChannel channel = new NioDatagramChannel(selectorLoop, nioChannel, remote,1);
 
 			session = channel.getSession();
 

@@ -67,4 +67,9 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
 		return sslHandler;
 	}
 
+	@Override
+	public SocketSessionManager getSocketSessionManager() {
+		return channelContext.getSessionManager();
+	}
+	
 }

@@ -26,6 +26,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.AioSocketChannel;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.CachedAioThread;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -49,6 +50,8 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
 		AioSocketChannelContext context = (AioSocketChannelContext) getContext();
 
 		AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
+		
+		final FixedAtomicInteger channelIds = new FixedAtomicInteger(1);
 
 		serverSocketChannel = AsynchronousServerSocketChannel.open(group);
 
@@ -62,10 +65,12 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
 							Void attachment) {
 
 						serverSocketChannel.accept(null, this); // 接受下一个连接
+						
+						int channelId = channelIds.getAndIncrement();
 
 						CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
 
-						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel);
+						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel,channelId);
 
 						channel.fireOpend();
 

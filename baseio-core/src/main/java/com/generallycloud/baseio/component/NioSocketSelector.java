@@ -118,7 +118,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 		selector.wakeup();
 	}
 
-	protected NioSocketChannel newChannel(SelectionKey selectionKey,SocketSelectorEventLoop selectorLoop) throws SocketException {
+	protected NioSocketChannel newChannel(SelectionKey selectionKey,SocketSelectorEventLoop selectorLoop,int channelId) throws SocketException {
 
 		NioSocketChannel channel = (NioSocketChannel) selectionKey.attachment();
 
@@ -127,7 +127,7 @@ public abstract class NioSocketSelector implements SocketSelector {
 			return channel;
 		}
 
-		channel = new NioSocketChannel(selectorLoop, selectionKey);
+		channel = new NioSocketChannel(selectorLoop, selectionKey,channelId);
 
 		selectionKey.attach(channel);
 

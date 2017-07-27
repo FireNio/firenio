@@ -33,7 +33,7 @@ public abstract class AbstractChannel implements Channel {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractChannel.class);
 
 	protected String			edp_description;
-	protected Integer			channelId;
+	protected int				channelId;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	protected long			lastAccess;
@@ -42,15 +42,15 @@ public abstract class AbstractChannel implements Channel {
 	protected ReentrantLock		closeLock		= new ReentrantLock();
 	protected ByteBufAllocator	byteBufAllocator;
 
-	public AbstractChannel(ByteBufAllocator allocator,ChannelContext context) {
+	public AbstractChannel(ByteBufAllocator allocator,ChannelContext context,int channelId) {
 		// 认为在第一次Idle之前，连接都是畅通的
 		this.byteBufAllocator = allocator;
 		this.lastAccess = creationTime + context.getSessionIdleTime();
-		this.channelId = context.getSequence().AUTO_CHANNEL_ID.getAndIncrement();
+		this.channelId = channelId;
 	}
 
 	@Override
-	public Integer getChannelId() {
+	public int getChannelId() {
 		return channelId;
 	}
 
@@ -153,7 +153,7 @@ public abstract class AbstractChannel implements Channel {
 		return edp_description;
 	}
 
-	private String getIdHexString(Integer channelID) {
+	private String getIdHexString(int channelID) {
 
 		String id = Long.toHexString(channelID);
 

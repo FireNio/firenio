@@ -15,8 +15,7 @@
  */ 
 package com.generallycloud.baseio.common;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.generallycloud.baseio.collection.IntArray;
 
 //关键字：前缀，后缀，部分匹配表
 public class KMPByteUtil {
@@ -116,7 +115,7 @@ public class KMPByteUtil {
 		return -1;
 	}
 
-	public List<Integer> match_all(byte[] source_array) {
+	public IntArray match_all(byte[] source_array) {
 
 		if (source_array == null) {
 			return null;
@@ -126,7 +125,7 @@ public class KMPByteUtil {
 			return null;
 		}
 
-		List<Integer> matchs = new ArrayList<Integer>();
+		IntArray matchs = new IntArray();
 
 		if (source_array.equals(match_array)) {
 			matchs.add(0);

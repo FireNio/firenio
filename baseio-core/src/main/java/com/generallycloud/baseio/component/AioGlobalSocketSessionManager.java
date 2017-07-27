@@ -15,22 +15,51 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.util.concurrent.RejectedExecutionException;
-
 import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
 
 /**
  * @author wangkai
  *
  */
-public interface SocketSessionManager extends SessionManager {
-
-	public abstract SocketSession getSession(int sessionId);
-
-	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
+public class AioGlobalSocketSessionManager implements SocketSessionManager {
 	
-	public abstract void putSession(SocketSession session) throws RejectedExecutionException;
+	private SocketSessionManager sessionManager;
+	
+	public AioGlobalSocketSessionManager(SocketSessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
 
-	public abstract void removeSession(SocketSession session);
+	@Override
+	public int getManagedSessionSize(){
+		return sessionManager.getManagedSessionSize();
+	}
+
+	@Override
+	public SocketSession getSession(int sessionId){
+		return sessionManager.getSession(sessionId);
+	}
+
+	@Override
+	public void offerSessionMEvent(SocketSessionManagerEvent event){
+		sessionManager.offerSessionMEvent(event);
+	}
+
+	@Override
+	public void loop() {
+		
+	}
+
+	@Override
+	public void stop() {
+		
+	}
+
+	@Override
+	public void putSession(SocketSession session) {
+	}
+
+	@Override
+	public void removeSession(SocketSession session) {
+	}
 
 }

@@ -16,22 +16,15 @@
 package com.generallycloud.baseio.component;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.concurrent.ReentrantMap;
 
 public abstract class AbstractSocketSessionManager extends AbstractSessionManager implements SocketSessionManager{
 
 	protected SocketChannelContext				context			= null;
-	protected ConcurrentMap<Integer, SocketSession>	sessions			= new ConcurrentHashMap<>();
-	protected Map<Integer, SocketSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
-	protected ReentrantMap<Integer, SocketSession>	iteratorSessions	= new ReentrantMap<Integer, SocketSession>(new LinkedHashMap<Integer, SocketSession>());
+	protected IntObjectHashMap<SocketSession>		sessions			= new IntObjectHashMap<>();
 
 	public AbstractSocketSessionManager(SocketChannelContext context) {
 		super(context.getSessionIdleTime());
@@ -41,13 +34,13 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 	@Override
 	protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<Integer, SocketSession> map = iteratorSessions.takeSnapshot();
+		IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		if (map.size() == 0) {
+		if (sessions.size() == 0) {
 			return;
 		}
 
-		Collection<SocketSession> es = map.values();
+		Collection<SocketSession> es = sessions.values();
 
 		SocketChannelContext context = this.context;
 
@@ -67,13 +60,13 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 	@Override
 	public void stop() {
 
-		Map<Integer, SocketSession> map = iteratorSessions.takeSnapshot();
+		IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		if (map.size() == 0) {
+		if (sessions.size() == 0) {
 			return;
 		}
 
-		Collection<SocketSession> es = map.values();
+		Collection<SocketSession> es = sessions.values();
 
 		for (SocketSession session : es) {
 
@@ -83,11 +76,11 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 
 	public void putSession(SocketSession session) throws RejectedExecutionException {
 
-		ConcurrentMap<Integer, SocketSession> sessions = this.sessions;
+		IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		Integer sessionID = session.getSessionId();
+		int sessionId = session.getSessionId();
 
-		SocketSession old = sessions.get(sessionID);
+		SocketSession old = sessions.get(sessionId);
 
 		if (old != null) {
 			CloseUtil.close(old);
@@ -99,13 +92,11 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 			+ ",current:" + sessions.size());
 		}
 
-		sessions.put(sessionID, session);
-		iteratorSessions.put(sessionID, session);
+		sessions.put(sessionId, session);
 	}
 
 	public void removeSession(SocketSession session) {
 		sessions.remove(session.getSessionId());
-		iteratorSessions.remove(session.getSessionId());
 	}
 
 	@Override
@@ -113,18 +104,12 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
 		return sessions.size();
 	}
 
-	public SocketSession getSession(Integer sessionID) {
+	public SocketSession getSession(int sessionID) {
 		return sessions.get(sessionID);
 	}
 	
-	@Override
-	public Map<Integer, SocketSession> getManagedSessions() {
-		return readOnlySessions;
-	}
-
 	public interface SocketSessionManagerEvent {
-
 		public abstract void fire(SocketChannelContext context,
-				Map<Integer, SocketSession> sessions);
+				IntObjectHashMap<SocketSession> sessions);
 	}
 }

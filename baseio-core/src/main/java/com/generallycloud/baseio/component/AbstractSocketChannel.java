@@ -61,13 +61,14 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected transient ChannelReadFuture		readFuture;
 	protected transient SslReadFuture		sslReadFuture;
 	protected Queue<ChannelWriteFuture>		write_futures;
+	protected SocketChannelThreadContext 		threadContext;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
-	public AbstractSocketChannel(SocketChannelThreadContext context) {
-		super(context.getByteBufAllocator(), context.getChannelContext());
+	public AbstractSocketChannel(SocketChannelThreadContext context,int channelId) {
+		super(context.getByteBufAllocator(), context.getChannelContext(),channelId);
 		SocketChannelContext socketChannelContext = context.getChannelContext();
 		this.protocolFactory = socketChannelContext.getProtocolFactory();
 		this.protocolDecoder = socketChannelContext.getProtocolDecoder();
@@ -80,6 +81,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 //		this.write_futures	= new ListQueueO2O<>(queue_size);
 		this.write_futures = new ConcurrentLinkedQueue<>();
 		this.writeFutureLength = new AtomicInteger();
+		this.threadContext = context;
 	}
 
 	@Override
@@ -372,6 +374,15 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
 
 		UnsafeSocketSession session = getSession();
+		
+		if (!session.isClosed()) {
+			
+			threadContext.getSocketSessionManager().putSession(session);
+			
+			SocketSessionManager manager = context.getSessionManager();
+
+			manager.putSession(session);
+		}
 
 		for (; linkable != null;) {
 
@@ -388,7 +399,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			linkable = linkable.getNext();
 		}
 	}
-
+	
 	protected void fireClosed() {
 
 		Linkable<SocketSessionEventListener> linkable = getContext()
@@ -396,6 +407,14 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 		UnsafeSocketSession session = getSession();
 
+		SocketChannelContext context = session.getContext();
+		
+		SocketSessionManager manager = context.getSessionManager();
+
+		manager.removeSession(session);
+		
+		threadContext.getSocketSessionManager().removeSession(session);
+		
 		for (; linkable != null;) {
 
 			try {
