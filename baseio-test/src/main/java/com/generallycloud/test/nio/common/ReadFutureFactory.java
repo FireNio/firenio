@@ -29,7 +29,7 @@ public class ReadFutureFactory {
 		return create(session, readFuture.getFutureId(), readFuture.getFutureName(), readFuture.getIoEventHandle());
 	}
 
-	public static ProtobaseReadFuture create(SocketSession session, Integer futureID, String serviceName,
+	public static ProtobaseReadFuture create(SocketSession session, int futureID, String serviceName,
 			IoEventHandle ioEventHandle) {
 
 		ProtobaseReadFutureImpl textReadFuture = new ProtobaseReadFutureImpl(session.getContext(),futureID, serviceName);
@@ -39,7 +39,7 @@ public class ReadFutureFactory {
 		return textReadFuture;
 	}
 
-	public static ProtobaseReadFuture create(SocketSession session, Integer futureID, String serviceName) {
+	public static ProtobaseReadFuture create(SocketSession session, int futureID, String serviceName) {
 
 		return create(session, futureID, serviceName, session.getContext().getIoEventHandleAdaptor());
 	}

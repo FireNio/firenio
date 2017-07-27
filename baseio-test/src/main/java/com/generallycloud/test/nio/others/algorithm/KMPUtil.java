@@ -15,9 +15,7 @@
  */ 
 package com.generallycloud.test.nio.others.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.generallycloud.baseio.collection.IntArray;
 import com.generallycloud.baseio.common.StringUtil;
 
 //关键字：前缀，后缀，部分匹配表
@@ -122,7 +120,7 @@ public class KMPUtil {
 		return -1;
 	}
 
-	public List<Integer> match_all(String value) {
+	public IntArray match_all(String value) {
 
 		if (StringUtil.isNullOrBlank(value)) {
 			return null;
@@ -132,7 +130,7 @@ public class KMPUtil {
 			return null;
 		}
 
-		List<Integer> matchs = new ArrayList<Integer>();
+		IntArray matchs = new IntArray();
 
 		if (value.equals(match_value)) {
 			matchs.add(0);
