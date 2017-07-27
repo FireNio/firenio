@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.http11;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.common.AttributesImpl;
+import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.UUIDGenerator;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ReadFuture;

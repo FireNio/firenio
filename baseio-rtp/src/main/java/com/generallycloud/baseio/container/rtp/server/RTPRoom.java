@@ -37,7 +37,7 @@ public class RTPRoom {
 	private RTPContext				context		;
 	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<DatagramSession>(new ArrayList<DatagramSession>());
 	private RTPRoomFactory			roomFactory	;
-	private Integer				roomID		;
+	private int					roomID		;
 	private boolean				closed		= false;
 
 	public RTPRoom(RTPContext context, Session session) {
@@ -65,11 +65,11 @@ public class RTPRoom {
 		}
 	}
 
-	private Integer genRoomID() {
+	private int genRoomID() {
 		return ROOM_ID.getAndIncrement();
 	}
 
-	public Integer getRoomID() {
+	public int getRoomID() {
 		return roomID;
 	}
 

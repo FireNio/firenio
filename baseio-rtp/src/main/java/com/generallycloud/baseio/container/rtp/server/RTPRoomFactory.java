@@ -12,26 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 
 public class RTPRoomFactory {
 
-	private ConcurrentMap<Integer, RTPRoom>	rooms	= new ConcurrentHashMap<Integer, RTPRoom>();
+	private IntObjectHashMap<RTPRoom> rooms = new IntObjectHashMap<RTPRoom>();
 
-	public RTPRoom getRTPRoom(Integer roomID) {
+	public synchronized RTPRoom getRTPRoom(int roomID) {
 		return rooms.get(roomID);
 	}
 
-	public void removeRTPRoom(Integer roomID) {
+	public synchronized void removeRTPRoom(int roomID) {
 		rooms.remove(roomID);
 	}
 
-	public void putRTPRoom(RTPRoom room) {
-
+	public synchronized void putRTPRoom(RTPRoom room) {
 		rooms.put(room.getRoomID(), room);
 	}
 }
