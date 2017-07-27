@@ -16,11 +16,10 @@
 package com.generallycloud.baseio.container.authority;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
@@ -29,7 +28,7 @@ import com.generallycloud.baseio.container.configuration.PermissionConfiguration
 
 public class RoleManager extends AbstractInitializeable {
 
-	private Map<Integer, AuthorityManager>	authorityManagers		= new HashMap<Integer, AuthorityManager>();
+	private IntObjectHashMap<AuthorityManager>	authorityManagers		= new IntObjectHashMap<>();
 
 	private AuthorityManager				guestAuthorityManager	;
 
@@ -49,7 +48,7 @@ public class RoleManager extends AbstractInitializeable {
 			throw new Error("没有加载到角色配置");
 		}
 
-		Map<Integer, Permission> permissions = new HashMap<Integer, Permission>();
+		IntObjectHashMap<Permission> permissions = new IntObjectHashMap<>();
 
 		for (Configuration c : permissionConfigurations) {
 
@@ -62,7 +61,7 @@ public class RoleManager extends AbstractInitializeable {
 			permissions.put(p.getPermissionID(), p);
 		}
 
-		Map<Integer, Role> roles = new HashMap<Integer, Role>();
+		IntObjectHashMap<Role> roles = new IntObjectHashMap<>();
 		List<Role> roleList = new ArrayList<Role>();
 
 		for (Configuration c : roleConfigurations) {
@@ -107,7 +106,7 @@ public class RoleManager extends AbstractInitializeable {
 		reflectPermission(roleList, roles, permissions);
 	}
 
-	private void reflectPermission(List<Role> roleList, Map<Integer, Role> roles, Map<Integer, Permission> permissions) {
+	private void reflectPermission(List<Role> roleList, IntObjectHashMap<Role> roles, IntObjectHashMap<Permission> permissions) {
 
 		for (Role r : roleList) {
 
@@ -130,7 +129,7 @@ public class RoleManager extends AbstractInitializeable {
 		
 	}
 
-	private void reflectPermission(Role role, Map<Integer, Role> roles, Map<Integer, Permission> permissions,
+	private void reflectPermission(Role role, IntObjectHashMap<Role> roles, IntObjectHashMap<Permission> permissions,
 			AuthorityManager authorityManager) {
 
 		List<Integer> children = role.getChildren();
@@ -163,7 +162,7 @@ public class RoleManager extends AbstractInitializeable {
 
 	public AuthorityManager getAuthorityManager(Authority authority) {
 		
-		Integer roleID = authority.getRoleID();
+		int roleID = authority.getRoleID();
 		
 		AuthorityManager authorityManager = authorityManagers.get(roleID);
 

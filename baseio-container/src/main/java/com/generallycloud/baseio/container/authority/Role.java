@@ -21,13 +21,13 @@ import com.generallycloud.baseio.common.MessageFormatter;
 
 public class Role{
 
-	private Integer		roleID;
+	private int		roleID;
 	private String			roleName;
 	private String			description;
 	private List<Integer>	children;
 	private List<Integer>	permissions;
 
-	public Integer getRoleID() {
+	public int getRoleID() {
 		return roleID;
 	}
 
@@ -43,7 +43,7 @@ public class Role{
 		return permissions;
 	}
 
-	protected void setRoleID(Integer roleID) {
+	protected void setRoleID(int roleID) {
 		this.roleID = roleID;
 	}
 

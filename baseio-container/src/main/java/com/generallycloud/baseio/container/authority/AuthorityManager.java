@@ -24,7 +24,7 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class AuthorityManager {
 
-	private Integer				roleID			;
+	private int					roleID			;
 	
 	private Authority				authority			;
 
@@ -42,7 +42,7 @@ public class AuthorityManager {
 		permissionsList.add(permission);
 	}
 
-	protected Integer getRoleID() {
+	protected int getRoleID() {
 		return roleID;
 	}
 
@@ -57,7 +57,7 @@ public class AuthorityManager {
 		return permission != null && permission.invoke();
 	}
 
-	protected void setRoleID(Integer roleID) {
+	protected void setRoleID(int roleID) {
 		this.roleID = roleID;
 	}
 

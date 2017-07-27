@@ -25,9 +25,9 @@ public class Authority {
 	
 	private String password;
 
-	private Integer roleID;
+	private int roleID;
 		
-	private Integer userID;
+	private int userID;
 	
 	private String username;
 	
@@ -50,11 +50,11 @@ public class Authority {
 		return password;
 	}
 
-	public Integer getRoleID() {
+	public int getRoleID() {
 		return roleID;
 	}
 	
-	public Integer getUserID() {
+	public int getUserID() {
 		return userID;
 	}
 
@@ -70,11 +70,11 @@ public class Authority {
 		this.password = password;
 	}
 
-	public void setRoleID(Integer roleID) {
+	public void setRoleID(int roleID) {
 		this.roleID = roleID;
 	}
 
-	public void setUserID(Integer userID) {
+	public void setUserID(int userID) {
 		this.userID = userID;
 	}
 

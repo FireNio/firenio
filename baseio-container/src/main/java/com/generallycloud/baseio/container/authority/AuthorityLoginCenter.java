@@ -115,7 +115,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 		String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
 		String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
 		String UUID = fixedProperties.getProperty("SERVER.UUID", "uuid");
-		Integer roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
+		int roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
 
 		Authority authority = new Authority();
 

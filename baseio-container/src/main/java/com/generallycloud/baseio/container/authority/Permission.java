@@ -19,7 +19,7 @@ import com.generallycloud.baseio.common.MessageFormatter;
 
 public class Permission {
 
-	private Integer	permissionID;
+	private int	permissionID;
 
 	private String		permissionAPI;
 
@@ -39,7 +39,7 @@ public class Permission {
 
 	private long		nextSection	;
 
-	public Integer getPermissionID() {
+	public int getPermissionID() {
 		return permissionID;
 	}
 
@@ -51,7 +51,7 @@ public class Permission {
 		return description;
 	}
 
-	protected void setPermissionID(Integer permissionID) {
+	protected void setPermissionID(int permissionID) {
 		this.permissionID = permissionID;
 	}
 
