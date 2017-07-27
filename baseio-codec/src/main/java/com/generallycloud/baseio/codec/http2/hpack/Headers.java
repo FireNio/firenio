@@ -218,7 +218,7 @@ public interface Headers<K, V, T extends Headers<K, V, T>> extends Iterable<Entr
 	 *         {@code null} if there is no such value or it can't be converted
 	 *         to {@code int}.
 	 */
-	Integer getInt(K name);
+	int getInt(K name);
 
 	/**
 	 * Returns the {@code int} value of a header with the specified name. If
@@ -506,7 +506,7 @@ public interface Headers<K, V, T extends Headers<K, V, T>> extends Iterable<Entr
 	 *         {@code null} if there is no such value or it can't be converted
 	 *         to {@code int}.
 	 */
-	Integer getIntAndRemove(K name);
+	int getIntAndRemove(K name);
 
 	/**
 	 * Returns the {@code int} value of a header with the specified
