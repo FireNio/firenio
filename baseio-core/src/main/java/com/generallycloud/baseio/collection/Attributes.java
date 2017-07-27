@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.collection;
 
-import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
+import java.util.Set;
 
-public class Sequence {
+public abstract interface Attributes{
+	  
+	  public abstract Object removeAttribute(Object key);
+	  
+	  public abstract void setAttribute(Object key, Object value);
+	  
+	  public abstract Object getAttribute(Object key);
+	  
+	  public abstract Set<Object> getAttributeNames();
+	  
+	  public abstract void clearAttributes();
 
-	public FixedAtomicInteger	AUTO_CHANNEL_ID	= new FixedAtomicInteger(1, Integer.MAX_VALUE);
 
 }

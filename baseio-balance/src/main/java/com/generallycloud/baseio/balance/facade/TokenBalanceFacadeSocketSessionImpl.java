@@ -38,7 +38,7 @@ public class TokenBalanceFacadeSocketSessionImpl extends BalanceFacadeSocketSess
 		if (r < 0) {
 			r *= -1;
 		}
-		return getSessionId().longValue() | (r << 32);
+		return (r << 32) | getSessionId();
 	}
 	
 	@Override
