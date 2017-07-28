@@ -17,9 +17,7 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -31,8 +29,8 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
-import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.AtomicLinkedQueue;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -223,16 +221,18 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	@Override
 	public void flush(ChannelWriteFuture future) {
 		UnsafeSocketSession session = getSession();
-		ReentrantLock lock = getCloseLock();
-		lock.lock();
+		//FIXME is need lock
+//		ReentrantLock lock = getCloseLock();
+//		lock.lock();
 		try{
 			if (!isOpened()) {
 				future.onException(session, new ClosedChannelException(session.toString()));
 				return;
 			}
-			//FIXME will not fail
-			if (!write_futures.offer(future)) {
-				future.onException(session, new RejectedExecutionException());
+			write_futures.offer(future);
+			//FIXME 如何不加锁，这里需要进行再次判断
+			if (!isOpened()) {
+				future.onException(session, new ClosedChannelException(session.toString()));
 				return;
 			}
 			int length = writeFutureLength.addAndGet(future.getBinaryLength());
@@ -247,9 +247,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			doFlush(future);
 		}catch (Exception e) {
 			future.onException(session, e);
-		}finally{
-			lock.unlock();
 		}
+//		finally{
+//			lock.unlock();
+//		}
 	}
 
 	protected abstract void doFlush(ChannelWriteFuture future);

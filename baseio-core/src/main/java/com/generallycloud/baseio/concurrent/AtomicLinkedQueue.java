@@ -9,7 +9,7 @@ public class AtomicLinkedQueue<T extends Linkable<T>> {
 	private Linkable<T>	head	= null;
 	private Linkable<T>	tail	= null;
 
-	public boolean offer(Linkable<T> object) {
+	public void offer(Linkable<T> object) {
 		AtomicLock lock = this.lock;
 		lock.tryLock();
 		try {
@@ -20,7 +20,6 @@ public class AtomicLinkedQueue<T extends Linkable<T>> {
 				tail = object;
 			}
 			size++;
-			return true;
 		} finally {
 			lock.unlock();
 		}
