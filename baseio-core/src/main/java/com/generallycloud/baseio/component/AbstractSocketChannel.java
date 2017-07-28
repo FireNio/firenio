@@ -17,8 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,6 +32,7 @@ import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.AtomicLinkedQueue;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -60,7 +59,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected transient ChannelWriteFuture	write_future;
 	protected transient ChannelReadFuture		readFuture;
 	protected transient SslReadFuture		sslReadFuture;
-	protected Queue<ChannelWriteFuture>		write_futures;
+	protected AtomicLinkedQueue<ChannelWriteFuture>	write_futures;
+//	protected ListQueueLink<ChannelWriteFuture>	write_futures;
 	protected SocketChannelThreadContext 		threadContext;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
@@ -75,11 +75,9 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
 		this.executorEventLoop = context.getExecutorEventLoop();
 		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
-		
 		// FIXME 这里最好不要用ABQ，使用链式可增可减
-//		int queue_size = socketChannelContext.getServerConfiguration().getSERVER_IO_EVENT_QUEUE();
-//		this.write_futures	= new ListQueueO2O<>(queue_size);
-		this.write_futures = new ConcurrentLinkedQueue<>();
+		this.write_futures = new AtomicLinkedQueue<>();
+//		this.write_futures = new ListQueueLink<>();
 		this.writeFutureLength = new AtomicInteger();
 		this.threadContext = context;
 	}
@@ -270,7 +268,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			write_future.onException(session, e);
 		}
 
-		Queue<ChannelWriteFuture> writeFutures = this.write_futures;
+		AtomicLinkedQueue<ChannelWriteFuture> writeFutures = this.write_futures;
+//		ListQueueLink<ChannelWriteFuture> writeFutures = this.write_futures;
 
 		if (writeFutures.size() == 0) {
 			return;
