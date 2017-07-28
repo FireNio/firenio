@@ -81,12 +81,12 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
 		initChannel();
 
-		((SocketChannel) this.selectableChannel).connect(socketAddress);
-		
 		initSelectorLoops();
 		
 		initNioSessionMananger();
-
+		
+		((SocketChannel) this.selectableChannel).connect(socketAddress);
+		
 		wait4connect();
 	}
 	

@@ -328,6 +328,13 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		}
 
 		events.offer(event);
+		
+		// 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
+		// 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
+		if (!isRunning()) {
+			CloseUtil.close(event);
+			return;
+		}
 
 		wakeup();
 

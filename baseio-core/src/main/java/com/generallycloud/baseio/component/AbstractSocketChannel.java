@@ -301,7 +301,6 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			sslEngine.closeOutbound();
 
 			if (getContext().getSslContext().isClient()) {
-
 				flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
 						EmptyByteBuf.getInstance()));
 			}

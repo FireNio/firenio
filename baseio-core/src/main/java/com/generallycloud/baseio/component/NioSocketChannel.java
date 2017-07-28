@@ -37,7 +37,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	private NioSocketChannelContext		context;
 	private SocketSelectorEventLoop		selectorEventLoop;
 	private long						next_network_weak	= Long.MAX_VALUE;
-	private volatile boolean			closing;
 
 	// FIXME 改进network wake 机制
 	// FIXME network weak check
@@ -90,6 +89,10 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		if (!isOpened()) {
 			throw new ClosedChannelException("closed");
 		}
+		fireEvent0(selectorLoop);
+	}
+	
+	private void fireEvent0(SocketSelectorEventLoop selectorLoop) throws IOException {
 		ChannelWriteFuture future = this.write_future;
 		if (future != null) {
 			future.write(this);
@@ -120,27 +123,20 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		future.onSuccess(session);
 	}
 	
-	private boolean isClosing() {
-		return closing;
-	}
-
 	@Override
 	public void close() throws IOException {
 		ReentrantLock lock = getCloseLock();
 		lock.lock();
 		try{
-			if (!isOpened()) {
-				releaseFutures();
-				return;
-			}
 			if (inSelectorLoop()) {
+				opened = false;
 				physicalClose();
 				return;
 			}
-			if (isClosing()) {
+			if (!isOpened()) {
 				return;
 			}
-			closing = true;
+			opened = false;
 			fireEvent(new CloseSelectorLoopEvent(this));
 		}finally{
 			lock.unlock();
@@ -161,11 +157,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		closeSSL();
 		// 最后一轮 //FIXME once
 		try {
-			this.fireEvent(selectorEventLoop);
+			this.fireEvent0(selectorEventLoop);
 		} catch (IOException e) {
 		}
-		this.opened = false;
-		this.closing = false;
 		this.releaseFutures();
 		this.selectionKey.attach(null);
 		try {
