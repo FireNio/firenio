@@ -26,10 +26,10 @@ public class AioSessionManagerEventLoop extends ThreadEventLoop {
 
 	private SocketSessionManager sessionManager;
 
-	public AioSessionManagerEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize,
+	public AioSessionManagerEventLoop(ExecutorEventLoopGroup eventLoopGroup,
 			AioSocketChannelContext context) {
-		super(eventLoopGroup, eventQueueSize);
-		this.sessionManager = new AioSocketSessionManager(context,this);
+		super(eventLoopGroup,context);
+		this.sessionManager = new AioSocketSessionManager(context, this);
 	}
 
 	@Override

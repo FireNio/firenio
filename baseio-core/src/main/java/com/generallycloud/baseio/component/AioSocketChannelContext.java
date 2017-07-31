@@ -45,7 +45,7 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 	@Override
 	protected void doStartModule() throws Exception {
 		
-		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 8 * 1024, 1, this);
+		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
 		
 		LifeCycleUtil.start(sessionManangerEventLoopGroup);
 		

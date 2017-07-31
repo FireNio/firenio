@@ -21,18 +21,22 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
+	
+	private SocketChannelContext		context;
 
 	private static Logger			logger	= LoggerFactory.getLogger(ThreadEventLoop.class);
 
 	private ExecutorEventLoopGroup	executorEventLoopGroup;
 
-	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventQueueSize) {
-		this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
+	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup,SocketChannelContext context) {
 		this.executorEventLoopGroup = eventLoopGroup;
+		this.context = context;
 	}
 
 	private BlockingQueue<Runnable>	jobs;
@@ -47,6 +51,18 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 		}
 
 		runnable.run();
+	}
+	
+	@Override
+	protected void doStartup() throws Exception {
+		
+		ServerConfiguration sc = context.getServerConfiguration();
+		
+		int eventQueueSize = sc.getSERVER_WORK_EVENT_QUEUE_SIZE();
+		
+		this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
+		
+		super.doStartup();
 	}
 
 	//FIXME 观察这里是否部分event没有被fire

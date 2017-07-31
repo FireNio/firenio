@@ -21,9 +21,11 @@ public class DebugUtil {
 
 	private static String	debugClassName;
 	
-	private static String	infoClassName;
+	private static boolean enableDebug = false;
 
 	private static String	errorClassName;
+
+	private static String	infoClassName;
 
 	static {
 		String className = DebugUtil.class.getSimpleName() + " -";
@@ -31,8 +33,6 @@ public class DebugUtil {
 		infoClassName  = " [INFO] " + className;
 		errorClassName = " [ERROR] " + className;
 	}
-
-	private static boolean enableDebug = false;
 
 	public static void debug(String message) {
 		if (enableDebug) {
@@ -88,21 +88,25 @@ public class DebugUtil {
 		}
 	}
 
-	public static void error(String className, String message, Throwable e) {
-		if (message != null) {
-			info(className, message);
-		}
-		printStackTrace(e);
+	public static void error(String className, String message) {
+		System.err.println(getTimeFormat() + className + message);
 	}
 
-	public static void error(String message, Throwable e) {
-		if (message != null) {
-			info(errorClassName, message);
-		}
+	public static void error(String className, String message, Throwable e) {
+		error(className, message);
 		printStackTrace(e);
 	}
 
 	public static void error(Throwable e) {
+		printStackTrace(e);
+	}
+	
+	public static void error1(String message) {
+		error(errorClassName, message);
+	}
+
+	public static void error1(String message, Throwable e) {
+		error(errorClassName, message);
 		printStackTrace(e);
 	}
 
@@ -116,27 +120,11 @@ public class DebugUtil {
 		}
 		return builder.toString();
 	}
-
+	
 	private static String getTimeFormat() {
 		return DateUtil.yyyy_MM_dd_HH_mm_ss_SSS.format(new Date());
 	}
 	
-	public static void info1(String message) {
-		info(infoClassName, message);
-	}
-	
-	public static void info1(String message, Object param) {
-		info(infoClassName, message, param);
-	}
-
-	public static void info1(String message, Object param, Object param1) {
-		info(infoClassName, message, param, param1);
-	}
-
-	public static void info1(String message, Object[] param) {
-		info(infoClassName, message, param);
-	}
-
 	public static void info(String className, String message) {
 		System.out.println(getTimeFormat() + className + message);
 	}
@@ -155,10 +143,26 @@ public class DebugUtil {
 				getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
 	}
 
-	public static void printStackTrace(Throwable t) {
-		t.printStackTrace();
+	public static void info1(String message) {
+		info(infoClassName, message);
 	}
 
+	public static void info1(String message, Object param) {
+		info(infoClassName, message, param);
+	}
+
+	public static void info1(String message, Object param, Object param1) {
+		info(infoClassName, message, param, param1);
+	}
+
+	public static void info1(String message, Object[] param) {
+		info(infoClassName, message, param);
+	}
+
+	public static void printStackTrace(Throwable t) {
+		t.printStackTrace(System.err);
+	}
+	
 	public static void setEnableDebug(boolean enable) {
 		enableDebug = enable;
 	}

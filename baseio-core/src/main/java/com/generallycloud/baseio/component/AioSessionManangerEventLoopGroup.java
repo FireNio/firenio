@@ -22,15 +22,15 @@ public class AioSessionManangerEventLoopGroup extends AbstractExecutorEventLoopG
 
 	private AioSocketChannelContext context;
 
-	public AioSessionManangerEventLoopGroup(String eventLoopName, int eventQueueSize,
-			int eventLoopSize, AioSocketChannelContext context) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
+	public AioSessionManangerEventLoopGroup(String eventLoopName, int eventLoopSize,
+			AioSocketChannelContext context) {
+		super(eventLoopName, eventLoopSize);
 		this.context = context;
 	}
 
 	@Override
-	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new AioSessionManagerEventLoop(this, eventQueueSize, context);
+	protected ExecutorEventLoop newEventLoop(int coreIndex) {
+		return new AioSessionManagerEventLoop(this, context);
 	}
 
 }

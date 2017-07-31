@@ -29,8 +29,8 @@ public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup
 	private NioSocketChannelContext	channelContext;
 
 	public SocketSelectorEventLoopGroup(NioSocketChannelContext context, String eventLoopName,
-			int eventQueueSize, int eventLoopSize) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
+			int eventLoopSize) {
+		super(eventLoopName, eventLoopSize);
 		this.channelContext = context;
 	}
 
@@ -56,8 +56,8 @@ public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup
 	}
 
 	@Override
-	protected SocketSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new SocketSelectorEventLoop(this, eventQueueSize, coreIndex);
+	protected SocketSelectorEventLoop newEventLoop(int coreIndex) {
+		return new SocketSelectorEventLoop(this, coreIndex);
 	}
 
 	@Override

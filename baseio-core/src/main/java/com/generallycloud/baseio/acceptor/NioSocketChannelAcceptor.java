@@ -91,11 +91,8 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
 
-		int eventQueueSize = configuration.getSERVER_IO_EVENT_QUEUE();
-
 		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
-				(NioSocketChannelContext) getContext(), "io-process", eventQueueSize,
-				core_size);
+				(NioSocketChannelContext) getContext(), "io-process", core_size);
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 

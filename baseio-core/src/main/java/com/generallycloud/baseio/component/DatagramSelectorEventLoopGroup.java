@@ -34,8 +34,8 @@ public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup
 	private DatagramChannel				channel;
 
 	public DatagramSelectorEventLoopGroup(DatagramChannelContext context, String eventLoopName,
-			int eventQueueSize, int eventLoopSize, DatagramChannel channel) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
+			int eventLoopSize, DatagramChannel channel) {
+		super(eventLoopName, eventLoopSize);
 		this.channelContext = context;
 		this.channel = channel;
 	}
@@ -62,7 +62,7 @@ public class DatagramSelectorEventLoopGroup extends AbstractEventLoopGroup
 	}
 
 	@Override
-	protected DatagramSelectorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
+	protected DatagramSelectorEventLoop newEventLoop(int coreIndex) {
 		return new DatagramSelectorEventLoop(this, coreIndex, channel);
 	}
 

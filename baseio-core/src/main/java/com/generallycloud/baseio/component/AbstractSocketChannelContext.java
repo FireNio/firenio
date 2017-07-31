@@ -187,15 +187,12 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
 		if (executorEventLoopGroup == null) {
 
-			int eventQueueSize = serverConfiguration.getSERVER_IO_EVENT_QUEUE();
 			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 
 			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-				this.executorEventLoopGroup = new ThreadEventLoopGroup("event-process",
-						eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new ThreadEventLoopGroup(this,"event-process",eventLoopSize);
 			} else {
-				this.executorEventLoopGroup = new LineEventLoopGroup("event-process",
-						eventQueueSize, eventLoopSize);
+				this.executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
 			}
 		}
 

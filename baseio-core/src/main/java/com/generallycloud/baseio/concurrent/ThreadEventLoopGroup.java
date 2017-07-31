@@ -15,15 +15,21 @@
  */
 package com.generallycloud.baseio.concurrent;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
+
 public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-	public ThreadEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
+	private SocketChannelContext context;
+	
+	public ThreadEventLoopGroup(SocketChannelContext context,String eventLoopName,
+			int eventLoopSize) {
+		super(eventLoopName, eventLoopSize);
+		this.context = context;
 	}
 
 	@Override
-	protected ExecutorEventLoop newEventLoop(int coreIndex, int eventQueueSize) {
-		return new ThreadEventLoop(this, eventQueueSize);
+	protected ExecutorEventLoop newEventLoop(int coreIndex) {
+		return new ThreadEventLoop(this,context);
 	}
 
 }

@@ -22,15 +22,12 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
 	private String				eventLoopName;
 
-	private int				eventQueueSize;
-
 	private int				eventLoopSize;
 
 	private FixedAtomicInteger	eventLoopIndex;
 
-	public AbstractEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
+	public AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
 		this.eventLoopName = eventLoopName;
-		this.eventQueueSize = eventQueueSize;
 		this.eventLoopSize = eventLoopSize;
 		this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
 	}
@@ -42,12 +39,12 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
 		for (int i = 0; i < eventLoopArray.length; i++) {
 
-			eventLoopArray[i] = newEventLoop(i,eventQueueSize);
+			eventLoopArray[i] = newEventLoop(i);
 		}
 
 		for (int i = 0; i < eventLoopArray.length; i++) {
 
-			eventLoopArray[i].startup(eventLoopName + "-" + i + "(max:" + eventQueueSize + ")");
+			eventLoopArray[i].startup(eventLoopName + "-" + i);
 		}
 	}
 
@@ -63,7 +60,7 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 		return eventLoopSize;
 	}
 
-	protected abstract EventLoop newEventLoop(int coreIndex,int eventQueueSize);
+	protected abstract EventLoop newEventLoop(int coreIndex);
 
 	@Override
 	protected void doStop() throws Exception {

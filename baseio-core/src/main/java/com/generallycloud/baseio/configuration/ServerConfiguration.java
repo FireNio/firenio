@@ -27,9 +27,8 @@ public class ServerConfiguration {
 	private String		SERVER_HOST					= "localhost";
 	private int		SERVER_CORE_SIZE				= Runtime.getRuntime().availableProcessors();
 	private Charset	SERVER_ENCODING				= Encoding.UTF8;
-	//单一连接同一时间最大处理future数量，超过这一数量则关闭连接
-	private int		SERVER_IO_EVENT_QUEUE			= 0;
 	private long		SERVER_SESSION_IDLE_TIME			= 30 * 1000;
+	private int		SERVER_WORK_EVENT_QUEUE_SIZE		= 1024 * 256;
 	//内存池单元大小
 	private int		SERVER_MEMORY_POOL_UNIT;
 	//内存池是否使用启用堆外内存
@@ -93,17 +92,6 @@ public class ServerConfiguration {
 
 	public void setSERVER_ENCODING(Charset SERVER_ENCODING) {
 		this.SERVER_ENCODING = SERVER_ENCODING;
-	}
-
-	public int getSERVER_IO_EVENT_QUEUE() {
-		return SERVER_IO_EVENT_QUEUE;
-	}
-
-	public void setSERVER_IO_EVENT_QUEUE(int SERVER_IO_EVENT_QUEUE) {
-		if (SERVER_IO_EVENT_QUEUE == 0) {
-			return;
-		}
-		this.SERVER_IO_EVENT_QUEUE = SERVER_IO_EVENT_QUEUE;
 	}
 
 	public String getSERVER_HOST() {
@@ -192,10 +180,6 @@ public class ServerConfiguration {
 			SERVER_MEMORY_POOL_CAPACITY = (int) (total / (SERVER_MEMORY_POOL_UNIT * SERVER_CORE_SIZE * 16));
 		}
 		
-		if (SERVER_IO_EVENT_QUEUE == 0) {
-			
-			SERVER_IO_EVENT_QUEUE = getSERVER_MEMORY_POOL_CAPACITY() * 2;
-		}
 	}
 
 	public boolean isSERVER_ENABLE_WORK_EVENT_LOOP() {
@@ -220,6 +204,17 @@ public class ServerConfiguration {
 
 	public void setSERVER_ENABLE_HEARTBEAT_LOG(boolean SERVER_ENABLE_HEARTBEAT_LOG) {
 		this.SERVER_ENABLE_HEARTBEAT_LOG = SERVER_ENABLE_HEARTBEAT_LOG;
+	}
+
+	public int getSERVER_WORK_EVENT_QUEUE_SIZE() {
+		return SERVER_WORK_EVENT_QUEUE_SIZE;
+	}
+
+	public void setSERVER_WORK_EVENT_QUEUE_SIZE(int SERVER_WORK_EVENT_QUEUE_SIZE) {
+		if (SERVER_WORK_EVENT_QUEUE_SIZE == 0) {
+			return;
+		}
+		this.SERVER_WORK_EVENT_QUEUE_SIZE = SERVER_WORK_EVENT_QUEUE_SIZE;
 	}
 	
 }

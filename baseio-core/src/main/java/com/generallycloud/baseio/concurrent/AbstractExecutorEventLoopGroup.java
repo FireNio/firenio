@@ -23,8 +23,8 @@ public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGr
 
 	private ExecutorEventLoop[] executorEventLoops;
 	
-	public AbstractExecutorEventLoopGroup(String eventLoopName, int eventQueueSize, int eventLoopSize) {
-		super(eventLoopName, eventQueueSize, eventLoopSize);
+	public AbstractExecutorEventLoopGroup(String eventLoopName, int eventLoopSize) {
+		super(eventLoopName, eventLoopSize);
 	}
 
 	@Override

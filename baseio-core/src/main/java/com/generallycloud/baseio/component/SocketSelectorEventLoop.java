@@ -63,8 +63,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	private boolean						hasTask				= false;
 
-	private int							eventQueueSize			= 0;
-
 	private SslHandler						sslHandler			= null;
 
 	private AtomicBoolean					selecting				= new AtomicBoolean();
@@ -75,8 +73,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<>();
 
-	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int eventQueueSize,
-			int coreIndex) {
+	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
 
 		super(group.getChannelContext(), coreIndex);
 
@@ -93,8 +90,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 		this.sessionManager = context.getSessionManager();
 
-		this.eventQueueSize = eventQueueSize;
-		
 		this.sessionManager = new NioSocketSessionManager(context,this);
 
 		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
@@ -120,13 +115,11 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		}
 
 		try {
-
 			accept0(channel);
-
 		} catch (Throwable e) {
-
 			cancelSelectionKey(channel, e);
 		}
+		
 	}
 
 	public void accept0(NioSocketChannel channel) throws Exception {
@@ -134,13 +127,11 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		ByteBuf buf = this.buf;
 
 		buf.clear();
-
 		buf.nioBuffer();
 
 		int length = channel.read(buf);
 
 		if (length < 1) {
-
 			if (length == -1) {
 				CloseUtil.close(channel);
 			}
@@ -171,27 +162,17 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	@Override
 	protected void doStop() {
-		
 		ThreadUtil.sleep(8);
-
 		closeEvents(positiveEvents);
-
 		closeEvents(negativeEvents);
-
 		CloseUtil.close(selector);
-
 		ReleaseUtil.release(buf);
-
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
-
 	}
 
 	private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
-
 		List<SelectorLoopEvent> events = bufferedList.getBuffer();
-
 		for (SelectorLoopEvent event : events) {
-
 			CloseUtil.close(event);
 		}
 	}
@@ -322,13 +303,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 			return;
 		}
 
-		BufferedArrayList<SelectorLoopEvent> events = positiveEvents;
-
-		if (events.getBufferSize() > eventQueueSize) {
-			CloseUtil.close(event);
-		}
-
-		events.offer(event);
+		positiveEvents.offer(event);
 		
 		// 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
 		// 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了

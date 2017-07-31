@@ -73,10 +73,8 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 		int core_size = configuration.getSERVER_CORE_SIZE();
 
-		int eventQueueSize = configuration.getSERVER_IO_EVENT_QUEUE();
-
 		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
-				"io-process", eventQueueSize, core_size,
+				"io-process", core_size,
 				(java.nio.channels.DatagramChannel) selectableChannel);
 
 		LifeCycleUtil.start(selectorEventLoopGroup);
