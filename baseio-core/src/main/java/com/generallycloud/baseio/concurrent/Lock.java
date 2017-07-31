@@ -15,30 +15,21 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * @author wangkai
  *
  */
-public class AtomicLock {
+public interface Lock {
 
-	private AtomicBoolean lock = new AtomicBoolean();
+	public void lock();
 	
-	public boolean lock(){
-		return lock.compareAndSet(false, true);
-	}
+	public void unlock();
 	
-	public void unlock(){
-		lock.set(false);
-	}
+	public boolean tryLock();
 	
-	public void tryLock(){
-		AtomicBoolean lock = this.lock;
-		if (!lock.compareAndSet(false, true)) {
-			for(;!lock.compareAndSet(false, true);){
-			}
-		}
+	enum Locker{
+		AtomicLock,
+		ReentrantLock
 	}
 	
 }
