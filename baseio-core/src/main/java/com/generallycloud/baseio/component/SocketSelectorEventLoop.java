@@ -16,7 +16,9 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.generallycloud.baseio.LifeCycleUtil;
@@ -92,7 +94,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 		this.sessionManager = new NioSocketSessionManager(context,this);
 
-		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(false);
+		// FIXME 使用direct
+		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
 		
 		if (context.isEnableSSL()) {
 			sslHandler = context.getSslContext().newSslHandler(context);
@@ -109,38 +112,25 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	}
 
 	public void accept(NioSocketChannel channel) {
-
 		if (!channel.isOpened()) {
 			return;
 		}
-
 		try {
-			accept0(channel);
+			ByteBuf buf = this.buf;
+			buf.clear();
+			buf.nioBuffer();
+			int length = channel.read(buf);
+			if (length < 1) {
+				if (length == -1) {
+					CloseUtil.close(channel);
+				}
+				return;
+			}
+			channel.active();
+			byteBufReader.accept(channel, buf.flip());
 		} catch (Throwable e) {
 			cancelSelectionKey(channel, e);
 		}
-		
-	}
-
-	public void accept0(NioSocketChannel channel) throws Exception {
-
-		ByteBuf buf = this.buf;
-
-		buf.clear();
-		buf.nioBuffer();
-
-		int length = channel.read(buf);
-
-		if (length < 1) {
-			if (length == -1) {
-				CloseUtil.close(channel);
-			}
-			return;
-		}
-
-		channel.active();
-
-		byteBufReader.accept(channel, buf.flip());
 	}
 
 	@Override
@@ -154,7 +144,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
 
-		// FIXME 使用direct
 		this.buf = unpooledByteBufAllocator.allocate(readBuffer);
 
 		super.doStartup();
@@ -216,11 +205,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 			handleNegativeEvents();
 			// selectEmpty(last_select);
 		} else {
-			List<NioSocketChannel> selectedChannels = selector.selectedChannels();
-			for (NioSocketChannel channel : selectedChannels) {
-				accept(channel);
-			}
-			selector.clearSelectedChannels();
+			accept(selector.selectedKeys());
 		}
 
 		handlePositiveEvents();
@@ -228,6 +213,26 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		sessionManager.loop();
 
 		checkTask(true);
+	}
+	
+	private void accept(Set<SelectionKey> sks){
+		for (SelectionKey k : sks) {
+			if (!k.isValid()) {
+				continue;
+			}
+			NioSocketChannel channel = (NioSocketChannel) k.attachment();
+			if (channel == null) {
+				// channel为空说明该链接未打开
+				try {
+					selector.buildChannel(k);
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}
+				continue;
+			}
+			accept(channel);
+		}
+		sks.clear();
 	}
 
 	private SocketSelector rebuildSelector0() throws IOException {

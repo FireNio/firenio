@@ -61,7 +61,6 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 			try {
 
 				if (!future.read(session, buf)) {
-
 					return;
 				}
 

@@ -17,7 +17,8 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
+import java.nio.channels.SelectionKey;
+import java.util.Set;
 
 /**
  * @author wangkai
@@ -25,14 +26,14 @@ import java.util.List;
  */
 public interface SocketSelector extends Closeable{
 
-	public abstract int selectNow() throws IOException;
+	int selectNow() throws IOException;
 
-	public abstract int select(long timeout) throws IOException;
+	int select(long timeout) throws IOException;
 
-	public abstract List<NioSocketChannel> selectedChannels() throws IOException;
+	Set<SelectionKey> selectedKeys() throws IOException;
+	
+	void buildChannel(SelectionKey k) throws IOException;
 
-	public abstract void clearSelectedChannels();
-
-	public abstract void wakeup();
+	void wakeup();
 
 }

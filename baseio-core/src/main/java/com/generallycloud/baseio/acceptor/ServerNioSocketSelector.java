@@ -46,7 +46,7 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 	}
 
 	@Override
-	protected void buildChannel(SelectionKey k) throws IOException {
+	public void buildChannel(SelectionKey k) throws IOException {
 		
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
 		

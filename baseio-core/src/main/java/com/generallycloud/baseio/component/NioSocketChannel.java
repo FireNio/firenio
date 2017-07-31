@@ -178,7 +178,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	public int read(ByteBuf buf) throws IOException {
 		int length = read(buf.getNioBuffer());
 		if (length > 0) {
-			buf.skipBytes(length);
+			buf.reverse();
 		}
 		return length;
 	}

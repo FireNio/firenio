@@ -20,12 +20,7 @@ import java.net.SocketException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -33,13 +28,8 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public abstract class NioSocketSelector implements SocketSelector {
 
-	private static final Logger		logger			= LoggerFactory.getLogger(NioSocketSelector.class);
-
 	private Selector				selector			= null;
-
-	//FIXME 4096 这个数值是否太小
-	private List<NioSocketChannel>	selectedChannels	= new ArrayList<>(4096);
-
+	
 	protected SocketSelectorEventLoop	selectorEventLoop;
 
 	protected SelectableChannel		selectableChannel;
@@ -62,50 +52,12 @@ public abstract class NioSocketSelector implements SocketSelector {
 	}
 
 	@Override
-	public List<NioSocketChannel> selectedChannels() throws IOException {
-
-		Set<SelectionKey> sks = selector.selectedKeys();
-
-		for (SelectionKey k : sks) {
-			
-			if (!k.isValid()) {
-				continue;
-			}
-
-			NioSocketChannel channel = (NioSocketChannel) k.attachment();
-
-			if (channel == null) {
-				// channel为空说明该链接未打开
-				initSocketChannel(k);
-				
-				continue;
-			}
-
-			selectedChannels.add(channel);
-		}
-
-		sks.clear();
-
-		return selectedChannels;
-	}
-
-	private void initSocketChannel(SelectionKey k) {
-		try {
-			buildChannel(k);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+	public Set<SelectionKey> selectedKeys() throws IOException {
+		return selector.selectedKeys();
 	}
 
 	public java.nio.channels.Selector getSelector() {
 		return selector;
-	}
-
-	protected abstract void buildChannel(SelectionKey k) throws IOException;
-
-	@Override
-	public void clearSelectedChannels() {
-		selectedChannels.clear();
 	}
 
 	@Override

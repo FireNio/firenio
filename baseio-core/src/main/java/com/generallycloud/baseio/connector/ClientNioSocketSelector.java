@@ -38,7 +38,7 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 
 	private NioSocketChannelConnector connector;
 
-	protected void buildChannel(SelectionKey selectionKey) throws IOException {
+	public void buildChannel(SelectionKey selectionKey) throws IOException {
 
 		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectableChannel;
 
