@@ -109,17 +109,15 @@ public class ListQueueLink<T extends Linkable<T>> implements ListQueue<T> {
 	}
 	
 	private T get(){
-		
 		Linkable<T> t = head;
 		Linkable<T> next = t.getNext();
-
 		if (next == null) {
 			head = tail = null;
+			size=0;
 		} else {
 			head = next;
+			size--;
 		}
-
-		size--;
 		return t.getValue();
 		
 	}
