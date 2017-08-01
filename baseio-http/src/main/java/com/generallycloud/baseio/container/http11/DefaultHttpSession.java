@@ -37,7 +37,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 	protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
 		this.context = context;
 		this.ioSession = ioSession;
-		this.sessionID = UUIDGenerator.random().toString();
+		this.sessionID = UUIDGenerator.random();
 	}
 
 	protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {

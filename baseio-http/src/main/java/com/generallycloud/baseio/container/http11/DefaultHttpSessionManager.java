@@ -55,32 +55,40 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
 	public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
 			HttpReadFuture future) {
 
-		String sessionID = future.getCookie(COOKIE_NAME_SESSIONID);
+		String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
 
-		if (StringUtil.isNullOrBlank(sessionID)) {
+		if (StringUtil.isNullOrBlank(sessionId)) {
 
 			DefaultHttpSession session = new DefaultHttpSession(context, ioSession);
 
-			sessionID = session.getSessionID();
+			sessionId = session.getSessionID();
 
-			Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionID);
+			Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
 
 			future.addCookie(cookie);
 
-			this.sessions.put(sessionID, session);
+			this.sessions.put(sessionId, session);
 
 			return session;
 		}
 
-		HttpSession session = sessions.get(sessionID);
+		HttpSession session = sessions.get(sessionId);
 
 		if (session == null) {
 
-			session = new DefaultHttpSession(context, ioSession, sessionID);
+			session = new DefaultHttpSession(context, ioSession, sessionId);
 
-			this.sessions.put(sessionID, session);
+			this.sessions.put(sessionId, session);
+			
+			return session;
 		}
 
+		if (!session.isValidate()) {
+			sessions.remove(sessionId);
+			CloseUtil.close(session.getIoSession());
+			return getHttpSession(context, ioSession, future);
+		}
+		
 		session.active(ioSession);
 
 		return session;

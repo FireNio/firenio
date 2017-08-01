@@ -44,14 +44,8 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
 			HttpReadFuture future) {
 		HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
 		if (httpSession == null) {
-			synchronized (ioSession) {
-				httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
-				if (httpSession != null) {
-					return httpSession;
-				}
-				httpSession = new DefaultHttpSession(context, ioSession,null);
-				ioSession.setAttribute(HTTP_SESSION_KEY, httpSession);
-			}
+			httpSession = new DefaultHttpSession(context, ioSession,null);
+			ioSession.setAttribute(HTTP_SESSION_KEY, httpSession);
 		}
 		return httpSession;
 	}
