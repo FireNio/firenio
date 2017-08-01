@@ -2,13 +2,13 @@ package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.component.Linkable;
 
-public class McLinkedQueue<T extends Linkable<T>> extends ScLinkedQueue<T> {
+public class McmpLinkedQueue<T extends Linkable<T>> extends ScmpLinkedQueue<T> {
 	
-	public McLinkedQueue() {
+	public McmpLinkedQueue() {
 		this(new ReentrantLockImpl());
 	}
 
-	public McLinkedQueue(Lock lock) {
+	public McmpLinkedQueue(Lock lock) {
 		this.lock = lock;
 	}
 

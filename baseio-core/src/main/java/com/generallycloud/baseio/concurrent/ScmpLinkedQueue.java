@@ -4,18 +4,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.component.Linkable;
 
-public class ScLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T> {
+public class ScmpLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T> {
 
 	protected Lock		lock;
 	protected AtomicInteger	size = new AtomicInteger();		
 	protected Linkable<T>	head	= null;	// volatile ?
 	protected Linkable<T>	tail	= null;	// volatile ?
 	
-	public ScLinkedQueue() {
+	public ScmpLinkedQueue() {
 		this(new ReentrantLockImpl());
 	}
 
-	public ScLinkedQueue(Lock lock) {
+	public ScmpLinkedQueue(Lock lock) {
 		this.lock = lock;
 	}
 

@@ -31,7 +31,7 @@ import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
-import com.generallycloud.baseio.concurrent.ScLinkedQueue;
+import com.generallycloud.baseio.concurrent.ScmpLinkedQueue;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -73,7 +73,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
 		this.executorEventLoop = context.getExecutorEventLoop();
 		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
-		this.write_futures = new ScLinkedQueue<>();
+		this.write_futures = new ScmpLinkedQueue<>();
 		this.writeFutureLength = new AtomicInteger();
 		this.threadContext = context;
 	}
