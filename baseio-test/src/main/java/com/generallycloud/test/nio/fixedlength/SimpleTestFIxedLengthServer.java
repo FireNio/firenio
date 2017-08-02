@@ -47,6 +47,8 @@ public class SimpleTestFIxedLengthServer {
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
+		context.addSessionEventListener(new SetOptionListener());
+		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.setProtocolFactory(new FixedLengthProtocolFactory());

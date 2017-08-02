@@ -28,6 +28,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.test.nio.fixedlength.SetOptionListener;
 
 public class TestLoadServer {
 
@@ -74,6 +75,8 @@ public class TestLoadServer {
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
+		
+//		context.addSessionEventListener(new SetOptionListener());
 		
 		acceptor.bind();
 	}
