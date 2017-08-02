@@ -15,6 +15,7 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 

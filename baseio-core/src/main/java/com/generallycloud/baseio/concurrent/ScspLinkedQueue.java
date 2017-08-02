@@ -17,19 +17,19 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScspLinkedQueue<T extends ScspLinkable<T>> {
+public class ScspLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T> {
 
-	protected AtomicInteger		size	= new AtomicInteger();
-	protected ScspLinkable<T>	head	= null;				// volatile ?
-	protected ScspLinkable<T>	tail	= null;				// volatile ?
+	protected AtomicInteger	size	= new AtomicInteger();
+	protected Linkable<T>	head	= null;				// volatile ?
+	protected Linkable<T>	tail	= null;				// volatile ?
 
-	public ScspLinkedQueue(ScspLinkable<T> linkable) {
+	public ScspLinkedQueue(Linkable<T> linkable) {
 		linkable.setValidate(false);
 		this.head = linkable;
 		this.tail = linkable;
 	}
 
-	public void offer(ScspLinkable<T> object) {
+	public void offer(Linkable<T> object) {
 		tail.setNext(object);
 		tail = object;
 		size.incrementAndGet();
@@ -43,9 +43,9 @@ public class ScspLinkedQueue<T extends ScspLinkable<T>> {
 		return get(head);
 	}
 	
-	private T get(ScspLinkable<T> h){
+	private T get(Linkable<T> h){
 		if (h.isValidate()) {
-			ScspLinkable<T> next = h.getNext();
+			Linkable<T> next = h.getNext();
 			if (next == null) {
 				h.setValidate(false);
 			} else {
@@ -54,7 +54,7 @@ public class ScspLinkedQueue<T extends ScspLinkable<T>> {
 			this.size.decrementAndGet();
 			return h.getValue();
 		} else {
-			ScspLinkable<T> next = h.getNext();
+			Linkable<T> next = h.getNext();
 			head = next;
 			return get(next);
 		}

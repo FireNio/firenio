@@ -28,11 +28,12 @@ import java.security.PrivilegedExceptionAction;
 @SuppressWarnings("restriction")
 public class UnsafeUtil {
 
-	private static final sun.misc.Unsafe	UNSAFE							= getUnsafe();
-	private static final boolean		HAS_UNSAFE_BYTEBUFFER_OPERATIONS	= supportsUnsafeByteBufferOperations();
-	private static final boolean		HAS_UNSAFE_ARRAY_OPERATIONS		= supportsUnsafeArrayOperations();
-	private static final long			ARRAY_BASE_OFFSET					= byteArrayBaseOffset();
-	private static final long			BUFFER_ADDRESS_OFFSET				= fieldOffset(field(Buffer.class, "address"));
+	private static final sun.misc.Unsafe	UNSAFE						= getUnsafe();
+	private static final boolean			HAS_UNSAFE_BYTEBUFFER_OPERATIONS	= supportsUnsafeByteBufferOperations();
+	private static final boolean			HAS_UNSAFE_ARRAY_OPERATIONS		= supportsUnsafeArrayOperations();
+	private static final long			ARRAY_BASE_OFFSET				= byteArrayBaseOffset();
+	private static final long			BUFFER_ADDRESS_OFFSET			= fieldOffset(
+			field(Buffer.class, "address"));
 
 	private UnsafeUtil() {
 	}
@@ -123,7 +124,7 @@ public class UnsafeUtil {
 	}
 
 	public static byte getByte(long address) {
-	    return UNSAFE.getByte(address);
+		return UNSAFE.getByte(address);
 	}
 
 	public static void putByte(long address, byte value) {
@@ -160,6 +161,18 @@ public class UnsafeUtil {
 	 */
 	public static long addressOffset(ByteBuffer buffer) {
 		return UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET);
+	}
+
+	public static final boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+		return UNSAFE.compareAndSwapInt(o, offset, expected, val);
+	}
+	
+	public static final boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+		return UNSAFE.compareAndSwapLong(o, offset, expected, val);
+	}
+
+	public static final boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
+		return UNSAFE.compareAndSwapObject(o, offset, expected, val);
 	}
 
 	/**

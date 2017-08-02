@@ -21,26 +21,77 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWriteFuture {
 
-	protected ReadFuture				readFuture;
-	protected ByteBuf					buf;
-	protected Linkable<ChannelWriteFuture>	next;
-	protected boolean					needSSL;
 	private static final Logger			logger	= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
-
+	protected ByteBuf					buf;
+	protected boolean 				isValidate = true;
+	protected boolean					needSSL;
+	protected Linkable<ChannelWriteFuture>	next;
+	protected ReadFuture				readFuture;
+	
 	public ChannelWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
 		this.buf = buf;
 		this.buf.nioBuffer();
 		this.needSSL = readFuture.getContext().isEnableSSL();
+	}
+
+	@Override
+	public ChannelWriteFuture duplicate() {
+		return duplicate(readFuture);
+	}
+
+	@Override
+	public ChannelWriteFuture duplicate(ReadFuture future) {
+		return new ChannelWriteFutureImpl(future, buf.duplicate());
+	}
+
+	@Override
+	public int getBinaryLength() {
+		return buf.limit();
+	}
+	
+	@Override
+	public ByteBuf getByteBuf() {
+		return buf;
+	}
+
+	@Override
+	public Linkable<ChannelWriteFuture> getNext() {
+		return next;
+	}
+	
+	@Override
+	public ReadFuture getReadFuture() {
+		return readFuture;
+	}
+
+	@Override
+	public ChannelWriteFuture getValue() {
+		return this;
+	}
+
+	@Override
+	public boolean isCompleted() {
+		return !buf.hasRemaining();
+	}
+
+	@Override
+	public boolean isReleased() {
+		return buf.isReleased();
+	}
+
+	@Override
+	public boolean isValidate() {
+		return isValidate;
 	}
 	
 	@Override
@@ -76,42 +127,23 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	}
 
 	@Override
-	public void write(SocketChannel channel) throws IOException {
-		if (needSSL) {
-			needSSL = false;
-			wrapSSL(channel);
-		}
-		channel.write(buf);
+	public void release() {
+		ReleaseUtil.release(buf);
 	}
 	
 	@Override
-	public boolean isCompleted() {
-		return !buf.hasRemaining();
+	public void setNext(Linkable<ChannelWriteFuture> next) {
+		this.next = next;
 	}
-
+	
 	@Override
-	public ReadFuture getReadFuture() {
-		return readFuture;
+	public void setValidate(boolean validate) {
+		this.isValidate = validate;
 	}
 
 	@Override
 	public String toString() {
 		return readFuture.toString();
-	}
-
-	@Override
-	public void release() {
-		ReleaseUtil.release(buf);
-	}
-
-	@Override
-	public ChannelWriteFuture duplicate() {
-		return duplicate(readFuture);
-	}
-	
-	@Override
-	public ChannelWriteFuture duplicate(ReadFuture future) {
-		return new ChannelWriteFutureImpl(future, buf.duplicate());
 	}
 
 	private void wrapSSL(SocketChannel channel) throws IOException {
@@ -138,33 +170,12 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	}
 
 	@Override
-	public int getBinaryLength() {
-		return buf.limit();
-	}
-	
-	@Override
-	public ByteBuf getByteBuf() {
-		return buf;
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return buf.isReleased();
-	}
-
-	@Override
-	public Linkable<ChannelWriteFuture> getNext() {
-		return next;
-	}
-
-	@Override
-	public void setNext(Linkable<ChannelWriteFuture> next) {
-		this.next = next;
-	}
-
-	@Override
-	public ChannelWriteFuture getValue() {
-		return this;
+	public void write(SocketChannel channel) throws IOException {
+		if (needSSL) {
+			needSSL = false;
+			wrapSSL(channel);
+		}
+		channel.write(buf);
 	}
 	
 }

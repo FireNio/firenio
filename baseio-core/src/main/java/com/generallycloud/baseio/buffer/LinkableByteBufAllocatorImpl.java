@@ -12,20 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.Linkable;
+import com.generallycloud.baseio.concurrent.Linkable;
 
-public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements LinkAbleByteBufAllocator {
+public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
+		implements LinkAbleByteBufAllocator {
 
-	private Linkable<LinkAbleByteBufAllocator>	next;
+	private ByteBufAllocator					allocator;
 
 	private int							index;
 
-	private ByteBufAllocator					allocator;
+	private boolean						isValidate;
+
+	private Linkable<LinkAbleByteBufAllocator>	next;
 
 	public LinkableByteBufAllocatorImpl(ByteBufAllocator allocator, int index) {
 		this.index = index;
@@ -33,79 +36,31 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	@Override
-	public Linkable<LinkAbleByteBufAllocator> getNext() {
-		return next;
-	}
-
-	@Override
-	public void setNext(Linkable<LinkAbleByteBufAllocator> next) {
-		this.next = next;
-	}
-
-	@Override
-	public int getIndex() {
-		return index;
-	}
-
-	@Override
-	public LinkAbleByteBufAllocator getValue() {
-		return this;
-	}
-
-	@Override
-	public ByteBufAllocator unwrap() {
-		return allocator;
-	}
-
-	@Override
-	public void release(ByteBuf buf) {
-		unwrap().release(buf);
-	}
-
-	@Override
 	public ByteBuf allocate(int capacity) {
-
 		ByteBuf buf = unwrap().allocate(capacity);
-
 		if (buf == null) {
 			return getNext().getValue().allocate(capacity, this);
 		}
-
 		return buf;
 	}
-	
-	@Override
-	public ByteBuf allocate(int capacity,LinkAbleByteBufAllocator allocator) {
 
+	@Override
+	public ByteBuf allocate(int limit, int maxLimit) {
+		return unwrap().allocate(limit, maxLimit);
+	}
+
+	@Override
+	public ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator) {
 		if (allocator == this) {
 			//FIXME 是否申请java内存
 			return UnpooledByteBufAllocator.getHeapInstance().allocate(capacity);
-//			return null;
+			//			return null;
 		}
-		
 		ByteBuf buf = unwrap().allocate(capacity);
-
 		if (buf == null) {
-			
-			return getNext().getValue().allocate(capacity,allocator);
+			return getNext().getValue().allocate(capacity, allocator);
 		}
-
 		return buf;
-	}
-
-	@Override
-	public int getUnitMemorySize() {
-		return unwrap().getUnitMemorySize();
-	}
-
-	@Override
-	public void freeMemory() {
-		unwrap().freeMemory();
-	}
-
-	@Override
-	public int getCapacity() {
-		return unwrap().getCapacity();
 	}
 
 	@Override
@@ -119,13 +74,33 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	@Override
-	protected boolean logger() {
-		return false;
+	public void freeMemory() {
+		unwrap().freeMemory();
 	}
 
 	@Override
-	public String toString() {
-		return unwrap().toString();
+	public int getCapacity() {
+		return unwrap().getCapacity();
+	}
+
+	@Override
+	public int getIndex() {
+		return index;
+	}
+
+	@Override
+	public Linkable<LinkAbleByteBufAllocator> getNext() {
+		return next;
+	}
+
+	@Override
+	public int getUnitMemorySize() {
+		return unwrap().getUnitMemorySize();
+	}
+
+	@Override
+	public LinkAbleByteBufAllocator getValue() {
+		return this;
 	}
 
 	@Override
@@ -134,13 +109,18 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit) {
-		return unwrap().reallocate(buf, limit);
+	public boolean isValidate() {
+		return isValidate;
 	}
 
 	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
-		return unwrap().reallocate(buf, limit, maxLimit);
+	protected boolean logger() {
+		return false;
+	}
+
+	@Override
+	public ByteBuf reallocate(ByteBuf buf, int limit) {
+		return unwrap().reallocate(buf, limit);
 	}
 
 	@Override
@@ -149,13 +129,38 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle implements L
 	}
 
 	@Override
+	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
+		return unwrap().reallocate(buf, limit, maxLimit);
+	}
+
+	@Override
 	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
 		return unwrap().reallocate(buf, limit, maxLimit, copyOld);
 	}
-	
+
 	@Override
-	public ByteBuf allocate(int limit, int maxLimit) {
-		return unwrap().allocate(limit, maxLimit);
+	public void release(ByteBuf buf) {
+		unwrap().release(buf);
+	}
+
+	@Override
+	public void setNext(Linkable<LinkAbleByteBufAllocator> next) {
+		this.next = next;
+	}
+
+	@Override
+	public void setValidate(boolean validate) {
+		this.isValidate = validate;
+	}
+
+	@Override
+	public String toString() {
+		return unwrap().toString();
+	}
+
+	@Override
+	public ByteBufAllocator unwrap() {
+		return allocator;
 	}
 
 }

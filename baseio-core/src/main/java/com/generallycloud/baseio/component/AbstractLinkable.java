@@ -15,9 +15,13 @@
  */ 
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.concurrent.Linkable;
+
 public abstract class AbstractLinkable<T> implements Linkable<T>{
 
 	private T value;
+	
+	private boolean isValidate;
 
 	public AbstractLinkable(T value) {
 		this.value = value;
@@ -26,6 +30,16 @@ public abstract class AbstractLinkable<T> implements Linkable<T>{
 	@Override
 	public T getValue() {
 		return value;
+	}
+
+	@Override
+	public boolean isValidate() {
+		return isValidate;
+	}
+
+	@Override
+	public void setValidate(boolean validate) {
+		this.isValidate = validate;
 	}
 	
 }

@@ -15,20 +15,16 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-/**
- * @author wangkai
- *
- */
-public interface ScspLinkable<T>{
-	
-	ScspLinkable<T> getNext();
-	
-	void setNext(ScspLinkable<T> next);
-	
+public interface Linkable<T> {
+
+	Linkable<T> getNext();
+
+	void setNext(Linkable<T> next);
+
 	T getValue();
 
 	boolean isValidate();
-	
+
 	void setValidate(boolean validate);
-	
+
 }

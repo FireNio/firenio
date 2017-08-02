@@ -2,22 +2,20 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScmpLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T>{
+import com.generallycloud.baseio.common.UnsafeUtil;
+
+public class ScmpLinkedQueueUnsafe<T extends Linkable<T>> implements LinkedQueue<T> {
 
 	protected Linkable<T>	head	= null;				// volatile ?
-	protected Lock		lock;
 	protected AtomicInteger	size	= new AtomicInteger();
 	protected Linkable<T>	tail	= null;				// volatile ?
+	protected final long	nextOffset;
 
-	public ScmpLinkedQueue(Linkable<T> linkable) {
-		this(linkable, new ReentrantLockImpl());
-	}
-
-	public ScmpLinkedQueue(Linkable<T> linkable, Lock lock) {
+	public ScmpLinkedQueueUnsafe(Linkable<T> linkable,long nextOffset) {
 		linkable.setValidate(false);
 		this.head = linkable;
 		this.tail = linkable;
-		this.lock = lock;
+		this.nextOffset = nextOffset;
 	}
 
 	private T get(Linkable<T> h) {
@@ -37,18 +35,19 @@ public class ScmpLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T>{
 		}
 	}
 
-	public void offer(Linkable<T> object) {
-		Lock lock = this.lock;
-		lock.lock();
-		try {
-			tail.setNext(object);
-			tail = object;
-		} finally {
-			lock.unlock();
+	@Override
+	public void offer(Linkable<T> linkable) {
+		for (;;) {
+			//FIXME 设置next后，设置tail
+			if (UnsafeUtil.compareAndSwapObject(tail, nextOffset, null, linkable)) {
+				tail = linkable;
+				size.incrementAndGet();
+				return;
+			}
 		}
-		size.incrementAndGet();
 	}
-
+	
+	@Override
 	public T poll() {
 		int size = size();
 		if (size == 0) {
@@ -57,6 +56,7 @@ public class ScmpLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T>{
 		return get(head);
 	}
 
+	@Override
 	public int size() {
 		return size.get();
 	}
