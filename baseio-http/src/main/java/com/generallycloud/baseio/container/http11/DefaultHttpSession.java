@@ -28,7 +28,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
 	private SocketSession	ioSession;
 
-	private long			lastAccessTime;
+	private long			lastAccessTime = createTime;
 
 	private String			sessionID;
 
