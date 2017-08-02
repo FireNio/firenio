@@ -15,9 +15,15 @@
  */
 package com.generallycloud.baseio.log;
 
+import java.io.File;
+import java.io.IOException;
+
 public class LoggerFactory {
 
 	private static boolean enableSLF4JLogger = false;
+	private static boolean enableDebug = false;
+	private static File	internalLogFile;
+	private static LoggerPrinter printer = SysLoggerPrinter.get();
 	
 	static{
 		configure();
@@ -29,7 +35,7 @@ public class LoggerFactory {
 
 	public static Logger getLogger(Class<?> clazz) {
 		if (!enableSLF4JLogger) {
-			return new ConsoleLogger(clazz);
+			return new InternalLogger(printer, clazz);
 		}
 		return new SLF4JLogger(clazz);
 	}
@@ -45,4 +51,25 @@ public class LoggerFactory {
 	public static boolean isEnableSLF4JLogger(){
 		return enableSLF4JLogger;
 	}
+
+	public static boolean isEnableDebug() {
+		return enableDebug;
+	}
+
+	public static void setEnableDebug(boolean enableDebug) {
+		LoggerFactory.enableDebug = enableDebug;
+	}
+
+	public static File getInternalLogFile() {
+		return internalLogFile;
+	}
+
+	public static void setInternalLogFile(File internalLogFile) throws IOException {
+		LoggerFactory.internalLogFile = internalLogFile;
+		LoggerPrinter [] printers = new LoggerPrinter[2];
+		printers[0] = SysLoggerPrinter.get();
+		printers[1] = new FileLoggerPrinter(internalLogFile);
+		printer = new CompoundLoggerPrinter(printers);
+	}
+	
 }

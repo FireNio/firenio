@@ -12,30 +12,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.common;
+ */
+package com.generallycloud.baseio.log;
 
-import com.generallycloud.baseio.log.DebugUtil;
+/**
+ * @author wangkai
+ *
+ */
+public class SysLoggerPrinter implements LoggerPrinter {
 
-public class ThreadUtil {
+	private static SysLoggerPrinter printer = new SysLoggerPrinter();
 
-	public static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			DebugUtil.debug(e);
-		}
+	public static SysLoggerPrinter get() {
+		return printer;
 	}
-	
-	public static void execute(Runnable runnable){
-		execute(runnable, null);
+
+	@Override
+	public void println(String msg) {
+		System.out.println(msg);
 	}
-	
-	public static void execute(Runnable runnable,String name){
-		if (!StringUtil.isNullOrBlank(name)) {
-			new Thread(runnable,name).start();
-		}else{
-			new Thread(runnable).start();
-		}
+
+	@Override
+	public void printThrowable(Throwable t) {
+		t.printStackTrace(System.out);
 	}
+
+	@Override
+	public void errPrintln(String msg) {
+		System.err.println(msg);
+	}
+
+	@Override
+	public void errPrintThrowable(Throwable t) {
+		t.printStackTrace(System.err);
+	}
+
 }

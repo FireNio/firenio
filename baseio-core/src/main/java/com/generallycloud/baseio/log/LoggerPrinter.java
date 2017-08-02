@@ -12,30 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.baseio.common;
+ */
+package com.generallycloud.baseio.log;
 
-import com.generallycloud.baseio.log.DebugUtil;
+/**
+ * @author wangkai
+ *
+ */
+public interface LoggerPrinter {
 
-public class ThreadUtil {
-
-	public static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			DebugUtil.debug(e);
-		}
-	}
+	void println(String msg);
 	
-	public static void execute(Runnable runnable){
-		execute(runnable, null);
-	}
+	void printThrowable(Throwable t);
 	
-	public static void execute(Runnable runnable,String name){
-		if (!StringUtil.isNullOrBlank(name)) {
-			new Thread(runnable,name).start();
-		}else{
-			new Thread(runnable).start();
-		}
-	}
+	void errPrintln(String msg);
+	
+	void errPrintThrowable(Throwable t);
 }

@@ -18,6 +18,8 @@ package com.generallycloud.baseio.common;
 import java.io.Closeable;
 import java.nio.channels.Selector;
 
+import com.generallycloud.baseio.log.DebugUtil;
+
 public class CloseUtil {
 
 	public static void close(Closeable closeable){

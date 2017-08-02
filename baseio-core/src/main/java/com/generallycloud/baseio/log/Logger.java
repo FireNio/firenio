@@ -12,37 +12,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.log;
 
 public interface Logger {
 
-	public abstract void info(String message);
-	
-	public abstract void info(String message,Object param);
-	
-	public abstract void info(String message,Object param,Object param1);
-	
-	public abstract void info(String message,Object []param);
-	
-	public abstract void debug(String message);
-	
-	public abstract void debug(Throwable throwable);
-	
-	public abstract void debug(String message,Object param);
-	
-	public abstract void debug(String message,Object param,Object param1);
-	
-	public abstract void debug(String message,Object []param);
-	
-	public abstract void error(String object);
-	
-	public abstract void error(String object,Throwable throwable); 
-	
-	public abstract Class<?> getLoggerClass();
-	
-	public abstract void errorDebug(Throwable throwable);
-	
-	public abstract void errorDebug(String message,Throwable throwable);
-	
+	void info(String message);
+
+	void info(String message, Object param);
+
+	void info(String message, Object param, Object param1);
+
+	void info(String message, Object[] param);
+
+	void debug(String message);
+
+	void debug(Throwable throwable);
+
+	void debug(String message, Object param);
+
+	void debug(String message, Object param, Object param1);
+
+	void debug(String message, Object[] param);
+
+	void error(String message);
+
+	void error(String message, Throwable throwable);
+
+	Class<?> getLoggerClass();
+
+	boolean isEnableDebug();
+
+	void errorDebug(Throwable throwable);
+
+	void errorDebug(String message, Throwable throwable);
+
+	void error(Throwable e);
+
 }

@@ -18,6 +18,8 @@ package com.generallycloud.baseio.common;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.log.DebugUtil;
+
 final public class MessageFormatter {
 	private static final char		DELIM_START	= '{';
 	private static final String		DELIM_STR	= "{}";
