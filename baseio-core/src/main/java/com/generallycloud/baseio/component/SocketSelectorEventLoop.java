@@ -194,7 +194,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 			selected = selector.selectNow();
 		} else {
 			if (selecting.compareAndSet(false, true)) {
-				selected = selector.select(1000);// FIXME try
+				selected = selector.select(16);// FIXME try
 				selecting.set(false);
 			} else {
 				selected = selector.selectNow();
@@ -277,7 +277,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	public void wakeup() {
 
-		//FIXME 有一定几率select(16)ms
+		//FIXME 有一定几率select(n)ms
 		if (selecting.compareAndSet(false, true)) {
 			selecting.set(false);
 			return;
