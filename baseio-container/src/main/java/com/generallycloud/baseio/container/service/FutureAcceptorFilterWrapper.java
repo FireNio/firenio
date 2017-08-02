@@ -15,8 +15,8 @@
  */ 
 package com.generallycloud.baseio.container.service;
 
-import com.generallycloud.baseio.component.Linkable;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.protocol.NamedReadFuture;
@@ -25,11 +25,17 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements Linkable<FutureAcceptorFilter> {
 
 	private FutureAcceptorFilter			filter;
+	private boolean isValidate;
 	private FutureAcceptorFilterWrapper	nextFilter;
 
 	public FutureAcceptorFilterWrapper(ApplicationContext context, FutureAcceptorFilter filter, Configuration config) {
 		this.filter = filter;
 		this.setConfig(config);
+	}
+	
+	@Override
+	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+		getValue().accept(session, future);
 	}
 
 	@Override
@@ -48,20 +54,9 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 		nextAccept(session, future);
 	}
 	
-	private void nextAccept(SocketSession session, ReadFuture future) throws Exception{
-		
-		FutureAcceptorFilterWrapper next = getNext();
-		
-		if (next == null) {
-			return;
-		}
-		
-		next.accept(session, future);
-	}
-
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
-		getValue().accept(session, future);
+	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+		getValue().destroy(context, config);
 	}
 
 	@Override
@@ -75,8 +70,13 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		getValue().destroy(context, config);
+	public FutureAcceptorFilterWrapper getNext() {
+		return nextFilter;
+	}
+
+	@Override
+	public FutureAcceptorFilter getValue() {
+		return filter;
 	}
 
 	@Override
@@ -85,13 +85,19 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	@Override
-	public String toString() {
-		return "Warpper(" + getValue().toString() + ")";
+	public boolean isValidate() {
+		return isValidate;
 	}
 
-	@Override
-	public FutureAcceptorFilterWrapper getNext() {
-		return nextFilter;
+	private void nextAccept(SocketSession session, ReadFuture future) throws Exception{
+		
+		FutureAcceptorFilterWrapper next = getNext();
+		
+		if (next == null) {
+			return;
+		}
+		
+		next.accept(session, future);
 	}
 
 	@Override
@@ -100,8 +106,13 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	@Override
-	public FutureAcceptorFilter getValue() {
-		return filter;
+	public void setValidate(boolean validate) {
+		this.isValidate = validate;
+	}
+
+	@Override
+	public String toString() {
+		return "Warpper(" + getValue().toString() + ")";
 	}
 
 }

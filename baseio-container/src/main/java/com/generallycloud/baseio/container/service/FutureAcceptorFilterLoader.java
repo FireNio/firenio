@@ -24,7 +24,7 @@ import java.util.List;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.Linkable;
+import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.configuration.Configuration;
