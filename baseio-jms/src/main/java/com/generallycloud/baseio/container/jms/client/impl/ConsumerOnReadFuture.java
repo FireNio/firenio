@@ -16,13 +16,13 @@
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.client.OnMessage;
 import com.generallycloud.baseio.container.jms.decode.MessageDecoder;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class ConsumerOnReadFuture implements OnReadFuture {

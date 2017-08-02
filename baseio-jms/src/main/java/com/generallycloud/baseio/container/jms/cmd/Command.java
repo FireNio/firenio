@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 public abstract class Command {
 
