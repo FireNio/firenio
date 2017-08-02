@@ -22,7 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 public class TestWeather {
 

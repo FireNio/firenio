@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.nio.others;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 

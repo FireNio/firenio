@@ -15,8 +15,11 @@
  */
 package com.generallycloud.test.nio.others;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -24,14 +27,31 @@ import org.slf4j.LoggerFactory;
  */
 public class TestLog {
 
-	private final static Logger logger = LoggerFactory.getLogger(TestLog.class);
+	public static void main(String[] args) throws Exception {
 
-	public static void main(String[] args) {
+		testInternalLogger();
+		
+	}
+
+	static void testInternalLogger() throws IOException {
+		LoggerFactory.setEnableSLF4JLogger(false);
+		LoggerFactory.setInternalLogFile(new File("D://test/main.log"));
+		LoggerFactory.setEnableDebug(true);
+		Logger logger = LoggerFactory.getLogger(TestLog.class);
+		
+		for (int i = 0; i < 1000; i++) {
+			logger.info("logback info 成功了..............................................");
+			logger.error("logback error 成功了..............................................");
+			logger.debug("logback debug 成功了..............................................");
+		}
+	}
+
+	static void testSl4J() {
+		Logger logger = LoggerFactory.getLogger(TestLog.class);
 		for (int i = 0; i < 1000000; i++) {
 			logger.info("logback info 成功了..............................................");
 			logger.error("logback error 成功了..............................................");
 			logger.debug("logback debug 成功了..............................................");
-			logger.warn("logback warn 成功了..............................................");
 		}
 	}
 

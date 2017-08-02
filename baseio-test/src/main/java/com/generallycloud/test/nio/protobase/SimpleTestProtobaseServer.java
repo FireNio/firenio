@@ -18,7 +18,6 @@ package com.generallycloud.test.nio.protobase;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -26,6 +25,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionAliveSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class SimpleTestProtobaseServer {

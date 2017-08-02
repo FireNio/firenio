@@ -21,7 +21,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 /**
  * @author wangkai

@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.others;
 
 import java.io.File;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 /**
  * @author wangkai
@@ -37,13 +37,13 @@ public class Win10WallPaperRename {
 		
 		File root = new File(path);
 		if (!root.exists()) {
-			DebugUtil.info1("file not exists :{}",root.getAbsolutePath());
+			DebugUtil.info("file not exists :{}",root.getAbsolutePath());
 			return;
 		}
 		
 		File [] fs = root.listFiles();
 		if (fs == null) {
-			DebugUtil.info1("not files :{}",root.getAbsolutePath());
+			DebugUtil.info("not files :{}",root.getAbsolutePath());
 			return;
 		}
 		
@@ -52,7 +52,7 @@ public class Win10WallPaperRename {
 				continue;
 			}
 			f.renameTo(new File(f.getAbsolutePath()+".png"));
-			DebugUtil.info1("rename: {}",f.getName());
+			DebugUtil.info("rename: {}",f.getName());
 		}
 		
 	}

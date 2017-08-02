@@ -18,9 +18,9 @@ package com.generallycloud.test.nio.others;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.UnsafeUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 /**
  * @author wangkai
@@ -50,7 +50,7 @@ public class TestUnsafe {
 //		testWriteByteUnsafe(time, bb); //11250
 		
 
-		DebugUtil.info1("Time:{}", System.currentTimeMillis() - startTime);
+		DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
 	}
 
 	static void testReadByteUnsafe(int time, byte[] array) {
@@ -64,7 +64,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 	
 	static void testWriteByteUnsafe(int time, byte[] array) {
@@ -79,7 +79,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 	
 	static void testWriteByteByteArray(int time, byte[] array) {
@@ -92,7 +92,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 
 	static void testReadByteByteArray(int time, byte[] array) {
@@ -104,7 +104,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 
 	static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
@@ -117,7 +117,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 
 	static void testReadByteDirectByteBuffer(int time, ByteBuffer array) {
@@ -129,7 +129,7 @@ public class TestUnsafe {
 				e++;
 			}
 		}
-		DebugUtil.info1("e={}", e);
+		DebugUtil.info("e={}", e);
 	}
 
 	static void testPutIntDirectByteBuffer(int time, ByteBuffer buffer) {

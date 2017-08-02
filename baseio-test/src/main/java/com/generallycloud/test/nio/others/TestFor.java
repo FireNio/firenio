@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.nio.others;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 /**
  * @author wangkai
@@ -35,7 +35,7 @@ public class TestFor {
 //		testWhile2(time);
 		testWhile3(time);
 		
-		DebugUtil.info1("Time:{}", System.currentTimeMillis() - startTime);
+		DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
 		
 	}
 	

@@ -20,7 +20,6 @@ import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -31,6 +30,7 @@ import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
 public class TestFIxedLengthClient {

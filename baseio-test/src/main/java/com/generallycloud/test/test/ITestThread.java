@@ -17,7 +17,7 @@ package com.generallycloud.test.test;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 public abstract class ITestThread implements Runnable {
 
@@ -63,7 +63,7 @@ public abstract class ITestThread implements Runnable {
 				last_time = now;
 			}
 
-			DebugUtil.info1("__________________________" + c + "\t" + "___" + passed);
+			DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
 		}
 
 	}
