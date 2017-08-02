@@ -18,10 +18,10 @@ package com.generallycloud.baseio.container.startup;
 import java.io.File;
 import java.io.IOException;
 
-import com.generallycloud.baseio.common.DebugUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.URLDynamicClassLoader;
+import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
 
@@ -31,7 +31,7 @@ public class ApplicationBootstrap {
 		
 		String rootPath = StringUtil.getValueFromArray(args, 0,FileUtil.getCurrentPath());
 		
-		DebugUtil.info1(" ROOT_PATH: {}", rootPath);
+		DebugUtil.info(" ROOT_PATH: {}", rootPath);
 		
 		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
 
