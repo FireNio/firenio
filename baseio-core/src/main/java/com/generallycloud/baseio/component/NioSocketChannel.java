@@ -129,15 +129,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		lock.lock();
 		try{
 			if (inSelectorLoop()) {
-				opened = false;
+				if (!isOpened()) {
+					return;
+				}
 				physicalClose();
 				return;
 			}
-			if (!isOpened()) {
-				return;
-			}
-			opened = false;
-			fireEvent(new CloseSelectorLoopEvent(this));
+			dispatchEvent(new CloseSelectorLoopEvent(this));
 		}finally{
 			lock.unlock();
 		}
@@ -154,19 +152,20 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	// FIXME 这里有问题
 	@Override
 	protected void physicalClose() {
+		opened = false;
 		closeSSL();
 		// 最后一轮 //FIXME once
 		try {
-			this.fireEvent0(selectorEventLoop);
+			fireEvent0(selectorEventLoop);
 		} catch (IOException e) {
 		}
-		this.releaseFutures();
-		this.selectionKey.attach(null);
+		releaseFutures();
+		selectionKey.attach(null);
 		try {
-			this.channel.close();
+			channel.close();
 		} catch (Exception e) {
 		}
-		this.selectionKey.cancel();
+		selectionKey.cancel();
 		fireClosed();
 		closeConnector();
 	}
@@ -208,14 +207,14 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 			}
 			if (current > next_network_weak) {
 				networkWeak = true;
-				fireEvent(this);
+				dispatchEvent(this);
 			}
 		} else {
 			next_network_weak = current + 64;
 		}
 	}
 
-	public void fireEvent(SelectorLoopEvent event) {
+	public void dispatchEvent(SelectorLoopEvent event) {
 		this.selectorEventLoop.dispatch(event);
 	}
 

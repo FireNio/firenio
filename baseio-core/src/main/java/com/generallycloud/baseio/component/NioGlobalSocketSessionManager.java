@@ -71,12 +71,12 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
 	@Override
 	public void putSession(SocketSession session) {
-		managedSessionSize.getAndIncrement();
+		managedSessionSize.incrementAndGet();
 	}
 
 	@Override
 	public void removeSession(SocketSession session) {
-		managedSessionSize.getAndDecrement();
+		managedSessionSize.decrementAndGet();
 	}
 	
 
