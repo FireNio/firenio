@@ -21,7 +21,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
-import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.NioSocketSelector;
 import com.generallycloud.baseio.component.SelectorLoopEventAdapter;
 import com.generallycloud.baseio.component.SocketSelectorEventLoop;
@@ -57,8 +56,6 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 
 		SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
 
-		//		DebugUtil.error1("-------------------------- selector loop index "+selectorLoop.getCoreIndex());
-
 		// 配置为非阻塞
 		channel.configureBlocking(false);
 
@@ -77,20 +74,6 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 
 		selectorLoop.wakeup();
 
-	}
-
-	private void regist(java.nio.channels.SocketChannel channel,
-			SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
-
-		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
-
-		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
-
-		// 绑定SocketChannel到SelectionKey
-		NioSocketChannel socketChannel = newChannel(sk, selectorLoop, channelId);
-
-		// fire session open event
-		socketChannel.fireOpend();
 	}
 
 }

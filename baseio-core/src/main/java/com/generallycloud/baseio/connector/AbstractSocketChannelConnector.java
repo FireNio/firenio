@@ -21,6 +21,7 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -49,55 +50,37 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 	
 	//FIXME protected
 	public void finishConnect(UnsafeSocketSession session, Throwable exception) {
-		
 		if (exception == null) {
-
 			this.session = session;
-			
-			LoggerUtil.prettyLog(getLogger(), "connected to server @{}", getServerSocketAddress());
-
+			LoggerUtil.prettyLog(getLogger(), 
+					"connected to server @{}", getServerSocketAddress());
 			this.waiter.setPayload(null);
-			
 			if (waiter.isTimeouted()) {
 				CloseUtil.close(this);
 			}
-			
 		} else {
-
 			this.waiter.setPayload(exception);
 		}
 	}
 
 	@Override
 	public SocketSession connect() throws IOException {
-
 		this.waiter = new Waiter<Object>();
-
 		this.session = null;
-
 		this.initialize();
-
 		return getSession();
 	}
 
 	protected void wait4connect() throws TimeoutException {
-
 		if (waiter.await(getTimeout())) {
-
 			CloseUtil.close(this);
-
 			throw new TimeoutException(
 					"connect to " + getServerSocketAddress().toString() + " time out");
 		}
-
 		Object o = waiter.getPayload();
-
 		if (o instanceof Exception) {
-
 			CloseUtil.close(this);
-
 			Exception t = (Exception) o;
-
 			throw new TimeoutException(MessageFormatter.format(
 					"connect faild,connector:[{}],nested exception is {}",
 					getServerSocketAddress(), t.getMessage()), t);

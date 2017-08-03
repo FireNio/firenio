@@ -31,19 +31,25 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	@Override
 	public void close() throws IOException {
-		
-		Waiter<IOException> waiter = asynchronousClose();
-		
-		if(waiter.await()){
-			//FIXME never timeout
-			throw new TimeoutException("timeout to close");
+		if (canSafeClose()) {
+			Waiter<IOException> waiter = asynchronousClose();
+			if(waiter.await()){
+				//FIXME never timeout
+				throw new TimeoutException("timeout to close");
+			}
 		}
+		ThreadUtil.execute(new Runnable() {
+			@Override
+			public void run() {
+				asynchronousClose();
+			}
+		});
 	}
 	
 	@Override
 	public Waiter<IOException> asynchronousClose() {
 		if (getSession() == null) {
-			return destroy();
+			destroy();
 		}
 		CloseUtil.close(getSession());
 		return shutDownWaiter;
@@ -51,12 +57,10 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	
 	//FIXME __考虑手动关闭 connector
 	public void physicalClose() throws IOException {
-
 		if (canSafeClose()) {
 			destroy();
 			return;
 		}
-
 		ThreadUtil.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -68,13 +72,9 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	protected abstract boolean canSafeClose();
 
 	protected void initService(ServerConfiguration configuration) throws IOException {
-		
 		String SERVER_HOST = configuration.getSERVER_HOST();
-		
 		int SERVER_PORT = configuration.getSERVER_PORT();
-		
 		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
-		
 		this.connect(getServerSocketAddress());
 	}
 	

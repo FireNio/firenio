@@ -36,13 +36,9 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 	private DatagramChannelContext		context				= null;
-
 	private DatagramSession				session				= null;
-
 	private SelectableChannel			selectableChannel		= null;
-
 	private DatagramSelectorEventLoopGroup	selectorEventLoopGroup	= null;
-
 	private Logger						logger				= LoggerFactory
 			.getLogger(getClass());
 
@@ -58,46 +54,32 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 
 	@Override
 	public DatagramSession connect() throws IOException {
-
 		this.session = null;
-
 		this.initialize();
-		
 		return getSession();
 	}
 
 	private void initSelectorLoops() {
-
 		//FIXME socket selector event loop ?
 		ServerConfiguration configuration = getContext().getServerConfiguration();
-
 		int core_size = configuration.getSERVER_CORE_SIZE();
-
 		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
 				"io-process", core_size,
 				(java.nio.channels.DatagramChannel) selectableChannel);
-
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 
 	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
-		
 		this.initChannel();
-
 		((DatagramChannel) this.selectableChannel).connect(socketAddress);
-
 		initSelectorLoops();
-
 		DatagramSelectorEventLoop selectorLoop = (DatagramSelectorEventLoop) selectorEventLoopGroup
 				.getNext();
-
 		@SuppressWarnings("resource")
 		NioDatagramChannel channel = new NioDatagramChannel(selectorLoop,
 				(DatagramChannel) selectableChannel, socketAddress,1);
-
 		this.session = channel.getSession();
-
 		LoggerUtil.prettyLog(logger, "已连接到远程服务器 @{}", getServerSocketAddress());
 	}
 
@@ -117,9 +99,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 	
 	private void initChannel() throws IOException {
-
 		this.selectableChannel = java.nio.channels.DatagramChannel.open();
-
 		this.selectableChannel.configureBlocking(false);
 	}
 

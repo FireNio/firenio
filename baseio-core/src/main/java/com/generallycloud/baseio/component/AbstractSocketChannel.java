@@ -60,6 +60,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected transient ChannelReadFuture		readFuture;
 	protected transient SslReadFuture		sslReadFuture;
 	protected LinkedQueue<ChannelWriteFuture>	write_futures;
+	protected boolean						opened		= true;
 	protected SocketChannelThreadContext 		threadContext;
 
 	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);

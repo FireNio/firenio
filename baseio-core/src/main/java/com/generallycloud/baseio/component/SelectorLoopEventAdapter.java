@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
 
 public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
-
+	
 	@Override
 	public void close() throws IOException {
 		fireEvent(null);

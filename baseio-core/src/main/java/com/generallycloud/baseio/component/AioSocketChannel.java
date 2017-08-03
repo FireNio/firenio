@@ -118,10 +118,10 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	// FIXME 这里有问题
 	@Override
 	protected void physicalClose() {
-		closeSSL();
+		this.opened = false;
+		this.closeSSL();
 		// 最后一轮 //FIXME once
 		this.flush(false);
-		this.opened = false;
 		this.releaseFutures();
 		try {
 			channel.shutdownOutput();
@@ -155,7 +155,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
 				releaseFutures();
 				return;
 			}
-			this.opened = false;
 			physicalClose();
 		}finally{
 			lock.unlock();

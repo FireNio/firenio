@@ -49,51 +49,33 @@ public class ReconnectableConnector implements Closeable {
 	}
 
 	public synchronized void connect() {
-
 		if (!reconnect) {
 			logger.info("connection is closed, stop to reconnect");
 			return;
 		}
-
 		SocketSession session = connect2Front.getSession();
-
 		ThreadUtil.sleep(300);
-		
 		logger.info("begin try to connect");
-
 		for (;;) {
-
 			if (session != null && session.isOpened()) {
-
 				logger.error("connection did not closed, reconnect later on");
-
 				ThreadUtil.sleep(retryTime);
-
 				continue;
 			}
-
 			try {
-
 				connect2Front.connect();
-
 				break;
 			} catch (Throwable e) {
-
 				CloseUtil.close(connect2Front);
-
 				logger.error(e.getMessage(), e);
 			}
-
 			logger.error("reconnect failed,try reconnect later on");
-
 			ThreadUtil.sleep(retryTime);
 		}
 	}
 
 	private SocketSessionEventListenerAdapter getReconnectSEListener() {
-
 		return new SocketSessionEventListenerAdapter() {
-
 			@Override
 			public void sessionClosed(SocketSession session) {
 				reconnect(reconnectableConnector);
@@ -102,9 +84,7 @@ public class ReconnectableConnector implements Closeable {
 	}
 
 	private void reconnect(final ReconnectableConnector reconnectableConnector) {
-		
 		ThreadUtil.execute(new Runnable() {
-
 			@Override
 			public void run() {
 				logger.info("begin try to reconnect");

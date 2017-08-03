@@ -49,7 +49,6 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 			if (!isOpened()) {
 				return;
 			}
-			opened = false;
 			physicalClose();
 		}finally{
 			lock.unlock();

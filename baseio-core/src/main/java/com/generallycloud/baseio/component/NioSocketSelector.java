@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
@@ -65,21 +64,20 @@ public abstract class NioSocketSelector implements SocketSelector {
 		selector.wakeup();
 	}
 
-	protected NioSocketChannel newChannel(SelectionKey selectionKey,
-			SocketSelectorEventLoop selectorLoop, int channelId) throws SocketException {
-
-		NioSocketChannel channel = (NioSocketChannel) selectionKey.attachment();
-
-		if (channel != null) {
-
-			return channel;
+	protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
+			SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
+		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
+		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
+		// 绑定SocketChannel到SelectionKey
+		NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
+		if (socketChannel != null) {
+			return socketChannel;
 		}
-
-		channel = new NioSocketChannel(selectorLoop, selectionKey, channelId);
-
-		selectionKey.attach(channel);
-
-		return channel;
+		socketChannel = new NioSocketChannel(selectorLoop, sk, channelId);
+		sk.attach(socketChannel);
+		// fire session open event
+		socketChannel.fireOpend();
+		return socketChannel;
 	}
 
 }

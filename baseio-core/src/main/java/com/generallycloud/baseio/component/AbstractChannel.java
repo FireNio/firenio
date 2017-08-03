@@ -31,13 +31,12 @@ public abstract class AbstractChannel implements Channel {
 	static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractChannel.class);
-
+	
 	protected String			edp_description;
 	protected int				channelId;
 	protected InetSocketAddress	local;
 	protected InetSocketAddress	remote;
 	protected long			lastAccess;
-	protected boolean			opened		= true;
 	protected long			creationTime	= System.currentTimeMillis();
 	protected ReentrantLock		closeLock		= new ReentrantLock();
 	protected ByteBufAllocator	byteBufAllocator;

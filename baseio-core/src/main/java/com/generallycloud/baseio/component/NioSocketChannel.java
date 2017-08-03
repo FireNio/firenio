@@ -34,6 +34,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	private SocketChannel				channel;
 	private SelectionKey				selectionKey;
 	private boolean					networkWeak;
+	private boolean					closing;
 	private NioSocketChannelContext		context;
 	private SocketSelectorEventLoop		selectorEventLoop;
 	private long						next_network_weak	= Long.MAX_VALUE;
@@ -134,8 +135,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 				}
 				physicalClose();
 				return;
+			}else{
+				if (closing || !isOpened()) {
+					return;
+				}
+				closing = true;
+				dispatchEvent(new CloseSelectorLoopEvent(this));
 			}
-			dispatchEvent(new CloseSelectorLoopEvent(this));
 		}finally{
 			lock.unlock();
 		}

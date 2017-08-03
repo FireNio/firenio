@@ -39,13 +39,9 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 		implements NioChannelService {
 
 	private NioSocketChannelContext		context;
-
 	private SelectableChannel			selectableChannel		= null;
-
 	private SocketSelectorBuilder			selectorBuilder		= null;
-
 	private SocketSelectorEventLoopGroup	selectorEventLoopGroup	= null;
-
 	private Logger						logger				= LoggerFactory
 			.getLogger(getClass());
 
@@ -62,12 +58,9 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 	}
 
 	private void initSelectorLoops() {
-
 		//FIXME socket selector event loop ?
 		ServerConfiguration configuration = getContext().getServerConfiguration();
-
 		int core_size = configuration.getSERVER_CORE_SIZE();
-
 		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
 				(NioSocketChannelContext) getContext(), "io-process", core_size);
 		LifeCycleUtil.start(selectorEventLoopGroup);
@@ -75,15 +68,10 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
 	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
-
 		initChannel();
-		
 		initSelectorLoops();
-		
 		initNioSessionMananger();
-
 		((SocketChannel) this.selectableChannel).connect(socketAddress);
-		
 		wait4connect();
 	}
 	

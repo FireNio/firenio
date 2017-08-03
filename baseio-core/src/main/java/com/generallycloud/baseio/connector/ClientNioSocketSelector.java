@@ -30,7 +30,8 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoop;
  */
 public class ClientNioSocketSelector extends NioSocketSelector {
 
-	private java.nio.channels.SocketChannel jdkChannel;
+	private NioSocketChannelConnector		connector;
+	private java.nio.channels.SocketChannel	jdkChannel;
 
 	public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
 			SelectableChannel selectableChannel, NioSocketChannelConnector connector) {
@@ -39,30 +40,17 @@ public class ClientNioSocketSelector extends NioSocketSelector {
 		this.jdkChannel = (java.nio.channels.SocketChannel) selectableChannel;
 	}
 
-	private NioSocketChannelConnector connector;
-
 	public void buildChannel(SelectionKey selectionKey) throws IOException {
-
 		try {
-
 			if (!jdkChannel.finishConnect()) {
 				throw new IOException("connect failed");
 			}
-
-			SelectionKey k = jdkChannel.register(getSelector(), SelectionKey.OP_READ);
-
-			SocketChannel channel = newChannel(k, selectorEventLoop, 1);
-
-			channel.fireOpend();
-
+			SocketChannel channel = regist(jdkChannel, selectorEventLoop, 1);
 			if (channel.isEnableSSL()) {
 				return;
 			}
-
 			connector.finishConnect(channel.getSession(), null);
-
 		} catch (IOException e) {
-
 			connector.finishConnect(null, e);
 		}
 	}

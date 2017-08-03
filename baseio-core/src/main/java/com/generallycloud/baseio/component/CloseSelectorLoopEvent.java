@@ -26,7 +26,9 @@ import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
  */
 public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
 
-	private SelectorLoopEvent event;
+	private boolean			closed;
+
+	private SelectorLoopEvent	event;
 
 	public CloseSelectorLoopEvent(SelectorLoopEvent channel) {
 		this.event = channel;
@@ -34,6 +36,10 @@ public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
 
 	@Override
 	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
+		if (closed) {
+			return;
+		}
+		closed = true;
 		CloseUtil.close(event);
 	}
 
