@@ -77,12 +77,12 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
 
 		initChannel();
-
-		((SocketChannel) this.selectableChannel).connect(socketAddress);
-
+		
 		initSelectorLoops();
 		
 		initNioSessionMananger();
+
+		((SocketChannel) this.selectableChannel).connect(socketAddress);
 		
 		wait4connect();
 	}

@@ -42,61 +42,35 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		implements SocketChannelThreadContext {
 
-	private static final Logger				logger				= LoggerFactory
-			.getLogger(SocketSelectorEventLoop.class);
-
+	private static final Logger				logger				= LoggerFactory.getLogger(SocketSelectorEventLoop.class);
 	private ByteBuf						buf					= null;
-
 	private ChannelByteBufReader				byteBufReader			= null;
-
 	private NioSocketChannelContext			context				= null;
-
 	private ExecutorEventLoop				executorEventLoop		= null;
-
 	private SocketSessionManager				sessionManager			= null;
-
 	private SocketSelectorEventLoopGroup		eventLoopGroup			= null;
-
 	private SocketSelectorBuilder				selectorBuilder		= null;
-
 	private SocketSelector					selector				= null;
-
 	private int							runTask				= 0;
-
 	private boolean						hasTask				= false;
-
 	private SslHandler						sslHandler			= null;
-
 	private AtomicBoolean					selecting				= new AtomicBoolean();
-
 	private UnpooledByteBufAllocator			unpooledByteBufAllocator	= null;
-
 	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<>();
-
 	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<>();
 
 	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
-
 		super(group.getChannelContext(), coreIndex);
-
 		this.eventLoopGroup = group;
-
 		this.context = group.getChannelContext();
-
 		this.selectorBuilder = ((NioChannelService) context.getChannelService())
 				.getSelectorBuilder();
-
 		this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-
 		this.byteBufReader = context.getChannelByteBufReader();
-
 		this.sessionManager = context.getSessionManager();
-
 		this.sessionManager = new NioSocketSessionManager(context,this);
-
 		// FIXME 使用direct
 		this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
-		
 		if (context.isEnableSSL()) {
 			sslHandler = context.getSslContext().newSslHandler(context);
 		}
@@ -135,17 +109,12 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 	@Override
 	public void doStartup() throws IOException {
-
 		if (executorEventLoop instanceof LineEventLoop) {
 			((LineEventLoop) executorEventLoop).setMonitor(this);
 		}
-
 		LifeCycleUtil.start(unpooledByteBufAllocator);
-
 		int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-
 		this.buf = unpooledByteBufAllocator.allocate(readBuffer);
-
 		super.doStartup();
 	}
 
@@ -181,9 +150,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		SocketSelector selector = getSelector();
 
 		int selected;
-
-		// long last_select = System.currentTimeMillis();
-
+//		long last_select = System.currentTimeMillis();
 		if (hasTask) {
 			if (runTask > 0) {
 				runTask--;
@@ -203,7 +170,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 
 		if (selected < 1) {
 			handleNegativeEvents();
-			// selectEmpty(last_select);
+//			selectEmpty(last_select);
 		} else {
 			accept(selector.selectedKeys());
 		}
@@ -387,26 +354,23 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 		}
 	}
 
-	protected void selectEmpty(SelectorEventLoop looper, long last_select) {
+	protected void selectEmpty(long last_select) {
 
 		long past = System.currentTimeMillis() - last_select;
 
-		if (past < 1000) {
+		if (past > 0 || !isRunning()) {
+			return;
+		}
+		
+		// JDK bug fired ?
+		IOException e = new IOException("JDK bug fired ?");
+		logger.error(e.getMessage(), e);
+		logger.info("last={},past={}", last_select, past);
 
-			if (!looper.isRunning() || past < 0) {
-				return;
-			}
-
-			// JDK bug fired ?
-			IOException e = new IOException("JDK bug fired ?");
-			logger.error(e.getMessage(), e);
-			logger.debug("last={},past={}", last_select, past);
-
-			try {
-				looper.rebuildSelector();
-			} catch (IOException e1) {
-				logger.error(e1.getMessage(), e1);
-			}
+		try {
+			rebuildSelector();
+		} catch (IOException e1) {
+			logger.error(e1.getMessage(), e1);
 		}
 	}
 	

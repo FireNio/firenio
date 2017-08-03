@@ -48,10 +48,10 @@ public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
 			// 注册监听事件到该selector
 			channel.register(selector, SelectionKey.OP_ACCEPT);
 
-			return new ServerNioSocketSelector(selectorLoop, selector, channel, selectorLoop.getEventLoopGroup());
+			return new ServerNioSocketSelector(selectorLoop, selector, channel);
 		}
 
-		return new ServerNioSocketSelector(selectorLoop, selector, channel, selectorLoop.getEventLoopGroup());
+		return new ServerNioSocketSelector(selectorLoop, selector, channel);
 	}
 	
 }

@@ -175,7 +175,7 @@ public abstract class AbstractChannel implements Channel {
 		return lastAccess;
 	}
 
-	//FIXME __________
+	//FIXME __________关channel不要关闭connector
 	protected void closeConnector() {
 
 		ChannelService service = getContext().getChannelService();

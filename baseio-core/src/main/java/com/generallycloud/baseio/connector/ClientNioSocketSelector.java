@@ -30,43 +30,36 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoop;
  */
 public class ClientNioSocketSelector extends NioSocketSelector {
 
+	private java.nio.channels.SocketChannel jdkChannel;
+
 	public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
 			SelectableChannel selectableChannel, NioSocketChannelConnector connector) {
-		super(selectorEventLoop, selector, selectableChannel);
+		super(selectorEventLoop, selector);
 		this.connector = connector;
+		this.jdkChannel = (java.nio.channels.SocketChannel) selectableChannel;
 	}
 
 	private NioSocketChannelConnector connector;
 
 	public void buildChannel(SelectionKey selectionKey) throws IOException {
 
-		java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) selectableChannel;
-
-		// does it need connection pending ?
-		if (!channel.isConnectionPending()) {
-			throw new IOException("connection is pending");
-		}
-
-		finishConnect(selectionKey, channel);
-	}
-
-	private void finishConnect(SelectionKey selectionKey, java.nio.channels.SocketChannel channel) {
-
 		try {
 
-			channel.finishConnect();
+			if (!jdkChannel.finishConnect()) {
+				throw new IOException("connect failed");
+			}
 
-			channel.register(getSelector(), SelectionKey.OP_READ);
+			SelectionKey k = jdkChannel.register(getSelector(), SelectionKey.OP_READ);
 
-			SocketChannel socketChannel = newChannel(selectionKey, selectorEventLoop,1);
-			
-			socketChannel.fireOpend();
-			
-			if (socketChannel.isEnableSSL()) {
+			SocketChannel channel = newChannel(k, selectorEventLoop, 1);
+
+			channel.fireOpend();
+
+			if (channel.isEnableSSL()) {
 				return;
 			}
 
-			connector.finishConnect(socketChannel.getSession(), null);
+			connector.finishConnect(channel.getSession(), null);
 
 		} catch (IOException e) {
 

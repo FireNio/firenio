@@ -34,59 +34,60 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  */
 public class ServerNioSocketSelector extends NioSocketSelector {
 
-	private SocketSelectorEventLoopGroup selectorEventLoopGroup;
-	
-	private FixedAtomicInteger	channelIds;
-	
+	private SocketSelectorEventLoopGroup	selectorEventLoopGroup;
+
+	private ServerSocketChannel			serverSocketChannel;
+
+	private FixedAtomicInteger			channelIds;
+
 	public ServerNioSocketSelector(SocketSelectorEventLoop loop, Selector selector,
-			SelectableChannel channel, SocketSelectorEventLoopGroup group) {
-		super(loop, selector, channel);
-		this.selectorEventLoopGroup = group;
+			SelectableChannel channel) {
+		super(loop, selector);
+		this.selectorEventLoopGroup = loop.getEventLoopGroup();
+		this.serverSocketChannel = (ServerSocketChannel) channel;
 		this.channelIds = loop.getChannelContext().getCHANNEL_IDS();
 	}
 
 	@Override
 	public void buildChannel(SelectionKey k) throws IOException {
-		
-		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
-		
+
 		final int channelId = channelIds.getAndIncrement();
 
 		final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
 
 		SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
-		
-//		DebugUtil.error1("-------------------------- selector loop index "+selectorLoop.getCoreIndex());
+
+		//		DebugUtil.error1("-------------------------- selector loop index "+selectorLoop.getCoreIndex());
 
 		// 配置为非阻塞
 		channel.configureBlocking(false);
-		
+
 		// 注册到selector，等待连接
 		if (selectorLoop.isMainEventLoop()) {
-			regist(channel, selectorLoop,channelId);
+			regist(channel, selectorLoop, channelId);
 			return;
 		}
 
 		selectorLoop.dispatch(new SelectorLoopEventAdapter() {
 			@Override
 			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
-				regist(channel, selectLoop,channelId);
+				regist(channel, selectLoop, channelId);
 			}
 		});
-		
+
 		selectorLoop.wakeup();
-		
+
 	}
 
 	private void regist(java.nio.channels.SocketChannel channel,
-			SocketSelectorEventLoop selectorLoop,int channelId) throws IOException {
+			SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
 
 		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
 
 		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
 
 		// 绑定SocketChannel到SelectionKey
-		NioSocketChannel socketChannel = newChannel(sk, selectorLoop,channelId);
+		NioSocketChannel socketChannel = newChannel(sk, selectorLoop, channelId);
 
 		// fire session open event
 		socketChannel.fireOpend();

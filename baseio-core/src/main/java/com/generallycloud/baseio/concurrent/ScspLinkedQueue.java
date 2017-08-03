@@ -29,9 +29,9 @@ public class ScspLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T> {
 		this.tail = linkable;
 	}
 
-	public void offer(Linkable<T> object) {
-		tail.setNext(object);
-		tail = object;
+	public void offer(Linkable<T> linkable) {
+		tail.setNext(linkable);
+		tail = linkable;
 		size.incrementAndGet();
 	}
 
