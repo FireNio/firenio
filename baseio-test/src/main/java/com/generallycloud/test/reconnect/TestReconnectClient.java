@@ -51,6 +51,8 @@ public class TestReconnectClient {
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
+//		context.addSessionEventListener(new CloseConnectorSEListener(connector.getRealConnector()));
+		
 		connector.connect();
 		
 		ThreadUtil.sleep(Long.MAX_VALUE);

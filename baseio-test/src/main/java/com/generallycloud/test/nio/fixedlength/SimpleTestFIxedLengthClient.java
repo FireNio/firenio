@@ -26,6 +26,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
@@ -52,6 +53,8 @@ public class SimpleTestFIxedLengthClient {
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
+		
+		context.addSessionEventListener(new CloseConnectorSEListener(connector));
 
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
