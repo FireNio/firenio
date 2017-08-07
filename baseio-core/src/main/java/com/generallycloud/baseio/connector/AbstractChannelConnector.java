@@ -18,31 +18,34 @@ package com.generallycloud.baseio.connector;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService
 		implements ChannelConnector {
 
 	protected long timeout = 3000;
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public synchronized void close() throws IOException {
 		if (canSafeClose()) {
-			Waiter<IOException> waiter = asynchronousClose();
-			if (waiter.await()) {
-				//FIXME never timeout
-				throw new TimeoutException("timeout to close");
+			close0();
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				logger.error(e.getMessage(),e);
 			}
 		}else{
 			ThreadUtil.execute(new Runnable() {
 				@Override
 				public void run() {
-					asynchronousClose();
+					close0();
 				}
 			});
 		}
@@ -61,14 +64,12 @@ public abstract class AbstractChannelConnector extends AbstractChannelService
 		}
 	}
 
-	@Override
-	public Waiter<IOException> asynchronousClose() {
+	private void close0() {
 		if (getSession() == null) {
 			physicalClose();
 		}else{
 			CloseUtil.close(getSession());
 		}
-		return shutDownWaiter;
 	}
 
 	protected abstract boolean canSafeClose();

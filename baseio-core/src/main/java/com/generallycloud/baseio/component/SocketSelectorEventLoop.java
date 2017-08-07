@@ -121,7 +121,10 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	protected void doStop() {
 		ThreadUtil.sleep(8);
+		//这里关闭两次，把缓存的buffer那部分也处理一下
 		closeEvents(positiveEvents);
+		closeEvents(positiveEvents);
+		closeEvents(negativeEvents);
 		closeEvents(negativeEvents);
 		CloseUtil.close(selector);
 		ReleaseUtil.release(buf);

@@ -17,8 +17,6 @@ package com.generallycloud.baseio.common;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.concurrent.Waiter;
-
 /**
  * @author wangkai
  *
@@ -26,7 +24,5 @@ import com.generallycloud.baseio.concurrent.Waiter;
 public interface Unbindable {
 	
 	public abstract void unbind() throws IOException;
-
-	public abstract Waiter<IOException> asynchronousUnbind() throws IOException;
 
 }

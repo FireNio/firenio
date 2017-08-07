@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -50,11 +49,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 	@Override
 	public void unbind() throws TimeoutException {
-		Waiter<IOException> waiter = asynchronousUnbind();
-		if (waiter.await()) {
-			// FIXME never timeout
-			throw new TimeoutException("timeout to unbind");
-		}
+		destroy();
 	}
 	
 	@Override
@@ -62,11 +57,6 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 		if (this instanceof DatagramChannelAcceptor) {
 			configuration.setSERVER_CORE_SIZE(1);
 		}
-	}
-	
-	@Override
-	public Waiter<IOException> asynchronousUnbind() {
-		return destroy();
 	}
 	
 }

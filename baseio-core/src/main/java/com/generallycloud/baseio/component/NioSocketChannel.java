@@ -126,7 +126,10 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	
 	@Override
 	public void close() throws IOException {
-		if (closing || !isOpened()) {
+		if (!isOpened()) {
+			return;
+		}
+		if (!inSelectorLoop() && closing) {
 			return;
 		}
 		ReentrantLock lock = getCloseLock();

@@ -19,14 +19,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
 	protected boolean			active		= false;
 	protected InetSocketAddress	serverAddress	= null;
-	protected Waiter<IOException>	shutDownWaiter	= new Waiter<>();
 
 	@Override
 	public InetSocketAddress getServerSocketAddress() {
@@ -53,13 +51,11 @@ public abstract class AbstractChannelService implements ChannelService {
 
 	protected abstract void destroyService();
 
-	protected synchronized Waiter<IOException> destroy() {
+	protected synchronized void destroy() {
 		active = false;
-		// just close
 		destroyService();
 		LifeCycleUtil.stop(getContext());
-		shutDownWaiter.setPayload(null);
-		return shutDownWaiter;
+		notify();
 	}
 
 	protected abstract void setServerCoreSize(ServerConfiguration configuration);

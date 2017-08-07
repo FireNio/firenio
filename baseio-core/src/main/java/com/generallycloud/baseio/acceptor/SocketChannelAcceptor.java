@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.ChannelWriteFuture;
 import com.generallycloud.baseio.protocol.ReadFuture;
 
@@ -44,11 +43,6 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
 	@Override
 	public void unbind() throws IOException {
 		unwrap().unbind();
-	}
-
-	@Override
-	public Waiter<IOException> asynchronousUnbind() throws IOException {
-		return unwrap().asynchronousUnbind();
 	}
 
 	@Override
