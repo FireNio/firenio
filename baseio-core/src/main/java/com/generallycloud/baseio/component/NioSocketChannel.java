@@ -57,7 +57,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
 	@Override
 	public boolean isComplete() {
-		return write_future == null && write_futures.size() == 0;
+		return writeFuture == null && writeFutures.size() == 0;
 	}
 
 	@Override
@@ -94,38 +94,41 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 	
 	private void fireEvent0(SocketSelectorEventLoop selectorLoop) throws IOException {
-		ChannelWriteFuture future = this.write_future;
-		if (future != null) {
-			future.write(this);
-			if (!future.isCompleted()) {
+		ChannelWriteFuture f = this.writeFuture;
+		if (f != null) {
+			f.write(this);
+			if (!f.isCompleted()) {
 				return;
 			}
-			writeFutureLength.getAndAdd(-future.getBinaryLength());
-			future.onSuccess(session);
-			write_future = null;
+			writeFutureLength(-f.getLength());
+			f.onSuccess(session);
+			writeFuture = null;
 			return;
 		}
-		future = write_futures.poll();
-		if (future == null) {
+		f = writeFutures.poll();
+		if (f == null) {
 			return;
 		}
 		// 如果这里写入失败会导致内存溢出，需要try
 		try {
-			future.write(this);
+			f.write(this);
 		} catch (Throwable e) {
-			ReleaseUtil.release(future);
+			ReleaseUtil.release(f);
 			throw e;
 		}
-		if (!future.isCompleted()) {
-			this.write_future = future;
+		if (!f.isCompleted()) {
+			this.writeFuture = f;
 			return;
 		}
-		writeFutureLength.getAndAdd(-future.getBinaryLength());
-		future.onSuccess(session);
+		writeFutureLength(-f.getLength());
+		f.onSuccess(session);
 	}
 	
 	@Override
 	public void close() throws IOException {
+		if (closing || !isOpened()) {
+			return;
+		}
 		ReentrantLock lock = getCloseLock();
 		lock.lock();
 		try{
@@ -173,7 +176,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 		}
 		selectionKey.cancel();
 		fireClosed();
-		closeConnector();
 	}
 
 	private int read(ByteBuffer buffer) throws IOException {

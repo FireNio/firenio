@@ -21,11 +21,15 @@ public class HeapByteBufFactory implements ByteBufFactory {
 
 	@Override
 	public void freeMemory() {
-		this.memory = null;
+		//FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
+//		this.memory = null;
 	}
 
 	@Override
 	public void initializeMemory(int capacity) {
+		if (memory != null && memory.length == capacity) {
+			return;
+		}
 		this.memory = new byte[capacity];
 	}
 	

@@ -36,11 +36,8 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	}
 
 	protected void initService(ServerConfiguration configuration) throws IOException {
-
 		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
-		
 		this.bind(getServerSocketAddress());
-
 		LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
 	}
 
@@ -53,9 +50,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 
 	@Override
 	public void unbind() throws TimeoutException {
-
 		Waiter<IOException> waiter = asynchronousUnbind();
-
 		if (waiter.await()) {
 			// FIXME never timeout
 			throw new TimeoutException("timeout to unbind");

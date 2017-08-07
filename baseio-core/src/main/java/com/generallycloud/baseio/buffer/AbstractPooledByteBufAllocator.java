@@ -141,7 +141,7 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 		
 		lock		= new ReentrantLock();
 
-		bufFactory = createBufFactory();
+		createBufFactory();
 
 		int capacity = this.capacity;
 
@@ -161,11 +161,16 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 	
 	protected abstract ByteBufUnit[] getUnits() ;
 
-	private ByteBufFactory createBufFactory() {
+	private void createBufFactory() {
 		if (isDirect) {
-			return new DirectByteBufFactory();
+			if (!(bufFactory instanceof DirectByteBufFactory)) {
+				bufFactory = new DirectByteBufFactory();
+			}
+		}else{
+			if (!(bufFactory instanceof HeapByteBufFactory)) {
+				bufFactory = new HeapByteBufFactory();
+			}
 		}
-		return new HeapByteBufFactory();
 	}
 
 	@Override

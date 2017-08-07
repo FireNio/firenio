@@ -54,20 +54,14 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 
 	@Override
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
-
 		initChannel();
-		
 		initSelectorLoops();
-		
 		initNioSessionMananger();
-		
 		try {
-			// 进行服务的绑定
 			this.serverSocket.bind(socketAddress, 50);
 		} catch (BindException e) {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
-
 	}
 	
 	private void initNioSessionMananger(){
@@ -85,12 +79,9 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 	}
 
 	private void initSelectorLoops() {
-
 		//FIXME socket selector event loop ?
 		ServerConfiguration configuration = getContext().getServerConfiguration();
-
 		int core_size = configuration.getSERVER_CORE_SIZE();
-
 		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
 				(NioSocketChannelContext) getContext(), "io-process", core_size);
 		LifeCycleUtil.start(selectorEventLoopGroup);

@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -56,10 +57,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected SSLEngine					sslEngine;
 	protected SslHandler					sslHandler;
 	protected UnsafeSocketSession			session;
-	protected transient ChannelWriteFuture	write_future;
+	protected transient ChannelWriteFuture	writeFuture;
 	protected transient ChannelReadFuture		readFuture;
 	protected transient SslReadFuture		sslReadFuture;
-	protected LinkedQueue<ChannelWriteFuture>	write_futures;
+	protected LinkedQueue<ChannelWriteFuture>	writeFutures;
 	protected boolean						opened		= true;
 	protected SocketChannelThreadContext 		threadContext;
 
@@ -77,7 +78,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
 		this.executorEventLoop = context.getExecutorEventLoop();
 		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
-		this.write_futures = new CwfScmpLinkedQueueUnsafe<>(f);
+		this.writeFutures = new CwfScmpLinkedQueueUnsafe<>(f);
 		this.writeFutureLength = new AtomicInteger();
 		this.threadContext = context;
 	}
@@ -155,7 +156,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 	@Override
 	public int getWriteFutureSize() {
-		return write_futures.size();
+		return writeFutures.size();
 	}
 
 	// FIXME 是否使用channel.isOpen()
@@ -221,38 +222,37 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	}
 
 	@Override
-	public void flush(ChannelWriteFuture future) {
+	public void flush(ChannelWriteFuture f) {
 		UnsafeSocketSession session = getSession();
-		//FIXME is need lock
-//		ReentrantLock lock = getCloseLock();
-//		lock.lock();
+		//这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
+		//会产生误差，导致无法或者延迟触发doFlush操作
+		ReentrantLock lock = getCloseLock();
+		lock.lock();
 		try{
 			if (!isOpened()) {
-				future.onException(session, new ClosedChannelException(session.toString()));
+				f.onException(session, new ClosedChannelException(session.toString()));
 				return;
 			}
-			write_futures.offer(future);
-			//FIXME 如何不加锁，这里需要进行再次判断
-			if (!isOpened()) {
-				future.onException(session, new ClosedChannelException(session.toString()));
-				return;
-			}
-			int length = writeFutureLength.addAndGet(future.getBinaryLength());
+			writeFutures.offer(f);
+			int length = writeFutureLength(f.getLength());
 			if (length > 1024 * 1024 * 10) {
 				// FIXME 该连接写入过多啦
 			}
 			// 如果write futures > 1 说明在offer之后至少有一个write future
 			// event loop 在判断complete时返回false
-			if (write_futures.size() > 1) {
+			if (writeFutures.size() > 1) {
 				return;
 			}
-			doFlush(future);
+			doFlush(f);
 		}catch (Exception e) {
-			future.onException(session, e);
+			f.onException(session, e);
+		}finally{
+			lock.unlock();
 		}
-//		finally{
-//			lock.unlock();
-//		}
+	}
+	
+	protected int writeFutureLength(int len){
+		return writeFutureLength.addAndGet(len);
 	}
 
 	protected abstract void doFlush(ChannelWriteFuture future);
@@ -264,14 +264,14 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
 		ClosedChannelException e = null;
 
-		if (write_future != null && !write_future.isReleased()) {
+		if (writeFuture != null && !writeFuture.isReleased()) {
 
 			e = new ClosedChannelException(session.toString());
 
-			write_future.onException(session, e);
+			writeFuture.onException(session, e);
 		}
 
-		LinkedQueue<ChannelWriteFuture> writeFutures = this.write_futures;
+		LinkedQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
 
 		if (writeFutures.size() == 0) {
 			return;

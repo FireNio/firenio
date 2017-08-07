@@ -46,30 +46,22 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 
 	@Override
 	protected void bind(InetSocketAddress socketAddress) throws IOException {
-
-		this.initChannel();
-
+		initChannel();
 		try {
-			// 进行服务的绑定
 			datagramSocket.bind(socketAddress);
 		} catch (BindException e) {
 			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
 		}
-
 		initSelectorLoops();
 	}
 
 
 	private void initSelectorLoops() {
-
 		//FIXME socket selector event loop ?
 		ServerConfiguration configuration = getContext().getServerConfiguration();
-
 		int core_size = configuration.getSERVER_CORE_SIZE();
-
 		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
 				"io-process", core_size,(java.nio.channels.DatagramChannel) selectableChannel);
-		
 		LifeCycleUtil.start(selectorEventLoopGroup);
 	}
 
@@ -100,7 +92,6 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 		this.selectableChannel = DatagramChannel.open();
 		// 服务器配置为非阻塞
 		this.selectableChannel.configureBlocking(false);
-
 		this.datagramSocket = ((DatagramChannel) this.selectableChannel).socket();
 	}
 

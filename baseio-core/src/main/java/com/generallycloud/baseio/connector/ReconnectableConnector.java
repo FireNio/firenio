@@ -29,23 +29,23 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 public class ReconnectableConnector implements Closeable {
 
 	private Logger					logger				= LoggerFactory.getLogger(ReconnectableConnector.class);
-	private SocketChannelConnector	connect2Front			= null;
+	private SocketChannelConnector	realConnector			= null;
 	private long					retryTime				= 15000;
 	private volatile boolean		reconnect				= true;
 	private ReconnectableConnector	reconnectableConnector	= null;
 
 	public ReconnectableConnector(SocketChannelContext context) {
 		context.addSessionEventListener(getReconnectSEListener());
-		this.connect2Front = new SocketChannelConnector(context);
+		this.realConnector = new SocketChannelConnector(context);
 		this.reconnectableConnector = this;
 	}
 	
 	public boolean isConnected() {
-		return connect2Front.isConnected();
+		return realConnector.isConnected();
 	}
 
 	public SocketSession getSession() {
-		return connect2Front.getSession();
+		return realConnector.getSession();
 	}
 
 	public synchronized void connect() {
@@ -53,7 +53,7 @@ public class ReconnectableConnector implements Closeable {
 			logger.info("connection is closed, stop to reconnect");
 			return;
 		}
-		SocketSession session = connect2Front.getSession();
+		SocketSession session = realConnector.getSession();
 		ThreadUtil.sleep(300);
 		logger.info("begin try to connect");
 		for (;;) {
@@ -63,10 +63,9 @@ public class ReconnectableConnector implements Closeable {
 				continue;
 			}
 			try {
-				connect2Front.connect();
+				realConnector.connect();
 				break;
 			} catch (Throwable e) {
-				CloseUtil.close(connect2Front);
 				logger.error(e.getMessage(), e);
 			}
 			logger.error("reconnect failed,try reconnect later on");
@@ -97,7 +96,7 @@ public class ReconnectableConnector implements Closeable {
 	public void close() {
 		reconnect = false;
 		synchronized (this) {
-			CloseUtil.close(connect2Front);
+			CloseUtil.close(realConnector);
 		}
 	}
 
@@ -107,6 +106,13 @@ public class ReconnectableConnector implements Closeable {
 
 	public void setRetryTime(long retryTime) {
 		this.retryTime = retryTime;
+	}
+	
+	/**
+	 * @return the realConnector
+	 */
+	public SocketChannelConnector getRealConnector() {
+		return realConnector;
 	}
 	
 }

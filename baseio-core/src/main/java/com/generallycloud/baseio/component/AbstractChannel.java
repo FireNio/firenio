@@ -15,22 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.connector.AbstractChannelConnector;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannel implements Channel {
 	
 	static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-	
-	private static final Logger logger = LoggerFactory.getLogger(AbstractChannel.class);
 	
 	protected String			edp_description;
 	protected int				channelId;
@@ -172,22 +166,6 @@ public abstract class AbstractChannel implements Channel {
 	@Override
 	public long getLastAccessTime() {
 		return lastAccess;
-	}
-
-	//FIXME __________关channel不要关闭connector
-	protected void closeConnector() {
-
-		ChannelService service = getContext().getChannelService();
-
-		if (!(service instanceof AbstractChannelConnector)) {
-			return;
-		}
-
-		try {
-			((AbstractChannelConnector) service).physicalClose();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
 	}
 
 	protected ReentrantLock getCloseLock() {

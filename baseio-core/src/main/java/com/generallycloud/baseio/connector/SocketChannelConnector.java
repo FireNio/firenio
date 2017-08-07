@@ -30,27 +30,27 @@ import com.generallycloud.baseio.concurrent.Waiter;
  */
 public class SocketChannelConnector implements ChannelConnector {
 
-	private AbstractSocketChannelConnector	_connector;
+	private AbstractSocketChannelConnector	connector;
 	
 	private SocketChannelContext context;
 
 	public SocketChannelConnector(SocketChannelContext context) {
 		this.context = context;
-		this._connector = buildConnector(context);
+		this.connector = buildConnector(context);
 	}
 	
-	private ChannelConnector unwrap(){
-		return _connector;
+	private AbstractSocketChannelConnector unwrap(){
+		return connector;
 	}
 
 	@Override
 	public SocketSession getSession() {
-		return _connector.getSession();
+		return connector.getSession();
 	}
 
 	@Override
 	public SocketSession connect() throws IOException {
-		return _connector.connect();
+		return connector.connect();
 	}
 
 	@Override
@@ -100,6 +100,17 @@ public class SocketChannelConnector implements ChannelConnector {
 			return new AioSocketChannelConnector((AioSocketChannelContext) context);
 		}
 		throw new IllegalArgumentException("context");
+	}
+	
+	/**
+	 * @return the _connector
+	 */
+	public AbstractSocketChannelConnector getConnector() {
+		return unwrap();
+	}
+	
+	protected void physicalClose(){
+		unwrap().physicalClose();
 	}
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.connector;
 
 import java.io.IOException;
@@ -25,50 +25,52 @@ import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
-public abstract class AbstractChannelConnector extends AbstractChannelService implements ChannelConnector {
+public abstract class AbstractChannelConnector extends AbstractChannelService
+		implements ChannelConnector {
 
-	protected long			timeout		= 3000;
-	
+	protected long timeout = 3000;
+
 	@Override
-	public void close() throws IOException {
+	public synchronized void close() throws IOException {
 		if (canSafeClose()) {
 			Waiter<IOException> waiter = asynchronousClose();
-			if(waiter.await()){
+			if (waiter.await()) {
 				//FIXME never timeout
 				throw new TimeoutException("timeout to close");
 			}
+		}else{
+			ThreadUtil.execute(new Runnable() {
+				@Override
+				public void run() {
+					asynchronousClose();
+				}
+			});
 		}
-		ThreadUtil.execute(new Runnable() {
-			@Override
-			public void run() {
-				asynchronousClose();
-			}
-		});
 	}
-	
+
+	protected void physicalClose(){
+		if (canSafeClose()) {
+			destroy();
+		}else{
+			ThreadUtil.execute(new Runnable() {
+				@Override
+				public void run() {
+					destroy();
+				}
+			});
+		}
+	}
+
 	@Override
 	public Waiter<IOException> asynchronousClose() {
 		if (getSession() == null) {
-			destroy();
+			physicalClose();
+		}else{
+			CloseUtil.close(getSession());
 		}
-		CloseUtil.close(getSession());
 		return shutDownWaiter;
 	}
-	
-	//FIXME __考虑手动关闭 connector
-	public void physicalClose() throws IOException {
-		if (canSafeClose()) {
-			destroy();
-			return;
-		}
-		ThreadUtil.execute(new Runnable() {
-			@Override
-			public void run() {
-				destroy();
-			}
-		});
-	}
-	
+
 	protected abstract boolean canSafeClose();
 
 	protected void initService(ServerConfiguration configuration) throws IOException {
@@ -77,7 +79,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
 		this.connect(getServerSocketAddress());
 	}
-	
+
 	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
 	@Override
@@ -99,7 +101,7 @@ public abstract class AbstractChannelConnector extends AbstractChannelService im
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
-	
+
 	@Override
 	protected void setServerCoreSize(ServerConfiguration configuration) {
 		configuration.setSERVER_CORE_SIZE(1);

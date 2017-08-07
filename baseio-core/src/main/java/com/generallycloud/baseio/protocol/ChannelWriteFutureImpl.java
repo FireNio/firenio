@@ -55,7 +55,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	}
 
 	@Override
-	public int getBinaryLength() {
+	public int getLength() {
 		return buf.limit();
 	}
 	

@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -25,78 +24,44 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
-	protected boolean				active				= false;
-	protected ReentrantLock			activeLock			= new ReentrantLock();
-	protected InetSocketAddress		serverAddress			= null;
-	protected Waiter<IOException>	shutDownWaiter			= new Waiter<>();
+	protected boolean			active		= false;
+	protected InetSocketAddress	serverAddress	= null;
+	protected Waiter<IOException>	shutDownWaiter	= new Waiter<>();
 
 	@Override
 	public InetSocketAddress getServerSocketAddress() {
 		return serverAddress;
 	}
-	
-	protected void initialize() throws IOException {
 
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-
-			if (isActive()) {
-				return;
-			}
-
-			if (getContext() == null) {
-				throw new IllegalArgumentException("null nio context");
-			}
-			
-			ChannelContext context = getContext();
-			
-			context.setChannelService(this);
-			
-			setServerCoreSize(context.getServerConfiguration());
-
-			LifeCycleUtil.start(getContext());
-
-			this.initService(context.getServerConfiguration());
-
-			this.active = true;
-
-		} finally {
-
-			lock.unlock();
+	protected synchronized void initialize() throws IOException {
+		if (isActive()) {
+			return;
 		}
+		if (getContext() == null) {
+			throw new IllegalArgumentException("null nio context");
+		}
+		ChannelContext context = getContext();
+		LifeCycleUtil.stop(context);
+		context.setChannelService(this);
+		setServerCoreSize(context.getServerConfiguration());
+		LifeCycleUtil.start(getContext());
+		initService(context.getServerConfiguration());
+		active = true;
 	}
-	
+
 	protected abstract void initService(ServerConfiguration configuration) throws IOException;
-	
+
 	protected abstract void destroyService();
 
-	protected Waiter<IOException> destroy(){
-		
-		ReentrantLock lock = this.activeLock;
-
-		lock.lock();
-
-		try {
-			// just close
-			this.destroyService();
-
-			LifeCycleUtil.stop(getContext());
-
-			shutDownWaiter.setPayload(null);
-
-		} finally {
-
-			active = false;
-
-			lock.unlock();
-		}
-		
+	protected synchronized Waiter<IOException> destroy() {
+		active = false;
+		// just close
+		destroyService();
+		LifeCycleUtil.stop(getContext());
+		shutDownWaiter.setPayload(null);
 		return shutDownWaiter;
 	}
-	
+
 	protected abstract void setServerCoreSize(ServerConfiguration configuration);
 
 }

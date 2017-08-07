@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.baseio.component.DatagramChannel {
@@ -62,7 +63,7 @@ public class NioDatagramChannel extends AbstractChannel implements com.generally
 
 	@Override
 	protected void physicalClose() {
-		closeConnector();
+		CloseUtil.close(channel);
 	}
 
 	@Override

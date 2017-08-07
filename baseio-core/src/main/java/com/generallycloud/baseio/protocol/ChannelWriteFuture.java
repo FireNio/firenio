@@ -38,6 +38,6 @@ public interface ChannelWriteFuture extends WriteFuture ,Linkable<ChannelWriteFu
 
 	public abstract void onSuccess(SocketSession session);
 	
-	public abstract int getBinaryLength();
+	public abstract int getLength();
 
 }

@@ -90,21 +90,21 @@ public class AioSocketChannel extends AbstractSocketChannel {
 			if (!forceFlushing && flushing) {
 				return;
 			}
-			if (write_future == null) {
-				write_future = write_futures.poll();
+			if (writeFuture == null) {
+				writeFuture = writeFutures.poll();
 			}
-			if (write_future == null) {
+			if (writeFuture == null) {
 				flushing = false;
 				return;
 			}
 			if (!isOpened()) {
-				fireClosed(write_future, new ClosedChannelException("closed"));
+				fireClosed(writeFuture, new ClosedChannelException("closed"));
 				return;
 			}
 			flushing = true;
-			write_future.write(this);
+			writeFuture.write(this);
 		} catch (IOException e) {
-			fireClosed(write_future, e);
+			fireClosed(writeFuture, e);
 		}
 	}
 
@@ -135,7 +135,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		}
 		CloseUtil.close(channel);
 		fireClosed();
-		closeConnector();
 	}
 
 	public void read(ByteBuf cache) {
@@ -169,15 +168,16 @@ public class AioSocketChannel extends AbstractSocketChannel {
 			if (!isOpened()) {
 				return;
 			}
-			ChannelWriteFuture write_future = this.write_future;
-			write_future.getByteBuf().reverse();
-			if (!write_future.isCompleted()) {
+			ChannelWriteFuture f = this.writeFuture;
+			f.getByteBuf().reverse();
+			if (!f.isCompleted()) {
 				flush(true);
 				return;
 			}
-			writeFutureLength.getAndAdd(-write_future.getBinaryLength());
-			write_future.onSuccess(session);
-			write_future = null;
+			
+			writeFutureLength(-f.getLength());
+			f.onSuccess(session);
+			f = null;
 			flush(true);
 		}finally{
 			lock.unlock();

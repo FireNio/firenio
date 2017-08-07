@@ -42,7 +42,6 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 	private SocketChannelContext	context;
 	
 	private SocketSessionManager socketSessionManager;
-	
 
 	AbstractSocketChannelAcceptor(SocketChannelContext context) {
 		this.context = context;
@@ -56,41 +55,31 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 
 	@Override
 	public void broadcast(ReadFuture future) {
-
 		ProtocolEncoder encoder = context.getProtocolEncoder();
-
 		ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
-
-		ChannelWriteFuture writeFuture;
+		ChannelWriteFuture writeFuture = null;
 		try {
 			writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
 		} catch (Throwable e) {
+			ReleaseUtil.release(writeFuture);
 			logger.error(e.getMessage(), e);
 			return;
 		}
-
 		broadcast(writeFuture);
 	}
 	
 	public void broadcast(final ChannelWriteFuture future) {
-		
 		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
-			
 			@Override
 			public void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions) {
-				
 				if (sessions.isEmpty()) {
 					ReleaseUtil.release(future);
 					return;
 				}
-				
 				Collection<SocketSession> ss = sessions.values();
-
 				for (SocketSession s : ss) {
-
 					s.flush(future.duplicate());
 				}
-
 				ReleaseUtil.release(future);
 			}
 		});

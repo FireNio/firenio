@@ -21,7 +21,6 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -32,7 +31,7 @@ import com.generallycloud.baseio.log.Logger;
  *
  */
 public abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
-	
+
 	protected UnsafeSocketSession	session;
 
 	protected Waiter<Object>		waiter;
@@ -47,17 +46,18 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 		return session == null
 				|| (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
 	}
-	
+
 	//FIXME protected
 	public void finishConnect(UnsafeSocketSession session, Throwable exception) {
 		if (exception == null) {
-			this.session = session;
-			LoggerUtil.prettyLog(getLogger(), 
-					"connected to server @{}", getServerSocketAddress());
 			this.waiter.setPayload(null);
 			if (waiter.isTimeouted()) {
-				CloseUtil.close(this);
+				CloseUtil.close(session);
+				return;
 			}
+			this.session = session;
+			LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
+					getServerSocketAddress());
 		} else {
 			this.waiter.setPayload(exception);
 		}

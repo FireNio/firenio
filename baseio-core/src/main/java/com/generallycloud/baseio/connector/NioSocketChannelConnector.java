@@ -68,6 +68,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
 	@Override
 	protected void connect(InetSocketAddress socketAddress) throws IOException {
+		LifeCycleUtil.stop(selectorEventLoopGroup);
 		initChannel();
 		initSelectorLoops();
 		initNioSessionMananger();

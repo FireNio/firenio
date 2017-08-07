@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.connector;
 
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 
-public class LoggerSocketSEListener implements SocketSessionEventListener{
-
-	private Logger logger = LoggerFactory.getLogger(getClass());
+public class CloseConnectorSEListener extends SocketSessionEventListenerAdapter{
 	
-	@Override
-	public void sessionOpened(SocketSession session) {
-		logger.info("session opened:{}",session);
+	private SocketChannelConnector connector;
+	
+	public CloseConnectorSEListener(SocketChannelConnector connector) {
+		this.connector = connector;
 	}
 
 	@Override
 	public void sessionClosed(SocketSession session) {
-		logger.info("session closed:{}",session);
+		connector.physicalClose();
 	}
 	
 }
