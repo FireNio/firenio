@@ -18,7 +18,6 @@ package com.generallycloud.baseio.buffer;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class PooledByteBufAllocatorManager extends AbstractLifeCycle implements ByteBufAllocatorManager {
@@ -110,13 +109,11 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle implements 
 
 	public ByteBufAllocator getNextBufAllocator() {
 
-		Linkable<LinkAbleByteBufAllocator> next = this.allocator.getNext();
+		LinkAbleByteBufAllocator next = allocator.getNext();
 
-		LinkAbleByteBufAllocator value = next.getValue();
+		this.allocator = next;
 
-		this.allocator = value;
-
-		return value;
+		return next;
 	}
 	
 	public void printBusy(){

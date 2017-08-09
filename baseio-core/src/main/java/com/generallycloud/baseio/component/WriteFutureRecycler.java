@@ -12,17 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.test.concurrent;
+ */
+package com.generallycloud.baseio.component;
 
-public interface ListQueue<T> {
+/**
+ * @author wangkai
+ *
+ */
+public class WriteFutureRecycler {
 
-	public abstract boolean offer(T object);
 	
-	public abstract T poll();
-
-	public abstract T poll(long timeout);
-
-	public abstract int size();
-
+	
+	
 }

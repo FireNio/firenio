@@ -53,7 +53,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
 	}
 
 	@Override
-	public DatagramSession connect() throws IOException {
+	public synchronized DatagramSession connect() throws IOException {
 		this.session = null;
 		this.initialize();
 		return getSession();

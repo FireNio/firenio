@@ -3,9 +3,9 @@ package com.generallycloud.baseio.concurrent;
 import com.generallycloud.baseio.common.UnsafeUtil;
 import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
 
-public class CwfScmpLinkedQueueUnsafe<T extends Linkable<T>> extends ScmpLinkedQueueUnsafe<T> {
+public class CwfScmpLinkedQueueUnsafe<T> extends ScmpLinkedQueueUnsafe<T> {
 
-	public CwfScmpLinkedQueueUnsafe(Linkable<T> linkable) {
+	public CwfScmpLinkedQueueUnsafe(Linkable linkable) {
 		super(linkable, nextOffset);
 	}
 

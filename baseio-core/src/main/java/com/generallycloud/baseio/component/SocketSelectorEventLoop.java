@@ -51,17 +51,15 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	private SocketSelectorEventLoopGroup		eventLoopGroup			= null;
 	private SocketSelectorBuilder				selectorBuilder		= null;
 	private SocketSelector					selector				= null;
-	private int							runTask				= 0;
-	private boolean						hasTask				= false;
 	private SslHandler						sslHandler			= null;
 	private AtomicBoolean					selecting				= new AtomicBoolean();
 	private UnpooledByteBufAllocator			unpooledByteBufAllocator	= null;
-	private BufferedArrayList<SelectorLoopEvent>	negativeEvents			= new BufferedArrayList<>();
-	private BufferedArrayList<SelectorLoopEvent>	positiveEvents			= new BufferedArrayList<>();
+	private BufferedArrayList<SelectorLoopEvent>	selectorLoopEvents		= new BufferedArrayList<>();
 
 	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
 		super(group.getChannelContext(), coreIndex);
 		this.eventLoopGroup = group;
+//		this.selectorLoopEvents = new ArrayBlockingQueue<>(1024 * 128);
 		this.context = group.getChannelContext();
 		this.selectorBuilder = ((NioChannelService) context.getChannelService())
 				.getSelectorBuilder();
@@ -86,9 +84,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	}
 
 	public void accept(NioSocketChannel channel) {
-		if (!channel.isOpened()) {
-			return;
-		}
 		try {
 			ByteBuf buf = this.buf;
 			buf.clear();
@@ -121,11 +116,8 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	protected void doStop() {
 		ThreadUtil.sleep(8);
-		//这里关闭两次，把缓存的buffer那部分也处理一下
-		closeEvents(positiveEvents);
-		closeEvents(positiveEvents);
-		closeEvents(negativeEvents);
-		closeEvents(negativeEvents);
+		closeEvents(selectorLoopEvents);
+		LifeCycleUtil.stop(sessionManager);
 		CloseUtil.close(selector);
 		ReleaseUtil.release(buf);
 		LifeCycleUtil.stop(unpooledByteBufAllocator);
@@ -150,39 +142,30 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	@Override
 	protected void doLoop() throws IOException {
 
+		if(selectorLoopEvents.getBufferSize() > 0){
+			handleEvents(selectorLoopEvents.getBuffer());
+		}
+		
 		SocketSelector selector = getSelector();
 
 		int selected;
 //		long last_select = System.currentTimeMillis();
-		if (hasTask) {
-			if (runTask > 0) {
-				runTask--;
-				handlePositiveEvents();
-				checkTask(false);
-				return;
-			}
+		if (selecting.compareAndSet(false, true)) {
+			selected = selector.select(16);// FIXME try
+			selecting.set(false);
+		} else {
 			selected = selector.selectNow();
-		} else {
-			if (selecting.compareAndSet(false, true)) {
-				selected = selector.select(16);// FIXME try
-				selecting.set(false);
-			} else {
-				selected = selector.selectNow();
-			}
 		}
 
-		if (selected < 1) {
-			handleNegativeEvents();
-//			selectEmpty(last_select);
-		} else {
+		if (selected > 0) {
 			accept(selector.selectedKeys());
+		} else {
+//			selectEmpty(last_select);
 		}
 
-		handlePositiveEvents();
+		handleEvents(selectorLoopEvents.getBuffer());
 
 		sessionManager.loop();
-
-		checkTask(true);
 	}
 	
 	private void accept(Set<SelectionKey> sks){
@@ -200,9 +183,27 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 				}
 				continue;
 			}
+			
+			if (!channel.isOpened()) {
+				continue;
+			}
+			
+			if (k.isWritable()) {
+				write(channel);
+				continue;
+			}
+			
 			accept(channel);
 		}
 		sks.clear();
+	}
+	
+	private void write(NioSocketChannel channel){
+		try {
+			channel.flush(this);
+		} catch (Throwable e) {
+			cancelSelectionKey(channel, e);
+		}
 	}
 
 	private SocketSelector rebuildSelector0() throws IOException {
@@ -259,101 +260,41 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	}
 
 	public void dispatch(SelectorLoopEvent event) {
-
 		//FIXME 找出这里出问题的原因
-		//		if (inEventLoop()) {
-		//
-		//			if (!isRunning()) {
-		//				CloseUtil.close(event);
-		//				return;
-		//			}
-		//
-		//			handleEvent(event);
-		//
-		//			return;
-		//		}
-
+		if (inEventLoop()) {
+			if (!isRunning()) {
+				CloseUtil.close(event);
+				return;
+			}
+			try {
+				event.fireEvent(this);
+			} catch (Exception e) {
+				CloseUtil.close(event);
+			}
+			return;
+		}
 		if (!isRunning()) {
 			CloseUtil.close(event);
 			return;
 		}
-
-		positiveEvents.offer(event);
-		
+		//FIXME 这里是否可以优化一下
+		selectorLoopEvents.offer(event);
 		// 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
 		// 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
 		if (!isRunning()) {
 			CloseUtil.close(event);
 			return;
 		}
-
 		wakeup();
-
-	}
-
-	private void handleEvent(SelectorLoopEvent event) {
-
-		try {
-
-			event.fireEvent(this);
-
-			if (event.isComplete()) {
-				return;
-			}
-
-			// FIXME xiaolv hui jiangdi
-			if (event.isPositive()) {
-				positiveEvents.offer(event);
-				return;
-			}
-
-			negativeEvents.offer(event);
-
-		} catch (IOException e) {
-
-			CloseUtil.close(event);
-		}
 	}
 
 	private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
-
 		for (SelectorLoopEvent event : eventBuffer) {
-
-			handleEvent(event);
-		}
-	}
-
-	private void handleNegativeEvents() {
-
-		List<SelectorLoopEvent> eventBuffer = negativeEvents.getBuffer();
-
-		if (eventBuffer.size() == 0) {
-			return;
-		}
-
-		handleEvents(eventBuffer);
-	}
-
-	private void handlePositiveEvents() {
-
-		List<SelectorLoopEvent> eventBuffer = positiveEvents.getBuffer();
-
-		if (eventBuffer.size() == 0) {
-
-			hasTask = false;
-
-			return;
-		}
-
-		handleEvents(eventBuffer);
-	}
-
-	private void checkTask(boolean refresh) {
-
-		hasTask = positiveEvents.getBufferSize() > 0;
-
-		if (hasTask && refresh) {
-			runTask = 5;
+			try {
+				event.fireEvent(this);
+			} catch (Exception e) {
+				CloseUtil.close(event);
+			}
 		}
 	}
 

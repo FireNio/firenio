@@ -22,24 +22,18 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService
 		implements ChannelConnector {
 
 	protected long timeout = 3000;
 	
-	private Logger logger = LoggerFactory.getLogger(getClass());
-
 	@Override
 	public synchronized void close() throws IOException {
 		if (canSafeClose()) {
 			close0();
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				logger.error(e.getMessage(),e);
+			if (isActive()) {
+				ThreadUtil.wait(this);
 			}
 		}else{
 			ThreadUtil.execute(new Runnable() {

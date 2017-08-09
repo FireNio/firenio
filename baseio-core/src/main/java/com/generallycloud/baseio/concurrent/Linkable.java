@@ -15,13 +15,11 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public interface Linkable<T> {
+public interface Linkable {
 
-	Linkable<T> getNext();
+	Linkable getNext();
 
-	void setNext(Linkable<T> next);
-
-	T getValue();
+	void setNext(Linkable next);
 
 	boolean isValidate();
 

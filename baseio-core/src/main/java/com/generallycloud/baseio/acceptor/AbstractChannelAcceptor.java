@@ -30,7 +30,7 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService imp
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
-	public void bind() throws IOException {
+	public synchronized void bind() throws IOException {
 		this.initialize();
 	}
 

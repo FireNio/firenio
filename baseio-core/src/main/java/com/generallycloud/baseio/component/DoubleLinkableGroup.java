@@ -19,17 +19,17 @@ package com.generallycloud.baseio.component;
  * @author wangkai
  *
  */
-public class DoubleLinkableGroup<T> {
+public class DoubleLinkableGroup {
 
-	private DoubleLinkable<T> rootLink;
+	private DoubleLinkable rootLink;
 	
-	private DoubleLinkable<T> tailLink;
+	private DoubleLinkable tailLink;
 
-	public DoubleLinkable<T> getRootLink() {
+	public DoubleLinkable getRootLink() {
 		return rootLink;
 	}
 	
-	public void addLink(DoubleLinkable<T> linkable){
+	public void addLink(DoubleLinkable linkable){
 		
 		if (rootLink == null) {
 			rootLink = linkable;
@@ -42,7 +42,7 @@ public class DoubleLinkableGroup<T> {
 		tailLink = linkable;
 	}
 	
-	public void removeLink(DoubleLinkable<T> linkable){
+	public void removeLink(DoubleLinkable linkable){
 		//TODO removeLink
 		throw new UnsupportedOperationException();
 	}

@@ -20,7 +20,7 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class TimeoutException extends IOException {
 	
-	public TimeoutException(String message, Exception cause) {
+	public TimeoutException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

@@ -15,20 +15,15 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.concurrent.Linkable;
+import java.io.Closeable;
+import java.io.IOException;
 
-public abstract class AbstractLinkable implements Linkable {
+/**
+ * @author wangkai
+ *
+ */
+public interface SelectorLoopEvent extends Closeable {
 
-	private boolean isValidate = true;
-
-	@Override
-	public boolean isValidate() {
-		return isValidate;
-	}
-
-	@Override
-	public void setValidate(boolean validate) {
-		this.isValidate = validate;
-	}
+	void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException;
 
 }

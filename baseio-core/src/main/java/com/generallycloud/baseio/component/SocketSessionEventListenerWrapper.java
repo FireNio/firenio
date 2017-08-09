@@ -12,29 +12,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class SocketSessionEventListenerWrapper extends AbstractLinkable<SocketSessionEventListener> implements SocketSessionEventListener {
+public class SocketSessionEventListenerWrapper extends AbstractLinkable
+		implements SocketSessionEventListener {
 
-	private SocketSessionEventListenerWrapper next;
-	
-	private Logger logger;
-	
+	private SocketSessionEventListenerWrapper	next;
+
+	private Logger							logger;
+
+	private SocketSessionEventListener			value;
+
 	public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
-		super(value);
-		logger = LoggerFactory.getLogger(value.getClass());
+		this.value = value;
+		this.logger = LoggerFactory.getLogger(value.getClass());
 	}
 
 	@Override
-	public void sessionOpened(SocketSession session) throws Exception {
-		
+	public void sessionOpened(SocketSession session) {
+
 		try {
-			getValue().sessionOpened(session);
+			value.sessionOpened(session);
 		} catch (Exception e) {
 			logger.errorDebug(e);
 		}
@@ -50,9 +53,9 @@ public class SocketSessionEventListenerWrapper extends AbstractLinkable<SocketSe
 
 	@Override
 	public void sessionClosed(SocketSession session) {
-		
+
 		try {
-			getValue().sessionClosed(session);
+			value.sessionClosed(session);
 		} catch (Exception e) {
 			logger.errorDebug(e);
 		}
@@ -72,7 +75,7 @@ public class SocketSessionEventListenerWrapper extends AbstractLinkable<SocketSe
 	}
 
 	@Override
-	public void setNext(Linkable<SocketSessionEventListener> next) {
+	public void setNext(Linkable next) {
 		this.next = (SocketSessionEventListenerWrapper) next;
 	}
 

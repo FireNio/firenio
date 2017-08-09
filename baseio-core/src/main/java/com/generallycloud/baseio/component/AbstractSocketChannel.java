@@ -26,12 +26,10 @@ import javax.net.ssl.SSLException;
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
 import com.generallycloud.baseio.concurrent.ScspLinkedQueue;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
@@ -103,7 +101,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	@Override
 	public void finishHandshake(Exception e) {
 		if (getContext().getSslContext().isClient()) {
-			AbstractSocketChannelConnector connector =  (AbstractSocketChannelConnector) getContext().getChannelService();
+			AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) 
+					getContext().getChannelService();
 			connector.finishConnect(getSession(), e);
 		}
 	}
@@ -371,7 +370,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 					EmptyByteBuf.getInstance()));
 		}
 
-		Linkable<SocketSessionEventListener> linkable = context.getSessionEventListenerLink();
+		SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
 
 		UnsafeSocketSession session = getSession();
 		
@@ -384,25 +383,14 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			manager.putSession(session);
 		}
 
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionOpened(session);
-
-			} catch (Exception e) {
-				logger.errorDebug(e);
-				CloseUtil.close(this);
-				break;
-			}
-
-			linkable = linkable.getNext();
+		if (linkable != null) {
+			linkable.sessionOpened(session);
 		}
 	}
 	
 	protected void fireClosed() {
 
-		Linkable<SocketSessionEventListener> linkable = getContext()
+		SocketSessionEventListenerWrapper linkable = getContext()
 				.getSessionEventListenerLink();
 
 		UnsafeSocketSession session = getSession();
@@ -415,16 +403,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		
 		threadContext.getSocketSessionManager().removeSession(session);
 		
-		for (; linkable != null;) {
-
-			try {
-
-				linkable.getValue().sessionClosed(session);
-
-			} catch (Exception e) {
-				logger.errorDebug(e);
-			}
-			linkable = linkable.getNext();
+		if (linkable != null) {
+			linkable.sessionClosed(session);
 		}
 	}
 	

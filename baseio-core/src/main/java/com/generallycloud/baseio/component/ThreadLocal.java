@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.common;
+package com.generallycloud.baseio.component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,18 +49,10 @@ public class ThreadLocal {
 		}
 	}
 
-	private Map<Object, Object> cache = new HashMap<>();
-
-	public void putCache(Object key, Object value) {
-		cache.put(key, value);
-	}
-
-	public Object getCache(Object key) {
-		return cache.get(key);
-	}
-
-	public Object removeCache(Object key) {
-		return cache.remove(key);
+	private WriteFutureRecycler writeFutureRecycler = new WriteFutureRecycler();
+	
+	public WriteFutureRecycler getWriteFutureRecycler() {
+		return writeFutureRecycler;
 	}
 
 }

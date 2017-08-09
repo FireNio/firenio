@@ -28,7 +28,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
 
 	private boolean						isValidate;
 
-	private Linkable<LinkAbleByteBufAllocator>	next;
+	private LinkAbleByteBufAllocator			next;
 
 	public LinkableByteBufAllocatorImpl(ByteBufAllocator allocator, int index) {
 		this.index = index;
@@ -39,7 +39,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
 	public ByteBuf allocate(int capacity) {
 		ByteBuf buf = unwrap().allocate(capacity);
 		if (buf == null) {
-			return getNext().getValue().allocate(capacity, this);
+			return getNext().allocate(capacity, this);
 		}
 		return buf;
 	}
@@ -58,7 +58,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
 		}
 		ByteBuf buf = unwrap().allocate(capacity);
 		if (buf == null) {
-			return getNext().getValue().allocate(capacity, allocator);
+			return getNext().allocate(capacity, allocator);
 		}
 		return buf;
 	}
@@ -89,18 +89,13 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
 	}
 
 	@Override
-	public Linkable<LinkAbleByteBufAllocator> getNext() {
+	public LinkAbleByteBufAllocator getNext() {
 		return next;
 	}
 
 	@Override
 	public int getUnitMemorySize() {
 		return unwrap().getUnitMemorySize();
-	}
-
-	@Override
-	public LinkAbleByteBufAllocator getValue() {
-		return this;
 	}
 
 	@Override
@@ -144,8 +139,8 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
 	}
 
 	@Override
-	public void setNext(Linkable<LinkAbleByteBufAllocator> next) {
-		this.next = next;
+	public void setNext(Linkable next) {
+		this.next = (LinkAbleByteBufAllocator) next;
 	}
 
 	@Override

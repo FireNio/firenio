@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 
-public interface ChannelWriteFuture extends WriteFuture ,Linkable<ChannelWriteFuture>{
+public interface ChannelWriteFuture extends WriteFuture ,Linkable{
 
 	public abstract void write(SocketChannel channel) throws IOException;
 

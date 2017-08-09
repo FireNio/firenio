@@ -12,15 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.component.AbstractLinkable;
 
-public abstract class LinkRunable extends AbstractLinkable<Runnable> implements Runnable, Linkable<Runnable> {
-
-	public LinkRunable(Runnable value) {
-		super(value);
-	}
+public abstract class LinkRunable extends AbstractLinkable 
+		implements Runnable, Linkable {
 
 }

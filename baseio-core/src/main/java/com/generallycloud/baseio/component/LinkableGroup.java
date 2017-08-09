@@ -21,7 +21,6 @@ import com.generallycloud.baseio.concurrent.Linkable;
  * @author wangkai
  *
  */
-@SuppressWarnings("rawtypes")
 public class LinkableGroup<T extends Linkable> {
 
 	private T rootLink;
@@ -32,7 +31,6 @@ public class LinkableGroup<T extends Linkable> {
 		return rootLink;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void addLink(T linkable){
 		
 		if (rootLink == null) {

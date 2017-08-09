@@ -12,28 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
+public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent {
 
-public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent{
-	
 	@Override
 	public void close() throws IOException {
 		fireEvent(null);
 	}
 
-	@Override
-	public boolean isPositive() {
-		return true;
-	}
-
-	@Override
-	public boolean isComplete() {
-		return true;
-	}
-	
 }

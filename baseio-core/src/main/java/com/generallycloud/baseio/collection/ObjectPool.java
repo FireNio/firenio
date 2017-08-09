@@ -13,18 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.concurrent;
+package com.generallycloud.baseio.collection;
 
 /**
  * @author wangkai
  *
  */
-public interface LinkedQueue<T> {
+public class ObjectPool<V> {
 
-	void offer(Linkable linkable);
+	private ObjectPoolFactory<V>	factory;
 
-	T poll();
+	private V[]				vs;
 
-	int size();
+	private int				capacity;
+
+	private int				index;
+
+	@SuppressWarnings("unchecked")
+	public void init(ObjectPoolFactory<V> factory, int capacity) {
+		this.capacity = capacity;
+		this.factory = factory;
+		this.vs = (V[]) new Object[capacity];
+		for (int i = 0; i < capacity; i++) {
+			vs[i] = factory.newInstance();
+		}
+	}
+
+	public V pop() {
+		if (index == 0) {
+			return factory.newInstance();
+		}
+		return vs[--index];
+	}
+
+	public void push(V v) {
+		if (index == capacity) {
+			return;
+		}
+		vs[index++] = v;
+	}
 
 }

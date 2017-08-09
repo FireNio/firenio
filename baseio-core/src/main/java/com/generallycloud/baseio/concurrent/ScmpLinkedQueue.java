@@ -2,42 +2,48 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScmpLinkedQueue<T extends Linkable<T>> implements LinkedQueue<T>{
+import com.generallycloud.baseio.log.DebugUtil;
 
-	protected Linkable<T>	head	= null;				// volatile ?
-	protected Lock		lock;
+public class ScmpLinkedQueue<T> implements LinkedQueue<T> {
+
+	protected Linkable		head	= null;				// volatile ?
+	protected Lock		lock	= null;
 	protected AtomicInteger	size	= new AtomicInteger();
-	protected Linkable<T>	tail	= null;				// volatile ?
+	protected Linkable		tail	= null;				// volatile ?
 
-	public ScmpLinkedQueue(Linkable<T> linkable) {
+	public ScmpLinkedQueue(Linkable linkable) {
 		this(linkable, new ReentrantLockImpl());
 	}
 
-	public ScmpLinkedQueue(Linkable<T> linkable, Lock lock) {
+	public ScmpLinkedQueue(Linkable linkable, Lock lock) {
 		linkable.setValidate(false);
 		this.head = linkable;
 		this.tail = linkable;
 		this.lock = lock;
 	}
 
-	private T get(Linkable<T> h) {
+	@SuppressWarnings("unchecked")
+	private T get(Linkable h) {
 		if (h.isValidate()) {
-			Linkable<T> next = h.getNext();
+			Linkable next = h.getNext();
 			if (next == null) {
 				h.setValidate(false);
 			} else {
 				head = next;
 			}
 			this.size.decrementAndGet();
-			return h.getValue();
+			return (T) h;
 		} else {
-			Linkable<T> next = h.getNext();
+			Linkable next = h.getNext();
+			if (next == null) {
+				DebugUtil.info("------------------");
+			}
 			head = next;
 			return get(next);
 		}
 	}
 
-	public void offer(Linkable<T> object) {
+	public void offer(Linkable object) {
 		Lock lock = this.lock;
 		lock.lock();
 		try {

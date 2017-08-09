@@ -31,7 +31,7 @@ public abstract class AbstractChannelService implements ChannelService {
 		return serverAddress;
 	}
 
-	protected synchronized void initialize() throws IOException {
+	protected void initialize() throws IOException {
 		if (isActive()) {
 			return;
 		}

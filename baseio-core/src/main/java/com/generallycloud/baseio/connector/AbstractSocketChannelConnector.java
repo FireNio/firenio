@@ -21,9 +21,9 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 
 /**
@@ -34,7 +34,11 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 
 	protected UnsafeSocketSession	session;
 
-	protected Waiter<Object>		waiter;
+	private Throwable			connectException;
+
+	private boolean			timeouted;
+	
+	private Object				wait4ConnectLock = new Object();
 
 	@Override
 	public SocketSession getSession() {
@@ -49,44 +53,49 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 
 	//FIXME protected
 	public void finishConnect(UnsafeSocketSession session, Throwable exception) {
-		if (exception == null) {
-			this.waiter.setPayload(null);
-			if (waiter.isTimeouted()) {
+		synchronized (wait4ConnectLock) {
+			if (timeouted) {
 				CloseUtil.close(session);
+				wait4ConnectLock.notify();
 				return;
 			}
-			this.session = session;
-			LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
-					getServerSocketAddress());
-		} else {
-			this.waiter.setPayload(exception);
+			if (session == null) {
+				connectException = exception;
+			} else {
+				this.session = session;
+				LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
+						getServerSocketAddress());
+			}
+			wait4ConnectLock.notify();
 		}
 	}
 
 	@Override
-	public SocketSession connect() throws IOException {
-		this.waiter = new Waiter<Object>();
+	public synchronized SocketSession connect() throws IOException {
 		this.session = null;
 		this.initialize();
 		return getSession();
 	}
 
 	protected void wait4connect() throws TimeoutException {
-		if (waiter.await(getTimeout())) {
-			CloseUtil.close(this);
-			throw new TimeoutException(
-					"connect to " + getServerSocketAddress().toString() + " time out");
+		synchronized (wait4ConnectLock) {
+			ThreadUtil.wait(wait4ConnectLock, timeout);
 		}
-		Object o = waiter.getPayload();
-		if (o instanceof Exception) {
+		if (getSession() == null) {
+			timeouted = true;
 			CloseUtil.close(this);
-			Exception t = (Exception) o;
-			throw new TimeoutException(MessageFormatter.format(
-					"connect faild,connector:[{}],nested exception is {}",
-					getServerSocketAddress(), t.getMessage()), t);
+			if (connectException == null) {
+				throw new TimeoutException(
+						"connect to " + getServerSocketAddress().toString() + " time out");
+			} else {
+				throw new TimeoutException(MessageFormatter.format(
+						"connect faild,connector:[{}],nested exception is {}",
+						getServerSocketAddress(), connectException.getMessage()),
+						connectException);
+			}
 		}
 	}
-	
+
 	abstract Logger getLogger();
 
 }

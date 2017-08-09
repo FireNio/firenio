@@ -12,31 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.test.concurrent;
-
-import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
+ */
+package com.generallycloud.baseio.collection;
 
 /**
- * 仅适用于：</BR>
- * MULTIPLE => OFFER </BR>
- * SINGLE => POLL </BR>
- * SINGLE => SIZE
- * @param <K>
- * @param <V>
+ * @author wangkai
+ *
  */
-public class ListQueueM2O<T> extends AbstractListQueue<T> implements ListQueue<T> {
+public interface ObjectPoolFactory<V> {
 
-	private FixedAtomicInteger	end;
-
-	public ListQueueM2O(int capability) {
-		super(capability);
-		end = new FixedAtomicInteger(capability - 1);
-	}
-
-	@Override
-	public final int getAndIncrementEnd() {
-		return end.getAndIncrement();
-	}
+	V newInstance();
 
 }

@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop.SelectorLoopEvent;
 
 /**
  * @author wangkai
@@ -30,8 +29,8 @@ public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
 
 	private SelectorLoopEvent	event;
 
-	public CloseSelectorLoopEvent(SelectorLoopEvent channel) {
-		this.event = channel;
+	public CloseSelectorLoopEvent(SelectorLoopEvent event) {
+		this.event = event;
 	}
 
 	@Override

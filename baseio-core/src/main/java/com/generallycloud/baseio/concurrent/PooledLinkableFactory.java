@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.concurrent.Linkable;
+import com.generallycloud.baseio.collection.ObjectPoolFactory;
 
-public abstract class AbstractLinkable implements Linkable {
-
-	private boolean isValidate = true;
-
-	@Override
-	public boolean isValidate() {
-		return isValidate;
-	}
+/**
+ * @author wangkai
+ *
+ */
+public class PooledLinkableFactory<T> implements ObjectPoolFactory<PooledLinkable<T>> {
 
 	@Override
-	public void setValidate(boolean validate) {
-		this.isValidate = validate;
+	public PooledLinkable<T> newInstance() {
+		return new PooledLinkable<>();
 	}
 
 }

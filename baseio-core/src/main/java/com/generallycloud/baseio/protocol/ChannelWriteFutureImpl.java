@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
@@ -28,15 +28,16 @@ import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
+//FIXME 这个做成可回收的
 public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWriteFuture {
 
-	private static final Logger			logger	= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
-	protected ByteBuf					buf;
-	protected boolean 				isValidate = true;
-	protected boolean					needSSL;
-	protected Linkable<ChannelWriteFuture>	next;
-	protected ReadFuture				readFuture;
-	
+	private static final Logger	logger		= LoggerFactory.getLogger(ChannelWriteFutureImpl.class);
+	protected ByteBuf			buf;
+	protected boolean			isValidate	= true;
+	protected boolean			needSSL;
+	protected Linkable			next;
+	protected ReadFuture		readFuture;
+
 	public ChannelWriteFutureImpl(ReadFuture readFuture, ByteBuf buf) {
 		this.readFuture = readFuture;
 		this.buf = buf;
@@ -58,25 +59,20 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	public int getLength() {
 		return buf.limit();
 	}
-	
+
 	@Override
 	public ByteBuf getByteBuf() {
 		return buf;
 	}
 
 	@Override
-	public Linkable<ChannelWriteFuture> getNext() {
+	public Linkable getNext() {
 		return next;
-	}
-	
-	@Override
-	public ReadFuture getReadFuture() {
-		return readFuture;
 	}
 
 	@Override
-	public ChannelWriteFuture getValue() {
-		return this;
+	public ReadFuture getReadFuture() {
+		return readFuture;
 	}
 
 	@Override
@@ -93,10 +89,10 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	public boolean isValidate() {
 		return isValidate;
 	}
-	
+
 	@Override
 	public void onException(SocketSession session, Exception e) {
-		
+
 		ReleaseUtil.release(this);
 
 		ReadFuture readFuture = this.getReadFuture();
@@ -112,7 +108,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 
 	@Override
 	public void onSuccess(SocketSession session) {
-		
+
 		ReleaseUtil.release(this);
 
 		ReadFuture readFuture = this.getReadFuture();
@@ -130,12 +126,12 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	public void release() {
 		ReleaseUtil.release(buf);
 	}
-	
+
 	@Override
-	public void setNext(Linkable<ChannelWriteFuture> next) {
+	public void setNext(Linkable next) {
 		this.next = next;
 	}
-	
+
 	@Override
 	public void setValidate(boolean validate) {
 		this.isValidate = validate;
@@ -149,7 +145,7 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 	private void wrapSSL(SocketChannel channel) throws IOException {
 		// FIXME 部分情况下可以不在业务线程做wrapssl
 		ByteBuf old = this.buf;
-		
+
 		SslHandler handler = channel.getSslHandler();
 
 		try {
@@ -177,5 +173,5 @@ public class ChannelWriteFutureImpl extends AbstractFuture implements ChannelWri
 		}
 		channel.write(buf);
 	}
-	
+
 }

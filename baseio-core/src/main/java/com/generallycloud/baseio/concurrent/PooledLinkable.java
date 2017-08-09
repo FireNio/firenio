@@ -12,32 +12,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package com.generallycloud.test.concurrent;
+ */
+package com.generallycloud.baseio.concurrent;
+
+import com.generallycloud.baseio.component.AbstractLinkable;
 
 /**
- * 仅适用于：</BR>
- * SINGLE => OFFER </BR>
- * SINGLE => POLL </BR>
- * SINGLE => SIZE 
- * @param <K>
- * @param <V>
+ * @author wangkai
+ *
  */
-public class ListQueueO2O<T> extends AbstractListQueue<T> implements ListQueue<T>{
+public class PooledLinkable<V> extends AbstractLinkable {
 
-	private int			end			;
+	private PooledLinkable<V>	next;
 
-	public ListQueueO2O(int capability) {
-		super(capability);
-	}
-	
+	private V					value;
+
 	@Override
-	protected int getAndIncrementEnd() {
-		if (end == capability) {
-			end = 0;
-		}
-		return end++;
+	public PooledLinkable<V> getNext() {
+		return next;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setNext(Linkable next) {
+		this.next = (PooledLinkable<V>) next;
+	}
+
+	public V getValue() {
+		return value;
+	}
+
+	public void setValue(V value) {
+		this.reset();
+		this.value = value;
 	}
 	
-	
+	public void reset(){
+		this.next = null;
+		this.setValidate(true);
+	}
+
 }

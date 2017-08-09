@@ -33,26 +33,37 @@ public class NioSocketSessionManager extends AbstractSocketSessionManager {
 
 	private SocketSelectorEventLoop selectorEventLoop;
 
-	public void offerSessionMEvent(final SocketSessionManagerEvent event) {
+	public void offerSessionMEvent(SocketSessionManagerEvent event) {
+		this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(context, event));
+	}
 
-		this.selectorEventLoop.dispatch(new SelectorLoopEventAdapter() {
+	class SsmSelectorLoopEvent extends SelectorLoopEventAdapter {
 
-			@Override
-			public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+		private SocketChannelContext		context;
 
-				IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
+		private SocketSessionManagerEvent	event;
 
-				if (sessions.size() == 0) {
-					return;
-				}
+		public SsmSelectorLoopEvent(SocketChannelContext context,
+				SocketSessionManagerEvent event) {
+			this.context = context;
+			this.event = event;
+		}
 
-				try {
-					event.fire(context, sessions);
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
+		@Override
+		public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+
+			IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
+
+			if (sessions.size() == 0) {
+				return;
 			}
-		});
+
+			try {
+				event.fire(context, sessions);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 }
