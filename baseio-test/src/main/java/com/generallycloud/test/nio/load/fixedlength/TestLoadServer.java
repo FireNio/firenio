@@ -64,7 +64,7 @@ public class TestLoadServer {
 		c.setSERVER_MEMORY_POOL_UNIT(128);
 		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
 		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		c.setSERVER_CORE_SIZE(4);
+		c.setSERVER_CORE_SIZE(2);
 		
 		SocketChannelContext context = new NioSocketChannelContext(c);
 		

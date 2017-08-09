@@ -94,7 +94,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		int time = 128 * 10000;
 
-		int core_size = 4;
+		int core_size = 2;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}
