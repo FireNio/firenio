@@ -41,7 +41,7 @@ public abstract class FutureAcceptorFilter extends AbstractInitializeable implem
 	public void futureSent(SocketSession session, ReadFuture future) {
 
 	}
-
+	
 	public int getSortIndex() {
 		return sortIndex;
 	}

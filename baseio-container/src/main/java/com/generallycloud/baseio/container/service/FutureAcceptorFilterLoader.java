@@ -24,7 +24,6 @@ import java.util.List;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
 import com.generallycloud.baseio.container.configuration.Configuration;
@@ -138,39 +137,23 @@ public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements Lif
 		this.initializeFilters(rootFilter);
 	}
 
-	private void initializeFilters(Linkable<FutureAcceptorFilter> filter) throws Exception {
-
+	private void initializeFilters(FutureAcceptorFilterWrapper filter) throws Exception {
 		for (; filter != null;) {
-
-			FutureAcceptorFilter acceptorFilter = filter.getValue();
-			
-			acceptorFilter.initialize(context, acceptorFilter.getConfig());
-
+			filter.initialize(context, filter.getConfig());
 			LoggerUtil.prettyLog(logger, "loaded [ {} ] ", filter);
-
 			filter = filter.getNext();
 		}
-		
 	}
 
-	private void destroyFilters(Linkable<FutureAcceptorFilter> filter) {
-
+	private void destroyFilters(FutureAcceptorFilterWrapper filter) {
 		for (; filter != null;) {
-
 			try {
-				
-				FutureAcceptorFilter acceptorFilter = filter.getValue();
-				
-				acceptorFilter.destroy(context, acceptorFilter.getConfig());
-				
+				filter.destroy(context, filter.getConfig());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-
 			LoggerUtil.prettyLog(logger, "unloaded [ {} ] ", filter);
-
 			filter = filter.getNext();
-
 		}
 	}
 
