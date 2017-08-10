@@ -438,7 +438,7 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
 		V[] oldVals = values;
 
 		keys = new int[newCapacity];
-		@SuppressWarnings({ "unchecked", "SuspiciousArrayCast" })
+		@SuppressWarnings({ "unchecked" })
 		V[] temp = (V[]) new Object[newCapacity];
 		values = temp;
 

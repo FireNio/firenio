@@ -44,12 +44,12 @@ public class SocketChannelConnector implements ChannelConnector {
 
 	@Override
 	public SocketSession getSession() {
-		return connector.getSession();
+		return unwrap().getSession();
 	}
 
 	@Override
 	public SocketSession connect() throws IOException {
-		return connector.connect();
+		return unwrap().connect();
 	}
 
 	@Override

@@ -59,7 +59,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
 	public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
 		super(group.getChannelContext(), coreIndex);
 		this.eventLoopGroup = group;
-//		this.selectorLoopEvents = new ArrayBlockingQueue<>(1024 * 128);
 		this.context = group.getChannelContext();
 		this.selectorBuilder = ((NioChannelService) context.getChannelService())
 				.getSelectorBuilder();

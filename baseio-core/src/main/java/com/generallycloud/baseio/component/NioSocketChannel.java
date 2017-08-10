@@ -123,6 +123,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 			}
 			if (!f.isCompleted()) {
 				writeFuture = f;
+				flushing = true;
 				interestWrite(selectionKey);
 				return;
 			}

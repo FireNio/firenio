@@ -78,6 +78,8 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
 	}
 
 	protected void wait4connect() throws TimeoutException {
+		timeouted = false;
+		connectException = null;
 		synchronized (wait4ConnectLock) {
 			ThreadUtil.wait(wait4ConnectLock, timeout);
 		}
