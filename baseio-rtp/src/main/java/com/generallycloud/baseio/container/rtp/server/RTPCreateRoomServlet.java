@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.rtp.server;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class RTPCreateRoomServlet extends RTPServlet {
@@ -23,7 +23,7 @@ public class RTPCreateRoomServlet extends RTPServlet {
 	public static final String	SERVICE_NAME	= RTPCreateRoomServlet.class.getSimpleName();
 
 	@Override
-	public void doAccept(SocketSession session, ProtobaseReadFuture future, RTPSessionAttachment attachment) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseFuture future, RTPSessionAttachment attachment) throws Exception {
 
 		RTPRoom room = attachment.createRTPRoom(session);
 

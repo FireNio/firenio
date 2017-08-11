@@ -19,16 +19,16 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.ClosedChannelException;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.connector.DatagramChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.authority.Authority;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.MapMessage;
@@ -42,7 +42,7 @@ import com.generallycloud.baseio.container.rtp.server.RTPCreateRoomServlet;
 import com.generallycloud.baseio.container.rtp.server.RTPJoinRoomServlet;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.DatagramPacket;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class RTPClient {
 
@@ -119,7 +119,7 @@ public class RTPClient {
 
 	public boolean createRoom(String inviteUsername) throws RTPException {
 
-		ProtobaseReadFuture future;
+		ProtobaseFuture future;
 
 		try {
 			future = session.request(RTPCreateRoomServlet.SERVICE_NAME, null);
@@ -198,7 +198,7 @@ public class RTPClient {
 	public boolean joinRoom(String roomID) throws RTPException {
 		try {
 
-			ProtobaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			return ByteUtil.isTrue(future.getReadText());
 		} catch (IOException e) {
@@ -215,7 +215,7 @@ public class RTPClient {
 				throw new RTPException("not login");
 			}
 
-			ProtobaseReadFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+			ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
 
 			this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
@@ -275,10 +275,10 @@ public class RTPClient {
 
 		final Waiter<Integer> waiter = new Waiter<Integer>();
 
-		session.listen(BIND_SESSION_CALLBACK, new OnReadFuture() {
+		session.listen(BIND_SESSION_CALLBACK, new OnFuture() {
 
 			@Override
-			public void onResponse(SocketSession session, ReadFuture future) {
+			public void onResponse(SocketSession session, Future future) {
 
 				waiter.setPayload(0);
 			}

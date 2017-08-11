@@ -17,8 +17,8 @@ package com.generallycloud.baseio.container.rtp;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.component.DatagramSession;
 import com.generallycloud.baseio.component.Parameters;
@@ -112,7 +112,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 			
 //			session.setDatagramChannel(channel); //FIXME udp 
 			
-			ProtobaseReadFuture future = new ProtobaseReadFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
+			ProtobaseFuture future = new ProtobaseFutureImpl(session.getContext(),BIND_SESSION_CALLBACK);
 			
 			future.setIoEventHandle(session.getContext().getIoEventHandleAdaptor());
 			

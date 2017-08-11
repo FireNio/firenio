@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.rtp.server;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
 import com.generallycloud.baseio.container.rtp.RTPContext;
@@ -29,14 +29,14 @@ public abstract class RTPServlet extends ProtobaseFutureAcceptorService {
 	}
 
 	@Override
-	public void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
 
 		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
 		this.doAccept(session, future, attachment);
 	}
 
-	public abstract void doAccept(SocketSession session, ProtobaseReadFuture future, RTPSessionAttachment attachment)
+	public abstract void doAccept(SocketSession session, ProtobaseFuture future, RTPSessionAttachment attachment)
 			throws Exception;
 
 }
