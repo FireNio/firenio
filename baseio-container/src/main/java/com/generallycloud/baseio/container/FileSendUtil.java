@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.SocketSession;
@@ -47,7 +47,7 @@ public class FileSendUtil {
 			
 			FileUtil.readInputStream(inputStream, cache);
 			
-			ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(),serviceName);
+			ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(),serviceName);
 			
 			f.write(jsonString);
 			
@@ -60,7 +60,7 @@ public class FileSendUtil {
 		
 		json.put(FileReceiveUtil.IS_END, true);
 		
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(),serviceName);
+		ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(),serviceName);
 		
 		f.write(json.toJSONString());
 		

@@ -22,7 +22,7 @@ import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class FutureAcceptorService extends AbstractInitializeable implements IoEventHandle {
 
@@ -38,12 +38,12 @@ public abstract class FutureAcceptorService extends AbstractInitializeable imple
 	}
 
 	@Override
-	public void futureSent(SocketSession session, ReadFuture future) {
+	public void futureSent(SocketSession session, Future future) {
 
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		logger.errorDebug(cause);
 	}
 

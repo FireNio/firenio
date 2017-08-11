@@ -22,19 +22,17 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.BeanUtil;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MD5Token;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.WaiterOnReadFuture;
 import com.generallycloud.baseio.container.authority.Authority;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class FixedSession {
 
@@ -61,7 +59,7 @@ public class FixedSession {
 		return timeout;
 	}
 
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
 	}
 
@@ -98,7 +96,7 @@ public class FixedSession {
 
 			String paramString = JSON.toJSONString(param);
 
-			ProtobaseReadFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
+			ProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
@@ -126,17 +124,17 @@ public class FixedSession {
 		// TODO complete logout
 	}
 
-	public ProtobaseReadFuture request(String serviceName, String content) throws IOException {
+	public ProtobaseFuture request(String serviceName, String content) throws IOException {
 		return request(serviceName, content, null);
 	}
 
-	public ProtobaseReadFuture request(String serviceName, String content, byte[] binary) throws IOException {
+	public ProtobaseFuture request(String serviceName, String content, byte[] binary) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
+		ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
 
 		readFuture.setIoEventHandle(eventHandle);
 
@@ -146,7 +144,7 @@ public class FixedSession {
 			readFuture.writeBinary(binary);
 		}
 
-		WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+		WaiterOnFuture onReadFuture = new WaiterOnFuture();
 
 		waiterListen(serviceName, onReadFuture);
 
@@ -160,7 +158,7 @@ public class FixedSession {
 			throw new TimeoutException("timeout");
 		}
 
-		return (ProtobaseReadFuture) onReadFuture.getReadFuture();
+		return (ProtobaseFuture) onReadFuture.getReadFuture();
 	}
 
 	public void setAuthority(Authority authority) {
@@ -173,7 +171,7 @@ public class FixedSession {
 		this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandleAdaptor();
 	}
 
-	private void waiterListen(String serviceName, WaiterOnReadFuture onReadFuture) throws IOException {
+	private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
@@ -183,11 +181,11 @@ public class FixedSession {
 			throw new IOException("empty onReadFuture");
 		}
 
-		OnReadFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
+		OnFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
 
 		if (wrapper == null) {
 
-			wrapper = new OnReadFutureWrapper();
+			wrapper = new OnFutureWrapper();
 
 			eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
 		}
@@ -204,7 +202,7 @@ public class FixedSession {
 			throw new IOException("empty service name");
 		}
 
-		ProtobaseReadFuture readFuture = new ProtobaseReadFutureImpl(context, serviceName);
+		ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
 
 		readFuture.setIoEventHandle(eventHandle);
 
@@ -217,7 +215,7 @@ public class FixedSession {
 		session.flush(readFuture);
 	}
 
-	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
+	public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
 		eventHandle.listen(serviceName, onReadFuture);
 	}
 

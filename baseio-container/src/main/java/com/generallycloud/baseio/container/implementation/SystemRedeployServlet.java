@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -37,9 +37,9 @@ public class SystemRedeployServlet extends FutureAcceptorService {
 	private AtomicInteger redeployTime = new AtomicInteger();
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws IOException {
+	public void accept(SocketSession session, Future future) throws IOException {
 
-		NamedReadFuture f = (NamedReadFuture) future;
+		NamedFuture f = (NamedFuture) future;
 
 		if (getServiceName().equals(f.getFutureName())) {
 

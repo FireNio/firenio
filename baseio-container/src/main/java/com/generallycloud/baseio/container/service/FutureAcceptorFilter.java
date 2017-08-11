@@ -18,27 +18,27 @@ package com.generallycloud.baseio.container.service;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.AbstractInitializeable;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class FutureAcceptorFilter extends AbstractInitializeable implements IoEventHandle {
 
 	private int sortIndex;
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
-		this.accept(session, (NamedReadFuture) future);
+	public void accept(SocketSession session, Future future) throws Exception {
+		this.accept(session, (NamedFuture) future);
 	}
 
-	protected abstract void accept(SocketSession session, NamedReadFuture future) throws Exception;
+	protected abstract void accept(SocketSession session, NamedFuture future) throws Exception;
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		session.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause, state);
 	}
 
 	@Override
-	public void futureSent(SocketSession session, ReadFuture future) {
+	public void futureSent(SocketSession session, Future future) {
 
 	}
 	

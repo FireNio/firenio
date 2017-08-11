@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
@@ -44,7 +44,7 @@ public class FileReceiveUtil {
 		this.prefix = prefix;
 	}
 
-	public void accept(SocketSession session, ProtobaseReadFuture future,boolean callback) throws Exception {
+	public void accept(SocketSession session, ProtobaseFuture future,boolean callback) throws Exception {
 
 		Parameters parameters = future.getParameters();
 

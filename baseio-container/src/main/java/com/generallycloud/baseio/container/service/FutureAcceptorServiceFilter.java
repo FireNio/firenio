@@ -25,8 +25,8 @@ import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
@@ -38,7 +38,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 	}
 
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
 		String serviceName = future.getFutureName();
 
@@ -52,7 +52,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		}
 	}
 
-	private void accept(String serviceName, SocketSession session, NamedReadFuture future) throws Exception {
+	private void accept(String serviceName, SocketSession session, NamedFuture future) throws Exception {
 
 		FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
 
@@ -70,7 +70,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		}
 	}
 
-	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName) throws IOException {
+	protected void accept404(SocketSession session, NamedFuture future, String serviceName) throws IOException {
 
 		logger.info("service name [{}] not found" , serviceName);
 
@@ -79,7 +79,7 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 		flush(session, future, message);
 	}
 
-	private void flush(SocketSession session, ReadFuture future, RESMessage message) throws IOException {
+	private void flush(SocketSession session, Future future, RESMessage message) throws IOException {
 
 		future.setIoEventHandle(this);
 

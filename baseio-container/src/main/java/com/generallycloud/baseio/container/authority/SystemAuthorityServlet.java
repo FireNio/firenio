@@ -20,8 +20,8 @@ import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.ParametersReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.ParametersFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SystemAuthorityServlet extends FutureAcceptorService {
 	
@@ -30,11 +30,11 @@ public class SystemAuthorityServlet extends FutureAcceptorService {
 	}
 	
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
 		LoginCenter loginCenter = AuthorityContext.getInstance().getLoginCenter();
 		
-		ParametersReadFuture f = (ParametersReadFuture) future;
+		ParametersFuture f = (ParametersFuture) future;
 
 		boolean login = loginCenter.login(session, f.getParameters());
 

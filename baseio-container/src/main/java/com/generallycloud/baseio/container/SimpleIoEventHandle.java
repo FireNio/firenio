@@ -21,38 +21,37 @@ import java.util.Map;
 
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleIoEventHandle extends IoEventHandleAdaptor {
 
-	private Map<String, OnReadFutureWrapper>	listeners	= new HashMap<String, OnReadFutureWrapper>();
+	private Map<String, OnFutureWrapper>	listeners	= new HashMap<String, OnFutureWrapper>();
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
-		NamedReadFuture f = (NamedReadFuture) future;
+		NamedFuture f = (NamedFuture) future;
 
-		OnReadFutureWrapper onReadFuture = listeners.get(f.getFutureName());
+		OnFutureWrapper onReadFuture = listeners.get(f.getFutureName());
 
 		if (onReadFuture != null) {
 			onReadFuture.onResponse(session, f);
 		}
 	}
 	
-	public void listen(String serviceName, OnReadFuture onReadFuture) throws IOException {
+	public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
 
 		if (StringUtil.isNullOrBlank(serviceName)) {
 			throw new IOException("empty service name");
 		}
 
-		OnReadFutureWrapper wrapper = listeners.get(serviceName);
+		OnFutureWrapper wrapper = listeners.get(serviceName);
 
 		if (wrapper == null) {
 
-			wrapper = new OnReadFutureWrapper();
+			wrapper = new OnFutureWrapper();
 
 			listeners.put(serviceName, wrapper);
 		}
@@ -64,11 +63,11 @@ public class SimpleIoEventHandle extends IoEventHandleAdaptor {
 		wrapper.setListener(onReadFuture);
 	}
 	
-	public OnReadFutureWrapper getOnReadFutureWrapper(String serviceName){
+	public OnFutureWrapper getOnReadFutureWrapper(String serviceName){
 		return listeners.get(serviceName);
 	}
 	
-	public void putOnReadFutureWrapper(String serviceName,OnReadFutureWrapper wrapper){
+	public void putOnReadFutureWrapper(String serviceName,OnFutureWrapper wrapper){
 		listeners.put(serviceName, wrapper);
 	}
 }

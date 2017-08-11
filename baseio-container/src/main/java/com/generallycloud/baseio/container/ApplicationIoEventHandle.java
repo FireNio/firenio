@@ -20,20 +20,20 @@ import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.service.FutureAcceptor;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.container.service.FutureAcceptorContainer;
+import com.generallycloud.baseio.protocol.Future;
 
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
 	private ApplicationContext	applicationContext;
-	private FutureAcceptor		filterService;
+	private FutureAcceptorContainer		filterService;
 
 	public ApplicationIoEventHandle(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 		filterService.accept(session, future);
 	}
 
@@ -62,7 +62,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 	}
 	
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+	public void exceptionCaught(SocketSession session, Future future, Exception cause,
 			IoEventState state) {
 		
 		ExceptionCaughtHandle exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();

@@ -19,8 +19,8 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements Linkable {
 
@@ -34,12 +34,12 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 	
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedFuture future) throws Exception {
 		unwrap().accept(session, future);
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 		
 		FutureAcceptorFilter filter = unwrap();
 		
@@ -60,12 +60,12 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		unwrap().exceptionCaught(session, future, cause, state);
 	}
 
 	@Override
-	public void futureSent(SocketSession session, ReadFuture future) {
+	public void futureSent(SocketSession session, Future future) {
 		unwrap().futureSent(session, future);
 	}
 
@@ -88,7 +88,7 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
 		return isValidate;
 	}
 
-	private void nextAccept(SocketSession session, ReadFuture future) throws Exception{
+	private void nextAccept(SocketSession session, Future future) throws Exception{
 		
 		FutureAcceptorFilterWrapper next = getNext();
 		

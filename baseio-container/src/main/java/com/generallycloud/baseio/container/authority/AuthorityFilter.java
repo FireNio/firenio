@@ -22,15 +22,15 @@ import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ParametersReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedFuture future) throws Exception {
 		
 		AuthorityContext authorityContext = AuthorityContext.getInstance();
 
@@ -64,9 +64,9 @@ public class AuthorityFilter extends FutureAcceptorFilter {
 				return;
 			}
 			
-			if (future instanceof ParametersReadFuture) {
+			if (future instanceof ParametersFuture) {
 				
-				Parameters parameters = ((ParametersReadFuture) future).getParameters();
+				Parameters parameters = ((ParametersFuture) future).getParameters();
 				
 				if (parameters.size() > 0) {
 					logger.info("refuse connection, ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, parameters.toString() });

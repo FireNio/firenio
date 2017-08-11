@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SystemStopServerServlet extends FutureAcceptorService {
 
@@ -35,7 +35,7 @@ public class SystemStopServerServlet extends FutureAcceptorService {
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
 		SocketChannelContext context = session.getContext();
 

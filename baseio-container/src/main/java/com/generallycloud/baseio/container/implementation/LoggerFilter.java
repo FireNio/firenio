@@ -27,8 +27,8 @@ import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
-import com.generallycloud.baseio.protocol.ParametersReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class LoggerFilter extends FutureAcceptorFilter {
 
@@ -37,7 +37,7 @@ public class LoggerFilter extends FutureAcceptorFilter {
 	private Set<String> noneLogger = new HashSet<>();
 
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
 		String futureName = future.getFutureName();
 
@@ -60,9 +60,9 @@ public class LoggerFilter extends FutureAcceptorFilter {
 			return;
 		}
 		
-		if (future instanceof ParametersReadFuture) {
+		if (future instanceof ParametersFuture) {
 			
-			Parameters parameters = ((ParametersReadFuture) future).getParameters();
+			Parameters parameters = ((ParametersFuture) future).getParameters();
 			
 			if (parameters.size() > 0) {
 				logger.info("request ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, parameters.toString() });				

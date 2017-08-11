@@ -40,7 +40,7 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.container.implementation.SystemRedeployServlet;
 import com.generallycloud.baseio.container.implementation.SystemStopServerServlet;
-import com.generallycloud.baseio.container.service.FutureAcceptor;
+import com.generallycloud.baseio.container.service.FutureAcceptorContainer;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
@@ -66,7 +66,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 	private Charset						encoding;
 	private Set<String> 					blackIPs;
 	private FutureAcceptorService				appRedeployService;
-	private FutureAcceptor					filterService	;
+	private FutureAcceptorContainer					filterService	;
 	private ApplicationExtLoader				applicationExtLoader;
 	private ApplicationConfigurationLoader		acLoader;
 	private AtomicInteger					pluginIndex;
@@ -128,7 +128,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 
 		this.clearPluginServlets();
 
-		this.filterService = new FutureAcceptor(this, futureAcceptorServiceFilter);
+		this.filterService = new FutureAcceptorContainer(this, futureAcceptorServiceFilter);
 		
 		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
 		
@@ -215,7 +215,7 @@ public class ApplicationContext extends AbstractLifeCycle {
 		return encoding;
 	}
 
-	protected FutureAcceptor getFilterService() {
+	protected FutureAcceptorContainer getFilterService() {
 		return filterService;
 	}
 
