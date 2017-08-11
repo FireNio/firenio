@@ -15,10 +15,10 @@
  */
 package com.generallycloud.baseio.balance.router;
 
-import com.generallycloud.baseio.balance.HashedBalanceReadFuture;
+import com.generallycloud.baseio.balance.HashedBalanceFuture;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class HashedBalanceRouter extends AbstractBalanceRouter {
 
@@ -40,9 +40,9 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
 
 	@Override
 	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
-			ReadFuture future) {
+			Future future) {
 
-		HashedBalanceReadFuture f = (HashedBalanceReadFuture) future;
+		HashedBalanceFuture f = (HashedBalanceFuture) future;
 
 		return virtualNodes.getMachine(f.getHashCode());
 	}

@@ -27,5 +27,5 @@ public interface FacadeInterceptor {
 	 * @return true拦截，false放行
 	 * @throws Exception
 	 */
-	public abstract boolean intercept(BalanceFacadeSocketSession session, BalanceReadFuture future) throws Exception;
+	public abstract boolean intercept(BalanceFacadeSocketSession session, BalanceFuture future) throws Exception;
 }

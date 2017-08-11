@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.BalanceReadFuture;
-import com.generallycloud.baseio.balance.TokenBalanceReadFuture;
+import com.generallycloud.baseio.balance.BalanceFuture;
+import com.generallycloud.baseio.balance.TokenBalanceFuture;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class TokenBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
 
@@ -28,9 +28,9 @@ public abstract class TokenBalanceFacadeAcceptorHandler extends BalanceFacadeAcc
 	}
 
 	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceReadFuture future){
+			,BalanceFuture future){
 		
-		TokenBalanceReadFuture f = (TokenBalanceReadFuture) future;
+		TokenBalanceFuture f = (TokenBalanceFuture) future;
 		
 		if (f.getToken() == 0) {
 			fs.flush(createTokenPacket(fs));
@@ -42,6 +42,6 @@ public abstract class TokenBalanceFacadeAcceptorHandler extends BalanceFacadeAcc
 		logDispatchMsg(fs, rs, f);
 	}
 	
-	protected abstract ReadFuture createTokenPacket(BalanceFacadeSocketSession session);
+	protected abstract Future createTokenPacket(BalanceFacadeSocketSession session);
 
 }

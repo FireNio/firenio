@@ -16,9 +16,9 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.BalanceReadFuture;
+import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.FacadeInterceptor;
-import com.generallycloud.baseio.balance.NoneLoadReadFutureAcceptor;
+import com.generallycloud.baseio.balance.NoneLoadFutureAcceptor;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
@@ -36,7 +36,7 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
 	private FacadeInterceptor		facadeInterceptor;
 	private BalanceReverseLogger		balanceReverseLogger;
 	private ExceptionCaughtHandle		exceptionCaughtHandle;
-	private NoneLoadReadFutureAcceptor	 noneLoadReadFutureAcceptor;
+	private NoneLoadFutureAcceptor	 noneLoadReadFutureAcceptor;
 
 	public BalanceFacadeAcceptorHandler(BalanceContext context) {
 		this.balanceRouter = context.getBalanceRouter();
@@ -47,11 +47,11 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
 		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
 		
-		BalanceReadFuture f = (BalanceReadFuture) future;
+		BalanceFuture f = (BalanceFuture) future;
 
 		if (facadeInterceptor.intercept(fs, f)) {
 			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
@@ -69,17 +69,17 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
 	}
 	
 	protected abstract void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceReadFuture future);
+			,BalanceFuture future);
 	
 	protected void logDispatchMsg(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceReadFuture f){
+			,BalanceFuture f){
 		
 		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[] {
 				fs.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), f });
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+	public void exceptionCaught(SocketSession session, Future future, Exception cause,
 			IoEventState state) {
 		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}

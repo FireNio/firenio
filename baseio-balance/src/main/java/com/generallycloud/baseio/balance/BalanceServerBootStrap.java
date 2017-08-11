@@ -50,8 +50,8 @@ public class BalanceServerBootStrap {
 	private List<SocketSessionIdleEventListener>	balanceReverseSessionIdleEventListeners;
 	private BeatFutureFactory				balanceBeatFutureFactory;
 	private BeatFutureFactory				balanceReverseBeatFutureFactory;
-	private ChannelLostReadFutureFactory		channelLostReadFutureFactory;
-	private NoneLoadReadFutureAcceptor			noneLoadReadFutureAcceptor;
+	private ChannelLostFutureFactory		channelLostReadFutureFactory;
+	private NoneLoadFutureAcceptor			noneLoadReadFutureAcceptor;
 	private ExceptionCaughtHandle				facadeExceptionCaughtHandle;
 	private ExceptionCaughtHandle				reverseExceptionCaughtHandle;
 	private BalanceRouter					balanceRouter;
@@ -76,7 +76,7 @@ public class BalanceServerBootStrap {
 		}
 
 		if (noneLoadReadFutureAcceptor == null) {
-			noneLoadReadFutureAcceptor = new DefaultNoneLoadReadFutureAcceptor();
+			noneLoadReadFutureAcceptor = new DefaultNoneLoadFutureAcceptor();
 		}
 		
 		if (facadeExceptionCaughtHandle == null) {
@@ -297,21 +297,21 @@ public class BalanceServerBootStrap {
 		this.sslContext = sslContext;
 	}
 
-	public ChannelLostReadFutureFactory getChannelLostReadFutureFactory() {
+	public ChannelLostFutureFactory getChannelLostReadFutureFactory() {
 		return channelLostReadFutureFactory;
 	}
 
 	public void setChannelLostReadFutureFactory(
-			ChannelLostReadFutureFactory channelLostReadFutureFactory) {
+			ChannelLostFutureFactory channelLostReadFutureFactory) {
 		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
 	}
 	
-	public NoneLoadReadFutureAcceptor getNoneLoadReadFutureAcceptor() {
+	public NoneLoadFutureAcceptor getNoneLoadReadFutureAcceptor() {
 		return noneLoadReadFutureAcceptor;
 	}
 
 	public void setNoneLoadReadFutureAcceptor(
-			NoneLoadReadFutureAcceptor noneLoadReadFutureAcceptor) {
+			NoneLoadFutureAcceptor noneLoadReadFutureAcceptor) {
 		this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
 	}
 

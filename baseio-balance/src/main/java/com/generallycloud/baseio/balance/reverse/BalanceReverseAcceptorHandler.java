@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.BalanceReadFuture;
+import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptor;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
@@ -42,9 +42,9 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
-		BalanceReadFuture f = (BalanceReadFuture) future;
+		BalanceFuture f = (BalanceFuture) future;
 
 		if (f.isBroadcast()) {
 
@@ -72,7 +72,7 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+	public void exceptionCaught(SocketSession session, Future future, Exception cause,
 			IoEventState state) {
 		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
 	}

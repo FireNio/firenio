@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.BalanceReadFuture;
-import com.generallycloud.baseio.balance.SessionIdBalanceReadFuture;
+import com.generallycloud.baseio.balance.BalanceFuture;
+import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public class SessionIdBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
@@ -27,9 +27,9 @@ public class SessionIdBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptor
 	}
 	
 	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceReadFuture future){
+			,BalanceFuture future){
 		
-		SessionIdBalanceReadFuture f = (SessionIdBalanceReadFuture) future;
+		SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
 		
 		f.setSessionId(fs.getSessionId());
 

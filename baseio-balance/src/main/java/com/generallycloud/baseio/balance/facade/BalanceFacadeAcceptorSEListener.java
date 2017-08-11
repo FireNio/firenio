@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.balance.ChannelLostReadFutureFactory;
+import com.generallycloud.baseio.balance.ChannelLostFutureFactory;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.SocketSession;
@@ -60,7 +60,7 @@ public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerA
 			return;
 		}
 
-		ChannelLostReadFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
+		ChannelLostFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
 		
 		if (factory == null) {
 			return;

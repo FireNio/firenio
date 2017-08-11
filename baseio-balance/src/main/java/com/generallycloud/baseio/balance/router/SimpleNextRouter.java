@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
@@ -77,7 +77,7 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
 	}
 
 	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, ReadFuture future) {
+	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, Future future) {
 
 		BalanceReverseSocketSession router_session = getRouterSession(session);
 
