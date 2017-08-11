@@ -18,15 +18,15 @@ package com.generallycloud.sample.baseio.http11;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 //FIXME ________根据当前是否正在redeploy来保存和恢复client
 public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
@@ -34,7 +34,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 	private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 	
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
 
@@ -42,14 +42,14 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
-		if (future instanceof HttpReadFuture) {
+		if (future instanceof HttpFuture) {
 			super.accept(session, future);
 			return;
 		}
 		
-		WebSocketReadFuture f = (WebSocketReadFuture) future;
+		WebSocketFuture f = (WebSocketFuture) future;
 
 		// CLOSE
 		if (f.isCloseFrame()) {

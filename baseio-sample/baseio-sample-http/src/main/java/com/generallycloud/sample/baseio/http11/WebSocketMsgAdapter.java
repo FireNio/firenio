@@ -23,8 +23,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
@@ -98,7 +98,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 			if (session != null) {
 
-				WebSocketReadFuture f = new WebSocketReadFutureImpl(session.getContext());
+				WebSocketFuture f = new WebSocketFutureImpl(session.getContext());
 
 				f.write(msg.msg);
 
@@ -113,7 +113,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
 				if (s.isOpened()) {
 
-					WebSocketReadFuture f = new WebSocketReadFutureImpl(s.getContext());
+					WebSocketFuture f = new WebSocketFutureImpl(s.getContext());
 
 					f.write(msg.msg);
 

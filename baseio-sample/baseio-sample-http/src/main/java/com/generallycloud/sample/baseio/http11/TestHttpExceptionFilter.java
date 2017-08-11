@@ -19,12 +19,12 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
 
 public class TestHttpExceptionFilter extends FutureAcceptorFilter {
 
 	@Override
-	protected void accept(SocketSession session, NamedReadFuture future) throws Exception {
+	protected void accept(SocketSession session, NamedFuture future) throws Exception {
 		
 		if ("/test-error-filter".equals(future.getFutureName())) {
 			throw new IOException("test-error-filter222");

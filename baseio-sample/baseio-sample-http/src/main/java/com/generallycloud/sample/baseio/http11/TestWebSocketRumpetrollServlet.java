@@ -18,9 +18,9 @@ package com.generallycloud.sample.baseio.http11;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
@@ -29,7 +29,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 // FIXME ________根据当前是否正在redeploy来保存和恢复client
 public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
@@ -39,7 +39,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
 
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
 		future.updateWebSocketProtocol();
 		
@@ -53,7 +53,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 		o.put("type", "welcome");
 		o.put("id", ioSession.getSessionId());
 
-		WebSocketReadFuture f = new WebSocketReadFutureImpl(ioSession.getContext());
+		WebSocketFuture f = new WebSocketFutureImpl(ioSession.getContext());
 
 		f.write(o.toJSONString());
 
@@ -61,14 +61,14 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 	}
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
-		if (future instanceof HttpReadFuture) {
+		if (future instanceof HttpFuture) {
 			super.accept(session, future);
 			return;
 		}
 
-		WebSocketReadFuture f = (WebSocketReadFuture) future;
+		WebSocketFuture f = (WebSocketFuture) future;
 
 		// CLOSE
 		if (f.getType() == 8) {

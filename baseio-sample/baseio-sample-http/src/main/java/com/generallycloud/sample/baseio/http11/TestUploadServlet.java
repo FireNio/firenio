@@ -15,14 +15,14 @@
  */ 
 package com.generallycloud.sample.baseio.http11;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
 public class TestUploadServlet extends HttpFutureAcceptorService {
 
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 		
 		String res;
 

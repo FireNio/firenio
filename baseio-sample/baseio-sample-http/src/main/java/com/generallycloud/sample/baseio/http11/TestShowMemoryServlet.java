@@ -20,7 +20,7 @@ import java.math.RoundingMode;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
@@ -31,7 +31,7 @@ import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorServ
 public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
 		SocketChannelContext context = session.getIoSession().getContext();
 		HttpContext httpContext = session.getContext();

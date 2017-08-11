@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
@@ -30,7 +30,7 @@ import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorServ
 public class TestEmojiServlet extends HttpFutureAcceptorService {
 
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 		
 		String emoji = EmojiUtil.EMOJI_ALL;
 

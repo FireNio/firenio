@@ -18,7 +18,7 @@ package com.generallycloud.sample.baseio.http11;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.UUIDGenerator;
 import com.generallycloud.baseio.container.ApplicationContext;
@@ -35,7 +35,7 @@ public class TestMmServlet extends HttpFutureAcceptorService {
 	private String url = "https://www.generallycloud.com/test-mm";
 
 	@Override
-	protected void doAccept(HttpSession session, HttpReadFuture future) throws Exception {
+	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 		
 		if (mm.size() > 1024) {
 			mm.clear();
