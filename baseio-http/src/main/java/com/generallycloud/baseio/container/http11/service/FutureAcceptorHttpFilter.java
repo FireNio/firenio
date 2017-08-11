@@ -22,9 +22,9 @@ import java.util.Map;
 
 import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
 import com.generallycloud.baseio.codec.http11.future.HttpHeader;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
-import com.generallycloud.baseio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -36,7 +36,7 @@ import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.NamedReadFuture;
+import com.generallycloud.baseio.protocol.NamedFuture;
 
 //FIXME limit too large file
 public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
@@ -46,14 +46,14 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 	private Map<String, HttpEntity>	html_cache	= new HashMap<String, HttpEntity>();
 
 	@Override
-	protected void accept404(SocketSession session, NamedReadFuture future, String serviceName)
+	protected void accept404(SocketSession session, NamedFuture future, String serviceName)
 			throws IOException {
 
 		HttpEntity entity = html_cache.get(serviceName);
 
 		HttpStatus status = HttpStatus.C200;
 
-		ServerHttpReadFuture f = (ServerHttpReadFuture) future;
+		ServerHttpFuture f = (ServerHttpFuture) future;
 
 		if (entity == null) {
 			f.setStatus(HttpStatus.C404);
@@ -94,7 +94,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		session.flush(f);
 	}
 
-	private void flush(SocketSession session, ServerHttpReadFuture future, HttpEntity entity) {
+	private void flush(SocketSession session, ServerHttpFuture future, HttpEntity entity) {
 		future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.getContentType());
 		future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.getLastModifyGTM());
 		future.write(entity.getBinary());
@@ -117,16 +117,16 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 		Map<String, String> mapping = new HashMap<String, String>();
 
-		mapping.put("htm", HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
-		mapping.put("html", HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
-		mapping.put("js", HttpReadFuture.CONTENT_APPLICATION_JAVASCRIPT);
-		mapping.put("css", HttpReadFuture.CONTENT_TYPE_TEXT_CSS);
-		mapping.put("png", HttpReadFuture.CONTENT_TYPE_IMAGE_PNG);
-		mapping.put("jpg", HttpReadFuture.CONTENT_TYPE_IMAGE_JPEG);
-		mapping.put("jpeg", HttpReadFuture.CONTENT_TYPE_IMAGE_JPEG);
-		mapping.put("gif", HttpReadFuture.CONTENT_TYPE_IMAGE_GIF);
-		mapping.put("txt", HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN);
-		mapping.put("ico", HttpReadFuture.CONTENT_TYPE_IMAGE_ICON);
+		mapping.put("htm", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+		mapping.put("html", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+		mapping.put("js", HttpFuture.CONTENT_APPLICATION_JAVASCRIPT);
+		mapping.put("css", HttpFuture.CONTENT_TYPE_TEXT_CSS);
+		mapping.put("png", HttpFuture.CONTENT_TYPE_IMAGE_PNG);
+		mapping.put("jpg", HttpFuture.CONTENT_TYPE_IMAGE_JPEG);
+		mapping.put("jpeg", HttpFuture.CONTENT_TYPE_IMAGE_JPEG);
+		mapping.put("gif", HttpFuture.CONTENT_TYPE_IMAGE_GIF);
+		mapping.put("txt", HttpFuture.CONTENT_TYPE_TEXT_PLAIN);
+		mapping.put("ico", HttpFuture.CONTENT_TYPE_IMAGE_ICON);
 
 		if (rootFile.exists()) {
 			scanFolder(context.getChannelContext(), rootFile, rootPath, mapping, "");
@@ -222,7 +222,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 
 			HttpEntity entity = new HttpEntity();
 
-			entity.setContentType(HttpReadFuture.CONTENT_TYPE_TEXT_HTML);
+			entity.setContentType(HttpFuture.CONTENT_TYPE_TEXT_HTML);
 			entity.setFile(file);
 			entity.setLastModify(System.currentTimeMillis());
 			entity.setBinary(b.toString().getBytes(context.getEncoding()));
@@ -237,7 +237,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		int index = fileName.lastIndexOf(".");
 
 		if (index == -1) {
-			return HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN;
+			return HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
 		}
 
 		String subfix = fileName.substring(index + 1);
@@ -245,7 +245,7 @@ public class FutureAcceptorHttpFilter extends FutureAcceptorServiceFilter {
 		String contentType = mapping.get(subfix);
 
 		if (contentType == null) {
-			contentType = HttpReadFuture.CONTENT_TYPE_TEXT_PLAIN;
+			contentType = HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
 		}
 
 		return contentType;

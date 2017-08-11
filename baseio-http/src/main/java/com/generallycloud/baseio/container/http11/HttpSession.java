@@ -18,13 +18,13 @@ package com.generallycloud.baseio.container.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public interface HttpSession {
 
 	public abstract void active(SocketSession ioSession);
 
-	public abstract void flush(ReadFuture future) throws IOException;
+	public abstract void flush(Future future) throws IOException;
 
 	public abstract long getCreateTime();
 

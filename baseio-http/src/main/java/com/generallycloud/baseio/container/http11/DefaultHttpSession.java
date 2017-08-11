@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.UUIDGenerator;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
@@ -53,7 +53,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 	}
 
 	@Override
-	public void flush(ReadFuture future) throws IOException {
+	public void flush(Future future) throws IOException {
 		ioSession.flush(future);
 	}
 

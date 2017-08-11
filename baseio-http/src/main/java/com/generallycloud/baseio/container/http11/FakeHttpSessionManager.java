@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.http11;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 
@@ -41,7 +41,7 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
 
 	@Override
 	public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
-			HttpReadFuture future) {
+			HttpFuture future) {
 		HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
 		if (httpSession == null) {
 			httpSession = new DefaultHttpSession(context, ioSession,null);

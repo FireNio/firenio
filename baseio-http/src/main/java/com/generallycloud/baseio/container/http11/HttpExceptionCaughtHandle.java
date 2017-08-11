@@ -16,13 +16,13 @@
 package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
-import com.generallycloud.baseio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -33,7 +33,7 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle{
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause,
+	public void exceptionCaught(SocketSession session, Future future, Exception cause,
 			IoEventState state) {
 		
 		if (state != IoEventState.HANDLE) {
@@ -41,7 +41,7 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle{
 			return;
 		}
 		
-		ServerHttpReadFuture f = new ServerHttpReadFuture(session.getContext());
+		ServerHttpFuture f = new ServerHttpFuture(session.getContext());
 		
 		f.write(String.valueOf(cause.getMessage()));
 		

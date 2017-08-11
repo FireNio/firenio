@@ -15,34 +15,34 @@
  */ 
 package com.generallycloud.baseio.container.http11.service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpContext;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.HttpSessionManager;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 	
 	private HttpContext		context	= HttpContext.getInstance();
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 
 		HttpSessionManager manager = context.getHttpSessionManager();
 
-		HttpReadFuture httpReadFuture = (HttpReadFuture) future;
+		HttpFuture httpReadFuture = (HttpFuture) future;
 
 		HttpSession httpSession = manager.getHttpSession(context,session, httpReadFuture);
 
 		doAccept(httpSession, httpReadFuture);
 	}
 
-	protected abstract void doAccept(HttpSession session, HttpReadFuture future) throws Exception;
+	protected abstract void doAccept(HttpSession session, HttpFuture future) throws Exception;
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		future.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause, state);
 	}
 }

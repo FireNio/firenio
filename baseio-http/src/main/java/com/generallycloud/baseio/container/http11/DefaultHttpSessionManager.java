@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.generallycloud.baseio.codec.http11.future.Cookie;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
@@ -53,7 +53,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
 
 	@Override
 	public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
-			HttpReadFuture future) {
+			HttpFuture future) {
 
 		String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
 
