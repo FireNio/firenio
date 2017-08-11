@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.protocol.ReadFuture;
 public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle{
 	
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		
 	}
 	

@@ -27,7 +27,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class AioSocketChannel extends AbstractSocketChannel {
 
@@ -69,7 +69,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 	}
 
 	@Override
-	protected void doFlush(ChannelWriteFuture future) {
+	protected void doFlush0(ChannelFuture future) {
 		flush(false);
 	}
 	
@@ -108,7 +108,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 		}
 	}
 
-	private void fireClosed(ChannelWriteFuture future, IOException e) {
+	private void fireClosed(ChannelFuture future, IOException e) {
 		if (future == null) {
 			return;
 		}
@@ -168,14 +168,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
 			if (!isOpened()) {
 				return;
 			}
-			ChannelWriteFuture f = this.writeFuture;
+			ChannelFuture f = this.writeFuture;
 			f.getByteBuf().reverse();
-			if (!f.isCompleted()) {
+			if (!f.isWriteCompleted()) {
 				flush(true);
 				return;
 			}
 			
-			writeFutureLength(-f.getLength());
+			writeFutureLength(-f.getByteBufLimit());
 			f.onSuccess(session);
 			f = null;
 			flush(true);

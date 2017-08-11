@@ -37,4 +37,8 @@ public class EmptyByteBuf extends UnpooledHeapByteBuf {
 		return this;
 	}
 
+	@Override
+	public boolean isReleased() {
+		return true;
+	}
 }

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SocketSessionActiveSEListener implements SocketSessionIdleEventListener {
 
@@ -54,7 +54,7 @@ public class SocketSessionActiveSEListener implements SocketSessionIdleEventList
 				return;
 			}
 
-			ReadFuture future = factory.createPINGPacket(session);
+			Future future = factory.createPINGPacket(session);
 			
 			if (future == null) {
 				// 该session无需心跳,比如HTTP协议

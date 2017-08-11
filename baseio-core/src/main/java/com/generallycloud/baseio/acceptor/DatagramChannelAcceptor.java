@@ -27,8 +27,8 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
 import com.generallycloud.baseio.component.DatagramSelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 
@@ -66,12 +66,12 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	}
 
 	@Override
-	public void broadcast(final ReadFuture future) {
+	public void broadcast(final Future future) {
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public void broadcast(ChannelWriteFuture future) {
+	public void broadcast(ChannelFuture future) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -21,12 +21,11 @@ import java.net.SocketOption;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class SocketChannelSessionImpl extends AbstractSession implements SocketSession {
 
@@ -62,12 +61,12 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 	}
 
 	@Override
-	public void flush(ReadFuture future) {
-		getChannel().flush((ChannelReadFuture) future);
+	public void flush(Future future) {
+		getChannel().flush((ChannelFuture) future);
 	}
 
 	@Override
-	public void flush(ChannelWriteFuture future) {
+	public void doFlush(ChannelFuture future) {
 		getChannel().flush(future);
 	}
 

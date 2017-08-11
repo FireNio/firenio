@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.protocol.SslReadFuture;
-import com.generallycloud.baseio.protocol.SslReadFutureImpl;
+import com.generallycloud.baseio.protocol.SslFuture;
+import com.generallycloud.baseio.protocol.SslFutureImpl;
 
 public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
@@ -35,13 +35,13 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 				return;
 			}
 
-			SslReadFuture future = channel.getSslReadFuture();
+			SslFuture future = channel.getSslReadFuture();
 
 			if (future == null) {
 
-				ByteBuf buf = allocate(session,SslReadFuture.SSL_RECORD_HEADER_LENGTH);
+				ByteBuf buf = allocate(session,SslFuture.SSL_RECORD_HEADER_LENGTH);
 
-				future = new SslReadFutureImpl(channel, buf,1024 * 64);//FIXME param
+				future = new SslFutureImpl(channel, buf,1024 * 64);//FIXME param
 
 				channel.setSslReadFuture(future);
 			}

@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
@@ -76,7 +76,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 
 	@Override
-	protected void doFlush(ChannelWriteFuture future) {
+	protected void doFlush0(ChannelFuture future) {
 		selectorEventLoop.dispatch(this);
 	}
 
@@ -106,7 +106,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 
 	public void flush(SocketSelectorEventLoop selectorLoop) throws IOException {
-		ChannelWriteFuture f = writeFuture;
+		ChannelFuture f = writeFuture;
 		if (f == null) {
 			f = writeFutures.poll();
 		}
@@ -121,13 +121,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 				ReleaseUtil.release(f);
 				throw e;
 			}
-			if (!f.isCompleted()) {
+			if (!f.isWriteCompleted()) {
 				writeFuture = f;
 				flushing = true;
 				interestWrite(selectionKey);
 				return;
 			}
-			writeFutureLength(-f.getLength());
+			writeFutureLength(-f.getByteBufLimit());
 			f.onSuccess(session);
 			f = writeFutures.poll();
 			if (f == null) {

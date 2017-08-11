@@ -28,6 +28,6 @@ public interface ProtocolEncoder {
 	 * @return
 	 * @throws IOException
 	 */
-	public abstract ChannelWriteFuture encode(ByteBufAllocator allocator,ChannelReadFuture future) throws IOException;
+	public abstract void encode(ByteBufAllocator allocator,ChannelFuture future) throws IOException;
 
 }

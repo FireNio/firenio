@@ -88,6 +88,7 @@ public class SocketChannelConnector implements ChannelConnector {
 	}
 
 	private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
+		context.addSessionEventListener(new CloseConnectorSEListener(this));
 		if (context instanceof NioSocketChannelContext) {
 			return new NioSocketChannelConnector((NioSocketChannelContext) context);
 		} else if (context instanceof AioSocketChannelContext) {

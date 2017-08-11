@@ -29,18 +29,17 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
-import com.generallycloud.baseio.protocol.EmptyReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
 
-	private ChannelWriteFuture	EMPTY_CWF	= null;
+	private ChannelFuture	EMPTY_CWF	= null;
 
 	private ByteBuf			tempDst;
 
 	public SslHandler(SocketChannelContext context) {
-		this.EMPTY_CWF = new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+		this.EMPTY_CWF = new DefaultChannelFuture(context,
 				EmptyByteBuf.getInstance());
 	}
 
@@ -144,7 +143,7 @@ public class SslHandler {
 			synchByteBuf(result, src, dst);
 			if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
 				if(handshakeStatus == HandshakeStatus.NEED_WRAP){
-					channel.flush(EMPTY_CWF.duplicate());
+					channel.doFlush(EMPTY_CWF.duplicate());
 					return null;
 				}else if(handshakeStatus == HandshakeStatus.NEED_TASK){
 					runDelegatedTasks(sslEngine);

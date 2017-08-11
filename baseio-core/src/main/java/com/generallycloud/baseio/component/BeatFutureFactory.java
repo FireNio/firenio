@@ -15,11 +15,11 @@
  */ 
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public interface BeatFutureFactory {
 
-	public abstract ReadFuture createPINGPacket(SocketSession session);
+	public abstract Future createPINGPacket(SocketSession session);
 	
-	public abstract ReadFuture createPONGPacket(SocketSession session);
+	public abstract Future createPONGPacket(SocketSession session);
 }

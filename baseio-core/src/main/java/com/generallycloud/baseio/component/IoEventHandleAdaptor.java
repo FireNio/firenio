@@ -17,19 +17,19 @@ package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class IoEventHandleAdaptor implements IoEventHandle {
 
 	private Logger		logger	= LoggerFactory.getLogger(getClass());
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 		logger.errorDebug(cause);
 	}
 
 	@Override
-	public void futureSent(SocketSession session, ReadFuture future) {
+	public void futureSent(SocketSession session, Future future) {
 		
 	}
 

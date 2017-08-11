@@ -20,12 +20,12 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 	
-	private ForeReadFutureAcceptor foreReadFutureAcceptor;
+	private ForeFutureAcceptor foreReadFutureAcceptor;
 	
 	public TransparentByteBufReader(SocketChannelContext context) {
 		this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
@@ -42,7 +42,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 				return;
 			}
 
-			ChannelReadFuture future = channel.getReadFuture();
+			ChannelFuture future = channel.getReadFuture();
 
 			if (future == null) {
 

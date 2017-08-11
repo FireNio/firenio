@@ -15,13 +15,13 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
-public interface IoEventHandle extends ReadFutureAcceptor, ExceptionCaughtHandle {
+public interface IoEventHandle extends FutureAcceptor, ExceptionCaughtHandle {
 
 	enum IoEventState {
 		READ, HANDLE, WRITE
 	}
 
-	public abstract void futureSent(SocketSession session, ReadFuture future);
+	public abstract void futureSent(SocketSession session, Future future);
 }

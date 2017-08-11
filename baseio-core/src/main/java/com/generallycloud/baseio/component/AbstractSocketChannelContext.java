@@ -27,7 +27,7 @@ import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.EmptyReadFuture;
+import com.generallycloud.baseio.protocol.EmptyFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
@@ -45,7 +45,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	private SslContext										sslContext;
 	private boolean										enableSSL;
 	private boolean										initialized;
-	private ForeReadFutureAcceptor							foreReadFutureAcceptor;
+	private ForeFutureAcceptor							foreReadFutureAcceptor;
 	private SocketSessionFactory								sessionFactory;
 	private ChannelByteBufReaderLinkGroup						channelByteBufReaderGroup	= new ChannelByteBufReaderLinkGroup();
 	private LinkableGroup<SocketSessionEventListenerWrapper>		sessionEventListenerGroup	= new LinkableGroup<>();
@@ -137,7 +137,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		
 		createChannelIdsSequence();
 
-		EmptyReadFuture.initializeReadFuture(this);
+		EmptyFuture.initializeReadFuture(this);
 
 		if (isEnableSSL()) {
 //			this.sslContext.initialize(this);
@@ -197,7 +197,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 		}
 
 		if (foreReadFutureAcceptor == null) {
-			foreReadFutureAcceptor = new EventLoopReadFutureAcceptor();
+			foreReadFutureAcceptor = new EventLoopFutureAcceptor();
 		}
 		
 		foreReadFutureAcceptor.initialize(this);
@@ -315,7 +315,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 	}
 
 	@Override
-	public ForeReadFutureAcceptor getForeReadFutureAcceptor() {
+	public ForeFutureAcceptor getForeReadFutureAcceptor() {
 		return foreReadFutureAcceptor;
 	}
 	

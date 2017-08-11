@@ -12,14 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
+import java.nio.charset.Charset;
+
 import com.generallycloud.baseio.common.Releasable;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.IoEventHandle;
+import com.generallycloud.baseio.component.SocketChannelContext;
 
-public interface Future extends Releasable{
+public interface Future extends Releasable {
 
-	public abstract void attach(Object attachment);
+	public abstract IoEventHandle getIoEventHandle();
 
-	public abstract Object attachment();
+	public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
+
+	public abstract SocketChannelContext getContext();
+
+	public abstract boolean flushed();
+
+	public abstract String getReadText();
+
+	public abstract ByteArrayBuffer getWriteBuffer();
+
+	public abstract void write(String text);
+	
+	public abstract void write(String text,Charset charset);
+
+	public abstract void write(byte b);
+
+	public abstract void write(byte b[]);
+
+	public abstract void write(byte b[], int off, int len);
+
 }

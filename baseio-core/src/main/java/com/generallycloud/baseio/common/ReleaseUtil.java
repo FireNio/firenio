@@ -24,7 +24,7 @@ public class ReleaseUtil {
 
 	public static void release(Releasable releasable){
 		
-		if (releasable == null) {
+		if (releasable == null || releasable.isReleased()) {
 			return;
 		}
 		

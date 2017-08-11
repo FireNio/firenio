@@ -22,7 +22,7 @@ public class CloseConnectorSEListener extends SocketSessionEventListenerAdapter{
 	
 	private SocketChannelConnector connector;
 	
-	public CloseConnectorSEListener(SocketChannelConnector connector) {
+	protected CloseConnectorSEListener(SocketChannelConnector connector) {
 		this.connector = connector;
 	}
 

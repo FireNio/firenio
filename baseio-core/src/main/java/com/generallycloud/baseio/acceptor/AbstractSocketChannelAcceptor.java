@@ -27,10 +27,9 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -54,21 +53,20 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 	}
 
 	@Override
-	public void broadcast(ReadFuture future) {
+	public void broadcast(Future future) {
 		ProtocolEncoder encoder = context.getProtocolEncoder();
 		ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
-		ChannelWriteFuture writeFuture = null;
 		try {
-			writeFuture = encoder.encode(allocator, (ChannelReadFuture) future);
+			encoder.encode(allocator, (ChannelFuture) future);
 		} catch (Throwable e) {
-			ReleaseUtil.release(writeFuture);
+			ReleaseUtil.release(future);
 			logger.error(e.getMessage(), e);
 			return;
 		}
-		broadcast(writeFuture);
+		broadcast(future);
 	}
 	
-	public void broadcast(final ChannelWriteFuture future) {
+	public void broadcast(final ChannelFuture future) {
 		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
 			@Override
 			public void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions) {

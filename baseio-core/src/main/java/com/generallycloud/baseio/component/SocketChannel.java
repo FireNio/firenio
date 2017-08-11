@@ -23,26 +23,25 @@ import javax.net.ssl.SSLEngine;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
-import com.generallycloud.baseio.protocol.SslReadFuture;
+import com.generallycloud.baseio.protocol.SslFuture;
 
 public interface SocketChannel extends DuplexChannel {
 
-	public abstract ChannelReadFuture getReadFuture();
+	public abstract ChannelFuture getReadFuture();
 
-	public abstract SslReadFuture getSslReadFuture();
+	public abstract SslFuture getSslReadFuture();
 
-	public abstract void setReadFuture(ChannelReadFuture future);
+	public abstract void setReadFuture(ChannelFuture future);
 
-	public abstract void setSslReadFuture(SslReadFuture future);
+	public abstract void setSslReadFuture(SslFuture future);
 
-	public abstract void flush(ChannelWriteFuture future);
-
-	public abstract void flush(ChannelReadFuture future);
+	public abstract void flush(ChannelFuture future);
+	
+	public abstract void doFlush(ChannelFuture future);
 
 	@Override
 	public abstract SocketChannelContext getContext();

@@ -21,8 +21,8 @@ import java.net.InetSocketAddress;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -66,7 +66,7 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
 	}
 
 	@Override
-	public void broadcast(ReadFuture future) {
+	public void broadcast(Future future) {
 		unwrap().broadcast(future);
 	}
 
@@ -85,7 +85,7 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
 	}
 	
 	@Override
-	public void broadcast(ChannelWriteFuture future) {
+	public void broadcast(ChannelFuture future) {
 		unwrap().broadcast(future);
 	}
 	

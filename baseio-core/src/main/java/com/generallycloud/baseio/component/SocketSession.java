@@ -21,11 +21,11 @@ import java.net.SocketOption;
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public interface SocketSession extends Session {
 
@@ -46,9 +46,9 @@ public interface SocketSession extends Session {
 
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 	
-	public abstract void flush(ReadFuture future) ;
+	public abstract void flush(Future future) ;
 	
-	public abstract void flush(ChannelWriteFuture future);
+	public abstract void doFlush(ChannelFuture future);
 	
 	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
 

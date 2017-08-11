@@ -35,15 +35,13 @@ import com.generallycloud.baseio.concurrent.ScspLinkedQueue;
 import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
-import com.generallycloud.baseio.protocol.EmptyReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.baseio.protocol.SslReadFuture;
+import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.SslFuture;
 
 public abstract class AbstractSocketChannel extends AbstractChannel implements SocketChannel {
 
@@ -55,10 +53,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected SSLEngine					sslEngine;
 	protected SslHandler					sslHandler;
 	protected UnsafeSocketSession			session;
-	protected transient ChannelWriteFuture	writeFuture;
-	protected transient ChannelReadFuture		readFuture;
-	protected transient SslReadFuture		sslReadFuture;
-	protected LinkedQueue<ChannelWriteFuture>	writeFutures;
+	protected transient ChannelFuture	writeFuture;
+	protected transient ChannelFuture		readFuture;
+	protected transient SslFuture		sslReadFuture;
+	protected LinkedQueue<ChannelFuture>	writeFutures;
 	protected boolean						opened		= true;
 	protected SocketChannelThreadContext 		threadContext;
 
@@ -69,7 +67,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	public AbstractSocketChannel(SocketChannelThreadContext context,int channelId) {
 		super(context.getByteBufAllocator(), context.getChannelContext(),channelId);
 		SocketChannelContext socketChannelContext = context.getChannelContext();
-		ChannelWriteFuture f = new ChannelWriteFutureImpl(EmptyReadFuture.getInstance()
+		DefaultChannelFuture f = new DefaultChannelFuture(
+				context.getChannelContext()
 				, EmptyByteBuf.getInstance());
 		this.protocolFactory = socketChannelContext.getProtocolFactory();
 		this.protocolDecoder = socketChannelContext.getProtocolDecoder();
@@ -128,7 +127,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	}
 
 	@Override
-	public ChannelReadFuture getReadFuture() {
+	public ChannelFuture getReadFuture() {
 		return readFuture;
 	}
 
@@ -175,43 +174,30 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	}
 
 	@Override
-	public void flush(ChannelReadFuture future) {
-
+	public void flush(ChannelFuture future) {
 		if (future == null || future.flushed()) {
 			return;
 		}
-
 		if (!isOpened()) {
-
 			future.flush();
-
 			IoEventHandle handle = future.getIoEventHandle();
-
 			exceptionCaught(handle, future, new ClosedChannelException(toString()),
 					IoEventState.WRITE);
-
 			return;
 		}
-
 		try {
-
 			ProtocolEncoder encoder = getProtocolEncoder();
-
 			ByteBufAllocator allocator = getByteBufAllocator();
-
-			flush(encoder.encode(allocator, future.flush()));
-
+			encoder.encode(allocator, future.flush());
+			doFlush(future);
 		} catch (Exception e) {
-
 			logger.error(e.getMessage(), e);
-
 			IoEventHandle handle = future.getIoEventHandle();
-
 			exceptionCaught(handle, future, e, IoEventState.WRITE);
 		}
 	}
 
-	private void exceptionCaught(IoEventHandle handle, ReadFuture future, Exception cause,
+	private void exceptionCaught(IoEventHandle handle, Future future, Exception cause,
 			IoEventState state) {
 		try {
 			handle.exceptionCaught(getSession(), future, cause, state);
@@ -221,7 +207,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	}
 
 	@Override
-	public void flush(ChannelWriteFuture f) {
+	public void doFlush(ChannelFuture f) {
 		UnsafeSocketSession session = getSession();
 		//这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
 		//会产生误差，导致无法或者延迟触发doFlush操作
@@ -233,7 +219,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 				return;
 			}
 			writeFutures.offer(f);
-			int length = writeFutureLength(f.getLength());
+			int length = writeFutureLength(f.getByteBufLimit());
 			if (length > 1024 * 1024 * 10) {
 				// FIXME 该连接写入过多啦
 			}
@@ -242,7 +228,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			if (writeFutures.size() > 1) {
 				return;
 			}
-			doFlush(f);
+			doFlush0(f);
 		}catch (Exception e) {
 			f.onException(session, e);
 		}finally{
@@ -254,7 +240,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		return writeFutureLength.addAndGet(len);
 	}
 
-	protected abstract void doFlush(ChannelWriteFuture future);
+	protected abstract void doFlush0(ChannelFuture future);
 
 	protected void releaseFutures() {
 
@@ -270,13 +256,13 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			writeFuture.onException(session, e);
 		}
 
-		LinkedQueue<ChannelWriteFuture> writeFutures = this.writeFutures;
+		LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
 
 		if (writeFutures.size() == 0) {
 			return;
 		}
 
-		ChannelWriteFuture f = writeFutures.poll();
+		ChannelFuture f = writeFutures.poll();
 
 		UnsafeSocketSession session = this.session;
 
@@ -301,7 +287,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 			sslEngine.closeOutbound();
 
 			if (getContext().getSslContext().isClient()) {
-				flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+				doFlush(new DefaultChannelFuture(
+						getContext(),
 						EmptyByteBuf.getInstance()));
 			}
 
@@ -333,17 +320,17 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	}
 
 	@Override
-	public void setReadFuture(ChannelReadFuture readFuture) {
+	public void setReadFuture(ChannelFuture readFuture) {
 		this.readFuture = readFuture;
 	}
 
 	@Override
-	public SslReadFuture getSslReadFuture() {
+	public SslFuture getSslReadFuture() {
 		return sslReadFuture;
 	}
 
 	@Override
-	public void setSslReadFuture(SslReadFuture future) {
+	public void setSslReadFuture(SslFuture future) {
 		this.sslReadFuture = future;
 	}
 
@@ -365,8 +352,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		}
 
 		if (isEnableSSL() && context.getSslContext().isClient()) {
-
-			flush(new ChannelWriteFutureImpl(EmptyReadFuture.getInstance(),
+			doFlush(new DefaultChannelFuture(
+					getContext(),
 					EmptyByteBuf.getInstance()));
 		}
 

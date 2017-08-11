@@ -59,7 +59,7 @@ public interface SocketChannelContext extends ChannelContext {
 
 	public abstract void setSocketSessionFactory(SocketSessionFactory sessionFactory) ;
 	
-	public abstract ForeReadFutureAcceptor getForeReadFutureAcceptor();
+	public abstract ForeFutureAcceptor getForeReadFutureAcceptor();
 	
 	public abstract SocketSessionEventListenerWrapper getSessionEventListenerLink();
 	
