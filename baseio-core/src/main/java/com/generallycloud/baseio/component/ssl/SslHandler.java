@@ -34,12 +34,12 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
 
-	private ChannelFuture	EMPTY_CWF	= null;
+	private ChannelFuture		forgeFuture;
 
 	private ByteBuf			tempDst;
 
 	public SslHandler(SocketChannelContext context) {
-		this.EMPTY_CWF = new DefaultChannelFuture(context,
+		this.forgeFuture = new DefaultChannelFuture(context,
 				EmptyByteBuf.getInstance());
 	}
 
@@ -143,7 +143,7 @@ public class SslHandler {
 			synchByteBuf(result, src, dst);
 			if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
 				if(handshakeStatus == HandshakeStatus.NEED_WRAP){
-					channel.doFlush(EMPTY_CWF.duplicate());
+					channel.doFlush(forgeFuture.duplicate());
 					return null;
 				}else if(handshakeStatus == HandshakeStatus.NEED_TASK){
 					runDelegatedTasks(sslEngine);

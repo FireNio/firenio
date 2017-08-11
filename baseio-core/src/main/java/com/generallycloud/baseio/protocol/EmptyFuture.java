@@ -24,21 +24,21 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class EmptyFuture extends AbstractChannelFuture {
 
-	private static EmptyFuture EMPTY_READFUTURE = null;
+	private static EmptyFuture EMPTY_FUTURE = null;
 
 	public static void initializeReadFuture(SocketChannelContext context) {
-		if (EMPTY_READFUTURE != null) {
+		if (EMPTY_FUTURE != null) {
 			return;
 		}
-		EMPTY_READFUTURE = new EmptyFuture(context);
-		EMPTY_READFUTURE.setByteBuf(EmptyByteBuf.getInstance());
+		EMPTY_FUTURE = new EmptyFuture(context);
+		EMPTY_FUTURE.setByteBuf(EmptyByteBuf.getInstance());
 	}
 
-	public static EmptyFuture getInstance() {
-		return EMPTY_READFUTURE;
+	public static EmptyFuture get() {
+		return EMPTY_FUTURE;
 	}
 
-	private EmptyFuture(SocketChannelContext context) {
+	public EmptyFuture(SocketChannelContext context) {
 		super(context);
 	}
 
@@ -65,6 +65,11 @@ public class EmptyFuture extends AbstractChannelFuture {
 	@Override
 	public boolean read(SocketSession session, ByteBuf src) throws IOException {
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public ChannelFuture duplicate() {
+		return this;
 	}
 	
 

@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import java.util.Hashtable;
 
-import com.generallycloud.baseio.common.DebugUtil;
+import com.generallycloud.baseio.log.DebugUtil;
 
 /**
  * @author wangkai
@@ -26,6 +26,8 @@ import com.generallycloud.baseio.common.DebugUtil;
 public class ByteBufDebug {
 	
 	private static ByteBufDebug debug = new ByteBufDebug();
+	
+	private static boolean enableDebug = true;
 	
 	public static ByteBufDebug get(){
 		return debug;
@@ -36,13 +38,19 @@ public class ByteBufDebug {
 	private Hashtable<ByteBuf,Object> errorBufs = new Hashtable<>();
 	
 	public void put(ByteBuf buf){
+		if (!enableDebug) {
+			return;
+		}
 		bufs.put(buf, new Exception().getStackTrace());
 	}
 	
 	public void remove(ByteBuf buf){
+		if (!enableDebug) {
+			return;
+		}
 		Object b = bufs.remove(buf);
 		if (b == null) {
-			DebugUtil.info1("test222");
+			DebugUtil.info("test222");
 		}
 	}
 	
