@@ -21,7 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 
-public class RedisCmdFuture extends AbstractRedisReadFuture {
+public class RedisCmdFuture extends AbstractRedisFuture {
 
 	protected RedisCmdFuture(SocketChannelContext context) {
 		super(context);
@@ -33,17 +33,8 @@ public class RedisCmdFuture extends AbstractRedisReadFuture {
 	}
 
 	@Override
-	public void release() {
-	}
-
-	@Override
 	public RedisNode getRedisNode() {
 		return null;
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return true;
 	}
 	
 }

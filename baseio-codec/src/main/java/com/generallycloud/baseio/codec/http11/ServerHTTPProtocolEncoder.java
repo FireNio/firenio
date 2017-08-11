@@ -21,12 +21,10 @@ import java.util.List;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.Cookie;
-import com.generallycloud.baseio.codec.http11.future.ServerHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 
@@ -35,28 +33,30 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 	private static final byte[]	SET_COOKIE	= "Set-Cookie:".getBytes();
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture readFuture) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture readFuture) throws IOException {
 
-		ServerHttpReadFuture f = (ServerHttpReadFuture) readFuture;
+		ServerHttpFuture f = (ServerHttpFuture) readFuture;
 		
 		f.setResponseHeader("Date", HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
 
 		ByteArrayBuffer os = f.getBinaryBuffer();
 
 		if (os != null) {
-			return encode(allocator, f, os.size(), os.array());
+			encode(allocator, f, os.size(), os.array());
+			return;
 		}
 
 		ByteArrayBuffer buffer = f.getWriteBuffer();
 
 		if (buffer == null) {
-			return encode(allocator, f, 0, null);
+			encode(allocator, f, 0, null);
+			return;
 		}
 
-		return encode(allocator, f, buffer.size(), buffer.array());
+		encode(allocator, f, buffer.size(), buffer.array());
 	}
 
-	private ChannelWriteFuture encode(ByteBufAllocator allocator, ServerHttpReadFuture f, int length, byte[] array)
+	private void encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
 			throws IOException {
 
 		ByteBuf buf = allocator.allocate(256);
@@ -92,7 +92,7 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 			throw e;
 		}
 
-		return new ChannelWriteFutureImpl(f, buf.flip());
+		f.setByteBuf(buf.flip());
 	}
 
 }

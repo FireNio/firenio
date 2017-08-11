@@ -20,12 +20,9 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.codec.http2.hpack.Decoder;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
-
-	private ByteBuf		buf;
 
 	private boolean		isComplete;
 
@@ -94,11 +91,6 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 	}
 
 	@Override
-	public void release() {
-		ReleaseUtil.release(buf);
-	}
-
-	@Override
 	public boolean isSilent() {
 		return !endStream;
 	}
@@ -126,11 +118,6 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 	@Override
 	public byte getPadLength() {
 		return padLength;
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return buf.isReleased();
 	}
 	
 }

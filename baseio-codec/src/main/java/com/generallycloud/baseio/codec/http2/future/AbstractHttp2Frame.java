@@ -16,9 +16,9 @@
 package com.generallycloud.baseio.codec.http2.future;
 
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
-import com.generallycloud.baseio.protocol.AbstractChannelReadFuture;
+import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
-public abstract class AbstractHttp2Frame extends AbstractChannelReadFuture implements SocketHttp2Frame {
+public abstract class AbstractHttp2Frame extends AbstractChannelFuture implements SocketHttp2Frame {
 
 	private Http2FrameHeader header;
 	

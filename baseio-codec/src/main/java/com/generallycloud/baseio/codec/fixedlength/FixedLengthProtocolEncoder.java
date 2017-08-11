@@ -19,31 +19,26 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 		
 		if (future.isHeartbeat()) {
-
 			int value = future.isPING() ? FixedLengthProtocolDecoder.PROTOCOL_PING
 					: FixedLengthProtocolDecoder.PROTOCOL_PONG;
-
-			ByteBuf buffer = allocator.allocate(4);
-
-			buffer.putInt(value);
-
-			return new ChannelWriteFutureImpl(future, buffer.flip());
+			ByteBuf buf = allocator.allocate(4);
+			buf.putInt(value);
+			future.setByteBuf(buf.flip());
+			return;
 		}
 		
-		FixedLengthReadFuture f = (FixedLengthReadFuture) future;
+		FixedLengthFuture f = (FixedLengthFuture) future;
 
 		ByteArrayBuffer buffer = f.getWriteBuffer();
 		
@@ -59,6 +54,6 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
 		buf.put(buffer.array(), 0, size);
 
-		return new ChannelWriteFutureImpl(future, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
 }

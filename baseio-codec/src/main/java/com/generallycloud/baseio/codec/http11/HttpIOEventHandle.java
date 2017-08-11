@@ -15,22 +15,22 @@
  */ 
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class HttpIOEventHandle extends IoEventHandleAdaptor{
 	
-	private Waiter<HttpReadFuture> waiter;
+	private Waiter<HttpFuture> waiter;
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 		
-		HttpReadFuture f = (HttpReadFuture) future;
+		HttpFuture f = (HttpFuture) future;
 		
-		Waiter<HttpReadFuture> waiter = this.waiter;
+		Waiter<HttpFuture> waiter = this.waiter;
 		
 		if (waiter != null) {
 			
@@ -40,7 +40,7 @@ public class HttpIOEventHandle extends IoEventHandleAdaptor{
 		}
 	}
 
-	public void setWaiter(Waiter<HttpReadFuture> waiter) {
+	public void setWaiter(Waiter<HttpFuture> waiter) {
 		this.waiter = waiter;
 	}
 }

@@ -18,22 +18,22 @@ package com.generallycloud.baseio.codec.http11.future;
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
 	@Override
-	public ReadFuture createPINGPacket(SocketSession session) {
+	public Future createPINGPacket(SocketSession session) {
 		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
-			return new WebSocketReadFutureImpl(session.getContext()).setPING();
+			return new WebSocketFutureImpl(session.getContext()).setPING();
 		}
 		return null;
 	}
 
 	@Override
-	public ReadFuture createPONGPacket(SocketSession session) {
+	public Future createPONGPacket(SocketSession session) {
 		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
-			return new WebSocketReadFutureImpl(session.getContext()).setPONG();
+			return new WebSocketFutureImpl(session.getContext()).setPONG();
 		}
 		return null;
 	}

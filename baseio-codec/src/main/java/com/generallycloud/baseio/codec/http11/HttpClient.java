@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -37,9 +37,9 @@ public class HttpClient {
 		this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandleAdaptor();
 	}
 
-	public synchronized HttpReadFuture request(HttpReadFuture future, long timeout) throws IOException {
+	public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
 
-		Waiter<HttpReadFuture> waiter = new Waiter<HttpReadFuture>();
+		Waiter<HttpFuture> waiter = new Waiter<HttpFuture>();
 
 		ioEventHandle.setWaiter(waiter);
 
@@ -52,7 +52,7 @@ public class HttpClient {
 		return waiter.getPayload();
 	}
 
-	public synchronized HttpReadFuture request(HttpReadFuture future) throws IOException {
+	public synchronized HttpFuture request(HttpFuture future) throws IOException {
 
 		return request(future, 3000);
 	}

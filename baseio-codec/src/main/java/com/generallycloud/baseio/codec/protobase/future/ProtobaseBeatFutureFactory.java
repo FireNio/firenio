@@ -17,18 +17,18 @@ package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class ProtobaseBeatFutureFactory implements BeatFutureFactory {
 
 	@Override
-	public ReadFuture createPINGPacket(SocketSession session) {
-		return new ProtobaseReadFutureImpl(session.getContext()).setPING();
+	public Future createPINGPacket(SocketSession session) {
+		return new ProtobaseFutureImpl(session.getContext()).setPING();
 	}
 
 	@Override
-	public ReadFuture createPONGPacket(SocketSession session) {
-		return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
+	public Future createPONGPacket(SocketSession session) {
+		return new ProtobaseFutureImpl(session.getContext()).setPONG();
 	}
 
 }

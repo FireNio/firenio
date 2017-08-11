@@ -15,12 +15,12 @@
  */
 package com.generallycloud.baseio.codec.http2.future;
 
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 /**
  * @author wangkai
  *
  */
-public interface SocketHttp2Frame extends Http2Frame, ChannelReadFuture {
+public interface SocketHttp2Frame extends Http2Frame, ChannelFuture {
 
 }

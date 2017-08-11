@@ -19,12 +19,10 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 //WebSocket规定服务端不准向客户端发送mask过的数据
@@ -34,9 +32,9 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 	final int MAX_UNSIGNED_SHORT = (1 << 16) -1;
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 		
-		WebSocketReadFuture f = (WebSocketReadFuture) future;
+		WebSocketFuture f = (WebSocketFuture) future;
 
 		ByteArrayBuffer buffer = future.getWriteBuffer();
 		
@@ -70,7 +68,7 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(data,0,size);
 		
-		return new ChannelWriteFutureImpl(future, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
 	
 //	public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

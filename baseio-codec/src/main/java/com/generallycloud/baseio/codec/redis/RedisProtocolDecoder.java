@@ -18,16 +18,16 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.redis.future.RedisReadFutureImpl;
+import com.generallycloud.baseio.codec.redis.future.RedisFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class RedisProtocolDecoder implements ProtocolDecoder{
 
 	@Override
-	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-		return new RedisReadFutureImpl(session.getContext());
+	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+		return new RedisFutureImpl(session.getContext());
 	}
 	
 }

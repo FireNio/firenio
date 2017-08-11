@@ -19,19 +19,17 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedReadFuture;
+import com.generallycloud.baseio.codec.linebased.future.LineBasedFuture;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		LineBasedReadFuture f = (LineBasedReadFuture) future;
+		LineBasedFuture f = (LineBasedFuture) future;
 
 		ByteArrayBuffer buffer = f.getWriteBuffer();
 
@@ -45,7 +43,7 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
 		buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
 
-		return new ChannelWriteFutureImpl(future, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
 
 }

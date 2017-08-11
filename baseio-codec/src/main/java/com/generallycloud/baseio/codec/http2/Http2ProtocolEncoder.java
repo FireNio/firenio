@@ -26,9 +26,7 @@ import com.generallycloud.baseio.codec.http2.future.Http2SettingsFrame;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class Http2ProtocolEncoder implements ProtocolEncoder {
@@ -36,7 +34,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 	private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 		
 		Http2Frame frame = (Http2Frame) future;
 		
@@ -123,6 +121,7 @@ public class Http2ProtocolEncoder implements ProtocolEncoder {
 		
 		buf.put(payload);
 		
-		return new ChannelWriteFutureImpl(future, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
+	
 }

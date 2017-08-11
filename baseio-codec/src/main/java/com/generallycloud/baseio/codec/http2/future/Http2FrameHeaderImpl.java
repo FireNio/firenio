@@ -23,11 +23,9 @@ import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.AbstractChannelReadFuture;
+import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
-public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements Http2FrameHeader {
-
-	private ByteBuf		buf;
+public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2FrameHeader {
 
 	private boolean		header_complete;
 
@@ -93,7 +91,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 
 	@Override
 	public void release() {
-		ReleaseUtil.release(buf);
+		super.release();
 		ReleaseUtil.release(frame);
 	}
 
@@ -160,7 +158,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelReadFuture implements H
 	
 	@Override
 	public boolean isReleased() {
-		return buf.isReleased();
+		return frame.isReleased() && buf.isReleased();
 	}
 	
 }

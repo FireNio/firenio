@@ -18,9 +18,9 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.future.ClientHttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
@@ -35,9 +35,9 @@ public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 	}
 
 	@Override
-	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new ClientHttpReadFuture(session, buffer, headerLimit, bodyLimit);
+		return new ClientHttpFuture(session, buffer, headerLimit, bodyLimit);
 	}
 
 }

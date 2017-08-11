@@ -21,12 +21,10 @@ import java.nio.charset.Charset;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -35,23 +33,20 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 	private static final byte[] EMPTY_ARRAY = EmptyByteBuf.getInstance().array();
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future)
+	public void encode(ByteBufAllocator allocator, ChannelFuture future)
 			throws IOException {
 
 		if (future.isHeartbeat()) {
-
 			byte b = future.isPING() ? 
 					ProtobaseProtocolDecoder.PROTOCOL_PING
 					: ProtobaseProtocolDecoder.PROTOCOL_PONG ;
-
 			ByteBuf buf = allocator.allocate(1);
-
 			buf.putByte(b);
-
-			return new ChannelWriteFutureImpl(future, buf.flip());
+			future.setByteBuf(buf.flip());
+			return;
 		}
 
-		ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+		ProtobaseFuture f = (ProtobaseFuture) future;
 
 		String future_name = f.getFutureName();
 
@@ -84,7 +79,32 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 		}
 
 		if (binary != null) {
-			return encode(allocator, f, future_name_array, text_array, binary);
+			text_length = text_array.length;
+			int header_length = getHeaderLengthWithBinary();
+			int binary_length = binary.size();
+			byte byte0 = getBinaryFirstByte();
+
+			int all_length = header_length + future_name_length + text_length + binary_length;
+
+			ByteBuf buf = allocator.allocate(all_length);
+
+			buf.putByte(byte0);
+			buf.putByte((byte) (future_name_length));
+			buf.putInt(f.getFutureId());
+			putHeaderExtend(f,buf);
+			buf.putUnsignedShort(text_length);
+			buf.putInt(binary_length);
+
+			buf.put(future_name_array);
+
+			if (text_length > 0) {
+				buf.put(text_array, 0, text_length);
+			}
+
+			buf.put(binary.array(), 0, binary_length);
+
+			future.setByteBuf(buf.flip());
+			return;
 		}
 		
 		int header_length = getHeaderLengthNoBinary();
@@ -107,10 +127,10 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 			buf.put(text_array, 0, text_length);
 		}
 
-		return new ChannelWriteFutureImpl(future, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
 	
-	protected void putHeaderExtend(ProtobaseReadFuture future,ByteBuf buf){
+	protected void putHeaderExtend(ProtobaseFuture future,ByteBuf buf){
 		
 	}
 	
@@ -128,38 +148,6 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 	
 	protected int getHeaderLengthWithBinary(){
 		return ProtobaseProtocolDecoder.PROTOCOL_HEADER_WITH_BINARY;
-	}
-
-	private ChannelWriteFuture encode(ByteBufAllocator allocator, ProtobaseReadFuture f,
-			byte[] future_name_array, byte[] text_array, ByteArrayBuffer binary)
-			throws IOException {
-
-		byte future_name_length = (byte) future_name_array.length;
-		int text_length = text_array.length;
-		int header_length = getHeaderLengthWithBinary();
-		int binary_length = binary.size();
-		byte byte0 = getBinaryFirstByte();
-
-		int all_length = header_length + future_name_length + text_length + binary_length;
-
-		ByteBuf buf = allocator.allocate(all_length);
-
-		buf.putByte(byte0);
-		buf.putByte((byte) (future_name_length));
-		buf.putInt(f.getFutureId());
-		putHeaderExtend(f,buf);
-		buf.putUnsignedShort(text_length);
-		buf.putInt(binary_length);
-
-		buf.put(future_name_array);
-
-		if (text_length > 0) {
-			buf.put(text_array, 0, text_length);
-		}
-
-		buf.put(binary.array(), 0, binary_length);
-
-		return new ChannelWriteFutureImpl(f, buf.flip());
 	}
 
 }

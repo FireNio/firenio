@@ -18,9 +18,9 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 //FIXME 心跳貌似由服务端发起
@@ -67,9 +67,9 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
 	}
 
 	@Override
-	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new WebSocketReadFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+		return new WebSocketFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
 	}
 
 }

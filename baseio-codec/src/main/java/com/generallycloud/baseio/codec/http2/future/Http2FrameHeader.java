@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.codec.http2.future;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * <pre>
@@ -36,7 +36,7 @@ import com.generallycloud.baseio.protocol.ReadFuture;
  *
  */
 
-public interface Http2FrameHeader extends ReadFuture {
+public interface Http2FrameHeader extends Future {
 
 	public abstract byte getFlags();
 

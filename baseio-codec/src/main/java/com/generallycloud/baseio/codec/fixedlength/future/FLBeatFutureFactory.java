@@ -17,18 +17,18 @@ package com.generallycloud.baseio.codec.fixedlength.future;
 
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class FLBeatFutureFactory implements BeatFutureFactory{
 
 	@Override
-	public ReadFuture createPINGPacket(SocketSession session) {
-		return new FixedLengthReadFutureImpl(session.getContext()).setPING();
+	public Future createPINGPacket(SocketSession session) {
+		return new FixedLengthFutureImpl(session.getContext()).setPING();
 	}
 
 	@Override
-	public ReadFuture createPONGPacket(SocketSession session) {
-		return new FixedLengthReadFutureImpl(session.getContext()).setPONG();
+	public Future createPONGPacket(SocketSession session) {
+		return new FixedLengthFutureImpl(session.getContext()).setPONG();
 	}
 	
 }

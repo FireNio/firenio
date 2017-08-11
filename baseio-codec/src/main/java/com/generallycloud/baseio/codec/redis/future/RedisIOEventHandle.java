@@ -18,16 +18,16 @@ package com.generallycloud.baseio.codec.redis.future;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class RedisIOEventHandle extends IoEventHandleAdaptor{
 	
 	private Waiter<RedisNode> waiter;
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
+	public void accept(SocketSession session, Future future) throws Exception {
 		
-		RedisReadFuture f = (RedisReadFuture) future;
+		RedisFuture f = (RedisFuture) future;
 		
 		Waiter<RedisNode> waiter = this.waiter;
 		

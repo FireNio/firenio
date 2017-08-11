@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 /**
@@ -53,7 +53,7 @@ public abstract class AbstractHttpProtocolEncoder implements ProtocolEncoder {
 		buf.putByte(b);
 	}
 
-	protected void writeHeaders(HttpReadFuture f, ByteBuf buf) {
+	protected void writeHeaders(HttpFuture f, ByteBuf buf) {
 
 		Map<String, String> headers = f.getResponseHeaders();
 

@@ -15,15 +15,15 @@
  */ 
 package com.generallycloud.baseio.codec.redis.future;
 
-import com.generallycloud.baseio.codec.redis.future.RedisReadFuture.RedisCommand;
+import com.generallycloud.baseio.codec.redis.future.RedisFuture.RedisCommand;
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class RedisBeatFutureFactory implements BeatFutureFactory{
 
 	@Override
-	public ReadFuture createPINGPacket(SocketSession session) {
+	public Future createPINGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
 		
@@ -35,7 +35,7 @@ public class RedisBeatFutureFactory implements BeatFutureFactory{
 	}
 
 	@Override
-	public ReadFuture createPONGPacket(SocketSession session) {
+	public Future createPONGPacket(SocketSession session) {
 		
 		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
 		

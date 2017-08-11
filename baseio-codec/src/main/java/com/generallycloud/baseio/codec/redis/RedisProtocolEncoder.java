@@ -20,19 +20,17 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.codec.redis.future.RedisReadFuture;
+import com.generallycloud.baseio.codec.redis.future.RedisFuture;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class RedisProtocolEncoder implements ProtocolEncoder {
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 		
-		RedisReadFuture f = (RedisReadFuture) future;
+		RedisFuture f = (RedisFuture) future;
 
 		ByteArrayBuffer buffer = f.getWriteBuffer();
 		
@@ -42,7 +40,7 @@ public class RedisProtocolEncoder implements ProtocolEncoder {
 
 		ByteBuf buf = UnpooledByteBufAllocator.getHeapInstance().wrap(buffer.array(), 0, buffer.size());
 
-		return new ChannelWriteFutureImpl(future, buf);
+		future.setByteBuf(buf);
 	}
 	
 }

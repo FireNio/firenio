@@ -24,10 +24,8 @@ import java.util.Set;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.Cookie;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFuture;
-import com.generallycloud.baseio.protocol.ChannelWriteFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 //FIXME post
 public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
@@ -37,9 +35,9 @@ public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 	private static final byte SEMICOLON = ';';
 
 	@Override
-	public ChannelWriteFuture encode(ByteBufAllocator allocator, ChannelReadFuture future) throws IOException {
+	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		HttpReadFuture f = (HttpReadFuture) future;
+		HttpFuture f = (HttpFuture) future;
 
 		ByteBuf buf = allocator.allocate(256);
 		buf.put(f.getMethod().getBytes());
@@ -66,10 +64,10 @@ public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 
 		buf.put(RN);
 
-		return new ChannelWriteFutureImpl(f, buf.flip());
+		future.setByteBuf(buf.flip());
 	}
 
-	private String getRequestURI(HttpReadFuture future) {
+	private String getRequestURI(HttpFuture future) {
 		
 		Map<String, String> params = future.getRequestParams();
 		

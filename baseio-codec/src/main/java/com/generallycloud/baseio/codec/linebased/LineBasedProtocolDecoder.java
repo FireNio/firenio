@@ -18,9 +18,9 @@ package com.generallycloud.baseio.codec.linebased;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedReadFutureImpl;
+import com.generallycloud.baseio.codec.linebased.future.LineBasedFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 /**
@@ -37,9 +37,9 @@ public class LineBasedProtocolDecoder implements ProtocolDecoder {
 	}
 
 	@Override
-	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new LineBasedReadFutureImpl(session.getContext(), limit);
+		return new LineBasedFutureImpl(session.getContext(), limit);
 	}
 
 }

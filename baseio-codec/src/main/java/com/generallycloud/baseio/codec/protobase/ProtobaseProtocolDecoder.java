@@ -19,10 +19,10 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseBinaryReadFutureImpl;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseBinaryFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ChannelReadFuture;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 /**
@@ -67,14 +67,14 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 	}
 
 	@Override
-	public ChannelReadFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
 		byte byte0 = buffer.getByte();
 
 		if (byte0 == PROTOCOL_PING) {
-			return new ProtobaseReadFutureImpl(session.getContext()).setPING();
+			return new ProtobaseFutureImpl(session.getContext()).setPING();
 		} else if (byte0 == PROTOCOL_PONG) {
-			return new ProtobaseReadFutureImpl(session.getContext()).setPONG();
+			return new ProtobaseFutureImpl(session.getContext()).setPONG();
 		}
 
 		ByteBufAllocator allocator = session.getByteBufAllocator();
@@ -90,16 +90,16 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 		return (b & PROTOCOL_IS_BROADCAST) > 0;
 	}
 
-	protected ChannelReadFuture newChannelReadFutureNoBinary(SocketSession session,
+	protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
 			ByteBufAllocator allocator, byte b) throws IOException {
 		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
-		return new ProtobaseReadFutureImpl(session, buf);
+		return new ProtobaseFutureImpl(session, buf);
 	}
 
-	protected ChannelReadFuture newChannelReadFutureWithBinary(SocketSession session,
+	protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
 			ByteBufAllocator allocator, byte b) throws IOException {
 		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
-		return new ProtobaseBinaryReadFutureImpl(session, buf, limit);
+		return new ProtobaseBinaryFutureImpl(session, buf, limit);
 	}
 
 }

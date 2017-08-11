@@ -17,17 +17,17 @@ package com.generallycloud.baseio.codec.linebased.future;
 
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class LineBasedBeatFutureFactory implements BeatFutureFactory{
 
 	@Override
-	public ReadFuture createPINGPacket(SocketSession session) {
+	public Future createPINGPacket(SocketSession session) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ReadFuture createPONGPacket(SocketSession session) {
+	public Future createPONGPacket(SocketSession session) {
 		throw new UnsupportedOperationException();
 	}
 	

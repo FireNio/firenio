@@ -15,9 +15,9 @@
  */ 
 package com.generallycloud.baseio.codec.http2.future;
 
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
-public interface Http2Frame extends ReadFuture{
+public interface Http2Frame extends Future{
 	
 	public abstract Http2FrameHeader getHeader();
 	

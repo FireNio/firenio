@@ -16,14 +16,14 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 
 public class HashedProtobaseProtocolEncoder extends SessionIdProtobaseProtocolEncoder {
 
 	@Override
-	protected void putHeaderExtend(ProtobaseReadFuture future, ByteBuf buf) {
-		HashedProtobaseReadFuture f = (HashedProtobaseReadFuture) future;
+	protected void putHeaderExtend(ProtobaseFuture future, ByteBuf buf) {
+		HashedProtobaseFuture f = (HashedProtobaseFuture) future;
 		buf.putInt(f.getSessionId());
 		buf.putInt(f.getHashCode());
 	}

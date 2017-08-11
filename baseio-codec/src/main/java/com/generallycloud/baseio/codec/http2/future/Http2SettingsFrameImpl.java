@@ -19,12 +19,9 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
-
-	private ByteBuf	buf;
 
 	private boolean	isComplete;
 
@@ -74,11 +71,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 	}
 
 	@Override
-	public void release() {
-		ReleaseUtil.release(buf);
-	}
-
-	@Override
 	public boolean isSilent() {
 		return true;
 	}
@@ -91,11 +83,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 	@Override
 	public long[] getSettings() {
 		return settings;
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return buf.isReleased();
 	}
 	
 }

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.protobuf;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
@@ -48,7 +48,7 @@ public class ProtobufUtil {
 		return parser;
 	}
 
-	public MessageLite getMessage(ProtobaseReadFuture future)
+	public MessageLite getMessage(ProtobaseFuture future)
 			throws InvalidProtocolBufferException {
 
 		Parser<? extends MessageLite> parser = getParser(future.getFutureName());
@@ -56,13 +56,13 @@ public class ProtobufUtil {
 		return parser.parseFrom(future.getBinary());
 	}
 
-	public void writeProtobuf(MessageLite messageLite, ProtobaseReadFuture future)
+	public void writeProtobuf(MessageLite messageLite, ProtobaseFuture future)
 			throws InvalidProtocolBufferException {
 		writeProtobuf(messageLite.getClass().getName(), messageLite, future);
 	}
 
 	public void writeProtobuf(String parserName, MessageLite messageLite,
-			ProtobaseReadFuture future) throws InvalidProtocolBufferException {
+			ProtobaseFuture future) throws InvalidProtocolBufferException {
 
 		future.setFutureName(parserName);
 
