@@ -17,11 +17,11 @@ package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.component.WaiterOnReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.RESMessageDecoder;
+import com.generallycloud.baseio.container.WaiterOnFuture;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.client.MessageConsumer;
 import com.generallycloud.baseio.container.jms.client.OnMessage;
@@ -48,7 +48,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 	private boolean transactionVal(String action) throws MQException {
 		try {
 
-			WaiterOnReadFuture onReadFuture = new WaiterOnReadFuture();
+			WaiterOnFuture onReadFuture = new WaiterOnFuture();
 
 			session.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
 
@@ -58,7 +58,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 				throw MQException.TIME_OUT;
 			}
 
-			ProtobaseReadFuture future = (ProtobaseReadFuture) onReadFuture.getReadFuture();
+			ProtobaseFuture future = (ProtobaseFuture) onReadFuture.getReadFuture();
 
 			RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
@@ -105,7 +105,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 		try {
 
-			session.listen("MQConsumerServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+			session.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
 
 			session.write("MQConsumerServlet", null);
 
@@ -131,7 +131,7 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
 		try {
 
-			session.listen("MQSubscribeServlet", new ConsumerOnReadFuture(onMessage, messageDecoder));
+			session.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
 
 			session.write("MQSubscribeServlet", null);
 

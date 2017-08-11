@@ -15,14 +15,14 @@
  */ 
 package com.generallycloud.baseio.container.jms.decode;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.jms.ErrorMessage;
 import com.generallycloud.baseio.container.jms.Message;
 
 public class ErrorMessageDecoder implements MessageDecoder{
 
 	@Override
-	public Message decode(ProtobaseReadFuture future) {
+	public Message decode(ProtobaseFuture future) {
 		return new ErrorMessage(future.getParameters().getIntegerParameter("code"));
 	}
 }

@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
 
@@ -28,14 +28,14 @@ public abstract class MQServlet extends ProtobaseFutureAcceptorService {
 	}
 
 	@Override
-	public void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
 
 		MQSessionAttachment attachment = context.getSessionAttachment(session);
 
 		this.doAccept(session, future, attachment);
 	}
 
-	public abstract void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment)
+	public abstract void doAccept(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment)
 			throws Exception;
 
 }

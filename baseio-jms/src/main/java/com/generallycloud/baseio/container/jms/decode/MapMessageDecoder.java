@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.container.jms.decode;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.container.jms.MapMessage;
 import com.generallycloud.baseio.container.jms.Message;
@@ -24,7 +24,7 @@ import com.generallycloud.baseio.container.jms.Message;
 public class MapMessageDecoder implements MessageDecoder {
 
 	@Override
-	public Message decode(ProtobaseReadFuture future) {
+	public Message decode(ProtobaseFuture future) {
 		Parameters param = future.getParameters();
 		String messageID = param.getParameter("msgID");
 		String queueName = param.getParameter("queueName");

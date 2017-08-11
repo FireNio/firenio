@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.jms.BytedMessage;
 import com.generallycloud.baseio.container.jms.MQException;
@@ -43,7 +43,7 @@ public class DefaultMessageProducer implements MessageProducer {
 		
 		String param = message.toString();
 
-		ProtobaseReadFuture future = null;
+		ProtobaseFuture future = null;
 
 		int msgType = message.getMsgType();
 

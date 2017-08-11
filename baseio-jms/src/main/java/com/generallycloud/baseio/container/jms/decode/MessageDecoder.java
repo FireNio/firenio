@@ -15,12 +15,12 @@
  */ 
 package com.generallycloud.baseio.container.jms.decode;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 
 public interface MessageDecoder {
 
-	public abstract Message decode(ProtobaseReadFuture future) throws MQException;
+	public abstract Message decode(ProtobaseFuture future) throws MQException;
 
 }

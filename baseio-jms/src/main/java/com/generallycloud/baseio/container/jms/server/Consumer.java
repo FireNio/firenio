@@ -17,8 +17,8 @@ package com.generallycloud.baseio.container.jms.server;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.jms.BytedMessage;
 import com.generallycloud.baseio.container.jms.Message;
@@ -29,11 +29,11 @@ public class Consumer {
 	private MQSessionAttachment	attachment;
 	private ConsumerQueue		consumerQueue;
 	private SocketSession		session;
-	private ProtobaseReadFuture		future;
+	private ProtobaseFuture		future;
 	private Message			message;
 
 	public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment, SocketSession session,
-			ProtobaseReadFuture future, String queueName) {
+			ProtobaseFuture future, String queueName) {
 		this.consumerQueue = consumerQueue;
 		this.queueName = queueName;
 		this.attachment = attachment;
@@ -66,9 +66,7 @@ public class Consumer {
 
 		SocketSession session = this.session;
 
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
-
-		f.attach(this);
+		ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
 
 		f.setIoEventHandle(this.future.getIoEventHandle());
 
@@ -96,7 +94,7 @@ public class Consumer {
 
 	@Override
 	public Consumer clone() {
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
+		ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(), future.getFutureName());
 		return new Consumer(consumerQueue, attachment, session, f, queueName);
 	}
 }

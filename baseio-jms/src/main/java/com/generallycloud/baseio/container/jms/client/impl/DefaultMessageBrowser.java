@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.jms.MQException;
@@ -46,7 +46,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("messageID", messageID);
 		param.put("cmd", MQBrowserServlet.BROWSER);
 
-		ProtobaseReadFuture future;
+		ProtobaseFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {
@@ -60,7 +60,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 	public int size() throws MQException {
 		String param = "{cmd:\"0\"}";
 
-		ProtobaseReadFuture future;
+		ProtobaseFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param);
 		} catch (IOException e) {
@@ -76,7 +76,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 		param.put("queueName", queueName);
 		param.put("cmd", MQBrowserServlet.ONLINE);
 
-		ProtobaseReadFuture future;
+		ProtobaseFuture future;
 		try {
 			future = session.request(SERVICE_NAME, param.toJSONString());
 		} catch (IOException e) {

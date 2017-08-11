@@ -15,13 +15,13 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.jms.Message;
 
 public interface MessageQueue {
 
-	public abstract void pollMessage(SocketSession session,ProtobaseReadFuture future,MQSessionAttachment attachment) ;
+	public abstract void pollMessage(SocketSession session,ProtobaseFuture future,MQSessionAttachment attachment) ;
 	
 	public abstract void offerMessage(Message message);
 	

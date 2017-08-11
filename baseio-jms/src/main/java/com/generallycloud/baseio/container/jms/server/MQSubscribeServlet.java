@@ -15,7 +15,7 @@
  */ 
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class MQSubscribeServlet extends MQServlet {
@@ -23,7 +23,7 @@ public class MQSubscribeServlet extends MQServlet {
 	public static final String	SERVICE_NAME	= MQSubscribeServlet.class.getSimpleName();
 
 	@Override
-	public void doAccept(SocketSession session, ProtobaseReadFuture future, MQSessionAttachment attachment) throws Exception {
+	public void doAccept(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment) throws Exception {
 
 		getMQContext().subscribeMessage(session, future, attachment);
 

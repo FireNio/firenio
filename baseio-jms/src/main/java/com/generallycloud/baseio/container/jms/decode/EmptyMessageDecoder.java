@@ -15,13 +15,13 @@
  */ 
 package com.generallycloud.baseio.container.jms.decode;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.jms.Message;
 
 public class EmptyMessageDecoder implements MessageDecoder{
 
 	@Override
-	public Message decode(ProtobaseReadFuture future) {
+	public Message decode(ProtobaseFuture future) {
 		return null;
 	}
 }
