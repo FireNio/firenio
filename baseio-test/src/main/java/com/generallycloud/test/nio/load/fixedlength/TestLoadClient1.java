@@ -18,8 +18,8 @@ package com.generallycloud.test.nio.load.fixedlength;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
@@ -46,7 +46,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		for (int i = 0; i < time1; i++) {
 			
-			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
+			FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
 			
 			future.write("hello server!");
 			
@@ -59,7 +59,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				
 				addCount(10000);
 			}
@@ -79,7 +79,6 @@ public class TestLoadClient1 extends ITestThread {
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 		context.addSessionEventListener(new LoggerSocketSEListener());
-		context.addSessionEventListener(new CloseConnectorSEListener(connector));
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 
 		connector.connect();
@@ -94,7 +93,7 @@ public class TestLoadClient1 extends ITestThread {
 
 		int time = 128 * 10000;
 
-		int core_size = 2;
+		int core_size = 4;
 
 		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
 	}

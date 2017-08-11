@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestHttpLoadServer {
 
@@ -37,14 +37,14 @@ public class TestHttpLoadServer {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				future.write("hello world!");
 				session.flush(future);
 //				System.out.println("req======================"+req.getAndIncrement());
 			}
 			
 			@Override
-			public void futureSent(SocketSession session, ReadFuture future) {
+			public void futureSent(SocketSession session, Future future) {
 //				System.out.println("res==========="+res.getAndIncrement());
 			}
 		};

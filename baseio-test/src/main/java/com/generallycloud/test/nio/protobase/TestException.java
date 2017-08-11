@@ -16,7 +16,7 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -55,7 +55,7 @@ public class TestException {
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		ProtobaseReadFuture future = session.request(serviceKey, param);
+		ProtobaseFuture future = session.request(serviceKey, param);
 		
 		System.out.println(future.getReadText());
 		

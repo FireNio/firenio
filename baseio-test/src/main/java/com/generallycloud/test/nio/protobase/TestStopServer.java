@@ -16,7 +16,7 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -51,7 +51,7 @@ public class TestStopServer {
 
 		session.login("admin", "admin100");
 
-		ProtobaseReadFuture future = session.request("test-stop-server2.auth", null);
+		ProtobaseFuture future = session.request("test-stop-server2.auth", null);
 		
 		System.out.println(future.getReadText());
 

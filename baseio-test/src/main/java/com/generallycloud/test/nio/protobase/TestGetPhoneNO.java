@@ -16,7 +16,7 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -54,7 +54,7 @@ public class TestGetPhoneNO {
 
 		FixedSession session = new FixedSession(connector.connect());
 		
-		ProtobaseReadFuture future = session.request(serviceKey, null);
+		ProtobaseFuture future = session.request(serviceKey, null);
 		
 		System.out.println(future.getReadText());
 		

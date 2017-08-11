@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -29,7 +29,7 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestBeat {
 	
@@ -41,7 +41,7 @@ public class TestBeat {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				DebugUtil.debug("______________"+future.getReadText());
 			}
 		};
@@ -73,7 +73,7 @@ public class TestBeat {
 		long old = System.currentTimeMillis();
 		
 		for (int i = 0; i < 5; i++) {
-			ReadFuture future = new ProtobaseReadFutureImpl(context, serviceKey);
+			Future future = new ProtobaseFutureImpl(context, serviceKey);
 			future.write(param);
 			session.flush(future);
 			ThreadUtil.sleep(300);

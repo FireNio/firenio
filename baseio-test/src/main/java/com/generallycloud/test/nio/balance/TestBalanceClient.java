@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
 import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFutureImpl;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -33,7 +33,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceClient {
 
@@ -44,9 +44,9 @@ public class TestBalanceClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				
-				ProtobaseReadFuture f = (ProtobaseReadFuture)future;
+				ProtobaseFuture f = (ProtobaseFuture)future;
 				
 //				if ("getToken".equals(f.getFutureName())) {
 //					synchronized (lock) {
@@ -82,7 +82,7 @@ public class TestBalanceClient {
 
 			int fid = Math.abs(new Random().nextInt());
 			
-			HashedProtobaseReadFuture future = new HashedProtobaseReadFutureImpl(context,"future-name");
+			HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context,"future-name");
 			
 			future.write("你好！");
 			

@@ -18,7 +18,7 @@ package com.generallycloud.test.nio.load.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -27,8 +27,8 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
+import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.test.nio.common.FutureFactory;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
@@ -45,7 +45,7 @@ public class TestHttpLoadClient extends ITestThread {
 
 		for (int i = 0; i < time; i++) {
 
-			HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
+			HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
 
 			session.flush(future);
 		}
@@ -56,7 +56,7 @@ public class TestHttpLoadClient extends ITestThread {
 
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				addCount(1000);
 			}
 		};

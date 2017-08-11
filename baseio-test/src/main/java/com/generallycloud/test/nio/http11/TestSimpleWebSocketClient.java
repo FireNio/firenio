@@ -16,11 +16,11 @@
 package com.generallycloud.test.nio.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
-import com.generallycloud.baseio.codec.http11.future.ClientHttpReadFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketReadFutureImpl;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
 import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -33,7 +33,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestSimpleWebSocketClient {
 
@@ -42,12 +42,12 @@ public class TestSimpleWebSocketClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				if (future instanceof ClientHttpReadFuture) {
-					ClientHttpReadFuture f = (ClientHttpReadFuture) future;
+			public void accept(SocketSession session, Future future) throws Exception {
+				if (future instanceof ClientHttpFuture) {
+					ClientHttpFuture f = (ClientHttpFuture) future;
 					if (f.getRequestHeader("Sec-WebSocket-Accept") != null) {
 						f.updateWebSocketProtocol();
-						WebSocketReadFuture f2 = new WebSocketReadFutureImpl(session.getContext());
+						WebSocketFuture f2 = new WebSocketFutureImpl(session.getContext());
 						f2.write("{action: \"add-user\", username: \"火星人\"}");
 //						f2.write("{\"action\":999}");
 						session.flush(f2);
@@ -55,7 +55,7 @@ public class TestSimpleWebSocketClient {
 					}
 					System.out.println(f.getRequestHeaders());
 				} else {
-					WebSocketReadFuture f = (WebSocketReadFuture) future;
+					WebSocketFuture f = (WebSocketFuture) future;
 					System.out.println(f.getReadText());
 				}
 			}
@@ -87,7 +87,7 @@ public class TestSimpleWebSocketClient {
 		SocketSession session = connector.connect();
 		String url = "/web-socket-chat";
 		 url = "/c1020";
-		HttpReadFuture future = new WebSocketUpgradeRequestFuture(session.getContext(),url);
+		HttpFuture future = new WebSocketUpgradeRequestFuture(session.getContext(),url);
 //		 future.setRequestURL("ws://120.76.222.210:30005/");
 //		future.setResponseHeader("Host", "120.76.222.210:30005");
 //		future.setResponseHeader("Pragma", "no-cache");

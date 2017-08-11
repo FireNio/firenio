@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestHttpLoadServerAio {
 
@@ -39,8 +39,8 @@ public class TestHttpLoadServerAio {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				HttpReadFuture f = (HttpReadFuture) future;
+			public void accept(SocketSession session, Future future) throws Exception {
+				HttpFuture f = (HttpFuture) future;
 
 				String res;
 
@@ -60,7 +60,7 @@ public class TestHttpLoadServerAio {
 			}
 			
 			@Override
-			public void futureSent(SocketSession session, ReadFuture future) {
+			public void futureSent(SocketSession session, Future future) {
 //				System.out.println("res==========="+res.getAndIncrement());
 			}
 		};

@@ -18,7 +18,7 @@ package com.generallycloud.test.nio.protobase;
 import java.io.File;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -29,7 +29,7 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FileSendUtil;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestUpload {
 
@@ -42,8 +42,8 @@ public class TestUpload {
 		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 			
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+			public void accept(SocketSession session, Future future) throws Exception {
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				System.out.println();
 				System.out.println(f.getReadText());
 				System.out.println();
@@ -53,8 +53,8 @@ public class TestUpload {
 			}
 
 			@Override
-			public void futureSent(SocketSession session, ReadFuture future) {
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+			public void futureSent(SocketSession session, Future future) {
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				System.out.println("报文已发送："+f.getReadText());
 			}
 		};

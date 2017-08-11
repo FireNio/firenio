@@ -17,9 +17,9 @@ package com.generallycloud.test.nio.balance;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseReadFutureImpl;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceBroadcast {
 
@@ -38,9 +38,9 @@ public class TestBalanceBroadcast {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				
 				if (BalanceContext.BALANCE_CHANNEL_LOST.equals(f.getFutureName())) {
 					System.out.println("客户端已下线：" + f.getReadText());
@@ -70,7 +70,7 @@ public class TestBalanceBroadcast {
 
 		for (;session.isOpened();) {
 
-			HashedProtobaseReadFuture future = new HashedProtobaseReadFutureImpl(context,"broadcast");
+			HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context,"broadcast");
 			
 			future.setBroadcast(true);
 

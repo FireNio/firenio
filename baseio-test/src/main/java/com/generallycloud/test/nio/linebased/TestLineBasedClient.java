@@ -16,8 +16,8 @@
 package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.baseio.codec.linebased.LineBasedProtocolFactory;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedReadFuture;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedReadFutureImpl;
+import com.generallycloud.baseio.codec.linebased.future.LineBasedFuture;
+import com.generallycloud.baseio.codec.linebased.future.LineBasedFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedClient {
 
@@ -36,7 +36,7 @@ public class TestLineBasedClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 
 				System.out.println();
 				System.out.println("____________________"+future.getReadText());
@@ -56,7 +56,7 @@ public class TestLineBasedClient {
 		
 		SocketSession session = connector.connect();
 
-		LineBasedReadFuture future = new LineBasedReadFutureImpl(context);
+		LineBasedFuture future = new LineBasedFutureImpl(context);
 
 		future.write("hello server!");
 

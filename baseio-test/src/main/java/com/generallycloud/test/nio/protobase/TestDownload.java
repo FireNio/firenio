@@ -17,22 +17,22 @@ package com.generallycloud.test.nio.protobase;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FileReceiveUtil;
 import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestDownload {
 	
@@ -67,13 +67,13 @@ public class TestDownload {
 		
 		final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
 		
-		session.listen(serviceName, new OnReadFuture() {
+		session.listen(serviceName, new OnFuture() {
 			
 			@Override
-			public void onResponse(SocketSession session, ReadFuture future) {
+			public void onResponse(SocketSession session, Future future) {
 				
 				try {
-					fileReceiveUtil.accept(session, (ProtobaseReadFuture) future,false);
+					fileReceiveUtil.accept(session, (ProtobaseFuture) future,false);
 				} catch (Exception e) {
 					DebugUtil.debug(e);
 				}

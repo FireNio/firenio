@@ -16,20 +16,20 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestSessionDisconnect {
 
@@ -59,14 +59,14 @@ public class TestSessionDisconnect {
 
 		session.login("admin", "admin100");
 
-		ProtobaseReadFuture future = session.request(serviceName, param);
+		ProtobaseFuture future = session.request(serviceName, param);
 		System.out.println(future.getReadText());
 
-		session.listen(serviceName, new OnReadFuture() {
+		session.listen(serviceName, new OnFuture() {
 			@Override
-			public void onResponse(SocketSession session, ReadFuture future) {
+			public void onResponse(SocketSession session, Future future) {
 				
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				System.out.println(f.getReadText());
 			}
 		});

@@ -16,20 +16,20 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.OnReadFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestListenSimple {
 	
@@ -57,14 +57,14 @@ public class TestListenSimple {
 
 		FixedSession session = new FixedSession(connector.connect());
 
-		ProtobaseReadFuture future = session.request(serviceKey, param);
+		ProtobaseFuture future = session.request(serviceKey, param);
 		System.out.println(future.getReadText());
 		
-		session.listen(serviceKey,new OnReadFuture() {
+		session.listen(serviceKey,new OnFuture() {
 			
 			@Override
-			public void onResponse(SocketSession session, ReadFuture future) {
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+			public void onResponse(SocketSession session, Future future) {
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				System.out.println(f.getReadText());
 			}
 		});

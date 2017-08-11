@@ -18,7 +18,7 @@ package com.generallycloud.test.nio.http11;
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
-import com.generallycloud.baseio.codec.http11.future.HttpReadFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.test.nio.common.ReadFutureFactory;
+import com.generallycloud.test.nio.common.FutureFactory;
 
 public class TestSimpleHttpClient {
 
@@ -34,7 +34,9 @@ public class TestSimpleHttpClient {
 		
 		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 
-		ServerConfiguration c = new ServerConfiguration("localhost",80);
+//		ServerConfiguration c = new ServerConfiguration("localhost",80);
+
+		ServerConfiguration c = new ServerConfiguration("generallycloud.com",443);
 		
 		SocketChannelContext context = new NioSocketChannelContext(c);
 		
@@ -48,9 +50,9 @@ public class TestSimpleHttpClient {
 
 		HttpClient client = new HttpClient(session);
 
-		HttpReadFuture future = ReadFutureFactory.createHttpReadFuture(session, "/test");
+		HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
 
-		HttpReadFuture res = client.request(future);
+		HttpFuture res = client.request(future);
 		System.out.println();
 		System.out.println(new String(res.getBodyContent()));
 		System.out.println();

@@ -16,8 +16,8 @@
 package com.generallycloud.test.nio.protobuf;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest;
 import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest.Corpus;
 import com.google.protobuf.ByteString;
@@ -44,9 +44,9 @@ public class TestProtobufClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+				ProtobaseFuture f = (ProtobaseFuture) future;
 
 				SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
 
@@ -73,7 +73,7 @@ public class TestProtobufClient {
 
 		SocketSession session = connector.connect();
 
-		ProtobaseReadFuture f = new ProtobaseReadFutureImpl(context);
+		ProtobaseFuture f = new ProtobaseFutureImpl(context);
 
 		ByteString byteString = ByteString.copyFrom("222".getBytes());
 

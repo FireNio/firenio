@@ -20,8 +20,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -33,7 +33,7 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestLoadClient {
 
@@ -51,7 +51,7 @@ public class TestLoadClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 //				latch.countDown();
 //				long count = latch.getCount();
 //				if (count % 10 == 0) {
@@ -63,7 +63,7 @@ public class TestLoadClient {
 			}
 			
 			@Override
-			public void futureSent(SocketSession session, ReadFuture future) {
+			public void futureSent(SocketSession session, Future future) {
 //				NIOReadFuture f = (NIOReadFuture) future;
 //				System.out.println(f.getWriteBuffer());
 //				System.out.println("req======================"+req.getAndIncrement());
@@ -100,7 +100,7 @@ public class TestLoadClient {
 
 		for (int i = 0; i < time; i++) {
 			
-			FixedLengthReadFuture future = new FixedLengthReadFutureImpl(session.getContext());
+			FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
 
 			future.write("hello server!");
 

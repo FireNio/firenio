@@ -16,8 +16,8 @@
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -26,8 +26,9 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestProtobaseClient {
 
@@ -36,7 +37,7 @@ public class SimpleTestProtobaseClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				System.out.println();
 				System.out.println("____________________"+future.getReadText());
 				System.out.println();
@@ -59,7 +60,7 @@ public class SimpleTestProtobaseClient {
 		
 		SocketSession session = connector.connect();
 
-		ProtobaseReadFuture future = new ProtobaseReadFutureImpl(context,"test222");
+		ProtobaseFuture future = new ProtobaseFutureImpl(context,"test222");
 
 		future.write("hello server!");
 

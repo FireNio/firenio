@@ -17,7 +17,7 @@ package com.generallycloud.test.nio.protobuf;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest;
 
 public class TestProtobufServer {
@@ -39,9 +39,9 @@ public class TestProtobufServer {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				
-				ProtobaseReadFuture f = (ProtobaseReadFuture) future;
+				ProtobaseFuture f = (ProtobaseFuture) future;
 				
 				SearchRequest req =  (SearchRequest) protobufUtil.getMessage(f);
 

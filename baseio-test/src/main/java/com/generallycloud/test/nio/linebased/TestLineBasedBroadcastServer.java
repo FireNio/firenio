@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedBroadcastServer {
 
@@ -33,7 +33,7 @@ public class TestLineBasedBroadcastServer {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 			
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				
 				long old = System.currentTimeMillis();
 				

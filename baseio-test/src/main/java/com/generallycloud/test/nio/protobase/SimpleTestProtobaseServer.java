@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionAliveSEListener;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestProtobaseServer {
 
@@ -37,7 +37,7 @@ public class SimpleTestProtobaseServer {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				DebugUtil.debug("receive:"+future.getReadText());
 				future.write("yes server already accept your message:");
 				future.write(future.getReadText());

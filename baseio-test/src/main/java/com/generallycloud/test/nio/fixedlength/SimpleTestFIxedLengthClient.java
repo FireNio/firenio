@@ -16,8 +16,8 @@
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthReadFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestFIxedLengthClient {
 
@@ -37,7 +37,7 @@ public class SimpleTestFIxedLengthClient {
 		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
 			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
+			public void accept(SocketSession session, Future future) throws Exception {
 				System.out.println();
 				System.out.println("____________________"+future.getReadText());
 				System.out.println();
@@ -54,13 +54,11 @@ public class SimpleTestFIxedLengthClient {
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
-		context.addSessionEventListener(new CloseConnectorSEListener(connector));
-
 		context.setProtocolFactory(new FixedLengthProtocolFactory());
 		
 		SocketSession session = connector.connect();
 
-		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
+		FixedLengthFuture future = new FixedLengthFutureImpl(context);
 
 		future.write("hello server!");
 
