@@ -15,22 +15,22 @@
  */ 
 package com.generallycloud.baseio.container.protobase.service;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseReadFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.ReadFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public abstract class ProtobaseFutureAcceptorService extends FutureAcceptorService {
 
 	@Override
-	public void accept(SocketSession session, ReadFuture future) throws Exception {
-		this.doAccept(session, (ProtobaseReadFuture) future);
+	public void accept(SocketSession session, Future future) throws Exception {
+		this.doAccept(session, (ProtobaseFuture) future);
 	}
 
-	protected abstract void doAccept(SocketSession session, ProtobaseReadFuture future) throws Exception;
+	protected abstract void doAccept(SocketSession session, ProtobaseFuture future) throws Exception;
 
 	@Override
-	public void exceptionCaught(SocketSession session, ReadFuture future, Exception cause, IoEventState state) {
+	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
 
 		if (state == IoEventState.HANDLE) {
 
