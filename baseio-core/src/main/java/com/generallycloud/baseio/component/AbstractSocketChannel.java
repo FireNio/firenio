@@ -53,10 +53,10 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 	protected SSLEngine					sslEngine;
 	protected SslHandler					sslHandler;
 	protected UnsafeSocketSession			session;
-	protected transient ChannelFuture	writeFuture;
+	protected transient ChannelFuture		writeFuture;
 	protected transient ChannelFuture		readFuture;
-	protected transient SslFuture		sslReadFuture;
-	protected LinkedQueue<ChannelFuture>	writeFutures;
+	protected transient SslFuture			sslReadFuture;
+	protected LinkedQueue<ChannelFuture>		writeFutures;
 	protected boolean						opened		= true;
 	protected SocketChannelThreadContext 		threadContext;
 
@@ -178,8 +178,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		if (future == null || future.flushed()) {
 			return;
 		}
+		future.flush();
 		if (!isOpened()) {
-			future.flush();
 			IoEventHandle handle = future.getIoEventHandle();
 			exceptionCaught(handle, future, new ClosedChannelException(toString()),
 					IoEventState.WRITE);
@@ -188,7 +188,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		try {
 			ProtocolEncoder encoder = getProtocolEncoder();
 			ByteBufAllocator allocator = getByteBufAllocator();
-			encoder.encode(allocator, future.flush());
+			encoder.encode(allocator, future);
 			doFlush(future);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

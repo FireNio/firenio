@@ -174,10 +174,9 @@ public class AioSocketChannel extends AbstractSocketChannel {
 				flush(true);
 				return;
 			}
-			
 			writeFutureLength(-f.getByteBufLimit());
 			f.onSuccess(session);
-			f = null;
+			writeFuture = null;
 			flush(true);
 		}finally{
 			lock.unlock();
