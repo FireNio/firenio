@@ -108,7 +108,7 @@ public class InternalLogger implements Logger {
 	}
 
 	private String getTimeFormat() {
-		return DateUtil.yyyy_MM_dd_HH_mm_ss_SSS.format(new Date());
+		return DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
 	}
 
 	private void info0(String className, String message) {
