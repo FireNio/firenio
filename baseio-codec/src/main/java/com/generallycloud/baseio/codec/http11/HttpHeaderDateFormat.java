@@ -62,7 +62,7 @@ public class HttpHeaderDateFormat {
 
 		Date d = getFormat().parse(stringDate);
 
-		System.out.println(DateUtil.yyyy_MM_dd_HH_mm_ss.format(d));
+		System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss(d));
 
 		System.out.println(getFormat().format(d.getTime()));
 	}
