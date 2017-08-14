@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-http</artifactId>
-			<version>3.1.11-SNAPSHOT</version>
+			<version>3.2.1-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
