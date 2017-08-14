@@ -178,8 +178,9 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		if (future == null || future.flushed()) {
 			return;
 		}
-		future.flush();
+		
 		if (!isOpened()) {
+			future.flush();
 			IoEventHandle handle = future.getIoEventHandle();
 			exceptionCaught(handle, future, new ClosedChannelException(toString()),
 					IoEventState.WRITE);
@@ -188,7 +189,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 		try {
 			ProtocolEncoder encoder = getProtocolEncoder();
 			ByteBufAllocator allocator = getByteBufAllocator();
-			encoder.encode(allocator, future);
+			encoder.encode(allocator, future.flush());
 			doFlush(future);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
