@@ -99,8 +99,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 	}
 	
 	private void interestWrite(SelectionKey key){
-		int interestOps = key.interestOps();
-		if (OPS_RW != interestOps) {
+		if (OPS_RW != key.interestOps()) {
 			key.interestOps(OPS_RW);
 		}
 	}
