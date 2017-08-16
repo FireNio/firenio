@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.log.DebugUtil;
 
+//FIXME 是否有伪共享问题，head，tail是否需要标记为volatile
 public class ScmpLinkedQueue<T> implements LinkedQueue<T> {
 
 	protected Linkable		head	= null;				// volatile ?
