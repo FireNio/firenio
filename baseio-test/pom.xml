@@ -67,13 +67,13 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-jms</artifactId>
-			<version>3.2.1-SNAPSHOT</version>
+			<version>3.2.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-rtp</artifactId>
-			<version>3.2.1-SNAPSHOT</version>
+			<version>3.2.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
