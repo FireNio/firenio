@@ -16,15 +16,16 @@
 package com.generallycloud.test.nio.balance;
 
 import com.generallycloud.baseio.balance.BalanceContext;
+import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -56,13 +57,13 @@ public class TestBalanceBroadcast {
 
 		ServerConfiguration configuration = new ServerConfiguration(8800);
 		
-		SocketChannelContext context = new AioSocketChannelContext(configuration);
+		SocketChannelContext context = new NioSocketChannelContext(configuration);
 
 		SocketChannelConnector connector = new SocketChannelConnector(context);
 		
 		context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
+		context.setProtocolFactory(new HashedProtobaseProtocolFactory());
 		
 		context.addSessionEventListener(new LoggerSocketSEListener());
 		
