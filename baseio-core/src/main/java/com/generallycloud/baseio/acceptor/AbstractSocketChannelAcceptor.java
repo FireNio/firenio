@@ -54,19 +54,21 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 
 	@Override
 	public void broadcast(Future future) {
+		ChannelFuture f = (ChannelFuture) future;
 		ProtocolEncoder encoder = context.getProtocolEncoder();
 		ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
 		try {
-			encoder.encode(allocator, (ChannelFuture) future);
+			encoder.encode(allocator, f);
 		} catch (Throwable e) {
 			ReleaseUtil.release(future);
 			logger.error(e.getMessage(), e);
 			return;
 		}
-		broadcast(future);
+		broadcastChannelFuture(f);
 	}
 	
-	public void broadcast(final ChannelFuture future) {
+	@Override
+	public void broadcastChannelFuture(final ChannelFuture future) {
 		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
 			@Override
 			public void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions) {

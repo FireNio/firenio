@@ -71,7 +71,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 	}
 	
 	@Override
-	public void broadcast(ChannelFuture future) {
+	public void broadcastChannelFuture(ChannelFuture future) {
 		throw new UnsupportedOperationException();
 	}
 

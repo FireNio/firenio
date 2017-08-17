@@ -28,7 +28,7 @@ public interface ChannelAcceptor extends ChannelService ,Unbindable{
 
 	public abstract void broadcast(Future future);
 	
-	public abstract void broadcast(ChannelFuture future) ;
+	public abstract void broadcastChannelFuture(ChannelFuture future) ;
 	
 	public abstract int getManagedSessionSize();
 }
