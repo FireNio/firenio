@@ -39,7 +39,7 @@ public class SocketSessionEventListenerWrapper extends AbstractLinkable
 		try {
 			value.sessionOpened(session);
 		} catch (Exception e) {
-			logger.errorDebug(e);
+			logger.error(e.getMessage(),e);
 		}
 
 		SocketSessionEventListenerWrapper listener = getNext();
@@ -57,7 +57,7 @@ public class SocketSessionEventListenerWrapper extends AbstractLinkable
 		try {
 			value.sessionClosed(session);
 		} catch (Exception e) {
-			logger.errorDebug(e);
+			logger.error(e.getMessage(),e);
 		}
 
 		SocketSessionEventListenerWrapper listener = getNext();

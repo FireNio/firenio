@@ -93,7 +93,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 			try {
 				runnable.run();
 			} catch (Throwable e) {
-				logger.errorDebug(e);
+				logger.error(e);
 			}
 		}
 		

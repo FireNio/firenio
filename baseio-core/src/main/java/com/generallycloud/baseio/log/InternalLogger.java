@@ -167,19 +167,4 @@ public class InternalLogger implements Logger {
 		return loggerClass;
 	}
 
-	@Override
-	public void errorDebug(Throwable throwable) {
-		if (isEnableDebug()) {
-			error(throwable);
-		}
-	}
-
-	@Override
-	public void errorDebug(String message, Throwable throwable) {
-		if (isEnableDebug()) {
-			error(throwable);
-		}
-		error(message);
-	}
-
 }

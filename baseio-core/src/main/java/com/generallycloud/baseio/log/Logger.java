@@ -43,10 +43,6 @@ public interface Logger {
 
 	boolean isEnableDebug();
 
-	void errorDebug(Throwable throwable);
-
-	void errorDebug(String message, Throwable throwable);
-
 	void error(Throwable e);
 
 }

@@ -49,7 +49,7 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
 	}
 
 	protected void cancelSelectionKey(Channel channel, Throwable t) {
-		logger.errorDebug(t.getMessage() + " channel:" + channel,t);
+		logger.error(t.getMessage() + " channel:" + channel,t);
 		CloseUtil.close(channel);
 	}
 

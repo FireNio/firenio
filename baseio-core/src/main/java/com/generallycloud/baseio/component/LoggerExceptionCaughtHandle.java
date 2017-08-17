@@ -32,7 +32,7 @@ public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle{
 	
 	@Override
 	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
-		logger.errorDebug(cause);
+		logger.error(cause);
 	}
 	
 }

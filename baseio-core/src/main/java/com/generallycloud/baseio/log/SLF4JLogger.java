@@ -96,20 +96,6 @@ public class SLF4JLogger implements Logger{
 	}
 
 	@Override
-	public void errorDebug(Throwable throwable) {
-		errorDebug(throwable.getMessage(), throwable);
-	}
-
-	@Override
-	public void errorDebug(String message, Throwable throwable) {
-		if (logger.isDebugEnabled()) {
-			logger.error(message,throwable);
-			return;
-		}
-		logger.error(message);
-	}
-
-	@Override
 	public boolean isEnableDebug() {
 		return logger.isDebugEnabled();
 	}

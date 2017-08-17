@@ -49,7 +49,7 @@ public class SocketSessionIdleEventListenerWrapper extends AbstractLinkable
 		try {
 			value.sessionIdled(session, lastIdleTime, currentTime);
 		} catch (Exception e) {
-			logger.errorDebug(e);
+			logger.error(e.getMessage(),e);
 		}
 
 		SocketSessionIdleEventListenerWrapper listener = getNext();
