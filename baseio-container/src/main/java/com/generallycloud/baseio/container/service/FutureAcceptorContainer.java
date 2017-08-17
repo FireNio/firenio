@@ -63,7 +63,7 @@ public final class FutureAcceptorContainer extends AbstractLifeCycle
 
 		} catch (Exception e) {
 
-			logger.errorDebug(e);
+			logger.error(e);
 
 			IoEventHandle eventHandle = future.getIoEventHandle();
 

@@ -43,8 +43,8 @@ public abstract class FutureAcceptorService extends AbstractInitializeable imple
 	}
 
 	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
-		logger.errorDebug(cause);
+	public void exceptionCaught(SocketSession session, Future future, Exception e, IoEventState state) {
+		logger.error(e);
 	}
 
 	@Override
