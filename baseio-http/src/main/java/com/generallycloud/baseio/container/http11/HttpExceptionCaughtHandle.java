@@ -37,7 +37,7 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle{
 			IoEventState state) {
 		
 		if (state != IoEventState.HANDLE) {
-			logger.errorDebug(cause);
+			logger.error(cause);
 			return;
 		}
 		
