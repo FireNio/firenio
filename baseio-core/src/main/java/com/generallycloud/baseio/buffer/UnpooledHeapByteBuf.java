@@ -42,30 +42,33 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
 	@Override
 	public ByteBuf reallocate(int limit, boolean copyOld) {
-
 		byte[] newMemory = new byte[limit];
-
 		if (copyOld) {
 			System.arraycopy(memory, 0, newMemory, 0, position());
 		} else {
 			this.position = 0;
 		}
-
 		this.memory = newMemory;
 		this.capacity = limit;
 		this.limit = limit;
 		this.referenceCount = 1;
 		return this;
 	}
-
+	
 	@Override
-	public ByteBuf doDuplicate() {
-		return new DuplicateByteBuf(new UnpooledHeapByteBuf(allocator, memory).produce(this), this);
+	public ByteBuf duplicate() {
+		synchronized (this) {
+			return new DuplicateByteBuf(
+					new UnpooledHeapByteBuf(allocator, memory).produce(this), this);
+		}
+	}
+	
+	@Override
+	public void release() {
 	}
 
 	@Override
 	protected void doRelease() {
-		this.memory = null;
 	}
 
 	@Override

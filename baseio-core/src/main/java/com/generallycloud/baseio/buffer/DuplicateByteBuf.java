@@ -19,11 +19,14 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.baseio.common.ReleaseUtil;
 
+//FIXME 需要增加UnsupportedOperation
 public class DuplicateByteBuf implements ByteBuf {
 
 	private ByteBuf	byteBuf;
 
 	private ByteBuf	prototype;
+	
+	private boolean	released;
 	
 	public DuplicateByteBuf(ByteBuf byteBuf, ByteBuf prototype) {
 		this.byteBuf = byteBuf;
@@ -36,6 +39,10 @@ public class DuplicateByteBuf implements ByteBuf {
 
 	@Override
 	public void release() {
+		if (released) {
+			return;
+		}
+		released = true;
 		ReleaseUtil.release(prototype);
 	}
 
@@ -261,67 +268,67 @@ public class DuplicateByteBuf implements ByteBuf {
 
 	@Override
 	public void putByte(byte b) {
-		unwrap().putByte(b);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void put(byte[] src) {
-		unwrap().put(src);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void put(byte[] src, int offset, int length) {
-		unwrap().put(src, offset, length);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putShort(short value) {
-		unwrap().putShort(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putShortLE(short value) {
-		unwrap().putShortLE(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putUnsignedShort(int value) {
-		unwrap().putUnsignedShort(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putUnsignedShortLE(int value) {
-		unwrap().putUnsignedShortLE(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putInt(int value) {
-		unwrap().putInt(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putIntLE(int value) {
-		unwrap().putIntLE(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putUnsignedInt(long value) {
-		unwrap().putUnsignedInt(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putUnsignedIntLE(long value) {
-		unwrap().putUnsignedIntLE(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putLong(long value) {
-		unwrap().putLong(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void putLongLE(long value) {
-		unwrap().putLongLE(value);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -381,7 +388,7 @@ public class DuplicateByteBuf implements ByteBuf {
 	
 	@Override
 	public boolean isReleased() {
-		return unwrap().isReleased();
+		return released;
 	}
 	
 }

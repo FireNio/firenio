@@ -46,11 +46,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public byte[] getBytes() {
-
 		byte[] bytes = new byte[remaining()];
-
 		get(bytes);
-
 		return bytes;
 	}
 
@@ -79,19 +76,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public int read(ByteBuffer src) {
-
 		int srcRemaining = src.remaining();
-
 		if (srcRemaining == 0) {
 			return 0;
 		}
-
 		int remaining = this.remaining();
-
 		if (remaining == 0) {
 			return 0;
 		}
-
 		return read0(src, srcRemaining, remaining);
 	}
 
@@ -99,19 +91,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public int read(ByteBuf src) {
-
 		int srcRemaining = src.remaining();
-
 		if (srcRemaining == 0) {
 			return 0;
 		}
-
 		int remaining = this.remaining();
-
 		if (remaining == 0) {
 			return 0;
 		}
-
 		return read0(src, srcRemaining, remaining);
 	}
 
@@ -134,11 +121,9 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
-
 		if (limit < 1) {
 			throw new BufferException("illegal limit:" + limit);
 		}
-
 		if (limit > maxLimit) {
 			throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
 		}
@@ -152,49 +137,24 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
 	@Override
 	public void release() {
-
 		synchronized (this) {
-
 			if (released) {
 				return;
 			}
-
 			if (--referenceCount != 0) {
 				return;
 			}
-
 			released = true;
-			
 			doRelease();
 		}
 	}
 
 	protected abstract void doRelease();
 	
-	/**
-	 * NOTICE 该方法非线程安全
-	 */
-	@Override
-	public ByteBuf duplicate() {
-
-		synchronized (this) {
-
-			if (released) {
-				throw new ReleasedException("released");
-			}
-
-			this.referenceCount++;
-
-			return doDuplicate();
-		}
-	}
-	
 	@Override
 	public boolean isReleased() {
 		return released;
 	}
-
-	protected abstract ByteBuf doDuplicate() ;
 
 	@Override
 	public String toString() {

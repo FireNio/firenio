@@ -32,9 +32,17 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
 		return this;
 	}
-
-	protected ByteBuf doDuplicate() {
-		return new DuplicateByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this), this);
+	
+	@Override
+	public ByteBuf duplicate() {
+		synchronized (this) {
+			if (released) {
+				throw new ReleasedException("released");
+			}
+			this.referenceCount++;
+			return new DuplicateByteBuf(
+					new PooledHeapByteBuf(allocator, memory).produce(this), this);
+		}
 	}
 
 	@Override

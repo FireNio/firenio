@@ -136,39 +136,25 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public int read0(ByteBuffer src, int srcRemaining, int remaining) {
-
 		if (remaining > srcRemaining) {
-
 			src.get(memory, ix(position), srcRemaining);
-
 			skipBytes(srcRemaining);
-
 			return srcRemaining;
 		}
-
 		src.get(memory, ix(position), remaining);
-
 		position(limit);
-
 		return remaining;
 	}
 
 	@Override
 	public int read0(ByteBuf src, int srcRemaining, int remaining) {
-
 		if (remaining > srcRemaining) {
-
 			src.get(memory, ix(position), srcRemaining);
-
 			skipBytes(srcRemaining);
-
 			return srcRemaining;
 		}
-
 		src.get(memory, ix(position), remaining);
-
 		position(limit);
-		
 		return remaining;
 	}
 
@@ -179,53 +165,33 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
 	@Override
 	public int forEachByte(int index, int length, ByteProcessor processor) {
-
 		byte[] array = memory;
-
 		int start = ix(index);
-
 		int end = start + length;
-
 		try {
-
 			for (int i = start; i < end; i++) {
-
 				if (!processor.process(array[i])) {
-
 					return i - start;
 				}
-
 			}
-
 		} catch (Exception e) {
 		}
-
 		return -1;
 	}
 
 	@Override
 	public int forEachByteDesc(int index, int length, ByteProcessor processor) {
-
 		byte[] array = memory;
-
 		int start = ix(index);
-
 		int end = start + length;
-
 		try {
-
 			for (int i = end; i >= start; i--) {
-
 				if (!processor.process(array[i])) {
-
 					return i - start;
 				}
-
 			}
-
 		} catch (Exception e) {
 		}
-
 		return -1;
 	}
 

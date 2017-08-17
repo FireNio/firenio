@@ -91,7 +91,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
 	@Override
 	public void release(ByteBuf buf) {
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -101,7 +101,6 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
 	@Override
 	public void freeMemory() {
-
 	}
 	
 	@Override

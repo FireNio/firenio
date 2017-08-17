@@ -55,13 +55,15 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 		this.referenceCount = 1;
 		return this;
 	}
-
-	/**
-	 * NOTICE 该方法非线程安全
-	 */
+	
 	@Override
-	public ByteBuf doDuplicate() {
-		return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()), this);
+	public ByteBuf duplicate() {
+		synchronized (this) {
+			//请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
+			this.referenceCount++;
+			return new DuplicateByteBuf(
+					new UnpooledDirectByteBuf(allocator, memory.duplicate()), this);
+		}
 	}
 
 	@Override
