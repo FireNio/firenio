@@ -10,6 +10,8 @@ cp -u -v ../../baseio-all/target/baseio-all-*-SNAPSHOT.jar ../../baseio-release/
 
 cd ../../baseio-release/http-container
 
+lsof -ntP -i:443|xargs kill -9
+
 CLASSPATH=""
 for i in lib/*.jar; do
    CLASSPATH="$CLASSPATH":"$i"
