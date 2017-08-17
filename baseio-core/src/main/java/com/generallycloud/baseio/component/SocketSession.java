@@ -46,8 +46,16 @@ public interface SocketSession extends Session {
 
 	public abstract ExecutorEventLoop getExecutorEventLoop();
 	
+	/**
+	 * flush未encode的future
+	 * @param future
+	 */
 	public abstract void flush(Future future) ;
 	
+	/**
+	 * flush已encode的future
+	 * @param future
+	 */
 	public abstract void doFlush(ChannelFuture future);
 	
 	public abstract <T> T getOption(SocketOption<T> name) throws IOException;

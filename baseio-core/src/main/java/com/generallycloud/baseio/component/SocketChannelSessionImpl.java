@@ -67,7 +67,7 @@ public abstract class SocketChannelSessionImpl extends AbstractSession implement
 
 	@Override
 	public void doFlush(ChannelFuture future) {
-		getChannel().flush(future);
+		getChannel().doFlush(future);
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
 				}
 				Collection<SocketSession> ss = sessions.values();
 				for (SocketSession s : ss) {
-					s.flush(future.duplicate());
+					s.doFlush(future.duplicate());
 				}
 				ReleaseUtil.release(future);
 			}
